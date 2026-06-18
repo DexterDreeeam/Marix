@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marix — File Explorer</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/rust.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/markdown.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <header id="header">
+      <div class="header-left">
+        <span class="logo">◆ Marix</span>
+        <span class="subtitle">File Explorer</span>
+      </div>
+      <div class="header-right">
+        <span id="tag-info" class="tag-info"></span>
+        <button id="btn-toggle-diff" class="btn-diff" title="Toggle: show only changed files">
+          <span class="diff-icon">△</span> Diff
+        </button>
+      </div>
+    </header>
+
+    <div id="main">
+      <nav id="sidebar">
+        <div class="sidebar-header">
+          <input type="text" id="search-input" placeholder="Search files..." />
+        </div>
+        <div id="file-tree" class="file-tree"></div>
+      </nav>
+
+      <section id="viewer">
+        <div id="viewer-header">
+          <span id="file-path">Select a file to view</span>
+          <span id="file-status" class="file-status"></span>
+        </div>
+        <div id="viewer-content">
+          <div id="welcome" class="welcome">
+            <h2>Welcome to Marix File Explorer</h2>
+            <p>Browse the repository files from the sidebar.</p>
+            <p>Files marked with <span class="badge badge-modified">M</span> have been modified since the last tag.</p>
+            <p>Files marked with <span class="badge badge-added">A</span> are newly added.</p>
+            <p>Files marked with <span class="badge badge-deleted">D</span> have been deleted.</p>
+          </div>
+          <div id="markdown-view" class="markdown-view" style="display:none"></div>
+          <div id="image-view" class="image-view" style="display:none">
+            <img id="image-el" />
+          </div>
+          <div id="code-view" style="display:none">
+            <div id="diff-summary" class="diff-summary" style="display:none"></div>
+            <pre><code id="code-el"></code></pre>
+          </div>
+          <div id="diff-view" class="diff-view" style="display:none"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

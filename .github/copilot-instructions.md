@@ -19,3 +19,8 @@
   - Commit messages
   - Log messages
 - The **only exception** is specific Chinese string literals that are required by the application logic (e.g., user-facing Chinese text, i18n strings).
+
+## Git Policy
+
+- **Do NOT** run any git commands (`git add`, `git commit`, `git push`, `git pull`, etc.) unless the user explicitly requests a git operation (e.g., invoking `/git-sync` or asking to commit/push).
+- Code changes should be made to files only. Let the user decide when to stage, commit, and push.

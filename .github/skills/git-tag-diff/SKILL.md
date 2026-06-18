@@ -1,0 +1,19 @@
+---
+name: git-tag-diff
+description: Show the diff between the two most recent marix tags. Use when the user asks to diff tags, review tag changes, or run git-tag-diff.
+---
+
+## Workflow
+
+1. **Find Marix Tags** — List all tags matching the `marix_tag_*` pattern, sorted by creation time.
+2. **Identify Range** — Pick the two most recent `marix_tag_*` tags:
+   - `<previous-tag>`: the second most recent.
+   - `<latest-tag>`: the most recent.
+3. **Diff** — Run `git diff <previous-tag>..<latest-tag>` and display the result.
+4. **Report** — Summarize the diff: files changed, insertions, deletions.
+
+## Rules
+
+- This skill ONLY operates on tags with the `marix_tag_` prefix. All other user-defined tags are ignored.
+- If there is only one `marix_tag_*` tag, diff from that tag to the current HEAD and inform the user.
+- If there are no `marix_tag_*` tags, inform the user that no marix tags exist yet.
