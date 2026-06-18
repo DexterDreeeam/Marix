@@ -19,13 +19,17 @@
     <header id="header">
       <div class="header-left">
         <span class="logo">◆ Marix</span>
-        <span class="subtitle">Overview</span>
+        <span class="subtitle" data-i18n="title">Overview</span>
+        <div class="mode-switch">
+          <button id="btn-file-view" class="mode-btn active" data-i18n="fileView">File View</button>
+          <button id="btn-star-map-view" class="mode-btn">
+            <span data-i18n="starMapView">Star Map</span>
+          </button>
+        </div>
       </div>
       <div class="header-right">
         <span id="tag-info" class="tag-info"></span>
-        <button id="btn-toggle-diff" class="btn-diff" title="Toggle: show only changed files">
-          <span class="diff-icon">△</span> Diff
-        </button>
+        <button id="btn-language" class="language-btn">中文</button>
       </div>
     </header>
 
@@ -33,6 +37,10 @@
       <nav id="sidebar">
         <div class="sidebar-header">
           <input type="text" id="search-input" placeholder="Search files..." />
+          <div class="sidebar-toggles">
+            <button id="btn-toggle-changed-files" class="toggle-btn" data-i18n="changedFiles">Changed files</button>
+            <button id="btn-toggle-changed-sections" class="toggle-btn" data-i18n="changedSections">Changed sections</button>
+          </div>
         </div>
         <div id="file-tree" class="file-tree"></div>
       </nav>
@@ -45,23 +53,42 @@
         <div id="viewer-content">
           <div id="welcome" class="welcome">
             <h2>Welcome to Marix Overview</h2>
-            <p>Browse the repository files from the sidebar.</p>
-            <p>Files marked with <span class="badge badge-modified">M</span> have been modified since the last tag.</p>
-            <p>Files marked with <span class="badge badge-added">A</span> are newly added.</p>
-            <p>Files marked with <span class="badge badge-deleted">D</span> have been deleted.</p>
+            <p>Browse repository files from the sidebar.</p>
           </div>
           <div id="markdown-view" class="markdown-view" style="display:none"></div>
           <div id="image-view" class="image-view" style="display:none">
             <img id="image-el" />
           </div>
           <div id="code-view" style="display:none">
-            <div id="diff-summary" class="diff-summary" style="display:none"></div>
             <pre><code id="code-el"></code></pre>
           </div>
           <div id="diff-view" class="diff-view" style="display:none"></div>
         </div>
       </section>
     </div>
+
+    <section id="star-map-workspace" style="display:none">
+      <div class="star-map-canvas">
+        <div class="star-map-toolbar">
+          <div>
+            <h2 data-i18n="starTitle">Star Map</h2>
+            <p data-i18n="starDescription">Browse repository modules as a nested star map.</p>
+          </div>
+          <button id="btn-reset-star-map" class="toggle-btn" data-i18n="resetView">Reset view</button>
+        </div>
+        <svg id="star-map-svg" viewBox="-900 -600 1800 1200" role="img" aria-label="Module star map">
+          <g id="star-map-layer"></g>
+        </svg>
+        <div class="star-map-help" data-i18n="starHelp">Wheel to zoom. Drag the canvas to pan.</div>
+      </div>
+      <aside class="star-map-details">
+        <div class="module-detail-header">
+          <h3 id="module-detail-title">Repository root</h3>
+          <span id="module-detail-status" class="module-status unchanged">Unchanged</span>
+        </div>
+        <div id="module-detail-body" class="module-detail-body"></div>
+      </aside>
+    </section>
   </div>
 
   <script src="assets/app.js"></script>
