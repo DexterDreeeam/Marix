@@ -30,6 +30,15 @@ $ImageExts = @(".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".ico", ".bmp")
 $BinaryExts = $ImageExts + @(".woff", ".woff2", ".ttf", ".eot", ".zip", ".tar", ".gz", ".exe", ".dll", ".so", ".dylib", ".pdb", ".obj")
 $MaxFileSize = 100 * 1024  # 100KB
 
+function Test-GeneratedPath {
+    param([string]$Path)
+
+    return $Path -eq "overview/manifest.json" `
+        -or $Path -eq "docs/manifest.json" `
+        -or $Path -like "overview/content/*" `
+        -or $Path -like "docs/content/*"
+}
+
 # ── Scan Files ──
 function Scan-Files {
     $files = @{}
@@ -45,9 +54,7 @@ function Scan-Files {
         }
         if ($skip) { continue }
 
-        # Skip generated overview content.
-        if ($relPath -like "overview/content/*") { continue }
-        if ($relPath -eq "overview/manifest.json") { continue }
+        if (Test-GeneratedPath -Path $relPath) { continue }
 
         $ext = [System.IO.Path]::GetExtension($f.Name).ToLower()
         $entry = @{ size = $f.Length }
@@ -115,6 +122,7 @@ function Get-TagDiff {
         if ($parts.Count -ge 2) {
             $status = $parts[0][0].ToString()
             $filepath = $parts[$parts.Count - 1].Replace("\", "/")
+            if (Test-GeneratedPath -Path $filepath) { continue }
             $changes[$filepath] = @{ status = $status }
         }
     }
