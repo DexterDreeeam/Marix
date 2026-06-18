@@ -3,7 +3,6 @@
     const root = { __children: {}, __files: [] };
     const paths = Object.keys(files).sort();
     for (const p of paths) {
-      if (!isSourcePath(p) || isHiddenPath(p)) continue;
       const parts = p.split("/");
       let node = root;
       for (let i = 0; i < parts.length - 1; i++) {
@@ -20,10 +19,20 @@
   function renderTree(filter) {
     const container = document.getElementById("file-tree");
     container.innerHTML = "";
-    const tree = buildTreeStructure(manifest.files || {});
+    const tree = buildTreeStructure(getTreeFiles());
     const filterLower = filter ? filter.toLowerCase() : null;
-    const showAll = viewAllFiles || !hasSourceChanges();
+    const showAll = viewAllFiles || !hasVisibleDiffChanges();
     renderNode(container, tree, 0, "", filterLower, showAll);
+  }
+
+  function getTreeFiles() {
+    if (viewAllFiles || !hasVisibleDiffChanges()) return manifest.files || {};
+
+    const files = {};
+    for (const path of Object.keys(((manifest.diff || {}).changes || {})).sort()) {
+      files[path] = (manifest.files || {})[path] || { size: 0, content: "" };
+    }
+    return files;
   }
 
   function collapseAllDirectories() {
@@ -90,9 +99,8 @@
     }
   }
 
-  function hasSourceChanges() {
-    return Object.keys(((manifest.diff || {}).changes || {}))
-      .some(path => isSourcePath(path) && !isHiddenPath(path));
+  function hasVisibleDiffChanges() {
+    return Object.keys(((manifest.diff || {}).changes || {})).length > 0;
   }
 
   function hasMatchingDescendant(node, prefix, filter) {
@@ -128,7 +136,7 @@
     el.appendChild(indent);
 
     const icon = document.createElement("span");
-    icon.className = `tree-icon${isDir ? " tree-toggle" : ""}`;
+    icon.className = `tree-icon${isDir ? " tree-toggle" : ` tree-icon-${getFileIconClass(name)}`}`;
     if (isDir) {
       icon.innerHTML = '<i class="bi bi-chevron-down"></i>';
     } else {
@@ -162,4 +170,9 @@
       txt: "TXT", sh: "SH", bat: "BAT", ps1: "PS1"
     };
     return icons[ext] || "FILE";
+  }
+
+  function getFileIconClass(name) {
+    const ext = name.includes(".") ? name.split(".").pop().toLowerCase() : "file";
+    return ext.replace(/[^a-z0-9]+/g, "-") || "file";
   }

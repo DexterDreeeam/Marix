@@ -7,10 +7,12 @@
     const body = document.getElementById("module-detail-body");
     const documents = collectDesignDocuments(node.path);
     const primary = getDesignDocumentForModule(node.path) || documents[0] || null;
+    const moduleStatus = getModuleDetailStatus(node, primary && primary.document);
 
     title.textContent = primary ? primary.document.module.path : (node.path || t("rootModule"));
-    status.textContent = node.changed ? t("changed") : t("unchanged");
-    status.className = `module-status ${node.changed ? "changed" : "unchanged"}`;
+    status.textContent = getModuleDetailStatusLabel(moduleStatus);
+    status.className = `module-status ${moduleStatus}`;
+    setModuleDetailPanelStatus(moduleStatus);
 
     resetDesignCodeSnippets();
     body.innerHTML = renderModuleOverview(node, primary && primary.document);
@@ -91,7 +93,7 @@
       }
     }
 
-    return Array.from(children.values()).sort((a, b) => a.path.localeCompare(b.path));
+    return Array.from(children.values()).sort((a, b) => compareChangedFirst(a, b, item => item.status, item => item.path));
   }
 
   function collectModuleExposedElements(modulePath) {
@@ -107,11 +109,7 @@
         seen.add(key);
         return true;
       })
-      .sort((a, b) => {
-        const typeCompare = getElementTypeName(a).localeCompare(getElementTypeName(b));
-        if (typeCompare !== 0) return typeCompare;
-        return String(a.name || "").localeCompare(String(b.name || ""));
-      });
+      .sort(compareElementsForGrouping);
   }
 
   function isInterfaceElement(element) {
@@ -128,11 +126,11 @@
       groups.get(type).push(element);
     }
 
-    return Array.from(groups.entries());
+    return Array.from(groups.entries()).map(([type, items]) => [type, items.sort(compareElementsWithinSection)]);
   }
 
   function renderElementList(elements) {
-    return `<div class="design-summary-list">${elements.map(renderElementSummary).join("")}</div>`;
+    return `<div class="design-summary-list">${elements.slice().sort(compareElementsWithinSection).map(renderElementSummary).join("")}</div>`;
   }
 
   function renderElementSummary(element) {
@@ -140,12 +138,14 @@
     const codeId = code ? storeDesignCodeSnippet(getCodeTitle(element), code, element.language || "rust") : "";
     const source = getElementSource(element);
     const typeClass = getElementTypeClass(element);
+    const status = getElementStatus(element);
     const openAttrs = codeId ? ` tabindex="0" data-code-id="${escapeHtml(codeId)}"` : "";
     return `
-      <article class="design-summary-item design-type-${escapeHtml(typeClass)}"${openAttrs}>
+      <article class="design-summary-item design-type-${escapeHtml(typeClass)} design-status-${escapeHtml(status)}"${openAttrs}>
         <div class="design-summary-header">
           <span class="design-item-kind">${escapeHtml(getElementTypeName(element))}</span>
           <strong>${escapeHtml(element.name || element.signature || "")}</strong>
+          <span class="design-item-status ${escapeHtml(status)}">${escapeHtml(getModuleDetailStatusLabel(status))}</span>
         </div>
         ${element.signature ? `<code class="design-summary-signature">${escapeHtml(element.signature)}</code>` : ""}
         ${source ? `<span class="design-summary-meta">${escapeHtml(source)}</span>` : ""}
@@ -171,6 +171,69 @@
     if (element.lineStart && element.lineEnd) return `${element.sourcePath}:${element.lineStart}-${element.lineEnd}`;
     if (element.lineStart) return `${element.sourcePath}:${element.lineStart}`;
     return element.sourcePath;
+  }
+
+  function getModuleDetailStatus(node, document) {
+    const fromDesign = normalizeStatus(document && document.module && document.module.changeStatus);
+    if (fromDesign !== "unchanged") return fromDesign;
+    return node.changed ? "modified" : "unchanged";
+  }
+
+  function getModuleDetailStatusLabel(status) {
+    const labels = {
+      added: "statusAdded",
+      modified: "statusModified",
+      renamed: "statusRenamed",
+      deleted: "statusDeleted",
+      unchanged: "unchanged"
+    };
+    return t(labels[status] || "unchanged");
+  }
+
+  function setModuleDetailPanelStatus(status) {
+    const panel = document.querySelector(".star-map-details");
+    if (!panel) return;
+    panel.classList.remove(
+      "module-detail-status-added",
+      "module-detail-status-modified",
+      "module-detail-status-renamed",
+      "module-detail-status-deleted",
+      "module-detail-status-unchanged"
+    );
+    panel.classList.add(`module-detail-status-${status}`);
+  }
+
+  function compareElementsForGrouping(a, b) {
+    const typeCompare = getElementTypeName(a).localeCompare(getElementTypeName(b));
+    if (typeCompare !== 0) return typeCompare;
+    return compareElementsWithinSection(a, b);
+  }
+
+  function compareElementsWithinSection(a, b) {
+    return compareChangedFirst(a, b, getElementStatus, item => String(item.name || item.signature || ""));
+  }
+
+  function compareChangedFirst(a, b, getStatus, getName) {
+    const statusCompare = getStatusRank(getStatus(a)) - getStatusRank(getStatus(b));
+    if (statusCompare !== 0) return statusCompare;
+    return getName(a).localeCompare(getName(b));
+  }
+
+  function getStatusRank(status) {
+    const value = normalizeStatus(status);
+    if (value === "unchanged") return 10;
+    const ranks = { added: 0, modified: 1, renamed: 2, deleted: 3 };
+    return ranks[value] ?? 9;
+  }
+
+  function getElementStatus(element) {
+    const fromDesign = normalizeStatus(element.changeStatus);
+    if (fromDesign !== "unchanged") return fromDesign;
+
+    const change = element.sourcePath ? getChange(element.sourcePath) : null;
+    if (!change) return "unchanged";
+    const statusMap = { A: "added", M: "modified", D: "deleted", R: "renamed" };
+    return normalizeStatus(statusMap[change.status] || "modified");
   }
 
   function resetDesignCodeSnippets() {

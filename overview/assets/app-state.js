@@ -12,6 +12,7 @@
       collapseAllTool: "Collapse all",
       viewAllFilesTool: "View all files in tree",
       viewWholeFileTool: "View whole changed files",
+      resetDataSourceTool: "Choose data source again",
       selectFile: "Select a file to view",
       scopeLabel: "Scope",
       welcomeTitle: "Welcome to Marix Overview",
@@ -78,6 +79,7 @@
       collapseAllTool: "折叠全部",
       viewAllFilesTool: "左侧显示全部文件",
       viewWholeFileTool: "查看改动文件全文",
+      resetDataSourceTool: "重新选择数据源",
       selectFile: "选择一个文件查看",
       scopeLabel: "范围",
       welcomeTitle: "欢迎来到 Marix 总览",
@@ -449,19 +451,14 @@
       .filter(item => item.type === "blob")
       .filter(item => shouldIncludeManifestPath(item.path));
     const visibleSourceFiles = files.filter(item => isSourcePathName(item.path) && !isHiddenPathName(item.path)).length;
-    const visibleFallbackFiles = files.filter(item => !isHiddenPathName(item.path)).length;
     logOverview("repository tree filtered", {
       totalBlobs: (tree.tree || []).filter(item => item.type === "blob").length,
       includedFiles: files.length,
       visibleSourceFiles,
-      scopeMode: visibleSourceFiles > 0 ? "source-root" : "repository-root-fallback",
-      fallbackFiles: visibleSourceFiles > 0 ? 0 : visibleFallbackFiles
+      scopeRoot: SOURCE_ROOT
     });
     if (visibleSourceFiles === 0) {
-      logOverview("source root missing; left tree will show non-hidden repository files", {
-        sourceRoot: SOURCE_ROOT,
-        fallbackFiles: visibleFallbackFiles
-      });
+      logOverview("source root missing; no files will be shown", { sourceRoot: SOURCE_ROOT });
     }
     return files;
   }
@@ -562,7 +559,7 @@
   function shouldIncludeManifestPath(path) {
     if (!path || isGeneratedPath(path)) return false;
     if (path.split("/").some(part => isExcludedPathPart(part))) return false;
-    return true;
+    return isSourcePathName(path);
   }
 
   function isGeneratedPath(path) {
@@ -817,8 +814,10 @@
     updateActionButton("btn-language", "languageTool");
     updateActionButton("btn-collapse-all", "collapseAllTool");
     updateActionButton("btn-reset-star-map", "resetView");
+    updateActionButton("btn-reset-data-source", "resetDataSourceTool");
     updateToolButton("btn-view-all-files", "viewAllFilesTool", viewAllFiles);
     updateToolButton("btn-view-whole-file", "viewWholeFileTool", viewWholeFile);
+    updateDataSourceDependentControls();
 
     renderWelcome();
     renderMode();
@@ -872,17 +871,11 @@
   }
 
   function isSourcePath(path) {
-    if (isSourcePathName(path)) return true;
-    return Boolean(manifest && !hasSourceRootFiles() && path);
+    return isSourcePathName(path);
   }
 
   function isSourcePathName(path) {
     return path === SOURCE_ROOT || path.startsWith(`${SOURCE_ROOT}/`);
-  }
-
-  function hasSourceRootFiles() {
-    return Object.keys((manifest && manifest.files) || {})
-      .some(path => isSourcePathName(path) && !isHiddenPathName(path));
   }
 
   function updateToolButton(id, labelKey, active) {
@@ -899,6 +892,24 @@
     el.setAttribute("aria-label", t(labelKey));
     el.classList.remove("active");
     el.removeAttribute("aria-pressed");
+  }
+
+  function updateDataSourceDependentControls() {
+    const githubOnlyDiff = activeDataSource === DATA_SOURCE_GITHUB;
+    setElementVisible("btn-view-all-files", !githubOnlyDiff);
+    setElementVisible("btn-view-whole-file", !githubOnlyDiff);
+  }
+
+  function setElementVisible(id, visible) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = visible ? "" : "none";
+  }
+
+  async function resetDataSourceChoice() {
+    await clearCachedLocalSource();
+    localStorage.removeItem(STORAGE_KEYS.currentFile);
+    localStorage.removeItem(STORAGE_KEYS.scopePath);
+    window.location.reload();
   }
 
   function showTooltip(target) {

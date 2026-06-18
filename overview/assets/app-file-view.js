@@ -17,6 +17,10 @@
     hideAllViews();
 
     if (!fileData) {
+      if (change) {
+        showChangedSections(path, change);
+        return;
+      }
       showWelcome(t("fileUnavailable"));
       return;
     }
@@ -141,6 +145,7 @@
   function listChangedFilesUnder(dirPath) {
     const prefix = `${dirPath}/`;
     return Object.keys(((manifest.diff || {}).changes || {}))
+      .filter(path => isSourcePath(path))
       .filter(path => path === dirPath || path.startsWith(prefix))
       .sort();
   }

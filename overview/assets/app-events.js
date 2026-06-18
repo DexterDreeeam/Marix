@@ -15,6 +15,10 @@
       applyLanguage();
     });
 
+    document.getElementById("btn-reset-data-source").addEventListener("click", () => {
+      resetDataSourceChoice();
+    });
+
     document.getElementById("btn-star-map-view").addEventListener("click", () => {
       overviewMode = overviewMode === "star" ? "file" : "star";
       localStorage.setItem(STORAGE_KEYS.overviewMode, overviewMode);

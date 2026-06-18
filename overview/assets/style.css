@@ -74,7 +74,11 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .tree-item:hover { background: var(--bg-tertiary); }
 .tree-item.active { background: rgba(88, 166, 255, 0.15); color: var(--accent); }
 .tree-item.dir { color: var(--text-secondary); font-weight: 500; }
-.tree-icon { width: 22px; text-align: center; margin-right: 4px; font-size: 12px; flex-shrink: 0; }
+.tree-icon { width: 22px; min-width: 22px; height: 18px; display: inline-flex; align-items: center; justify-content: center; margin-right: 4px; border-radius: 5px; color: var(--text-muted); font-size: 10px; font-weight: 700; line-height: 1; flex-shrink: 0; }
+.tree-icon-rs { background: rgba(255, 155, 84, 0.18); color: #ff9b54; }
+.tree-icon-js, .tree-icon-ts { background: rgba(242, 204, 96, 0.16); color: #f2cc60; }
+.tree-icon-md { background: rgba(88, 166, 255, 0.16); color: var(--accent); }
+.tree-icon-json, .tree-icon-toml, .tree-icon-yaml, .tree-icon-yml { background: rgba(63, 185, 80, 0.14); color: var(--green); }
 .tree-toggle { display: inline-flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 15px; transition: transform 0.15s, color 0.15s; }
 .tree-toggle:hover { color: var(--accent); }
 .tree-toggle i { font-size: 15px; line-height: 1; }
@@ -182,11 +186,16 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .status-chip.status-modified { background: var(--yellow); }
 .status-chip.status-deleted { background: var(--red); }
 .status-chip.status-renamed { background: var(--accent); }
-.star-map-details { flex: 1; min-width: 320px; max-width: 520px; overflow-y: auto; padding: 18px; background: rgba(22, 27, 34, 0.92); border-left: 1px solid rgba(255,255,255,0.04); }
+.star-map-details { flex: 1; min-width: 320px; max-width: 520px; overflow-y: auto; padding: 18px; background: rgba(22, 27, 34, 0.92); border-left: 4px solid rgba(255,255,255,0.08); }
+.star-map-details.module-detail-status-added { border-left-color: var(--green); }
+.star-map-details.module-detail-status-modified, .star-map-details.module-detail-status-renamed { border-left-color: var(--yellow); }
+.star-map-details.module-detail-status-deleted { border-left-color: var(--red); }
 .module-detail-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
 .module-detail-header h3 { color: var(--text-primary); word-break: break-word; }
 .module-status { flex-shrink: 0; padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
-.module-status.changed, .module-link-status.changed { color: var(--yellow); background: rgba(210, 153, 34, 0.16); }
+.module-status.added, .module-link-status.added { color: var(--green); background: rgba(63, 185, 80, 0.16); }
+.module-status.modified, .module-status.renamed, .module-link-status.modified, .module-link-status.renamed { color: var(--yellow); background: rgba(210, 153, 34, 0.16); }
+.module-status.deleted, .module-link-status.deleted { color: var(--red); background: rgba(248, 81, 73, 0.14); }
 .module-status.unchanged, .module-link-status.unchanged { color: var(--text-secondary); background: rgba(139, 148, 158, 0.12); }
 .module-detail-body { color: var(--text-secondary); }
 .module-hint { margin: 8px 0; line-height: 1.6; }
@@ -201,11 +210,16 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .module-file-list code { white-space: normal; word-break: break-word; }
 .design-item-kind { padding: 1px 6px; border-radius: 999px; background: rgba(88, 166, 255, 0.14); color: var(--accent); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 10px; text-transform: uppercase; }
 .design-summary-list { display: grid; gap: 8px; }
-.design-summary-item { padding: 9px 10px; border: 1px solid var(--border); border-left-width: 4px; border-radius: 8px; background: rgba(22, 27, 34, 0.68); outline: none; }
+.design-summary-item { padding: 9px 10px; border: 1px solid var(--border); border-left-width: 4px; border-right-width: 4px; border-radius: 8px; background: rgba(22, 27, 34, 0.68); outline: none; }
 .design-summary-item[data-code-id] { cursor: pointer; }
 .design-summary-item[data-code-id]:hover, .design-summary-item[data-code-id]:focus-visible { border-color: var(--type-color, var(--accent)); background: var(--type-bg, rgba(88, 166, 255, 0.1)); }
 .design-summary-header { display: flex; align-items: center; gap: 8px; color: var(--text-primary); }
 .design-summary-header strong { min-width: 0; overflow-wrap: anywhere; }
+.design-item-status { margin-left: auto; padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.design-item-status.added { color: var(--green); background: rgba(63, 185, 80, 0.16); }
+.design-item-status.modified, .design-item-status.renamed { color: var(--yellow); background: rgba(210, 153, 34, 0.16); }
+.design-item-status.deleted { color: var(--red); background: rgba(248, 81, 73, 0.14); }
+.design-item-status.unchanged { color: var(--text-muted); background: rgba(139, 148, 158, 0.1); }
 .design-summary-signature { display: block; margin-top: 7px; color: var(--text-primary); white-space: normal; overflow-wrap: anywhere; }
 .design-summary-meta { display: block; margin-top: 6px; color: var(--text-muted); font-family: 'SFMono-Regular', Consolas, monospace; font-size: 11px; overflow-wrap: anywhere; }
 .design-summary-item p { margin: 7px 0 0; color: var(--text-secondary); line-height: 1.5; }
@@ -217,6 +231,10 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .design-type-type-alias { --type-color: #ff9b54; --type-bg: rgba(255, 155, 84, 0.15); border-left-color: #ff9b54; }
 .design-type-const, .design-type-static { --type-color: #db6dff; --type-bg: rgba(219, 109, 255, 0.14); border-left-color: #db6dff; }
 .design-type-public-api, .design-type-global-interface, .design-type-public-global-interface { --type-color: #39c5cf; --type-bg: rgba(57, 197, 207, 0.14); border-left-color: #39c5cf; }
+.design-status-added { border-right-color: var(--green); }
+.design-status-modified, .design-status-renamed { border-right-color: var(--yellow); }
+.design-status-deleted { border-right-color: var(--red); }
+.design-status-unchanged { border-right-color: rgba(139, 148, 158, 0.28); }
 .module-link { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 6px 0; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-tertiary); color: var(--text-primary); cursor: pointer; text-align: left; }
 .module-link:hover { border-color: var(--accent); }
 .module-link-status { flex-shrink: 0; padding: 2px 6px; border-radius: 999px; font-size: 10px; }
@@ -261,6 +279,9 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .exposed-node.exposed-type-enum circle:not(.exposed-hit-target), .exposed-node.exposed-type-enum rect, .exposed-node.exposed-type-enum polygon { fill: rgba(242, 204, 96, 0.94); }
 .exposed-node.exposed-type-function circle:not(.exposed-hit-target), .exposed-node.exposed-type-function rect, .exposed-node.exposed-type-function polygon, .exposed-node.exposed-type-fn circle:not(.exposed-hit-target), .exposed-node.exposed-type-fn rect, .exposed-node.exposed-type-fn polygon { fill: rgba(63, 185, 80, 0.92); }
 .exposed-node.exposed-type-type-alias circle:not(.exposed-hit-target), .exposed-node.exposed-type-type-alias rect, .exposed-node.exposed-type-type-alias polygon { fill: rgba(255, 155, 84, 0.94); }
+.exposed-node.status-added circle:not(.exposed-hit-target), .exposed-node.status-added rect, .exposed-node.status-added polygon { stroke: var(--green); stroke-width: 2.6; }
+.exposed-node.status-modified circle:not(.exposed-hit-target), .exposed-node.status-modified rect, .exposed-node.status-modified polygon, .exposed-node.status-renamed circle:not(.exposed-hit-target), .exposed-node.status-renamed rect, .exposed-node.status-renamed polygon { stroke: var(--yellow); stroke-width: 2.6; }
+.exposed-node.status-deleted circle:not(.exposed-hit-target), .exposed-node.status-deleted rect, .exposed-node.status-deleted polygon { stroke: var(--red); stroke-width: 2.6; }
 .exposed-node:hover circle:not(.exposed-hit-target), .exposed-node:hover rect, .exposed-node:hover polygon { stroke: #ffffff; stroke-width: 2.4; }
 .exposed-label { fill: #ffffff; dominant-baseline: middle; font-size: 7.5px; font-weight: 650; pointer-events: none; user-select: none; -webkit-user-select: none; paint-order: stroke; stroke: rgba(0, 0, 0, 0.78); stroke-width: 2px; transition: font-size 0.12s, transform 0.12s; }
 .exposed-node:hover .exposed-label { font-size: 12px; }

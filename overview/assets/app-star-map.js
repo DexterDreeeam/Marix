@@ -282,7 +282,7 @@
   function createExposedElementNode(item) {
     const element = item.element || {};
     const shape = getExposedElementShape(element);
-    const status = normalizeStatus(element.changeStatus);
+    const status = getExposedElementStatus(element);
     const typeClass = getExposedElementTypeClass(element);
     const radius = getNodeRadius(item);
     const group = document.createElementNS(SVG_NS, "g");
@@ -359,6 +359,16 @@
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "") || "item";
+  }
+
+  function getExposedElementStatus(element) {
+    const fromDesign = normalizeStatus(element.changeStatus);
+    if (fromDesign !== "unchanged") return fromDesign;
+
+    const change = element.sourcePath ? getChange(element.sourcePath) : null;
+    if (!change) return "unchanged";
+    const statusMap = { A: "added", M: "modified", D: "deleted", R: "renamed" };
+    return normalizeStatus(statusMap[change.status] || "modified");
   }
 
   function createStarFileNode(item) {
