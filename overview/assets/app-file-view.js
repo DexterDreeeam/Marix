@@ -1,5 +1,5 @@
 "use strict";
-  function openFile(path, treeEl) {
+  async function openFile(path, treeEl) {
     document.querySelectorAll(".tree-item.active").forEach(el => el.classList.remove("active"));
     const activeTreeItem = treeEl || findTreeItem(path);
     if (activeTreeItem) activeTreeItem.classList.add("active");
@@ -27,6 +27,7 @@
     }
 
     const ext = path.split(".").pop().toLowerCase();
+    await ensureFileContent(path);
     if (["png", "jpg", "jpeg", "gif", "svg", "webp", "ico"].includes(ext)) {
       showImage(fileData);
     } else if (change) {
@@ -114,11 +115,11 @@
     renderDirectoryChanges(dirPath);
   }
 
-  function renderDirectoryChanges(dirPath) {
+  async function renderDirectoryChanges(dirPath) {
     // Folder detail views are always based on changed files, regardless of the tree filter.
     const changedFiles = listChangedFilesUnder(dirPath);
     if (viewWholeFile) {
-      showFolderWholeFiles(dirPath, changedFiles);
+      await showFolderWholeFiles(dirPath, changedFiles);
     } else {
       showFolderChangedSections(dirPath, changedFiles);
     }
@@ -178,7 +179,7 @@
     `;
   }
 
-  function showFolderWholeFiles(dirPath, files) {
+  async function showFolderWholeFiles(dirPath, files) {
     const diffView = document.getElementById("diff-view");
     diffView.style.display = "block";
     if (files.length === 0) {
@@ -186,13 +187,16 @@
       return;
     }
 
-    const panels = files.map(file => {
+    diffView.innerHTML = `<div class="diff-empty">${escapeHtml(t("loadingOverview"))}</div>`;
+
+    const panels = (await Promise.all(files.map(async file => {
       const data = (manifest.files || {})[file];
       const change = getChange(file);
       if (!data || !change) return "";
+      await ensureFileContent(file);
       const ext = file.split(".").pop().toLowerCase();
       return renderFullFilePanel(file, data.content || "", change, ext);
-    }).join("");
+    }))).join("");
 
     diffView.innerHTML = `
       <div class="diff-view-header">
@@ -218,9 +222,16 @@
 
   function showImage(fileData) {
     const el = document.getElementById("image-view");
-    el.style.display = "flex";
     const img = document.getElementById("image-el");
-    img.src = fileData.base64 ? `data:${fileData.mime || "image/png"};base64,${fileData.base64}` : (fileData.url || "");
+    const src = fileData.base64 ? `data:${fileData.mime || "image/png"};base64,${fileData.base64}` : (fileData.url || "");
+    if (!src) {
+      el.style.display = "none";
+      showWelcome(t("fileUnavailable"));
+      return;
+    }
+    img.src = src;
+    img.alt = currentFile || "";
+    el.style.display = "flex";
   }
 
   function showCode(content, ext) {
@@ -229,6 +240,7 @@
     const codeEl = document.getElementById("code-el");
     codeEl.textContent = content;
     codeEl.className = "";
+    codeEl.removeAttribute("data-highlighted");
     const langMap = { py: "python", rs: "rust", js: "javascript", ts: "typescript", yml: "yaml", yaml: "yaml", sh: "bash", md: "markdown", html: "html", css: "css", json: "json", toml: "toml" };
     const lang = langMap[ext];
     if (lang) codeEl.classList.add(`language-${lang}`);

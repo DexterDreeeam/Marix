@@ -32,6 +32,12 @@
       loadingOverview: "Loading overview...",
       buildingOverview: "Building overview from GitHub tags...",
       overviewLoadFailed: "Unable to load repository data from GitHub.",
+      dataSourceTitle: "Choose data source",
+      dataSourceIntro: "Load repository data from GitHub or select a local repository folder. This choice is cached for future visits.",
+      dataSourceGithub: "Use GitHub",
+      dataSourceLocal: "Choose local folder",
+      dataSourceLocalUnsupported: "This browser cannot remember local folders. Use Microsoft Edge or Chrome, or choose GitHub.",
+      dataSourceLocalMissing: "The saved local folder is unavailable. Choose a data source again.",
       folderChangesTitle: "Folder changes",
       folderChangesSubtitle: "Showing changes for this folder and all nested files.",
       addedLine: "Added",
@@ -92,6 +98,12 @@
       loadingOverview: "正在加载总览...",
       buildingOverview: "正在根据 GitHub tag 构建总览...",
       overviewLoadFailed: "无法从 GitHub 加载仓库数据。",
+      dataSourceTitle: "选择数据源",
+      dataSourceIntro: "从 GitHub 加载仓库数据，或选择本地仓库文件夹。这个选择会被缓存供后续访问使用。",
+      dataSourceGithub: "使用 GitHub 线上版本",
+      dataSourceLocal: "选择本地文件夹",
+      dataSourceLocalUnsupported: "当前浏览器不能记住本地文件夹。请使用 Microsoft Edge 或 Chrome，或选择 GitHub。",
+      dataSourceLocalMissing: "缓存的本地文件夹不可用，请重新选择数据源。",
       folderChangesTitle: "文件夹改动",
       folderChangesSubtitle: "当前展示这个文件夹及其所有子文件中的改动。",
       addedLine: "新增",
@@ -132,13 +144,28 @@
     viewWholeFile: "marix-overview-view-whole-file",
     currentFile: "marix-overview-current-file",
     scopePath: "marix-overview-scope-path",
-    collapsedModules: "marix-overview-collapsed-modules"
+    collapsedModules: "marix-overview-collapsed-modules",
+    dataSource: "marix-overview-data-source"
   };
 
   const GITHUB_OWNER = "DexterDreeeam";
   const GITHUB_REPO = "Marix";
   const MAX_DYNAMIC_FILE_SIZE = 100 * 1024;
   const LOG_PREFIX = "[Marix Overview]";
+  const DATA_SOURCE_GITHUB = "github";
+  const DATA_SOURCE_LOCAL = "local";
+  const LOCAL_DB_NAME = "marix-overview-local-source";
+  const LOCAL_DB_STORE = "handles";
+  const LOCAL_ROOT_HANDLE_KEY = "root";
+  const IMAGE_MIME_TYPES = {
+    png: "image/png",
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    gif: "image/gif",
+    svg: "image/svg+xml",
+    webp: "image/webp",
+    ico: "image/x-icon"
+  };
 
   let manifest = null;
   let language = localStorage.getItem(STORAGE_KEYS.language) || "en";
@@ -157,18 +184,27 @@
   let tooltipTarget = null;
   let designCodeSnippets = new Map();
   let designCodeCounter = 0;
+  let githubRepoApi = "";
+  let activeDataSource = "";
+  let localRootHandle = null;
 
   if (!["file", "star"].includes(overviewMode)) {
     overviewMode = "file";
   }
 
   async function init() {
-    setLoadingVisible(true);
-    setLoadingMessage(t("buildingOverview"));
     try {
+      const dataSource = await resolveDataSourceChoice();
+      activeDataSource = dataSource.kind;
+      localRootHandle = dataSource.handle || null;
+      setLoadingVisible(true);
+      setLoadingMessage(activeDataSource === DATA_SOURCE_LOCAL ? t("loadingOverview") : t("buildingOverview"));
       logOverview("initializing dynamic overview");
-      manifest = await buildManifestFromGitHub();
+      manifest = activeDataSource === DATA_SOURCE_LOCAL
+        ? await buildManifestFromLocal(localRootHandle)
+        : await buildManifestFromGitHub();
       logOverview("manifest ready", {
+        source: activeDataSource,
         files: Object.keys(manifest.files || {}).length,
         changedFiles: Object.keys(((manifest.diff || {}).changes) || {}).length,
         previousTag: (manifest.diff || {}).prev_tag,
@@ -192,6 +228,20 @@
       }
     } catch (e) {
       logOverviewError("dynamic overview load failed", e);
+      if (activeDataSource === DATA_SOURCE_LOCAL) {
+        await clearCachedLocalSource();
+        setLoadingVisible(false);
+        await promptDataSourceChoice(t("dataSourceLocalMissing"));
+        window.location.reload();
+        return;
+      }
+      if (activeDataSource === DATA_SOURCE_GITHUB) {
+        localStorage.removeItem(STORAGE_KEYS.dataSource);
+        setLoadingVisible(false);
+        await promptDataSourceChoice(t("overviewLoadFailed"));
+        window.location.reload();
+        return;
+      }
       manifest = { files: {}, diff: { prev_tag: null, latest_tag: null, changes: {} }, generated_at: "" };
       moduleRoot = buildModuleTree(manifest.files);
       selectedModule = getScopeModule();
@@ -214,8 +264,78 @@
     if (el) el.textContent = message;
   }
 
+  async function resolveDataSourceChoice() {
+    const cached = localStorage.getItem(STORAGE_KEYS.dataSource);
+    if (cached === DATA_SOURCE_GITHUB) {
+      return { kind: DATA_SOURCE_GITHUB };
+    }
+    if (cached === DATA_SOURCE_LOCAL) {
+      try {
+        const handle = await loadLocalRootHandle();
+        if (!handle) throw new Error("local handle missing");
+        const allowed = await requestLocalReadPermission(handle);
+        if (!allowed) throw new Error("local handle permission denied");
+        await assertLocalRootReadable(handle);
+        return { kind: DATA_SOURCE_LOCAL, handle };
+      } catch (e) {
+        logOverviewError("cached local source unavailable", e);
+        await clearCachedLocalSource();
+        return promptDataSourceChoice(t("dataSourceLocalMissing"));
+      }
+    }
+    return promptDataSourceChoice();
+  }
+
+  function promptDataSourceChoice(message) {
+    setLoadingVisible(false);
+    const dialog = document.getElementById("data-source-dialog");
+    const title = document.getElementById("data-source-title");
+    const intro = document.getElementById("data-source-intro");
+    const githubButton = document.getElementById("btn-data-source-github");
+    const localButton = document.getElementById("btn-data-source-local");
+    const error = document.getElementById("data-source-error");
+
+    title.textContent = t("dataSourceTitle");
+    intro.textContent = t("dataSourceIntro");
+    githubButton.textContent = t("dataSourceGithub");
+    localButton.textContent = t("dataSourceLocal");
+    error.textContent = message || "";
+    dialog.classList.remove("hidden");
+
+    return new Promise(resolve => {
+      githubButton.onclick = () => {
+        localStorage.setItem(STORAGE_KEYS.dataSource, DATA_SOURCE_GITHUB);
+        dialog.classList.add("hidden");
+        resolve({ kind: DATA_SOURCE_GITHUB });
+      };
+      localButton.onclick = async () => {
+        if (!window.showDirectoryPicker || !window.indexedDB) {
+          error.textContent = t("dataSourceLocalUnsupported");
+          return;
+        }
+        try {
+          const handle = await window.showDirectoryPicker({
+            id: "marix-overview-local-root",
+            mode: "read"
+          });
+          const allowed = await requestLocalReadPermission(handle);
+          if (!allowed) throw new Error("local handle permission denied");
+          await assertLocalRootReadable(handle);
+          await storeLocalRootHandle(handle);
+          localStorage.setItem(STORAGE_KEYS.dataSource, DATA_SOURCE_LOCAL);
+          dialog.classList.add("hidden");
+          resolve({ kind: DATA_SOURCE_LOCAL, handle });
+        } catch (e) {
+          logOverviewError("local source selection failed", e);
+          error.textContent = t("dataSourceLocalMissing");
+        }
+      };
+    });
+  }
+
   async function buildManifestFromGitHub() {
     const repoApi = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`;
+    githubRepoApi = repoApi;
     const repo = await fetchJson(repoApi);
     const ref = getRequestedRef() || repo.default_branch || "main";
     logOverview("repository metadata loaded", { defaultBranch: ref });
@@ -241,6 +361,84 @@
       files,
       diff
     };
+  }
+
+  async function buildManifestFromLocal(rootHandle) {
+    const tree = await fetchLocalRepositoryTree(rootHandle);
+    if (tree.length === 0) throw new Error("local source has no readable files");
+    logOverview("local repository tree loaded", {
+      includedFiles: tree.length,
+      visibleSourceFiles: tree.filter(item => isSourcePathName(item.path) && !isHiddenPathName(item.path)).length
+    });
+
+    let diff = { prev_tag: null, latest_tag: null, changes: {} };
+    try {
+      diff = await fetchTagDiff(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`, getRequestedRef() || "main");
+      logOverview("tag diff loaded for local source", {
+        previousTag: diff.prev_tag,
+        latestTag: diff.latest_tag,
+        changedFiles: Object.keys(diff.changes || {}).length
+      });
+    } catch (e) {
+      logOverviewError("tag diff load failed for local source; continuing without diff", e);
+    }
+
+    return {
+      generated_at: new Date().toISOString(),
+      files: await fetchManifestFilesFromLocal(tree),
+      diff
+    };
+  }
+
+  async function fetchLocalRepositoryTree(rootHandle) {
+    const files = [];
+    await collectLocalFiles(rootHandle, "", files);
+    return files;
+  }
+
+  async function collectLocalFiles(directoryHandle, prefix, files) {
+    for await (const [name, handle] of directoryHandle.entries()) {
+      const path = prefix ? `${prefix}/${name}` : name;
+      if (path.split("/").some(part => isExcludedPathPart(part))) continue;
+      if (handle.kind === "directory") {
+        await collectLocalFiles(handle, path, files);
+      } else if (handle.kind === "file" && shouldIncludeManifestPath(path)) {
+        const file = await handle.getFile();
+        files.push({
+          path,
+          size: file.size,
+          localHandle: handle
+        });
+      }
+    }
+  }
+
+  async function fetchManifestFilesFromLocal(tree) {
+    const files = {};
+    for (const item of tree) {
+      const entry = {
+        size: item.size || 0,
+        localHandle: item.localHandle
+      };
+      if (isDesignDocumentPathName(item.path)) {
+        if ((item.size || 0) > MAX_DYNAMIC_FILE_SIZE) {
+          entry.content = `[File too large: ${item.size} bytes]`;
+        } else {
+          try {
+            entry.content = await readLocalFileText(item.localHandle);
+          } catch (e) {
+            logOverviewError(`local design content load failed: ${item.path}`, e);
+            entry.content = "[Unable to read file]";
+          }
+        }
+      }
+      files[item.path] = entry;
+    }
+    logOverview("local file metadata loaded", {
+      files: Object.keys(files).length,
+      preloadedDesignFiles: Object.keys(files).filter(path => isDesignDocumentPathName(path) && files[path].content).length
+    });
+    return files;
   }
 
   async function fetchRepositoryTree(repoApi, ref) {
@@ -283,21 +481,27 @@
 
   async function fetchManifestFiles(repoApi, tree) {
     const files = {};
-    await Promise.all(tree.map(async item => {
+    for (const item of tree) {
       const entry = { size: item.size || 0 };
-      if ((item.size || 0) > MAX_DYNAMIC_FILE_SIZE) {
-        entry.content = `[File too large: ${item.size} bytes]`;
-      } else {
-        try {
-          entry.content = await fetchBlobText(repoApi, item);
-        } catch (e) {
-          logOverviewError(`file content load failed: ${item.path}`, e);
-          entry.content = "[Unable to read file]";
+      if (item.sha) entry.sha = item.sha;
+      if (isDesignDocumentPathName(item.path)) {
+        if ((item.size || 0) > MAX_DYNAMIC_FILE_SIZE) {
+          entry.content = `[File too large: ${item.size} bytes]`;
+        } else {
+          try {
+            entry.content = await fetchBlobText(repoApi, item);
+          } catch (e) {
+            logOverviewError(`design content load failed: ${item.path}`, e);
+            entry.content = "[Unable to read file]";
+          }
         }
       }
       files[item.path] = entry;
-    }));
-    logOverview("file contents loaded", { files: Object.keys(files).length });
+    }
+    logOverview("file metadata loaded", {
+      files: Object.keys(files).length,
+      preloadedDesignFiles: Object.keys(files).filter(path => isDesignDocumentPathName(path) && files[path].content).length
+    });
     return files;
   }
 
@@ -328,21 +532,9 @@
     const tags = await fetchJson(`${repoApi}/tags?per_page=100`);
     const marixTags = tags.filter(tag => String(tag.name || "").startsWith("marix_tag_"));
     logOverview("marix tags listed", { count: marixTags.length });
-    try {
-      const resolved = await Promise.all(marixTags.map(async tag => {
-        const commit = await fetchJson(`${repoApi}/commits/${encodeURIComponent(tag.commit.sha)}`);
-        return {
-          name: tag.name,
-          date: new Date(((commit.commit || {}).committer || {}).date || 0)
-        };
-      }));
-      return resolved.sort((a, b) => a.date - b.date);
-    } catch (e) {
-      logOverviewError("tag date resolution failed; falling back to tag name order", e);
-      return marixTags
-        .map(tag => ({ name: tag.name, date: new Date(0) }))
-        .sort((a, b) => a.name.localeCompare(b.name));
-    }
+    return marixTags
+      .map(tag => ({ name: tag.name, date: new Date(0) }))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   function parsePatch(patch) {
@@ -388,20 +580,174 @@
     return String(path || "").split("/").some(part => part.startsWith("."));
   }
 
+  function isDesignDocumentPathName(path) {
+    return String(path || "").endsWith("/.design.md") || String(path || "").endsWith("/.design.json");
+  }
+
+  function isImagePathName(path) {
+    const ext = String(path || "").split(".").pop().toLowerCase();
+    return Object.prototype.hasOwnProperty.call(IMAGE_MIME_TYPES, ext);
+  }
+
+  function getMimeTypeFromPath(path) {
+    const ext = String(path || "").split(".").pop().toLowerCase();
+    return IMAGE_MIME_TYPES[ext] || "application/octet-stream";
+  }
+
   function getRequestedRef() {
     const params = new URLSearchParams(window.location.search);
     return params.get("ref") || params.get("branch") || "";
   }
 
-  async function fetchBlobText(repoApi, item) {
+  async function fetchBlobData(repoApi, item) {
     if (!item.sha) throw new Error(`blob sha unavailable: ${item.path}`);
     const blob = await fetchJson(`${repoApi}/git/blobs/${encodeURIComponent(item.sha)}`);
     if (blob.encoding !== "base64" || !blob.content) {
       throw new Error(`unsupported blob encoding: ${item.path}`);
     }
-    const binary = atob(blob.content.replace(/\s/g, ""));
+    return {
+      content: blob.content.replace(/\s/g, ""),
+      size: blob.size || item.size || 0
+    };
+  }
+
+  async function fetchBlobText(repoApi, item) {
+    const blob = await fetchBlobData(repoApi, item);
+    const binary = atob(blob.content);
     const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
     return new TextDecoder("utf-8").decode(bytes);
+  }
+
+  async function ensureFileContent(path) {
+    const entry = (manifest.files || {})[path];
+    if (!entry) return null;
+    const isImage = isImagePathName(path);
+    if (isImage && (entry.base64 || entry.url)) return entry;
+    if (!isImage && Object.prototype.hasOwnProperty.call(entry, "content")) return entry;
+    if (entry.localHandle) {
+      try {
+        if (isImage) {
+          const file = await entry.localHandle.getFile();
+          entry.mime = file.type || getMimeTypeFromPath(path);
+          entry.url = URL.createObjectURL(file);
+          logOverview("lazy local image content loaded", { path });
+        } else {
+          entry.content = await readLocalFileText(entry.localHandle);
+          logOverview("lazy local file content loaded", { path });
+        }
+      } catch (e) {
+        logOverviewError(`lazy local file content load failed: ${path}`, e);
+        entry.content = "[Unable to read file]";
+      }
+      return entry;
+    }
+    if (!entry.sha) {
+      entry.content = "[Unable to read file]";
+      return entry;
+    }
+
+    try {
+      const repoApi = githubRepoApi || `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`;
+      if (isImage) {
+        const blob = await fetchBlobData(repoApi, {
+          path,
+          sha: entry.sha
+        });
+        entry.base64 = blob.content;
+        entry.mime = getMimeTypeFromPath(path);
+        logOverview("lazy image content loaded", { path });
+      } else {
+        entry.content = await fetchBlobText(repoApi, {
+          path,
+          sha: entry.sha
+        });
+        logOverview("lazy file content loaded", { path });
+      }
+    } catch (e) {
+      logOverviewError(`lazy file content load failed: ${path}`, e);
+      entry.content = "[Unable to read file]";
+    }
+    return entry;
+  }
+
+  async function readLocalFileText(fileHandle) {
+    const file = await fileHandle.getFile();
+    return await file.text();
+  }
+
+  async function requestLocalReadPermission(handle) {
+    const options = { mode: "read" };
+    if ((await handle.queryPermission(options)) === "granted") return true;
+    return (await handle.requestPermission(options)) === "granted";
+  }
+
+  async function assertLocalRootReadable(handle) {
+    for await (const _ of handle.entries()) {
+      return true;
+    }
+    throw new Error("local folder is empty");
+  }
+
+  async function storeLocalRootHandle(handle) {
+    const db = await openLocalSourceDb();
+    await writeLocalSourceValue(db, LOCAL_ROOT_HANDLE_KEY, handle);
+  }
+
+  async function loadLocalRootHandle() {
+    const db = await openLocalSourceDb();
+    return await readLocalSourceValue(db, LOCAL_ROOT_HANDLE_KEY);
+  }
+
+  async function clearCachedLocalSource() {
+    localStorage.removeItem(STORAGE_KEYS.dataSource);
+    let db = null;
+    try {
+      db = await openLocalSourceDb();
+      await deleteLocalSourceValue(db, LOCAL_ROOT_HANDLE_KEY);
+    } catch (e) {
+      logOverviewError("local source cache clear failed", e);
+    } finally {
+      if (db) db.close();
+    }
+  }
+
+  function openLocalSourceDb() {
+    return new Promise((resolve, reject) => {
+      if (!window.indexedDB) {
+        reject(new Error("IndexedDB unavailable"));
+        return;
+      }
+      const request = window.indexedDB.open(LOCAL_DB_NAME, 1);
+      request.onupgradeneeded = () => {
+        request.result.createObjectStore(LOCAL_DB_STORE);
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  function readLocalSourceValue(db, key) {
+    return new Promise((resolve, reject) => {
+      const request = db.transaction(LOCAL_DB_STORE, "readonly").objectStore(LOCAL_DB_STORE).get(key);
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  function writeLocalSourceValue(db, key, value) {
+    return new Promise((resolve, reject) => {
+      const request = db.transaction(LOCAL_DB_STORE, "readwrite").objectStore(LOCAL_DB_STORE).put(value, key);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  function deleteLocalSourceValue(db, key) {
+    return new Promise((resolve, reject) => {
+      const request = db.transaction(LOCAL_DB_STORE, "readwrite").objectStore(LOCAL_DB_STORE).delete(key);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
   }
 
   async function fetchJson(url) {

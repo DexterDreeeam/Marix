@@ -26,6 +26,17 @@
       <div class="loading-spinner" aria-hidden="true"></div>
       <span id="loading-message">Loading overview...</span>
     </div>
+    <div id="data-source-dialog" class="data-source-dialog hidden" role="dialog" aria-modal="true" aria-labelledby="data-source-title">
+      <div class="data-source-card">
+        <h2 id="data-source-title">Choose data source</h2>
+        <p id="data-source-intro">Load repository data from GitHub or select a local repository folder.</p>
+        <div class="data-source-actions">
+          <button id="btn-data-source-github" class="data-source-button" type="button">Use GitHub</button>
+          <button id="btn-data-source-local" class="data-source-button primary" type="button">Choose local folder</button>
+        </div>
+        <p id="data-source-error" class="data-source-error"></p>
+      </div>
+    </div>
     <div id="main">
       <nav id="sidebar">
         <div class="sidebar-header">
