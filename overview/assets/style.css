@@ -38,7 +38,7 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .mode-btn { display: flex; align-items: center; gap: 6px; padding: 4px 10px; }
 .mode-btn:hover, .language-btn:hover, .toggle-btn:hover { color: var(--accent); border-color: var(--accent); }
 .mode-btn.active, .toggle-btn.active { color: var(--yellow); border-color: var(--yellow); background: rgba(210, 153, 34, 0.1); }
-.language-btn { padding: 4px 10px; border-color: var(--border); background: var(--bg-tertiary); }
+.language-btn { padding: 4px 10px; }
 
 /* ── Main Layout ── */
 #main { display: flex; flex: 1; overflow: hidden; }
@@ -128,6 +128,25 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .diff-line-del .diff-line-num { color: var(--red); }
 .diff-line-hunk { background: var(--diff-hunk-bg); color: var(--accent); }
 .diff-line-context { background: transparent; color: var(--text-secondary); }
+.full-file-panel { border: 1px solid var(--border); border-radius: 10px; background: var(--bg-secondary); overflow: hidden; }
+.full-file-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--bg-tertiary); }
+.full-file-header code { white-space: normal; word-break: break-word; }
+.full-file-legend { display: flex; flex-wrap: wrap; gap: 6px; }
+.legend-item { padding: 2px 7px; border-radius: 999px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 700; }
+.legend-added { color: var(--green); background: rgba(63, 185, 80, 0.16); }
+.legend-existing { color: var(--text-secondary); background: rgba(139, 148, 158, 0.12); }
+.legend-deleted { color: var(--red); background: rgba(248, 81, 73, 0.14); }
+.full-file-lines { overflow-x: auto; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 13px; line-height: 1.5; }
+.full-file-line { display: grid; grid-template-columns: 56px 72px minmax(0, 1fr); white-space: pre; }
+.full-line-number { padding: 0 8px; text-align: right; color: var(--text-muted); user-select: none; border-right: 1px solid rgba(48, 54, 61, 0.7); }
+.full-line-label { padding: 0 8px; color: var(--text-muted); user-select: none; border-right: 1px solid rgba(48, 54, 61, 0.7); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 11px; }
+.full-line-content { padding: 0 10px; min-width: 0; }
+.full-line-existing { background: transparent; color: var(--text-secondary); }
+.full-line-add { background: var(--diff-add-bg); color: var(--text-primary); }
+.full-line-add .full-line-number, .full-line-add .full-line-label { color: var(--green); }
+.full-line-del { background: var(--diff-del-bg); color: var(--text-primary); }
+.full-line-del .full-line-number, .full-line-del .full-line-label { color: var(--red); }
+.full-line-del .full-line-content { text-decoration: line-through; opacity: 0.86; }
 
 /* ── Star Map ── */
 #star-map-workspace { flex: 1; overflow: hidden; background: radial-gradient(circle at 30% 20%, rgba(88, 166, 255, 0.12), transparent 28%), var(--bg-primary); }

@@ -29,7 +29,12 @@
       statusRenamed: "Renamed",
       diffPanelTitle: "Changed sections",
       diffPanelSubtitle: "Showing only modified parts of this file.",
+      fullFileTitle: "Full file with change markers",
+      fullFileSubtitle: "Showing the whole file. Added lines are highlighted, existing lines stay visible, and deleted lines appear near their original position.",
       noChangedSections: "No changed sections are available for this file.",
+      addedLine: "Added",
+      existingLine: "Existing",
+      deletedLine: "Deleted",
       reason: "Reason",
       reasonPending: "Pending overview-agent annotation.",
       starTitle: "Star Map",
@@ -76,7 +81,12 @@
       statusRenamed: "已重命名",
       diffPanelTitle: "改动片段",
       diffPanelSubtitle: "当前只展示这个文件中发生变化的部分。",
+      fullFileTitle: "带改动标注的完整文件",
+      fullFileSubtitle: "当前展示完整文件。新增行会高亮，已有行会保留可见，被删除的行会显示在原位置附近。",
       noChangedSections: "这个文件没有可展示的改动片段。",
+      addedLine: "新增",
+      existingLine: "已有",
+      deletedLine: "已删除",
       reason: "原因",
       reasonPending: "等待 overview-agent 补充说明。",
       starTitle: "星图视图",
@@ -102,17 +112,29 @@
     }
   };
 
+  const STORAGE_KEYS = {
+    language: "marix-overview-language",
+    overviewMode: "marix-overview-mode",
+    changedFilesOnly: "marix-overview-changed-files-only",
+    changedSectionsOnly: "marix-overview-changed-sections-only",
+    collapsedModules: "marix-overview-collapsed-modules"
+  };
+
   let manifest = null;
-  let language = localStorage.getItem("marix-overview-language") || "en";
-  let overviewMode = "file";
-  let changedFilesOnly = false;
-  let changedSectionsOnly = false;
+  let language = localStorage.getItem(STORAGE_KEYS.language) || "en";
+  let overviewMode = localStorage.getItem(STORAGE_KEYS.overviewMode) || "file";
+  let changedFilesOnly = loadBooleanSetting(STORAGE_KEYS.changedFilesOnly, false);
+  let changedSectionsOnly = loadBooleanSetting(STORAGE_KEYS.changedSectionsOnly, false);
   let currentFile = null;
   let moduleRoot = null;
   let selectedModule = null;
-  let collapsedModules = new Set();
+  let collapsedModules = loadSetSetting(STORAGE_KEYS.collapsedModules);
   let starTransform = { x: 0, y: 0, scale: 1 };
   let panState = null;
+
+  if (!["file", "star"].includes(overviewMode)) {
+    overviewMode = "file";
+  }
 
   async function init() {
     try {
@@ -136,6 +158,29 @@
     return I18N[language][key] || I18N.en[key] || key;
   }
 
+  function loadBooleanSetting(key, fallback) {
+    const value = localStorage.getItem(key);
+    if (value === null) return fallback;
+    return value === "true";
+  }
+
+  function saveBooleanSetting(key, value) {
+    localStorage.setItem(key, value ? "true" : "false");
+  }
+
+  function loadSetSetting(key) {
+    try {
+      const value = JSON.parse(localStorage.getItem(key) || "[]");
+      return new Set(Array.isArray(value) ? value : []);
+    } catch (e) {
+      return new Set();
+    }
+  }
+
+  function saveSetSetting(key, value) {
+    localStorage.setItem(key, JSON.stringify(Array.from(value)));
+  }
+
   function applyLanguage() {
     document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
     document.title = `Marix - ${t("title")}`;
@@ -149,6 +194,8 @@
 
     document.getElementById("btn-language").textContent = t("language");
     document.getElementById("file-path").textContent = currentFile || t("selectFile");
+    document.getElementById("btn-toggle-changed-files").classList.toggle("active", changedFilesOnly);
+    document.getElementById("btn-toggle-changed-sections").classList.toggle("active", changedSectionsOnly);
 
     renderTagInfo();
     renderWelcome();
@@ -343,6 +390,8 @@
     const ext = path.split(".").pop().toLowerCase();
     if (["png", "jpg", "jpeg", "gif", "svg", "webp", "ico"].includes(ext)) {
       showImage(fileData);
+    } else if (change) {
+      showFullFileWithChanges(path, fileData.content || "", change);
     } else if (ext === "md") {
       showMarkdown(fileData.content || "");
     } else {
@@ -409,6 +458,103 @@
     if (sections.length === 0) {
       diffView.innerHTML = `<div class="diff-empty">${escapeHtml(t("noChangedSections"))}</div>`;
       return;
+    }
+
+    function showFullFileWithChanges(path, content, change) {
+      const diffView = document.getElementById("diff-view");
+      diffView.style.display = "block";
+
+      const markers = collectDiffMarkers(change.diff_lines || []);
+      const lines = content.split(/\r?\n/);
+      const body = [];
+
+      for (let i = 0; i < lines.length; i++) {
+        const lineNumber = i + 1;
+        body.push(renderDeletedLines(markers.deletedBefore.get(lineNumber)));
+        body.push(renderFullFileLine(lineNumber, lines[i], markers.addedLines.has(lineNumber)));
+      }
+
+      body.push(renderDeletedLines(markers.deletedBefore.get(lines.length + 1)));
+
+      diffView.innerHTML = `
+        <div class="diff-view-header">
+          <h3>${escapeHtml(t("fullFileTitle"))}</h3>
+          <p>${escapeHtml(t("fullFileSubtitle"))}</p>
+        </div>
+        <div class="full-file-panel">
+          <div class="full-file-header">
+            <code>${escapeHtml(path)}</code>
+            ${renderFullFileLegend()}
+          </div>
+          <div class="full-file-lines">${body.join("")}</div>
+        </div>
+      `;
+    }
+
+    function collectDiffMarkers(diffLines) {
+      const addedLines = new Set();
+      const deletedBefore = new Map();
+      let oldLine = 0;
+      let newLine = 0;
+
+      for (const line of diffLines) {
+        if (line.startsWith("@@")) {
+          const match = line.match(/@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
+          if (match) {
+            oldLine = Number(match[1]);
+            newLine = Number(match[2]);
+          }
+          continue;
+        }
+
+        if (line.startsWith("+")) {
+          addedLines.add(newLine);
+          newLine += 1;
+        } else if (line.startsWith("-")) {
+          const bucket = deletedBefore.get(newLine) || [];
+          bucket.push(line.substring(1));
+          deletedBefore.set(newLine, bucket);
+          oldLine += 1;
+        } else if (line.startsWith(" ")) {
+          oldLine += 1;
+          newLine += 1;
+        }
+      }
+
+      return { addedLines, deletedBefore };
+    }
+
+    function renderFullFileLegend() {
+      return `
+        <div class="full-file-legend">
+          <span class="legend-item legend-added">${escapeHtml(t("addedLine"))}</span>
+          <span class="legend-item legend-existing">${escapeHtml(t("existingLine"))}</span>
+          <span class="legend-item legend-deleted">${escapeHtml(t("deletedLine"))}</span>
+        </div>
+      `;
+    }
+
+    function renderFullFileLine(lineNumber, content, isAdded) {
+      const cls = isAdded ? "full-line-add" : "full-line-existing";
+      const label = isAdded ? t("addedLine") : t("existingLine");
+      return `
+        <div class="full-file-line ${cls}">
+          <span class="full-line-number">${lineNumber}</span>
+          <span class="full-line-label">${escapeHtml(label)}</span>
+          <span class="full-line-content">${escapeHtml(content)}</span>
+        </div>
+      `;
+    }
+
+    function renderDeletedLines(lines) {
+      if (!lines || lines.length === 0) return "";
+      return lines.map(line => `
+        <div class="full-file-line full-line-del">
+          <span class="full-line-number">-</span>
+          <span class="full-line-label">${escapeHtml(t("deletedLine"))}</span>
+          <span class="full-line-content">${escapeHtml(line)}</span>
+        </div>
+      `).join("");
     }
 
     const panels = sections.map((section, index) => renderDiffPanel(path, section, index + 1)).join("");
@@ -740,6 +886,7 @@
     } else {
       collapsedModules.add(node.path);
     }
+    saveSetSetting(STORAGE_KEYS.collapsedModules, collapsedModules);
     renderModuleDetails(node);
     renderStarMap();
   }
@@ -773,29 +920,33 @@
 
     document.getElementById("btn-language").addEventListener("click", () => {
       language = language === "en" ? "zh" : "en";
-      localStorage.setItem("marix-overview-language", language);
+      localStorage.setItem(STORAGE_KEYS.language, language);
       applyLanguage();
     });
 
     document.getElementById("btn-file-view").addEventListener("click", () => {
       overviewMode = "file";
+      localStorage.setItem(STORAGE_KEYS.overviewMode, overviewMode);
       renderMode();
     });
 
     document.getElementById("btn-star-map-view").addEventListener("click", () => {
       overviewMode = "star";
+      localStorage.setItem(STORAGE_KEYS.overviewMode, overviewMode);
       renderMode();
       renderStarMap();
     });
 
     document.getElementById("btn-toggle-changed-files").addEventListener("click", () => {
       changedFilesOnly = !changedFilesOnly;
+      saveBooleanSetting(STORAGE_KEYS.changedFilesOnly, changedFilesOnly);
       document.getElementById("btn-toggle-changed-files").classList.toggle("active", changedFilesOnly);
       renderTree(searchInput.value.trim());
     });
 
     document.getElementById("btn-toggle-changed-sections").addEventListener("click", () => {
       changedSectionsOnly = !changedSectionsOnly;
+      saveBooleanSetting(STORAGE_KEYS.changedSectionsOnly, changedSectionsOnly);
       document.getElementById("btn-toggle-changed-sections").classList.toggle("active", changedSectionsOnly);
       if (currentFile) openFile(currentFile);
     });

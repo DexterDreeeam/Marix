@@ -37,6 +37,8 @@ The overview agent owns all overview UI interaction modes:
 - star-map zoom, pan, module selection, and module expand/collapse,
 - module detail panels for interfaces, data storage, implementation files, and changed files.
 
+All user-facing toggle states must persist across refreshes by using browser storage. This includes language, overview mode, changed-file filtering, changed-section display, and star-map module collapse state.
+
 ## Rules
 
 - Code, comments, commit messages, and log messages must be English.
