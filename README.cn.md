@@ -49,12 +49,10 @@ Marix 抽象了 LLM 层，Agent 可以运行在以下任意后端上：
 
 ```
 marix/
-├── core/           # Agent 循环、规划器、执行器
-├── models/         # 模型适配器 (OpenAI, Anthropic, 本地等)
-├── tools/          # 内置工具实现
-├── memory/         # 上下文管理与持久化
-├── config/         # 配置与模型注册
-└── main.py         # 入口
+├── src/
+│   ├── agent/      # Agent 契约与 overview-agent 接口
+│   └── overview/   # 仓库快照与星图可视化模型
+└── overview/       # GitHub Pages 总览 UI
 ```
 
 ## 快速开始
@@ -66,15 +64,8 @@ marix/
 git clone https://github.com/DexterDreeeam/Marix.git
 cd Marix
 
-# 安装依赖
-pip install -r requirements.txt
-
-# 配置模型后端
-cp config/example.yaml config/local.yaml
-# 编辑 config/local.yaml 填入你的 API key 或本地模型路径
-
-# 运行
-python main.py
+# 构建 Rust crate
+cargo build
 ```
 
 ## 许可证

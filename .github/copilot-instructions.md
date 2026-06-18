@@ -25,3 +25,7 @@
 - **Do NOT** run any git commands (`git add`, `git commit`, `git push`, `git pull`, etc.) unless the user explicitly requests a git operation (e.g., invoking `/git-sync` or asking to commit/push).
 - Code changes should be made to files only. Let the user decide when to stage, commit, and push.
 - For explicit git operations that need GitHub access, ensure GitHub CLI (`gh`) is installed first. If it is missing on Windows, install it with `winget install --id GitHub.cli -e --source winget --accept-package-agreements --accept-source-agreements`, then authenticate or configure credentials before pushing.
+
+## Validation Policy
+
+- For overview/site changes, do not verify or report local preview resources unless the user explicitly asks for local access.

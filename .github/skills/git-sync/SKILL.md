@@ -10,9 +10,8 @@ description: Synchronize the current branch with the remote. Use when asked to s
 3. **Resolve Conflicts** — If rebase conflicts occur, resolve them based on code context, stage resolved files, and `git rebase --continue`. If conflicts cannot be resolved confidently, run `git rebase --abort` and inform the user.
 4. **Stage & Commit** — If there are uncommitted changes, run `git add -A` and commit with a concise English message (20 words or fewer). Always include the trailer: `Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>`.
 5. **Refresh Overview** — If any overview UI, documentation, module structure, source layout, or diff behavior changed, use the `overview-agent` to update all overview content before building. The overview agent owns file view, star-map view, bilingual UI, module hierarchy, diff annotations, and module details.
-6. **Build Pages** — Run `powershell -ExecutionPolicy Bypass -File scripts/build_pages.ps1` to regenerate the GitHub Pages overview with the latest diff data. Stage and commit the updated `overview/manifest.json` with the message "Update pages manifest".
-7. **Push** — Run `git push origin <current-branch>`.
-8. **Report** — Summarize what was done (e.g., committed N files, pushed to branch X). If there are no changes, report "Already up to date."
+6. **Push** — Run `git push origin <current-branch>`.
+7. **Report** — Summarize what was done (e.g., committed N files, pushed to branch X). If there are no changes, report "Already up to date."
 
 ## Rules
 

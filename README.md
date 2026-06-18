@@ -49,12 +49,10 @@ Marix abstracts the LLM layer so agents can run on any of the following:
 
 ```
 marix/
-├── core/           # Agent loop, planner, executor
-├── models/         # Model adapters (OpenAI, Anthropic, local, etc.)
-├── tools/          # Built-in tool implementations
-├── memory/         # Context management and persistence
-├── config/         # Configuration and model registry
-└── main.py         # Entry point
+├── src/
+│   ├── agent/      # Agent contracts and overview-agent interface
+│   └── overview/   # Repository snapshot and star-map visualization models
+└── overview/       # GitHub Pages overview UI
 ```
 
 ## Getting Started
@@ -66,15 +64,8 @@ marix/
 git clone https://github.com/DexterDreeeam/Marix.git
 cd Marix
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure model backend
-cp config/example.yaml config/local.yaml
-# Edit config/local.yaml with your API keys or local model paths
-
-# Run
-python main.py
+# Build Rust crate
+cargo build
 ```
 
 ## License

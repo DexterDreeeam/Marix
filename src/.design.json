@@ -1,0 +1,79 @@
+﻿{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src",
+    "name": "src",
+    "purpose": "Root Rust source module for Marix. It exposes agent contracts and overview/star-map data models.",
+    "changeStatus": "added"
+  },
+  "childModules": [
+    {
+      "path": "src/agent",
+      "name": "agent",
+      "purpose": "Agent runtime contracts, shared agent types, and overview-agent integration.",
+      "changeStatus": "added"
+    },
+    {
+      "path": "src/overview",
+      "name": "overview",
+      "purpose": "Repository snapshot, source design, source change, and star-map visualization models.",
+      "changeStatus": "added"
+    }
+  ],
+  "files": [
+    {
+      "path": "src/lib.rs",
+      "purpose": "Library entry point and public re-export surface.",
+      "items": [
+        {
+          "kind": "module",
+          "name": "agent",
+          "category": "interface",
+          "signature": "pub mod agent;",
+          "details": "Exposes agent contracts and shared runtime types.",
+          "implements": [],
+          "code": "pub mod agent;",
+          "sourcePath": "src/lib.rs",
+          "lineStart": 3,
+          "lineEnd": 3,
+          "language": "rust"
+        },
+        {
+          "kind": "module",
+          "name": "overview",
+          "category": "interface",
+          "signature": "pub mod overview;",
+          "details": "Exposes overview, source design, and star-map data models.",
+          "implements": [],
+          "code": "pub mod overview;",
+          "sourcePath": "src/lib.rs",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "language": "rust"
+        },
+        {
+          "kind": "re-export",
+          "name": "agent public surface",
+          "category": "interface",
+          "signature": "pub use agent::{...};",
+          "details": "Re-exports core agent traits and shared data types for downstream users.",
+          "implements": [],
+          "code": "pub use agent::{\n    Agent, AgentArtifact, AgentArtifactKind, AgentContext, AgentError, AgentId, AgentInput,\n    AgentKind, AgentOutput, AgentResult,\n};",
+          "sourcePath": "src/lib.rs",
+          "lineStart": 6,
+          "lineEnd": 9,
+          "language": "rust"
+        }
+      ],
+      "changeStatus": "added"
+    }
+  ],
+  "starMap": {
+    "notes": [
+      "This module is the root of the source-level star map.",
+      "Direct child modules should be shown as first-level module nodes.",
+      "The right property panel should render this JSON instead of Markdown."
+    ]
+  },
+  "exposedGroups": []
+}

@@ -6,40 +6,52 @@
   <title>Marix — Overview</title>
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/rust.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/markdown.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 </head>
 <body>
   <div id="app">
-    <header id="header">
-      <div class="header-left">
-        <span class="logo">◆ Marix</span>
-        <div class="mode-switch">
-          <button id="btn-file-view" class="mode-btn active" data-i18n="fileView">File View</button>
-          <button id="btn-star-map-view" class="mode-btn">
-            <span data-i18n="starMapView">Star Map</span>
-          </button>
-          <button id="btn-language" class="mode-btn language-btn">中文</button>
-        </div>
-      </div>
-      <div class="header-right">
-        <span id="tag-info" class="tag-info"></span>
-      </div>
-    </header>
-
+    <div id="loading-overlay" class="loading-overlay" role="status" aria-live="polite">
+      <div class="loading-spinner" aria-hidden="true"></div>
+      <span id="loading-message">Loading overview...</span>
+    </div>
     <div id="main">
       <nav id="sidebar">
         <div class="sidebar-header">
-          <input type="text" id="search-input" placeholder="Search files..." />
-          <div class="sidebar-toggles">
-            <button id="btn-toggle-changed-files" class="toggle-btn" data-i18n="changedFiles">Changed files</button>
-            <button id="btn-toggle-changed-sections" class="toggle-btn" data-i18n="changedSections">Changed sections</button>
+          <div class="sidebar-toolset" role="toolbar" aria-label="File tools">
+            <div class="tool-group tool-group-left">
+              <button id="btn-collapse-all" class="tool-btn" type="button" aria-label="Collapse all"><i class="bi bi-arrows-collapse"></i></button>
+              <button id="btn-view-all-files" class="tool-btn" type="button" aria-label="View all files"><i class="bi bi-folder2-open"></i></button>
+              <button id="btn-view-whole-file" class="tool-btn" type="button" aria-label="View whole file"><i class="bi bi-file-earmark-text"></i></button>
+            </div>
+            <div class="tool-group tool-group-right">
+              <button id="btn-star-map-view" class="tool-btn" type="button" aria-label="Star Map">
+                <svg class="dipper-icon" viewBox="0 0 32 32" aria-hidden="true">
+                  <polyline points="5,20 10,14 15,17 20,11 25,8 27,14 22,20" />
+                  <circle cx="5" cy="20" r="2.2" />
+                  <circle cx="10" cy="14" r="2.2" />
+                  <circle cx="15" cy="17" r="2.2" />
+                  <circle cx="20" cy="11" r="2.2" />
+                  <circle cx="25" cy="8" r="2.2" />
+                  <circle cx="27" cy="14" r="2.2" />
+                  <circle cx="22" cy="20" r="2.2" />
+                </svg>
+              </button>
+              <button id="btn-language" class="tool-btn" type="button" aria-label="Switch language"><i class="bi bi-translate"></i></button>
+            </div>
           </div>
+          <input type="text" id="search-input" placeholder="Search files..." />
         </div>
         <div id="file-tree" class="file-tree"></div>
       </nav>
@@ -62,34 +74,45 @@
             <pre><code id="code-el"></code></pre>
           </div>
           <div id="diff-view" class="diff-view" style="display:none"></div>
+          <section id="star-map-workspace" style="display:none">
+            <div class="star-map-canvas">
+              <div class="star-map-toolset" role="toolbar" aria-label="Star map tools">
+                <button id="btn-reset-star-map" class="tool-btn" type="button" aria-label="Reset view"><i class="bi bi-crosshair"></i></button>
+              </div>
+              <svg id="star-map-svg" viewBox="-900 -600 1800 1200" role="img" aria-label="Module star map">
+                <g id="star-map-layer"></g>
+              </svg>
+              <div id="star-map-file-list" class="star-map-file-list"></div>
+            </div>
+            <aside class="star-map-details">
+              <div class="module-detail-header">
+                <h3 id="module-detail-title">Repository root</h3>
+                <span id="module-detail-status" class="module-status unchanged">Unchanged</span>
+              </div>
+              <div id="module-detail-body" class="module-detail-body"></div>
+            </aside>
+          </section>
+          <div id="code-popover-backdrop" class="code-popover-backdrop" style="display:none"></div>
+          <aside id="code-popover" class="code-popover" style="display:none">
+            <div class="code-popover-header">
+              <strong id="code-popover-title"></strong>
+              <button id="btn-close-code-popover" class="tool-btn" type="button" aria-label="Close code"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <pre><code id="code-popover-content"></code></pre>
+          </aside>
         </div>
       </section>
     </div>
-
-    <section id="star-map-workspace" style="display:none">
-      <div class="star-map-canvas">
-        <div class="star-map-toolbar">
-          <div>
-            <h2 data-i18n="starTitle">Star Map</h2>
-            <p data-i18n="starDescription">Browse repository modules as a nested star map.</p>
-          </div>
-          <button id="btn-reset-star-map" class="toggle-btn" data-i18n="resetView">Reset view</button>
-        </div>
-        <svg id="star-map-svg" viewBox="-900 -600 1800 1200" role="img" aria-label="Module star map">
-          <g id="star-map-layer"></g>
-        </svg>
-        <div class="star-map-help" data-i18n="starHelp">Wheel to zoom. Drag the canvas to pan.</div>
-      </div>
-      <aside class="star-map-details">
-        <div class="module-detail-header">
-          <h3 id="module-detail-title">Repository root</h3>
-          <span id="module-detail-status" class="module-status unchanged">Unchanged</span>
-        </div>
-        <div id="module-detail-body" class="module-detail-body"></div>
-      </aside>
-    </section>
+    <div id="global-tooltip" role="tooltip" style="display:none"></div>
   </div>
 
-  <script src="assets/app.js"></script>
+  <script src="assets/modules/star-map-layout.js"></script>
+  <script src="assets/app-state.js"></script>
+  <script src="assets/app-tree.js"></script>
+  <script src="assets/app-file-view.js"></script>
+  <script src="assets/app-module-tree.js"></script>
+  <script src="assets/app-star-map.js"></script>
+  <script src="assets/app-design-panel.js"></script>
+  <script src="assets/app-events.js"></script>
 </body>
 </html>

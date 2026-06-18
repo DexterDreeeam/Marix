@@ -1,0 +1,297 @@
+const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
+
+function layoutScopeStarMap(scopeNode, options) {
+  const {
+    sourceRoot,
+    getParentPath,
+    findModule,
+    getChange,
+    getImmediateFiles,
+    isHiddenPath,
+    collectExposedGroups,
+    normalizeStatus,
+    getShortElementName
+  } = options;
+
+  const layout = [];
+  const rootItem = {
+    kind: "module",
+    node: scopeNode,
+    changed: scopeNode.changed,
+    depth: 0,
+    parent: null,
+    visualRadius: 38,
+    depthClass: "near",
+    x: 0,
+    y: 0
+  };
+  layout.push(rootItem);
+
+  const moduleItems = (scopeNode.children || []).map(child => ({
+    kind: "module",
+    node: child,
+    changed: child.changed,
+    edgeKind: "child"
+  }));
+  const parentPath = getParentPath(scopeNode.path);
+  const parentNode = parentPath && parentPath !== scopeNode.path ? findModule(parentPath) : null;
+  const parentItems = parentNode ? [{
+    kind: "module",
+    node: parentNode,
+    changed: parentNode.changed,
+    edgeKind: "parent",
+    nodeRole: "parent"
+  }] : [];
+  const children = parentItems.concat(moduleItems);
+
+  const count = children.length;
+  const radius = Math.max(210, Math.min(360, 130 + count * 18));
+  for (let i = 0; i < count; i++) {
+    const id = getLayoutItemId(children[i], sourceRoot);
+    const segment = count > 0 ? (Math.PI * 2) / count : Math.PI * 2;
+    const baseAngle = count === 1 ? -Math.PI / 2 : segment * i - Math.PI / 2;
+    const angleJitter = (stableRandom(`${id}:angle`) - 0.5) * segment * 0.58;
+    const radiusJitter = 0.84 + stableRandom(`${id}:radius`) * 0.32;
+    const z = stableRandom(`${id}:z`);
+    const baseVisualRadius = children[i].edgeKind === "parent" ? 33 : 23;
+    const visualRadius = baseVisualRadius + Math.round(z * 8);
+    layout.push({
+      ...children[i],
+      depth: 1,
+      parent: rootItem,
+      visualRadius,
+      depthClass: z > 0.66 ? "near" : (z < 0.33 ? "far" : "mid"),
+      x: Math.cos(baseAngle + angleJitter) * radius * radiusJitter,
+      y: Math.sin(baseAngle + angleJitter) * radius * radiusJitter
+    });
+  }
+
+  const moduleObstacles = layout.filter(item => item.kind === "module");
+  const exposedItems = layoutExposedElements(scopeNode, radius, moduleObstacles, {
+    collectExposedGroups,
+    normalizeStatus,
+    getShortElementName
+  });
+  layout.push(...exposedItems);
+  return layout;
+}
+
+function layoutExposedElements(scopeNode, moduleRadius, moduleObstacles, options) {
+  const { collectExposedGroups, normalizeStatus } = options;
+  const groups = collectExposedGroups(scopeNode.path);
+  const elements = groups.flatMap((group, groupIndex) => (group.elements || []).map((element, elementIndex) => ({
+    groupName: group.name,
+    groupIndex,
+    element,
+    elementIndex,
+    id: element.id || `${scopeNode.path}:${group.name}:${groupIndex}:${element.name}:${elementIndex}`
+  })));
+  const count = elements.length;
+  if (count === 0) return [];
+
+  const layoutRadiusX = 500 + Math.min(260, count * 6);
+  const layoutRadiusY = 330 + Math.min(190, count * 4);
+
+  const initialLayout = elements
+    .sort((a, b) => stableHash(a.id) - stableHash(b.id))
+    .map((entry, index) => {
+      const status = normalizeStatus(entry.element.changeStatus);
+      const changedWeight = status === "unchanged" ? 1 : 0.62;
+      const t = (index + 0.5) / count;
+      const radiusFactor = Math.max(0.28, Math.sqrt(t) * changedWeight);
+      const angle = index * GOLDEN_ANGLE + stableRandom(`${entry.id}:angle`) * 0.34;
+      const jitterX = (stableRandom(`${entry.id}:jx`) - 0.5) * 46;
+      const jitterY = (stableRandom(`${entry.id}:jy`) - 0.5) * 34;
+      const safeBandOffset = 110 + (entry.groupIndex % 3) * 34;
+      let x = Math.cos(angle) * layoutRadiusX * radiusFactor + jitterX;
+      let y = Math.sin(angle) * layoutRadiusY * radiusFactor + jitterY;
+
+      if (Math.hypot(x, y) < moduleRadius + 82) {
+        const pushAngle = angle + stableRandom(`${entry.id}:push`) * 0.45;
+        x = Math.cos(pushAngle) * (moduleRadius + safeBandOffset);
+        y = Math.sin(pushAngle) * (moduleRadius + safeBandOffset * 0.72);
+      }
+
+      return {
+        kind: "exposed",
+        groupName: entry.groupName,
+        element: entry.element,
+        changed: normalizeStatus(entry.element.changeStatus) !== "unchanged",
+        depth: 2,
+        parent: null,
+        visualRadius: 10 + Math.round(stableRandom(`${entry.id}:size`) * 4),
+        depthClass: "near",
+        x,
+        y
+      };
+    });
+
+  return layoutWithD3Force(initialLayout, moduleRadius, moduleObstacles, options);
+}
+
+function layoutWithD3Force(items, moduleRadius, moduleObstacles, options) {
+  if (window.d3 && typeof window.d3.forceSimulation === "function") {
+    return layoutWithD3ForceSimulation(items, moduleRadius, moduleObstacles, options);
+  }
+  return relaxExposedLayout(items, moduleRadius, moduleObstacles, options);
+}
+
+function layoutWithD3ForceSimulation(items, moduleRadius, moduleObstacles, options) {
+  const nodes = items.map(item => {
+    const box = getExposedLabelBox(item, options);
+    return {
+      ...item,
+      targetX: item.x,
+      targetY: item.y,
+      collisionRadius: Math.max(28, Math.hypot(box.width / 2, box.height / 2) + getNodeRadius(item) + 6)
+    };
+  });
+  const obstacles = (moduleObstacles || []).map(item => ({
+    obstacle: true,
+    x: item.x,
+    y: item.y,
+    fx: item.x,
+    fy: item.y,
+    collisionRadius: getNodeRadius(item) + 68
+  }));
+
+  const simulation = window.d3.forceSimulation(nodes.concat(obstacles))
+    .alpha(1)
+    .alphaMin(0.001)
+    .velocityDecay(0.52)
+    .force("x", window.d3.forceX(d => d.obstacle ? d.x : d.targetX).strength(d => d.obstacle ? 1 : 0.18))
+    .force("y", window.d3.forceY(d => d.obstacle ? d.y : d.targetY).strength(d => d.obstacle ? 1 : 0.18))
+    .force("center-clear", window.d3.forceRadial(moduleRadius + 92, 0, 0).strength(d => d.obstacle ? 0 : (Math.hypot(d.x, d.y) < moduleRadius + 92 ? 0.22 : 0.015)))
+    .force("collide", window.d3.forceCollide(d => d.collisionRadius).strength(0.94).iterations(4))
+    .stop();
+
+  for (let i = 0; i < 150; i++) simulation.tick();
+  return finalizeExposedLayout(nodes, options);
+}
+
+function relaxExposedLayout(items, moduleRadius, moduleObstacles, options) {
+  const relaxed = items.map(item => ({ ...item }));
+  for (let iteration = 0; iteration < 18; iteration++) {
+    for (let i = 0; i < relaxed.length; i++) {
+      for (let j = i + 1; j < relaxed.length; j++) {
+        const a = relaxed[i];
+        const b = relaxed[j];
+        const aBox = getExposedLabelBox(a, options);
+        const bBox = getExposedLabelBox(b, options);
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const minX = (aBox.width + bBox.width) / 2 + 16;
+        const minY = (aBox.height + bBox.height) / 2 + 12;
+        const overlapX = minX - Math.abs(dx);
+        const overlapY = minY - Math.abs(dy);
+        if (overlapX > 0 && overlapY > 0) {
+          const pushAxisX = overlapX < overlapY;
+          const direction = pushAxisX
+            ? (dx === 0 ? (stableRandom(`${getExposedElementId(a)}:${getExposedElementId(b)}:x`) > 0.5 ? 1 : -1) : Math.sign(dx))
+            : (dy === 0 ? (stableRandom(`${getExposedElementId(a)}:${getExposedElementId(b)}:y`) > 0.5 ? 1 : -1) : Math.sign(dy));
+          const push = (pushAxisX ? overlapX : overlapY) / 2 + 2;
+          if (pushAxisX) {
+            a.x -= direction * push;
+            b.x += direction * push;
+          } else {
+            a.y -= direction * push;
+            b.y += direction * push;
+          }
+        }
+      }
+
+      const distance = Math.max(1, Math.hypot(relaxed[i].x, relaxed[i].y));
+      if (distance < moduleRadius + 78) {
+        const scale = (moduleRadius + 78) / distance;
+        relaxed[i].x *= scale;
+        relaxed[i].y *= scale;
+      }
+
+      for (const obstacle of moduleObstacles || []) {
+        const dx = relaxed[i].x - obstacle.x;
+        const dy = relaxed[i].y - obstacle.y;
+        const distanceToObstacle = Math.max(1, Math.hypot(dx, dy));
+        const minDistance = getNodeRadius(obstacle) + getNodeRadius(relaxed[i]) + 68;
+        if (distanceToObstacle < minDistance) {
+          const scale = minDistance / distanceToObstacle;
+          relaxed[i].x = obstacle.x + dx * scale;
+          relaxed[i].y = obstacle.y + dy * scale;
+        }
+      }
+    }
+  }
+
+  return finalizeExposedLayout(relaxed, options);
+}
+
+function finalizeExposedLayout(items, options) {
+  return items.map(item => {
+    const maxX = 900;
+    const maxY = 590;
+    item.x = Math.max(-maxX, Math.min(maxX, item.x));
+    item.y = Math.max(-maxY, Math.min(maxY, item.y));
+    const label = options.getShortElementName(item.element || {});
+    item.label = label;
+    item.labelX = 0;
+    item.labelY = getNodeRadius(item) + 14;
+    item.labelAnchor = "middle";
+    return item;
+  });
+}
+
+function getExposedLabelBox(item, options) {
+  const label = options.getShortElementName(item.element || {});
+  return {
+    width: Math.max(42, label.length * 5.6 + 18),
+    height: 24
+  };
+}
+
+function getExposedElementId(item) {
+  const element = item.element || {};
+  return element.id || `${item.groupName || "group"}:${element.name || "element"}`;
+}
+
+function getLayoutItemId(item, sourceRoot) {
+  if (item.kind === "module" && item.node) return item.node.path || sourceRoot;
+  return item.path || item.name || "item";
+}
+
+function stableHash(value) {
+  let hash = 2166136261;
+  const text = String(value || "");
+  for (let i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function stableRandom(value) {
+  return stableHash(value) / 4294967295;
+}
+
+function getNodeRadius(item) {
+  return item && item.visualRadius ? item.visualRadius : (item && item.depth === 0 ? 38 : 26);
+}
+
+function computeEdgePath(from, to, sourceRoot) {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const length = Math.max(1, Math.hypot(dx, dy));
+  const ux = dx / length;
+  const uy = dy / length;
+  const startGap = getNodeRadius(from) + 10;
+  const endGap = getNodeRadius(to) + 14;
+  const x1 = from.x + ux * startGap;
+  const y1 = from.y + uy * startGap;
+  const x2 = to.x - ux * endGap;
+  const y2 = to.y - uy * endGap;
+  const midpointX = (x1 + x2) / 2;
+  const midpointY = (y1 + y2) / 2;
+  const curveKey = `${getLayoutItemId(from, sourceRoot)}->${getLayoutItemId(to, sourceRoot)}:${to.edgeKind || "child"}`;
+  const curve = (stableRandom(curveKey) - 0.5) * 72;
+  const controlX = midpointX + -uy * curve;
+  const controlY = midpointY + ux * curve;
+  return `M ${x1.toFixed(2)} ${y1.toFixed(2)} Q ${controlX.toFixed(2)} ${controlY.toFixed(2)} ${x2.toFixed(2)} ${y2.toFixed(2)}`;
+}

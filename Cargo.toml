@@ -1,0 +1,13 @@
+[package]
+name = "marix"
+version = "0.1.0"
+edition = "2021"
+description = "Agent framework core and overview visualization data model."
+license = "MIT"
+
+[lib]
+name = "marix"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
