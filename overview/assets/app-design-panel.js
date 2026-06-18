@@ -278,13 +278,28 @@
     const popover = document.getElementById("code-popover");
     const codeEl = document.getElementById("code-popover-content");
     document.getElementById("code-popover-title").textContent = title;
-    codeEl.textContent = code;
-    codeEl.className = "";
+    codeEl.className = "code-popover-content code-popover-code";
     codeEl.removeAttribute("data-highlighted");
+    codeEl.textContent = code;
     if (languageName && window.hljs && hljs.getLanguage(languageName)) {
       codeEl.classList.add(`language-${languageName}`);
       hljs.highlightElement(codeEl);
     }
+    backdrop.style.display = "block";
+    popover.style.display = "flex";
+  }
+
+  async function showFilePopover(path) {
+    const entry = await ensureFileContent(path);
+    const change = getChange(path) || { diff_lines: [], hunks: [] };
+    const ext = path.split(".").pop().toLowerCase();
+    const backdrop = document.getElementById("code-popover-backdrop");
+    const popover = document.getElementById("code-popover");
+    const codeEl = document.getElementById("code-popover-content");
+    document.getElementById("code-popover-title").textContent = path;
+    codeEl.className = "code-popover-content code-popover-file";
+    codeEl.removeAttribute("data-highlighted");
+    codeEl.innerHTML = renderFullFilePanel(path, (entry && entry.content) || "", change, ext, { embedded: true });
     backdrop.style.display = "block";
     popover.style.display = "flex";
   }

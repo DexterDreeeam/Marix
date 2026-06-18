@@ -285,7 +285,7 @@
       `;
     }
 
-    function renderFullFilePanel(path, content, change, ext) {
+    function renderFullFilePanel(path, content, change, ext, options = {}) {
       const markers = collectDiffMarkers(change.diff_lines || []);
       const lines = content.split(/\r?\n/);
       const languageName = getLanguageFromExt(ext);
@@ -298,6 +298,10 @@
       }
 
       body.push(renderDeletedLines(markers.deletedBefore.get(lines.length + 1), languageName));
+
+      if (options.embedded) {
+        return `<div class="full-file-lines full-file-lines-embedded">${body.join("")}</div>`;
+      }
 
       return `
         <div class="full-file-panel">

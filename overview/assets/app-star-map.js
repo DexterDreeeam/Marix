@@ -153,8 +153,7 @@
         localStorage.setItem(STORAGE_KEYS.currentFile, currentFile);
         setScopePath(currentDirectory);
         selectedModule = getScopeModule();
-        renderModuleDetails(selectedModule);
-        renderStarMap();
+        showFilePopover(currentFile);
       });
     }
   }
@@ -396,10 +395,8 @@
       currentFile = item.path;
       currentDirectory = getParentPath(item.path);
       localStorage.setItem(STORAGE_KEYS.currentFile, item.path);
-      requestStarMapFit();
       selectedModule = getScopeModule();
-      renderModuleDetails(selectedModule);
-      renderStarMap();
+      showFilePopover(item.path);
     });
 
     return group;

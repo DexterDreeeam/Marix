@@ -162,6 +162,7 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .legend-existing { color: var(--text-secondary); background: rgba(139, 148, 158, 0.12); }
 .legend-deleted { color: var(--red); background: rgba(248, 81, 73, 0.14); }
 .full-file-lines { overflow-x: auto; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 13px; line-height: 1.5; }
+.full-file-lines-embedded { overflow: visible; }
 .full-file-line { display: grid; grid-template-columns: 56px minmax(0, 1fr); white-space: pre; }
 .full-line-number { padding: 0 8px; text-align: right; color: var(--text-muted); user-select: none; border-right: 1px solid rgba(48, 54, 61, 0.7); }
 .full-line-content { padding: 0 10px; min-width: 0; }
@@ -297,8 +298,9 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .code-popover-backdrop { position: absolute; inset: 0; z-index: 20; background: rgba(1, 4, 9, 0.38); }
 .code-popover { position: absolute; top: 24px; bottom: 24px; right: min(540px, 36%); z-index: 21; width: min(760px, 58%); display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-secondary); box-shadow: 0 20px 60px rgba(0,0,0,0.42); overflow: hidden; }
 .code-popover-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--bg-tertiary); }
-.code-popover pre { flex: 1; margin: 0; padding: 14px; overflow: auto; background: var(--bg-primary); }
-.code-popover code { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 13px; line-height: 1.5; }
+.code-popover-content { flex: 1; overflow: auto; background: var(--bg-primary); }
+.code-popover-code { padding: 14px; white-space: pre; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 13px; line-height: 1.5; }
+.code-popover-file { padding: 14px; }
 
 /* ── Dir Toggle ── */
 .dir-children { overflow: hidden; }

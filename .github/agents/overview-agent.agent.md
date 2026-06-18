@@ -54,7 +54,15 @@ Keep overview frontend logic modular. `overview/assets/app.js` is the entry/orch
 
 The overview file tree and star map are indexed from `src/` only. Content outside `src/` must not be tracked in the left tree or star-map module graph. The `src/` folder itself should be visible as the root folder in the left tree.
 
+The overview page must not depend on checked-in manifest files. On first load, ask the user to choose a data source and cache that choice: GitHub online data or a local repository folder. GitHub mode builds data dynamically from GitHub repository tree and `marix_tag_*` compare APIs. Local mode uses the File System Access API and an IndexedDB-cached directory handle; if the cached local folder cannot be read, clear the cached source and ask the user to choose again. Keep the reset-data-source button immediately to the right of the language switch button.
+
+In GitHub data-source mode, file view is diff-only: hide the "view all files" and "view whole file" buttons, and allow only changed files and changed sections from tag diff data. In local data-source mode, keep those buttons visible because local file content can be read directly. Do not eagerly fetch every file blob from GitHub; initialize from tree/diff metadata, preload only `.design.md` / fallback `.design.json`, and lazy-load normal file content when the user opens a file.
+
+The left file tree must reflect `marix_tag_*` diff data by default. Build the default tree from changed `src/` files only; the "view all files" toggle may show all `src/` files only in local mode. Deleted files from the diff should still appear in the tree and open their diff sections even when the current tree has no file content. File icons should be compact rounded chips, with Rust `RS` visibly highlighted.
+
 Star-map scope is determined by the current source selection. Selecting a folder makes that folder the scope. Selecting a file makes its parent folder the scope. In star-map mode, clicking a module node switches scope and re-renders the star map. Clicking empty map background restores the current scope module details in the right panel. Module-to-module relationships are shown as the main graph. Files contained in the current scope are shown in an upper-right scroll list, not as graph nodes, and the list should not show a redundant "Files" title.
+
+In star-map mode, clicking a file in the upper-right file list or a file node opens the shared code popover. For files, the popover must show complete file contents with diff colors inline, without nesting a second full-file panel or header inside the popover. The normal file-view full-file panel may keep its own header/legend.
 
 Publicly exposed items from `.design.md` or fallback `.design.json` `exposedGroups` should be scattered across the star map as smaller grouped nodes. Interfaces and classes use small spheres/circles, data types/enums/structs/global variables use small squares, and public global interfaces use small triangles. Clicking an exposed element opens its code snippet in the code popover with language highlighting.
 
@@ -72,7 +80,9 @@ Star-map module nodes should have visual depth. Use stable pseudo-random layout 
 
 Module names should be displayed in the center of each module circle with white text and a diagonal lower shadow, not a semi-transparent background block. The selected module should use a deep red outline instead of a blue outline. Parent module nodes should be slightly larger than child module nodes so hierarchy is visible at a glance.
 
-Module property panels must render `.design.md` data only, falling back to existing `.design.json` where no Markdown design file exists. Module panels should show only non-empty sections: child modules, public interfaces, and exposed type sections promoted to the top level by kind. File path lists should not render internal file details in the right panel. Code snippets open by clicking the whole interface/type block, and clicking outside the popover hides it.
+Module property panels must render `.design.md` data only, falling back to existing `.design.json` where no Markdown design file exists. Module panels should show only non-empty sections: child modules, public interfaces, and exposed type sections promoted to the top level by kind. Within every section, changed items must sort above unchanged items. File path lists should not render internal file details in the right panel. Code snippets open by clicking the whole interface/type block, and clicking outside the popover hides it.
+
+Every module, child module, public interface, and exposed type block must visibly show change status. Use green for added, yellow for modified or renamed, red for deleted, and neutral gray for unchanged. The star-map details panel itself should use a colored side border based on selected module status. Interface/type cards should show a status badge and a status-colored edge; if an item has no explicit `changeStatus`, infer it from the `sourcePath` file's tag-diff status. Exposed star-map element nodes should also expose status through their classes and outlines, not only through type color.
 
 ## Rules
 

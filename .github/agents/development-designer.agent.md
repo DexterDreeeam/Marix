@@ -29,6 +29,22 @@ Maintain `.design.md` files under every folder in `src/`, preserving existing `.
 - Keep design content concise but complete enough for the overview star map to display module details.
 - Keep the JSON payload inside `.design.md` valid and machine-readable. The overview module reads `.design.md` directly and uses `.design.json` only as a compatibility fallback.
 
+## Design Generation Experience
+
+- Generate `.design.md` as a machine-readable JSON payload. Raw JSON is acceptable; fenced `json` blocks are also accepted by the overview UI.
+- Keep paths rooted at the repository root and under `src/`, for example `src/overview/star_map.rs`. Do not document files outside `src/` for overview source maps.
+- Include `changeStatus` on modules, child modules, files, file items, and exposed elements whenever it is known. The overview UI uses this field for sorting, badges, side borders, and star-map status outlines.
+- If item-level status is unknown but the source file is changed, the overview UI can infer a modified status from `sourcePath`; prefer explicit item-level `changeStatus` when possible.
+- `exposedGroups` should contain only concrete public definitions that users can inspect: public traits, structs, enums, functions, type aliases, constants, statics, classes, and global values.
+- Do not include import/export wiring in `exposedGroups`, including `mod ...`, `pub mod ...`, `pub use ...`, and private helper wiring. These can remain in file `items` if useful, but they should not become star-map exposed elements.
+- Do not expose single-field tuple wrappers such as `pub struct ModuleId(pub String);` as star-map elements unless they have meaningful behavior beyond the wrapper itself.
+- Create one exposed element per public definition. Do not combine names with `/`, commas, or summary labels such as `A/B/C`.
+- Store the complete source definition in `code`; do not store only the signature. `lineStart` and `lineEnd` must point to that same complete definition.
+- Prefer stable, normalized element IDs based on source path plus symbol name, such as `src/overview/star_map.rs#starmapprovider`.
+- Use `category: "interface"` for traits, externally callable public functions, and public API surfaces. Use `category: "data"` for structs, enums, type aliases, constants, statics, and storage/config models.
+- Use `shape: "circle"` for interfaces/classes, `shape: "square"` for data definitions, and `shape: "triangle"` only for public global interfaces or global API surfaces.
+- Keep `details` short and user-facing. The overview right panel should remain scannable; put full source in `code`, not in prose.
+
 ## Output Format
 
 Use JSON with this shape:
@@ -106,8 +122,8 @@ Allowed item categories are `interface`, `implementation`, `data`, and `module`.
 - The star map should render exposed elements from `exposedGroups`: circles for interfaces/classes, squares for data/data definitions, and triangles for public global interfaces.
 - Clicking a module node shows that module's design document.
 - Clicking an exposed element opens the code popover for that element.
-- Clicking a file node shows the corresponding file entry from the parent module's design document.
-- File details should be collapsible by item so users can expand interfaces, implementations, and data definitions only when needed.
+- Clicking a file in star-map context opens a code popover with the full file and diff coloring; the right module panel should not switch to internal file details.
+- File item details remain useful as source metadata, but the overview right module panel should focus on module sections and exposed definitions rather than file internals.
 - Interface items should expose implementation details from the `implements` array.
 - Item code should be stored in `code`; the overview UI opens it in a popover extending from the right property panel over the star map. Clicking outside the popover hides it.
 
