@@ -5,9 +5,10 @@ description: Commit current changes, create a marix tag, and synchronize the cur
 
 ## Workflow
 
-1. **Sync First** — Run `git pull --rebase origin <current-branch>` before committing, so the new tag points to the final synchronized history. Resolve conflicts if possible; if conflicts cannot be resolved confidently, run `git rebase --abort` and inform the user.
-2. **Stage & Commit** — Run `git add -A` and commit all current changes with a concise English message (≤20 words). Include the trailer: `Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>`.
-3. **Create Tag** — Create an annotated tag in the format:
+1. **Prepare GitHub CLI** — Ensure `gh` is installed before any remote GitHub operation. If missing on Windows, install it with `winget install --id GitHub.cli -e --source winget --accept-package-agreements --accept-source-agreements`. If push credentials are missing, run `gh auth login` or otherwise configure GitHub credentials before pushing.
+2. **Sync First** — Run `git pull --rebase origin <current-branch>` before committing, so the new tag points to the final synchronized history. Resolve conflicts if possible; if conflicts cannot be resolved confidently, run `git rebase --abort` and inform the user.
+3. **Stage & Commit** — Run `git add -A` and commit all current changes with a concise English message (≤20 words). Include the trailer: `Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>`.
+4. **Create Tag** — Create an annotated tag in the format:
 
    ```
    marix_tag_<timestamp>_<purpose>
@@ -17,10 +18,10 @@ description: Commit current changes, create a marix tag, and synchronize the cur
    - `<purpose>`: a short snake_case summary of the change (e.g., `add_model_adapter`, `fix_memory_leak`).
    - Example: `marix_tag_20260618_150900_add_git_skills`
 
-4. **Sync Remote** — Push the current branch and the created tag to remote:
+5. **Sync Remote** — Push the current branch and the created tag to remote:
    - `git push origin <current-branch>`
    - `git push origin <tag-name>`
-5. **Report** — Show the commit hash, tag name, and remote synchronization result.
+6. **Report** — Show the commit hash, tag name, and remote synchronization result.
 
 ## Rules
 

@@ -1,5 +1,5 @@
 ﻿{
-    "generated_at":  "2026-06-18T15:44:19.9879340+08:00",
+    "generated_at":  "2026-06-18T15:53:23.9386284+08:00",
     "diff":  {
                  "changes":  {
                                  "overview/index.html":  {
@@ -146,31 +146,39 @@
                                                                                    "reason":  ""
                                                                                },
                                                                                {
-                                                                                   "header":  "@@ -45,9 +45,9 @@ function Scan-Files {",
+                                                                                   "header":  "@@ -30,6 +30,15 @@ $ImageExts = @(\".png\", \".jpg\", \".jpeg\", \".gif\", \".svg\", \".webp\", \".ico\", \".bmp\")",
                                                                                    "reason":  ""
                                                                                },
                                                                                {
-                                                                                   "header":  "@@ -125,7 +125,12 @@ function Get-FileDiffLines {",
+                                                                                   "header":  "@@ -45,9 +54,7 @@ function Scan-Files {",
                                                                                    "reason":  ""
                                                                                },
                                                                                {
-                                                                                   "header":  "@@ -138,7 +143,10 @@ function Get-FileDiffLines {",
+                                                                                   "header":  "@@ -115,6 +122,7 @@ function Get-TagDiff {",
                                                                                    "reason":  ""
                                                                                },
                                                                                {
-                                                                                   "header":  "@@ -147,7 +155,7 @@ Write-Host \"Scanning repository files...\"",
+                                                                                   "header":  "@@ -125,7 +133,12 @@ function Get-FileDiffLines {",
                                                                                    "reason":  ""
                                                                                },
                                                                                {
-                                                                                   "header":  "@@ -166,9 +174,9 @@ if ($tags.Count -ge 2) {",
+                                                                                   "header":  "@@ -138,7 +151,10 @@ function Get-FileDiffLines {",
                                                                                    "reason":  ""
                                                                                },
                                                                                {
-                                                                                   "header":  "@@ -181,9 +189,9 @@ if ($tags.Count -ge 2) {",
+                                                                                   "header":  "@@ -147,7 +163,7 @@ Write-Host \"Scanning repository files...\"",
                                                                                    "reason":  ""
                                                                                },
                                                                                {
-                                                                                   "header":  "@@ -200,7 +208,7 @@ $manifest = @{",
+                                                                                   "header":  "@@ -166,9 +182,9 @@ if ($tags.Count -ge 2) {",
+                                                                                   "reason":  ""
+                                                                               },
+                                                                               {
+                                                                                   "header":  "@@ -181,9 +197,9 @@ if ($tags.Count -ge 2) {",
+                                                                                   "reason":  ""
+                                                                               },
+                                                                               {
+                                                                                   "header":  "@@ -200,7 +216,7 @@ $manifest = @{",
                                                                                    "reason":  ""
                                                                                }
                                                                            ],
@@ -194,20 +202,42 @@
                                                                                     " ",
                                                                                     " # ── Excluded paths ──",
                                                                                     " $ExcludeDirs = @(\".git\", \"__pycache__\", \"node_modules\", \".venv\", \"venv\", \".mypy_cache\", \".pytest_cache\", \"target\")",
-                                                                                    "@@ -45,9 +45,9 @@ function Scan-Files {",
+                                                                                    "@@ -30,6 +30,15 @@ $ImageExts = @(\".png\", \".jpg\", \".jpeg\", \".gif\", \".svg\", \".webp\", \".ico\", \".bmp\")",
+                                                                                    " $BinaryExts = $ImageExts + @(\".woff\", \".woff2\", \".ttf\", \".eot\", \".zip\", \".tar\", \".gz\", \".exe\", \".dll\", \".so\", \".dylib\", \".pdb\", \".obj\")",
+                                                                                    " $MaxFileSize = 100 * 1024  # 100KB",
+                                                                                    " ",
+                                                                                    "+function Test-GeneratedPath {",
+                                                                                    "+    param([string]$Path)",
+                                                                                    "+",
+                                                                                    "+    return $Path -eq \"overview/manifest.json\" `",
+                                                                                    "+        -or $Path -eq \"docs/manifest.json\" `",
+                                                                                    "+        -or $Path -like \"overview/content/*\" `",
+                                                                                    "+        -or $Path -like \"docs/content/*\"",
+                                                                                    "+}",
+                                                                                    "+",
+                                                                                    " # ── Scan Files ──",
+                                                                                    " function Scan-Files {",
+                                                                                    "     $files = @{}",
+                                                                                    "@@ -45,9 +54,7 @@ function Scan-Files {",
                                                                                     "         }",
                                                                                     "         if ($skip) { continue }",
                                                                                     " ",
                                                                                     "-        # Skip docs/content/",
                                                                                     "-        if ($relPath -like \"docs/content/*\") { continue }",
                                                                                     "-        if ($relPath -eq \"docs/manifest.json\") { continue }",
-                                                                                    "+        # Skip generated overview content.",
-                                                                                    "+        if ($relPath -like \"overview/content/*\") { continue }",
-                                                                                    "+        if ($relPath -eq \"overview/manifest.json\") { continue }",
+                                                                                    "+        if (Test-GeneratedPath -Path $relPath) { continue }",
                                                                                     " ",
                                                                                     "         $ext = [System.IO.Path]::GetExtension($f.Name).ToLower()",
                                                                                     "         $entry = @{ size = $f.Length }",
-                                                                                    "@@ -125,7 +125,12 @@ function Get-FileDiffLines {",
+                                                                                    "@@ -115,6 +122,7 @@ function Get-TagDiff {",
+                                                                                    "         if ($parts.Count -ge 2) {",
+                                                                                    "             $status = $parts[0][0].ToString()",
+                                                                                    "             $filepath = $parts[$parts.Count - 1].Replace(\"\\\", \"/\")",
+                                                                                    "+            if (Test-GeneratedPath -Path $filepath) { continue }",
+                                                                                    "             $changes[$filepath] = @{ status = $status }",
+                                                                                    "         }",
+                                                                                    "     }",
+                                                                                    "@@ -125,7 +133,12 @@ function Get-FileDiffLines {",
                                                                                     "     param([string]$FromRef, [string]$ToRef, [string]$FilePath)",
                                                                                     " ",
                                                                                     "     $output = git diff -U3 \"$FromRef..$ToRef\" -- $FilePath 2\u003e$null",
@@ -221,7 +251,7 @@
                                                                                     " ",
                                                                                     "     $lines = $output -split \"`n\"",
                                                                                     "     $diffLines = @()",
-                                                                                    "@@ -138,7 +143,10 @@ function Get-FileDiffLines {",
+                                                                                    "@@ -138,7 +151,10 @@ function Get-FileDiffLines {",
                                                                                     "         }",
                                                                                     "         $diffLines += $line",
                                                                                     "     }",
@@ -233,7 +263,7 @@
                                                                                     " }",
                                                                                     " ",
                                                                                     " # ── Main ──",
-                                                                                    "@@ -147,7 +155,7 @@ Write-Host \"Scanning repository files...\"",
+                                                                                    "@@ -147,7 +163,7 @@ Write-Host \"Scanning repository files...\"",
                                                                                     " $files = Scan-Files",
                                                                                     " Write-Host \"  Found $($files.Count) files\"",
                                                                                     " ",
@@ -242,7 +272,7 @@
                                                                                     " Write-Host \"  Found $($tags.Count) marix tags: $($tags -join \u0027, \u0027)\"",
                                                                                     " ",
                                                                                     " $diffInfo = @{",
-                                                                                    "@@ -166,9 +174,9 @@ if ($tags.Count -ge 2) {",
+                                                                                    "@@ -166,9 +182,9 @@ if ($tags.Count -ge 2) {",
                                                                                     "     $changes = Get-TagDiff -FromRef $prevTag -ToRef $latestTag",
                                                                                     " ",
                                                                                     "     foreach ($fp in @($changes.Keys)) {",
@@ -255,7 +285,7 @@
                                                                                     "     }",
                                                                                     " ",
                                                                                     "     $diffInfo.changes = $changes",
-                                                                                    "@@ -181,9 +189,9 @@ if ($tags.Count -ge 2) {",
+                                                                                    "@@ -181,9 +197,9 @@ if ($tags.Count -ge 2) {",
                                                                                     "     $changes = Get-TagDiff -FromRef $tag -ToRef \"HEAD\"",
                                                                                     " ",
                                                                                     "     foreach ($fp in @($changes.Keys)) {",
@@ -268,7 +298,7 @@
                                                                                     "     }",
                                                                                     " ",
                                                                                     "     $diffInfo.changes = $changes",
-                                                                                    "@@ -200,7 +208,7 @@ $manifest = @{",
+                                                                                    "@@ -200,7 +216,7 @@ $manifest = @{",
                                                                                     " }",
                                                                                     " ",
                                                                                     " # Write manifest",
@@ -808,8 +838,8 @@
                                     "size":  3016
                                 },
                   ".github/skills/git-tag/SKILL.md":  {
-                                                          "content":  "---\r\nname: git-tag\r\ndescription: Commit current changes, create a marix tag, and synchronize the current branch with remote. Use when the user asks to tag, create a patch point, or run git-tag.\r\n---\r\n\r\n## Workflow\r\n\r\n1. **Sync First** — Run `git pull --rebase origin \u003ccurrent-branch\u003e` before committing, so the new tag points to the final synchronized history. Resolve conflicts if possible; if conflicts cannot be resolved confidently, run `git rebase --abort` and inform the user.\r\n2. **Stage \u0026 Commit** — Run `git add -A` and commit all current changes with a concise English message (≤20 words). Include the trailer: `Co-authored-by: Copilot \u003c223556219+Copilot@users.noreply.github.com\u003e`.\r\n3. **Create Tag** — Create an annotated tag in the format:\r\n\r\n   ```\r\n   marix_tag_\u003ctimestamp\u003e_\u003cpurpose\u003e\r\n   ```\r\n\r\n   - `\u003ctimestamp\u003e`: current time in `YYYYMMDD_HHmmss` format (local time).\r\n   - `\u003cpurpose\u003e`: a short snake_case summary of the change (e.g., `add_model_adapter`, `fix_memory_leak`).\r\n   - Example: `marix_tag_20260618_150900_add_git_skills`\r\n\r\n4. **Sync Remote** — Push the current branch and the created tag to remote:\r\n   - `git push origin \u003ccurrent-branch\u003e`\r\n   - `git push origin \u003ctag-name\u003e`\r\n5. **Report** — Show the commit hash, tag name, and remote synchronization result.\r\n\r\n## Rules\r\n\r\n- This skill only creates tags with the `marix_tag_` prefix. It does NOT modify or interact with any other user-defined tags.\r\n- If there are no changes to commit, skip the commit step and only create the tag on the current HEAD.\r\n- Pushing the current branch and the created `marix_tag_*` tag is part of this skill after the user explicitly invokes `git-tag`.\r\n- Do NOT use `git push --tags`; only push the newly created `marix_tag_*` tag.\r\n",
-                                                          "size":  1759
+                                                          "content":  "---\r\nname: git-tag\r\ndescription: Commit current changes, create a marix tag, and synchronize the current branch with remote. Use when the user asks to tag, create a patch point, or run git-tag.\r\n---\r\n\r\n## Workflow\r\n\r\n1. **Prepare GitHub CLI** — Ensure `gh` is installed before any remote GitHub operation. If missing on Windows, install it with `winget install --id GitHub.cli -e --source winget --accept-package-agreements --accept-source-agreements`. If push credentials are missing, run `gh auth login` or otherwise configure GitHub credentials before pushing.\r\n2. **Sync First** — Run `git pull --rebase origin \u003ccurrent-branch\u003e` before committing, so the new tag points to the final synchronized history. Resolve conflicts if possible; if conflicts cannot be resolved confidently, run `git rebase --abort` and inform the user.\r\n3. **Stage \u0026 Commit** — Run `git add -A` and commit all current changes with a concise English message (≤20 words). Include the trailer: `Co-authored-by: Copilot \u003c223556219+Copilot@users.noreply.github.com\u003e`.\r\n4. **Create Tag** — Create an annotated tag in the format:\r\n\r\n   ```\r\n   marix_tag_\u003ctimestamp\u003e_\u003cpurpose\u003e\r\n   ```\r\n\r\n   - `\u003ctimestamp\u003e`: current time in `YYYYMMDD_HHmmss` format (local time).\r\n   - `\u003cpurpose\u003e`: a short snake_case summary of the change (e.g., `add_model_adapter`, `fix_memory_leak`).\r\n   - Example: `marix_tag_20260618_150900_add_git_skills`\r\n\r\n5. **Sync Remote** — Push the current branch and the created tag to remote:\r\n   - `git push origin \u003ccurrent-branch\u003e`\r\n   - `git push origin \u003ctag-name\u003e`\r\n6. **Report** — Show the commit hash, tag name, and remote synchronization result.\r\n\r\n## Rules\r\n\r\n- This skill only creates tags with the `marix_tag_` prefix. It does NOT modify or interact with any other user-defined tags.\r\n- If there are no changes to commit, skip the commit step and only create the tag on the current HEAD.\r\n- Pushing the current branch and the created `marix_tag_*` tag is part of this skill after the user explicitly invokes `git-tag`.\r\n- Do NOT use `git push --tags`; only push the newly created `marix_tag_*` tag.\r\n",
+                                                          "size":  2109
                                                       },
                   "README.cn.md":  {
                                        "content":  "# Marix\r\n\r\nMarix 是一个功能完整的 AI Agent 框架，用于构建自主、可调用工具的智能代理，底层支持主流的本地和在线大模型。\r\n\r\n## 愿景\r\n\r\n构建一个完整的 Agent 系统，具备以下能力：\r\n\r\n- **推理与规划** — 将复杂任务分解为可执行的步骤\r\n- **工具使用** — 调用外部工具、API 和系统命令\r\n- **上下文管理** — 管理对话历史和工作记忆\r\n- **自我纠错** — 观察执行结果，检测失败并用替代策略重试\r\n\r\n## 支持的模型后端\r\n\r\nMarix 抽象了 LLM 层，Agent 可以运行在以下任意后端上：\r\n\r\n| 类型 | 提供商 | 模型 |\r\n|------|--------|------|\r\n| 在线 | OpenAI | GPT-4o, GPT-4-turbo, o1/o3 系列 |\r\n| 在线 | Anthropic | Claude Sonnet, Claude Opus |\r\n| 在线 | Google | Gemini Pro, Gemini Flash |\r\n| 在线 | DeepSeek | DeepSeek-V3, DeepSeek-R1 |\r\n| 本地 | Ollama | Llama 3, Qwen 2.5, Mistral 等 |\r\n| 本地 | llama.cpp | 通过 HTTP 服务加载 GGUF 模型 |\r\n| 本地 | vLLM | 任意 HuggingFace 模型 |\r\n\r\n## 架构\r\n\r\n```\r\n┌─────────────────────────────────────┐\r\n│          Agent 循环                  │\r\n│  (规划 → 执行 → 观察 → 反思)        │\r\n├─────────────────────────────────────┤\r\n│           工具注册表                  │\r\n│    (内置工具 + 用户自定义工具)        │\r\n├─────────────────────────────────────┤\r\n│         记忆 / 上下文                 │\r\n│    (短期记忆 + 长期存储)             │\r\n├─────────────────────────────────────┤\r\n│         模型适配层                    │\r\n│    (所有 LLM 的统一接口)             │\r\n├──────────┬──────────┬───────────────┤\r\n│  OpenAI  │ Anthropic│  本地/其他     │\r\n└──────────┴──────────┴───────────────┘\r\n```\r\n\r\n## 项目结构\r\n\r\n```\r\nmarix/\r\n├── core/           # Agent 循环、规划器、执行器\r\n├── models/         # 模型适配器 (OpenAI, Anthropic, 本地等)\r\n├── tools/          # 内置工具实现\r\n├── memory/         # 上下文管理与持久化\r\n├── config/         # 配置与模型注册\r\n└── main.py         # 入口\r\n```\r\n\r\n## 快速开始\r\n\r\n\u003e 🚧 正在积极开发中\r\n\r\n```bash\r\n# 克隆\r\ngit clone https://github.com/DexterDreeeam/Marix.git\r\ncd Marix\r\n\r\n# 安装依赖\r\npip install -r requirements.txt\r\n\r\n# 配置模型后端\r\ncp config/example.yaml config/local.yaml\r\n# 编辑 config/local.yaml 填入你的 API key 或本地模型路径\r\n\r\n# 运行\r\npython main.py\r\n```\r\n\r\n## 许可证\r\n\r\nMIT\r\n",
@@ -828,12 +858,12 @@
                                                     "size":  8161
                                                 },
                   ".github/copilot-instructions.md":  {
-                                                          "content":  "# Copilot Instructions for Marix\r\n\r\n## Language Rules\r\n\r\n### Conversation\r\n- All session/conversation content MUST be in **Chinese (中文)**.\r\n\r\n### Documentation\r\n- Documentation uses **dual-language** versions:\r\n  - English version: `filename.md` (e.g., `README.md`, `DESIGN.md`)\r\n  - Chinese version: `filename.cn.md` (e.g., `README.cn.md`, `DESIGN.cn.md`)\r\n- Most documentation files are Markdown (`.md`).\r\n- Both versions must be kept in sync when content changes.\r\n\r\n### Code\r\n- All code MUST be written in **English**, including:\r\n  - Variable names, function names, class names\r\n  - Comments\r\n  - Commit messages\r\n  - Log messages\r\n- The **only exception** is specific Chinese string literals that are required by the application logic (e.g., user-facing Chinese text, i18n strings).\r\n\r\n## Git Policy\r\n\r\n- **Do NOT** run any git commands (`git add`, `git commit`, `git push`, `git pull`, etc.) unless the user explicitly requests a git operation (e.g., invoking `/git-sync` or asking to commit/push).\r\n- Code changes should be made to files only. Let the user decide when to stage, commit, and push.\r\n",
-                                                          "size":  1110
+                                                          "content":  "# Copilot Instructions for Marix\r\n\r\n## Language Rules\r\n\r\n### Conversation\r\n- All session/conversation content MUST be in **Chinese (中文)**.\r\n\r\n### Documentation\r\n- Documentation uses **dual-language** versions:\r\n  - English version: `filename.md` (e.g., `README.md`, `DESIGN.md`)\r\n  - Chinese version: `filename.cn.md` (e.g., `README.cn.md`, `DESIGN.cn.md`)\r\n- Most documentation files are Markdown (`.md`).\r\n- Both versions must be kept in sync when content changes.\r\n\r\n### Code\r\n- All code MUST be written in **English**, including:\r\n  - Variable names, function names, class names\r\n  - Comments\r\n  - Commit messages\r\n  - Log messages\r\n- The **only exception** is specific Chinese string literals that are required by the application logic (e.g., user-facing Chinese text, i18n strings).\r\n\r\n## Git Policy\r\n\r\n- **Do NOT** run any git commands (`git add`, `git commit`, `git push`, `git pull`, etc.) unless the user explicitly requests a git operation (e.g., invoking `/git-sync` or asking to commit/push).\r\n- Code changes should be made to files only. Let the user decide when to stage, commit, and push.\r\n- For explicit git operations that need GitHub access, ensure GitHub CLI (`gh`) is installed first. If it is missing on Windows, install it with `winget install --id GitHub.cli -e --source winget --accept-package-agreements --accept-source-agreements`, then authenticate or configure credentials before pushing.\r\n",
+                                                          "size":  1423
                                                       },
                   ".github/skills/git-sync/SKILL.md":  {
-                                                           "content":  "---\r\nname: git-sync\r\ndescription: Synchronize the current branch with the remote. Use when asked to sync, push changes, or run git-sync.\r\n---\r\n\r\n## Workflow\r\n\r\n1. **Pull \u0026 Rebase** — Run `git pull --rebase origin \u003ccurrent-branch\u003e` to sync with remote.\r\n2. **Resolve Conflicts** — If rebase conflicts occur, resolve them based on code context, stage resolved files, and `git rebase --continue`. If conflicts cannot be resolved confidently, run `git rebase --abort` and inform the user.\r\n3. **Stage \u0026 Commit** — If there are uncommitted changes, run `git add -A` and commit with a concise English message (20 words or fewer). Always include the trailer: `Co-authored-by: Copilot \u003c223556219+Copilot@users.noreply.github.com\u003e`.\r\n4. **Build Pages** — Run `powershell -ExecutionPolicy Bypass -File scripts/build_pages.ps1` to regenerate the GitHub Pages overview with the latest diff data. Stage and commit the updated `overview/manifest.json` with the message \"Update pages manifest\".\r\n5. **Push** — Run `git push origin \u003ccurrent-branch\u003e`.\r\n6. **Report** — Summarize what was done (e.g., committed N files, pushed to branch X). If there are no changes, report \"Already up to date.\"\r\n\r\n## Rules\r\n\r\n- Commit messages must be in **English**, concise, no more than **20 words**.\r\n- Never force-push unless the user explicitly requests it.\r\n- If push fails due to credentials, inform the user to push manually.\r\n",
-                                                           "size":  1414
+                                                           "content":  "---\r\nname: git-sync\r\ndescription: Synchronize the current branch with the remote. Use when asked to sync, push changes, or run git-sync.\r\n---\r\n\r\n## Workflow\r\n\r\n1. **Prepare GitHub CLI** — Ensure `gh` is installed before any remote GitHub operation. If missing on Windows, install it with `winget install --id GitHub.cli -e --source winget --accept-package-agreements --accept-source-agreements`. If push credentials are missing, run `gh auth login` or otherwise configure GitHub credentials before pushing.\r\n2. **Pull \u0026 Rebase** — Run `git pull --rebase origin \u003ccurrent-branch\u003e` to sync with remote.\r\n3. **Resolve Conflicts** — If rebase conflicts occur, resolve them based on code context, stage resolved files, and `git rebase --continue`. If conflicts cannot be resolved confidently, run `git rebase --abort` and inform the user.\r\n4. **Stage \u0026 Commit** — If there are uncommitted changes, run `git add -A` and commit with a concise English message (20 words or fewer). Always include the trailer: `Co-authored-by: Copilot \u003c223556219+Copilot@users.noreply.github.com\u003e`.\r\n5. **Build Pages** — Run `powershell -ExecutionPolicy Bypass -File scripts/build_pages.ps1` to regenerate the GitHub Pages overview with the latest diff data. Stage and commit the updated `overview/manifest.json` with the message \"Update pages manifest\".\r\n6. **Push** — Run `git push origin \u003ccurrent-branch\u003e`.\r\n7. **Report** — Summarize what was done (e.g., committed N files, pushed to branch X). If there are no changes, report \"Already up to date.\"\r\n\r\n## Rules\r\n\r\n- Commit messages must be in **English**, concise, no more than **20 words**.\r\n- Never force-push unless the user explicitly requests it.\r\n- If push fails due to credentials, inform the user to push manually.\r\n",
+                                                           "size":  1764
                                                        },
                   ".github/workflows/pages.yml":  {
                                                       "content":  "name: Deploy Overview\r\n\r\non:\r\n  push:\r\n    branches:\r\n      - main\r\n  workflow_dispatch:\r\n\r\npermissions:\r\n  contents: read\r\n  pages: write\r\n  id-token: write\r\n\r\nconcurrency:\r\n  group: pages\r\n  cancel-in-progress: false\r\n\r\njobs:\r\n  deploy:\r\n    environment:\r\n      name: github-pages\r\n      url: ${{ steps.deployment.outputs.page_url }}\r\n    runs-on: ubuntu-latest\r\n    steps:\r\n      - name: Checkout\r\n        uses: actions/checkout@v4\r\n\r\n      - name: Setup Pages\r\n        uses: actions/configure-pages@v5\r\n\r\n      - name: Upload artifact\r\n        uses: actions/upload-pages-artifact@v3\r\n        with:\r\n          path: overview\r\n\r\n      - name: Deploy to GitHub Pages\r\n        id: deployment\r\n        uses: actions/deploy-pages@v4\r\n",
