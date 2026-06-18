@@ -2,7 +2,7 @@
 .SYNOPSIS
     Build script for Marix GitHub Pages file explorer.
     Scans the repository, computes diffs between marix tags,
-    and generates docs/manifest.json for the static site.
+    and generates overview/manifest.json for the static site.
 
 .USAGE
     powershell -ExecutionPolicy Bypass -File scripts/build_pages.ps1
@@ -22,7 +22,7 @@ if (-not $RepoRoot) {
     }
 }
 
-$DocsDir = Join-Path $RepoRoot "docs"
+$OverviewDir = Join-Path $RepoRoot "overview"
 
 # ── Excluded paths ──
 $ExcludeDirs = @(".git", "__pycache__", "node_modules", ".venv", "venv", ".mypy_cache", ".pytest_cache", "target")
@@ -45,9 +45,9 @@ function Scan-Files {
         }
         if ($skip) { continue }
 
-        # Skip docs/content/
-        if ($relPath -like "docs/content/*") { continue }
-        if ($relPath -eq "docs/manifest.json") { continue }
+        # Skip generated overview content.
+        if ($relPath -like "overview/content/*") { continue }
+        if ($relPath -eq "overview/manifest.json") { continue }
 
         $ext = [System.IO.Path]::GetExtension($f.Name).ToLower()
         $entry = @{ size = $f.Length }
@@ -125,7 +125,12 @@ function Get-FileDiffLines {
     param([string]$FromRef, [string]$ToRef, [string]$FilePath)
 
     $output = git diff -U3 "$FromRef..$ToRef" -- $FilePath 2>$null
-    if (-not $output) { return @(), @() }
+    if (-not $output) {
+        return [PSCustomObject]@{
+            diff_lines = @()
+            hunks = @()
+        }
+    }
 
     $lines = $output -split "`n"
     $diffLines = @()
@@ -138,7 +143,10 @@ function Get-FileDiffLines {
         }
         $diffLines += $line
     }
-    return $diffLines, $hunks
+    return [PSCustomObject]@{
+        diff_lines = @($diffLines)
+        hunks = @($hunks)
+    }
 }
 
 # ── Main ──
@@ -147,7 +155,7 @@ Write-Host "Scanning repository files..."
 $files = Scan-Files
 Write-Host "  Found $($files.Count) files"
 
-$tags = Get-MarixTags
+$tags = @(Get-MarixTags)
 Write-Host "  Found $($tags.Count) marix tags: $($tags -join ', ')"
 
 $diffInfo = @{
@@ -166,9 +174,9 @@ if ($tags.Count -ge 2) {
     $changes = Get-TagDiff -FromRef $prevTag -ToRef $latestTag
 
     foreach ($fp in @($changes.Keys)) {
-        $dl, $hunks = Get-FileDiffLines -FromRef $prevTag -ToRef $latestTag -FilePath $fp
-        $changes[$fp]["diff_lines"] = $dl
-        $changes[$fp]["hunks"] = $hunks
+        $diff = Get-FileDiffLines -FromRef $prevTag -ToRef $latestTag -FilePath $fp
+        $changes[$fp]["diff_lines"] = @($diff.diff_lines)
+        $changes[$fp]["hunks"] = @($diff.hunks)
     }
 
     $diffInfo.changes = $changes
@@ -181,9 +189,9 @@ if ($tags.Count -ge 2) {
     $changes = Get-TagDiff -FromRef $tag -ToRef "HEAD"
 
     foreach ($fp in @($changes.Keys)) {
-        $dl, $hunks = Get-FileDiffLines -FromRef $tag -ToRef "HEAD" -FilePath $fp
-        $changes[$fp]["diff_lines"] = $dl
-        $changes[$fp]["hunks"] = $hunks
+        $diff = Get-FileDiffLines -FromRef $tag -ToRef "HEAD" -FilePath $fp
+        $changes[$fp]["diff_lines"] = @($diff.diff_lines)
+        $changes[$fp]["hunks"] = @($diff.hunks)
     }
 
     $diffInfo.changes = $changes
@@ -200,7 +208,7 @@ $manifest = @{
 }
 
 # Write manifest
-$manifestPath = Join-Path $DocsDir "manifest.json"
+$manifestPath = Join-Path $OverviewDir "manifest.json"
 $json = $manifest | ConvertTo-Json -Depth 10 -Compress:$false
 [System.IO.File]::WriteAllText($manifestPath, $json, [System.Text.Encoding]::UTF8)
 
