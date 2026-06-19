@@ -16,21 +16,28 @@
     return root;
   }
 
-  function renderTree(filter) {
+  function renderTree(filter, options = {}) {
     const container = document.getElementById("file-tree");
     container.innerHTML = "";
     const tree = buildTreeStructure(getTreeFiles());
     const filterLower = filter ? filter.toLowerCase() : null;
-    const showAll = viewAllFiles || !hasVisibleDiffChanges();
-    renderNode(container, tree, 0, "", filterLower, showAll);
+    renderNode(container, tree, 0, "", filterLower);
+    if (!options.skipSync) syncTreeSelectionToStarMapScope();
   }
 
   function getTreeFiles() {
-    if (viewAllFiles || !hasVisibleDiffChanges()) return manifest.files || {};
-
-    const files = {};
+    const files = getVisibleManifestFiles();
     for (const path of Object.keys(((manifest.diff || {}).changes || {})).sort()) {
+      if (!shouldIncludeVisibleSourcePath(path)) continue;
       files[path] = (manifest.files || {})[path] || { size: 0, content: "" };
+    }
+    return files;
+  }
+
+  function getVisibleManifestFiles() {
+    const files = {};
+    for (const [path, data] of Object.entries(manifest.files || {})) {
+      if (shouldIncludeVisibleSourcePath(path)) files[path] = data;
     }
     return files;
   }
@@ -44,30 +51,31 @@
     }
   }
 
-  function renderNode(parent, node, depth, prefix, filter, showAll) {
+  function renderNode(parent, node, depth, prefix, filter) {
     for (const dirName of Object.keys(node.__children).sort()) {
       const dirPath = prefix ? `${prefix}/${dirName}` : dirName;
       const child = node.__children[dirName];
 
       if (filter && !hasMatchingDescendant(child, dirPath, filter)) continue;
-      if (!showAll && dirPath !== SOURCE_ROOT && !hasDiffDescendant(child, dirPath)) continue;
 
-      const dirEl = createTreeItem(dirName, depth, true, null, dirPath);
+      const dirEl = createTreeItem(dirName, depth, true, getTreeDirectoryStatus(child), dirPath);
       parent.appendChild(dirEl);
 
       const childContainer = document.createElement("div");
       childContainer.className = "dir-children";
       parent.appendChild(childContainer);
       dirEl.addEventListener("click", () => {
-        childContainer.classList.toggle("collapsed");
-        const toggle = dirEl.querySelector(".tree-toggle");
-        if (toggle) toggle.classList.toggle("collapsed");
-
         if (overviewMode === "star") {
-          openDirectoryModule(dirPath, dirEl);
-        } else {
-          openDirectoryChanges(dirPath, dirEl);
+          if (isSelectedStarMapFolder(dirPath)) {
+            toggleTreeDirectory(childContainer, dirEl);
+          } else {
+            openDirectoryModule(dirPath, dirEl);
+          }
+          return;
         }
+
+        toggleTreeDirectory(childContainer, dirEl);
+        openDirectoryChanges(dirPath, dirEl);
       });
 
       const toggle = dirEl.querySelector(".tree-toggle");
@@ -79,13 +87,12 @@
         toggle.addEventListener("dblclick", evt => evt.stopPropagation());
       }
 
-      renderNode(childContainer, child, depth + 1, dirPath, filter, showAll);
+      renderNode(childContainer, child, depth + 1, dirPath, filter);
     }
 
-    for (const file of node.__files) {
+    for (const file of sortTreeFiles(node.__files)) {
       if (filter && !file.path.toLowerCase().includes(filter) && !file.name.toLowerCase().includes(filter)) continue;
       const change = getChange(file.path);
-      if (!showAll && !change) continue;
 
       const el = createTreeItem(file.name, depth, false, change ? change.status : null, file.path);
       el.addEventListener("click", () => {
@@ -99,8 +106,48 @@
     }
   }
 
-  function hasVisibleDiffChanges() {
-    return Object.keys(((manifest.diff || {}).changes || {})).length > 0;
+  function sortTreeFiles(files) {
+    return files.slice().sort((a, b) => {
+      const aRank = getTreeFileChangeRank(a.path);
+      const bRank = getTreeFileChangeRank(b.path);
+      if (aRank !== bRank) return aRank - bRank;
+      return a.name.localeCompare(b.name);
+    });
+  }
+
+  function getTreeFileChangeRank(path) {
+    const change = getChange(path);
+    if (!change) return 10;
+    const ranks = { A: 0, M: 1, R: 2, D: 3 };
+    return ranks[change.status] ?? 4;
+  }
+
+  function getTreeDirectoryStatus(node) {
+    const statuses = collectTreeDirectoryStatuses(node);
+    if (statuses.length === 0) return "unchanged";
+    return statuses.every(status => status === "A") ? "added" : "modified";
+  }
+
+  function collectTreeDirectoryStatuses(node) {
+    const statuses = [];
+    for (const file of node.__files) {
+      const change = getChange(file.path);
+      if (change) statuses.push(change.status);
+    }
+    for (const child of Object.values(node.__children)) {
+      statuses.push(...collectTreeDirectoryStatuses(child));
+    }
+    return statuses;
+  }
+
+  function isSelectedStarMapFolder(dirPath) {
+    return starMapSelection.kind === "module" && starMapSelection.path === dirPath;
+  }
+
+  function toggleTreeDirectory(childContainer, dirEl) {
+    childContainer.classList.toggle("collapsed");
+    const toggle = dirEl.querySelector(".tree-toggle");
+    if (toggle) toggle.classList.toggle("collapsed");
   }
 
   function hasMatchingDescendant(node, prefix, filter) {
@@ -114,20 +161,54 @@
     return false;
   }
 
-  function hasDiffDescendant(node, prefix) {
-    for (const f of node.__files) {
-      if (getChange(`${prefix}/${f.name}`)) return true;
+  function syncTreeToModule(modulePath) {
+    if (!modulePath) return;
+    logStarMapState("sync-tree-module:start", { modulePath });
+    if (!findTreeItem(modulePath)) {
+      renderTree(document.getElementById("search-input").value.trim(), { skipSync: true });
     }
+    expandTreePath(modulePath);
+    document.querySelectorAll(".tree-item.active").forEach(el => el.classList.remove("active"));
+    const item = findTreeItem(modulePath);
+    if (item) {
+      item.classList.add("active");
+      item.scrollIntoView({ block: "nearest" });
+    }
+    logStarMapState("sync-tree-module:done", {
+      modulePath,
+      found: Boolean(item)
+    });
+  }
 
-    for (const [dn, child] of Object.entries(node.__children)) {
-      if (hasDiffDescendant(child, `${prefix}/${dn}`)) return true;
+  function syncTreeSelectionToStarMapScope() {
+    if (overviewMode !== "star") return;
+    logStarMapState("sync-tree-selection", { starMapSelection, currentFile, scopePath });
+    if (starMapSelection.kind === "file") {
+      markTreeSelection(starMapSelection.path);
+      return;
     }
-    return false;
+    syncTreeToModule(starMapSelection.path || scopePath || SOURCE_ROOT);
+  }
+
+  function expandTreePath(path) {
+    const parts = String(path || "").split("/").filter(Boolean);
+    for (let i = 1; i <= parts.length; i++) {
+      const partial = parts.slice(0, i).join("/");
+      const item = findTreeItem(partial);
+      if (!item) continue;
+      const childContainer = item.nextElementSibling;
+      if (childContainer && childContainer.classList.contains("dir-children")) {
+        childContainer.classList.remove("collapsed");
+      }
+      const toggle = item.querySelector(".tree-toggle");
+      if (toggle) toggle.classList.remove("collapsed");
+    }
   }
 
   function createTreeItem(name, depth, isDir, status, path) {
     const el = document.createElement("div");
-    el.className = `tree-item${isDir ? " dir" : ""}`;
+    const normalizedStatus = normalizeTreeFileStatus(status);
+    el.className = `tree-item${isDir ? " dir" : " file"} ${isDir ? `tree-dir-status-${normalizedStatus}` : `tree-file-status-${normalizedStatus}`}`;
     el.dataset.path = path;
 
     const indent = document.createElement("span");
@@ -136,11 +217,11 @@
     el.appendChild(indent);
 
     const icon = document.createElement("span");
-    icon.className = `tree-icon${isDir ? " tree-toggle" : ` tree-icon-${getFileIconClass(name)}`}`;
+    icon.className = isDir ? `tree-icon tree-toggle tree-triangle tree-status-${normalizedStatus}` : `tree-icon tree-status-dot tree-status-${normalizedStatus}`;
     if (isDir) {
-      icon.innerHTML = '<i class="bi bi-chevron-down"></i>';
+      icon.setAttribute("aria-hidden", "true");
     } else {
-      icon.textContent = getFileIcon(name);
+      icon.setAttribute("aria-hidden", "true");
     }
     el.appendChild(icon);
 
@@ -149,30 +230,20 @@
     nameEl.textContent = name;
     el.appendChild(nameEl);
 
-    if (status) {
-      const badge = document.createElement("span");
-      const labels = { M: ["M", "badge-modified"], A: ["A", "badge-added"], D: ["D", "badge-deleted"], R: ["R", "badge-renamed"] };
-      const [label, cls] = labels[status] || ["?", "badge-modified"];
-      badge.className = `badge ${cls}`;
-      badge.textContent = label;
-      el.appendChild(badge);
-    }
-
     return el;
   }
 
-  function getFileIcon(name) {
-    const ext = name.split(".").pop().toLowerCase();
-    const icons = {
-      py: "PY", rs: "RS", md: "MD", yaml: "YML", yml: "YML",
-      toml: "TOML", json: "JSON", html: "HTML", css: "CSS", js: "JS",
-      png: "IMG", jpg: "IMG", jpeg: "IMG", gif: "IMG", svg: "IMG",
-      txt: "TXT", sh: "SH", bat: "BAT", ps1: "PS1"
+  function normalizeTreeFileStatus(status) {
+    const values = {
+      A: "added",
+      M: "modified",
+      R: "renamed",
+      D: "deleted",
+      added: "added",
+      modified: "modified",
+      renamed: "renamed",
+      deleted: "deleted",
+      unchanged: "unchanged"
     };
-    return icons[ext] || "FILE";
-  }
-
-  function getFileIconClass(name) {
-    const ext = name.includes(".") ? name.split(".").pop().toLowerCase() : "file";
-    return ext.replace(/[^a-z0-9]+/g, "-") || "file";
+    return values[status] || "unchanged";
   }

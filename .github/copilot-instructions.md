@@ -29,3 +29,10 @@
 ## Validation Policy
 
 - For overview/site changes, do not verify or report local preview resources unless the user explicitly asks for local access.
+
+## Source Design Maintenance
+
+- When a task modifies any non-dot source file under `src/`, invoke the `development-designer` agent before finishing that task.
+- Pass the changed non-dot source paths and the changed portions/intent to `development-designer` so it can update the affected dot-prefixed companion metadata from the actual source change.
+- Do not wait until `git-sync` to refresh design documents. Design metadata should be updated as part of the same task that changes source.
+- Dot-prefixed files and folders under `src/` are companion metadata maintained by `development-designer`; do not treat them as normal source files in overview file trees or marix tag diffs.

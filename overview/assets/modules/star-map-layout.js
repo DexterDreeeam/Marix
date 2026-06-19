@@ -89,8 +89,8 @@ function layoutExposedElements(scopeNode, moduleRadius, moduleObstacles, options
   const count = elements.length;
   if (count === 0) return [];
 
-  const layoutRadiusX = 500 + Math.min(260, count * 6);
-  const layoutRadiusY = 330 + Math.min(190, count * 4);
+  const layoutRadiusX = 360 + Math.min(170, count * 4);
+  const layoutRadiusY = 240 + Math.min(120, count * 3);
 
   const initialLayout = elements
     .sort((a, b) => stableHash(a.id) - stableHash(b.id))
@@ -98,19 +98,12 @@ function layoutExposedElements(scopeNode, moduleRadius, moduleObstacles, options
       const status = normalizeStatus(entry.element.changeStatus);
       const changedWeight = status === "unchanged" ? 1 : 0.62;
       const t = (index + 0.5) / count;
-      const radiusFactor = Math.max(0.28, Math.sqrt(t) * changedWeight);
-      const angle = index * GOLDEN_ANGLE + stableRandom(`${entry.id}:angle`) * 0.34;
-      const jitterX = (stableRandom(`${entry.id}:jx`) - 0.5) * 46;
-      const jitterY = (stableRandom(`${entry.id}:jy`) - 0.5) * 34;
-      const safeBandOffset = 110 + (entry.groupIndex % 3) * 34;
-      let x = Math.cos(angle) * layoutRadiusX * radiusFactor + jitterX;
-      let y = Math.sin(angle) * layoutRadiusY * radiusFactor + jitterY;
-
-      if (Math.hypot(x, y) < moduleRadius + 82) {
-        const pushAngle = angle + stableRandom(`${entry.id}:push`) * 0.45;
-        x = Math.cos(pushAngle) * (moduleRadius + safeBandOffset);
-        y = Math.sin(pushAngle) * (moduleRadius + safeBandOffset * 0.72);
-      }
+      const radiusFactor = Math.max(0.22, Math.sqrt(t) * changedWeight * 0.84);
+      const angle = index * GOLDEN_ANGLE + stableRandom(`${entry.id}:angle`) * 0.26;
+      const jitterX = (stableRandom(`${entry.id}:jx`) - 0.5) * 28;
+      const jitterY = (stableRandom(`${entry.id}:jy`) - 0.5) * 22;
+      const x = Math.cos(angle) * layoutRadiusX * radiusFactor + jitterX;
+      const y = Math.sin(angle) * layoutRadiusY * radiusFactor + jitterY;
 
       return {
         kind: "exposed",
@@ -119,7 +112,7 @@ function layoutExposedElements(scopeNode, moduleRadius, moduleObstacles, options
         changed: normalizeStatus(entry.element.changeStatus) !== "unchanged",
         depth: 2,
         parent: null,
-        visualRadius: 10 + Math.round(stableRandom(`${entry.id}:size`) * 4),
+        visualRadius: 8 + Math.round(stableRandom(`${entry.id}:size`) * 3),
         depthClass: "near",
         x,
         y
@@ -143,7 +136,7 @@ function layoutWithD3ForceSimulation(items, moduleRadius, moduleObstacles, optio
       ...item,
       targetX: item.x,
       targetY: item.y,
-      collisionRadius: Math.max(28, Math.hypot(box.width / 2, box.height / 2) + getNodeRadius(item) + 6)
+      collisionRadius: Math.max(18, Math.hypot(box.width / 2, box.height / 2) * 0.74 + getNodeRadius(item) + 3)
     };
   });
   const obstacles = (moduleObstacles || []).map(item => ({
@@ -152,20 +145,19 @@ function layoutWithD3ForceSimulation(items, moduleRadius, moduleObstacles, optio
     y: item.y,
     fx: item.x,
     fy: item.y,
-    collisionRadius: getNodeRadius(item) + 68
+    collisionRadius: getNodeRadius(item) + 42
   }));
 
   const simulation = window.d3.forceSimulation(nodes.concat(obstacles))
     .alpha(1)
     .alphaMin(0.001)
     .velocityDecay(0.52)
-    .force("x", window.d3.forceX(d => d.obstacle ? d.x : d.targetX).strength(d => d.obstacle ? 1 : 0.18))
-    .force("y", window.d3.forceY(d => d.obstacle ? d.y : d.targetY).strength(d => d.obstacle ? 1 : 0.18))
-    .force("center-clear", window.d3.forceRadial(moduleRadius + 92, 0, 0).strength(d => d.obstacle ? 0 : (Math.hypot(d.x, d.y) < moduleRadius + 92 ? 0.22 : 0.015)))
-    .force("collide", window.d3.forceCollide(d => d.collisionRadius).strength(0.94).iterations(4))
+    .force("x", window.d3.forceX(d => d.obstacle ? d.x : d.targetX).strength(d => d.obstacle ? 1 : 0.24))
+    .force("y", window.d3.forceY(d => d.obstacle ? d.y : d.targetY).strength(d => d.obstacle ? 1 : 0.24))
+    .force("collide", window.d3.forceCollide(d => d.collisionRadius).strength(0.82).iterations(3))
     .stop();
 
-  for (let i = 0; i < 150; i++) simulation.tick();
+  for (let i = 0; i < 110; i++) simulation.tick();
   return finalizeExposedLayout(nodes, options);
 }
 
@@ -180,8 +172,8 @@ function relaxExposedLayout(items, moduleRadius, moduleObstacles, options) {
         const bBox = getExposedLabelBox(b, options);
         const dx = b.x - a.x;
         const dy = b.y - a.y;
-        const minX = (aBox.width + bBox.width) / 2 + 16;
-        const minY = (aBox.height + bBox.height) / 2 + 12;
+        const minX = (aBox.width + bBox.width) / 2 + 8;
+        const minY = (aBox.height + bBox.height) / 2 + 6;
         const overlapX = minX - Math.abs(dx);
         const overlapY = minY - Math.abs(dy);
         if (overlapX > 0 && overlapY > 0) {
@@ -199,19 +191,11 @@ function relaxExposedLayout(items, moduleRadius, moduleObstacles, options) {
           }
         }
       }
-
-      const distance = Math.max(1, Math.hypot(relaxed[i].x, relaxed[i].y));
-      if (distance < moduleRadius + 78) {
-        const scale = (moduleRadius + 78) / distance;
-        relaxed[i].x *= scale;
-        relaxed[i].y *= scale;
-      }
-
       for (const obstacle of moduleObstacles || []) {
         const dx = relaxed[i].x - obstacle.x;
         const dy = relaxed[i].y - obstacle.y;
         const distanceToObstacle = Math.max(1, Math.hypot(dx, dy));
-        const minDistance = getNodeRadius(obstacle) + getNodeRadius(relaxed[i]) + 68;
+        const minDistance = getNodeRadius(obstacle) + getNodeRadius(relaxed[i]) + 42;
         if (distanceToObstacle < minDistance) {
           const scale = minDistance / distanceToObstacle;
           relaxed[i].x = obstacle.x + dx * scale;
@@ -233,7 +217,7 @@ function finalizeExposedLayout(items, options) {
     const label = options.getShortElementName(item.element || {});
     item.label = label;
     item.labelX = 0;
-    item.labelY = getNodeRadius(item) + 14;
+    item.labelY = -getNodeRadius(item) - 10;
     item.labelAnchor = "middle";
     return item;
   });
@@ -242,7 +226,7 @@ function finalizeExposedLayout(items, options) {
 function getExposedLabelBox(item, options) {
   const label = options.getShortElementName(item.element || {});
   return {
-    width: Math.max(42, label.length * 5.6 + 18),
+    width: Math.max(32, label.length * 4.6 + 12),
     height: 24
   };
 }

@@ -15,20 +15,18 @@
     setModuleDetailPanelStatus(moduleStatus);
 
     resetDesignCodeSnippets();
-    body.innerHTML = renderModuleOverview(node, primary && primary.document);
-    bindDesignCodeButtons(body);
+    const focusedFile = getFocusedFileForModule(node);
+    setModuleDetailSelectionState(focusedFile);
+    body.innerHTML = renderModuleOverview(node, primary && primary.document, focusedFile);
+    if (!focusedFile) clearModuleDetailFileFocus(body);
+    bindModuleDetailControls(body);
+    logStarMapState("render-module-details", getModuleDetailsDebugSummary(node, focusedFile, body));
 
     for (const link of body.querySelectorAll(".module-link")) {
       link.addEventListener("click", () => {
         const next = findModule(moduleRoot, link.dataset.modulePath);
         if (next) {
-          setScopePath(next.path);
-          currentFile = null;
-          currentDirectory = next.path;
-          requestStarMapFit();
-          selectedModule = next;
-          renderModuleDetails(next);
-          renderStarMap();
+          selectStarMapModule(next.path);
         }
       });
     }
@@ -44,21 +42,37 @@
     `;
   }
 
-  function renderModuleOverview(node, document) {
+  function bindModuleDetailControls(root) {
+    bindDesignCodeButtons(root);
+  }
+
+  function setModuleDetailSelectionState(focusedFile) {
+    const panel = document.querySelector(".star-map-details");
+    if (!panel) return;
+    panel.dataset.selectionKind = focusedFile ? "file" : "module";
+    panel.classList.toggle("file-selection-active", Boolean(focusedFile));
+  }
+
+  function clearModuleDetailFileFocus(root) {
+    for (const item of root.querySelectorAll(".file-focus-dimmed")) {
+      item.classList.remove("file-focus-dimmed");
+    }
+    for (const list of root.querySelectorAll(".file-focus-list")) {
+      list.classList.remove("file-focus-list");
+    }
+  }
+
+  function renderModuleOverview(node, document, focusedFile) {
     const elements = collectModuleExposedElements(node.path);
-    const publicInterfaces = elements.filter(isInterfaceElement);
-    const typeGroups = groupElementsByType(elements.filter(element => !isInterfaceElement(element)));
+    const typeGroups = groupElementsByType(elements);
     const children = collectChildModules(node, document);
     const sections = [];
 
     if (children.length > 0) {
       sections.push(renderListSection(t("childModules"), renderChildModuleList(children)));
     }
-    if (publicInterfaces.length > 0) {
-      sections.push(renderListSection(t("publicInterfaces"), renderElementList(publicInterfaces)));
-    }
     for (const [type, items] of typeGroups) {
-      sections.push(renderListSection(type, renderElementList(items)));
+      sections.push(renderListSection(type, renderElementList(items, focusedFile)));
     }
 
     return sections.join("");
@@ -66,9 +80,8 @@
 
   function renderChildModuleList(children) {
     return children.map(child => `
-      <button class="module-link" data-module-path="${escapeHtml(child.path)}">
+      <button class="module-link module-link-status-${escapeHtml(child.status)}" data-module-path="${escapeHtml(child.path)}">
         <span>${escapeHtml(child.name)}</span>
-        <span class="module-link-status ${escapeHtml(child.status)}">${escapeHtml(child.path)}</span>
       </button>
     `).join("");
   }
@@ -112,12 +125,6 @@
       .sort(compareElementsForGrouping);
   }
 
-  function isInterfaceElement(element) {
-    const category = String(element.category || "").toLowerCase();
-    const kind = String(element.kind || "").toLowerCase();
-    return category === "interface" || ["trait", "function", "fn", "public-api", "global-interface", "public-global-interface"].includes(kind);
-  }
-
   function groupElementsByType(elements) {
     const groups = new Map();
     for (const element of elements) {
@@ -126,30 +133,63 @@
       groups.get(type).push(element);
     }
 
-    return Array.from(groups.entries()).map(([type, items]) => [type, items.sort(compareElementsWithinSection)]);
+    return Array.from(groups.entries())
+      .sort(([a], [b]) => getElementTypeRank(a) - getElementTypeRank(b) || a.localeCompare(b))
+      .map(([type, items]) => [type, items.sort(compareElementsWithinSection)]);
   }
 
-  function renderElementList(elements) {
-    return `<div class="design-summary-list">${elements.slice().sort(compareElementsWithinSection).map(renderElementSummary).join("")}</div>`;
+  function renderElementList(elements, focusedFile) {
+    const sorted = elements.slice().sort(compareElementsWithinSection);
+    if (focusedFile) {
+      const focused = sorted.filter(element => element.sourcePath === focusedFile);
+      const others = sorted.filter(element => element.sourcePath !== focusedFile);
+      const visibleOtherCount = Math.max(0, 4 - focused.length);
+      const visibleOthers = others.slice(0, visibleOtherCount);
+      const hiddenOthers = others.slice(visibleOtherCount);
+      const visibleRows = focused
+        .map(element => renderElementSummary(element, false))
+        .concat(visibleOthers.map(element => renderElementSummary(element, true)))
+        .join("");
+      const hiddenRows = hiddenOthers.map(element => renderElementSummary(element, true)).join("");
+      const hiddenContent = hiddenRows ? `<div class="section-extra-items">${hiddenRows}</div>` : "";
+      const more = hiddenRows ? `<div class="design-section-more" aria-hidden="true">...</div>` : "";
+      return `
+        <div class="design-summary-list file-focus-list">
+          ${visibleRows}
+          ${hiddenContent}
+          ${more}
+        </div>
+      `;
+    }
+
+    const visibleCount = getCollapsedVisibleCount(sorted);
+    const hiddenCount = Math.max(0, sorted.length - visibleCount);
+    const visibleRows = sorted.slice(0, visibleCount).map(renderElementSummary).join("");
+    const hiddenRows = sorted.slice(visibleCount).map(element => renderElementSummary(element, false)).join("");
+    const hiddenContent = hiddenRows
+      ? `<div class="section-extra-items">${hiddenRows}</div>`
+      : "";
+    const more = hiddenCount > 0 ? `<div class="design-section-more" aria-hidden="true">...</div>` : "";
+    return `
+      <div class="design-summary-list">
+        ${visibleRows}
+        ${hiddenContent}
+        ${more}
+      </div>
+    `;
   }
 
-  function renderElementSummary(element) {
+  function renderElementSummary(element, dimmed) {
     const code = element.code || element.signature || "";
     const codeId = code ? storeDesignCodeSnippet(getCodeTitle(element), code, element.language || "rust") : "";
-    const source = getElementSource(element);
     const typeClass = getElementTypeClass(element);
     const status = getElementStatus(element);
     const openAttrs = codeId ? ` tabindex="0" data-code-id="${escapeHtml(codeId)}"` : "";
     return `
-      <article class="design-summary-item design-type-${escapeHtml(typeClass)} design-status-${escapeHtml(status)}"${openAttrs}>
+      <article class="design-summary-item design-type-${escapeHtml(typeClass)} design-status-${escapeHtml(status)}${dimmed ? " file-focus-dimmed" : ""}"${openAttrs}>
         <div class="design-summary-header">
-          <span class="design-item-kind">${escapeHtml(getElementTypeName(element))}</span>
           <strong>${escapeHtml(element.name || element.signature || "")}</strong>
-          <span class="design-item-status ${escapeHtml(status)}">${escapeHtml(getModuleDetailStatusLabel(status))}</span>
         </div>
-        ${element.signature ? `<code class="design-summary-signature">${escapeHtml(element.signature)}</code>` : ""}
-        ${source ? `<span class="design-summary-meta">${escapeHtml(source)}</span>` : ""}
-        ${element.details ? `<p>${escapeHtml(element.details)}</p>` : ""}
       </article>
     `;
   }
@@ -157,6 +197,31 @@
   function getElementTypeName(element) {
     const value = String(element.kind || element.category || "item").replace(/-/g, " ").trim();
     return value ? value.charAt(0).toUpperCase() + value.slice(1) : "Item";
+  }
+
+  function getElementTypeRank(type) {
+    const value = String(type || "").toLowerCase().replace(/\s+/g, "-");
+    const ranks = {
+      trait: 0,
+      struct: 1,
+      class: 1,
+      function: 2,
+      fn: 2,
+      method: 2,
+      enum: 3,
+      "type-alias": 4,
+      alias: 4,
+      const: 5,
+      static: 5,
+      global: 5,
+      "global-variable": 5
+    };
+    return ranks[value] ?? 20;
+  }
+
+  function getCollapsedVisibleCount(elements) {
+    const changedCount = elements.filter(element => getStatusRank(getElementStatus(element)) < 10).length;
+    return Math.max(4, changedCount);
   }
 
   function getElementTypeClass(element) {
@@ -174,8 +239,8 @@
   }
 
   function getModuleDetailStatus(node, document) {
-    const fromDesign = normalizeStatus(document && document.module && document.module.changeStatus);
-    if (fromDesign !== "unchanged") return fromDesign;
+    const fromDesign = getExplicitChangeStatus(document && document.module);
+    if (fromDesign) return fromDesign;
     return node.changed ? "modified" : "unchanged";
   }
 
@@ -227,13 +292,35 @@
   }
 
   function getElementStatus(element) {
-    const fromDesign = normalizeStatus(element.changeStatus);
-    if (fromDesign !== "unchanged") return fromDesign;
+    const fromDesign = getExplicitChangeStatus(element);
+    if (fromDesign) return fromDesign;
 
     const change = element.sourcePath ? getChange(element.sourcePath) : null;
     if (!change) return "unchanged";
     const statusMap = { A: "added", M: "modified", D: "deleted", R: "renamed" };
     return normalizeStatus(statusMap[change.status] || "modified");
+  }
+
+  function getExplicitChangeStatus(item) {
+    if (!item || typeof item.changeStatus !== "string" || item.changeStatus.trim() === "") return null;
+    return normalizeStatus(item.changeStatus);
+  }
+
+  function getFocusedFileForModule(node) {
+    if (!node || starMapSelection.kind !== "file") return "";
+    const focusedFile = starMapSelection.path;
+    return node.path && (focusedFile === node.path || focusedFile.startsWith(`${node.path}/`)) ? focusedFile : "";
+  }
+
+  function getModuleDetailsDebugSummary(node, focusedFile, body) {
+    return {
+      module: node && node.path,
+      focusedFile,
+      sections: body.querySelectorAll(".module-detail-section").length,
+      rows: body.querySelectorAll(".design-summary-item").length,
+      dimmedRows: body.querySelectorAll(".design-summary-item.file-focus-dimmed").length,
+      hiddenGroups: body.querySelectorAll(".section-extra-items").length
+    };
   }
 
   function resetDesignCodeSnippets() {
@@ -280,11 +367,8 @@
     document.getElementById("code-popover-title").textContent = title;
     codeEl.className = "code-popover-content code-popover-code";
     codeEl.removeAttribute("data-highlighted");
-    codeEl.textContent = code;
-    if (languageName && window.hljs && hljs.getLanguage(languageName)) {
-      codeEl.classList.add(`language-${languageName}`);
-      hljs.highlightElement(codeEl);
-    }
+    if (languageName) codeEl.classList.add(`language-${languageName}`);
+    codeEl.innerHTML = highlightSource(code, languageName);
     backdrop.style.display = "block";
     popover.style.display = "flex";
   }

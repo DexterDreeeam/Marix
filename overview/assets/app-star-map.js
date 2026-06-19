@@ -16,6 +16,9 @@
       normalizeStatus,
       getShortElementName
     });
+    markFileFocus(layout);
+    logStarMapState("render-star-map", getStarMapDebugSummary(layout, scopeNode));
+    renderStarMapBreadcrumb(scopeNode);
     renderStarMapFileList(scopeNode);
     if (starAutoFit) {
       fitStarMapToLayout(layout);
@@ -24,12 +27,12 @@
 
     layer.innerHTML = "";
     renderStarMapDefs(layer);
-    layer.setAttribute("transform", `translate(${starTransform.x} ${starTransform.y}) scale(${starTransform.scale})`);
+    applyStarMapTransform();
 
     for (const item of layout.filter(x => x.parent)) {
       const edge = computeEdgePath(item.parent, item, SOURCE_ROOT);
       const path = document.createElementNS(SVG_NS, "path");
-      path.setAttribute("class", `star-edge edge-${item.edgeKind || "child"}${item.changed ? " changed" : ""}`);
+      path.setAttribute("class", `star-edge edge-${item.edgeKind || "child"}${item.changed ? " changed" : ""}${item.focusDimmed || (item.parent && item.parent.focusDimmed) ? " dimmed" : ""}`);
       path.setAttribute("marker-end", `url(#arrow-${item.edgeKind || "child"})`);
       path.setAttribute("d", edge);
       layer.appendChild(path);
@@ -48,6 +51,11 @@
           <stop offset="0%" stop-color="#8fbfff"></stop>
           <stop offset="42%" stop-color="#2f81f7"></stop>
           <stop offset="100%" stop-color="#0d3b66"></stop>
+        </radialGradient>
+        <radialGradient id="node-gradient-unchanged" cx="34%" cy="28%" r="70%">
+          <stop offset="0%" stop-color="var(--node-neutral-a)"></stop>
+          <stop offset="48%" stop-color="var(--node-neutral-b)"></stop>
+          <stop offset="100%" stop-color="var(--node-neutral-c)"></stop>
         </radialGradient>
         <radialGradient id="node-gradient-added" cx="34%" cy="28%" r="70%">
           <stop offset="0%" stop-color="#8ff0a4"></stop>
@@ -75,50 +83,57 @@
         layer.appendChild(createStarNode(item));
       }
     }
+
+    function markFileFocus(layout) {
+      const focusedFile = starMapSelection.kind === "file" ? starMapSelection.path : "";
+      if (!focusedFile) {
+        for (const item of layout) item.focusDimmed = false;
+        logStarMapState("mark-file-focus:none", {
+          layoutItems: layout.length
+        });
+        return;
+      }
+
+      const focusedModulePath = getParentPath(focusedFile);
+      let brightModules = 0;
+      let dimmedModules = 0;
+      let brightElements = 0;
+      let dimmedElements = 0;
+      for (const item of layout) {
+        if (item.kind === "module" && item.node) {
+          item.focusDimmed = item.node.path !== focusedModulePath;
+          if (item.focusDimmed) dimmedModules += 1;
+          else brightModules += 1;
+        } else if (item.kind === "exposed") {
+          item.focusDimmed = !isElementFromFocusedFile(item.element, focusedFile);
+          if (item.focusDimmed) dimmedElements += 1;
+          else brightElements += 1;
+        } else {
+          item.focusDimmed = true;
+        }
+      }
+      logStarMapState("mark-file-focus:applied", {
+        focusedModulePath,
+        brightModules,
+        dimmedModules,
+        brightElements,
+        dimmedElements
+      });
+    }
   }
 
-
-
-
-
-
-
-
-
-  function getExposedLabelOffset(item) {
+  function getStarMapDebugSummary(layout, scopeNode) {
     return {
-      x: 0,
-      y: getNodeRadius(item) + 14,
-      anchor: "middle"
+      scopeNode: scopeNode && scopeNode.path,
+      layoutItems: layout.length,
+      modules: layout.filter(item => item.kind === "module").length,
+      exposed: layout.filter(item => item.kind === "exposed").length,
+      dimmed: layout.filter(item => item.focusDimmed).length
     };
   }
 
-  function collectExposedGroups(modulePath) {
-    const documents = collectDesignDocuments(modulePath);
-    return documents.flatMap(({ path, document }) => (document.exposedGroups || [])
-      .map((group, index) => ({
-        ...group,
-        name: group.name || `${path}#${index}`,
-        elements: (group.elements || []).filter(isPublicExposedElement)
-      }))
-      .filter(group => group.elements.length > 0));
-  }
 
-  function isPublicExposedElement(element) {
-    const signature = String(element.signature || "").trim();
-    const kind = String(element.kind || "").toLowerCase();
-    if (/^mod\s+/.test(signature)) return false;
-    if (kind === "module" || kind === "re-export") return false;
-    if (/^pub\s+use\b/.test(signature) || /^pub\s+mod\b/.test(signature)) return false;
-    if (isTupleWrapperElement(element)) return false;
-    return /^pub\s+(trait|struct|enum|fn|type|const|static)\b/.test(signature) || element.public === true;
-  }
 
-  function isTupleWrapperElement(element) {
-    const definition = String(element.code || element.signature || "").trim();
-    return String(element.kind || "").toLowerCase() === "struct"
-      && /^pub\s+struct\s+[A-Za-z_][A-Za-z0-9_]*\s*\(\s*pub\s+[^)]+\)\s*;$/.test(definition);
-  }
 
 
 
@@ -131,48 +146,88 @@
 
     const design = getDesignDocumentForModule(scopeNode.path);
     const designFiles = design ? (design.document.files || []).map(file => file.path) : [];
-    const files = Array.from(new Set(designFiles.concat(getImmediateFiles(scopeNode)))).filter(path => !isHiddenPath(path)).sort();
-    const rows = files.map(path => {
+    const focusedFile = starMapSelection.kind === "file" ? starMapSelection.path : "";
+    const files = Array.from(new Set(designFiles.concat(getImmediateFiles(scopeNode))))
+      .filter(path => !isHiddenPath(path))
+      .sort((a, b) => {
+        if (a === focusedFile) return -1;
+        if (b === focusedFile) return 1;
+        return a.localeCompare(b);
+      });
+    const visibleFiles = files.slice(0, 4);
+    const hiddenFiles = files.slice(4);
+    const renderFileRow = path => {
       const status = getFileStatus(path);
+      const isFocused = path === focusedFile;
+      const isDimmed = Boolean(focusedFile && !isFocused);
       return `
-        <button class="star-map-file-item" data-file-path="${escapeHtml(path)}">
+        <button class="star-map-file-item${isFocused ? " focused" : ""}${isDimmed ? " file-focus-dimmed" : ""}" data-file-path="${escapeHtml(path)}" title="${escapeHtml(path)}">
           <span class="status-chip status-${escapeHtml(status)}"></span>
           <code>${escapeHtml(path.split("/").pop())}</code>
         </button>
       `;
-    }).join("");
+    };
+    const visibleRows = visibleFiles.map(renderFileRow).join("");
+    const hiddenRows = hiddenFiles.map(renderFileRow).join("");
+    const hiddenContent = hiddenRows ? `<div class="star-map-file-extra-items">${hiddenRows}</div>` : "";
+    const more = hiddenRows ? `<div class="star-map-file-more" aria-hidden="true">...</div>` : "";
 
     container.innerHTML = `
-      ${rows || `<span class="empty-list">${escapeHtml(t("noItems"))}</span>`}
+      <div class="star-map-file-list-inner${focusedFile ? " file-focus-list" : ""}">
+        ${visibleRows || `<span class="empty-list">${escapeHtml(t("noItems"))}</span>`}
+        ${hiddenContent}
+        ${more}
+      </div>
     `;
 
     for (const button of container.querySelectorAll(".star-map-file-item")) {
       button.addEventListener("click", () => {
-        currentFile = button.dataset.filePath;
-        currentDirectory = getParentPath(currentFile);
-        localStorage.setItem(STORAGE_KEYS.currentFile, currentFile);
-        setScopePath(currentDirectory);
-        selectedModule = getScopeModule();
-        showFilePopover(currentFile);
+        focusStarMapFile(button.dataset.filePath, { openPopover: true });
       });
     }
+  }
+
+  function renderStarMapBreadcrumb(scopeNode) {
+    const container = document.getElementById("star-map-breadcrumb");
+    if (!container) return;
+    const segments = getModulePathSegments(scopeNode && scopeNode.path);
+    container.innerHTML = segments.map(segment => `
+      <button class="star-map-breadcrumb-item${segment.current ? " current" : ""}" type="button" data-module-path="${escapeHtml(segment.path)}" title="${escapeHtml(segment.path)}">
+        ${escapeHtml(segment.name)}
+      </button>
+    `).join("");
+
+    for (const button of container.querySelectorAll(".star-map-breadcrumb-item")) {
+      button.addEventListener("click", () => {
+        selectStarMapModule(button.dataset.modulePath);
+      });
+    }
+  }
+
+  function getModulePathSegments(modulePath) {
+    const normalized = normalizeScopePath(modulePath || SOURCE_ROOT);
+    const parts = normalized.split("/").filter(Boolean);
+    const segments = parts.map((name, index) => {
+      const path = parts.slice(0, index + 1).join("/");
+      return {
+        name,
+        path,
+        current: path === normalized
+      };
+    });
+    return segments.slice(-4);
   }
 
   function getFileStatus(path) {
     const design = getDesignDocumentForModule(getParentPath(path));
     const file = design ? (design.document.files || []).find(item => item.path === path) : null;
-    const fromDesign = normalizeStatus(file && file.changeStatus);
-    if (fromDesign !== "unchanged") return fromDesign;
+    const fromDesign = getExplicitStarMapChangeStatus(file);
+    if (fromDesign) return fromDesign;
 
     const change = getChange(path);
     if (!change) return "unchanged";
     const statusMap = { A: "added", M: "modified", D: "deleted", R: "renamed" };
     return statusMap[change.status] || "modified";
-  }
-
-  function normalizeStatus(status) {
-    const value = String(status || "unchanged").toLowerCase();
-    return ["added", "modified", "deleted", "renamed", "unchanged"].includes(value) ? value : "unchanged";
   }
 
   function fitStarMapToLayout(layout) {
@@ -182,8 +237,8 @@
     }
 
     const maxDistance = layout.reduce((max, item) => Math.max(max, Math.hypot(item.x || 0, item.y || 0)), 0);
-    const targetRadius = Math.max(260, maxDistance + 90);
-    const scale = Math.max(0.85, Math.min(1.9, 620 / targetRadius));
+    const targetRadius = Math.max(190, maxDistance + 34);
+    const scale = Math.max(1.15, Math.min(2.65, 780 / targetRadius));
     starTransform = { x: 0, y: 0, scale };
   }
 
@@ -234,13 +289,16 @@
     const group = document.createElementNS(SVG_NS, "g");
     const selected = selectedModule && selectedModule.path === node.path;
     const status = getModuleStatus(node);
-    group.setAttribute("class", `star-node depth-${depth} depth-${item.depthClass || "mid"} status-${status}${node.changed ? " changed" : ""}${selected ? " selected" : ""}`);
+    group.setAttribute("class", `star-node depth-${depth} depth-${item.depthClass || "mid"} status-${status}${node.changed ? " changed" : ""}${selected ? " selected" : ""}${item.focusDimmed ? " dimmed" : ""}`);
     group.setAttribute("transform", `translate(${item.x} ${item.y})`);
     group.setAttribute("tabindex", "0");
 
     const radius = getNodeRadius(item);
     const circle = document.createElementNS(SVG_NS, "circle");
     circle.setAttribute("r", radius);
+    if (selected) {
+      circle.style.animationDelay = getScopePulseAnimationDelay(node.path);
+    }
     group.appendChild(circle);
 
     const highlight = document.createElementNS(SVG_NS, "circle");
@@ -252,8 +310,8 @@
 
     function getModuleStatus(node) {
       const design = getDesignDocumentForModule(node.path);
-      const status = normalizeStatus(design && design.document && design.document.module && design.document.module.changeStatus);
-      if (status !== "unchanged") return status;
+      const status = getExplicitStarMapChangeStatus(design && design.document && design.document.module);
+      if (status) return status;
       return node.changed ? "modified" : "unchanged";
     }
 
@@ -266,138 +324,14 @@
 
     group.addEventListener("click", evt => {
       evt.stopPropagation();
-      setScopePath(node.path);
-      currentFile = null;
-      currentDirectory = node.path;
-      requestStarMapFit();
-      selectedModule = node;
-      renderModuleDetails(node);
-      renderStarMap();
+      selectStarMapModule(node.path);
     });
 
     return group;
   }
 
-  function createExposedElementNode(item) {
-    const element = item.element || {};
-    const shape = getExposedElementShape(element);
-    const status = getExposedElementStatus(element);
-    const typeClass = getExposedElementTypeClass(element);
-    const radius = getNodeRadius(item);
-    const group = document.createElementNS(SVG_NS, "g");
-    group.setAttribute("class", `exposed-node exposed-${shape} exposed-type-${typeClass} status-${status}`);
-    group.setAttribute("transform", `translate(${item.x} ${item.y})`);
-    group.setAttribute("tabindex", "0");
-
-    const hit = document.createElementNS(SVG_NS, "circle");
-    hit.setAttribute("class", "exposed-hit-target");
-    hit.setAttribute("r", Math.max(24, radius * 2.2));
-    group.appendChild(hit);
-
-    if (shape === "square") {
-      const size = radius * 1.8;
-      const rect = document.createElementNS(SVG_NS, "rect");
-      rect.setAttribute("x", -size / 2);
-      rect.setAttribute("y", -size / 2);
-      rect.setAttribute("width", size);
-      rect.setAttribute("height", size);
-      rect.setAttribute("rx", 3);
-      group.appendChild(rect);
-    } else if (shape === "triangle") {
-      const points = [
-        `0,${-radius}`,
-        `${radius * 0.95},${radius * 0.75}`,
-        `${-radius * 0.95},${radius * 0.75}`
-      ].join(" ");
-      const polygon = document.createElementNS(SVG_NS, "polygon");
-      polygon.setAttribute("points", points);
-      group.appendChild(polygon);
-    } else {
-      const circle = document.createElementNS(SVG_NS, "circle");
-      circle.setAttribute("r", radius);
-      group.appendChild(circle);
-    }
-
-    const title = document.createElementNS(SVG_NS, "title");
-    title.textContent = `${element.name || "exposed"} (${item.groupName || "group"})`;
-    group.appendChild(title);
-
-    const label = document.createElementNS(SVG_NS, "text");
-    label.setAttribute("class", "exposed-label");
-    label.setAttribute("x", item.labelX || 0);
-    label.setAttribute("y", item.labelY || radius + 12);
-    label.setAttribute("text-anchor", item.labelAnchor || "middle");
-    label.textContent = item.label || getShortElementName(element);
-    group.appendChild(label);
-
-    group.addEventListener("click", evt => {
-      evt.stopPropagation();
-      showCodePopover(getCodeTitle(element), element.code || element.signature || "", element.language || "rust");
-    });
-
-    return group;
-  }
-
-  function getExposedElementShape(element) {
-    const explicit = String(element.shape || "").toLowerCase();
-    if (["circle", "square", "triangle"].includes(explicit)) return explicit;
-
-    const kind = String(element.kind || "").toLowerCase();
-    if (["enum", "struct", "data", "type-alias", "global", "global-variable", "const", "static"].includes(kind)) return "square";
-    if (["global-interface", "public-api", "public-global-interface"].includes(kind)) return "triangle";
-    return "circle";
-  }
-
-  function getShortElementName(element) {
-    const raw = String(element.name || element.signature || "exposed").replace(/`/g, "").trim();
-    return raw || "exposed";
-  }
-
-  function getExposedElementTypeClass(element) {
-    return String(element.kind || element.category || "item")
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "") || "item";
-  }
-
-  function getExposedElementStatus(element) {
-    const fromDesign = normalizeStatus(element.changeStatus);
-    if (fromDesign !== "unchanged") return fromDesign;
-
-    const change = element.sourcePath ? getChange(element.sourcePath) : null;
-    if (!change) return "unchanged";
-    const statusMap = { A: "added", M: "modified", D: "deleted", R: "renamed" };
-    return normalizeStatus(statusMap[change.status] || "modified");
-  }
-
-  function createStarFileNode(item) {
-    const group = document.createElementNS(SVG_NS, "g");
-    group.setAttribute("class", `star-node star-file-node${item.changed ? " changed" : ""}`);
-    group.setAttribute("transform", `translate(${item.x} ${item.y})`);
-
-    const rect = document.createElementNS(SVG_NS, "rect");
-    rect.setAttribute("x", -14);
-    rect.setAttribute("y", -16);
-    rect.setAttribute("width", 28);
-    rect.setAttribute("height", 32);
-    rect.setAttribute("rx", 5);
-    group.appendChild(rect);
-
-    const label = document.createElementNS(SVG_NS, "text");
-    label.setAttribute("class", "star-label");
-    label.setAttribute("y", 30);
-    label.textContent = item.name;
-    group.appendChild(label);
-
-    group.addEventListener("click", evt => {
-      evt.stopPropagation();
-      setScopePath(getParentPath(item.path));
-      currentFile = item.path;
-      currentDirectory = getParentPath(item.path);
-      localStorage.setItem(STORAGE_KEYS.currentFile, item.path);
-      selectedModule = getScopeModule();
-      showFilePopover(item.path);
-    });
-
-    return group;
+  function applyStarMapTransform() {
+    const layer = document.getElementById("star-map-layer");
+    if (!layer) return;
+    layer.setAttribute("transform", `translate(${starTransform.x} ${starTransform.y}) scale(${starTransform.scale})`);
   }

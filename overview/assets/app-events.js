@@ -20,30 +20,11 @@
     });
 
     document.getElementById("btn-star-map-view").addEventListener("click", () => {
-      overviewMode = overviewMode === "star" ? "file" : "star";
-      localStorage.setItem(STORAGE_KEYS.overviewMode, overviewMode);
-      renderMode();
-      if (overviewMode === "star") {
-        selectedModule = getScopeModule();
-        renderModuleDetails(selectedModule);
-        requestStarMapFit();
-        renderStarMap();
-      } else {
-        restoreFileView();
-      }
+      setOverviewMode(overviewMode === "star" ? "file" : "star");
     });
 
     document.getElementById("btn-collapse-all").addEventListener("click", () => {
       collapseAllDirectories();
-    });
-
-    document.getElementById("btn-view-all-files").addEventListener("click", () => {
-      viewAllFiles = !viewAllFiles;
-      saveBooleanSetting(STORAGE_KEYS.viewAllFiles, viewAllFiles);
-      updateToolButton("btn-view-all-files", "viewAllFilesTool", viewAllFiles);
-      renderTree(searchInput.value.trim());
-      if (overviewMode === "star") return;
-      if (currentDirectory) renderDirectoryChanges(currentDirectory);
     });
 
     document.getElementById("btn-view-whole-file").addEventListener("click", () => {
@@ -69,17 +50,19 @@
       const delta = evt.deltaY > 0 ? 0.9 : 1.1;
       starTransform.scale = Math.max(0.35, Math.min(2.6, starTransform.scale * delta));
       starAutoFit = false;
-      renderStarMap();
+      applyStarMapTransform();
     }, { passive: false });
 
     svg.addEventListener("pointerdown", evt => {
-      if (evt.target !== svg) return;
+      const interactiveNode = evt.target.closest && evt.target.closest(".star-node, .exposed-node");
+      logStarMapState("canvas-pointerdown", {
+        targetTag: evt.target && evt.target.tagName,
+        targetClass: evt.target && evt.target.getAttribute && evt.target.getAttribute("class"),
+        interactive: Boolean(interactiveNode)
+      });
+      if (interactiveNode) return;
 
-      selectedModule = getScopeModule();
-      currentFile = null;
-      currentDirectory = selectedModule.path;
-      renderModuleDetails(selectedModule);
-      renderStarMap();
+      selectStarMapModule(scopePath || SOURCE_ROOT, { fit: false });
       panState = { x: evt.clientX, y: evt.clientY, startX: starTransform.x, startY: starTransform.y };
       svg.setPointerCapture(evt.pointerId);
     });
@@ -89,7 +72,7 @@
       starTransform.x = panState.startX + evt.clientX - panState.x;
       starTransform.y = panState.startY + evt.clientY - panState.y;
       starAutoFit = false;
-      renderStarMap();
+      applyStarMapTransform();
     });
 
     svg.addEventListener("pointerup", () => {

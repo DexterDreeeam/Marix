@@ -4,10 +4,15 @@
     const activeTreeItem = treeEl || findTreeItem(path);
     if (activeTreeItem) activeTreeItem.classList.add("active");
 
-    currentFile = path;
-    currentDirectory = null;
-    setScopePath(getParentPath(path));
-    localStorage.setItem(STORAGE_KEYS.currentFile, path);
+    applyStarMapState({
+      selectionKind: "file",
+      filePath: path,
+      scopePath: getParentPath(path)
+    }, {
+      eventName: "file-view-file",
+      render: false,
+      syncTree: false
+    });
     const change = getChange(path);
     const fileData = (manifest.files || {})[path];
     const statusEl = document.getElementById("file-status");
@@ -44,17 +49,7 @@
   }
 
   function openFileScope(path, treeEl) {
-    document.querySelectorAll(".tree-item.active").forEach(el => el.classList.remove("active"));
-    if (treeEl) treeEl.classList.add("active");
-    currentFile = path;
-    currentDirectory = null;
-    setScopePath(getParentPath(path));
-    localStorage.setItem(STORAGE_KEYS.currentFile, path);
-    requestStarMapFit();
-    selectedModule = getScopeModule();
-    currentDirectory = selectedModule.path;
-    renderModuleDetails(selectedModule);
-    renderStarMap();
+    focusStarMapFile(path, { setScopeToParent: true, fit: true });
   }
 
   function renderStatusBadge(status) {
@@ -109,9 +104,14 @@
   function openDirectoryChanges(dirPath, treeEl) {
     document.querySelectorAll(".tree-item.active").forEach(el => el.classList.remove("active"));
     if (treeEl) treeEl.classList.add("active");
-    currentFile = null;
-    currentDirectory = dirPath;
-    setScopePath(dirPath);
+    applyStarMapState({
+      selectionKind: "module",
+      modulePath: dirPath
+    }, {
+      eventName: "file-view-directory",
+      render: false,
+      syncTree: false
+    });
     document.getElementById("file-path").textContent = `${dirPath}/`;
     document.getElementById("file-status").innerHTML = "";
     hideAllViews();
@@ -130,22 +130,17 @@
   }
 
   function openDirectoryModule(dirPath, treeEl) {
-    document.querySelectorAll(".tree-item.active").forEach(el => el.classList.remove("active"));
-    if (treeEl) treeEl.classList.add("active");
     const module = findModule(moduleRoot, dirPath);
     if (module) {
-      setScopePath(dirPath);
-      requestStarMapFit();
-      selectedModule = module;
-      renderModuleDetails(module);
-      renderStarMap();
+      selectStarMapModule(module.path, treeEl ? { syncTree: false } : {});
+      if (treeEl) markTreeSelection(module.path);
     }
   }
 
   function listChangedFilesUnder(dirPath) {
     const prefix = `${dirPath}/`;
     return Object.keys(((manifest.diff || {}).changes || {}))
-      .filter(path => isSourcePath(path))
+      .filter(path => shouldIncludeVisibleSourcePath(path))
       .filter(path => path === dirPath || path.startsWith(prefix))
       .sort();
   }
@@ -243,13 +238,12 @@
     const view = document.getElementById("code-view");
     view.style.display = "block";
     const codeEl = document.getElementById("code-el");
-    codeEl.textContent = content;
-    codeEl.className = "";
-    codeEl.removeAttribute("data-highlighted");
     const langMap = { py: "python", rs: "rust", js: "javascript", ts: "typescript", yml: "yaml", yaml: "yaml", sh: "bash", md: "markdown", html: "html", css: "css", json: "json", toml: "toml" };
     const lang = langMap[ext];
+    codeEl.className = "";
+    codeEl.removeAttribute("data-highlighted");
     if (lang) codeEl.classList.add(`language-${lang}`);
-    hljs.highlightElement(codeEl);
+    codeEl.innerHTML = highlightSource(content, lang);
   }
 
   function showChangedSections(path, change) {
@@ -284,169 +278,3 @@
         ${renderFullFilePanel(path, content, change, ext)}
       `;
     }
-
-    function renderFullFilePanel(path, content, change, ext, options = {}) {
-      const markers = collectDiffMarkers(change.diff_lines || []);
-      const lines = content.split(/\r?\n/);
-      const languageName = getLanguageFromExt(ext);
-      const body = [];
-
-      for (let i = 0; i < lines.length; i++) {
-        const lineNumber = i + 1;
-        body.push(renderDeletedLines(markers.deletedBefore.get(lineNumber), languageName));
-        body.push(renderFullFileLine(lineNumber, lines[i], markers.addedLines.has(lineNumber), languageName));
-      }
-
-      body.push(renderDeletedLines(markers.deletedBefore.get(lines.length + 1), languageName));
-
-      if (options.embedded) {
-        return `<div class="full-file-lines full-file-lines-embedded">${body.join("")}</div>`;
-      }
-
-      return `
-        <div class="full-file-panel">
-          <div class="full-file-header">
-            <code>${escapeHtml(path)}</code>
-            ${renderFullFileLegend()}
-          </div>
-          <div class="full-file-lines">${body.join("")}</div>
-        </div>
-      `;
-    }
-
-    function collectDiffMarkers(diffLines) {
-      const addedLines = new Set();
-      const deletedBefore = new Map();
-      let oldLine = 0;
-      let newLine = 0;
-
-      for (const line of diffLines) {
-        if (line.startsWith("@@")) {
-          const match = line.match(/@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
-          if (match) {
-            oldLine = Number(match[1]);
-            newLine = Number(match[2]);
-          }
-          continue;
-        }
-
-        if (line.startsWith("+")) {
-          addedLines.add(newLine);
-          newLine += 1;
-        } else if (line.startsWith("-")) {
-          const bucket = deletedBefore.get(newLine) || [];
-          bucket.push(line.substring(1));
-          deletedBefore.set(newLine, bucket);
-          oldLine += 1;
-        } else if (line.startsWith(" ")) {
-          oldLine += 1;
-          newLine += 1;
-        }
-      }
-
-      return { addedLines, deletedBefore };
-    }
-
-    function renderFullFileLegend() {
-      return `
-        <div class="full-file-legend">
-          <span class="legend-item legend-added">${escapeHtml(t("addedLine"))}</span>
-          <span class="legend-item legend-existing">${escapeHtml(t("existingLine"))}</span>
-          <span class="legend-item legend-deleted">${escapeHtml(t("deletedLine"))}</span>
-        </div>
-      `;
-    }
-
-    function renderFullFileLine(lineNumber, content, isAdded, languageName) {
-      const cls = isAdded ? "full-line-add" : "full-line-existing";
-      return `
-        <div class="full-file-line ${cls}">
-          <span class="full-line-number">${lineNumber}</span>
-          <span class="full-line-content">${highlightLine(content, languageName)}</span>
-        </div>
-      `;
-    }
-
-    function renderDeletedLines(lines, languageName) {
-      if (!lines || lines.length === 0) return "";
-      return lines.map(line => `
-        <div class="full-file-line full-line-del">
-          <span class="full-line-number">-</span>
-          <span class="full-line-content">${highlightLine(line, languageName)}</span>
-        </div>
-      `).join("");
-    }
-
-    function getLanguageFromExt(ext) {
-      const langMap = {
-        py: "python",
-        rs: "rust",
-        js: "javascript",
-        ts: "typescript",
-        yml: "yaml",
-        yaml: "yaml",
-        sh: "bash",
-        md: "markdown",
-        html: "xml",
-        css: "css",
-        json: "json",
-        toml: "toml",
-        xml: "xml"
-      };
-      return langMap[ext] || "";
-    }
-
-    function highlightLine(content, languageName) {
-      if (languageName && window.hljs && hljs.getLanguage(languageName)) {
-        try {
-          return hljs.highlight(content, { language: languageName, ignoreIllegals: true }).value;
-        } catch (e) {
-          return escapeHtml(content);
-        }
-      }
-      return escapeHtml(content);
-    }
-
-  function splitDiffSections(diffLines, hunks) {
-    const sections = [];
-    let current = null;
-    let hunkIndex = 0;
-
-    for (const line of diffLines) {
-      if (line.startsWith("@@")) {
-        if (current) sections.push(current);
-        const hunk = hunks[hunkIndex] || {};
-        current = { header: line, reason: hunk.reason || "", lines: [] };
-        hunkIndex += 1;
-      } else if (current && (line.startsWith("+") || line.startsWith("-") || line.startsWith(" "))) {
-        current.lines.push(line);
-      }
-    }
-
-    if (current) sections.push(current);
-    return sections;
-  }
-
-  function renderDiffPanel(path, section, number) {
-    const lines = section.lines.map(renderDiffLine).join("");
-    const reason = section.reason || t("reasonPending");
-    return `
-      <section class="diff-panel">
-        <header class="diff-panel-header">
-          <span class="diff-panel-number">#${number}</span>
-          <code>${escapeHtml(section.header || path)}</code>
-        </header>
-        <div class="diff-panel-reason">
-          <strong>${escapeHtml(t("reason"))}:</strong> ${escapeHtml(reason)}
-        </div>
-        <div class="diff-panel-lines">${lines}</div>
-      </section>
-    `;
-  }
-
-  function renderDiffLine(line) {
-    let cls = "diff-line-context";
-    if (line.startsWith("+")) cls = "diff-line-add";
-    else if (line.startsWith("-")) cls = "diff-line-del";
-    return `<div class="diff-line ${cls}"><span class="diff-line-content">${escapeHtml(line)}</span></div>`;
-  }
