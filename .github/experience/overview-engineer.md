@@ -3,6 +3,7 @@
 ## Purpose
 
 Persistent implementation notes for the Marix overview site under `overview/`.
+Overview-engineer owns overview implementation and UX only. Source-design companion metadata is maintained by `development-designer`; overview consumes that data but does not refresh or maintain it, and `git-sync` should not invoke overview-engineer unless overview implementation work is explicitly in scope.
 
 ## Current UX Contract
 
@@ -75,3 +76,4 @@ Persistent implementation notes for the Marix overview site under `overview/`.
 - Local file content can be read lazily from stored `FileSystemFileHandle`.
 - Keep all UI text bilingual through `I18N` loaded from `app-config.js`.
 - 2026-06-19: To satisfy `code-evaluate`, keep overview scripts under 500 lines by moving constants, dynamic data-source loading, local handle cache, code rendering, and star-map exposed-node helpers into focused `app-*.js` files. Preserve `overview/index.html` script order: config before state, code rendering before file/design consumers, and star-map elements before star-map/design consumers.
+- 2026-06-19: The Rust crate now lives under `src`; overview should show `src/Cargo.toml` as normal visible source/config, while `src/.cargo/`, `src/.target/`, and `src/target/` stay hidden/ignored by the existing source-root, dot-path, and `target` filters. Verified against `overview/assets/app-data-source.js` and `overview/assets/app-local-source.js`.

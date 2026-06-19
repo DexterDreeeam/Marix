@@ -30,6 +30,11 @@
 
 - For overview/site changes, do not verify or report local preview resources unless the user explicitly asks for local access.
 
+## Rust Workspace Policy
+
+- The Rust crate root is `src/`, not the repository root. Run Cargo commands from `src/` or pass `--manifest-path src/Cargo.toml`.
+- Cargo build output is configured by `src/.cargo/config.toml` to use `src/.target/`. Rust-specific project files should remain under `src/`; repository-root files are for engineering workflow only.
+
 ## Source Design Maintenance
 
 - When a task modifies any non-dot source file under `src/`, invoke the `development-designer` agent before finishing that task.

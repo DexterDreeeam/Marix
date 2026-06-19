@@ -1,79 +1,133 @@
-﻿{
+{
   "schemaVersion": 1,
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Root Rust source module for Marix. It exposes agent contracts and overview/star-map data models.",
-    "changeStatus": "added"
+    "purpose": "Root Rust crate module for Marix. It owns the crate manifest, library entry point, agent contracts, and overview/star-map data models.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent runtime contracts, shared agent types, and overview refresh integration.",
-      "changeStatus": "added"
+      "purpose": "Defines the core agent interface, shared agent data types, and overview refresh contract.",
+      "changeStatus": "unchanged"
     },
     {
       "path": "src/overview",
       "name": "overview",
-      "purpose": "Repository snapshot, source design, source change, and star-map visualization models.",
-      "changeStatus": "added"
+      "purpose": "Defines source design documents, repository snapshots, file changes, and star-map graph data used by the overview UI.",
+      "changeStatus": "unchanged"
     }
   ],
+  "exposedGroups": [],
   "files": [
+    {
+      "path": "src/Cargo.toml",
+      "purpose": "Cargo manifest for the Marix Rust crate after the crate root moved under src.",
+      "changeStatus": "renamed",
+      "items": [
+        {
+          "kind": "config-section",
+          "name": "package",
+          "category": "data",
+          "changeStatus": "unchanged",
+          "signature": "[package] name = \"marix\"",
+          "details": "Crate package metadata.",
+          "sourcePath": "src/Cargo.toml",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "language": "toml",
+          "code": "[package]\nname = \"marix\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Agent framework core and overview visualization data model.\"\nlicense = \"MIT\"",
+          "implements": []
+        },
+        {
+          "kind": "config-section",
+          "name": "lib",
+          "category": "data",
+          "changeStatus": "modified",
+          "signature": "[lib] path = \"lib.rs\"",
+          "details": "Declares the library target relative to the src manifest, so it resolves to src/lib.rs.",
+          "sourcePath": "src/Cargo.toml",
+          "lineStart": 8,
+          "lineEnd": 10,
+          "language": "toml",
+          "code": "[lib]\nname = \"marix\"\npath = \"lib.rs\"",
+          "implements": []
+        },
+        {
+          "kind": "config-section",
+          "name": "dependencies",
+          "category": "data",
+          "changeStatus": "unchanged",
+          "signature": "[dependencies] serde",
+          "details": "Declares serde derive support for the crate data models.",
+          "sourcePath": "src/Cargo.toml",
+          "lineStart": 12,
+          "lineEnd": 13,
+          "language": "toml",
+          "code": "[dependencies]\nserde = { version = \"1.0\", features = [\"derive\"] }",
+          "implements": []
+        }
+      ]
+    },
     {
       "path": "src/lib.rs",
       "purpose": "Library entry point and public re-export surface.",
+      "changeStatus": "unchanged",
       "items": [
         {
           "kind": "module",
           "name": "agent",
-          "category": "interface",
+          "category": "module",
+          "changeStatus": "unchanged",
           "signature": "pub mod agent;",
           "details": "Exposes agent contracts and shared runtime types.",
-          "implements": [],
-          "code": "pub mod agent;",
           "sourcePath": "src/lib.rs",
           "lineStart": 3,
           "lineEnd": 3,
-          "language": "rust"
+          "language": "rust",
+          "code": "pub mod agent;",
+          "implements": []
         },
         {
           "kind": "module",
           "name": "overview",
-          "category": "interface",
+          "category": "module",
+          "changeStatus": "unchanged",
           "signature": "pub mod overview;",
           "details": "Exposes overview, source design, and star-map data models.",
-          "implements": [],
-          "code": "pub mod overview;",
           "sourcePath": "src/lib.rs",
           "lineStart": 4,
           "lineEnd": 4,
-          "language": "rust"
+          "language": "rust",
+          "code": "pub mod overview;",
+          "implements": []
         },
         {
           "kind": "re-export",
           "name": "agent public surface",
-          "category": "interface",
-          "signature": "pub use agent::{...};",
+          "category": "module",
+          "changeStatus": "unchanged",
+          "signature": "pub use ...",
           "details": "Re-exports core agent traits and shared data types for downstream users.",
-          "implements": [],
-          "code": "pub use agent::{\n    Agent, AgentArtifact, AgentArtifactKind, AgentContext, AgentError, AgentId, AgentInput,\n    AgentKind, AgentOutput, AgentResult,\n};",
           "sourcePath": "src/lib.rs",
           "lineStart": 6,
           "lineEnd": 9,
-          "language": "rust"
+          "language": "rust",
+          "code": "pub use agent::{\n    Agent, AgentArtifact, AgentArtifactKind, AgentContext, AgentError, AgentId, AgentInput,\n    AgentKind, AgentOutput, AgentResult,\n};",
+          "implements": []
         }
-      ],
-      "changeStatus": "added"
+      ]
     }
   ],
   "starMap": {
     "notes": [
-      "This module is the root of the source-level star map.",
+      "This module is the Rust crate root for the source-level star map.",
       "Direct child modules should be shown as first-level module nodes.",
-      "The right property panel should render this JSON instead of Markdown."
+      "Cargo manifest metadata appears as a file node, not as an exposed public API.",
+      "Dot-prefixed companion metadata remains hidden from visible source lists.",
+      "This machine-readable payload is preferred over legacy compatibility fallbacks."
     ]
-  },
-  "exposedGroups": []
+  }
 }

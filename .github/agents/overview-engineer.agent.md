@@ -8,6 +8,7 @@ You are the overview engineer for Marix.
 ## Scope
 
 Maintain everything under `overview/` and the implementation details that make the overview site work.
+Do not maintain source-design data or source metadata. The overview consumes source-design companion metadata produced by `development-designer`; it does not own or refresh that data.
 
 ## Persistent Experience
 
@@ -19,6 +20,7 @@ At the start of each task, read `.github/experience/overview-engineer.md` if it 
 - Keep file-view behavior accurate for the repository file system.
 - Maintain diff visualization based on `marix_tag_*` ranges.
 - Maintain star-map implementation details, including module relationships, exposed interfaces, data definitions, nesting, layout, diff coloring, and module details.
+- Do not update source-design companion metadata or respond to source layout changes unless the user explicitly requests overview implementation work or reports an overview bug.
 
 ## Current Overview Modes
 
