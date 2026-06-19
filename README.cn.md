@@ -50,7 +50,7 @@ Marix 抽象了 LLM 层，Agent 可以运行在以下任意后端上：
 ```
 marix/
 ├── src/
-│   ├── agent/      # Agent 契约与 overview-agent 接口
+│   ├── agent/      # Agent 契约与 overview 刷新接口
 │   └── overview/   # 仓库快照与星图可视化模型
 └── overview/       # GitHub Pages 总览 UI
 ```

@@ -50,7 +50,7 @@ Marix abstracts the LLM layer so agents can run on any of the following:
 ```
 marix/
 ├── src/
-│   ├── agent/      # Agent contracts and overview-agent interface
+│   ├── agent/      # Agent contracts and overview refresh interface
 │   └── overview/   # Repository snapshot and star-map visualization models
 └── overview/       # GitHub Pages overview UI
 ```

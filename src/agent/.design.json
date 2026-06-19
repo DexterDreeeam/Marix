@@ -3,7 +3,7 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Defines the core agent interface and shared agent data types. It also defines the overview-agent contract used to refresh overview and star-map content.",
+    "purpose": "Defines the core agent interface and shared agent data types. It also defines the overview refresh contract used to refresh overview and star-map content.",
     "changeStatus": "added"
   },
   "childModules": [],
@@ -17,7 +17,7 @@
           "name": "overview",
           "category": "interface",
           "signature": "mod overview;",
-          "details": "Internal overview-agent contract module.",
+          "details": "Internal overview refresh contract module.",
           "implements": [],
           "code": "mod overview;",
           "sourcePath": "src/agent/mod.rs",
@@ -56,7 +56,7 @@
           "name": "agent module public surface",
           "category": "interface",
           "signature": "pub use ...",
-          "details": "Re-exports overview-agent, runtime, and shared type contracts.",
+          "details": "Re-exports overview refresh, runtime, and shared type contracts.",
           "implements": [],
           "code": "pub use overview::{OverviewAgent, OverviewOptions, OverviewRefreshPlan, OverviewRefreshRequest};",
           "sourcePath": "src/agent/mod.rs",
@@ -219,7 +219,7 @@
     },
     {
       "path": "src/agent/overview.rs",
-      "purpose": "Defines the overview-agent contract and refresh data structures.",
+      "purpose": "Defines the overview refresh contract and refresh data structures.",
       "items": [
         {
           "kind": "trait",
