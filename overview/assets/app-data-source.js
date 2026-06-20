@@ -106,10 +106,9 @@
       visibleSourceFiles: tree.filter(item => shouldIncludeVisibleSourcePath(item.path)).length
     });
 
-    const repoApi = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`;
     let diff = { prev_tag: null, latest_tag: null, changes: {} };
     try {
-      diff = await buildLocalDiffFromLatestTag(repoApi, tree);
+      diff = await buildLocalDiffFromLatestTag(rootHandle, tree);
       logOverview("local diff loaded from latest tag", {
         previousTag: diff.prev_tag,
         latestTag: diff.latest_tag,
@@ -210,37 +209,6 @@
         hunks: parsed.hunks
       };
     }
-    return diff;
-  }
-
-  async function buildLocalDiffFromLatestTag(repoApi, localTree) {
-    const tags = await fetchMarixTags(repoApi);
-    const diff = { prev_tag: null, latest_tag: "local", changes: {} };
-    if (tags.length === 0) return diff;
-
-    const base = tags[tags.length - 1].name;
-    diff.prev_tag = base;
-
-    const baseTree = await fetchRepositoryTree(repoApi, base);
-    const baseFiles = new Map(baseTree
-      .filter(item => shouldIncludeVisibleSourcePath(item.path))
-      .map(item => [item.path, item]));
-
-    for (const item of localTree.filter(entry => shouldIncludeVisibleSourcePath(entry.path))) {
-      const baseItem = baseFiles.get(item.path);
-      if (!baseItem) {
-        diff.changes[item.path] = createSyntheticDiffChange("A");
-        continue;
-      }
-      if ((baseItem.size || 0) !== (item.size || 0)) {
-        diff.changes[item.path] = createSyntheticDiffChange("M");
-        continue;
-      }
-      if (baseItem.sha && await isLocalFileModifiedFromGitBlob(item, baseItem.sha)) {
-        diff.changes[item.path] = createSyntheticDiffChange("M");
-      }
-    }
-
     return diff;
   }
 

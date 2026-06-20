@@ -28,18 +28,10 @@
     });
 
     document.getElementById("btn-view-whole-file").addEventListener("click", () => {
-      if (overviewMode === "star") {
-        starMapShowAllFiles = !starMapShowAllFiles;
-        saveBooleanSetting(STORAGE_KEYS.starMapShowAllFiles, starMapShowAllFiles);
-        updateFileListToolButton();
-        renderStarMapFileList(getScopeModule());
-        return;
-      }
-      viewWholeFile = !viewWholeFile;
-      saveBooleanSetting(STORAGE_KEYS.viewWholeFile, viewWholeFile);
-      updateFileListToolButton();
-      if (currentFile) openFile(currentFile);
-      else if (currentDirectory) renderDirectoryChanges(currentDirectory);
+      treeChangedFilesOnly = !treeChangedFilesOnly;
+      saveBooleanSetting(STORAGE_KEYS.treeChangedFilesOnly, treeChangedFilesOnly);
+      updateTreeFilterButton();
+      renderTree(searchInput.value.trim());
     });
 
     document.getElementById("code-popover-backdrop").addEventListener("click", hideCodePopover);

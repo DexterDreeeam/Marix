@@ -193,7 +193,6 @@
       toggle.addEventListener("click", () => {
         starMapShowAllFiles = !starMapShowAllFiles;
         saveBooleanSetting(STORAGE_KEYS.starMapShowAllFiles, starMapShowAllFiles);
-        updateFileListToolButton();
         renderStarMapFileList(scopeNode);
       });
     }

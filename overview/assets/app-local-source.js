@@ -55,23 +55,233 @@
     return await file.text();
   }
 
-  async function isLocalFileModifiedFromGitBlob(item, baseSha) {
-    const sha = await calculateLocalGitBlobSha(item.localHandle);
-    return sha !== baseSha;
+  async function buildLocalDiffFromLatestTag(rootHandle, localTree) {
+    const gitHandle = await rootHandle.getDirectoryHandle(".git");
+    const tags = await fetchLocalMarixTags(gitHandle);
+    const diff = { prev_tag: null, latest_tag: "local", changes: {} };
+    if (tags.length === 0) return diff;
+
+    const latestTag = tags[tags.length - 1];
+    diff.prev_tag = latestTag.name;
+
+    const commit = await peelLocalGitCommit(gitHandle, latestTag.sha);
+    const treeSha = getLocalCommitTreeSha(commit.content);
+    const baseTree = await readLocalGitTree(gitHandle, treeSha);
+    const baseFiles = new Map(baseTree
+      .filter(item => shouldIncludeVisibleSourcePath(item.path))
+      .map(item => [item.path, item]));
+
+    for (const item of localTree.filter(entry => shouldIncludeVisibleSourcePath(entry.path))) {
+      const baseItem = baseFiles.get(item.path);
+      if (!baseItem) {
+        diff.changes[item.path] = createSyntheticDiffChange("A");
+        continue;
+      }
+      if (await isLocalFileModifiedFromGitBlob(item, baseItem.sha)) {
+        diff.changes[item.path] = createSyntheticDiffChange("M");
+      }
+    }
+
+    return diff;
   }
 
-  async function calculateLocalGitBlobSha(fileHandle) {
+  async function fetchLocalMarixTags(gitHandle) {
+    const tags = new Map();
+    await collectLocalLooseTags(gitHandle, "refs/tags", "", tags);
+    await collectLocalPackedTags(gitHandle, tags);
+    return Array.from(tags.entries())
+      .filter(([name]) => name.startsWith("marix_tag_"))
+      .map(([name, sha]) => ({ name, sha }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  async function collectLocalLooseTags(gitHandle, refsPath, prefix, tags) {
+    let directory = null;
+    try {
+      directory = await getLocalGitDirectory(gitHandle, refsPath);
+    } catch (e) {
+      return;
+    }
+
+    for await (const [name, handle] of directory.entries()) {
+      const tagName = prefix ? `${prefix}/${name}` : name;
+      if (handle.kind === "directory") {
+        await collectLocalLooseTags(gitHandle, `${refsPath}/${name}`, tagName, tags);
+      } else if (handle.kind === "file") {
+        const sha = (await readLocalFileText(handle)).trim();
+        if (/^[0-9a-f]{40}$/i.test(sha)) tags.set(tagName, sha.toLowerCase());
+      }
+    }
+  }
+
+  async function collectLocalPackedTags(gitHandle, tags) {
+    let text = "";
+    try {
+      text = await readLocalGitText(gitHandle, "packed-refs");
+    } catch (e) {
+      return;
+    }
+
+    let lastTagName = "";
+    for (const line of text.split(/\r?\n/)) {
+      if (!line || line.startsWith("#")) continue;
+      const peeled = line.match(/^\^([0-9a-f]{40})$/i);
+      if (peeled && lastTagName) {
+        tags.set(lastTagName, peeled[1].toLowerCase());
+        continue;
+      }
+      const match = line.match(/^([0-9a-f]{40})\s+refs\/tags\/(.+)$/i);
+      if (match) {
+        lastTagName = match[2];
+        tags.set(lastTagName, match[1].toLowerCase());
+      }
+    }
+  }
+
+  async function peelLocalGitCommit(gitHandle, sha) {
+    let object = await readLocalGitObject(gitHandle, sha);
+    while (object.type === "tag") {
+      const text = new TextDecoder("utf-8").decode(object.content);
+      const nextSha = text.match(/^object ([0-9a-f]{40})$/m);
+      if (!nextSha) throw new Error(`local tag object missing target: ${sha}`);
+      object = await readLocalGitObject(gitHandle, nextSha[1]);
+    }
+    if (object.type !== "commit") throw new Error(`local tag target is not a commit: ${sha}`);
+    return object;
+  }
+
+  function getLocalCommitTreeSha(commitContent) {
+    const text = new TextDecoder("utf-8").decode(commitContent);
+    const match = text.match(/^tree ([0-9a-f]{40})$/m);
+    if (!match) throw new Error("local commit has no tree");
+    return match[1];
+  }
+
+  async function readLocalGitTree(gitHandle, treeSha, prefix = "") {
+    const object = await readLocalGitObject(gitHandle, treeSha);
+    if (object.type !== "tree") throw new Error(`local object is not a tree: ${treeSha}`);
+    const entries = parseLocalGitTreeEntries(object.content);
+    const files = [];
+    for (const entry of entries) {
+      const path = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (entry.mode === "40000") {
+        const childFiles = await readLocalGitTree(gitHandle, entry.sha, path);
+        files.push(...childFiles);
+      } else {
+        files.push({ path, sha: entry.sha });
+      }
+    }
+    return files;
+  }
+
+  function parseLocalGitTreeEntries(content) {
+    const entries = [];
+    const decoder = new TextDecoder("utf-8");
+    let offset = 0;
+    while (offset < content.length) {
+      const modeStart = offset;
+      while (content[offset] !== 0x20) offset++;
+      const mode = decoder.decode(content.slice(modeStart, offset));
+      offset++;
+
+      const nameStart = offset;
+      while (content[offset] !== 0x00) offset++;
+      const name = decoder.decode(content.slice(nameStart, offset));
+      offset++;
+
+      const sha = Array.from(content.slice(offset, offset + 20), byte => byte.toString(16).padStart(2, "0")).join("");
+      offset += 20;
+      entries.push({ mode, name, sha });
+    }
+    return entries;
+  }
+
+  async function readLocalGitObject(gitHandle, sha) {
+    const bytes = await readLocalGitBytes(gitHandle, `objects/${sha.slice(0, 2)}/${sha.slice(2)}`);
+    const inflated = await inflateLocalGitObject(bytes);
+    let headerEnd = 0;
+    while (headerEnd < inflated.length && inflated[headerEnd] !== 0x00) headerEnd++;
+    if (headerEnd >= inflated.length) throw new Error(`invalid local git object: ${sha}`);
+
+    const header = new TextDecoder("utf-8").decode(inflated.slice(0, headerEnd));
+    const [type] = header.split(" ");
+    return {
+      type,
+      content: inflated.slice(headerEnd + 1)
+    };
+  }
+
+  async function inflateLocalGitObject(bytes) {
+    if (!window.DecompressionStream) {
+      throw new Error("DecompressionStream is unavailable for local git objects");
+    }
+    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate"));
+    return new Uint8Array(await new Response(stream).arrayBuffer());
+  }
+
+  async function isLocalFileModifiedFromGitBlob(item, baseSha) {
+    const shas = await calculateLocalGitBlobShaCandidates(item.localHandle);
+    return !shas.includes(baseSha);
+  }
+
+  async function calculateLocalGitBlobShaCandidates(fileHandle) {
     if (!window.crypto || !window.crypto.subtle) {
       throw new Error("Web Crypto is unavailable for local diff hashing");
     }
     const file = await fileHandle.getFile();
     const content = new Uint8Array(await file.arrayBuffer());
+    const shas = [await calculateGitBlobShaForBytes(content)];
+    const normalized = normalizeTextBytesForGitHash(content);
+    if (normalized) {
+      const normalizedSha = await calculateGitBlobShaForBytes(normalized);
+      if (!shas.includes(normalizedSha)) shas.push(normalizedSha);
+    }
+    return shas;
+  }
+
+  async function calculateGitBlobShaForBytes(content) {
     const header = new TextEncoder().encode(`blob ${content.byteLength}\0`);
     const blob = new Uint8Array(header.byteLength + content.byteLength);
     blob.set(header, 0);
     blob.set(content, header.byteLength);
     const digest = await window.crypto.subtle.digest("SHA-1", blob);
     return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
+  }
+
+  function normalizeTextBytesForGitHash(content) {
+    if (content.includes(0)) return null;
+    const text = new TextDecoder("utf-8", { fatal: false }).decode(content);
+    if (!text.includes("\r\n")) return null;
+    return new TextEncoder().encode(text.replace(/\r\n/g, "\n"));
+  }
+
+  async function readLocalGitText(gitHandle, path) {
+    const file = await getLocalGitFile(gitHandle, path);
+    return readLocalFileText(file);
+  }
+
+  async function readLocalGitBytes(gitHandle, path) {
+    const file = await getLocalGitFile(gitHandle, path);
+    const blob = await file.getFile();
+    return new Uint8Array(await blob.arrayBuffer());
+  }
+
+  async function getLocalGitDirectory(gitHandle, path) {
+    const parts = path.split("/").filter(Boolean);
+    let current = gitHandle;
+    for (const part of parts) {
+      current = await current.getDirectoryHandle(part);
+    }
+    return current;
+  }
+
+  async function getLocalGitFile(gitHandle, path) {
+    const parts = path.split("/").filter(Boolean);
+    let current = gitHandle;
+    for (let index = 0; index < parts.length - 1; index++) {
+      current = await current.getDirectoryHandle(parts[index]);
+    }
+    return await current.getFileHandle(parts[parts.length - 1]);
   }
 
   async function requestLocalReadPermission(handle) {

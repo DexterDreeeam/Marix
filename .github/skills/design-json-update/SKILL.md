@@ -1,6 +1,6 @@
 ---
-name: update-design-json
-description: Update Marix src/.design.json metadata. Use from development-designer after ensure-deveopment-design blocks, or directly when the user asks to refresh source design JSON.
+name: design-json-update
+description: Update Marix src/.design.json metadata. Use from development-designer after ensure-deveopment-design blocks, before git-tag, or directly when the user asks to refresh source design JSON.
 ---
 
 ## Purpose
@@ -12,8 +12,9 @@ This skill owns the mechanics of discovering which `.design.json` files need upd
 ## Inputs
 
 - **Focused update** — The caller provides a list of changed non-dot source paths under `src/`, plus the changed portions or intent. This is the normal hook flow:
-  `ensure-deveopment-design` → `development-designer` → `update-design-json`.
+  `ensure-deveopment-design` → `development-designer` → `design-json-update`.
 - **Full update** — If the user invokes this skill directly without a file list, refresh every `.design.json` under `src/` and create missing `.design.json` files for every non-dot source folder.
+- **Pre-tag update** — When invoked from `git-tag`, refresh `.design.json` before the tag commit so `changeStatus` records the actual source changes being tagged.
 
 ## Path Rules
 

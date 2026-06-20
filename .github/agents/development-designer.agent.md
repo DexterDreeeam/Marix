@@ -15,7 +15,7 @@ At the start of each task, read `.github/experience/development-designer.md` if 
 
 ## Responsibilities
 
-- When invoked by `ensure-deveopment-design`, use the `update-design-json` skill with the hook-provided changed file list and changed portions. Do not hand-write partial metadata when the skill applies.
+- When invoked by `ensure-deveopment-design`, use the `design-json-update` skill with the hook-provided changed file list and changed portions. Do not hand-write partial metadata when the skill applies.
 - Treat every folder under `src/` as a module.
 - Each module folder should contain a `.design.json` source-design companion metadata file.
 - The design file must describe direct child files and direct child folders.

@@ -26,6 +26,14 @@
   }
 
   function getTreeFiles() {
+    if (treeChangedFilesOnly) {
+      const changedFiles = {};
+      for (const path of getChangedVisiblePaths().sort()) {
+        changedFiles[path] = (manifest.files || {})[path] || { size: 0, content: "" };
+      }
+      return changedFiles;
+    }
+
     const files = getVisibleManifestFiles();
     for (const path of getChangedVisiblePaths().sort()) {
       if (!shouldIncludeVisibleSourcePath(path)) continue;

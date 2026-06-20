@@ -7,7 +7,7 @@ Persistent implementation notes for generating and maintaining Marix source desi
 ## Current Design Contract
 
 - Maintain `.design.json` files under every `src/` folder.
-- The `update-design-json` skill owns the mechanics of selecting and updating `.design.json` files. `development-designer` should use that skill when the hook provides changed source paths.
+- The `design-json-update` skill owns the mechanics of selecting and updating `.design.json` files. `development-designer` should use that skill when the hook provides changed source paths.
 - JSON is the only source-design companion metadata format going forward.
 - Every dot-prefixed file or folder under `src/` is companion metadata owned by development-designer. Maintain these paths beside source files, but never list them as normal source files, child modules, or source change entries.
 - `.design.json` content should be machine-readable JSON.

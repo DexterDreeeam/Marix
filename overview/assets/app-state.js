@@ -2,7 +2,8 @@
   let manifest = null;
   let language = localStorage.getItem(STORAGE_KEYS.language) || "en";
   let overviewMode = localStorage.getItem(STORAGE_KEYS.overviewMode) || "file";
-  let viewWholeFile = loadBooleanSetting(STORAGE_KEYS.viewWholeFile, false);
+  let viewWholeFile = false;
+  let treeChangedFilesOnly = loadBooleanSetting(STORAGE_KEYS.treeChangedFilesOnly, false);
   let starMapShowAllFiles = loadBooleanSetting(STORAGE_KEYS.starMapShowAllFiles, false);
   let currentFile = null;
   let currentDirectory = null;
@@ -171,7 +172,7 @@
     updateActionButton("btn-collapse-all", "collapseAllTool");
     updateActionButton("btn-reset-star-map", "resetView");
     updateActionButton("btn-reset-data-source", "resetDataSourceTool");
-    updateFileListToolButton();
+    updateTreeFilterButton();
     updateDataSourceDependentControls();
 
     renderWelcome();
@@ -213,7 +214,7 @@
       }
 
     }
-    updateFileListToolButton();
+    updateTreeFilterButton();
     updateDataSourceDependentControls();
   }
 
@@ -415,16 +416,12 @@
       });
   }
 
-  function updateFileListToolButton() {
-    if (overviewMode === "star") {
-      updateToolButton(
-        "btn-view-whole-file",
-        starMapShowAllFiles ? "showChangedFilesTool" : "showAllFilesTool",
-        starMapShowAllFiles
-      );
-      return;
-    }
-    updateToolButton("btn-view-whole-file", "viewWholeFileTool", viewWholeFile);
+  function updateTreeFilterButton() {
+    updateToolButton(
+      "btn-view-whole-file",
+      treeChangedFilesOnly ? "treeAllFilesTool" : "treeChangedFilesOnlyTool",
+      treeChangedFilesOnly
+    );
   }
 
   function updateToolButton(id, labelKey, active) {
@@ -444,8 +441,7 @@
   }
 
   function updateDataSourceDependentControls() {
-    const githubOnlyDiff = activeDataSource === DATA_SOURCE_GITHUB;
-    setElementVisible("btn-view-whole-file", overviewMode === "star" || !githubOnlyDiff);
+    setElementVisible("btn-view-whole-file", true);
   }
 
   function setElementVisible(id, visible) {
