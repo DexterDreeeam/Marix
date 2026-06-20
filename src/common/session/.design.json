@@ -4,17 +4,14 @@
     "path": "src/common/session",
     "name": "session",
     "purpose": "Shared session configuration and session pipe transport.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "."
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "DEFAULT_CORE_PORT",
       "type": "const",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/session_config.rs",
@@ -27,7 +24,7 @@
     {
       "name": "SessionConfig",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/session_config.rs",
@@ -52,7 +49,7 @@
     {
       "name": "SessionPipe",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/session_pipe.rs",
@@ -71,7 +68,7 @@
     {
       "name": "CliSessionPipe",
       "type": "enum",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/session_pipe.rs",
@@ -90,7 +87,7 @@
     {
       "name": "CoreSessionPipe",
       "type": "enum",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/session_pipe.rs",
@@ -109,7 +106,7 @@
     {
       "name": "CoreSessionListener",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/session_pipe.rs",
@@ -127,3 +124,4 @@
     }
   ]
 }
+

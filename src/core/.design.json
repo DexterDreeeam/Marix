@@ -4,20 +4,8 @@
     "path": "src/core",
     "name": "core",
     "purpose": "Core library and server binary crate package with workflow runtime, session server, and preprocess modules.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    ".",
-    "config.json",
-    "lib.rs",
-    "main.rs",
-    "model.rs",
-    "runtime.rs",
-    "transport.rs"
-  ],
-  "deleted": [
-    "io.rs"
-  ],
   "childModules": [
     {
       "path": "src/core/preprocess",
@@ -29,7 +17,7 @@
     {
       "name": "ModelRequest",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/model.rs",
@@ -42,7 +30,7 @@
     {
       "name": "ModelResponse",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/model.rs",
@@ -55,7 +43,7 @@
     {
       "name": "ModelError",
       "type": "enum",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/model.rs",
@@ -80,7 +68,7 @@
     {
       "name": "ModelBackend",
       "type": "trait",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/model.rs",
@@ -93,7 +81,7 @@
     {
       "name": "RemoteModelBackend",
       "type": "trait",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/model.rs",
@@ -106,7 +94,7 @@
     {
       "name": "LocalModelBackend",
       "type": "trait",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/model.rs",
@@ -119,7 +107,7 @@
     {
       "name": "EchoModelBackend",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/model.rs",
@@ -138,7 +126,7 @@
     {
       "name": "AgentExecutionRequest",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
@@ -151,7 +139,7 @@
     {
       "name": "AgentExecutionResponse",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
@@ -164,7 +152,7 @@
     {
       "name": "AgentWorkflowStep",
       "type": "enum",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
@@ -177,7 +165,7 @@
     {
       "name": "AgentWorkflow",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
@@ -196,7 +184,7 @@
     {
       "name": "DEFAULT_AGENT_WORKFLOW",
       "type": "const",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
@@ -209,7 +197,7 @@
     {
       "name": "CoreError",
       "type": "enum",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
@@ -246,7 +234,7 @@
     {
       "name": "AgentCore",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
@@ -265,7 +253,7 @@
     {
       "name": "CliCoreTransport",
       "type": "trait",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/transport.rs",
@@ -278,7 +266,7 @@
     {
       "name": "PassthroughCliCoreTransport",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/transport.rs",
@@ -297,7 +285,7 @@
     {
       "name": "ComputeModelTransport",
       "type": "trait",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/transport.rs",
@@ -310,7 +298,7 @@
     {
       "name": "PassthroughModelTransport",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/transport.rs",
@@ -328,3 +316,4 @@
     }
   ]
 }
+

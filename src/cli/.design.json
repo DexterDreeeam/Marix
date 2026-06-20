@@ -4,22 +4,14 @@
     "path": "src/cli",
     "name": "cli",
     "purpose": "CLI binary crate package with session pipe client and local integrated core mode.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    ".",
-    "Cargo.toml",
-    "config.json",
-    "interface.rs",
-    "main.rs",
-    "output.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "Interface",
       "type": "trait",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/cli/interface.rs",
@@ -32,7 +24,7 @@
     {
       "name": "CliInterface",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/cli/interface.rs",
@@ -56,3 +48,4 @@
     }
   ]
 }
+
