@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/core/preprocess",
+    "name": "preprocess",
+    "purpose": "Core preprocessing module split into error, output, and preprocessor definitions.",
+    "changeStatus": "modified"
+  },
+  "childModules": [],
+  "elements": [
+    {
+      "name": "PreprocessOutput",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/preprocess/output.rs",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "PreprocessError",
+      "type": "enum",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/preprocess/error.rs",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/core/preprocess/error.rs",
+          "lineStart": 6,
+          "lineEnd": 12,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/core/preprocess/error.rs",
+          "lineStart": 14,
+          "lineEnd": 14,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "Preprocessor",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/preprocess/preprocessor.rs",
+          "lineStart": 5,
+          "lineEnd": 6,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/core/preprocess/preprocessor.rs",
+          "lineStart": 8,
+          "lineEnd": 17,
+          "language": "rust"
+        }
+      ]
+    }
+  ]
+}

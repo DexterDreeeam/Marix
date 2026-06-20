@@ -3,87 +3,46 @@
   "module": {
     "path": "src/cli",
     "name": "cli",
-    "purpose": "Command-line user interaction and user-facing command/output types.",
-    "changeStatus": "added"
+    "purpose": "CLI binary crate package with flat input, output, and interface files that reuse common UserInput.",
+    "changeStatus": "modified"
   },
   "childModules": [],
-  "files": [
+  "elements": [
     {
-      "path": "src/cli/mod.rs",
-      "purpose": "Defines CLI user messages, attachments, commands, outputs, and the initial CLI adapter.",
-      "changeStatus": "added",
-      "items": [
+      "name": "Interface",
+      "type": "trait",
+      "changeStatus": "modified",
+      "codeSegments": [
         {
-          "kind": "struct",
-          "name": "UserCommand",
-          "category": "data",
-          "signature": "pub struct UserCommand",
-          "details": "A CLI-facing user command with text and attachments.",
-          "code": "#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]\npub struct UserCommand {\n    pub message: UserMessage,\n    pub attachments: Vec<UserAttachment>,\n}",
-          "implements": [],
-          "lineStart": 15,
-          "lineEnd": 19,
-          "language": "rust",
-          "sourcePath": "src/cli/mod.rs",
-          "changeStatus": "added"
-        },
-        {
-          "kind": "trait",
-          "name": "UserInterface",
-          "category": "interface",
-          "signature": "pub trait UserInterface",
-          "details": "Abstraction for user input and output rendering.",
-          "code": "pub trait UserInterface {\n    fn read_command(&mut self) -> Option<UserCommand>;\n    fn render_output(&mut self, output: UserOutput);\n}",
-          "implements": [
-            "CliUserInterface implements UserInterface"
-          ],
-          "lineStart": 26,
-          "lineEnd": 29,
-          "language": "rust",
-          "sourcePath": "src/cli/mod.rs",
-          "changeStatus": "added"
+          "sourcePath": "src/cli/interface.rs",
+          "lineStart": 3,
+          "lineEnd": 6,
+          "language": "rust"
         }
       ]
-    }
-  ],
-  "exposedGroups": [
+    },
     {
-      "name": "CLI API",
-      "purpose": "Public command-line interaction types.",
-      "elements": [
+      "name": "CliInterface",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
         {
-          "id": "src/cli/mod.rs#usercommand",
-          "name": "UserCommand",
-          "kind": "struct",
-          "shape": "square",
-          "category": "data",
-          "signature": "pub struct UserCommand",
-          "details": "A CLI-facing user command with text and attachments.",
-          "sourcePath": "src/cli/mod.rs",
-          "lineStart": 15,
-          "lineEnd": 19,
-          "language": "rust",
-          "code": "#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]\npub struct UserCommand {\n    pub message: UserMessage,\n    pub attachments: Vec<UserAttachment>,\n}",
-          "implements": [],
-          "changeStatus": "added"
+          "sourcePath": "src/cli/interface.rs",
+          "lineStart": 9,
+          "lineEnd": 11,
+          "language": "rust"
         },
         {
-          "id": "src/cli/mod.rs#userinterface",
-          "name": "UserInterface",
-          "kind": "trait",
-          "shape": "triangle",
-          "category": "interface",
-          "signature": "pub trait UserInterface",
-          "details": "Abstraction for CLI-style user input and output rendering.",
-          "sourcePath": "src/cli/mod.rs",
-          "lineStart": 26,
-          "lineEnd": 29,
-          "language": "rust",
-          "code": "pub trait UserInterface {\n    fn read_command(&mut self) -> Option<UserCommand>;\n    fn render_output(&mut self, output: UserOutput);\n}",
-          "implements": [
-            "CliUserInterface implements UserInterface"
-          ],
-          "changeStatus": "added"
+          "sourcePath": "src/cli/interface.rs",
+          "lineStart": 13,
+          "lineEnd": 17,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/cli/interface.rs",
+          "lineStart": 19,
+          "lineEnd": 27,
+          "language": "rust"
         }
       ]
     }

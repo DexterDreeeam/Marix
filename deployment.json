@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "release": {
+    "directory": "src/.release",
+    "artifactSuffix": "{os}-{arch}"
+  },
+  "devices": [
+    {
+      "id": "cli-vm",
+      "role": "cli",
+      "platform": "hyper-v",
+      "name": "vm-ee-test",
+      "authentication": {
+        "type": "none"
+      },
+      "target": {
+        "os": "windows",
+        "arch": "x86_64"
+      }
+    },
+    {
+      "id": "core-ubuntu",
+      "role": "core",
+      "platform": "linux",
+      "protocol": "ssh",
+      "host": "43.142.167.218",
+      "port": 22,
+      "user": "ubuntu",
+      "authentication": {
+        "type": "password",
+        "password": "{CORE_SERVER_PASSWORD}",
+        "rootPassword": "{CORE_SERVER_ROOT_PASSWORD}"
+      },
+      "target": {
+        "os": "linux",
+        "arch": "x86_64"
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "deepseek-default",
+      "provider": "deepseek",
+      "kind": "remote",
+      "baseUrl": "https://api.deepseek.com",
+      "chatCompletionsPath": "/chat/completions",
+      "apiKey": "{DEEPSEEK_API_KEY}",
+      "localCompatibility": {
+        "enabled": true,
+        "backendInterface": "LocalModelBackend"
+      }
+    }
+  ]
+}

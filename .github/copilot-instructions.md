@@ -32,21 +32,24 @@
 
 ## Rust Workspace Policy
 
-- The Rust crate root is `src/`, not the repository root. Run Cargo commands from `src/` or pass `--manifest-path src/Cargo.toml`.
+- The Rust workspace root is `src/`, not the repository root. Run Cargo commands from `src/` or pass `--manifest-path src/Cargo.toml`.
 - Cargo build output is configured by `src/.cargo/config.toml` to use `src/.target/`. Rust-specific project files should remain under `src/`; repository-root files are for engineering workflow only.
 
 ## Source Architecture
 
-- The first-level Rust source modules are `cli`, `core`, and `config`.
-- `cli` owns command-line user interaction, including user command input and output rendering.
+- `src/Cargo.toml` defines a workspace with flat member packages: `common` provides shared protocols/helpers, `config` provides the `marix-config` lib crate, `core` provides the `marix_core` lib crate and `marix-core` bin crate, and `cli` provides the `marix-cli` bin crate. Do not add nested `src/` folders under `common`, `config`, `core`, or `cli`.
+- `cli` owns command-line user interaction, including input, output, and interface files.
+- `common` owns cross-package protocol types such as `UserInput`; CLI and core should reuse those protocol definitions instead of duplicating input structs.
 - `core` owns preprocessing, agent computation/runtime orchestration, pass-through transport boundaries, and model backend interfaces. Remote models are the current focus, but local model compatibility must remain represented.
-- Shared deployment and compile-mode configuration belongs in `config`.
-- Initial compile modes are `up_xcy_m`, `u_xpcy_m`, and `upxcy_m`; parse mode strings through `config::CompileMode`.
+- Shared CLI/core configuration belongs in the `marix-config` crate as merged JSON loaded from `src/**/config.json`; callers access values by string keys such as `config["cli"]["interface"]`.
+- Deployment topology is read from root `deployment.json` and stored under the `deployment` node without making deployment details part of core config.
 - Do not reintroduce the old Rust `agent` or `overview` source modules. Overview site implementation remains under `overview/`, and source-design data is maintained by `development-designer`.
 
 ## Source Design Maintenance
 
-- When a task modifies any non-dot source file under `src/`, invoke the `development-designer` agent before finishing that task.
-- Pass the changed non-dot source paths and the changed portions/intent to `development-designer` so it can update the affected dot-prefixed companion metadata from the actual source change.
-- Do not wait until `git-sync` to refresh design documents. Design metadata should be updated as part of the same task that changes source.
+- A non-dot source file is any path under `src/` where neither the file name nor any parent directory segment starts with `.`.
+- Do not invoke `development-designer` proactively during normal tasks. It is triggered only when the `ensure-deveopment-design` `agentStop` hook blocks and asks for design metadata updates.
+- When the hook triggers, pass the changed non-dot source paths and changed portions/intent to `development-designer` so it can update `.design.json` in the changed file's folder and every ancestor folder up to `src/`.
+- Do not wait until `git-sync` to refresh design documents after a hook block. Design metadata should be updated before the blocked task is completed.
 - Dot-prefixed files and folders under `src/` are companion metadata maintained by `development-designer`; do not treat them as normal source files in overview file trees or marix tag diffs.
+- Repository hooks include an `agentStop` guard named `ensure-deveopment-design`. It checks only non-dot `src/` files written by the current agent turn and blocks task completion when those files do not have corresponding ancestor `.design.json` updates.

@@ -3,155 +3,34 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust crate root for the Marix CLI/core/config architecture.",
+    "purpose": "Rust workspace root for flat Marix package modules and shared user-input protocol.",
     "changeStatus": "modified"
   },
   "childModules": [
     {
-      "path": "src/cli",
-      "name": "cli",
-      "purpose": "Command-line user interaction and user-facing command/output types.",
-      "changeStatus": "added"
-    },
-    {
-      "path": "src/core",
-      "name": "core",
-      "purpose": "Agent preprocessing, computation flow, pass-through transports, and model backend interfaces.",
-      "changeStatus": "added"
+      "path": "src/common",
+      "name": "common",
+      "purpose": "Shared protocol and helper crate package with UserInput.",
+      "changeStatus": "modified"
     },
     {
       "path": "src/config",
       "name": "config",
-      "purpose": "Shared deployment configuration and compile-mode selection.",
+      "purpose": "Configuration library crate package with flat source files.",
+      "changeStatus": "modified"
+    },
+    {
+      "path": "src/core",
+      "name": "core",
+      "purpose": "Core library and server binary crate package with workflow runtime and split preprocess modules.",
+      "changeStatus": "modified"
+    },
+    {
+      "path": "src/cli",
+      "name": "cli",
+      "purpose": "CLI binary crate package with flat files that reuse common UserInput.",
       "changeStatus": "modified"
     }
   ],
-  "files": [
-    {
-      "path": "src/Cargo.toml",
-      "purpose": "Cargo manifest for the Marix Rust crate under src.",
-      "changeStatus": "modified",
-      "items": [
-        {
-          "kind": "manifest",
-          "name": "Marix crate manifest",
-          "category": "data",
-          "signature": "[package] name = \"marix\"",
-          "details": "Defines the Rust crate package and dependencies for the src crate root.",
-          "code": "[package]\nname = \"marix\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Composable CLI/core/config agent architecture.\"\nlicense = \"MIT\"\n\n[lib]\nname = \"marix\"\npath = \"lib.rs\"\n\n[dependencies]\nserde = { version = \"1.0\", features = [\"derive\"] }",
-          "implements": [],
-          "lineStart": 1,
-          "lineEnd": 13,
-          "language": "toml",
-          "sourcePath": "src/Cargo.toml",
-          "changeStatus": "modified"
-        }
-      ]
-    },
-    {
-      "path": "src/lib.rs",
-      "purpose": "Library entry point that exposes the cli, core, and config modules.",
-      "changeStatus": "modified",
-      "items": [
-        {
-          "kind": "module",
-          "name": "cli",
-          "category": "module",
-          "signature": "pub mod cli;",
-          "details": "Exports the CLI layer module.",
-          "code": "pub mod cli;",
-          "implements": [],
-          "lineStart": 3,
-          "lineEnd": 3,
-          "language": "rust",
-          "sourcePath": "src/lib.rs",
-          "changeStatus": "added"
-        },
-        {
-          "kind": "module",
-          "name": "core",
-          "category": "module",
-          "signature": "pub mod core;",
-          "details": "Exports the core runtime module.",
-          "code": "pub mod core;",
-          "implements": [],
-          "lineStart": 5,
-          "lineEnd": 5,
-          "language": "rust",
-          "sourcePath": "src/lib.rs",
-          "changeStatus": "added"
-        },
-        {
-          "kind": "module",
-          "name": "config",
-          "category": "module",
-          "signature": "pub mod config;",
-          "details": "Exports shared configuration.",
-          "code": "pub mod config;",
-          "implements": [],
-          "lineStart": 4,
-          "lineEnd": 4,
-          "language": "rust",
-          "sourcePath": "src/lib.rs",
-          "changeStatus": "modified"
-        }
-      ]
-    }
-  ],
-  "exposedGroups": [
-    {
-      "name": "Source architecture",
-      "purpose": "Top-level crate layers exposed by the Rust source architecture.",
-      "elements": [
-        {
-          "id": "src#cli",
-          "name": "cli",
-          "kind": "module",
-          "shape": "star",
-          "category": "module",
-          "signature": "pub mod cli;",
-          "details": "Command-line user interaction layer.",
-          "sourcePath": "src/lib.rs",
-          "lineStart": 3,
-          "lineEnd": 3,
-          "language": "rust",
-          "code": "pub mod cli;",
-          "implements": [],
-          "changeStatus": "added"
-        },
-        {
-          "id": "src#core",
-          "name": "core",
-          "kind": "module",
-          "shape": "star",
-          "category": "module",
-          "signature": "pub mod core;",
-          "details": "Agent core runtime, preprocessing, transports, and model backend layer.",
-          "sourcePath": "src/lib.rs",
-          "lineStart": 5,
-          "lineEnd": 5,
-          "language": "rust",
-          "code": "pub mod core;",
-          "implements": [],
-          "changeStatus": "added"
-        },
-        {
-          "id": "src#config",
-          "name": "config",
-          "kind": "module",
-          "shape": "star",
-          "category": "module",
-          "signature": "pub mod config;",
-          "details": "Shared configuration and compile-mode selection.",
-          "sourcePath": "src/lib.rs",
-          "lineStart": 4,
-          "lineEnd": 4,
-          "language": "rust",
-          "code": "pub mod config;",
-          "implements": [],
-          "changeStatus": "modified"
-        }
-      ]
-    }
-  ]
+  "elements": []
 }

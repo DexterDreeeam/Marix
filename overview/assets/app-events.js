@@ -28,10 +28,16 @@
     });
 
     document.getElementById("btn-view-whole-file").addEventListener("click", () => {
+      if (overviewMode === "star") {
+        starMapShowAllFiles = !starMapShowAllFiles;
+        saveBooleanSetting(STORAGE_KEYS.starMapShowAllFiles, starMapShowAllFiles);
+        updateFileListToolButton();
+        renderStarMapFileList(getScopeModule());
+        return;
+      }
       viewWholeFile = !viewWholeFile;
       saveBooleanSetting(STORAGE_KEYS.viewWholeFile, viewWholeFile);
-      updateToolButton("btn-view-whole-file", "viewWholeFileTool", viewWholeFile);
-      if (overviewMode === "star") return;
+      updateFileListToolButton();
       if (currentFile) openFile(currentFile);
       else if (currentDirectory) renderDirectoryChanges(currentDirectory);
     });
@@ -45,10 +51,11 @@
     });
 
     const svg = document.getElementById("star-map-svg");
+    bindStarMapResizeObserver(svg);
     svg.addEventListener("wheel", evt => {
       evt.preventDefault();
       const delta = evt.deltaY > 0 ? 0.9 : 1.1;
-      starTransform.scale = Math.max(0.35, Math.min(2.6, starTransform.scale * delta));
+      starTransform.scale = clampStarMapZoom(starTransform.scale * delta);
       starAutoFit = false;
       applyStarMapTransform();
     }, { passive: false });
@@ -82,6 +89,12 @@
     svg.addEventListener("pointerleave", () => {
       panState = null;
     });
+  }
+
+  function bindStarMapResizeObserver(svg) {
+    if (!window.ResizeObserver) return;
+    const observer = new ResizeObserver(() => preserveStarMapScreenScale());
+    observer.observe(svg);
   }
 
   function bindGlobalTooltips() {

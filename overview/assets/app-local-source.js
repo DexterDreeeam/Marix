@@ -55,6 +55,25 @@
     return await file.text();
   }
 
+  async function isLocalFileModifiedFromGitBlob(item, baseSha) {
+    const sha = await calculateLocalGitBlobSha(item.localHandle);
+    return sha !== baseSha;
+  }
+
+  async function calculateLocalGitBlobSha(fileHandle) {
+    if (!window.crypto || !window.crypto.subtle) {
+      throw new Error("Web Crypto is unavailable for local diff hashing");
+    }
+    const file = await fileHandle.getFile();
+    const content = new Uint8Array(await file.arrayBuffer());
+    const header = new TextEncoder().encode(`blob ${content.byteLength}\0`);
+    const blob = new Uint8Array(header.byteLength + content.byteLength);
+    blob.set(header, 0);
+    blob.set(content, header.byteLength);
+    const digest = await window.crypto.subtle.digest("SHA-1", blob);
+    return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
+  }
+
   async function requestLocalReadPermission(handle) {
     const options = { mode: "read" };
     if ((await handle.queryPermission(options)) === "granted") return true;

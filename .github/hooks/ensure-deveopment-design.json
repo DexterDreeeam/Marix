@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "hooks": {
+    "agentStop": [
+      {
+        "type": "command",
+        "bash": "bash .github/hooks/ensure-deveopment-design.sh",
+        "powershell": "powershell -NoProfile -ExecutionPolicy Bypass -File .github/hooks/ensure-deveopment-design.ps1",
+        "cwd": ".",
+        "timeoutSec": 15
+      }
+    ]
+  }
+}

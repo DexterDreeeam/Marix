@@ -48,18 +48,28 @@
     }
   }
 
-  function openFileScope(path, treeEl) {
-    focusStarMapFile(path, { setScopeToParent: true, fit: true });
+  function openFileScope(path, treeEl, options = {}) {
+    focusStarMapFile(path, {
+      setScopeToParent: true,
+      fit: options.openPopover !== true,
+      openPopover: options.openPopover === true
+    });
+    if (treeEl) markTreeSelection(path);
+  }
+
+  function isFocusedStarMapFile(path) {
+    return starMapSelection.kind === "file" && starMapSelection.path === path;
   }
 
   function renderStatusBadge(status) {
+    const normalized = normalizeChangeStatus(status);
     const labels = {
-      M: [t("statusModified"), "badge-modified"],
-      A: [t("statusAdded"), "badge-added"],
-      D: [t("statusDeleted"), "badge-deleted"],
-      R: [t("statusRenamed"), "badge-renamed"]
+      modified: [t("statusModified"), "badge-modified"],
+      added: [t("statusAdded"), "badge-added"],
+      deleted: [t("statusDeleted"), "badge-deleted"],
+      renamed: [t("statusRenamed"), "badge-renamed"]
     };
-    const [label, cls] = labels[status] || [status, "badge-modified"];
+    const [label, cls] = labels[normalized] || [status, "badge-modified"];
     return `<span class="badge ${cls}">${escapeHtml(label)}</span>`;
   }
 
@@ -139,8 +149,7 @@
 
   function listChangedFilesUnder(dirPath) {
     const prefix = `${dirPath}/`;
-    return Object.keys(((manifest.diff || {}).changes || {}))
-      .filter(path => shouldIncludeVisibleSourcePath(path))
+    return getChangedVisiblePaths()
       .filter(path => path === dirPath || path.startsWith(prefix))
       .sort();
   }

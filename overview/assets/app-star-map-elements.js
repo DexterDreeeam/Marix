@@ -7,31 +7,20 @@
     };
   }
 
-  function collectExposedGroups(modulePath) {
+  function collectDesignElementGroups(modulePath) {
     const documents = collectDesignDocuments(modulePath);
-    return documents.flatMap(({ path, document }) => (document.exposedGroups || [])
-      .map((group, index) => ({
-        ...group,
-        name: group.name || `${path}#${index}`,
-        elements: (group.elements || []).filter(isPublicExposedElement)
+    return documents
+      .map(({ path, document }) => ({
+        name: (document.module && document.module.name) || path,
+        elements: (document.elements || []).filter(isPublicExposedElement)
       }))
-      .filter(group => group.elements.length > 0));
+      .filter(group => group.elements.length > 0);
   }
 
   function isPublicExposedElement(element) {
-    const signature = String(element.signature || "").trim();
-    const kind = String(element.kind || "").toLowerCase();
-    if (/^mod\s+/.test(signature)) return false;
-    if (kind === "module" || kind === "re-export") return false;
-    if (/^pub\s+use\b/.test(signature) || /^pub\s+mod\b/.test(signature)) return false;
-    if (isTupleWrapperElement(element)) return false;
-    return /^pub\s+(trait|struct|enum|fn|type|const|static)\b/.test(signature) || element.public === true;
-  }
-
-  function isTupleWrapperElement(element) {
-    const definition = String(element.code || element.signature || "").trim();
-    return String(element.kind || "").toLowerCase() === "struct"
-      && /^pub\s+struct\s+[A-Za-z_][A-Za-z0-9_]*\s*\(\s*pub\s+[^)]+\)\s*;$/.test(definition);
+    const type = getDesignElementType(element);
+    if (type === "module" || type === "re-export") return false;
+    return Boolean(element && element.name && type);
   }
 
 
@@ -96,20 +85,20 @@
     label.textContent = item.label || getShortElementName(element);
     group.appendChild(label);
 
-    group.addEventListener("click", evt => {
+    group.addEventListener("click", async evt => {
       evt.stopPropagation();
-      showCodePopover(getCodeTitle(element), element.code || element.signature || "", element.language || "rust");
+      await showCodeSegmentsPopover(getCodeTitle(element), getDesignElementCodeSegments(element));
     });
 
     return group;
   }
 
   function getExposedElementShape(element) {
-    const kind = String(element.kind || "").toLowerCase();
-    if (["trait", "interface", "global-interface", "public-api", "public-global-interface"].includes(kind)) return "triangle";
-    if (["struct", "class", "data"].includes(kind)) return "square";
-    if (["function", "fn", "method"].includes(kind)) return "circle";
-    if (["enum", "type-alias", "global", "global-variable", "const", "static"].includes(kind)) return "star";
+    const type = getDesignElementType(element);
+    if (["trait", "interface", "global-interface", "public-api", "public-global-interface"].includes(type)) return "triangle";
+    if (["struct", "class", "data"].includes(type)) return "square";
+    if (["function", "fn", "method"].includes(type)) return "circle";
+    if (["enum", "type-alias", "global", "global-variable", "const", "static"].includes(type)) return "star";
 
     const explicit = String(element.shape || "").toLowerCase();
     if (["circle", "square", "triangle", "star"].includes(explicit)) return explicit;
@@ -129,12 +118,12 @@
   }
 
   function getShortElementName(element) {
-    const raw = String(element.name || element.signature || "exposed").replace(/`/g, "").trim();
+    const raw = String(element.name || "exposed").replace(/`/g, "").trim();
     return raw || "exposed";
   }
 
   function getExposedElementTypeClass(element) {
-    return String(element.kind || element.category || "item")
+    return getDesignElementType(element)
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "") || "item";
@@ -144,19 +133,49 @@
     const fromDesign = getExplicitStarMapChangeStatus(element);
     if (fromDesign) return fromDesign;
 
-    const change = element.sourcePath ? getChange(element.sourcePath) : null;
-    if (!change) return "unchanged";
-    const statusMap = { A: "added", M: "modified", D: "deleted", R: "renamed" };
-    return normalizeStatus(statusMap[change.status] || "modified");
+    const sourcePath = getDesignElementPrimarySourcePath(element);
+    return sourcePath ? normalizeStatus(getPathChangeStatus(sourcePath)) : "unchanged";
   }
 
   function isElementFromFocusedFile(element, focusedFile) {
-    return Boolean(focusedFile && element && element.sourcePath === focusedFile);
+    return Boolean(focusedFile && getDesignElementPrimarySourcePath(element) === focusedFile);
   }
 
   function getExplicitStarMapChangeStatus(item) {
     if (!item || typeof item.changeStatus !== "string" || item.changeStatus.trim() === "") return null;
     return normalizeStatus(item.changeStatus);
+  }
+
+  function getDesignElementType(element) {
+    return String((element && (element.type || element.kind || element.category)) || "item").toLowerCase();
+  }
+
+  function getDesignElementCodeSegments(element) {
+    if (!element) return [];
+    if (Array.isArray(element.codeSegments)) {
+      return element.codeSegments
+        .filter(segment => segment && segment.sourcePath && segment.lineStart && segment.lineEnd)
+        .map(segment => ({
+          sourcePath: String(segment.sourcePath),
+          lineStart: Number(segment.lineStart),
+          lineEnd: Number(segment.lineEnd),
+          language: segment.language || "rust"
+        }));
+    }
+    if (element.sourcePath && element.lineStart && element.lineEnd) {
+      return [{
+        sourcePath: String(element.sourcePath),
+        lineStart: Number(element.lineStart),
+        lineEnd: Number(element.lineEnd),
+        language: element.language || "rust"
+      }];
+    }
+    return [];
+  }
+
+  function getDesignElementPrimarySourcePath(element) {
+    const segments = getDesignElementCodeSegments(element);
+    return segments.length > 0 ? segments[0].sourcePath : "";
   }
 
   function createStarFileNode(item) {

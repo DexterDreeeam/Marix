@@ -111,13 +111,13 @@
 
   function collectModuleExposedElements(modulePath) {
     const seen = new Set();
-    return collectExposedGroups(modulePath)
+    return collectDesignElementGroups(modulePath)
       .flatMap(group => (group.elements || []).map(element => ({
         ...element,
         groupName: group.name
       })))
       .filter(element => {
-        const key = element.id || `${element.sourcePath || ""}:${element.name || ""}:${element.signature || ""}`;
+        const key = element.id || `${getDesignElementPrimarySourcePath(element) || ""}:${element.name || ""}:${getDesignElementType(element)}`;
         if (seen.has(key)) return false;
         seen.add(key);
         return true;
@@ -141,8 +141,8 @@
   function renderElementList(elements, focusedFile) {
     const sorted = elements.slice().sort(compareElementsWithinSection);
     if (focusedFile) {
-      const focused = sorted.filter(element => element.sourcePath === focusedFile);
-      const others = sorted.filter(element => element.sourcePath !== focusedFile);
+      const focused = sorted.filter(element => getDesignElementPrimarySourcePath(element) === focusedFile);
+      const others = sorted.filter(element => getDesignElementPrimarySourcePath(element) !== focusedFile);
       const visibleOtherCount = Math.max(0, 4 - focused.length);
       const visibleOthers = others.slice(0, visibleOtherCount);
       const hiddenOthers = others.slice(visibleOtherCount);
@@ -180,22 +180,22 @@
   }
 
   function renderElementSummary(element, dimmed) {
-    const code = element.code || element.signature || "";
-    const codeId = code ? storeDesignCodeSnippet(getCodeTitle(element), code, element.language || "rust") : "";
+    const codeSegments = getDesignElementCodeSegments(element);
+    const codeId = codeSegments.length ? storeDesignCodeSnippet(getCodeTitle(element), codeSegments) : "";
     const typeClass = getElementTypeClass(element);
     const status = getElementStatus(element);
     const openAttrs = codeId ? ` tabindex="0" data-code-id="${escapeHtml(codeId)}"` : "";
     return `
       <article class="design-summary-item design-type-${escapeHtml(typeClass)} design-status-${escapeHtml(status)}${dimmed ? " file-focus-dimmed" : ""}"${openAttrs}>
         <div class="design-summary-header">
-          <strong>${escapeHtml(element.name || element.signature || "")}</strong>
+          <strong>${escapeHtml(element.name || "")}</strong>
         </div>
       </article>
     `;
   }
 
   function getElementTypeName(element) {
-    const value = String(element.kind || element.category || "item").replace(/-/g, " ").trim();
+    const value = getDesignElementType(element).replace(/-/g, " ").trim();
     return value ? value.charAt(0).toUpperCase() + value.slice(1) : "Item";
   }
 
@@ -225,17 +225,17 @@
   }
 
   function getElementTypeClass(element) {
-    return String(element.kind || element.category || "item")
+    return getDesignElementType(element)
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "") || "item";
   }
 
   function getElementSource(element) {
-    if (!element.sourcePath) return "";
-    if (element.lineStart && element.lineEnd) return `${element.sourcePath}:${element.lineStart}-${element.lineEnd}`;
-    if (element.lineStart) return `${element.sourcePath}:${element.lineStart}`;
-    return element.sourcePath;
+    const segments = getDesignElementCodeSegments(element);
+    if (segments.length === 0) return "";
+    const first = segments[0];
+    return `${first.sourcePath}:${first.lineStart}-${first.lineEnd}`;
   }
 
   function getModuleDetailStatus(node, document) {
@@ -275,7 +275,7 @@
   }
 
   function compareElementsWithinSection(a, b) {
-    return compareChangedFirst(a, b, getElementStatus, item => String(item.name || item.signature || ""));
+    return compareChangedFirst(a, b, getElementStatus, item => String(item.name || ""));
   }
 
   function compareChangedFirst(a, b, getStatus, getName) {
@@ -295,10 +295,8 @@
     const fromDesign = getExplicitChangeStatus(element);
     if (fromDesign) return fromDesign;
 
-    const change = element.sourcePath ? getChange(element.sourcePath) : null;
-    if (!change) return "unchanged";
-    const statusMap = { A: "added", M: "modified", D: "deleted", R: "renamed" };
-    return normalizeStatus(statusMap[change.status] || "modified");
+    const sourcePath = getDesignElementPrimarySourcePath(element);
+    return sourcePath ? normalizeStatus(getPathChangeStatus(sourcePath)) : "unchanged";
   }
 
   function getExplicitChangeStatus(item) {
@@ -328,29 +326,22 @@
     designCodeCounter = 0;
   }
 
-  function storeDesignCodeSnippet(title, code, language) {
+  function storeDesignCodeSnippet(title, segments) {
     const id = `code-${++designCodeCounter}`;
-    designCodeSnippets.set(id, { title, code, language });
+    designCodeSnippets.set(id, { title, segments });
     return id;
   }
 
   function getCodeTitle(item) {
-    const name = item.name || item.signature || "code";
-    if (item.sourcePath && item.lineStart && item.lineEnd) {
-      return `${name} — ${item.sourcePath}:${item.lineStart}-${item.lineEnd}`;
-    }
-    if (item.sourcePath && item.lineStart) {
-      return `${name} — ${item.sourcePath}:${item.lineStart}`;
-    }
-    return name;
+    return item.name || "code";
   }
 
   function bindDesignCodeButtons(root) {
     for (const item of root.querySelectorAll(".design-summary-item[data-code-id]")) {
-      item.addEventListener("click", evt => {
+      item.addEventListener("click", async evt => {
         evt.stopPropagation();
         const snippet = designCodeSnippets.get(item.dataset.codeId);
-        if (snippet) showCodePopover(snippet.title, snippet.code, snippet.language);
+        if (snippet) await showCodeSegmentsPopover(snippet.title, snippet.segments);
       });
       item.addEventListener("keydown", evt => {
         if (evt.key !== "Enter" && evt.key !== " ") return;
@@ -360,7 +351,31 @@
     }
   }
 
-  function showCodePopover(title, code, languageName) {
+  async function showCodeSegmentsPopover(title, segments) {
+    const blocks = [];
+    for (const segment of segments) {
+      const entry = await ensureFileContent(segment.sourcePath);
+      const content = (entry && entry.content) || "";
+      const lines = trimBlankEdgeLines(content.split(/\r?\n/).slice(segment.lineStart - 1, segment.lineEnd));
+      const languageName = segment.language || getLanguageFromExt(segment.sourcePath.split(".").pop().toLowerCase());
+      blocks.push(renderCodeSegment(segment, lines.join("\n"), languageName));
+    }
+    showCodePopover(title, blocks.join("\n\n"), "");
+  }
+
+  function trimBlankEdgeLines(lines) {
+    const result = lines.slice();
+    while (result.length > 0 && result[0].trim() === "") result.shift();
+    while (result.length > 0 && result[result.length - 1].trim() === "") result.pop();
+    return result;
+  }
+
+  function renderCodeSegment(segment, code, languageName) {
+    const label = `${segment.sourcePath}:${segment.lineStart}-${segment.lineEnd}`;
+    return `<span class="code-segment-label">${escapeHtml(label)}</span>\n${highlightSource(code, languageName)}`;
+  }
+
+  function showCodePopover(title, contentHtml, languageName) {
     const backdrop = document.getElementById("code-popover-backdrop");
     const popover = document.getElementById("code-popover");
     const codeEl = document.getElementById("code-popover-content");
@@ -368,7 +383,7 @@
     codeEl.className = "code-popover-content code-popover-code";
     codeEl.removeAttribute("data-highlighted");
     if (languageName) codeEl.classList.add(`language-${languageName}`);
-    codeEl.innerHTML = highlightSource(code, languageName);
+    codeEl.innerHTML = languageName ? highlightSource(contentHtml, languageName) : contentHtml;
     backdrop.style.display = "block";
     popover.style.display = "flex";
   }
@@ -395,8 +410,7 @@
 
   function getDesignDocumentForModule(modulePath) {
     const basePath = modulePath || SOURCE_ROOT;
-    return parseDesignDocument(`${basePath}/.design.md`)
-      || parseDesignDocument(`${basePath}/.design.json`);
+    return parseDesignDocument(`${basePath}/.design.json`);
   }
 
   function collectDesignDocuments(modulePath) {
@@ -405,11 +419,8 @@
     for (const [path] of Object.entries(manifest.files || {})
       .filter(([path]) => isDesignDocumentPath(path))
       .filter(([path]) => !prefix || path.startsWith(prefix))) {
-      const moduleKey = path.replace(/\/\.design\.(md|json)$/i, "");
-      const current = preferredDocuments.get(moduleKey);
-      if (!current || path.endsWith(".design.md")) {
-        preferredDocuments.set(moduleKey, path);
-      }
+      const moduleKey = path.replace(/\/\.design\.json$/i, "");
+      preferredDocuments.set(moduleKey, path);
     }
 
     return Array.from(preferredDocuments.values())
@@ -419,7 +430,7 @@
   }
 
   function isDesignDocumentPath(path) {
-    return path.endsWith("/.design.md") || path.endsWith("/.design.json");
+    return path.endsWith("/.design.json");
   }
 
   function parseDesignDocument(path) {
@@ -450,10 +461,6 @@
       if (found) return found;
     }
     return null;
-  }
-
-  function getChange(path) {
-    return ((manifest.diff || {}).changes || {})[path];
   }
 
   function escapeHtml(text) {

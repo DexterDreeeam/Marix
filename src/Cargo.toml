@@ -1,13 +1,19 @@
-[package]
-name = "marix"
+[workspace]
+members = [
+  "common",
+  "config",
+  "core",
+  "cli"
+]
+resolver = "2"
+
+[workspace.package]
 version = "0.1.0"
 edition = "2021"
-description = "Composable CLI/core/config agent architecture."
 license = "MIT"
 
-[lib]
-name = "marix"
-path = "lib.rs"
-
-[dependencies]
-serde = { version = "1.0", features = ["derive"] }
+[workspace.dependencies]
+serde_json = "1.0"
+marix-common = { path = "common" }
+marix-config = { path = "config" }
+marix-core = { path = "core" }

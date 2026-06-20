@@ -106,10 +106,11 @@
       visibleSourceFiles: tree.filter(item => shouldIncludeVisibleSourcePath(item.path)).length
     });
 
+    const repoApi = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`;
     let diff = { prev_tag: null, latest_tag: null, changes: {} };
     try {
-      diff = await fetchTagDiff(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`, getRequestedRef() || "main");
-      logOverview("tag diff loaded for local source", {
+      diff = await buildLocalDiffFromLatestTag(repoApi, tree);
+      logOverview("local diff loaded from latest tag", {
         previousTag: diff.prev_tag,
         latestTag: diff.latest_tag,
         changedFiles: Object.keys(diff.changes || {}).length
@@ -126,8 +127,8 @@
   }
 
   async function fetchRepositoryTree(repoApi, ref) {
-    const treeSha = await fetchBranchTreeSha(repoApi, ref);
-    logOverview("branch tree resolved", { ref, treeSha });
+    const treeSha = await fetchRefTreeSha(repoApi, ref);
+    logOverview("ref tree resolved", { ref, treeSha });
     const tree = await fetchJson(`${repoApi}/git/trees/${encodeURIComponent(treeSha)}?recursive=1`);
     const files = (tree.tree || [])
       .filter(item => item.type === "blob")
@@ -145,16 +146,10 @@
     return files;
   }
 
-  async function fetchBranchTreeSha(repoApi, ref) {
-    const branch = await fetchJson(`${repoApi}/branches/${encodeURIComponent(ref)}`);
-    const directTreeSha = branch && branch.commit && branch.commit.commit && branch.commit.commit.tree && branch.commit.commit.tree.sha;
-    if (directTreeSha) return directTreeSha;
-
-    const commitSha = branch && branch.commit && branch.commit.sha;
-    if (!commitSha) throw new Error(`branch commit unavailable: ${ref}`);
-    const commit = await fetchJson(`${repoApi}/git/commits/${encodeURIComponent(commitSha)}`);
-    const treeSha = commit && commit.tree && commit.tree.sha;
-    if (!treeSha) throw new Error(`branch tree unavailable: ${ref}`);
+  async function fetchRefTreeSha(repoApi, ref) {
+    const commit = await fetchJson(`${repoApi}/commits/${encodeURIComponent(ref)}`);
+    const treeSha = commit && commit.commit && commit.commit.tree && commit.commit.tree.sha;
+    if (!treeSha) throw new Error(`ref tree unavailable: ${ref}`);
     return treeSha;
   }
 
@@ -189,10 +184,21 @@
     const diff = { prev_tag: null, latest_tag: null, changes: {} };
     if (tags.length === 0) return diff;
 
-    const base = tags.length >= 2 ? tags[tags.length - 2].name : tags[0].name;
-    const head = tags.length >= 2 ? tags[tags.length - 1].name : ref;
-    diff.prev_tag = tags.length >= 2 ? base : null;
-    diff.latest_tag = tags.length >= 2 ? head : base;
+    const requestedRef = ref || "main";
+    const tagNames = tags.map(tag => tag.name);
+    const requestedTagIndex = tagNames.indexOf(requestedRef);
+    const head = requestedRef;
+    let base = "";
+
+    if (requestedTagIndex >= 0) {
+      base = requestedTagIndex > 0 ? tagNames[requestedTagIndex - 1] : "";
+    } else {
+      base = tagNames[tagNames.length - 1];
+    }
+
+    diff.prev_tag = base || null;
+    diff.latest_tag = head;
+    if (!base || base === head) return diff;
 
     const compare = await fetchJson(`${repoApi}/compare/${encodeURIComponent(base)}...${encodeURIComponent(head)}`);
     for (const file of compare.files || []) {
@@ -205,6 +211,45 @@
       };
     }
     return diff;
+  }
+
+  async function buildLocalDiffFromLatestTag(repoApi, localTree) {
+    const tags = await fetchMarixTags(repoApi);
+    const diff = { prev_tag: null, latest_tag: "local", changes: {} };
+    if (tags.length === 0) return diff;
+
+    const base = tags[tags.length - 1].name;
+    diff.prev_tag = base;
+
+    const baseTree = await fetchRepositoryTree(repoApi, base);
+    const baseFiles = new Map(baseTree
+      .filter(item => shouldIncludeVisibleSourcePath(item.path))
+      .map(item => [item.path, item]));
+
+    for (const item of localTree.filter(entry => shouldIncludeVisibleSourcePath(entry.path))) {
+      const baseItem = baseFiles.get(item.path);
+      if (!baseItem) {
+        diff.changes[item.path] = createSyntheticDiffChange("A");
+        continue;
+      }
+      if ((baseItem.size || 0) !== (item.size || 0)) {
+        diff.changes[item.path] = createSyntheticDiffChange("M");
+        continue;
+      }
+      if (baseItem.sha && await isLocalFileModifiedFromGitBlob(item, baseItem.sha)) {
+        diff.changes[item.path] = createSyntheticDiffChange("M");
+      }
+    }
+
+    return diff;
+  }
+
+  function createSyntheticDiffChange(status) {
+    return {
+      status,
+      diff_lines: [],
+      hunks: []
+    };
   }
 
   async function fetchMarixTags(repoApi) {
@@ -271,7 +316,7 @@
   }
 
   function isDesignDocumentPathName(path) {
-    return String(path || "").endsWith("/.design.md") || String(path || "").endsWith("/.design.json");
+    return String(path || "").endsWith("/.design.json");
   }
 
   function isImagePathName(path) {

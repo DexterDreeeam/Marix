@@ -3,6 +3,7 @@
   let language = localStorage.getItem(STORAGE_KEYS.language) || "en";
   let overviewMode = localStorage.getItem(STORAGE_KEYS.overviewMode) || "file";
   let viewWholeFile = loadBooleanSetting(STORAGE_KEYS.viewWholeFile, false);
+  let starMapShowAllFiles = loadBooleanSetting(STORAGE_KEYS.starMapShowAllFiles, false);
   let currentFile = null;
   let currentDirectory = null;
   let scopePath = normalizeScopePath(localStorage.getItem(STORAGE_KEYS.scopePath) || SOURCE_ROOT);
@@ -13,6 +14,7 @@
   let selectedModule = null;
   let collapsedModules = loadSetSetting(STORAGE_KEYS.collapsedModules);
   let starTransform = { x: 0, y: 0, scale: 1 };
+  let starViewportScale = 0;
   let starAutoFit = true;
   let panState = null;
   let tooltipTarget = null;
@@ -169,7 +171,7 @@
     updateActionButton("btn-collapse-all", "collapseAllTool");
     updateActionButton("btn-reset-star-map", "resetView");
     updateActionButton("btn-reset-data-source", "resetDataSourceTool");
-    updateToolButton("btn-view-whole-file", "viewWholeFileTool", viewWholeFile);
+    updateFileListToolButton();
     updateDataSourceDependentControls();
 
     renderWelcome();
@@ -211,6 +213,8 @@
       }
 
     }
+    updateFileListToolButton();
+    updateDataSourceDependentControls();
   }
 
   function setScopePath(path) {
@@ -371,6 +375,58 @@
     return path === SOURCE_ROOT || path.startsWith(`${SOURCE_ROOT}/`);
   }
 
+  function getChange(path) {
+    return ((manifest.diff || {}).changes || {})[path] || null;
+  }
+
+  function normalizeChangeStatus(status) {
+    const key = String(status || "").trim();
+    const values = {
+      A: "added",
+      M: "modified",
+      R: "renamed",
+      D: "deleted",
+      added: "added",
+      modified: "modified",
+      renamed: "renamed",
+      deleted: "deleted",
+      removed: "deleted",
+      changed: "modified",
+      unchanged: "unchanged"
+    };
+    return values[key] || values[key.toLowerCase()] || "unchanged";
+  }
+
+  function getPathChangeStatus(path) {
+    const change = getChange(path);
+    return change ? normalizeChangeStatus(change.status) : "unchanged";
+  }
+
+  function isPathChanged(path) {
+    return getPathChangeStatus(path) !== "unchanged";
+  }
+
+  function getChangedVisiblePaths() {
+    return Object.keys(((manifest.diff || {}).changes || {}))
+      .filter(path => shouldIncludeVisibleSourcePath(path))
+      .filter(path => {
+        const status = getPathChangeStatus(path);
+        return status !== "unchanged" && status !== "deleted";
+      });
+  }
+
+  function updateFileListToolButton() {
+    if (overviewMode === "star") {
+      updateToolButton(
+        "btn-view-whole-file",
+        starMapShowAllFiles ? "showChangedFilesTool" : "showAllFilesTool",
+        starMapShowAllFiles
+      );
+      return;
+    }
+    updateToolButton("btn-view-whole-file", "viewWholeFileTool", viewWholeFile);
+  }
+
   function updateToolButton(id, labelKey, active) {
     const el = document.getElementById(id);
     el.dataset.tooltip = t(labelKey);
@@ -389,7 +445,7 @@
 
   function updateDataSourceDependentControls() {
     const githubOnlyDiff = activeDataSource === DATA_SOURCE_GITHUB;
-    setElementVisible("btn-view-whole-file", !githubOnlyDiff);
+    setElementVisible("btn-view-whole-file", overviewMode === "star" || !githubOnlyDiff);
   }
 
   function setElementVisible(id, visible) {

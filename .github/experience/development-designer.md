@@ -6,51 +6,54 @@ Persistent implementation notes for generating and maintaining Marix source desi
 
 ## Current Design Contract
 
-- Prefer `.design.md` files under every `src/` folder.
-- Existing `.design.json` files are compatibility inputs until migrated.
-- Every dot-prefixed file or folder under `src/` is companion metadata owned by development-designer. Maintain these paths beside source files, but never list them as normal source files, child modules, visible diff entries, or visible file-tree entries.
-- `.design.md` content should be machine-readable JSON. Raw JSON is acceptable; fenced `json` blocks are also accepted by the overview UI.
+- Maintain `.design.json` files under every `src/` folder.
+- The `update-design-json` skill owns the mechanics of selecting and updating `.design.json` files. `development-designer` should use that skill when the hook provides changed source paths.
+- JSON is the only source-design companion metadata format going forward.
+- Every dot-prefixed file or folder under `src/` is companion metadata owned by development-designer. Maintain these paths beside source files, but never list them as normal source files, child modules, or source change entries.
+- `.design.json` content should be machine-readable JSON.
 - All paths should be repository-rooted and under `src/`.
 - Do not list dot-prefixed files or folders as child modules/files.
-- Keep design documents concise enough for the overview UI to remain scannable.
+- Keep design documents concise and source-focused.
 
 ## Extraction Rules
 
 - Treat every folder under `src/` as a module.
 - Describe direct child modules and direct child source files.
-- For each file, list meaningful interfaces, traits, structs, enums, impl blocks, functions, type aliases, constants, statics, and data structures as `items`.
-- Every item should include `kind`, `name`, `category`, `signature`, `details`, `code`, and `implements`.
-- `code` should contain the complete source definition block, not only the signature.
-- `lineStart` and `lineEnd` should point to the same complete definition represented in `code`.
+- List meaningful interfaces, traits, structs, enums, impl blocks, functions, type aliases, constants, statics, and data structures as top-level `elements`.
+- Every element should include `name`, `type`, `changeStatus`, and `codeSegments`.
+- Do not store signatures or copied source code in metadata.
+- `codeSegments` should point to implementation file and line ranges; one item may have multiple segments, such as a struct plus its impl blocks.
 
-## Exposed Groups
+## Elements
 
-- `exposedGroups` drive star-map exposed elements.
+- `elements` lists public source definitions that downstream consumers may display.
 - Include only concrete public definitions owned by the module layer.
-- Do not include wiring declarations such as `mod ...`, `pub mod ...`, or `pub use ...` in `exposedGroups`.
+- Do not include wiring declarations such as `mod ...`, `pub mod ...`, or `pub use ...` in `elements`.
+- Do not include Cargo manifests or package metadata as `elements`; they can inform module purpose but are not source elements.
 - Do not expose single-field tuple wrappers such as `pub struct ModuleId(pub String);` unless they have meaningful behavior beyond wrapping.
 - Create one exposed element per public definition; never combine names with `/`, commas, or summary labels.
-- Use stable IDs based on source path plus symbol name, for example `src/overview/star_map.rs#starmapprovider`.
-- Use `shape: "triangle"` for traits, `shape: "square"` for structs/classes, `shape: "circle"` for functions, and `shape: "star"` for enums, type aliases, constants, statics, and other small definitions.
-- For struct exposed elements, keep the struct as the selectable star-map unit and list related impl/method information in `implements`; avoid scattering every impl method unless it is a standalone public function/API.
+- Use concise `type` values such as `trait`, `struct`, `enum`, `type-alias`, `const`, `static`, or `function`.
+- For struct elements, keep the struct as the primary metadata unit and list related impl/method implementation ranges in `codeSegments`; avoid scattering every impl method unless it is a standalone public function/API.
 
 ## Status Rules
 
-- Include `changeStatus` when known on modules, child modules, files, file items, and exposed elements.
+- Include `changeStatus` when known on modules, child modules, and elements.
 - Valid statuses are `unchanged`, `added`, `modified`, `deleted`, and `renamed`.
-- Prefer explicit item-level `changeStatus`; the overview UI can infer modified status from `sourcePath` only as a fallback.
-- Status values drive overview sorting, badges, side borders, and star-map outlines.
-- Source-editing tasks should trigger `development-designer` immediately with changed source paths and changed portions. Do not defer design refresh to `git-sync`.
+- Prefer explicit item-level `changeStatus`.
+- Status values should reflect source changes, not metadata generation side effects.
+- `development-designer` should be triggered only by the `ensure-deveopment-design` hook, not proactively during normal source-editing tasks.
+- For every changed non-dot source path under `src/`, update `.design.json` in that file's folder and every ancestor folder up to `src/`.
+- The `ensure-deveopment-design` `agentStop` hook checks only non-dot `src/` files written by the current agent turn and blocks completion if their ancestor `.design.json` files were not also updated.
 - When explicit tag comparison data is available, use it as evidence. Otherwise update statuses from the current task's source changes and preserve unaffected definitions as `unchanged`.
 
 ## Update Workflow
 
 - When source structure or public interfaces change, update the design document in the affected `src/` folder.
-- Keep module-level purpose, file purpose, item details, and exposed group details aligned.
-- If migrating from `.design.json` to `.design.md`, keep the JSON payload schema-compatible so the overview parser can read it without custom prose parsing.
+- Keep module-level purpose and element definitions aligned.
+- Keep the JSON payload schema-compatible and machine-readable without custom prose parsing.
 
 ## Lessons
 
-- 2026-06-19: Do not mark current source definitions `added` merely because `.design.md` files are newly generated from `.design.json`; when previous-tag comparison data is unavailable, default checked-in source modules, files, items, and exposed elements to `unchanged` until a real add/modify/delete/rename is known. Source: correction request for green/added star-map elements.
-- 2026-06-19: Design refresh belongs to the source-editing task, not to `git-sync`. When files under `src/` are changed, the caller should invoke `development-designer` with the changed paths/sections so `.design.md` stays in sync before any later commit or sync.
-- 2026-06-19: When the Rust crate root lives under `src`, represent `src/Cargo.toml` as a direct non-dot source/config file in the root source design, but keep Cargo dot-prefixed configuration hidden as companion metadata. Source: crate-root migration task.
+- 2026-06-19: Do not mark current source definitions `added` merely because design metadata is regenerated; when previous-tag comparison data is unavailable, default checked-in source modules and elements to `unchanged` until a real add/modify/delete/rename is known.
+- 2026-06-20: Design refresh is enforced by the `ensure-deveopment-design` hook, not by proactive calls during normal tasks or by `git-sync`. When the hook blocks, invoke `development-designer` with the current-agent changed paths/sections so `.design.json` stays in sync before task completion.
+- 2026-06-19: When the Rust crate root lives under `src`, Cargo metadata may inform root module purpose, but `src/Cargo.toml` itself is not an element. Keep Cargo dot-prefixed configuration hidden as companion metadata.

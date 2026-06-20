@@ -27,7 +27,7 @@
 
   function getTreeFiles() {
     const files = getVisibleManifestFiles();
-    for (const path of Object.keys(((manifest.diff || {}).changes || {})).sort()) {
+    for (const path of getChangedVisiblePaths().sort()) {
       if (!shouldIncludeVisibleSourcePath(path)) continue;
       files[path] = (manifest.files || {})[path] || { size: 0, content: "" };
     }
@@ -92,15 +92,19 @@
 
     for (const file of sortTreeFiles(node.__files)) {
       if (filter && !file.path.toLowerCase().includes(filter) && !file.name.toLowerCase().includes(filter)) continue;
-      const change = getChange(file.path);
-
-      const el = createTreeItem(file.name, depth, false, change ? change.status : null, file.path);
+      const el = createTreeItem(file.name, depth, false, getPathChangeStatus(file.path), file.path);
       el.addEventListener("click", () => {
         if (overviewMode === "star") {
-          openFileScope(file.path, el);
+          openFileScope(file.path, el, { openPopover: isFocusedStarMapFile(file.path) });
         } else {
           openFile(file.path, el);
         }
+      });
+      el.addEventListener("dblclick", evt => {
+        if (overviewMode === "star") return;
+        evt.preventDefault();
+        evt.stopPropagation();
+        showFilePopover(file.path);
       });
       parent.appendChild(el);
     }
@@ -116,26 +120,25 @@
   }
 
   function getTreeFileChangeRank(path) {
-    const change = getChange(path);
-    if (!change) return 10;
-    const ranks = { A: 0, M: 1, R: 2, D: 3 };
-    return ranks[change.status] ?? 4;
+    const status = getPathChangeStatus(path);
+    const ranks = { added: 0, modified: 1, renamed: 2, deleted: 3 };
+    return ranks[status] ?? 10;
   }
 
   function getTreeDirectoryStatus(node) {
-    const statuses = collectTreeDirectoryStatuses(node);
-    if (statuses.length === 0) return "unchanged";
-    return statuses.every(status => status === "A") ? "added" : "modified";
+    const statuses = collectTreeDirectoryFileStatuses(node);
+    const changedStatuses = statuses.filter(status => status !== "unchanged");
+    if (changedStatuses.length === 0) return "unchanged";
+    return statuses.every(status => status === "added") ? "added" : "modified";
   }
 
-  function collectTreeDirectoryStatuses(node) {
+  function collectTreeDirectoryFileStatuses(node) {
     const statuses = [];
     for (const file of node.__files) {
-      const change = getChange(file.path);
-      if (change) statuses.push(change.status);
+      statuses.push(getPathChangeStatus(file.path));
     }
     for (const child of Object.values(node.__children)) {
-      statuses.push(...collectTreeDirectoryStatuses(child));
+      statuses.push(...collectTreeDirectoryFileStatuses(child));
     }
     return statuses;
   }
@@ -234,16 +237,5 @@
   }
 
   function normalizeTreeFileStatus(status) {
-    const values = {
-      A: "added",
-      M: "modified",
-      R: "renamed",
-      D: "deleted",
-      added: "added",
-      modified: "modified",
-      renamed: "renamed",
-      deleted: "deleted",
-      unchanged: "unchanged"
-    };
-    return values[status] || "unchanged";
+    return normalizeChangeStatus(status);
   }

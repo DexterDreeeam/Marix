@@ -77,8 +77,8 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .tree-item:hover { background: var(--bg-tertiary); }
 .tree-item.active { background: rgba(88, 166, 255, 0.15); color: var(--accent); }
 .tree-item.dir { color: var(--text-secondary); font-weight: 500; }
-.tree-item.dir.tree-dir-status-added { color: var(--text-primary); }
-.tree-item.dir.tree-dir-status-modified { color: var(--text-primary); }
+.tree-item.dir.tree-dir-status-added { color: var(--green); }
+.tree-item.dir.tree-dir-status-modified, .tree-item.dir.tree-dir-status-renamed, .tree-item.dir.tree-dir-status-deleted { color: var(--yellow); }
 .tree-item.file.tree-file-status-unchanged { color: rgba(139, 148, 158, 0.78); }
 .tree-item.file:not(.tree-file-status-unchanged) { color: var(--text-primary); }
 .tree-item.file.active, .tree-item.file:hover { color: var(--text-primary); }
@@ -91,10 +91,13 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .tree-status-deleted::before { background: var(--red); box-shadow: 0 0 0 2px rgba(248, 81, 73, 0.12); }
 .tree-toggle { display: inline-flex; align-items: center; justify-content: center; color: var(--text-secondary); transition: transform 0.15s, color 0.15s; }
 .tree-toggle:hover { color: var(--accent); }
-.tree-triangle::before { content: ""; width: 11px; height: 10px; background: currentColor; clip-path: polygon(0 0, 50% 28%, 100% 0, 50% 100%); }
-.tree-triangle.tree-status-added { color: var(--green); }
-.tree-triangle.tree-status-modified, .tree-triangle.tree-status-renamed, .tree-triangle.tree-status-deleted { color: var(--yellow); }
-.tree-triangle.tree-status-unchanged { color: rgba(139, 148, 158, 0.72); }
+.tree-triangle { position: relative; }
+.tree-triangle::before, .tree-triangle::after { content: ""; display: block; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); clip-path: polygon(0 0, 50% 28%, 100% 0, 50% 100%); pointer-events: none; }
+.tree-triangle::before { width: 13px; height: 12px; background: rgba(0, 0, 0, 0.86); }
+.tree-triangle::after { width: 11px; height: 10px; background: linear-gradient(rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.16)), currentColor; }
+.tree-triangle.tree-status-added { color: #369f47; color: color-mix(in srgb, var(--green) 84%, #000 16%); }
+.tree-triangle.tree-status-modified, .tree-triangle.tree-status-renamed, .tree-triangle.tree-status-deleted { color: #b8841e; color: color-mix(in srgb, var(--yellow) 84%, #000 16%); }
+.tree-triangle.tree-status-unchanged { color: rgba(105, 113, 123, 0.78); }
 .tree-name { overflow: hidden; text-overflow: ellipsis; }
 .tree-indent { flex-shrink: 0; }
 
@@ -202,6 +205,9 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 #star-map-svg:active { cursor: grabbing; }
 .star-map-file-list { position: absolute; top: 12px; right: 12px; z-index: 2; width: min(360px, 44%); max-height: 34%; overflow-y: auto; padding: 10px; border: 1px solid rgba(88, 166, 255, 0.22); border-radius: 10px; background: rgba(13, 17, 23, 0.9); box-shadow: 0 8px 24px rgba(0,0,0,0.28); }
 .star-map-file-list-inner { display: grid; gap: 6px; }
+.star-map-file-list-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--text-secondary); font-size: 12px; font-weight: 700; }
+.star-map-file-list-toggle { flex-shrink: 0; padding: 3px 7px; border: 1px solid rgba(88, 166, 255, 0.32); border-radius: 999px; background: rgba(88, 166, 255, 0.1); color: var(--accent-hover); cursor: pointer; font-size: 11px; font-weight: 700; }
+.star-map-file-list-toggle:hover, .star-map-file-list-toggle:focus-visible { border-color: var(--accent); background: rgba(88, 166, 255, 0.18); color: #f0f6fc; outline: none; }
 .star-map-file-item { width: 100%; display: flex; align-items: center; gap: 8px; padding: 7px 9px; border: 1px solid transparent; border-radius: 7px; background: rgba(22, 27, 34, 0.34); color: var(--text-primary); text-align: left; cursor: pointer; }
 .star-map-file-item code { min-width: 0; color: #f0f6fc; font-size: 13px; font-weight: 750; letter-spacing: 0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.82); }
 .star-map-file-item:hover { border-color: var(--accent); background: rgba(88, 166, 255, 0.08); }
@@ -224,7 +230,7 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .status-chip.status-modified { background: var(--yellow); }
 .status-chip.status-deleted { background: var(--red); }
 .status-chip.status-renamed { background: var(--accent); }
-.star-map-details { flex: 1; min-width: 320px; max-width: 520px; overflow-y: auto; padding: 18px; background: rgba(22, 27, 34, 0.92); border-left: 4px solid rgba(255,255,255,0.08); }
+.star-map-details { flex: 0 0 300px; width: 300px; min-width: 260px; max-width: 320px; overflow-y: auto; padding: 14px; background: rgba(22, 27, 34, 0.92); border-left: 4px solid rgba(255,255,255,0.08); }
 .star-map-details.module-detail-status-added { border-left-color: var(--green); }
 .star-map-details.module-detail-status-modified, .star-map-details.module-detail-status-renamed { border-left-color: var(--yellow); }
 .star-map-details.module-detail-status-deleted { border-left-color: var(--red); }
@@ -292,31 +298,26 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .star-node.depth-far > circle:not(.star-node-highlight) { opacity: 0.82; filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.36)); }
 .star-node.dimmed, .exposed-node.dimmed, .star-edge.dimmed { opacity: 0.16; filter: saturate(0.35); }
 .star-node.dimmed:hover, .exposed-node.dimmed:hover { opacity: 0.32; }
-.star-node.changed > circle:not(.star-node-highlight), .star-node.status-modified > circle:not(.star-node-highlight) { fill: url(#node-gradient-modified); stroke: var(--yellow); filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.48)) drop-shadow(0 0 14px rgba(210, 153, 34, 0.22)); }
-.star-node.status-added > circle:not(.star-node-highlight) { fill: url(#node-gradient-added); stroke: var(--green); }
-.star-node.status-deleted > circle:not(.star-node-highlight) { fill: url(#node-gradient-deleted); stroke: var(--red); }
+.star-node.changed > circle:not(.star-node-highlight), .star-node.status-modified > circle:not(.star-node-highlight) { fill: url(#node-gradient-modified); stroke: rgba(173, 216, 255, 0.82); filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.48)) drop-shadow(0 0 14px rgba(210, 153, 34, 0.22)); }
+.star-node.status-added > circle:not(.star-node-highlight) { fill: url(#node-gradient-added); stroke: rgba(173, 216, 255, 0.82); }
+.star-node.status-deleted > circle:not(.star-node-highlight) { fill: url(#node-gradient-deleted); stroke: rgba(173, 216, 255, 0.82); }
 .star-node.selected > circle:not(.star-node-highlight) { stroke: #8b0000; stroke-width: 4.4; filter: none; animation: scope-center-pulse 2.8s ease-in-out infinite; }
 .star-node:hover > circle:not(.star-node-highlight) { stroke: var(--accent-hover); }
 .star-node-highlight { fill: rgba(255, 255, 255, 0.38); stroke: none; pointer-events: none; filter: blur(0.2px); }
 .star-file-node rect { fill: var(--bg-tertiary); stroke: rgba(139, 148, 158, 0.62); stroke-width: 2; }
 .star-file-node.changed rect { fill: rgba(210, 153, 34, 0.18); stroke: var(--yellow); }
 .star-label { fill: #ffffff; text-anchor: middle; dominant-baseline: middle; font-size: 12px; font-weight: 700; pointer-events: none; user-select: none; -webkit-user-select: none; paint-order: stroke; stroke: rgba(0, 0, 0, 0.68); stroke-width: 2.8px; filter: drop-shadow(2px 3px 2px rgba(0, 0, 0, 0.74)); }
-.exposed-node { cursor: pointer; filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.42)); }
+.exposed-node { cursor: pointer; filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.42)); --exposed-fill: rgba(235, 245, 255, 0.88); --exposed-stroke: rgba(255, 255, 255, 0.82); }
 .exposed-hit-target { fill: transparent; stroke: none; pointer-events: all; }
-.exposed-node circle:not(.exposed-hit-target), .exposed-node rect, .exposed-node polygon { fill: rgba(235, 245, 255, 0.88); stroke: rgba(255, 255, 255, 0.82); stroke-width: 1.5; }
-.exposed-node.exposed-circle circle:not(.exposed-hit-target) { fill: rgba(148, 112, 255, 0.9); }
-.exposed-node.exposed-square rect { fill: rgba(140, 200, 255, 0.9); }
-.exposed-node.exposed-triangle polygon { fill: rgba(218, 60, 160, 0.92); }
-.exposed-node.exposed-star polygon { fill: rgba(34, 72, 150, 0.84); }
-.exposed-node.exposed-type-trait circle:not(.exposed-hit-target), .exposed-node.exposed-type-trait rect, .exposed-node.exposed-type-trait polygon { fill: rgba(218, 60, 160, 0.92); }
-.exposed-node.exposed-type-struct circle:not(.exposed-hit-target), .exposed-node.exposed-type-struct rect, .exposed-node.exposed-type-struct polygon { fill: rgba(140, 200, 255, 0.9); }
-.exposed-node.exposed-type-enum circle:not(.exposed-hit-target), .exposed-node.exposed-type-enum rect, .exposed-node.exposed-type-enum polygon { fill: rgba(34, 72, 150, 0.84); }
-.exposed-node.exposed-type-function circle:not(.exposed-hit-target), .exposed-node.exposed-type-function rect, .exposed-node.exposed-type-function polygon, .exposed-node.exposed-type-fn circle:not(.exposed-hit-target), .exposed-node.exposed-type-fn rect, .exposed-node.exposed-type-fn polygon { fill: rgba(148, 112, 255, 0.9); }
-.exposed-node.exposed-type-type-alias circle:not(.exposed-hit-target), .exposed-node.exposed-type-type-alias rect, .exposed-node.exposed-type-type-alias polygon, .exposed-node.exposed-type-const circle:not(.exposed-hit-target), .exposed-node.exposed-type-const rect, .exposed-node.exposed-type-const polygon, .exposed-node.exposed-type-static circle:not(.exposed-hit-target), .exposed-node.exposed-type-static rect, .exposed-node.exposed-type-static polygon { fill: rgba(34, 72, 150, 0.84); }
-.exposed-node.exposed-star polygon, .exposed-node.exposed-type-enum polygon, .exposed-node.exposed-type-type-alias polygon, .exposed-node.exposed-type-const polygon, .exposed-node.exposed-type-static polygon { stroke: rgba(160, 190, 255, 0.36); stroke-width: 1; opacity: 0.88; }
-.exposed-node.status-added circle:not(.exposed-hit-target), .exposed-node.status-added rect, .exposed-node.status-added polygon { stroke: var(--green); stroke-width: 2.6; }
-.exposed-node.status-modified circle:not(.exposed-hit-target), .exposed-node.status-modified rect, .exposed-node.status-modified polygon, .exposed-node.status-renamed circle:not(.exposed-hit-target), .exposed-node.status-renamed rect, .exposed-node.status-renamed polygon { stroke: var(--yellow); stroke-width: 2.6; }
-.exposed-node.status-deleted circle:not(.exposed-hit-target), .exposed-node.status-deleted rect, .exposed-node.status-deleted polygon { stroke: var(--red); stroke-width: 2.6; }
+.exposed-node circle:not(.exposed-hit-target), .exposed-node rect, .exposed-node polygon { fill: var(--exposed-fill); stroke: var(--exposed-stroke); stroke-width: 1.8; }
+.exposed-node.exposed-circle, .exposed-node.exposed-type-function, .exposed-node.exposed-type-fn, .exposed-node.exposed-type-method { --exposed-fill: rgba(148, 112, 255, 0.9); --exposed-stroke: rgba(148, 112, 255, 0.96); }
+.exposed-node.exposed-square, .exposed-node.exposed-type-struct { --exposed-fill: rgba(140, 200, 255, 0.9); --exposed-stroke: rgba(140, 200, 255, 0.96); }
+.exposed-node.exposed-triangle, .exposed-node.exposed-type-trait { --exposed-fill: rgba(218, 60, 160, 0.92); --exposed-stroke: rgba(218, 60, 160, 0.96); }
+.exposed-node.exposed-star, .exposed-node.exposed-type-enum, .exposed-node.exposed-type-type-alias, .exposed-node.exposed-type-const, .exposed-node.exposed-type-static, .exposed-node.exposed-type-global, .exposed-node.exposed-type-global-variable { --exposed-fill: rgba(34, 72, 150, 0.84); --exposed-stroke: rgba(160, 190, 255, 0.42); }
+.exposed-node.status-added { --exposed-fill: rgba(63, 185, 80, 0.9); }
+.exposed-node.status-modified, .exposed-node.status-renamed { --exposed-fill: rgba(210, 153, 34, 0.92); }
+.exposed-node.status-deleted { --exposed-fill: rgba(248, 81, 73, 0.9); }
+.exposed-node.exposed-star polygon, .exposed-node.exposed-type-enum polygon, .exposed-node.exposed-type-type-alias polygon, .exposed-node.exposed-type-const polygon, .exposed-node.exposed-type-static polygon { opacity: 0.9; }
 .exposed-node:hover circle:not(.exposed-hit-target), .exposed-node:hover rect, .exposed-node:hover polygon { stroke: #ffffff; stroke-width: 2.4; }
 .exposed-label { fill: #ffffff; dominant-baseline: middle; font-size: 7.5px; font-weight: 650; pointer-events: none; user-select: none; -webkit-user-select: none; paint-order: stroke; stroke: rgba(0, 0, 0, 0.78); stroke-width: 2px; transition: font-size 0.12s, transform 0.12s; }
 .exposed-node:hover .exposed-label { font-size: 12px; }
@@ -354,6 +355,7 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .code-popover-content { flex: 1; overflow: auto; background: var(--bg-primary); }
 .code-popover-code { padding: 14px; white-space: pre; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 13px; line-height: 1.5; }
 .code-popover-file { padding: 14px; }
+.code-segment-label { color: var(--text-muted); font-size: 11px; letter-spacing: 0.01em; }
 
 /* ── Dir Toggle ── */
 .dir-children { overflow: hidden; }

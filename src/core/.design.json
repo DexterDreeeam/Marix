@@ -3,127 +3,309 @@
   "module": {
     "path": "src/core",
     "name": "core",
-    "purpose": "Agent preprocessing, computation flow, pass-through transports, and model backend interfaces.",
-    "changeStatus": "added"
+    "purpose": "Core library and server binary crate package with workflow runtime and preprocess modules.",
+    "changeStatus": "modified"
   },
-  "childModules": [],
-  "files": [
+  "childModules": [
     {
-      "path": "src/core/mod.rs",
-      "purpose": "Defines the core runtime and internal preprocessing, transport, and model contracts.",
-      "changeStatus": "added",
-      "items": [
-        {
-          "kind": "trait",
-          "name": "Preprocessor",
-          "category": "interface",
-          "signature": "pub trait Preprocessor",
-          "details": "Converts CLI user commands into prompt tokens and normalized assets.",
-          "code": "pub trait Preprocessor {\n    fn preprocess(&self, input: PreprocessInput) -> Result<PreprocessOutput, PreprocessError>;\n}",
-          "implements": [
-            "PassthroughPreprocessor implements Preprocessor"
-          ],
-          "lineStart": 83,
-          "lineEnd": 85,
-          "language": "rust",
-          "sourcePath": "src/core/mod.rs",
-          "changeStatus": "added"
-        },
-        {
-          "kind": "trait",
-          "name": "ModelBackend",
-          "category": "interface",
-          "signature": "pub trait ModelBackend",
-          "details": "Backend model contract with remote-first and local-compatible implementations.",
-          "code": "pub trait ModelBackend {\n    fn generate(&self, request: ModelRequest) -> Result<ModelResponse, ModelError>;\n}",
-          "implements": [
-            "RemoteModelBackend extends ModelBackend",
-            "LocalModelBackend extends ModelBackend"
-          ],
-          "lineStart": 220,
-          "lineEnd": 222,
-          "language": "rust",
-          "sourcePath": "src/core/mod.rs",
-          "changeStatus": "added"
-        },
-        {
-          "kind": "struct",
-          "name": "AgentCore",
-          "category": "implementation",
-          "signature": "pub struct AgentCore",
-          "details": "Runs preprocessing, pass-through transports, and model invocation.",
-          "code": "#[derive(Debug, Clone)]\npub struct AgentCore {\n    config: SharedConfig,\n}",
-          "implements": [
-            "AgentCore::run orchestrates UserCoreTransport, Preprocessor, ComputeModelTransport, and ModelBackend"
-          ],
-          "lineStart": 261,
-          "lineEnd": 264,
-          "language": "rust",
-          "sourcePath": "src/core/mod.rs",
-          "changeStatus": "added"
-        }
-      ]
+      "path": "src/core/preprocess",
+      "name": "preprocess",
+      "purpose": "Core preprocessing module split into error, output, and preprocessor files.",
+      "changeStatus": "modified"
     }
   ],
-  "exposedGroups": [
+  "elements": [
     {
-      "name": "Core runtime",
-      "purpose": "Public core interfaces for preprocessing, transport, runtime, and models.",
-      "elements": [
+      "name": "Output",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
         {
-          "id": "src/core/mod.rs#preprocessor",
-          "name": "Preprocessor",
-          "kind": "trait",
-          "shape": "triangle",
-          "category": "interface",
-          "signature": "pub trait Preprocessor",
-          "details": "Converts user commands into prompt tokens and normalized assets.",
-          "sourcePath": "src/core/mod.rs",
+          "sourcePath": "src/core/io.rs",
+          "lineStart": 2,
+          "lineEnd": 4,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "ModelRequest",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/model.rs",
+          "lineStart": 4,
+          "lineEnd": 7,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "ModelResponse",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/model.rs",
+          "lineStart": 10,
+          "lineEnd": 12,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "ModelError",
+      "type": "enum",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/model.rs",
+          "lineStart": 15,
+          "lineEnd": 17,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/core/model.rs",
+          "lineStart": 19,
+          "lineEnd": 25,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/core/model.rs",
+          "lineStart": 27,
+          "lineEnd": 27,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "ModelBackend",
+      "type": "trait",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/model.rs",
+          "lineStart": 29,
+          "lineEnd": 31,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "RemoteModelBackend",
+      "type": "trait",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/model.rs",
+          "lineStart": 33,
+          "lineEnd": 35,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "LocalModelBackend",
+      "type": "trait",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/model.rs",
+          "lineStart": 37,
+          "lineEnd": 39,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "AgentExecutionRequest",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/runtime.rs",
+          "lineStart": 10,
+          "lineEnd": 13,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "AgentExecutionResponse",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/runtime.rs",
+          "lineStart": 16,
+          "lineEnd": 18,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "AgentWorkflowStep",
+      "type": "enum",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/runtime.rs",
+          "lineStart": 21,
+          "lineEnd": 29,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "AgentWorkflow",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/runtime.rs",
+          "lineStart": 32,
+          "lineEnd": 34,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/core/runtime.rs",
+          "lineStart": 36,
+          "lineEnd": 44,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "DEFAULT_AGENT_WORKFLOW",
+      "type": "const",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/runtime.rs",
+          "lineStart": 46,
+          "lineEnd": 54,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "CoreError",
+      "type": "enum",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/runtime.rs",
+          "lineStart": 57,
+          "lineEnd": 60,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/core/runtime.rs",
+          "lineStart": 62,
+          "lineEnd": 66,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/core/runtime.rs",
+          "lineStart": 68,
+          "lineEnd": 72,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/core/runtime.rs",
+          "lineStart": 74,
+          "lineEnd": 81,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/core/runtime.rs",
           "lineStart": 83,
-          "lineEnd": 85,
-          "language": "rust",
-          "code": "pub trait Preprocessor {\n    fn preprocess(&self, input: PreprocessInput) -> Result<PreprocessOutput, PreprocessError>;\n}",
-          "implements": [
-            "PassthroughPreprocessor implements Preprocessor"
-          ],
-          "changeStatus": "added"
+          "lineEnd": 83,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "AgentCore",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/runtime.rs",
+          "lineStart": 86,
+          "lineEnd": 89,
+          "language": "rust"
         },
         {
-          "id": "src/core/mod.rs#modelbackend",
-          "name": "ModelBackend",
-          "kind": "trait",
-          "shape": "triangle",
-          "category": "interface",
-          "signature": "pub trait ModelBackend",
-          "details": "Backend model contract with remote-first and local-compatible implementations.",
-          "sourcePath": "src/core/mod.rs",
-          "lineStart": 220,
-          "lineEnd": 222,
-          "language": "rust",
-          "code": "pub trait ModelBackend {\n    fn generate(&self, request: ModelRequest) -> Result<ModelResponse, ModelError>;\n}",
-          "implements": [
-            "RemoteModelBackend extends ModelBackend",
-            "LocalModelBackend extends ModelBackend"
-          ],
-          "changeStatus": "added"
+          "sourcePath": "src/core/runtime.rs",
+          "lineStart": 91,
+          "lineEnd": 135,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "CliCoreTransport",
+      "type": "trait",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/transport.rs",
+          "lineStart": 6,
+          "lineEnd": 9,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "PassthroughCliCoreTransport",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/transport.rs",
+          "lineStart": 12,
+          "lineEnd": 12,
+          "language": "rust"
         },
         {
-          "id": "src/core/mod.rs#agentcore",
-          "name": "AgentCore",
-          "kind": "struct",
-          "shape": "square",
-          "category": "implementation",
-          "signature": "pub struct AgentCore",
-          "details": "Runs preprocessing, pass-through transports, and model invocation.",
-          "sourcePath": "src/core/mod.rs",
-          "lineStart": 261,
-          "lineEnd": 264,
-          "language": "rust",
-          "code": "#[derive(Debug, Clone)]\npub struct AgentCore {\n    config: SharedConfig,\n}",
-          "implements": [
-            "AgentCore::run orchestrates UserCoreTransport, Preprocessor, ComputeModelTransport, and ModelBackend"
-          ],
-          "changeStatus": "added"
+          "sourcePath": "src/core/transport.rs",
+          "lineStart": 14,
+          "lineEnd": 22,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "ComputeModelTransport",
+      "type": "trait",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/transport.rs",
+          "lineStart": 24,
+          "lineEnd": 27,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "PassthroughModelTransport",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/transport.rs",
+          "lineStart": 30,
+          "lineEnd": 30,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/core/transport.rs",
+          "lineStart": 32,
+          "lineEnd": 40,
+          "language": "rust"
         }
       ]
     }

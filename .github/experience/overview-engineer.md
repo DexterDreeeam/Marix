@@ -44,9 +44,10 @@ Overview-engineer owns overview implementation and UX only. Source-design compan
 - Clicking exposed elements opens the code popover and resets highlight state before syntax highlighting.
 - Code highlighting should use common dark editor colors: keywords purple, type/class names teal, variables/properties light blue, function names orange, strings orange-brown, comments green.
 - Exposed element names belong above their nodes; hover may enlarge labels.
-- Exposed element fill colors represent type only. Use blue, purple, pink, and white families; reserve green, yellow, and red for change status outlines, badges, and borders.
+- Exposed element status colors cover the whole visible shape, not the outline. Unchanged elements keep type fill colors: trait deep-pink triangle, struct larger light-blue square, function/fn purple circle, enum/type-alias/const/static/global dark-blue star. Added/modified/renamed/deleted elements use green/yellow/yellow/red fills; outlines stay type-colored and stable.
 - Current exposed element type mapping: trait = deep-pink triangle, struct = larger light-blue square, function/fn = purple circle, enum/type-alias/const/static/global = small dark-blue five-point star.
 - Exposed elements should keep the deterministic compact radial distribution and use auto-fit zoom to fill the canvas; avoid forced rectangular scatter because it looks noisy. Enum/star borders should be subtle, not bright white.
+- Star-map manual zoom should allow deep zoom-in for close inspection. Browser/container resize must not recompute layout or visually resize elements; instead adjust the star-map transform scale/translation to preserve on-screen element size while `scopePath` and layout stay unchanged.
 - Layout uses deterministic positions and D3 force collision when available.
 - Unchanged module nodes should render as white/light gray; reserve green/yellow/red module fills for actual status changes.
 - Module labels belong inside the module circle, with the existing white text plus shadow treatment.
@@ -54,6 +55,7 @@ Overview-engineer owns overview implementation and UX only. Source-design compan
 ## Detail Panel UX
 
 - The right module panel shows non-empty sections only.
+- The right module panel should stay narrow because rows show names only; keep it around 300px wide rather than using a wide detail layout.
 - Sections: child modules plus exposed element sections promoted by exact kind. Trait and Function must be separate sections; do not merge them into Public interfaces.
 - Module panel type section order is Trait, Struct, Function, Enum, Alias, then other small definitions.
 - Each type section shows four rows by default, but all changed rows remain visible even if that exceeds four. Extra unchanged rows are indicated by `...` and expand automatically on hover/focus, then collapse on pointer out with a smooth medium-speed animation. The ellipsis row must have enough line height for the dots to render as full circles, not clipped halves. Use CSS grid row-height transitions so collapsed rows take no layout space; `display: none/block` looks instant and `max-height` can still reserve awkward space.

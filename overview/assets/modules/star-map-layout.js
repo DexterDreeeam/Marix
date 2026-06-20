@@ -8,7 +8,7 @@ function layoutScopeStarMap(scopeNode, options) {
     getChange,
     getImmediateFiles,
     isHiddenPath,
-    collectExposedGroups,
+    collectDesignElementGroups,
     normalizeStatus,
     getShortElementName
   } = options;
@@ -68,7 +68,7 @@ function layoutScopeStarMap(scopeNode, options) {
 
   const moduleObstacles = layout.filter(item => item.kind === "module");
   const exposedItems = layoutExposedElements(scopeNode, radius, moduleObstacles, {
-    collectExposedGroups,
+    collectDesignElementGroups,
     normalizeStatus,
     getShortElementName
   });
@@ -77,8 +77,8 @@ function layoutScopeStarMap(scopeNode, options) {
 }
 
 function layoutExposedElements(scopeNode, moduleRadius, moduleObstacles, options) {
-  const { collectExposedGroups, normalizeStatus } = options;
-  const groups = collectExposedGroups(scopeNode.path);
+  const { collectDesignElementGroups, normalizeStatus } = options;
+  const groups = collectDesignElementGroups(scopeNode.path);
   const elements = groups.flatMap((group, groupIndex) => (group.elements || []).map((element, elementIndex) => ({
     groupName: group.name,
     groupIndex,

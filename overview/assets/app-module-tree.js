@@ -70,8 +70,7 @@ function categorizeModuleFile(node, path) {
 }
 
 function markChangedModules(root) {
-  const changes = ((manifest.diff || {}).changes || {});
-  for (const path of Object.keys(changes)) {
+  for (const path of getChangedVisiblePaths()) {
     if (!shouldIncludeVisibleSourcePath(path)) continue;
     const parts = path.split("/");
     let node = root;

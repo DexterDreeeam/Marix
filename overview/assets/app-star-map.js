@@ -12,7 +12,7 @@
       getChange,
       getImmediateFiles,
       isHiddenPath,
-      collectExposedGroups,
+      collectDesignElementGroups,
       normalizeStatus,
       getShortElementName
     });
@@ -144,11 +144,8 @@
     const container = document.getElementById("star-map-file-list");
     if (!container) return;
 
-    const design = getDesignDocumentForModule(scopeNode.path);
-    const designFiles = design ? (design.document.files || []).map(file => file.path) : [];
     const focusedFile = starMapSelection.kind === "file" ? starMapSelection.path : "";
-    const files = Array.from(new Set(designFiles.concat(getImmediateFiles(scopeNode))))
-      .filter(path => !isHiddenPath(path))
+    const files = Array.from(new Set(getStarMapFileListPaths(scopeNode)))
       .sort((a, b) => {
         if (a === focusedFile) return -1;
         if (b === focusedFile) return 1;
@@ -174,6 +171,12 @@
 
     container.innerHTML = `
       <div class="star-map-file-list-inner${focusedFile ? " file-focus-list" : ""}">
+        <div class="star-map-file-list-header">
+          <span>${escapeHtml(t(starMapShowAllFiles ? "allFileList" : "changedFileList"))}</span>
+          <button class="star-map-file-list-toggle" type="button">
+            ${escapeHtml(t(starMapShowAllFiles ? "showChangedFilesTool" : "showAllFilesTool"))}
+          </button>
+        </div>
         ${visibleRows || `<span class="empty-list">${escapeHtml(t("noItems"))}</span>`}
         ${hiddenContent}
         ${more}
@@ -183,6 +186,15 @@
     for (const button of container.querySelectorAll(".star-map-file-item")) {
       button.addEventListener("click", () => {
         focusStarMapFile(button.dataset.filePath, { openPopover: true });
+      });
+    }
+    const toggle = container.querySelector(".star-map-file-list-toggle");
+    if (toggle) {
+      toggle.addEventListener("click", () => {
+        starMapShowAllFiles = !starMapShowAllFiles;
+        saveBooleanSetting(STORAGE_KEYS.starMapShowAllFiles, starMapShowAllFiles);
+        updateFileListToolButton();
+        renderStarMapFileList(scopeNode);
       });
     }
   }
@@ -219,27 +231,44 @@
   }
 
   function getFileStatus(path) {
-    const design = getDesignDocumentForModule(getParentPath(path));
-    const file = design ? (design.document.files || []).find(item => item.path === path) : null;
-    const fromDesign = getExplicitStarMapChangeStatus(file);
-    if (fromDesign) return fromDesign;
+    return getPathChangeStatus(path);
+  }
 
-    const change = getChange(path);
-    if (!change) return "unchanged";
-    const statusMap = { A: "added", M: "modified", D: "deleted", R: "renamed" };
-    return statusMap[change.status] || "modified";
+  function getChangedFilesForModule(node) {
+    return (node.changedFiles || [])
+      .filter(path => shouldIncludeVisibleSourcePath(path))
+      .filter(path => isPathChanged(path));
+  }
+
+  function getStarMapFileListPaths(node) {
+    if (starMapShowAllFiles) {
+      return collectModuleFiles(node)
+        .filter(path => shouldIncludeVisibleSourcePath(path));
+    }
+    return getChangedFilesForModule(node);
+  }
+
+  function collectModuleFiles(node) {
+    if (!node) return [];
+    const files = [...(node.files || [])];
+    for (const child of node.children || []) {
+      files.push(...collectModuleFiles(child));
+    }
+    return files;
   }
 
   function fitStarMapToLayout(layout) {
     if (!layout || layout.length === 0) {
       starTransform = { x: 0, y: 0, scale: 1 };
+      rememberStarMapViewportScale();
       return;
     }
 
     const maxDistance = layout.reduce((max, item) => Math.max(max, Math.hypot(item.x || 0, item.y || 0)), 0);
     const targetRadius = Math.max(190, maxDistance + 34);
-    const scale = Math.max(1.15, Math.min(2.65, 780 / targetRadius));
+    const scale = clampStarMapZoom(Math.max(1.15, Math.min(2.65, 780 / targetRadius)));
     starTransform = { x: 0, y: 0, scale };
+    rememberStarMapViewportScale();
   }
 
   function requestStarMapFit() {
@@ -334,4 +363,41 @@
     const layer = document.getElementById("star-map-layer");
     if (!layer) return;
     layer.setAttribute("transform", `translate(${starTransform.x} ${starTransform.y}) scale(${starTransform.scale})`);
+    rememberStarMapViewportScale();
+  }
+
+  function clampStarMapZoom(scale) {
+    return Math.max(0.08, Math.min(8, scale));
+  }
+
+  function preserveStarMapScreenScale() {
+    const nextViewportScale = getStarMapViewportScale();
+    if (!nextViewportScale) return;
+    if (!starViewportScale) {
+      starViewportScale = nextViewportScale;
+      return;
+    }
+    if (Math.abs(nextViewportScale - starViewportScale) < 0.0001) return;
+
+    const factor = starViewportScale / nextViewportScale;
+    starTransform = {
+      x: starTransform.x * factor,
+      y: starTransform.y * factor,
+      scale: clampStarMapZoom(starTransform.scale * factor)
+    };
+    starViewportScale = nextViewportScale;
+    applyStarMapTransform();
+  }
+
+  function rememberStarMapViewportScale() {
+    const viewportScale = getStarMapViewportScale();
+    if (viewportScale) starViewportScale = viewportScale;
+  }
+
+  function getStarMapViewportScale() {
+    const svg = document.getElementById("star-map-svg");
+    if (!svg) return 0;
+    const rect = svg.getBoundingClientRect();
+    if (!rect.width || !rect.height) return 0;
+    return Math.min(rect.width / 1800, rect.height / 1200);
   }

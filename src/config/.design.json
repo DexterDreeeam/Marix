@@ -3,57 +3,108 @@
   "module": {
     "path": "src/config",
     "name": "config",
-    "purpose": "Shared deployment configuration and compile-mode selection.",
+    "purpose": "Configuration library crate package with flat source files.",
     "changeStatus": "modified"
   },
   "childModules": [],
-  "files": [
+  "elements": [
     {
-      "path": "src/config/mod.rs",
-      "purpose": "Defines shared config and supported compile/deployment modes.",
+      "name": "config",
+      "type": "static",
       "changeStatus": "modified",
-      "items": [
+      "codeSegments": [
         {
-          "kind": "enum",
-          "name": "CompileMode",
-          "category": "data",
-          "signature": "pub enum CompileMode",
-          "details": "Supported compile modes are up_xcy_m, u_xpcy_m, and upxcy_m.",
-          "code": "#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]\npub enum CompileMode {\n    UserPreprocessRemoteCoreRemoteModel,\n    UserRemotePreprocessCoreRemoteModel,\n    UserPreprocessCoreRemoteModel,\n}",
-          "implements": [
-            "FromStr parses up_xcy_m, u_xpcy_m, and upxcy_m"
-          ],
-          "lineStart": 37,
-          "lineEnd": 42,
-          "language": "rust",
-          "sourcePath": "src/config/mod.rs",
-          "changeStatus": "modified"
+          "sourcePath": "src/config/lib.rs",
+          "lineStart": 10,
+          "lineEnd": 10,
+          "language": "rust"
         }
       ]
-    }
-  ],
-  "exposedGroups": [
+    },
     {
-      "name": "Configuration",
-      "purpose": "Public deployment configuration and compile-mode controls.",
-      "elements": [
+      "name": "IConfig",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
         {
-          "id": "src/config/mod.rs#compilemode",
-          "name": "CompileMode",
-          "kind": "enum",
-          "shape": "star",
-          "category": "data",
-          "signature": "pub enum CompileMode",
-          "details": "Supported compile modes are up_xcy_m, u_xpcy_m, and upxcy_m.",
-          "sourcePath": "src/config/mod.rs",
+          "sourcePath": "src/config/lib.rs",
+          "lineStart": 13,
+          "lineEnd": 13,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/config/lib.rs",
+          "lineStart": 15,
+          "lineEnd": 26,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/config/lib.rs",
+          "lineStart": 28,
+          "lineEnd": 34,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "Config",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/config/lib.rs",
           "lineStart": 37,
-          "lineEnd": 42,
-          "language": "rust",
-          "code": "#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]\npub enum CompileMode {\n    UserPreprocessRemoteCoreRemoteModel,\n    UserRemotePreprocessCoreRemoteModel,\n    UserPreprocessCoreRemoteModel,\n}",
-          "implements": [
-            "FromStr parses up_xcy_m, u_xpcy_m, and upxcy_m"
-          ],
-          "changeStatus": "modified"
+          "lineEnd": 39,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/config/lib.rs",
+          "lineStart": 41,
+          "lineEnd": 92,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/config/lib.rs",
+          "lineStart": 94,
+          "lineEnd": 100,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "ConfigError",
+      "type": "enum",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/config/lib.rs",
+          "lineStart": 173,
+          "lineEnd": 176,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/config/lib.rs",
+          "lineStart": 178,
+          "lineEnd": 182,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/config/lib.rs",
+          "lineStart": 184,
+          "lineEnd": 188,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/config/lib.rs",
+          "lineStart": 190,
+          "lineEnd": 197,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/config/lib.rs",
+          "lineStart": 199,
+          "lineEnd": 199,
+          "language": "rust"
         }
       ]
     }
