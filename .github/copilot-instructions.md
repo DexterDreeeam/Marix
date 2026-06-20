@@ -35,6 +35,15 @@
 - The Rust crate root is `src/`, not the repository root. Run Cargo commands from `src/` or pass `--manifest-path src/Cargo.toml`.
 - Cargo build output is configured by `src/.cargo/config.toml` to use `src/.target/`. Rust-specific project files should remain under `src/`; repository-root files are for engineering workflow only.
 
+## Source Architecture
+
+- The first-level Rust source modules are `cli`, `core`, and `config`.
+- `cli` owns command-line user interaction, including user command input and output rendering.
+- `core` owns preprocessing, agent computation/runtime orchestration, pass-through transport boundaries, and model backend interfaces. Remote models are the current focus, but local model compatibility must remain represented.
+- Shared deployment and compile-mode configuration belongs in `config`.
+- Initial compile modes are `up_xcy_m`, `u_xpcy_m`, and `upxcy_m`; parse mode strings through `config::CompileMode`.
+- Do not reintroduce the old Rust `agent` or `overview` source modules. Overview site implementation remains under `overview/`, and source-design data is maintained by `development-designer`.
+
 ## Source Design Maintenance
 
 - When a task modifies any non-dot source file under `src/`, invoke the `development-designer` agent before finishing that task.

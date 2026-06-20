@@ -3,131 +3,155 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Root Rust crate module for Marix. It owns the crate manifest, library entry point, agent contracts, and overview/star-map data models.",
+    "purpose": "Rust crate root for the Marix CLI/core/config architecture.",
     "changeStatus": "modified"
   },
   "childModules": [
     {
-      "path": "src/agent",
-      "name": "agent",
-      "purpose": "Defines the core agent interface, shared agent data types, and overview refresh contract.",
-      "changeStatus": "unchanged"
+      "path": "src/cli",
+      "name": "cli",
+      "purpose": "Command-line user interaction and user-facing command/output types.",
+      "changeStatus": "added"
     },
     {
-      "path": "src/overview",
-      "name": "overview",
-      "purpose": "Defines source design documents, repository snapshots, file changes, and star-map graph data used by the overview UI.",
-      "changeStatus": "unchanged"
+      "path": "src/core",
+      "name": "core",
+      "purpose": "Agent preprocessing, computation flow, pass-through transports, and model backend interfaces.",
+      "changeStatus": "added"
+    },
+    {
+      "path": "src/config",
+      "name": "config",
+      "purpose": "Shared deployment configuration and compile-mode selection.",
+      "changeStatus": "modified"
     }
   ],
-  "exposedGroups": [],
   "files": [
     {
       "path": "src/Cargo.toml",
-      "purpose": "Cargo manifest for the Marix Rust crate after the crate root moved under src.",
-      "changeStatus": "renamed",
+      "purpose": "Cargo manifest for the Marix Rust crate under src.",
+      "changeStatus": "modified",
       "items": [
         {
-          "kind": "config-section",
-          "name": "package",
+          "kind": "manifest",
+          "name": "Marix crate manifest",
           "category": "data",
-          "changeStatus": "unchanged",
           "signature": "[package] name = \"marix\"",
-          "details": "Crate package metadata.",
-          "sourcePath": "src/Cargo.toml",
+          "details": "Defines the Rust crate package and dependencies for the src crate root.",
+          "code": "[package]\nname = \"marix\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Composable CLI/core/config agent architecture.\"\nlicense = \"MIT\"\n\n[lib]\nname = \"marix\"\npath = \"lib.rs\"\n\n[dependencies]\nserde = { version = \"1.0\", features = [\"derive\"] }",
+          "implements": [],
           "lineStart": 1,
-          "lineEnd": 6,
-          "language": "toml",
-          "code": "[package]\nname = \"marix\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Agent framework core and overview visualization data model.\"\nlicense = \"MIT\"",
-          "implements": []
-        },
-        {
-          "kind": "config-section",
-          "name": "lib",
-          "category": "data",
-          "changeStatus": "modified",
-          "signature": "[lib] path = \"lib.rs\"",
-          "details": "Declares the library target relative to the src manifest, so it resolves to src/lib.rs.",
-          "sourcePath": "src/Cargo.toml",
-          "lineStart": 8,
-          "lineEnd": 10,
-          "language": "toml",
-          "code": "[lib]\nname = \"marix\"\npath = \"lib.rs\"",
-          "implements": []
-        },
-        {
-          "kind": "config-section",
-          "name": "dependencies",
-          "category": "data",
-          "changeStatus": "unchanged",
-          "signature": "[dependencies] serde",
-          "details": "Declares serde derive support for the crate data models.",
-          "sourcePath": "src/Cargo.toml",
-          "lineStart": 12,
           "lineEnd": 13,
           "language": "toml",
-          "code": "[dependencies]\nserde = { version = \"1.0\", features = [\"derive\"] }",
-          "implements": []
+          "sourcePath": "src/Cargo.toml",
+          "changeStatus": "modified"
         }
       ]
     },
     {
       "path": "src/lib.rs",
-      "purpose": "Library entry point and public re-export surface.",
-      "changeStatus": "unchanged",
+      "purpose": "Library entry point that exposes the cli, core, and config modules.",
+      "changeStatus": "modified",
       "items": [
         {
           "kind": "module",
-          "name": "agent",
+          "name": "cli",
           "category": "module",
-          "changeStatus": "unchanged",
-          "signature": "pub mod agent;",
-          "details": "Exposes agent contracts and shared runtime types.",
-          "sourcePath": "src/lib.rs",
+          "signature": "pub mod cli;",
+          "details": "Exports the CLI layer module.",
+          "code": "pub mod cli;",
+          "implements": [],
           "lineStart": 3,
           "lineEnd": 3,
           "language": "rust",
-          "code": "pub mod agent;",
-          "implements": []
+          "sourcePath": "src/lib.rs",
+          "changeStatus": "added"
         },
         {
           "kind": "module",
-          "name": "overview",
+          "name": "core",
           "category": "module",
-          "changeStatus": "unchanged",
-          "signature": "pub mod overview;",
-          "details": "Exposes overview, source design, and star-map data models.",
+          "signature": "pub mod core;",
+          "details": "Exports the core runtime module.",
+          "code": "pub mod core;",
+          "implements": [],
+          "lineStart": 5,
+          "lineEnd": 5,
+          "language": "rust",
           "sourcePath": "src/lib.rs",
+          "changeStatus": "added"
+        },
+        {
+          "kind": "module",
+          "name": "config",
+          "category": "module",
+          "signature": "pub mod config;",
+          "details": "Exports shared configuration.",
+          "code": "pub mod config;",
+          "implements": [],
           "lineStart": 4,
           "lineEnd": 4,
           "language": "rust",
-          "code": "pub mod overview;",
-          "implements": []
-        },
-        {
-          "kind": "re-export",
-          "name": "agent public surface",
-          "category": "module",
-          "changeStatus": "unchanged",
-          "signature": "pub use ...",
-          "details": "Re-exports core agent traits and shared data types for downstream users.",
           "sourcePath": "src/lib.rs",
-          "lineStart": 6,
-          "lineEnd": 9,
-          "language": "rust",
-          "code": "pub use agent::{\n    Agent, AgentArtifact, AgentArtifactKind, AgentContext, AgentError, AgentId, AgentInput,\n    AgentKind, AgentOutput, AgentResult,\n};",
-          "implements": []
+          "changeStatus": "modified"
         }
       ]
     }
   ],
-  "starMap": {
-    "notes": [
-      "This module is the Rust crate root for the source-level star map.",
-      "Direct child modules should be shown as first-level module nodes.",
-      "Cargo manifest metadata appears as a file node, not as an exposed public API.",
-      "Dot-prefixed companion metadata remains hidden from visible source lists.",
-      "This machine-readable payload is preferred over legacy compatibility fallbacks."
-    ]
-  }
+  "exposedGroups": [
+    {
+      "name": "Source architecture",
+      "purpose": "Top-level crate layers exposed by the Rust source architecture.",
+      "elements": [
+        {
+          "id": "src#cli",
+          "name": "cli",
+          "kind": "module",
+          "shape": "star",
+          "category": "module",
+          "signature": "pub mod cli;",
+          "details": "Command-line user interaction layer.",
+          "sourcePath": "src/lib.rs",
+          "lineStart": 3,
+          "lineEnd": 3,
+          "language": "rust",
+          "code": "pub mod cli;",
+          "implements": [],
+          "changeStatus": "added"
+        },
+        {
+          "id": "src#core",
+          "name": "core",
+          "kind": "module",
+          "shape": "star",
+          "category": "module",
+          "signature": "pub mod core;",
+          "details": "Agent core runtime, preprocessing, transports, and model backend layer.",
+          "sourcePath": "src/lib.rs",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "language": "rust",
+          "code": "pub mod core;",
+          "implements": [],
+          "changeStatus": "added"
+        },
+        {
+          "id": "src#config",
+          "name": "config",
+          "kind": "module",
+          "shape": "star",
+          "category": "module",
+          "signature": "pub mod config;",
+          "details": "Shared configuration and compile-mode selection.",
+          "sourcePath": "src/lib.rs",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "language": "rust",
+          "code": "pub mod config;",
+          "implements": [],
+          "changeStatus": "modified"
+        }
+      ]
+    }
+  ]
 }
