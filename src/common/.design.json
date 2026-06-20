@@ -3,17 +3,24 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared protocol and helper crate package.",
+    "purpose": "Shared protocol, session, and helper crate package.",
     "changeStatus": "modified"
   },
   "modified": [
-    "."
+    ".",
+    "Cargo.toml",
+    "lib.rs"
   ],
   "childModules": [
     {
       "path": "src/common/protocol",
       "name": "protocol",
       "purpose": "Shared cross-package protocol definitions."
+    },
+    {
+      "path": "src/common/session",
+      "name": "session",
+      "purpose": "Shared session configuration and session pipe transport."
     }
   ],
   "elements": []

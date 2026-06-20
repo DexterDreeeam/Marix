@@ -8,3 +8,7 @@ description = "Shared Marix protocols and helpers."
 [lib]
 name = "marix_common"
 path = "lib.rs"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true

@@ -37,3 +37,14 @@ pub trait RemoteModelBackend: ModelBackend {
 pub trait LocalModelBackend: ModelBackend {
     fn local_config(&self) -> &Value;
 }
+
+#[derive(Debug, Clone, Copy, Default)]
+pub struct EchoModelBackend;
+
+impl ModelBackend for EchoModelBackend {
+    fn generate(&self, request: ModelRequest) -> Result<ModelResponse, ModelError> {
+        Ok(ModelResponse {
+            content: request.prompt,
+        })
+    }
+}

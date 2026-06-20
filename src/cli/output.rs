@@ -1,1 +1,1 @@
-pub use marix_core::Output;
+pub use marix_common::UserOutput;

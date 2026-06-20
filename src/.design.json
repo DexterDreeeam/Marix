@@ -3,17 +3,19 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace root for flat Marix package modules and folder-based shared protocol definitions.",
+    "purpose": "Rust workspace root for flat Marix package modules and session-pipe protocol support.",
     "changeStatus": "modified"
   },
   "modified": [
-    "."
+    ".",
+    "Cargo.lock",
+    "Cargo.toml"
   ],
   "childModules": [
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared protocol and helper crate package with folder-based protocol modules."
+      "purpose": "Shared protocol, session pipe, and helper crate package."
     },
     {
       "path": "src/config",
@@ -23,12 +25,12 @@
     {
       "path": "src/core",
       "name": "core",
-      "purpose": "Core library and server binary crate package with workflow runtime and split preprocess modules."
+      "purpose": "Core library and server binary crate package with workflow runtime, session server, and preprocess modules."
     },
     {
       "path": "src/cli",
       "name": "cli",
-      "purpose": "CLI binary crate package with flat files that reuse common UserInput."
+      "purpose": "CLI binary crate package with session pipe client and local integrated core mode."
     }
   ],
   "elements": []

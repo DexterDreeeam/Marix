@@ -3,15 +3,23 @@
   "module": {
     "path": "src/cli",
     "name": "cli",
-    "purpose": "CLI binary crate package with flat input, output, and interface files that reuse common UserInput.",
-    "changeStatus": "unchanged"
+    "purpose": "CLI binary crate package with session pipe client and local integrated core mode.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    ".",
+    "Cargo.toml",
+    "config.json",
+    "interface.rs",
+    "main.rs",
+    "output.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "Interface",
       "type": "trait",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/cli/interface.rs",
@@ -24,7 +32,7 @@
     {
       "name": "CliInterface",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/cli/interface.rs",
@@ -48,4 +56,3 @@
     }
   ]
 }
-

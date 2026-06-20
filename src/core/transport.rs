@@ -1,11 +1,10 @@
-use marix_common::UserInput;
+use marix_common::{UserInput, UserOutput};
 
-use super::io::Output;
 use super::model::{ModelRequest, ModelResponse};
 
 pub trait CliCoreTransport {
     fn forward_input(&self, input: UserInput) -> UserInput;
-    fn forward_output(&self, output: Output) -> Output;
+    fn forward_output(&self, output: UserOutput) -> UserOutput;
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -16,7 +15,7 @@ impl CliCoreTransport for PassthroughCliCoreTransport {
         input
     }
 
-    fn forward_output(&self, output: Output) -> Output {
+    fn forward_output(&self, output: UserOutput) -> UserOutput {
         output
     }
 }

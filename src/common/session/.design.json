@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/common/session",
+    "name": "session",
+    "purpose": "Shared session configuration and session pipe transport.",
+    "changeStatus": "added"
+  },
+  "added": [
+    "."
+  ],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "DEFAULT_CORE_PORT",
+      "type": "const",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/session/session_config.rs",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "SessionConfig",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/session/session_config.rs",
+          "lineStart": 7,
+          "lineEnd": 11,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/common/session/session_config.rs",
+          "lineStart": 13,
+          "lineEnd": 21,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/common/session/session_config.rs",
+          "lineStart": 23,
+          "lineEnd": 79,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "SessionPipe",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/session/session_pipe.rs",
+          "lineStart": 12,
+          "lineEnd": 12,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/common/session/session_pipe.rs",
+          "lineStart": 14,
+          "lineEnd": 37,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "CliSessionPipe",
+      "type": "enum",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/session/session_pipe.rs",
+          "lineStart": 39,
+          "lineEnd": 45,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/common/session/session_pipe.rs",
+          "lineStart": 47,
+          "lineEnd": 70,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "CoreSessionPipe",
+      "type": "enum",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/session/session_pipe.rs",
+          "lineStart": 72,
+          "lineEnd": 78,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/common/session/session_pipe.rs",
+          "lineStart": 80,
+          "lineEnd": 98,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "CoreSessionListener",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/session/session_pipe.rs",
+          "lineStart": 100,
+          "lineEnd": 102,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/common/session/session_pipe.rs",
+          "lineStart": 104,
+          "lineEnd": 110,
+          "language": "rust"
+        }
+      ]
+    }
+  ]
+}
