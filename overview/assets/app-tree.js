@@ -66,7 +66,7 @@
 
       if (filter && !hasMatchingDescendant(child, dirPath, filter)) continue;
 
-      const dirEl = createTreeItem(dirName, depth, true, getTreeDirectoryStatus(child), dirPath);
+      const dirEl = createTreeItem(dirName, depth, true, getTreeDirectoryStatus(child, dirPath), dirPath);
       parent.appendChild(dirEl);
 
       const childContainer = document.createElement("div");
@@ -133,7 +133,10 @@
     return ranks[status] ?? 10;
   }
 
-  function getTreeDirectoryStatus(node) {
+  function getTreeDirectoryStatus(node, dirPath) {
+    const folderStatus = getFolderChangeStatus(dirPath);
+    if (folderStatus !== "unchanged") return folderStatus;
+
     const statuses = collectTreeDirectoryFileStatuses(node);
     const changedStatuses = statuses.filter(status => status !== "unchanged");
     if (changedStatuses.length === 0) return "unchanged";

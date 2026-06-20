@@ -46,7 +46,12 @@ For a full update:
 Each `.design.json` must describe the current source truth for its module:
 
 - `module`: path, name, purpose, and `changeStatus` when known.
-- `childModules`: direct non-dot child source folders only.
+- `childModules`: direct non-dot child source folders only. Do not put `changeStatus` on child module entries; each child folder records its own folder status in its own `.design.json`.
+- Direct module/file status arrays for changed items in the current folder only:
+  - `added`,
+  - `modified`,
+  - `deleted`,
+  - `renamed`.
 - `elements`: one entry per meaningful public definition in the module's direct source files:
   - traits,
   - structs,
@@ -79,6 +84,13 @@ Each `.design.json` must describe the current source truth for its module:
 - Valid statuses: `unchanged`, `added`, `modified`, `deleted`, `renamed`.
 - Do not mark an item `added` merely because metadata was regenerated.
 - If previous-tag comparison data is unavailable, preserve unaffected current source definitions as `unchanged`.
+- Also write top-level status arrays for every changed direct item in that `.design.json` module:
+  - Use `"."` to represent the module folder itself.
+  - Use direct file names such as `"lib.rs"` or `"user_input.rs"` for files directly inside the module folder.
+  - Do not list child folders in the parent `.design.json`, and do not put `changeStatus` on `childModules`; each child folder records its own `"."` status in its own `.design.json`.
+  - If the whole module folder is newly added, `added: ["."]` is sufficient; direct files do not need to be repeated unless they require a different status.
+  - Omit empty status arrays; unchanged files should not be listed.
+- Keep element `changeStatus` aligned with actual source changes, but file tree status is represented by the top-level status arrays and dynamic tag diff, not by element `codeSegments`.
 
 ## Validation
 
@@ -87,8 +99,10 @@ After updating:
 1. Parse every changed `.design.json` as JSON.
 2. Confirm no legacy Markdown design metadata files exist.
 3. Confirm no dot-prefixed source path is listed as a normal child module or file.
-4. For each changed source file, compare public definitions in source with top-level `elements`; verify each element has all relevant `codeSegments`, including impl blocks where applicable. Report any deliberate omissions.
-5. Ensure `ensure-deveopment-design` would return `allow` for the current agent's changed files.
+4. Confirm `childModules` entries do not contain `changeStatus`.
+5. Confirm top-level status arrays list only `"."` or direct current-folder file names, never child folder paths or unchanged files.
+6. For each changed source file, compare public definitions in source with top-level `elements`; verify each element has all relevant `codeSegments`, including impl blocks where applicable. Report any deliberate omissions.
+7. Ensure `ensure-deveopment-design` would return `allow` for the current agent's changed files.
 
 ## Reporting
 

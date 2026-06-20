@@ -21,8 +21,9 @@ This skill is intentionally narrow: it only resets `changeStatus` values in `.de
 3. For every `src/**/.design.json`:
    - parse JSON,
    - set `module.changeStatus` to `unchanged` when present,
-   - set every `childModules[].changeStatus` to `unchanged` when present,
+   - remove `changeStatus` from every `childModules[]` entry when present,
    - set every `elements[].changeStatus` to `unchanged` when present,
+   - remove top-level `added`, `modified`, `deleted`, and `renamed` arrays,
    - preserve all other fields exactly in meaning, including `name`, `type`, `purpose`, and `codeSegments`.
 4. Write valid formatted JSON back to the same files.
 
@@ -40,7 +41,9 @@ After resetting:
 
 1. Parse every changed `.design.json` as JSON.
 2. Confirm no `.design.json` under `src/` retains a non-`unchanged` `changeStatus`.
-3. Confirm no legacy `.design.md` files were created.
+3. Confirm no `childModules[]` entry retains a `changeStatus`.
+4. Confirm no `.design.json` under `src/` retains top-level `added`, `modified`, `deleted`, or `renamed` arrays.
+5. Confirm no legacy `.design.md` files were created.
 
 ## Reporting
 

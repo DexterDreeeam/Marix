@@ -37,13 +37,12 @@
 
 ## Source Architecture
 
-- `src/Cargo.toml` defines a workspace with flat member packages: `common` provides shared protocols/helpers, `config` provides the `marix-config` lib crate, `core` provides the `marix_core` lib crate and `marix-core` bin crate, and `cli` provides the `marix-cli` bin crate. Do not add nested `src/` folders under `common`, `config`, `core`, or `cli`.
-- `cli` owns command-line user interaction, including input, output, and interface files.
-- `common` owns cross-package protocol types such as `UserInput`; CLI and core should reuse those protocol definitions instead of duplicating input structs.
-- `core` owns preprocessing, agent computation/runtime orchestration, pass-through transport boundaries, and model backend interfaces. Remote models are the current focus, but local model compatibility must remain represented.
-- Shared CLI/core configuration belongs in the `marix-config` crate as merged JSON loaded from `src/**/config.json`; callers access values by string keys such as `config["cli"]["interface"]`.
-- Deployment topology is read from root `deployment.json` and stored under the `deployment` node without making deployment details part of core config.
-- Do not reintroduce the old Rust `agent` or `overview` source modules. Overview site implementation remains under `overview/`, and source-design data is maintained by `development-designer`.
+- Keep source packages flat under `src/`; package manifests should define crate and binary targets without adding unnecessary nested source roots.
+- Separate responsibilities by boundary: user interaction, shared protocols/helpers, configuration loading, runtime orchestration, transport boundaries, and model backends should remain decoupled.
+- Shared protocol definitions should have a single owner and be reused across package boundaries instead of being duplicated.
+- Protocol namespaces should use folder modules when they contain multiple definitions; keep each protocol definition in a focused source file and re-export it from the module entry.
+- Keep deployment/topology concerns outside runtime implementation details; expose them through the configuration boundary rather than hard-coding them into core logic.
+- Do not reintroduce deprecated source modules. Source-design data is maintained by `development-designer`, while overview site implementation remains outside `src/`.
 
 ## Source Design Maintenance
 

@@ -3,35 +3,33 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace root for flat Marix package modules and shared user-input protocol.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace root for flat Marix package modules and folder-based shared protocol definitions.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared protocol and helper crate package with UserInput.",
-      "changeStatus": "unchanged"
+      "purpose": "Shared protocol and helper crate package with folder-based protocol modules."
     },
     {
       "path": "src/config",
       "name": "config",
-      "purpose": "Configuration library crate package with flat source files.",
-      "changeStatus": "unchanged"
+      "purpose": "Configuration library crate package with flat source files."
     },
     {
       "path": "src/core",
       "name": "core",
-      "purpose": "Core library and server binary crate package with workflow runtime and split preprocess modules.",
-      "changeStatus": "unchanged"
+      "purpose": "Core library and server binary crate package with workflow runtime and split preprocess modules."
     },
     {
       "path": "src/cli",
       "name": "cli",
-      "purpose": "CLI binary crate package with flat files that reuse common UserInput.",
-      "changeStatus": "unchanged"
+      "purpose": "CLI binary crate package with flat files that reuse common UserInput."
     }
   ],
   "elements": []
 }
-

@@ -18,6 +18,7 @@ Overview-engineer owns overview implementation and UX only. Source-design compan
 - The left file tree always shows all visible `src/` files. There is no view-all-files toggle.
 - GitHub mode hides the view-whole-file control; local mode can show full file contents.
 - Inside each folder, files changed by `marix_tag_*` diff sort above unchanged files.
+- Left-tree file and folder status must come only from the dynamic `marix_tag_*` file diff for the active source. Do not infer file-tree status from `.design.json` elements or `codeSegments`; local worktree diffs must count untracked visible source files as added.
 - Deleted files in diff should still be visible and open diff sections.
 - File entries use a left status dot instead of type text chips: unchanged gray, added green, modified yellow, deleted red, renamed accent. Folder entries use a triangle-like arrow with an inward notch on the base so the arrow head is clear; if all changed descendant files are newly added the arrow is green, if any descendant file is modified/renamed/deleted or mixed then the arrow is yellow, and unchanged folders are gray. Unchanged file names are slightly dimmed.
 

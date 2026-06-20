@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/common/protocol",
+    "name": "protocol",
+    "purpose": "Shared cross-package protocol definitions.",
+    "changeStatus": "added"
+  },
+  "added": [
+    "."
+  ],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "UserInput",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/user_input.rs",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/common/protocol/user_input.rs",
+          "lineStart": 6,
+          "lineEnd": 16,
+          "language": "rust"
+        }
+      ]
+    }
+  ]
+}

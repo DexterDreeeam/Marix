@@ -37,7 +37,8 @@ Persistent implementation notes for generating and maintaining Marix source desi
 
 ## Status Rules
 
-- Include `changeStatus` when known on modules, child modules, and elements.
+- Include `changeStatus` when known on modules and elements.
+- Use top-level status arrays (`added`, `modified`, `deleted`, `renamed`) for the current folder and its direct files only. Use `"."` for the current folder itself; do not put `changeStatus` on `childModules`.
 - Valid statuses are `unchanged`, `added`, `modified`, `deleted`, and `renamed`.
 - Prefer explicit item-level `changeStatus`.
 - Status values should reflect source changes, not metadata generation side effects.
