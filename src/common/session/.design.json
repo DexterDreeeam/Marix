@@ -4,28 +4,14 @@
     "path": "src/common/session",
     "name": "session",
     "purpose": "Shared session configuration and client/server pipe transport.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "pipe_client.rs",
-    "pipe_error.rs",
-    "pipe_response.rs",
-    "pipe_server.rs"
-  ],
-  "modified": [
-    ".",
-    "mod.rs",
-    "session_config.rs"
-  ],
-  "deleted": [
-    "session_pipe.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "PipeClient",
       "type": "trait",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/pipe_client.rs",
@@ -38,7 +24,7 @@
     {
       "name": "PipeError",
       "type": "enum",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/pipe_error.rs",
@@ -63,7 +49,7 @@
     {
       "name": "PipeReceiveHandler",
       "type": "type-alias",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/pipe_response.rs",
@@ -76,7 +62,7 @@
     {
       "name": "PipeCloseHandler",
       "type": "type-alias",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/pipe_response.rs",
@@ -89,7 +75,7 @@
     {
       "name": "PipeResponse",
       "type": "enum",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/pipe_response.rs",
@@ -108,7 +94,7 @@
     {
       "name": "PipeServer",
       "type": "trait",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/pipe_server.rs",
@@ -121,7 +107,7 @@
     {
       "name": "DEFAULT_CORE_PORT",
       "type": "const",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/session_config.rs",
@@ -134,7 +120,7 @@
     {
       "name": "SessionConfig",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/session_config.rs",

@@ -4,26 +4,14 @@
     "path": "src/common/protocol",
     "name": "protocol",
     "purpose": "Shared cross-package protocol definitions.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "chat_message.rs",
-    "utility.rs"
-  ],
-  "modified": [
-    ".",
-    "mod.rs"
-  ],
-  "deleted": [
-    "user_input.rs",
-    "user_output.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "ChatMessageBase",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/chat_message.rs",
@@ -42,7 +30,7 @@
     {
       "name": "ChatMessageInput",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/chat_message.rs",
@@ -67,7 +55,7 @@
     {
       "name": "ChatMessageOutput",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/chat_message.rs",
@@ -92,7 +80,7 @@
     {
       "name": "UserMessageType",
       "type": "enum",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/utility.rs",
@@ -111,7 +99,7 @@
     {
       "name": "UserMessage",
       "type": "trait",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/utility.rs",
@@ -124,7 +112,7 @@
     {
       "name": "ProtocolConvertError",
       "type": "enum",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/utility.rs",
