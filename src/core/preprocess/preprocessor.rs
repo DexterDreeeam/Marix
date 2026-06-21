@@ -1,4 +1,4 @@
-use marix_common::UserInput;
+use marix_common::ChatMessageInput;
 
 use super::{PreprocessError, PreprocessOutput};
 
@@ -6,8 +6,8 @@ use super::{PreprocessError, PreprocessOutput};
 pub struct Preprocessor;
 
 impl Preprocessor {
-    pub fn run(&self, input: UserInput) -> Result<PreprocessOutput, PreprocessError> {
-        let prompt = input.chat_text;
+    pub fn run(&self, input: ChatMessageInput) -> Result<PreprocessOutput, PreprocessError> {
+        let prompt = input.chat_text().to_owned();
         if prompt.trim().is_empty() {
             return Err(PreprocessError::EmptyInput);
         }

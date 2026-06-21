@@ -3,14 +3,23 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace root for flat Marix package modules and session-pipe protocol support.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace root for flat Marix package modules and pipe sender/listener interfaces.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    ".",
+    "Cargo.lock"
+  ],
   "childModules": [
+    {
+      "path": "src/cli",
+      "name": "cli",
+      "purpose": "CLI binary crate package using pipe sender boundary."
+    },
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared protocol, session pipe, and helper crate package."
+      "purpose": "Shared protocol, session, and pipe interface crate package."
     },
     {
       "path": "src/config",
@@ -20,14 +29,8 @@
     {
       "path": "src/core",
       "name": "core",
-      "purpose": "Core library and server binary crate package with workflow runtime, session server, and preprocess modules."
-    },
-    {
-      "path": "src/cli",
-      "name": "cli",
-      "purpose": "CLI binary crate package with session pipe client and local integrated core mode."
+      "purpose": "Core library and server binary crate package with DeepSeek chat completion and pipe listener boundary."
     }
   ],
   "elements": []
 }
-

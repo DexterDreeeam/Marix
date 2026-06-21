@@ -1,7 +1,11 @@
 pub mod protocol;
 pub mod session;
 
-pub use protocol::{UserInput, UserOutput};
+pub use protocol::{
+    ChatMessageBase, ChatMessageInput, ChatMessageOutput, ProtocolConvertError, UserMessage,
+    UserMessageType,
+};
 pub use session::{
-    CliSessionPipe, CoreSessionListener, CoreSessionPipe, SessionConfig, SessionPipe,
+    PipeClient, PipeCloseHandler, PipeError, PipeReceiveHandler, PipeResponse, PipeServer,
+    SessionConfig,
 };

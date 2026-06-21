@@ -1,1 +1,1 @@
-pub use marix_common::UserInput;
+pub use marix_common::ChatMessageInput;

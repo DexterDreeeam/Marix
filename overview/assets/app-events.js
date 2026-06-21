@@ -36,6 +36,9 @@
 
     document.getElementById("code-popover-backdrop").addEventListener("click", hideCodePopover);
     document.getElementById("btn-close-code-popover").addEventListener("click", hideCodePopover);
+    document.addEventListener("keydown", evt => {
+      if (evt.key === "Escape") hideCodePopover();
+    });
 
     document.getElementById("btn-reset-star-map").addEventListener("click", () => {
       requestStarMapFit();

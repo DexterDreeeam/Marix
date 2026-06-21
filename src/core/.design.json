@@ -3,26 +3,34 @@
   "module": {
     "path": "src/core",
     "name": "core",
-    "purpose": "Core library and server binary crate package with workflow runtime, session server, and preprocess modules.",
-    "changeStatus": "unchanged"
+    "purpose": "Core library and server binary crate package with DeepSeek chat completion and pipe listener boundary.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    ".",
+    "lib.rs",
+    "main.rs",
+    "model.rs",
+    "runtime.rs",
+    "transport.rs"
+  ],
   "childModules": [
     {
       "path": "src/core/preprocess",
       "name": "preprocess",
-      "purpose": "Core preprocessing module split into error, output, and preprocessor files."
+      "purpose": "Core preprocessing module split into error, output, and preprocessor definitions."
     }
   ],
   "elements": [
     {
       "name": "ModelRequest",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/model.rs",
-          "lineStart": 4,
-          "lineEnd": 7,
+          "lineStart": 6,
+          "lineEnd": 9,
           "language": "rust"
         }
       ]
@@ -30,12 +38,12 @@
     {
       "name": "ModelResponse",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/model.rs",
-          "lineStart": 10,
-          "lineEnd": 12,
+          "lineStart": 12,
+          "lineEnd": 14,
           "language": "rust"
         }
       ]
@@ -43,24 +51,24 @@
     {
       "name": "ModelError",
       "type": "enum",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/model.rs",
-          "lineStart": 15,
-          "lineEnd": 17,
+          "lineStart": 17,
+          "lineEnd": 20,
           "language": "rust"
         },
         {
           "sourcePath": "src/core/model.rs",
-          "lineStart": 19,
-          "lineEnd": 25,
+          "lineStart": 22,
+          "lineEnd": 29,
           "language": "rust"
         },
         {
           "sourcePath": "src/core/model.rs",
-          "lineStart": 27,
-          "lineEnd": 27,
+          "lineStart": 31,
+          "lineEnd": 31,
           "language": "rust"
         }
       ]
@@ -68,20 +76,7 @@
     {
       "name": "ModelBackend",
       "type": "trait",
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/core/model.rs",
-          "lineStart": 29,
-          "lineEnd": 31,
-          "language": "rust"
-        }
-      ]
-    },
-    {
-      "name": "RemoteModelBackend",
-      "type": "trait",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/model.rs",
@@ -92,9 +87,9 @@
       ]
     },
     {
-      "name": "LocalModelBackend",
+      "name": "RemoteModelBackend",
       "type": "trait",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/model.rs",
@@ -105,20 +100,58 @@
       ]
     },
     {
-      "name": "EchoModelBackend",
-      "type": "struct",
-      "changeStatus": "unchanged",
+      "name": "LocalModelBackend",
+      "type": "trait",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/model.rs",
-          "lineStart": 42,
-          "lineEnd": 42,
+          "lineStart": 41,
+          "lineEnd": 43,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "EchoModelBackend",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/model.rs",
+          "lineStart": 46,
+          "lineEnd": 46,
           "language": "rust"
         },
         {
           "sourcePath": "src/core/model.rs",
-          "lineStart": 44,
-          "lineEnd": 50,
+          "lineStart": 48,
+          "lineEnd": 54,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "DeepSeekModelBackend",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/model.rs",
+          "lineStart": 57,
+          "lineEnd": 61,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/core/model.rs",
+          "lineStart": 63,
+          "lineEnd": 63,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/core/model.rs",
+          "lineStart": 111,
+          "lineEnd": 161,
           "language": "rust"
         }
       ]
@@ -126,7 +159,7 @@
     {
       "name": "AgentExecutionRequest",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
@@ -139,7 +172,7 @@
     {
       "name": "AgentExecutionResponse",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
@@ -152,7 +185,7 @@
     {
       "name": "AgentWorkflowStep",
       "type": "enum",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
@@ -165,7 +198,7 @@
     {
       "name": "AgentWorkflow",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
@@ -182,9 +215,28 @@
       ]
     },
     {
+      "name": "fn",
+      "type": "const",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/runtime.rs",
+          "lineStart": 36,
+          "lineEnd": 38,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/core/runtime.rs",
+          "lineStart": 40,
+          "lineEnd": 42,
+          "language": "rust"
+        }
+      ]
+    },
+    {
       "name": "DEFAULT_AGENT_WORKFLOW",
       "type": "const",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
@@ -197,7 +249,7 @@
     {
       "name": "CoreError",
       "type": "enum",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
@@ -234,7 +286,7 @@
     {
       "name": "AgentCore",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
@@ -253,7 +305,7 @@
     {
       "name": "CliCoreTransport",
       "type": "trait",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/transport.rs",
@@ -266,7 +318,7 @@
     {
       "name": "PassthroughCliCoreTransport",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/transport.rs",
@@ -285,7 +337,7 @@
     {
       "name": "ComputeModelTransport",
       "type": "trait",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/transport.rs",
@@ -298,7 +350,7 @@
     {
       "name": "PassthroughModelTransport",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/transport.rs",
@@ -316,4 +368,3 @@
     }
   ]
 }
-

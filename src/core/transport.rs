@@ -1,21 +1,21 @@
-use marix_common::{UserInput, UserOutput};
+use marix_common::{ChatMessageInput, ChatMessageOutput};
 
 use super::model::{ModelRequest, ModelResponse};
 
 pub trait CliCoreTransport {
-    fn forward_input(&self, input: UserInput) -> UserInput;
-    fn forward_output(&self, output: UserOutput) -> UserOutput;
+    fn forward_input(&self, input: ChatMessageInput) -> ChatMessageInput;
+    fn forward_output(&self, output: ChatMessageOutput) -> ChatMessageOutput;
 }
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct PassthroughCliCoreTransport;
 
 impl CliCoreTransport for PassthroughCliCoreTransport {
-    fn forward_input(&self, input: UserInput) -> UserInput {
+    fn forward_input(&self, input: ChatMessageInput) -> ChatMessageInput {
         input
     }
 
-    fn forward_output(&self, output: UserOutput) -> UserOutput {
+    fn forward_output(&self, output: ChatMessageOutput) -> ChatMessageOutput {
         output
     }
 }

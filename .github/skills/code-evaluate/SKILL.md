@@ -38,10 +38,17 @@ Use these checks as lightweight guidance when evaluating Rust code:
   - Prefer `cargo clippy --all-targets --all-features` when a Cargo project is present.
   - If the repository does not support those commands, report that they were not run rather than adding tooling.
 - **Naming**
-  - Types and traits should use `CamelCase`.
-  - Functions, methods, variables, modules, and fields should use `snake_case`.
-  - Constants and statics should use `SCREAMING_SNAKE_CASE`.
-  - Prefer clear words over unclear abbreviations.
+  - Apply the Marix Rust naming convention as an advisory style check for Rust code only. Do not apply these rules to non-Rust code.
+  - File names, modules, structs, enums, traits, and type definitions should use `UpperCamelCase`.
+  - Functions and methods should use `snake_case`.
+  - Macros should use `snake_case!`.
+  - Local variables should use `_` + `lowerCamelCase`, for example `_messageBytes`.
+  - Constants should use `c_` + `lowerCamelCase`, for example `c_maxPayloadBytes`.
+  - Static variables and static member variables should use `s_` + `lowerCamelCase`, for example `s_defaultRuntime`.
+  - Ordinary member fields should use `m_` + `lowerCamelCase`, for example `m_chatText`.
+  - Global variables should use `g_` + `lowerCamelCase`, for example `g_runtimeState`.
+  - Generic parameters should use a single uppercase letter, for example `T`.
+  - Lifetimes should use a single lowercase letter, for example `'a`.
 - **Public API documentation**
   - Public, library-like items should have rustdoc comments.
   - Document public errors, panics, edge cases, and examples when they matter to callers.

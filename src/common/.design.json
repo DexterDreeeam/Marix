@@ -3,9 +3,13 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared protocol, session, and helper crate package.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared protocol, session, and pipe interface crate package.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    ".",
+    "lib.rs"
+  ],
   "childModules": [
     {
       "path": "src/common/protocol",
@@ -15,9 +19,8 @@
     {
       "path": "src/common/session",
       "name": "session",
-      "purpose": "Shared session configuration and session pipe transport."
+      "purpose": "Shared session configuration and client/server pipe transport."
     }
   ],
   "elements": []
 }
-

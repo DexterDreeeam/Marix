@@ -4,12 +4,13 @@ pub mod runtime;
 pub mod transport;
 
 pub use marix_common::{
-    CoreSessionListener, CoreSessionPipe, SessionConfig, SessionPipe, UserInput, UserOutput,
+    ChatMessageBase, ChatMessageInput, ChatMessageOutput, PipeClient, PipeCloseHandler, PipeError,
+    PipeReceiveHandler, PipeResponse, PipeServer, SessionConfig,
 };
 pub use marix_config::{config, Config, ConfigError, IConfig};
 pub use model::{
-    EchoModelBackend, LocalModelBackend, ModelBackend, ModelError, ModelRequest, ModelResponse,
-    RemoteModelBackend,
+    DeepSeekModelBackend, EchoModelBackend, LocalModelBackend, ModelBackend, ModelError,
+    ModelRequest, ModelResponse, RemoteModelBackend,
 };
 pub use preprocess::{PreprocessError, PreprocessOutput, Preprocessor};
 pub use runtime::{

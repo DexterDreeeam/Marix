@@ -1,4 +1,4 @@
-use marix_common::{UserInput, UserOutput};
+use marix_common::{ChatMessageInput, ChatMessageOutput};
 use marix_config::Config;
 
 use super::model::{ModelBackend, ModelError, ModelRequest};
@@ -109,12 +109,12 @@ impl AgentCore {
 
     pub fn run(
         &self,
-        input: UserInput,
+        input: ChatMessageInput,
         cli_transport: &dyn CliCoreTransport,
         preprocessor: &Preprocessor,
         model_transport: &dyn ComputeModelTransport,
         model: &dyn ModelBackend,
-    ) -> Result<UserOutput, CoreError> {
+    ) -> Result<ChatMessageOutput, CoreError> {
         let input = cli_transport.forward_input(input);
         let preprocessed = preprocessor.run(input)?;
         let request = AgentExecutionRequest {
@@ -127,6 +127,6 @@ impl AgentCore {
         });
         let response = model.generate(model_request)?;
         let response = model_transport.forward_to_computation(response);
-        Ok(cli_transport.forward_output(UserOutput::new(response.content)))
+        Ok(cli_transport.forward_output(ChatMessageOutput::new(response.content)))
     }
 }

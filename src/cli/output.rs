@@ -1,1 +1,1 @@
-pub use marix_common::UserOutput;
+pub use marix_common::ChatMessageOutput;

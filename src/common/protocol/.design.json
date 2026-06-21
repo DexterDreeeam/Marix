@@ -4,48 +4,147 @@
     "path": "src/common/protocol",
     "name": "protocol",
     "purpose": "Shared cross-package protocol definitions.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "added": [
+    "chat_message.rs",
+    "utility.rs"
+  ],
+  "modified": [
+    ".",
+    "mod.rs"
+  ],
+  "deleted": [
+    "user_input.rs",
+    "user_output.rs"
+  ],
   "childModules": [],
   "elements": [
     {
-      "name": "UserInput",
+      "name": "ChatMessageBase",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/common/protocol/user_input.rs",
-          "lineStart": 4,
-          "lineEnd": 6,
+          "sourcePath": "src/common/protocol/chat_message.rs",
+          "lineStart": 6,
+          "lineEnd": 8,
           "language": "rust"
         },
         {
-          "sourcePath": "src/common/protocol/user_input.rs",
-          "lineStart": 8,
-          "lineEnd": 18,
+          "sourcePath": "src/common/protocol/chat_message.rs",
+          "lineStart": 10,
+          "lineEnd": 69,
           "language": "rust"
         }
       ]
     },
     {
-      "name": "UserOutput",
+      "name": "ChatMessageInput",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/common/protocol/user_output.rs",
-          "lineStart": 4,
+          "sourcePath": "src/common/protocol/chat_message.rs",
+          "lineStart": 72,
+          "lineEnd": 74,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/common/protocol/chat_message.rs",
+          "lineStart": 76,
+          "lineEnd": 90,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/common/protocol/chat_message.rs",
+          "lineStart": 92,
+          "lineEnd": 106,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "ChatMessageOutput",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/chat_message.rs",
+          "lineStart": 109,
+          "lineEnd": 111,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/common/protocol/chat_message.rs",
+          "lineStart": 113,
+          "lineEnd": 127,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/common/protocol/chat_message.rs",
+          "lineStart": 129,
+          "lineEnd": 143,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "UserMessageType",
+      "type": "enum",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/utility.rs",
+          "lineStart": 3,
           "lineEnd": 6,
           "language": "rust"
         },
         {
-          "sourcePath": "src/common/protocol/user_output.rs",
+          "sourcePath": "src/common/protocol/utility.rs",
           "lineStart": 8,
-          "lineEnd": 18,
+          "lineEnd": 23,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "UserMessage",
+      "type": "trait",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/utility.rs",
+          "lineStart": 25,
+          "lineEnd": 31,
+          "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "ProtocolConvertError",
+      "type": "enum",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/utility.rs",
+          "lineStart": 34,
+          "lineEnd": 49,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/common/protocol/utility.rs",
+          "lineStart": 51,
+          "lineEnd": 82,
+          "language": "rust"
+        },
+        {
+          "sourcePath": "src/common/protocol/utility.rs",
+          "lineStart": 84,
+          "lineEnd": 84,
           "language": "rust"
         }
       ]
     }
   ]
 }
-

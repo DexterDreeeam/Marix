@@ -1,5 +1,5 @@
-pub mod user_input;
-pub mod user_output;
+pub mod chat_message;
+pub mod utility;
 
-pub use user_input::UserInput;
-pub use user_output::UserOutput;
+pub use chat_message::{ChatMessageBase, ChatMessageInput, ChatMessageOutput};
+pub use utility::{ProtocolConvertError, UserMessage, UserMessageType};
