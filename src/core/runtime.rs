@@ -1,4 +1,6 @@
-use marix_common::{ChatMessageInput, ChatMessageOutput};
+use marix_common::{
+    ChatMessageInput, ChatMessageOutput, ProtocolConvertError, UserMessage, UserMessageType,
+};
 use marix_config::Config;
 
 use super::model::{ModelBackend, ModelError, ModelRequest};
@@ -56,6 +58,8 @@ pub const DEFAULT_AGENT_WORKFLOW: AgentWorkflow = AgentWorkflow::new(&[
 pub enum CoreError {
     Preprocess(PreprocessError),
     Model(ModelError),
+    Protocol(ProtocolConvertError),
+    UnexpectedMessageType(UserMessageType),
 }
 
 impl From<PreprocessError> for CoreError {
@@ -70,11 +74,24 @@ impl From<ModelError> for CoreError {
     }
 }
 
+impl From<ProtocolConvertError> for CoreError {
+    fn from(error: ProtocolConvertError) -> Self {
+        Self::Protocol(error)
+    }
+}
+
 impl std::fmt::Display for CoreError {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Preprocess(error) => write!(formatter, "preprocess error: {error}"),
             Self::Model(error) => write!(formatter, "model error: {error}"),
+            Self::Protocol(error) => write!(formatter, "message protocol error: {error}"),
+            Self::UnexpectedMessageType(message_type) => {
+                write!(
+                    formatter,
+                    "unexpected core input message type: {message_type:?}"
+                )
+            }
         }
     }
 }
@@ -128,5 +145,72 @@ impl AgentCore {
         let response = model.generate(model_request)?;
         let response = model_transport.forward_to_computation(response);
         Ok(cli_transport.forward_output(ChatMessageOutput::new(response.content)))
+    }
+
+    pub fn run_message_bytes(
+        &self,
+        input_bytes: &[u8],
+        cli_transport: &dyn CliCoreTransport,
+        preprocessor: &Preprocessor,
+        model_transport: &dyn ComputeModelTransport,
+        model: &dyn ModelBackend,
+    ) -> Result<Vec<u8>, CoreError> {
+        let message_type = UserMessageType::classify(input_bytes)?;
+        if message_type != UserMessageType::ChatMessageInput {
+            return Err(CoreError::UnexpectedMessageType(message_type));
+        }
+
+        let input = <ChatMessageInput as UserMessage>::from_bytes(input_bytes)?;
+        let output = self.run(input, cli_transport, preprocessor, model_transport, model)?;
+        <ChatMessageOutput as UserMessage>::to_bytes(&output).map_err(CoreError::from)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::model::EchoModelBackend;
+    use crate::transport::{PassthroughCliCoreTransport, PassthroughModelTransport};
+
+    #[test]
+    fn runs_message_protocol_bytes() {
+        let core = AgentCore::new(Config::empty());
+        let input_bytes = ChatMessageInput::new("hello core").to_bytes().unwrap();
+
+        let output_bytes = core
+            .run_message_bytes(
+                &input_bytes,
+                &PassthroughCliCoreTransport,
+                &Preprocessor,
+                &PassthroughModelTransport,
+                &EchoModelBackend,
+            )
+            .unwrap();
+
+        let output = <ChatMessageOutput as UserMessage>::from_bytes(&output_bytes).unwrap();
+        assert_eq!(output.content(), "hello core");
+    }
+
+    #[test]
+    fn rejects_output_message_as_core_input() {
+        let core = AgentCore::new(Config::empty());
+        let input_bytes = ChatMessageOutput::new("wrong direction")
+            .to_bytes()
+            .unwrap();
+
+        let error = core
+            .run_message_bytes(
+                &input_bytes,
+                &PassthroughCliCoreTransport,
+                &Preprocessor,
+                &PassthroughModelTransport,
+                &EchoModelBackend,
+            )
+            .unwrap_err();
+
+        match error {
+            CoreError::UnexpectedMessageType(UserMessageType::ChatMessageOutput) => {}
+            other => panic!("unexpected error: {other:?}"),
+        }
     }
 }

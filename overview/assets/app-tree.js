@@ -57,6 +57,8 @@
     for (const el of document.querySelectorAll(".tree-toggle")) {
       el.classList.add("collapsed");
     }
+    treeCollapsedFolders = new Set(Array.from(document.querySelectorAll(".tree-item.dir")).map(el => el.dataset.path).filter(Boolean));
+    saveSetSetting(STORAGE_KEYS.treeCollapsedFolders, treeCollapsedFolders);
   }
 
   function renderNode(parent, node, depth, prefix, filter) {
@@ -71,18 +73,19 @@
 
       const childContainer = document.createElement("div");
       childContainer.className = "dir-children";
+      applyCachedTreeDirectoryState(childContainer, dirEl, dirPath, filter);
       parent.appendChild(childContainer);
       dirEl.addEventListener("click", () => {
         if (overviewMode === "star") {
           if (isSelectedStarMapFolder(dirPath)) {
-            toggleTreeDirectory(childContainer, dirEl);
+            toggleTreeDirectory(childContainer, dirEl, dirPath);
           } else {
             openDirectoryModule(dirPath, dirEl);
           }
           return;
         }
 
-        toggleTreeDirectory(childContainer, dirEl);
+        toggleTreeDirectory(childContainer, dirEl, dirPath);
         openDirectoryChanges(dirPath, dirEl);
       });
 
@@ -158,10 +161,28 @@
     return starMapSelection.kind === "module" && starMapSelection.path === dirPath;
   }
 
-  function toggleTreeDirectory(childContainer, dirEl) {
-    childContainer.classList.toggle("collapsed");
+  function toggleTreeDirectory(childContainer, dirEl, dirPath) {
+    const collapsed = childContainer.classList.toggle("collapsed");
     const toggle = dirEl.querySelector(".tree-toggle");
-    if (toggle) toggle.classList.toggle("collapsed");
+    if (toggle) toggle.classList.toggle("collapsed", collapsed);
+    setTreeDirectoryCollapsed(dirPath, collapsed);
+  }
+
+  function applyCachedTreeDirectoryState(childContainer, dirEl, dirPath, filter) {
+    if (filter || !treeCollapsedFolders.has(dirPath)) return;
+    childContainer.classList.add("collapsed");
+    const toggle = dirEl.querySelector(".tree-toggle");
+    if (toggle) toggle.classList.add("collapsed");
+  }
+
+  function setTreeDirectoryCollapsed(dirPath, collapsed) {
+    if (!dirPath) return;
+    if (collapsed) {
+      treeCollapsedFolders.add(dirPath);
+    } else {
+      treeCollapsedFolders.delete(dirPath);
+    }
+    saveSetSetting(STORAGE_KEYS.treeCollapsedFolders, treeCollapsedFolders);
   }
 
   function hasMatchingDescendant(node, prefix, filter) {
@@ -206,6 +227,7 @@
 
   function expandTreePath(path) {
     const parts = String(path || "").split("/").filter(Boolean);
+    let changed = false;
     for (let i = 1; i <= parts.length; i++) {
       const partial = parts.slice(0, i).join("/");
       const item = findTreeItem(partial);
@@ -216,7 +238,9 @@
       }
       const toggle = item.querySelector(".tree-toggle");
       if (toggle) toggle.classList.remove("collapsed");
+      if (treeCollapsedFolders.delete(partial)) changed = true;
     }
+    if (changed) saveSetSetting(STORAGE_KEYS.treeCollapsedFolders, treeCollapsedFolders);
   }
 
   function createTreeItem(name, depth, isDir, status, path) {

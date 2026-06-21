@@ -87,7 +87,10 @@
     function markFileFocus(layout) {
       const focusedFile = starMapSelection.kind === "file" ? starMapSelection.path : "";
       if (!focusedFile) {
-        for (const item of layout) item.focusDimmed = false;
+        for (const item of layout) {
+          item.focusDimmed = false;
+          item.focusHighlighted = item.kind === "exposed";
+        }
         logStarMapState("mark-file-focus:none", {
           layoutItems: layout.length
         });
@@ -102,14 +105,17 @@
       for (const item of layout) {
         if (item.kind === "module" && item.node) {
           item.focusDimmed = item.node.path !== focusedModulePath;
+          item.focusHighlighted = false;
           if (item.focusDimmed) dimmedModules += 1;
           else brightModules += 1;
         } else if (item.kind === "exposed") {
           item.focusDimmed = !isElementFromFocusedFile(item.element, focusedFile);
+          item.focusHighlighted = !item.focusDimmed;
           if (item.focusDimmed) dimmedElements += 1;
           else brightElements += 1;
         } else {
           item.focusDimmed = true;
+          item.focusHighlighted = false;
         }
       }
       logStarMapState("mark-file-focus:applied", {
@@ -146,11 +152,7 @@
 
     const focusedFile = starMapSelection.kind === "file" ? starMapSelection.path : "";
     const files = Array.from(new Set(getStarMapFileListPaths(scopeNode)))
-      .sort((a, b) => {
-        if (a === focusedFile) return -1;
-        if (b === focusedFile) return 1;
-        return a.localeCompare(b);
-      });
+      .sort((a, b) => compareStarMapFileListPaths(a, b, focusedFile));
     const visibleFiles = files.slice(0, 4);
     const hiddenFiles = files.slice(4);
     const renderFileRow = path => {
@@ -231,6 +233,26 @@
 
   function getFileStatus(path) {
     return getPathChangeStatus(path);
+  }
+
+  function compareStarMapFileListPaths(a, b, focusedFile) {
+    if (a === focusedFile) return -1;
+    if (b === focusedFile) return 1;
+
+    const statusCompare = getStarMapFileStatusRank(getFileStatus(a)) - getStarMapFileStatusRank(getFileStatus(b));
+    if (statusCompare !== 0) return statusCompare;
+    return a.localeCompare(b);
+  }
+
+  function getStarMapFileStatusRank(status) {
+    const ranks = {
+      added: 0,
+      modified: 1,
+      renamed: 2,
+      deleted: 3,
+      unchanged: 10
+    };
+    return ranks[normalizeStatus(status)] ?? 9;
   }
 
   function getChangedFilesForModule(node) {

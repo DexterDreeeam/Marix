@@ -67,6 +67,9 @@ Each `.design.json` must describe the current source truth for its module:
   - `codeSegments`.
 - Do not store signatures or copied source code in `.design.json`.
 - `codeSegments` is an array of implementation locations. Each segment must include `sourcePath`, `lineStart`, `lineEnd`, and optionally `language`.
+- Each code segment should also include `addedLines` and `modifiedLines` arrays. Each entry is a source-line range object such as `{ "lineStart": 12, "lineEnd": 14 }` using the same absolute source-file line numbers as the segment. Use empty arrays when no lines of that kind exist.
+- For `added` elements, either mark the element `changeStatus` as `added` or set segment `addedLines` to cover the whole segment; overview renders added elements as fully green.
+- For `modified` elements, set `addedLines` for newly inserted source lines and `modifiedLines` for existing source lines whose content or behavior changed. Do not mark unchanged lines inside the same segment.
 - A single element may have multiple `codeSegments`, for example a struct definition plus one or more impl blocks.
 
 ## Elements
@@ -84,6 +87,10 @@ Each `.design.json` must describe the current source truth for its module:
 - Valid statuses: `unchanged`, `added`, `modified`, `deleted`, `renamed`.
 - Do not mark an item `added` merely because metadata was regenerated.
 - If previous-tag comparison data is unavailable, preserve unaffected current source definitions as `unchanged`.
+- File-level changes do not automatically make every element in that file changed. Determine each element status from changes that overlap that element's own `codeSegments`.
+- Mark an element `modified` only when the element's own definition, related impl block, public API, behavior, or owned source location changed. If unrelated imports, sibling elements, wiring, or nearby code changed in the same file, keep the unaffected element `unchanged`.
+- Updating `codeSegments` line numbers because surrounding code moved does not by itself make an element `modified`; the element can remain `unchanged` when its own source text and meaning are unchanged.
+- When precise element-level evidence is unavailable for a modified file, prefer preserving existing element statuses and report the ambiguity instead of blanket-marking all file elements as `modified`.
 - Also write top-level status arrays for every changed direct item in that `.design.json` module:
   - Use `"."` to represent the module folder itself.
   - Use direct file names such as `"lib.rs"` or `"user_input.rs"` for files directly inside the module folder.
@@ -102,7 +109,8 @@ After updating:
 4. Confirm `childModules` entries do not contain `changeStatus`.
 5. Confirm top-level status arrays list only `"."` or direct current-folder file names, never child folder paths or unchanged files.
 6. For each changed source file, compare public definitions in source with top-level `elements`; verify each element has all relevant `codeSegments`, including impl blocks where applicable. Report any deliberate omissions.
-7. Ensure `ensure-deveopment-design` would return `allow` for the current agent's changed files.
+7. Confirm element `changeStatus` is not inherited from file status wholesale: unchanged elements in modified files must remain `unchanged` when their own `codeSegments` did not change.
+8. Ensure `ensure-deveopment-design` would return `allow` for the current agent's changed files.
 
 ## Reporting
 

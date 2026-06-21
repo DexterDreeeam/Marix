@@ -4,8 +4,13 @@
     "path": "src/core",
     "name": "core",
     "purpose": "Core library and server binary crate package with DeepSeek chat completion and pipe listener boundary.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    ".",
+    "lib.rs",
+    "runtime.rs"
+  ],
   "childModules": [
     {
       "path": "src/core/preprocess",
@@ -23,7 +28,9 @@
           "sourcePath": "src/core/model.rs",
           "lineStart": 6,
           "lineEnd": 9,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -36,7 +43,9 @@
           "sourcePath": "src/core/model.rs",
           "lineStart": 12,
           "lineEnd": 14,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -49,19 +58,25 @@
           "sourcePath": "src/core/model.rs",
           "lineStart": 17,
           "lineEnd": 20,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/core/model.rs",
           "lineStart": 22,
           "lineEnd": 29,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/core/model.rs",
           "lineStart": 31,
           "lineEnd": 31,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -74,7 +89,9 @@
           "sourcePath": "src/core/model.rs",
           "lineStart": 33,
           "lineEnd": 35,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -87,7 +104,9 @@
           "sourcePath": "src/core/model.rs",
           "lineStart": 37,
           "lineEnd": 39,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -100,7 +119,9 @@
           "sourcePath": "src/core/model.rs",
           "lineStart": 41,
           "lineEnd": 43,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -113,13 +134,17 @@
           "sourcePath": "src/core/model.rs",
           "lineStart": 46,
           "lineEnd": 46,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/core/model.rs",
           "lineStart": 48,
           "lineEnd": 54,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -132,19 +157,25 @@
           "sourcePath": "src/core/model.rs",
           "lineStart": 57,
           "lineEnd": 61,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/core/model.rs",
           "lineStart": 63,
           "lineEnd": 63,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/core/model.rs",
           "lineStart": 111,
           "lineEnd": 161,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -155,9 +186,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
-          "lineStart": 9,
-          "lineEnd": 12,
-          "language": "rust"
+          "lineStart": 11,
+          "lineEnd": 14,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -168,9 +201,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
-          "lineStart": 15,
-          "lineEnd": 17,
-          "language": "rust"
+          "lineStart": 17,
+          "lineEnd": 19,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -181,9 +216,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
-          "lineStart": 20,
-          "lineEnd": 28,
-          "language": "rust"
+          "lineStart": 22,
+          "lineEnd": 30,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -194,34 +231,19 @@
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
-          "lineStart": 31,
-          "lineEnd": 33,
-          "language": "rust"
+          "lineStart": 33,
+          "lineEnd": 35,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/core/runtime.rs",
-          "lineStart": 35,
-          "lineEnd": 43,
-          "language": "rust"
-        }
-      ]
-    },
-    {
-      "name": "fn",
-      "type": "const",
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/core/runtime.rs",
-          "lineStart": 36,
-          "lineEnd": 38,
-          "language": "rust"
-        },
-        {
-          "sourcePath": "src/core/runtime.rs",
-          "lineStart": 40,
-          "lineEnd": 42,
-          "language": "rust"
+          "lineStart": 37,
+          "lineEnd": 45,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -232,65 +254,109 @@
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
-          "lineStart": 45,
-          "lineEnd": 53,
-          "language": "rust"
+          "lineStart": 47,
+          "lineEnd": 55,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
     {
       "name": "CoreError",
       "type": "enum",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
-          "lineStart": 56,
-          "lineEnd": 59,
-          "language": "rust"
+          "lineStart": 58,
+          "lineEnd": 63,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 61,
+              "lineEnd": 62
+            }
+          ],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/core/runtime.rs",
-          "lineStart": 61,
-          "lineEnd": 65,
-          "language": "rust"
+          "lineStart": 65,
+          "lineEnd": 69,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/core/runtime.rs",
-          "lineStart": 67,
-          "lineEnd": 71,
-          "language": "rust"
+          "lineStart": 71,
+          "lineEnd": 75,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/core/runtime.rs",
-          "lineStart": 73,
-          "lineEnd": 80,
-          "language": "rust"
+          "lineStart": 77,
+          "lineEnd": 81,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 77,
+              "lineEnd": 81
+            }
+          ],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/core/runtime.rs",
-          "lineStart": 82,
-          "lineEnd": 82,
-          "language": "rust"
+          "lineStart": 83,
+          "lineEnd": 97,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 88,
+              "lineEnd": 94
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/core/runtime.rs",
+          "lineStart": 99,
+          "lineEnd": 99,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
     {
       "name": "AgentCore",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/runtime.rs",
-          "lineStart": 85,
-          "lineEnd": 88,
-          "language": "rust"
+          "lineStart": 102,
+          "lineEnd": 105,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/core/runtime.rs",
-          "lineStart": 90,
-          "lineEnd": 132,
-          "language": "rust"
+          "lineStart": 107,
+          "lineEnd": 167,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 150,
+              "lineEnd": 166
+            }
+          ],
+          "modifiedLines": []
         }
       ]
     },
@@ -303,7 +369,9 @@
           "sourcePath": "src/core/transport.rs",
           "lineStart": 5,
           "lineEnd": 8,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -316,13 +384,17 @@
           "sourcePath": "src/core/transport.rs",
           "lineStart": 11,
           "lineEnd": 11,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/core/transport.rs",
           "lineStart": 13,
           "lineEnd": 21,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -335,7 +407,9 @@
           "sourcePath": "src/core/transport.rs",
           "lineStart": 23,
           "lineEnd": 26,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -348,13 +422,17 @@
           "sourcePath": "src/core/transport.rs",
           "lineStart": 29,
           "lineEnd": 29,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/core/transport.rs",
           "lineStart": 31,
           "lineEnd": 39,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     }

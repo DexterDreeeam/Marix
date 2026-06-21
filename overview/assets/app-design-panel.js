@@ -180,10 +180,10 @@
   }
 
   function renderElementSummary(element, dimmed) {
-    const codeSegments = getDesignElementCodeSegments(element);
-    const codeId = codeSegments.length ? storeDesignCodeSnippet(getCodeTitle(element), codeSegments) : "";
     const typeClass = getElementTypeClass(element);
     const status = getElementStatus(element);
+    const codeSegments = getDesignElementCodeSegments(element);
+    const codeId = codeSegments.length ? storeDesignCodeSnippet(getCodeTitle(element), codeSegments, status) : "";
     const openAttrs = codeId ? ` tabindex="0" data-code-id="${escapeHtml(codeId)}"` : "";
     return `
       <article class="design-summary-item design-type-${escapeHtml(typeClass)} design-status-${escapeHtml(status)}${dimmed ? " file-focus-dimmed" : ""}"${openAttrs}>
@@ -326,9 +326,9 @@
     designCodeCounter = 0;
   }
 
-  function storeDesignCodeSnippet(title, segments) {
+  function storeDesignCodeSnippet(title, segments, status = "unchanged") {
     const id = `code-${++designCodeCounter}`;
-    designCodeSnippets.set(id, { title, segments });
+    designCodeSnippets.set(id, { title, segments, status });
     return id;
   }
 
@@ -341,7 +341,7 @@
       item.addEventListener("click", async evt => {
         evt.stopPropagation();
         const snippet = designCodeSnippets.get(item.dataset.codeId);
-        if (snippet) await showCodeSegmentsPopover(snippet.title, snippet.segments);
+        if (snippet) await showCodeSegmentsPopover(snippet.title, snippet.segments, snippet.status);
       });
       item.addEventListener("keydown", evt => {
         if (evt.key !== "Enter" && evt.key !== " ") return;
@@ -351,36 +351,59 @@
     }
   }
 
-  async function showCodeSegmentsPopover(title, segments) {
+  async function showCodeSegmentsPopover(title, segments, status = "unchanged") {
     const blocks = [];
     for (const segment of segments) {
       const entry = await ensureFileContent(segment.sourcePath);
       const content = (entry && entry.content) || "";
-      const lines = trimBlankEdgeLines(content.split(/\r?\n/).slice(segment.lineStart - 1, segment.lineEnd));
+      const lines = content.split(/\r?\n/).slice(segment.lineStart - 1, segment.lineEnd);
       const languageName = segment.language || getLanguageFromExt(segment.sourcePath.split(".").pop().toLowerCase());
-      blocks.push(renderCodeSegment(segment, lines.join("\n"), languageName));
+      blocks.push(renderCodeSegment(segment, lines, languageName, status));
     }
-    showCodePopover(title, blocks.join("\n\n"), "");
+    showCodePopover(title, blocks.join(""), "", "code-popover-file");
   }
 
-  function trimBlankEdgeLines(lines) {
-    const result = lines.slice();
-    while (result.length > 0 && result[0].trim() === "") result.shift();
-    while (result.length > 0 && result[result.length - 1].trim() === "") result.pop();
-    return result;
-  }
-
-  function renderCodeSegment(segment, code, languageName) {
+  function renderCodeSegment(segment, lines, languageName, elementStatus) {
     const label = `${segment.sourcePath}:${segment.lineStart}-${segment.lineEnd}`;
-    return `<span class="code-segment-label">${escapeHtml(label)}</span>\n${highlightSource(code, languageName)}`;
+    const status = normalizeStatus(segment.changeStatus || elementStatus);
+    const body = lines.map((line, index) => {
+      const lineNumber = segment.lineStart + index;
+      return renderCodeSegmentLine(lineNumber, line, getCodeSegmentLineClass(segment, status, lineNumber), languageName);
+    }).join("");
+    return `
+      <section class="code-segment-panel">
+        <div class="code-segment-label">${escapeHtml(label)}</div>
+        <div class="full-file-lines full-file-lines-embedded">${body}</div>
+      </section>
+    `;
   }
 
-  function showCodePopover(title, contentHtml, languageName) {
+  function renderCodeSegmentLine(lineNumber, content, lineClass, languageName) {
+    return `
+      <div class="full-file-line ${lineClass}">
+        <span class="full-line-number">${lineNumber}</span>
+        <span class="full-line-content">${highlightLine(content, languageName)}</span>
+      </div>
+    `;
+  }
+
+  function getCodeSegmentLineClass(segment, status, lineNumber) {
+    if (status === "added") return "full-line-add";
+    if (isLineInCodeSegmentRanges(lineNumber, segment.addedLines)) return "full-line-add";
+    if (isLineInCodeSegmentRanges(lineNumber, segment.modifiedLines)) return "full-line-modified";
+    return "full-line-existing";
+  }
+
+  function isLineInCodeSegmentRanges(lineNumber, ranges) {
+    return (ranges || []).some(range => lineNumber >= range.lineStart && lineNumber <= range.lineEnd);
+  }
+
+  function showCodePopover(title, contentHtml, languageName, contentClass = "code-popover-code") {
     const backdrop = document.getElementById("code-popover-backdrop");
     const popover = document.getElementById("code-popover");
     const codeEl = document.getElementById("code-popover-content");
     document.getElementById("code-popover-title").textContent = title;
-    codeEl.className = "code-popover-content code-popover-code";
+    codeEl.className = `code-popover-content ${contentClass}`;
     codeEl.removeAttribute("data-highlighted");
     if (languageName) codeEl.classList.add(`language-${languageName}`);
     codeEl.innerHTML = languageName ? highlightSource(contentHtml, languageName) : contentHtml;

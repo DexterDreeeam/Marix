@@ -46,6 +46,7 @@ Persistent implementation notes for generating and maintaining Marix source desi
 - For every changed non-dot source path under `src/`, update `.design.json` in that file's folder and every ancestor folder up to `src/`.
 - The `ensure-deveopment-design` `agentStop` hook checks only non-dot `src/` files written by the current agent turn and blocks completion if their ancestor `.design.json` files were not also updated.
 - When explicit tag comparison data is available, use it as evidence. Otherwise update statuses from the current task's source changes and preserve unaffected definitions as `unchanged`.
+- Element status is more precise than file status: a modified file can contain unchanged elements. Do not mark every element in a changed file as `modified`; only mark elements whose own definition, related impl blocks, public API, behavior, or owned source location changed.
 
 ## Update Workflow
 
@@ -59,3 +60,4 @@ Persistent implementation notes for generating and maintaining Marix source desi
 - 2026-06-20: Design refresh is enforced by the `ensure-deveopment-design` hook, not by proactive calls during normal tasks or by `git-sync`. When the hook blocks, invoke `development-designer` with the current-agent changed paths/sections so `.design.json` stays in sync before task completion.
 - 2026-06-19: When the Rust crate root lives under `src`, Cargo metadata may inform root module purpose, but `src/Cargo.toml` itself is not an element. Keep Cargo dot-prefixed configuration hidden as companion metadata.
 - 2026-06-21: For focused implementation-signature changes such as `src/core/preprocess/preprocessor.rs` switching to `InputChatMessage`, mark the owning element and direct source file `modified`; ancestor design files should not list descendant paths.
+- 2026-06-21: A direct source file listed in `.design.json` `modified` does not imply every element in that file is modified. Preserve elements such as unchanged request/response structs as `unchanged` when their `codeSegments` text did not change.

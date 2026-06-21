@@ -5,7 +5,8 @@ pub mod transport;
 
 pub use marix_common::{
     ChatMessageBase, ChatMessageInput, ChatMessageOutput, PipeClient, PipeCloseHandler, PipeError,
-    PipeReceiveHandler, PipeResponse, PipeServer, SessionConfig,
+    PipeReceiveHandler, PipeResponse, PipeServer, ProtocolConvertError, SessionConfig, UserMessage,
+    UserMessageType,
 };
 pub use marix_config::{config, Config, ConfigError, IConfig};
 pub use model::{

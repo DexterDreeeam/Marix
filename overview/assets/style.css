@@ -184,6 +184,7 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .legend-item { padding: 2px 7px; border-radius: 999px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 700; }
 .legend-added { color: var(--green); background: rgba(63, 185, 80, 0.16); }
 .legend-existing { color: var(--text-secondary); background: rgba(139, 148, 158, 0.12); }
+.legend-modified { color: var(--yellow); background: rgba(210, 153, 34, 0.14); }
 .legend-deleted { color: var(--red); background: rgba(248, 81, 73, 0.14); }
 .full-file-lines { overflow-x: auto; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 13px; line-height: 1.5; }
 .full-file-lines-embedded { overflow: visible; }
@@ -193,6 +194,8 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .full-line-existing { background: transparent; color: var(--text-secondary); }
 .full-line-add { background: var(--diff-add-bg); color: var(--text-primary); }
 .full-line-add .full-line-number { color: var(--green); }
+.full-line-modified { background: rgba(210, 153, 34, 0.12); color: var(--text-primary); }
+.full-line-modified .full-line-number { color: var(--yellow); }
 .full-line-del { background: var(--diff-del-bg); color: var(--text-primary); }
 .full-line-del .full-line-number { color: var(--red); }
 .full-line-del .full-line-content { text-decoration: line-through; opacity: 0.86; }
@@ -203,7 +206,7 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .star-map-toolset { position: absolute; left: 12px; top: 12px; z-index: 2; display: flex; gap: 8px; }
 #star-map-svg { width: 100%; height: 100%; cursor: grab; touch-action: none; }
 #star-map-svg:active { cursor: grabbing; }
-.star-map-file-list { position: absolute; top: 12px; right: 12px; z-index: 2; width: min(360px, 44%); max-height: 34%; overflow-y: auto; padding: 10px; border: 1px solid rgba(88, 166, 255, 0.22); border-radius: 10px; background: rgba(13, 17, 23, 0.9); box-shadow: 0 8px 24px rgba(0,0,0,0.28); }
+.star-map-file-list { position: absolute; top: 12px; right: 12px; z-index: 2; width: min(360px, 44%); max-height: 34%; overflow-y: auto; scrollbar-gutter: stable; padding: 10px; border: 1px solid rgba(88, 166, 255, 0.22); border-radius: 10px; background: rgba(13, 17, 23, 0.9); box-shadow: 0 8px 24px rgba(0,0,0,0.28); }
 .star-map-file-list-inner { display: grid; gap: 6px; }
 .star-map-file-list-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--text-secondary); font-size: 12px; font-weight: 700; }
 .star-map-file-list-toggle { flex-shrink: 0; padding: 3px 7px; border: 1px solid rgba(88, 166, 255, 0.32); border-radius: 999px; background: rgba(88, 166, 255, 0.1); color: var(--accent-hover); cursor: pointer; font-size: 11px; font-weight: 700; }
@@ -298,6 +301,8 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .star-node.depth-far > circle:not(.star-node-highlight) { opacity: 0.82; filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.36)); }
 .star-node.dimmed, .exposed-node.dimmed, .star-edge.dimmed { opacity: 0.16; filter: saturate(0.35); }
 .star-node.dimmed:hover, .exposed-node.dimmed:hover { opacity: 0.32; }
+.exposed-node.focus-highlighted:not(.status-added):not(.status-modified):not(.status-renamed) { opacity: 0.75; }
+.exposed-node.focus-highlighted.status-added, .exposed-node.focus-highlighted.status-modified, .exposed-node.focus-highlighted.status-renamed { opacity: 1; }
 .star-node.changed > circle:not(.star-node-highlight), .star-node.status-modified > circle:not(.star-node-highlight) { fill: url(#node-gradient-modified); stroke: rgba(173, 216, 255, 0.82); filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.48)) drop-shadow(0 0 14px rgba(210, 153, 34, 0.22)); }
 .star-node.status-added > circle:not(.star-node-highlight) { fill: url(#node-gradient-added); stroke: rgba(173, 216, 255, 0.82); }
 .star-node.status-deleted > circle:not(.star-node-highlight) { fill: url(#node-gradient-deleted); stroke: rgba(173, 216, 255, 0.82); }
@@ -320,6 +325,8 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .exposed-node.exposed-star polygon, .exposed-node.exposed-type-enum polygon, .exposed-node.exposed-type-type-alias polygon, .exposed-node.exposed-type-const polygon, .exposed-node.exposed-type-static polygon { opacity: 0.9; }
 .exposed-node:hover circle:not(.exposed-hit-target), .exposed-node:hover rect, .exposed-node:hover polygon { stroke: #ffffff; stroke-width: 2.4; }
 .exposed-label { fill: #ffffff; dominant-baseline: middle; font-size: 7.5px; font-weight: 650; pointer-events: none; user-select: none; -webkit-user-select: none; paint-order: stroke; stroke: rgba(0, 0, 0, 0.78); stroke-width: 2px; transition: font-size 0.12s, transform 0.12s; }
+.exposed-node.focus-highlighted.status-added .exposed-label { fill: var(--green); }
+.exposed-node.focus-highlighted.status-modified .exposed-label, .exposed-node.focus-highlighted.status-renamed .exposed-label { fill: var(--yellow); }
 .exposed-node:hover .exposed-label { font-size: 12px; }
 
 @keyframes scope-center-pulse {
@@ -356,7 +363,10 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .code-popover-content { flex: 1; overflow: auto; background: var(--bg-primary); }
 .code-popover-code { padding: 14px; white-space: pre; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 13px; line-height: 1.5; }
 .code-popover-file { padding: 14px; }
-.code-segment-label { color: var(--text-muted); font-size: 11px; letter-spacing: 0.01em; }
+.code-segment-panel { margin-bottom: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-secondary); overflow: hidden; }
+.code-segment-panel .full-file-lines { padding: 0.375em 0; }
+.code-segment-panel:last-child { margin-bottom: 0; }
+.code-segment-label { padding: 7px 10px; border-bottom: 1px solid var(--border); background: var(--bg-tertiary); color: var(--text-muted); font-family: 'SFMono-Regular', Consolas, monospace; font-size: 11px; letter-spacing: 0.01em; }
 
 /* ── Dir Toggle ── */
 .dir-children { overflow: hidden; }

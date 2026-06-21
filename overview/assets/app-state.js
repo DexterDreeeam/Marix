@@ -14,6 +14,7 @@
   let moduleRoot = null;
   let selectedModule = null;
   let collapsedModules = loadSetSetting(STORAGE_KEYS.collapsedModules);
+  let treeCollapsedFolders = loadSetSetting(STORAGE_KEYS.treeCollapsedFolders);
   let starTransform = { x: 0, y: 0, scale: 1 };
   let starViewportScale = 0;
   let starAutoFit = true;

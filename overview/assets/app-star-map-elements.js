@@ -35,9 +35,10 @@
     const status = getExposedElementStatus(element);
     const typeClass = getExposedElementTypeClass(element);
     const radius = getNodeRadius(item);
+    const scale = isFocusHighlightedChangedStatus(status, item) ? 1.2 : 1;
     const group = document.createElementNS(SVG_NS, "g");
-    group.setAttribute("class", `exposed-node exposed-${shape} exposed-type-${typeClass} status-${status}${item.focusDimmed ? " dimmed" : ""}`);
-    group.setAttribute("transform", `translate(${item.x} ${item.y})`);
+    group.setAttribute("class", `exposed-node exposed-${shape} exposed-type-${typeClass} status-${status}${item.focusDimmed ? " dimmed" : ""}${item.focusHighlighted ? " focus-highlighted" : ""}`);
+    group.setAttribute("transform", `translate(${item.x} ${item.y}) scale(${scale})`);
     group.setAttribute("tabindex", "0");
 
     const hit = document.createElementNS(SVG_NS, "circle");
@@ -87,10 +88,14 @@
 
     group.addEventListener("click", async evt => {
       evt.stopPropagation();
-      await showCodeSegmentsPopover(getCodeTitle(element), getDesignElementCodeSegments(element));
+      await showCodeSegmentsPopover(getCodeTitle(element), getDesignElementCodeSegments(element), getExposedElementStatus(element));
     });
 
     return group;
+  }
+
+  function isFocusHighlightedChangedStatus(status, item) {
+    return item.focusHighlighted && ["added", "modified", "renamed"].includes(normalizeStatus(status));
   }
 
   function getExposedElementShape(element) {
@@ -159,7 +164,10 @@
           sourcePath: String(segment.sourcePath),
           lineStart: Number(segment.lineStart),
           lineEnd: Number(segment.lineEnd),
-          language: segment.language || "rust"
+          language: segment.language || "rust",
+          changeStatus: segment.changeStatus ? normalizeStatus(segment.changeStatus) : undefined,
+          addedLines: normalizeCodeSegmentRanges(segment.addedLines),
+          modifiedLines: normalizeCodeSegmentRanges(segment.modifiedLines)
         }));
     }
     if (element.sourcePath && element.lineStart && element.lineEnd) {
@@ -167,10 +175,23 @@
         sourcePath: String(element.sourcePath),
         lineStart: Number(element.lineStart),
         lineEnd: Number(element.lineEnd),
-        language: element.language || "rust"
+        language: element.language || "rust",
+        changeStatus: element.changeStatus ? normalizeStatus(element.changeStatus) : undefined,
+        addedLines: normalizeCodeSegmentRanges(element.addedLines),
+        modifiedLines: normalizeCodeSegmentRanges(element.modifiedLines)
       }];
     }
     return [];
+  }
+
+  function normalizeCodeSegmentRanges(ranges) {
+    if (!Array.isArray(ranges)) return [];
+    return ranges
+      .map(range => ({
+        lineStart: Number(range && range.lineStart),
+        lineEnd: Number(range && range.lineEnd)
+      }))
+      .filter(range => Number.isFinite(range.lineStart) && Number.isFinite(range.lineEnd) && range.lineStart > 0 && range.lineEnd >= range.lineStart);
   }
 
   function getDesignElementPrimarySourcePath(element) {

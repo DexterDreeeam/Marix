@@ -152,6 +152,7 @@
     currentFile: "marix-overview-current-file",
     scopePath: "marix-overview-scope-path",
     collapsedModules: "marix-overview-collapsed-modules",
+    treeCollapsedFolders: "marix-overview-tree-collapsed-folders",
     dataSource: "marix-overview-data-source"
   };
 
