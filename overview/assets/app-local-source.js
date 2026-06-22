@@ -74,15 +74,179 @@
     for (const item of localTree.filter(entry => shouldIncludeVisibleSourcePath(entry.path))) {
       const baseItem = baseFiles.get(item.path);
       if (!baseItem) {
-        diff.changes[item.path] = createSyntheticDiffChange("A");
+        diff.changes[item.path] = await buildLocalAddedChange(item);
         continue;
       }
       if (await isLocalFileModifiedFromGitBlob(item, baseItem.sha)) {
-        diff.changes[item.path] = createSyntheticDiffChange("M");
+        diff.changes[item.path] = await buildLocalModifiedChange(gitHandle, item, baseItem);
       }
     }
 
     return diff;
+  }
+
+  // Maximum base*current line product allowed for the O(n*m) LCS diff. Beyond
+  // this, fall back to status-only so huge/pathological files stay responsive.
+  const MAX_LOCAL_DIFF_LINE_PRODUCT = 4000000;
+
+  async function buildLocalAddedChange(item) {
+    if ((item.size || 0) > MAX_DYNAMIC_FILE_SIZE) return createSyntheticDiffChange("A");
+    let bytes = null;
+    try {
+      bytes = await readLocalFileBytes(item.localHandle);
+    } catch (e) {
+      logOverviewError(`local added diff read failed: ${item.path}`, e);
+      return createSyntheticDiffChange("A");
+    }
+    if (bytes.includes(0)) return createSyntheticDiffChange("A");
+    const text = new TextDecoder("utf-8").decode(bytes);
+    const built = buildAddedUnifiedDiff(text);
+    if (built.diff_lines.length === 0) return createSyntheticDiffChange("A");
+    return { status: "A", diff_lines: built.diff_lines, hunks: built.hunks };
+  }
+
+  async function buildLocalModifiedChange(gitHandle, item, baseItem) {
+    if ((item.size || 0) > MAX_DYNAMIC_FILE_SIZE) return createSyntheticDiffChange("M");
+    let baseBytes = null;
+    let currentBytes = null;
+    try {
+      const baseObject = await readLocalGitObject(gitHandle, baseItem.sha);
+      if (baseObject.type !== "blob") return createSyntheticDiffChange("M");
+      baseBytes = baseObject.content;
+      currentBytes = await readLocalFileBytes(item.localHandle);
+    } catch (e) {
+      logOverviewError(`local modified diff read failed: ${item.path}`, e);
+      return createSyntheticDiffChange("M");
+    }
+    if (baseBytes.length > MAX_DYNAMIC_FILE_SIZE) return createSyntheticDiffChange("M");
+    if (baseBytes.includes(0) || currentBytes.includes(0)) return createSyntheticDiffChange("M");
+    const baseText = new TextDecoder("utf-8").decode(baseBytes);
+    const currentText = new TextDecoder("utf-8").decode(currentBytes);
+    const built = buildLocalUnifiedDiff(baseText, currentText);
+    if (built.diff_lines.length === 0) return createSyntheticDiffChange("M");
+    return { status: "M", diff_lines: built.diff_lines, hunks: built.hunks };
+  }
+
+  async function readLocalFileBytes(fileHandle) {
+    const file = await fileHandle.getFile();
+    return new Uint8Array(await file.arrayBuffer());
+  }
+
+  // Split text into logical lines, treating CRLF as LF (line endings are
+  // discarded), matching how `content.split(/\r?\n/)` numbers lines in the
+  // full-file renderer so added-line highlighting stays aligned.
+  function splitTextIntoDiffLines(text) {
+    return String(text == null ? "" : text).split(/\r?\n/);
+  }
+
+  function buildAddedUnifiedDiff(currentText) {
+    const lines = splitTextIntoDiffLines(currentText);
+    if (lines.length === 0) return { diff_lines: [], hunks: [] };
+    const header = `@@ -0,0 +1,${lines.length} @@`;
+    const diff_lines = [header, ...lines.map(line => `+${line}`)];
+    return { diff_lines, hunks: [{ header, reason: "" }] };
+  }
+
+  function buildLocalUnifiedDiff(baseText, currentText) {
+    const baseLines = splitTextIntoDiffLines(baseText);
+    const currentLines = splitTextIntoDiffLines(currentText);
+    if (baseLines.length * currentLines.length > MAX_LOCAL_DIFF_LINE_PRODUCT) {
+      return { diff_lines: [], hunks: [] };
+    }
+    const ops = computeLineDiff(baseLines, currentLines);
+    return buildUnifiedDiffHunks(ops, 3);
+  }
+
+  // Classic LCS backtrack producing an ordered edit script of
+  // { type: ' ' | '-' | '+', text } entries.
+  function computeLineDiff(a, b) {
+    const n = a.length;
+    const m = b.length;
+    const dp = [];
+    for (let i = 0; i <= n; i++) dp.push(new Uint32Array(m + 1));
+    for (let i = n - 1; i >= 0; i--) {
+      const row = dp[i];
+      const next = dp[i + 1];
+      for (let j = m - 1; j >= 0; j--) {
+        row[j] = a[i] === b[j] ? next[j + 1] + 1 : Math.max(next[j], row[j + 1]);
+      }
+    }
+    const ops = [];
+    let i = 0;
+    let j = 0;
+    while (i < n && j < m) {
+      if (a[i] === b[j]) {
+        ops.push({ type: " ", text: a[i] });
+        i++;
+        j++;
+      } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+        ops.push({ type: "-", text: a[i] });
+        i++;
+      } else {
+        ops.push({ type: "+", text: b[j] });
+        j++;
+      }
+    }
+    while (i < n) ops.push({ type: "-", text: a[i++] });
+    while (j < m) ops.push({ type: "+", text: b[j++] });
+    return ops;
+  }
+
+  // Group an edit script into unified-diff hunks with `context` surrounding
+  // context lines, merging hunks whose context windows touch.
+  function buildUnifiedDiffHunks(ops, context) {
+    let oldNo = 1;
+    let newNo = 1;
+    const items = ops.map(op => {
+      const entry = { type: op.type, text: op.text, oldNo, newNo };
+      if (op.type === " ") {
+        oldNo++;
+        newNo++;
+      } else if (op.type === "-") {
+        oldNo++;
+      } else {
+        newNo++;
+      }
+      return entry;
+    });
+
+    const ranges = [];
+    items.forEach((entry, idx) => {
+      if (entry.type === " ") return;
+      const start = Math.max(0, idx - context);
+      const end = Math.min(items.length - 1, idx + context);
+      const last = ranges[ranges.length - 1];
+      if (last && start <= last.end + 1) {
+        last.end = Math.max(last.end, end);
+      } else {
+        ranges.push({ start, end });
+      }
+    });
+
+    const diff_lines = [];
+    const hunks = [];
+    for (const range of ranges) {
+      const slice = items.slice(range.start, range.end + 1);
+      const header = buildUnifiedHunkHeader(slice);
+      diff_lines.push(header);
+      hunks.push({ header, reason: "" });
+      for (const entry of slice) diff_lines.push(`${entry.type}${entry.text}`);
+    }
+    return { diff_lines, hunks };
+  }
+
+  function buildUnifiedHunkHeader(slice) {
+    let oldCount = 0;
+    let newCount = 0;
+    for (const entry of slice) {
+      if (entry.type !== "+") oldCount++;
+      if (entry.type !== "-") newCount++;
+    }
+    // Starts must equal the first slice entry's line numbers so that
+    // `collectDiffMarkers` maps added lines and deletion buckets correctly.
+    const oldStart = slice[0].oldNo;
+    const newStart = slice[0].newNo;
+    return `@@ -${oldStart},${oldCount} +${newStart},${newCount} @@`;
   }
 
   async function fetchLocalProjectTags(gitHandle) {
