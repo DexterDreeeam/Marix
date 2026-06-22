@@ -61,19 +61,12 @@
     const intro = document.getElementById("data-source-intro");
     const githubButton = document.getElementById("btn-data-source-github");
     const localButton = document.getElementById("btn-data-source-local");
-    const localPathLabel = document.getElementById("data-source-local-path-label");
-    const localPathInput = document.getElementById("data-source-local-path");
     const error = document.getElementById("data-source-error");
 
     title.textContent = t("dataSourceTitle");
     intro.textContent = t("dataSourceIntro");
     githubButton.textContent = t("dataSourceGithub");
     localButton.textContent = t("dataSourceLocal");
-    localPathLabel.textContent = t("dataSourceLocalPathLabel");
-    localPathInput.placeholder = t("dataSourceLocalPathPlaceholder");
-    localPathInput.value = route && route.kind === DATA_SOURCE_LOCAL
-      ? route.localPath
-      : localPathInput.value || t("dataSourceLocalPathPlaceholder");
     error.textContent = message || "";
     dialog.classList.remove("hidden");
 
@@ -88,10 +81,11 @@
           error.textContent = t("dataSourceLocalUnsupported");
           return;
         }
-        const localPath = normalizeWindowsLocalPath(localPathInput.value);
+        const localPath = route && route.kind === DATA_SOURCE_LOCAL
+          ? normalizeWindowsLocalPath(route.localPath)
+          : "";
         if (!localPath) {
-          error.textContent = t("dataSourceLocalPathRequired");
-          localPathInput.focus();
+          error.textContent = t("dataSourceLocalRouteRequired");
           return;
         }
         try {
