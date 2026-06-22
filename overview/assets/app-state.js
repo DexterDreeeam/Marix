@@ -24,6 +24,7 @@
   let designCodeCounter = 0;
   let githubRepoApi = "";
   let activeDataSource = "";
+  let activeLocalPath = "";
   let localRootHandle = null;
   let designStatusChanges = null;
 
@@ -49,6 +50,7 @@
       applyDocumentTitle();
       const dataSource = await resolveDataSourceChoice();
       activeDataSource = dataSource.kind;
+      activeLocalPath = dataSource.localPath || "";
       localRootHandle = dataSource.handle || null;
       setLoadingVisible(true);
       setLoadingMessage(activeDataSource === DATA_SOURCE_LOCAL ? t("loadingOverview") : t("buildingOverview"));
@@ -81,14 +83,13 @@
     } catch (e) {
       logOverviewError("dynamic overview load failed", e);
       if (activeDataSource === DATA_SOURCE_LOCAL) {
-        await clearCachedLocalSource();
+        if (activeLocalPath) await deleteLocalRootHandle(activeLocalPath);
         setLoadingVisible(false);
         await promptDataSourceChoice(t("dataSourceLocalMissing"));
         window.location.reload();
         return;
       }
       if (activeDataSource === DATA_SOURCE_GITHUB) {
-        localStorage.removeItem(STORAGE_KEYS.dataSource);
         setLoadingVisible(false);
         await promptDataSourceChoice(t("overviewLoadFailed"));
         window.location.reload();
@@ -422,7 +423,7 @@
   }
 
   function updateDataSourceDependentControls() {
-    setElementVisible("btn-view-whole-file", true);
+    setElementVisible("btn-view-whole-file", activeDataSource === DATA_SOURCE_LOCAL);
   }
 
   function setElementVisible(id, visible) {
@@ -434,7 +435,7 @@
     await clearCachedLocalSource();
     localStorage.removeItem(STORAGE_KEYS.currentFile);
     localStorage.removeItem(STORAGE_KEYS.scopePath);
-    window.location.reload();
+    navigateToSourcePickerRoute();
   }
 
   function showTooltip(target) {

@@ -101,6 +101,7 @@
     const keys = collectAliasKeys(I18N, new Set());
     collectAliasKeys(STORAGE_KEYS, keys);
     collectAliasKeys(LOG_PREFIX, keys);
+    collectAliasKeys(GITHUB_OWNER, keys);
     collectAliasKeys(GITHUB_REPO, keys);
     collectAliasKeys(LOCAL_DB_NAME, keys);
     collectDomAliasKeys(keys);
@@ -108,6 +109,7 @@
     resolveAliasesDeep(I18N);
     resolveAliasesDeep(STORAGE_KEYS);
     LOG_PREFIX = resolveAliases(LOG_PREFIX);
+    GITHUB_OWNER = resolveAliases(GITHUB_OWNER);
     GITHUB_REPO = resolveAliases(GITHUB_REPO);
     LOCAL_DB_NAME = resolveAliases(LOCAL_DB_NAME);
     resolveDomAliases();

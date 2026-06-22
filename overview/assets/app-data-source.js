@@ -1,51 +1,97 @@
 "use strict";
+  const localRouteHandles = new Map();
+
   async function resolveDataSourceChoice() {
-    const cached = localStorage.getItem(STORAGE_KEYS.dataSource);
-    if (cached === DATA_SOURCE_GITHUB) {
+    const route = getCurrentSourceRoute();
+    if (route.kind === DATA_SOURCE_GITHUB) {
+      navigateToDataSourceRoute({ kind: DATA_SOURCE_GITHUB });
       return { kind: DATA_SOURCE_GITHUB };
     }
-    if (cached === DATA_SOURCE_LOCAL) {
-      try {
-        const handle = await loadLocalRootHandle();
-        if (!handle) throw new Error("local handle missing");
-        const allowed = await requestLocalReadPermission(handle);
-        if (!allowed) throw new Error("local handle permission denied");
-        await assertLocalRootReadable(handle);
-        return { kind: DATA_SOURCE_LOCAL, handle };
-      } catch (e) {
-        logOverviewError("cached local source unavailable", e);
-        await clearCachedLocalSource();
-        return promptDataSourceChoice(t("dataSourceLocalMissing"));
+    if (route.kind === DATA_SOURCE_LOCAL) {
+      const handle = await resolveLocalRouteHandle(route.localPath);
+      if (handle) {
+        navigateToDataSourceRoute({ kind: DATA_SOURCE_LOCAL, localPath: route.localPath });
+        return { kind: DATA_SOURCE_LOCAL, handle, localPath: route.localPath };
       }
+      return promptDataSourceChoice(t("dataSourceLocalMissing"), route);
     }
-    return promptDataSourceChoice();
+    return promptDataSourceChoice(route.reason ? t("dataSourceRouteInvalid") : "");
   }
 
-  function promptDataSourceChoice(message) {
+  async function resolveLocalRouteHandle(localPath) {
+    let handle = localRouteHandles.get(localPath) || null;
+    if (!handle) {
+      try {
+        handle = await loadLocalRootHandle(localPath);
+      } catch (e) {
+        logOverviewError("local route handle load failed", e);
+        return null;
+      }
+    }
+    if (!handle) return null;
+    if (!isLocalHandleCompatibleWithPath(handle, localPath)) {
+      await deleteLocalRootHandle(localPath);
+      return null;
+    }
+    let allowed = false;
+    try {
+      allowed = await requestLocalReadPermission(handle);
+    } catch (e) {
+      logOverviewError("local route permission check failed", e);
+    }
+    if (!allowed) {
+      await deleteLocalRootHandle(localPath);
+      return null;
+    }
+    try {
+      await assertLocalRootReadable(handle);
+    } catch (e) {
+      logOverviewError("local route handle is unreadable", e);
+      await deleteLocalRootHandle(localPath);
+      return null;
+    }
+    localRouteHandles.set(localPath, handle);
+    return handle;
+  }
+
+  function promptDataSourceChoice(message, route = null) {
     setLoadingVisible(false);
     const dialog = document.getElementById("data-source-dialog");
     const title = document.getElementById("data-source-title");
     const intro = document.getElementById("data-source-intro");
     const githubButton = document.getElementById("btn-data-source-github");
     const localButton = document.getElementById("btn-data-source-local");
+    const localPathLabel = document.getElementById("data-source-local-path-label");
+    const localPathInput = document.getElementById("data-source-local-path");
     const error = document.getElementById("data-source-error");
 
     title.textContent = t("dataSourceTitle");
     intro.textContent = t("dataSourceIntro");
     githubButton.textContent = t("dataSourceGithub");
     localButton.textContent = t("dataSourceLocal");
+    localPathLabel.textContent = t("dataSourceLocalPathLabel");
+    localPathInput.placeholder = t("dataSourceLocalPathPlaceholder");
+    localPathInput.value = route && route.kind === DATA_SOURCE_LOCAL
+      ? route.localPath
+      : localPathInput.value || t("dataSourceLocalPathPlaceholder");
     error.textContent = message || "";
     dialog.classList.remove("hidden");
 
     return new Promise(resolve => {
       githubButton.onclick = () => {
-        localStorage.setItem(STORAGE_KEYS.dataSource, DATA_SOURCE_GITHUB);
+        navigateToDataSourceRoute({ kind: DATA_SOURCE_GITHUB });
         dialog.classList.add("hidden");
         resolve({ kind: DATA_SOURCE_GITHUB });
       };
       localButton.onclick = async () => {
-        if (!window.showDirectoryPicker || !window.indexedDB) {
+        if (!window.showDirectoryPicker) {
           error.textContent = t("dataSourceLocalUnsupported");
+          return;
+        }
+        const localPath = normalizeWindowsLocalPath(localPathInput.value);
+        if (!localPath) {
+          error.textContent = t("dataSourceLocalPathRequired");
+          localPathInput.focus();
           return;
         }
         try {
@@ -53,19 +99,156 @@
             id: resolveAliases("{{proj_lower}}-overview-local-root"),
             mode: "read"
           });
+          if (!isLocalHandleCompatibleWithPath(handle, localPath)) {
+            error.textContent = t("dataSourceLocalPathMismatch");
+            return;
+          }
           const allowed = await requestLocalReadPermission(handle);
           if (!allowed) throw new Error("local handle permission denied");
           await assertLocalRootReadable(handle);
-          await storeLocalRootHandle(handle);
-          localStorage.setItem(STORAGE_KEYS.dataSource, DATA_SOURCE_LOCAL);
+          await storeLocalRootHandle(localPath, handle);
+          navigateToDataSourceRoute({ kind: DATA_SOURCE_LOCAL, localPath });
           dialog.classList.add("hidden");
-          resolve({ kind: DATA_SOURCE_LOCAL, handle });
+          resolve({ kind: DATA_SOURCE_LOCAL, handle, localPath });
         } catch (e) {
           logOverviewError("local source selection failed", e);
           error.textContent = t("dataSourceLocalMissing");
         }
       };
     });
+  }
+
+  function getCurrentSourceRoute() {
+    const split = splitSourceRoutePath();
+    const suffix = split.suffixSegments;
+    if (suffix.length === 0) return { kind: "picker" };
+    const sourceKind = suffix[0].toLowerCase();
+    if (sourceKind === DATA_SOURCE_GITHUB && suffix.length === 1) {
+      return { kind: DATA_SOURCE_GITHUB };
+    }
+    if (sourceKind === DATA_SOURCE_LOCAL) {
+      const localPath = decodeLocalPathRouteSegments(suffix.slice(1));
+      if (localPath) return { kind: DATA_SOURCE_LOCAL, localPath };
+      return { kind: "picker", reason: "invalid-local-route" };
+    }
+    return { kind: "picker", reason: "unknown-source-route" };
+  }
+
+  function splitSourceRoutePath() {
+    const segments = getDecodedPathSegments(window.location.pathname);
+    if ((segments[segments.length - 1] || "").toLowerCase() === "index.html") segments.pop();
+    const markerIndex = segments.findIndex(segment => {
+      const value = segment.toLowerCase();
+      return value === DATA_SOURCE_GITHUB || value === DATA_SOURCE_LOCAL;
+    });
+    const repoName = String(GITHUB_REPO || "").toLowerCase();
+    const baseLength = markerIndex >= 0
+      ? markerIndex
+      : segments[0] && segments[0].toLowerCase() === repoName
+        ? 1
+        : segments.length;
+    return {
+      baseSegments: segments.slice(0, baseLength),
+      suffixSegments: segments.slice(baseLength)
+    };
+  }
+
+  function getDecodedPathSegments(pathname) {
+    return String(pathname || "")
+      .split("/")
+      .filter(Boolean)
+      .map(segment => {
+        try {
+          return decodeURIComponent(segment);
+        } catch (e) {
+          return "";
+        }
+      })
+      .filter(Boolean);
+  }
+
+  function navigateToDataSourceRoute(source) {
+    const url = buildDataSourceRouteUrl(source);
+    if (window.location.href !== url) window.history.pushState({}, "", url);
+  }
+
+  function navigateToSourcePickerRoute() {
+    window.location.assign(buildDataSourceRouteUrl({ kind: "picker" }));
+  }
+
+  function buildDataSourceRouteUrl(source) {
+    const url = new URL(window.location.href);
+    const baseSegments = splitSourceRoutePath().baseSegments;
+    const routeSegments = source.kind === DATA_SOURCE_GITHUB
+      ? [DATA_SOURCE_GITHUB]
+      : source.kind === DATA_SOURCE_LOCAL
+        ? [DATA_SOURCE_LOCAL, ...encodeLocalPathRouteSegments(source.localPath)]
+        : [];
+    const fullSegments = [...baseSegments, ...routeSegments];
+    const pathBody = fullSegments.map(encodeURIComponent).join("/");
+    const trailingSlash = source.kind === DATA_SOURCE_LOCAL || source.kind === "picker";
+    url.pathname = pathBody ? `/${pathBody}${trailingSlash ? "/" : ""}` : "/";
+    return url.toString();
+  }
+
+  function decodeLocalPathRouteSegments(segments) {
+    if (!segments || segments.length === 0) return "";
+    const decoded = segments;
+    const drive = decoded[0];
+    if (/^[A-Za-z]$/.test(drive)) {
+      const parts = decoded.slice(1).filter(Boolean);
+      return `${drive.toUpperCase()}:\\${parts.join("\\")}`;
+    }
+    if (/^[A-Za-z]:$/.test(drive)) {
+      const parts = decoded.slice(1).filter(Boolean);
+      return `${drive[0].toUpperCase()}:\\${parts.join("\\")}`;
+    }
+    if (drive.toLowerCase() === "unc" && decoded.length >= 3) {
+      return `\\\\${decoded.slice(1).filter(Boolean).join("\\")}`;
+    }
+    return "";
+  }
+
+  function encodeLocalPathRouteSegments(localPath) {
+    const normalized = normalizeWindowsLocalPath(localPath);
+    const driveMatch = normalized.match(/^([A-Za-z]):\\?(.*)$/);
+    if (driveMatch) {
+      const parts = driveMatch[2].split("\\").filter(Boolean);
+      return [driveMatch[1].toLowerCase(), ...parts];
+    }
+    const uncMatch = normalized.match(/^\\\\([^\\]+)\\([^\\]+)(?:\\(.*))?$/);
+    if (uncMatch) {
+      const rest = (uncMatch[3] || "").split("\\").filter(Boolean);
+      return ["unc", uncMatch[1], uncMatch[2], ...rest];
+    }
+    throw new Error(`Unsupported local path for route: ${localPath}`);
+  }
+
+  function normalizeWindowsLocalPath(localPath) {
+    let value = String(localPath || "").trim();
+    value = value.replace(/^["']|["']$/g, "").replace(/\//g, "\\");
+    const driveMatch = value.match(/^([A-Za-z]):\\?(.*)$/);
+    if (driveMatch) {
+      const parts = driveMatch[2].split("\\").filter(Boolean);
+      return `${driveMatch[1].toUpperCase()}:\\${parts.join("\\")}`;
+    }
+    const uncMatch = value.match(/^\\\\(.+)$/);
+    if (uncMatch) {
+      const parts = uncMatch[1].split("\\").filter(Boolean);
+      return parts.length >= 2 ? `\\\\${parts.join("\\")}` : "";
+    }
+    return "";
+  }
+
+  function isLocalHandleCompatibleWithPath(handle, localPath) {
+    const leafName = getLocalPathLeafName(localPath);
+    return !leafName || !handle.name || handle.name.toLowerCase() === leafName.toLowerCase();
+  }
+
+  function getLocalPathLeafName(localPath) {
+    const normalized = normalizeWindowsLocalPath(localPath);
+    const parts = normalized.split("\\").filter(part => part && !/^[A-Za-z]:$/.test(part));
+    return parts[parts.length - 1] || "";
   }
 
   async function buildManifestFromGitHub() {

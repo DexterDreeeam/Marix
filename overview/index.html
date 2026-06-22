@@ -4,6 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Overview</title>
+  <script>
+    (() => {
+      if (window.location.protocol === "file:") return;
+      const segments = window.location.pathname.split("/").filter(Boolean);
+      const markerIndex = segments.findIndex(segment => ["remote", "local"].includes(segment.toLowerCase()));
+      const baseSegments = markerIndex >= 0
+        ? segments.slice(0, markerIndex)
+        : (segments[segments.length - 1] || "").toLowerCase() === "index.html"
+          ? segments.slice(0, -1)
+          : segments.length > 1
+            ? segments.slice(0, 1)
+            : segments;
+      const basePath = baseSegments.length > 0 ? `/${baseSegments.join("/")}/` : "/";
+      const base = document.createElement("base");
+      base.href = basePath;
+      document.head.prepend(base);
+    })();
+  </script>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -31,6 +49,10 @@
       <div class="data-source-card">
         <h2 id="data-source-title">Choose data source</h2>
         <p id="data-source-intro">Load repository data from GitHub or select a local repository folder.</p>
+        <label class="data-source-field" for="data-source-local-path">
+          <span id="data-source-local-path-label">Local path for URL</span>
+          <input id="data-source-local-path" type="text" autocomplete="off" spellcheck="false" placeholder="{{repo_root}}" />
+        </label>
         <div class="data-source-actions">
           <button id="btn-data-source-github" class="data-source-button" type="button">Use GitHub</button>
           <button id="btn-data-source-local" class="data-source-button primary" type="button">Choose local folder</button>

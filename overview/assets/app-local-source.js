@@ -753,22 +753,56 @@
     throw new Error("local folder is empty");
   }
 
-  async function storeLocalRootHandle(handle) {
-    const db = await openLocalSourceDb();
-    await writeLocalSourceValue(db, LOCAL_ROOT_HANDLE_KEY, handle);
+  function getLocalRootHandleKey(localPath) {
+    return `root:${normalizeWindowsLocalPath(localPath)}`;
   }
 
-  async function loadLocalRootHandle() {
-    const db = await openLocalSourceDb();
-    return await readLocalSourceValue(db, LOCAL_ROOT_HANDLE_KEY);
-  }
-
-  async function clearCachedLocalSource() {
-    localStorage.removeItem(STORAGE_KEYS.dataSource);
+  async function storeLocalRootHandle(localPath, handle) {
+    localRouteHandles.set(normalizeWindowsLocalPath(localPath), handle);
+    if (!window.indexedDB) return;
     let db = null;
     try {
       db = await openLocalSourceDb();
-      await deleteLocalSourceValue(db, LOCAL_ROOT_HANDLE_KEY);
+      await writeLocalSourceValue(db, getLocalRootHandleKey(localPath), handle);
+    } catch (e) {
+      logOverviewError("local source handle persistence failed", e);
+    } finally {
+      if (db) db.close();
+    }
+  }
+
+  async function loadLocalRootHandle(localPath) {
+    if (!window.indexedDB) return null;
+    let db = null;
+    try {
+      db = await openLocalSourceDb();
+      return await readLocalSourceValue(db, getLocalRootHandleKey(localPath));
+    } finally {
+      if (db) db.close();
+    }
+  }
+
+  async function deleteLocalRootHandle(localPath) {
+    localRouteHandles.delete(normalizeWindowsLocalPath(localPath));
+    if (!window.indexedDB) return;
+    let db = null;
+    try {
+      db = await openLocalSourceDb();
+      await deleteLocalSourceValue(db, getLocalRootHandleKey(localPath));
+    } catch (e) {
+      logOverviewError("local source handle delete failed", e);
+    } finally {
+      if (db) db.close();
+    }
+  }
+
+  async function clearCachedLocalSource() {
+    localRouteHandles.clear();
+    if (!window.indexedDB) return;
+    let db = null;
+    try {
+      db = await openLocalSourceDb();
+      await clearLocalSourceValues(db);
     } catch (e) {
       logOverviewError("local source cache clear failed", e);
     } finally {
@@ -810,6 +844,14 @@
   function deleteLocalSourceValue(db, key) {
     return new Promise((resolve, reject) => {
       const request = db.transaction(LOCAL_DB_STORE, "readwrite").objectStore(LOCAL_DB_STORE).delete(key);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  function clearLocalSourceValues(db) {
+    return new Promise((resolve, reject) => {
+      const request = db.transaction(LOCAL_DB_STORE, "readwrite").objectStore(LOCAL_DB_STORE).clear();
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });
