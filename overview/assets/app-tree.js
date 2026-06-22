@@ -95,18 +95,7 @@
       applyCachedTreeDirectoryState(childContainer, dirEl, dirPath, filter);
       parent.appendChild(childContainer);
       dirEl.addEventListener("click", () => {
-        hideCodePopover();
-        if (overviewMode === "star") {
-          if (isSelectedStarMapFolder(dirPath)) {
-            toggleTreeDirectory(childContainer, dirEl, dirPath);
-          } else {
-            openDirectoryModule(dirPath, dirEl);
-          }
-          return;
-        }
-
-        toggleTreeDirectory(childContainer, dirEl, dirPath);
-        openDirectoryChanges(dirPath, dirEl);
+        handleTreeDirectoryClick(dirPath, dirEl, childContainer);
       });
 
       const toggle = dirEl.querySelector(".tree-toggle");
@@ -178,8 +167,14 @@
     return statuses;
   }
 
-  function isSelectedStarMapFolder(dirPath) {
-    return starMapSelection.kind === "module" && starMapSelection.path === dirPath;
+  function handleTreeDirectoryClick(dirPath, dirEl, childContainer) {
+    hideCodePopover();
+    toggleTreeDirectory(childContainer, dirEl, dirPath);
+    if (overviewMode === "star") {
+      openDirectoryModule(dirPath, dirEl);
+      return;
+    }
+    openDirectoryChanges(dirPath, dirEl);
   }
 
   function toggleTreeDirectory(childContainer, dirEl, dirPath) {
