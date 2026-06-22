@@ -24,7 +24,6 @@
   let designCodeCounter = 0;
   let githubRepoApi = "";
   let activeDataSource = "";
-  let activeLocalPath = "";
   let localRootHandle = null;
   let designStatusChanges = null;
 
@@ -50,7 +49,6 @@
       applyDocumentTitle();
       const dataSource = await resolveDataSourceChoice();
       activeDataSource = dataSource.kind;
-      activeLocalPath = dataSource.localPath || "";
       localRootHandle = dataSource.handle || null;
       setLoadingVisible(true);
       setLoadingMessage(activeDataSource === DATA_SOURCE_LOCAL ? t("loadingOverview") : t("buildingOverview"));
@@ -83,13 +81,14 @@
     } catch (e) {
       logOverviewError("dynamic overview load failed", e);
       if (activeDataSource === DATA_SOURCE_LOCAL) {
-        await deleteLocalRootHandle(activeLocalPath);
+        await clearCachedDataSource();
         setLoadingVisible(false);
         await promptDataSourceChoice(t("dataSourceLocalMissing"));
         window.location.reload();
         return;
       }
       if (activeDataSource === DATA_SOURCE_GITHUB) {
+        await clearCachedDataSource();
         setLoadingVisible(false);
         await promptDataSourceChoice(t("overviewLoadFailed"));
         window.location.reload();
@@ -432,10 +431,16 @@
   }
 
   async function resetDataSourceChoice() {
-    await clearCachedLocalSource();
+    await clearCachedDataSource();
     localStorage.removeItem(STORAGE_KEYS.currentFile);
     localStorage.removeItem(STORAGE_KEYS.scopePath);
-    navigateToSourcePickerRoute();
+    currentFile = null;
+    currentDirectory = null;
+    scopePath = SOURCE_ROOT;
+    starMapSelection = { kind: "module", path: SOURCE_ROOT };
+    setLoadingVisible(false);
+    await promptDataSourceChoice("");
+    window.location.reload();
   }
 
   function showTooltip(target) {

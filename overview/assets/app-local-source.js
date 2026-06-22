@@ -753,17 +753,17 @@
     throw new Error("local folder is empty");
   }
 
-  function getLocalRootHandleKey(localPath) {
-    return `root:${normalizeWindowsLocalPath(localPath)}`;
+  function getLocalRootHandleKey() {
+    return "root";
   }
 
-  async function storeLocalRootHandle(localPath, handle) {
-    localRouteHandles.set(normalizeWindowsLocalPath(localPath), handle);
+  async function storeLocalRootHandle(handle) {
+    cachedLocalRootHandle = handle;
     if (!window.indexedDB) return;
     let db = null;
     try {
       db = await openLocalSourceDb();
-      await writeLocalSourceValue(db, getLocalRootHandleKey(localPath), handle);
+      await writeLocalSourceValue(db, getLocalRootHandleKey(), handle);
     } catch (e) {
       logOverviewError("local source handle persistence failed", e);
     } finally {
@@ -771,24 +771,26 @@
     }
   }
 
-  async function loadLocalRootHandle(localPath) {
+  async function loadLocalRootHandle() {
+    if (cachedLocalRootHandle) return cachedLocalRootHandle;
     if (!window.indexedDB) return null;
     let db = null;
     try {
       db = await openLocalSourceDb();
-      return await readLocalSourceValue(db, getLocalRootHandleKey(localPath));
+      cachedLocalRootHandle = await readLocalSourceValue(db, getLocalRootHandleKey());
+      return cachedLocalRootHandle;
     } finally {
       if (db) db.close();
     }
   }
 
-  async function deleteLocalRootHandle(localPath) {
-    localRouteHandles.delete(normalizeWindowsLocalPath(localPath));
+  async function deleteLocalRootHandle() {
+    cachedLocalRootHandle = null;
     if (!window.indexedDB) return;
     let db = null;
     try {
       db = await openLocalSourceDb();
-      await deleteLocalSourceValue(db, getLocalRootHandleKey(localPath));
+      await deleteLocalSourceValue(db, getLocalRootHandleKey());
     } catch (e) {
       logOverviewError("local source handle delete failed", e);
     } finally {
@@ -797,7 +799,7 @@
   }
 
   async function clearCachedLocalSource() {
-    localRouteHandles.clear();
+    cachedLocalRootHandle = null;
     if (!window.indexedDB) return;
     let db = null;
     try {

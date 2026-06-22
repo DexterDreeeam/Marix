@@ -39,12 +39,11 @@
       buildingOverview: "Building overview from GitHub tags...",
       overviewLoadFailed: "Unable to load repository data from GitHub.",
       dataSourceTitle: "Choose data source",
-      dataSourceIntro: "Load repository data from GitHub or select a local repository folder. The URL decides which source opens.",
+      dataSourceIntro: "Load repository data from GitHub or select a local repository folder. Your choice is remembered in this browser.",
       dataSourceGithub: "GitHub Repo",
       dataSourceLocal: "Local Repo",
       dataSourceLocalUnsupported: "This browser cannot choose local folders. Use Microsoft Edge or Chrome, or choose GitHub.",
-      dataSourceLocalMissing: "The local folder for this URL is unavailable. Choose a data source again.",
-      dataSourceRouteInvalid: "The source in this URL is unavailable. Choose a data source.",
+      dataSourceLocalMissing: "The saved local folder is unavailable. Choose a data source again.",
       folderChangesTitle: "Folder changes",
       folderChangesSubtitle: "Showing changes for this folder and all nested files.",
       addedLine: "Added",
@@ -112,12 +111,11 @@
       buildingOverview: "正在根据 GitHub tag 构建总览...",
       overviewLoadFailed: "无法从 GitHub 加载仓库数据。",
       dataSourceTitle: "选择数据源",
-      dataSourceIntro: "从 GitHub 加载仓库数据，或选择本地仓库文件夹。当前打开的数据源由 URL 决定。",
+      dataSourceIntro: "从 GitHub 加载仓库数据，或选择本地仓库文件夹。浏览器会记住你的选择。",
       dataSourceGithub: "GitHub Repo",
       dataSourceLocal: "Local Repo",
       dataSourceLocalUnsupported: "当前浏览器不能选择本地文件夹。请使用 Microsoft Edge 或 Chrome，或选择 GitHub。",
-      dataSourceLocalMissing: "这个 URL 对应的本地文件夹不可用，请重新选择数据源。",
-      dataSourceRouteInvalid: "这个 URL 指定的数据源不可用，请重新选择数据源。",
+      dataSourceLocalMissing: "已保存的本地文件夹不可用，请重新选择数据源。",
       folderChangesTitle: "文件夹改动",
       folderChangesSubtitle: "当前展示这个文件夹及其所有子文件中的改动。",
       addedLine: "新增",
@@ -157,6 +155,7 @@
     viewWholeFile: "{{proj_lower}}-overview-view-whole-file",
     treeChangedFilesOnly: "{{proj_lower}}-overview-tree-changed-files-only",
     starMapShowAllFiles: "{{proj_lower}}-overview-star-map-show-all-files",
+    dataSource: "{{proj_lower}}-overview-data-source",
     currentFile: "{{proj_lower}}-overview-current-file",
     scopePath: "{{proj_lower}}-overview-scope-path",
     collapsedModules: "{{proj_lower}}-overview-collapsed-modules",
@@ -167,7 +166,7 @@
   let GITHUB_REPO = "{{proj}}";
   const MAX_DYNAMIC_FILE_SIZE = 100 * 1024;
   let LOG_PREFIX = "[{{proj}} Overview]";
-  const DATA_SOURCE_GITHUB = "remote";
+  const DATA_SOURCE_GITHUB = "github";
   const DATA_SOURCE_LOCAL = "local";
   let LOCAL_DB_NAME = "{{proj_lower}}-overview-local-source";
   const LOCAL_DB_STORE = "handles";

@@ -10,12 +10,11 @@ Overview-engineer owns overview implementation and UX only. Source-design compan
 - The overview site indexes `src/` only. Content outside `src/` must not appear in the file tree or star-map module graph.
 - Every dot-prefixed file or folder under `src/` is companion metadata maintained by `development-designer`, not first-class source content. Visible file systems, file trees, file lists, module graphs, and `{{proj_lower}}_tag_*` diffs must ignore all such paths. Internal metadata loaders may consume companion metadata, but dot-prefixed paths must never appear as normal source files.
 - Do not add checked-in manifest JSON files. Data is built dynamically in the browser.
-- Data source selection is URL-routed:
-  - Root paths such as `/{{proj}}/` ask users to choose a data source.
-  - `/{{proj}}/remote` builds metadata from GitHub tree and `{{proj_lower}}_tag_*` compare APIs.
-  - `/{{proj}}/local` uses the browser-selected local repository handle.
-  - `/{{proj}}/local/...` decodes the local path from URL segments and uses File System Access with an IndexedDB-stored directory handle keyed by that canonical local path.
-- Do not store the active data source in `localStorage`; the URL is the source selector. If a URL-selected local folder cannot be read, clear that route's local handle and ask again.
+- Data source selection is cache-based:
+  - If no source is cached, show a source picker with only `GitHub Repo` and `Local Repo` buttons. Do not add a local path text input.
+  - Choosing GitHub stores that source in browser storage and immediately builds metadata from the GitHub tree plus `{{proj_lower}}_tag_*` compare APIs. Do not navigate to `/remote`.
+  - Choosing Local opens `showDirectoryPicker()`, stores the source plus the File System Access handle, and immediately indexes the selected folder. Do not navigate to `/local`.
+  - Refresh restores the cached source. If the cached local handle cannot be loaded, permitted, or read, clear source caches and show the picker again.
 - Keep the reset-data-source button immediately to the right of the language switch button.
 - The left file tree always shows all visible `src/` files. There is no view-all-files toggle.
 - GitHub mode hides the view-whole-file control; local mode can show full file contents.
@@ -94,5 +93,4 @@ Overview-engineer owns overview implementation and UX only. Source-design compan
 - Packed objects have NO `type size\0` header — inflated pack data is the RAW content (unlike loose objects).
 - Trailing-junk gotcha: pack objects are stored back-to-back, so inflating `subarray(dataStart)` always has trailing bytes. Node's `DecompressionStream` rejects with `ERR_TRAILING_JUNK_AFTER_STREAM_END` (browsers may too). Do NOT assume the inflater silently ignores trailing bytes. Use a bounded `inflatePackedZlib(packBytes, start, expectedSize)` that stops once `expectedSize` (from the pack header) bytes are produced and treats post-output errors as benign.
 - Validation harness pattern: vm-sandbox `app-local-source.js` with `window={DecompressionStream,Blob,Response}` stub plus a disk-backed File System Access handle adapter, then compare `readLocalGitObject` output against `git cat-file --batch` raw bytes. In this repo: commit `a98464c` (base), tree `1379076` (depth-1 delta), blob `fdbcc64` (depth-2 OFS_DELTA) all decode byte-exact.
-- 2026-06-22: Source selection is now URL-routed instead of `localStorage`-routed. Root `/{{proj}}/` shows the picker, `/{{proj}}/remote` loads GitHub, and `/{{proj}}/local/c/r/{{proj}}/` decodes to `{{repo_root}}`. File System Access still needs a browser permission handle for local routes, so selected local handles are keyed by the canonical decoded path; the URL remains the only source selector. A dynamic `<base>` tag in `overview/index.html` keeps relative assets resolving when history paths include `/remote` or `/local/...`.
-- 2026-06-22: The source picker should show only `GitHub Repo` and `Local Repo`. Do not add a local path text input; root picker local selection grants a handle and navigates to `/local`, while explicit `/local/...` routes keep using their decoded path as the handle key because browsers do not expose absolute paths from `showDirectoryPicker()`.
+- 2026-06-22: Source selection returned to browser-cache ownership. The active source is stored under `STORAGE_KEYS.dataSource`; the local File System Access handle is stored as a single IndexedDB `root` entry, not keyed by URL or local path. `overview/index.html` no longer needs a dynamic `<base>` tag, and the Pages workflow no longer stages `overview/404.html` for source-route fallback. Keep the picker to two buttons (`GitHub Repo`, `Local Repo`) with no local path input.

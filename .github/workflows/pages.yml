@@ -31,9 +31,6 @@ jobs:
       - name: Stage project alias
         run: cp -r .alias overview/.alias
 
-      - name: Stage Pages fallback
-        run: cp overview/index.html overview/404.html
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
