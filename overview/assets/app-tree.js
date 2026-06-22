@@ -95,6 +95,7 @@
       applyCachedTreeDirectoryState(childContainer, dirEl, dirPath, filter);
       parent.appendChild(childContainer);
       dirEl.addEventListener("click", () => {
+        hideCodePopover();
         if (overviewMode === "star") {
           if (isSelectedStarMapFolder(dirPath)) {
             toggleTreeDirectory(childContainer, dirEl, dirPath);
@@ -124,6 +125,7 @@
       if (filter && !file.path.toLowerCase().includes(filter) && !file.name.toLowerCase().includes(filter)) continue;
       const el = createTreeItem(file.name, depth, false, getPathChangeStatus(file.path), file.path);
       el.addEventListener("click", () => {
+        hideCodePopover();
         if (overviewMode === "star") {
           openFileScope(file.path, el, { openPopover: isFocusedStarMapFile(file.path) });
         } else {
