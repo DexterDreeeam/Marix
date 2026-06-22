@@ -83,7 +83,7 @@
     } catch (e) {
       logOverviewError("dynamic overview load failed", e);
       if (activeDataSource === DATA_SOURCE_LOCAL) {
-        if (activeLocalPath) await deleteLocalRootHandle(activeLocalPath);
+        await deleteLocalRootHandle(activeLocalPath);
         setLoadingVisible(false);
         await promptDataSourceChoice(t("dataSourceLocalMissing"));
         window.location.reload();

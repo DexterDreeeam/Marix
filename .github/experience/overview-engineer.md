@@ -13,8 +13,9 @@ Overview-engineer owns overview implementation and UX only. Source-design compan
 - Data source selection is URL-routed:
   - Root paths such as `/{{proj}}/` ask users to choose a data source.
   - `/{{proj}}/remote` builds metadata from GitHub tree and `{{proj_lower}}_tag_*` compare APIs.
+  - `/{{proj}}/local` uses the browser-selected local repository handle.
   - `/{{proj}}/local/...` decodes the local path from URL segments and uses File System Access with an IndexedDB-stored directory handle keyed by that canonical local path.
-- Do not store the active data source in `localStorage`; the URL is the source selector. If a URL-selected local folder cannot be read, clear that local handle and ask again.
+- Do not store the active data source in `localStorage`; the URL is the source selector. If a URL-selected local folder cannot be read, clear that route's local handle and ask again.
 - Keep the reset-data-source button immediately to the right of the language switch button.
 - The left file tree always shows all visible `src/` files. There is no view-all-files toggle.
 - GitHub mode hides the view-whole-file control; local mode can show full file contents.
@@ -94,4 +95,4 @@ Overview-engineer owns overview implementation and UX only. Source-design compan
 - Trailing-junk gotcha: pack objects are stored back-to-back, so inflating `subarray(dataStart)` always has trailing bytes. Node's `DecompressionStream` rejects with `ERR_TRAILING_JUNK_AFTER_STREAM_END` (browsers may too). Do NOT assume the inflater silently ignores trailing bytes. Use a bounded `inflatePackedZlib(packBytes, start, expectedSize)` that stops once `expectedSize` (from the pack header) bytes are produced and treats post-output errors as benign.
 - Validation harness pattern: vm-sandbox `app-local-source.js` with `window={DecompressionStream,Blob,Response}` stub plus a disk-backed File System Access handle adapter, then compare `readLocalGitObject` output against `git cat-file --batch` raw bytes. In this repo: commit `a98464c` (base), tree `1379076` (depth-1 delta), blob `fdbcc64` (depth-2 OFS_DELTA) all decode byte-exact.
 - 2026-06-22: Source selection is now URL-routed instead of `localStorage`-routed. Root `/{{proj}}/` shows the picker, `/{{proj}}/remote` loads GitHub, and `/{{proj}}/local/c/r/{{proj}}/` decodes to `{{repo_root}}`. File System Access still needs a browser permission handle for local routes, so selected local handles are keyed by the canonical decoded path; the URL remains the only source selector. A dynamic `<base>` tag in `overview/index.html` keeps relative assets resolving when history paths include `/remote` or `/local/...`.
-- 2026-06-22: The source picker should show only the GitHub and local-folder options. Do not add a local path text input; local folder grants use the decoded `/local/...` route path, while root picker local selection cannot invent an absolute path because browsers do not expose it from `showDirectoryPicker()`.
+- 2026-06-22: The source picker should show only `GitHub Repo` and `Local Repo`. Do not add a local path text input; root picker local selection grants a handle and navigates to `/local`, while explicit `/local/...` routes keep using their decoded path as the handle key because browsers do not expose absolute paths from `showDirectoryPicker()`.

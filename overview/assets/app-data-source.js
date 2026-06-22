@@ -29,10 +29,6 @@
       }
     }
     if (!handle) return null;
-    if (!isLocalHandleCompatibleWithPath(handle, localPath)) {
-      await deleteLocalRootHandle(localPath);
-      return null;
-    }
     let allowed = false;
     try {
       allowed = await requestLocalReadPermission(handle);
@@ -84,19 +80,11 @@
         const localPath = route && route.kind === DATA_SOURCE_LOCAL
           ? normalizeWindowsLocalPath(route.localPath)
           : "";
-        if (!localPath) {
-          error.textContent = t("dataSourceLocalRouteRequired");
-          return;
-        }
         try {
           const handle = await window.showDirectoryPicker({
             id: resolveAliases("{{proj_lower}}-overview-local-root"),
             mode: "read"
           });
-          if (!isLocalHandleCompatibleWithPath(handle, localPath)) {
-            error.textContent = t("dataSourceLocalPathMismatch");
-            return;
-          }
           const allowed = await requestLocalReadPermission(handle);
           if (!allowed) throw new Error("local handle permission denied");
           await assertLocalRootReadable(handle);
@@ -121,6 +109,7 @@
       return { kind: DATA_SOURCE_GITHUB };
     }
     if (sourceKind === DATA_SOURCE_LOCAL) {
+      if (suffix.length === 1) return { kind: DATA_SOURCE_LOCAL, localPath: "" };
       const localPath = decodeLocalPathRouteSegments(suffix.slice(1));
       if (localPath) return { kind: DATA_SOURCE_LOCAL, localPath };
       return { kind: "picker", reason: "invalid-local-route" };
@@ -176,11 +165,13 @@
     const routeSegments = source.kind === DATA_SOURCE_GITHUB
       ? [DATA_SOURCE_GITHUB]
       : source.kind === DATA_SOURCE_LOCAL
-        ? [DATA_SOURCE_LOCAL, ...encodeLocalPathRouteSegments(source.localPath)]
+        ? source.localPath
+          ? [DATA_SOURCE_LOCAL, ...encodeLocalPathRouteSegments(source.localPath)]
+          : [DATA_SOURCE_LOCAL]
         : [];
     const fullSegments = [...baseSegments, ...routeSegments];
     const pathBody = fullSegments.map(encodeURIComponent).join("/");
-    const trailingSlash = source.kind === DATA_SOURCE_LOCAL || source.kind === "picker";
+    const trailingSlash = (source.kind === DATA_SOURCE_LOCAL && !!source.localPath) || source.kind === "picker";
     url.pathname = pathBody ? `/${pathBody}${trailingSlash ? "/" : ""}` : "/";
     return url.toString();
   }
@@ -232,17 +223,6 @@
       return parts.length >= 2 ? `\\\\${parts.join("\\")}` : "";
     }
     return "";
-  }
-
-  function isLocalHandleCompatibleWithPath(handle, localPath) {
-    const leafName = getLocalPathLeafName(localPath);
-    return !leafName || !handle.name || handle.name.toLowerCase() === leafName.toLowerCase();
-  }
-
-  function getLocalPathLeafName(localPath) {
-    const normalized = normalizeWindowsLocalPath(localPath);
-    const parts = normalized.split("\\").filter(part => part && !/^[A-Za-z]:$/.test(part));
-    return parts[parts.length - 1] || "";
   }
 
   async function buildManifestFromGitHub() {
