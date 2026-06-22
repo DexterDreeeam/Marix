@@ -169,11 +169,22 @@
 
   function handleTreeDirectoryClick(dirPath, dirEl, childContainer) {
     hideCodePopover();
-    toggleTreeDirectory(childContainer, dirEl, dirPath);
+    const wasSelected = isSelectedTreeDirectory(dirPath);
     if (overviewMode === "star") {
       openDirectoryModule(dirPath, dirEl);
-      return;
+    } else {
+      openDirectoryChanges(dirPath, dirEl);
     }
+    if (wasSelected) {
+      toggleTreeDirectory(childContainer, dirEl, dirPath);
+    }
+  }
+
+  function isSelectedTreeDirectory(dirPath) {
+    if (overviewMode === "star") {
+      return starMapSelection.kind === "module" && starMapSelection.path === dirPath;
+    }
+    return !currentFile && currentDirectory === dirPath;
     openDirectoryChanges(dirPath, dirEl);
   }
 
