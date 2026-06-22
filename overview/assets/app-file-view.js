@@ -1,7 +1,5 @@
 "use strict";
   async function openFile(path, treeEl) {
-    console.log("[MX-DEBUG] openFile ENTER", { path, overviewMode, viewWholeFile });
-    try {
     document.querySelectorAll(".tree-item.active").forEach(el => el.classList.remove("active"));
     const activeTreeItem = treeEl || findTreeItem(path);
     if (activeTreeItem) activeTreeItem.classList.add("active");
@@ -18,14 +16,6 @@
     const change = getChange(path);
     const fileData = (manifest.files || {})[path];
     const statusEl = document.getElementById("file-status");
-    console.log("[MX-DEBUG] openFile state", {
-      hasChange: !!change,
-      status: change && change.status,
-      diffLinesLen: change && change.diff_lines ? change.diff_lines.length : null,
-      hunksLen: change && change.hunks ? change.hunks.length : null,
-      hasFileData: !!fileData,
-      viewWholeFile
-    });
 
     document.getElementById("file-path").textContent = path;
     statusEl.innerHTML = change ? renderStatusBadge(change.status) : "";
@@ -33,23 +23,19 @@
 
     if (!fileData) {
       if (change) {
-        console.log("[MX-DEBUG] openFile branch=no-fileData+change -> showChangedSections");
         showChangedSections(path, change);
         return;
       }
-      console.log("[MX-DEBUG] openFile branch=no-fileData+no-change -> showWelcome(fileUnavailable)");
       showWelcome(t("fileUnavailable"));
       return;
     }
 
     if (!viewWholeFile) {
-      console.log("[MX-DEBUG] openFile branch=changed-sections");
       showChangedSections(path, change || { diff_lines: [], hunks: [] });
       return;
     }
 
     const ext = path.split(".").pop().toLowerCase();
-    console.log("[MX-DEBUG] openFile branch=whole-file", { ext });
     await ensureFileContent(path);
     if (["png", "jpg", "jpeg", "gif", "svg", "webp", "ico"].includes(ext)) {
       showImage(fileData);
@@ -59,9 +45,6 @@
       showMarkdown(fileData.content || "");
     } else {
       showCode(fileData.content || "", ext);
-    }
-    } catch (e) {
-      console.error("[MX-DEBUG] openFile THREW", e && e.stack ? e.stack : e);
     }
   }
 
@@ -277,15 +260,8 @@
     diffView.style.display = "block";
 
     const sections = splitDiffSections(change.diff_lines || [], change.hunks || []);
-    console.log("[MX-DEBUG] showChangedSections", {
-      path,
-      diffLinesLen: (change.diff_lines || []).length,
-      hunksLen: (change.hunks || []).length,
-      sections: sections.length
-    });
     if (sections.length === 0) {
       diffView.innerHTML = `<div class="diff-empty">${escapeHtml(t("noChangedSections"))}</div>`;
-      console.log("[MX-DEBUG] showChangedSections -> empty message rendered", { display: diffView.style.display, htmlLen: diffView.innerHTML.length });
       return;
     }
 
@@ -297,7 +273,6 @@
       </div>
       <div class="diff-panel-list">${panels}</div>
     `;
-    console.log("[MX-DEBUG] showChangedSections -> panels rendered", { display: diffView.style.display, htmlLen: diffView.innerHTML.length });
   }
 
   function showFullFileWithChanges(path, content, change, ext) {
