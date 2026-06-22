@@ -82,6 +82,7 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .tree-item.file.tree-file-status-unchanged { color: rgba(139, 148, 158, 0.78); }
 .tree-item.file:not(.tree-file-status-unchanged) { color: var(--text-primary); }
 .tree-item.file.active, .tree-item.file:hover { color: var(--text-primary); }
+.tree-empty { padding: 12px 14px; font-size: 12px; line-height: 1.5; color: var(--text-muted); white-space: normal; user-select: none; }
 .tree-icon { width: 22px; min-width: 22px; height: 18px; display: inline-flex; align-items: center; justify-content: center; margin-right: 4px; border-radius: 5px; color: var(--text-muted); font-size: 10px; font-weight: 700; line-height: 1; flex-shrink: 0; }
 .tree-status-dot { width: 22px; min-width: 22px; height: 18px; margin-right: 4px; border-radius: 0; background: transparent; }
 .tree-status-dot::before { content: ""; width: 8px; height: 8px; border-radius: 999px; background: rgba(139, 148, 158, 0.72); box-shadow: 0 0 0 2px rgba(139, 148, 158, 0.08); }

@@ -22,7 +22,26 @@
     const tree = buildTreeStructure(getTreeFiles());
     const filterLower = filter ? filter.toLowerCase() : null;
     renderNode(container, tree, 0, "", filterLower);
+    if (!container.childElementCount) {
+      renderTreeEmptyState(container, filterLower);
+    }
     if (!options.skipSync) syncTreeSelectionToStarMapScope();
+  }
+
+  function renderTreeEmptyState(container, filter) {
+    let messageKey;
+    if (filter) {
+      messageKey = "treeEmptySearch";
+    } else if (treeChangedFilesOnly) {
+      messageKey = "treeEmptyChangedOnly";
+    } else {
+      messageKey = "treeEmptyGeneral";
+    }
+    const empty = document.createElement("div");
+    empty.className = "tree-empty";
+    empty.setAttribute("role", "note");
+    empty.textContent = t(messageKey);
+    container.appendChild(empty);
   }
 
   function getTreeFiles() {

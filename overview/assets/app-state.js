@@ -226,6 +226,7 @@
     if (isStar) {
       hideFileViews();
     } else {
+      hideCodePopover();
       document.getElementById("star-map-workspace").style.display = "none";
       if (!currentFile) {
         hideFileViews();
