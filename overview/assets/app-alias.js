@@ -1,10 +1,10 @@
 "use strict";
   // Project alias resolution for the overview UI.
   //
-  // Canonical values live in the repository root `.alias/` folder. Each file's
-  // name is a placeholder key and its content is the replacement text. UI strings
+  // Canonical values live in the repository root `.alias/` folder. Each `.txt`
+  // file's stem is a placeholder key and its content is the replacement text. UI strings
   // use `{{name}}` placeholders; the values are fetched at runtime into a dynamic
-  // map. The key set is not fixed — any `.alias/` file can back a placeholder, and
+  // map. The key set is not fixed — any `.alias/*.txt` file can back a placeholder, and
   // the keys actually needed are discovered from the placeholders in use.
   const ALIAS_PATTERN = /\{\{\s*([A-Za-z0-9_]+)\s*\}\}/g;
   const aliasValues = {};
@@ -43,7 +43,7 @@
   }
 
   async function fetchAliasValue(key) {
-    const candidates = [`.alias/${key}`, `../.alias/${key}`, `/.alias/${key}`];
+    const candidates = [`.alias/${key}.txt`, `../.alias/${key}.txt`, `/.alias/${key}.txt`];
     for (const url of candidates) {
       try {
         const response = await fetch(url, { cache: "no-cache" });

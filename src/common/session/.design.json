@@ -4,7 +4,7 @@
     "path": "src/common/session",
     "name": "session",
     "purpose": "Shared session configuration and client/server pipe transport.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -107,34 +107,53 @@
     {
       "name": "DEFAULT_CORE_PORT",
       "type": "const",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/session_config.rs",
           "lineStart": 4,
           "lineEnd": 4,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 4,
+              "lineEnd": 4
+            }
+          ]
         }
       ]
     },
     {
       "name": "SessionConfig",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/session_config.rs",
           "lineStart": 7,
           "lineEnd": 10,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/common/session/session_config.rs",
           "lineStart": 12,
-          "lineEnd": 32,
-          "language": "rust"
+          "lineEnd": 31,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 21,
+              "lineEnd": 24
+            }
+          ]
         }
       ]
     }
+  ],
+  "modified": [
+    "session_config.rs"
   ]
 }

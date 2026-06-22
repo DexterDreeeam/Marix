@@ -2,7 +2,7 @@
 
 ## Project Name Aliasing
 
-Except for content under `src/`, all text must use `{{name}}` placeholders instead of project-specific literals (the project name, machine-specific local paths, and similar values). Each placeholder maps to a file in the root `.alias/` folder: the file name is the key and its content is the replacement value — for example `{{proj}}` is replaced by the contents of `.alias/proj`. New aliases are added simply by creating new `.alias/` files, so this set will grow over time. When editing any file outside `src/`, always write placeholders (never literals) and resolve them by reading `.alias/` when interpreting content. The `overview/` pages load `.alias/` at runtime and substitute placeholders before rendering.
+Except for content under `src/`, all text must use `{{name}}` placeholders instead of project-specific literals (the project name, machine-specific local paths, and similar values). Each placeholder maps to a `.txt` file in the root `.alias/` folder: the file stem is the key and its content is the replacement value — for example `{{proj}}` is replaced by the contents of `.alias/proj.txt`. New aliases are added simply by creating new `.alias/*.txt` files, so this set will grow over time. When editing any file outside `src/`, always write placeholders (never literals) and resolve them by reading `.alias/` when interpreting content. The `overview/` pages load `.alias/*.txt` at runtime and substitute placeholders before rendering.
 
 ## Language Rules
 

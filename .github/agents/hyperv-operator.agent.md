@@ -22,15 +22,15 @@ At the start of each task, read `.github/experience/hyperv-operator.md` if it ex
 - The current CLI deployment path inside the VM is `{{vm_cli_root}}`.
 - The copied CLI launcher is `{{vm_cli_root}}\run-{{proj_lower}}-cli.cmd`.
 - The launcher sets `{{proj_upper}}_SRC_ROOT=%~dp0src` and runs `{{proj_lower}}-cli.exe`.
-- The CLI remote core target is the Ubuntu core host at `43.142.167.218:22345`.
+- The CLI remote core target is the Ubuntu core host at `{{ubuntu_ip}}:{{ubuntu_core_port}}`.
 - VM network ports previously checked from host:
   - SSH `22`: closed/unavailable.
   - WinRM `5985`: closed/unavailable.
   - WinRM over TLS `5986`: closed/unavailable.
 - PowerShell Direct with `Invoke-Command -VMName {{proj}}_TestVm` requires guest credentials.
 - Local credential files:
-  - username: `.credential/HYPERV_OPERATOR_USERNAME`
-  - password: `.credential/HYPERV_OPERATOR_PASSWORD`
+  - username: `.credential/HYPERV_OPERATOR_USERNAME.txt`
+  - password: `.credential/HYPERV_OPERATOR_PASSWORD.txt`
 - Never print credential file contents. Read them only when constructing a `PSCredential`.
 
 ## Responsibilities
@@ -59,7 +59,7 @@ Creating the VM is fully hands-off — the agent obtains the Windows ISO itself 
 Prerequisites:
 
 - A Windows installation ISO at `{{vm_iso}}` — the procedure downloads an official Windows 11 Pro retail ISO there automatically (via `pbatard/Fido`, the resolver Rufus uses) whenever the file is missing, so nothing is placed by hand. The host only needs internet access.
-- `.credential/HYPERV_OPERATOR_USERNAME` and `.credential/HYPERV_OPERATOR_PASSWORD` (read at runtime; never printed or committed). They define the guest admin account that gets created.
+- `.credential/HYPERV_OPERATOR_USERNAME.txt` and `.credential/HYPERV_OPERATOR_PASSWORD.txt` (read at runtime; never printed or committed). They define the guest admin account that gets created.
 - A Generation 2 / UEFI-capable Hyper-V host, run from an elevated session.
 
 Run the whole procedure on the host; it needs no guest interaction:
@@ -84,8 +84,8 @@ if (-not (Test-Path -LiteralPath $winIso)) {
 }
 
 # 1. Guest admin account == the .credential account this agent connects with.
-$guestUser = (Get-Content -LiteralPath {{repo_root}}\.credential\HYPERV_OPERATOR_USERNAME -Raw).Trim()
-$guestPass = (Get-Content -LiteralPath {{repo_root}}\.credential\HYPERV_OPERATOR_PASSWORD -Raw).Trim()
+$guestUser = (Get-Content -LiteralPath {{repo_root}}\.credential\HYPERV_OPERATOR_USERNAME.txt -Raw).Trim()
+$guestPass = (Get-Content -LiteralPath {{repo_root}}\.credential\HYPERV_OPERATOR_PASSWORD.txt -Raw).Trim()
 
 # 2. Answer file: Gen2/UEFI partitions, accept EULA, skip OOBE, create the admin, allow scripts.
 #    W269N-... is the Win10/11 Pro GVLK (no activation prompt); change the key for other editions.
@@ -211,9 +211,8 @@ Copy-VMFile -Name {{proj}}_TestVm -FileSource Host -SourcePath $hostPath -Destin
 Credential construction pattern:
 
 ```powershell
-$username = Get-Content -LiteralPath {{repo_root}}\.credential\HYPERV_OPERATOR_USERNAME -Raw
-$password = Get-Content -LiteralPath {{repo_root}}\.credential\HYPERV_OPERATOR_PASSWORD -Raw
+$username = Get-Content -LiteralPath {{repo_root}}\.credential\HYPERV_OPERATOR_USERNAME.txt -Raw
+$password = Get-Content -LiteralPath {{repo_root}}\.credential\HYPERV_OPERATOR_PASSWORD.txt -Raw
 $securePassword = ConvertTo-SecureString $password.Trim() -AsPlainText -Force
 $credential = [pscredential]::new($username.Trim(), $securePassword)
 ```
-

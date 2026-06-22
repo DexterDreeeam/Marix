@@ -4,7 +4,7 @@
     "path": "src/config",
     "name": "config",
     "purpose": "Configuration library crate package with flat source files.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -15,8 +15,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/config/lib.rs",
-          "lineStart": 10,
-          "lineEnd": 10,
+          "lineStart": 11,
+          "lineEnd": 11,
           "language": "rust"
         }
       ]
@@ -28,14 +28,14 @@
       "codeSegments": [
         {
           "sourcePath": "src/config/lib.rs",
-          "lineStart": 13,
-          "lineEnd": 13,
+          "lineStart": 14,
+          "lineEnd": 14,
           "language": "rust"
         },
         {
           "sourcePath": "src/config/lib.rs",
-          "lineStart": 15,
-          "lineEnd": 26,
+          "lineStart": 16,
+          "lineEnd": 27,
           "language": "rust"
         }
       ]
@@ -43,19 +43,63 @@
     {
       "name": "Config",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/config/lib.rs",
-          "lineStart": 37,
-          "lineEnd": 39,
-          "language": "rust"
+          "lineStart": 38,
+          "lineEnd": 40,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/config/lib.rs",
-          "lineStart": 41,
-          "lineEnd": 92,
-          "language": "rust"
+          "lineStart": 42,
+          "lineEnd": 104,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 53,
+              "lineEnd": 55
+            },
+            {
+              "lineStart": 72,
+              "lineEnd": 85
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 57,
+              "lineEnd": 57
+            },
+            {
+              "lineStart": 83,
+              "lineEnd": 83
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/config/lib.rs",
+          "lineStart": 125,
+          "lineEnd": 207,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 135,
+              "lineEnd": 188
+            },
+            {
+              "lineStart": 190,
+              "lineEnd": 207
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 130,
+              "lineEnd": 132
+            }
+          ]
         }
       ]
     },
@@ -66,35 +110,39 @@
       "codeSegments": [
         {
           "sourcePath": "src/config/lib.rs",
-          "lineStart": 168,
-          "lineEnd": 171,
+          "lineStart": 259,
+          "lineEnd": 262,
           "language": "rust"
         },
         {
           "sourcePath": "src/config/lib.rs",
-          "lineStart": 173,
-          "lineEnd": 177,
+          "lineStart": 264,
+          "lineEnd": 268,
           "language": "rust"
         },
         {
           "sourcePath": "src/config/lib.rs",
-          "lineStart": 179,
-          "lineEnd": 183,
+          "lineStart": 270,
+          "lineEnd": 274,
           "language": "rust"
         },
         {
           "sourcePath": "src/config/lib.rs",
-          "lineStart": 185,
-          "lineEnd": 192,
+          "lineStart": 276,
+          "lineEnd": 283,
           "language": "rust"
         },
         {
           "sourcePath": "src/config/lib.rs",
-          "lineStart": 194,
-          "lineEnd": 194,
+          "lineStart": 285,
+          "lineEnd": 285,
           "language": "rust"
         }
       ]
     }
+  ],
+  "modified": [
+    "lib.rs",
+    "config.json"
   ]
 }

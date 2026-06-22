@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-pub const DEFAULT_CORE_PORT: u16 = 22345;
+pub const DEFAULT_CORE_PORT: u16 = 0;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SessionConfig {
@@ -20,13 +20,46 @@ impl SessionConfig {
                 .to_owned(),
             core_port: session
                 .and_then(|session| session.get("core_port"))
-                .and_then(Value::as_u64)
-                .and_then(|port| u16::try_from(port).ok())
+                .and_then(value_as_u16)
                 .unwrap_or(DEFAULT_CORE_PORT),
         }
     }
 
     pub fn bind_address(&self) -> String {
         format!("{}:{}", self.core_ip, self.core_port)
+    }
+}
+
+fn value_as_u16(value: &Value) -> Option<u16> {
+    match value {
+        Value::Number(number) => number.as_u64().and_then(u64_to_u16),
+        Value::String(text) => text.parse::<u16>().ok(),
+        _ => None,
+    }
+}
+
+fn u64_to_u16(port: u64) -> Option<u16> {
+    u16::try_from(port).ok()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::SessionConfig;
+    use serde_json::json;
+
+    #[test]
+    fn reads_string_core_port() {
+        let config = json!({
+            "cli": {
+                "session": {
+                    "core_ip": "192.0.2.1",
+                    "core_port": "12345"
+                }
+            }
+        });
+
+        let session = SessionConfig::new(&config);
+
+        assert_eq!(session.bind_address(), "192.0.2.1:12345");
     }
 }

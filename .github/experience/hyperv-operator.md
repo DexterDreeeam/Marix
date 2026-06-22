@@ -14,7 +14,7 @@ Durable operational notes for Hyper-V VM access and {{proj}} CLI deployment vali
   - SSH `22`: unavailable.
   - WinRM `5985`: unavailable.
   - WinRM TLS `5986`: unavailable.
-- Use `.credential/HYPERV_OPERATOR_USERNAME` and `.credential/HYPERV_OPERATOR_PASSWORD` for PowerShell Direct credentials. Never print their contents.
+- Use `.credential/HYPERV_OPERATOR_USERNAME.txt` and `.credential/HYPERV_OPERATOR_PASSWORD.txt` for PowerShell Direct credentials. Never print their contents.
 
 ## {{proj}} CLI Deployment
 
@@ -22,22 +22,22 @@ Durable operational notes for Hyper-V VM access and {{proj}} CLI deployment vali
 - Guest deployment folder: `{{vm_cli_root}}`.
 - Launcher: `{{vm_cli_root}}\run-{{proj_lower}}-cli.cmd`.
 - Launcher behavior: sets `{{proj_upper}}_SRC_ROOT` to `{{vm_cli_root}}\src` and runs `{{proj_lower}}-cli.exe`.
-- CLI remote config points to Ubuntu core at `43.142.167.218:22345`.
+- CLI remote config points to Ubuntu core at `{{ubuntu_ip}}:{{ubuntu_core_port}}`.
 
 ## Remote Core Context
 
-- Ubuntu SSH host: `ubuntu@43.142.167.218`.
+- Ubuntu SSH host: `ubuntu@{{ubuntu_ip}}`.
 - SSH key path on host: `{{ssh_key}}`.
 - `{{proj_lower}}-core` was previously built under `~/{{proj_lower}}-deploy/src/.target/release/{{proj_lower}}-core`.
-- Remote core listens on `0.0.0.0:22345`.
+- Remote core listens on `0.0.0.0:{{ubuntu_core_port}}`.
 - DeepSeek API was validated from Ubuntu with HTTP 200 and a minimal chat completion.
 
 ## Validation Pattern
 
 1. Confirm Ubuntu core is listening:
-   `ssh -i {{ssh_key}} -o IdentitiesOnly=yes ubuntu@43.142.167.218 'ss -ltnp | grep 22345'`
-2. Confirm host can reach port 22345:
-   `Test-NetConnection -ComputerName 43.142.167.218 -Port 22345`
+   `ssh -i {{ssh_key}} -o IdentitiesOnly=yes ubuntu@{{ubuntu_ip}} 'ss -ltnp | grep {{ubuntu_core_port}}'`
+2. Confirm host can reach core port:
+   `Test-NetConnection -ComputerName {{ubuntu_ip}} -Port {{ubuntu_core_port}}`
 3. Copy CLI files to VM with `Copy-VMFile`.
 4. Execute in guest with PowerShell Direct using stored credentials:
    `{{vm_cli_root}}\run-{{proj_lower}}-cli.cmd "Reply exactly VM_OK."`
@@ -51,5 +51,5 @@ Durable operational notes for Hyper-V VM access and {{proj}} CLI deployment vali
 ## Recent Validation Notes
 
 - 2026-06-21: PowerShell Direct with `.credential` credentials succeeded for `{{proj}}_TestVm`.
-- 2026-06-21: From inside `{{proj}}_TestVm`, TCP to `43.142.167.218:22345` succeeded while ICMP ping did not; rely on TCP checks for core reachability.
+- 2026-06-21: From inside `{{proj}}_TestVm`, TCP to `{{ubuntu_ip}}:{{ubuntu_core_port}}` succeeded while ICMP ping did not; rely on TCP checks for core reachability.
 - 2026-06-21: `{{vm_cli_root}}\run-{{proj_lower}}-cli.cmd "Reply exactly VM_OK."` completed with exit code 0 and output `VM_OK`.
