@@ -1,20 +1,20 @@
 "use strict";
   let manifest = null;
-  let language = localStorage.getItem(STORAGE_KEYS.language) || "en";
-  let overviewMode = localStorage.getItem(STORAGE_KEYS.overviewMode) || "file";
+  let language = "en";
+  let overviewMode = "file";
   let viewWholeFile = false;
-  let treeChangedFilesOnly = loadBooleanSetting(STORAGE_KEYS.treeChangedFilesOnly, false);
-  let starMapShowAllFiles = loadBooleanSetting(STORAGE_KEYS.starMapShowAllFiles, false);
+  let treeChangedFilesOnly = false;
+  let starMapShowAllFiles = false;
   let currentFile = null;
   let currentDirectory = null;
-  let scopePath = normalizeScopePath(localStorage.getItem(STORAGE_KEYS.scopePath) || SOURCE_ROOT);
+  let scopePath = SOURCE_ROOT;
   let starMapSelection = { kind: "module", path: scopePath };
   let scopePulsePath = scopePath;
   let scopePulseStartedAt = getAnimationNow();
   let moduleRoot = null;
   let selectedModule = null;
-  let collapsedModules = loadSetSetting(STORAGE_KEYS.collapsedModules);
-  let treeCollapsedFolders = loadSetSetting(STORAGE_KEYS.treeCollapsedFolders);
+  let collapsedModules = new Set();
+  let treeCollapsedFolders = new Set();
   let starTransform = { x: 0, y: 0, scale: 1 };
   let starViewportScale = 0;
   let starAutoFit = true;
@@ -27,12 +27,26 @@
   let localRootHandle = null;
   let designStatusChanges = null;
 
-  if (!["file", "star"].includes(overviewMode)) {
-    overviewMode = "file";
+  function initStateFromStorage() {
+    language = localStorage.getItem(STORAGE_KEYS.language) || "en";
+    overviewMode = localStorage.getItem(STORAGE_KEYS.overviewMode) || "file";
+    if (!["file", "star"].includes(overviewMode)) {
+      overviewMode = "file";
+    }
+    treeChangedFilesOnly = loadBooleanSetting(STORAGE_KEYS.treeChangedFilesOnly, false);
+    starMapShowAllFiles = loadBooleanSetting(STORAGE_KEYS.starMapShowAllFiles, false);
+    scopePath = normalizeScopePath(localStorage.getItem(STORAGE_KEYS.scopePath) || SOURCE_ROOT);
+    starMapSelection = { kind: "module", path: scopePath };
+    scopePulsePath = scopePath;
+    collapsedModules = loadSetSetting(STORAGE_KEYS.collapsedModules);
+    treeCollapsedFolders = loadSetSetting(STORAGE_KEYS.treeCollapsedFolders);
   }
 
   async function init() {
     try {
+      await resolveConfigAliases();
+      initStateFromStorage();
+      applyDocumentTitle();
       const dataSource = await resolveDataSourceChoice();
       activeDataSource = dataSource.kind;
       localRootHandle = dataSource.handle || null;
@@ -155,9 +169,13 @@
     localStorage.setItem(key, JSON.stringify(Array.from(value)));
   }
 
+  function applyDocumentTitle() {
+    document.title = resolveAliases(`{{proj}} - ${t("title")}`);
+  }
+
   function applyLanguage() {
     document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
-    document.title = `Marix - ${t("title")}`;
+    applyDocumentTitle();
 
     for (const el of document.querySelectorAll("[data-i18n]")) {
       el.textContent = t(el.dataset.i18n);

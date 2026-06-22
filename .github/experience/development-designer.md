@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Persistent implementation notes for generating and maintaining Marix source design documents.
+Persistent implementation notes for generating and maintaining {{proj}} source design documents.
 
 ## Current Design Contract
 

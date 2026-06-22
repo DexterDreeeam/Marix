@@ -50,7 +50,7 @@
         }
         try {
           const handle = await window.showDirectoryPicker({
-            id: "marix-overview-local-root",
+            id: resolveAliases("{{proj_lower}}-overview-local-root"),
             mode: "read"
           });
           const allowed = await requestLocalReadPermission(handle);
@@ -179,7 +179,7 @@
   }
 
   async function fetchTagDiff(repoApi, ref) {
-    const tags = await fetchMarixTags(repoApi);
+    const tags = await fetchProjectTags(repoApi);
     const diff = { prev_tag: null, latest_tag: null, changes: {} };
     if (tags.length === 0) return diff;
 
@@ -220,11 +220,12 @@
     };
   }
 
-  async function fetchMarixTags(repoApi) {
+  async function fetchProjectTags(repoApi) {
     const tags = await fetchJson(`${repoApi}/tags?per_page=100`);
-    const marixTags = tags.filter(tag => String(tag.name || "").startsWith("marix_tag_"));
-    logOverview("marix tags listed", { count: marixTags.length });
-    return marixTags
+    const tagPrefix = resolveAliases("{{proj_lower}}_tag_");
+    const projectTags = tags.filter(tag => String(tag.name || "").startsWith(tagPrefix));
+    logOverview("project tags listed", { count: projectTags.length });
+    return projectTags
       .map(tag => ({ name: tag.name, date: new Date(0) }))
       .sort((a, b) => a.name.localeCompare(b.name));
   }

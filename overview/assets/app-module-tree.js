@@ -1,7 +1,7 @@
 "use strict";
 
 function buildModuleTree(files) {
-  const root = createModuleNode("Marix", "");
+  const root = createModuleNode(resolveAliases("{{proj}}"), "");
 
   for (const path of Object.keys(files).sort()) {
     if (!isSourcePath(path) || isHiddenPath(path)) continue;

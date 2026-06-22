@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Persistent research notes for external AI agent implementations. Keep notes source-backed and reusable for Marix architecture work.
+Persistent research notes for external AI agent implementations. Keep notes source-backed and reusable for {{proj}} architecture work.
 
 ## Baseline Module Taxonomy
 
@@ -42,9 +42,9 @@ Reusable findings:
 - Context management has multiple layers: tool-result budget, snip compact, microcompact, context collapse, and auto-compact.
 - Production reliability comes from infrastructure around the model: permission modes, hooks, state layering, fallback, stop hooks, recovery guards, and budget tracking.
 
-Marix takeaway:
+{{proj}} takeaway:
 
-- Model the Marix core around a typed agent loop and self-describing tools, not around one-off command handlers.
+- Model the {{proj}} core around a typed agent loop and self-describing tools, not around one-off command handlers.
 - Treat context compaction and permission modes as first-class architecture, not later optimizations.
 
 ### OpenClaw
@@ -59,9 +59,9 @@ Reusable findings:
 - Core ideas: programmable workflow engine, universal message router, stateful context manager, plugin architecture, BYOM model layer, and self-hosted auditability.
 - Its strength is cross-channel orchestration rather than code editing alone.
 
-Marix takeaway:
+{{proj}} takeaway:
 
-- A workflow DSL and plugin registry can complement a coding-agent loop when Marix expands beyond terminal/code interactions.
+- A workflow DSL and plugin registry can complement a coding-agent loop when {{proj}} expands beyond terminal/code interactions.
 
 ### OpenHands
 
@@ -76,9 +76,9 @@ Reusable findings:
 - Event streams of actions and observations make execution auditable and replayable.
 - The sandbox boundary is the key safety primitive for arbitrary code execution.
 
-Marix takeaway:
+{{proj}} takeaway:
 
-- Use an action/observation event model if Marix needs replay, audit, pause/resume, or remote runtime support.
+- Use an action/observation event model if {{proj}} needs replay, audit, pause/resume, or remote runtime support.
 - Keep sandbox management separate from the agent loop.
 
 ### Aider
@@ -95,7 +95,7 @@ Reusable findings:
 - It uses chat modes (`code`, `ask`, `architect`, `help`) to separate planning, answering, and editing.
 - Architect mode can split reasoning and edit generation between separate models.
 
-Marix takeaway:
+{{proj}} takeaway:
 
 - Git/diff/undo should be a first-class workflow module.
 - Separate plan/ask/build modes reduce accidental edits and improve UX.
@@ -111,7 +111,7 @@ Reusable findings:
 - OpenCode provides TUI, desktop, and IDE surfaces.
 - It initializes projects with `AGENTS.md`, supports plan/build modes, undo/redo, shared conversations, themes, commands, keybinds, and provider configuration.
 
-Marix takeaway:
+{{proj}} takeaway:
 
 - Project-local instructions and plan/build mode are important UX primitives.
 - Undo/redo should be considered part of the editing contract, not just git recovery.
@@ -127,9 +127,9 @@ Reusable findings:
 - Continue represents the IDE-native context-provider architecture: editor selection, files, terminal, docs, and codebase index provide context.
 - It supports VS Code, JetBrains, and CLI modes, with configurable model providers.
 
-Marix takeaway:
+{{proj}} takeaway:
 
-- A context-provider abstraction would let Marix reuse the agent loop across CLI, IDE, and web surfaces.
+- A context-provider abstraction would let {{proj}} reuse the agent loop across CLI, IDE, and web surfaces.
 
 ## Research Note Template
 
@@ -156,7 +156,7 @@ Risks / anti-patterns:
 
 - ...
 
-Marix implications:
+{{proj}} implications:
 
 - ...
 ```

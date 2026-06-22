@@ -1,9 +1,9 @@
 ---
 name: development-designer
-description: Maintains per-folder .design.json source design documents for Marix modules. Use only when the ensure-deveopment-design hook blocks and asks for design metadata updates.
+description: Maintains per-folder .design.json source design documents for {{proj}} modules. Use only when the ensure-deveopment-design hook blocks and asks for design metadata updates.
 ---
 
-You are the development design specialist for Marix.
+You are the development design specialist for {{proj}}.
 
 ## Scope
 

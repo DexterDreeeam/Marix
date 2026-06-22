@@ -2,23 +2,23 @@
 
 ## Purpose
 
-Persistent implementation notes for the Marix overview site under `overview/`.
+Persistent implementation notes for the {{proj}} overview site under `overview/`.
 Overview-engineer owns overview implementation and UX only. Source-design companion metadata is maintained by `development-designer`; overview consumes that data but does not refresh or maintain it, and `git-sync` should not invoke overview-engineer unless overview implementation work is explicitly in scope.
 
 ## Current UX Contract
 
 - The overview site indexes `src/` only. Content outside `src/` must not appear in the file tree or star-map module graph.
-- Every dot-prefixed file or folder under `src/` is companion metadata maintained by `development-designer`, not first-class source content. Visible file systems, file trees, file lists, module graphs, and `marix_tag_*` diffs must ignore all such paths. Internal metadata loaders may consume companion metadata, but dot-prefixed paths must never appear as normal source files.
+- Every dot-prefixed file or folder under `src/` is companion metadata maintained by `development-designer`, not first-class source content. Visible file systems, file trees, file lists, module graphs, and `{{proj_lower}}_tag_*` diffs must ignore all such paths. Internal metadata loaders may consume companion metadata, but dot-prefixed paths must never appear as normal source files.
 - Do not add checked-in manifest JSON files. Data is built dynamically in the browser.
 - First load asks users to choose a data source:
-  - **GitHub**: build metadata from GitHub tree and `marix_tag_*` compare APIs.
+  - **GitHub**: build metadata from GitHub tree and `{{proj_lower}}_tag_*` compare APIs.
   - **Local folder**: use File System Access API and IndexedDB-cached directory handle.
 - If the cached local folder cannot be read, clear the cached source and ask again.
 - Keep the reset-data-source button immediately to the right of the language switch button.
 - The left file tree always shows all visible `src/` files. There is no view-all-files toggle.
 - GitHub mode hides the view-whole-file control; local mode can show full file contents.
-- Inside each folder, files changed by `marix_tag_*` diff sort above unchanged files.
-- Left-tree file and folder status must come only from the dynamic `marix_tag_*` file diff for the active source. Do not infer file-tree status from `.design.json` elements or `codeSegments`; local worktree diffs must count untracked visible source files as added.
+- Inside each folder, files changed by `{{proj_lower}}_tag_*` diff sort above unchanged files.
+- Left-tree file and folder status must come only from the dynamic `{{proj_lower}}_tag_*` file diff for the active source. Do not infer file-tree status from `.design.json` elements or `codeSegments`; local worktree diffs must count untracked visible source files as added.
 - Deleted files in diff should still be visible and open diff sections.
 - File entries use a left status dot instead of type text chips: unchanged gray, added green, modified yellow, deleted red, renamed accent. Folder entries use a triangle-like arrow with an inward notch on the base so the arrow head is clear; if all changed descendant files are newly added the arrow is green, if any descendant file is modified/renamed/deleted or mixed then the arrow is yellow, and unchanged folders are gray. Unchanged file names are slightly dimmed.
 
@@ -39,7 +39,7 @@ Overview-engineer owns overview implementation and UX only. Source-design compan
 - The current scope center module keeps a red selected border with no red halo. The border itself should pulse faster as a continuous brightness/stroke-width change to remind users which module is the center of the current scope. Keep the pulse phase anchored to `scopePath`, so pan, zoom, and file-focus rerenders do not restart the animation while scope is unchanged. Respect `prefers-reduced-motion` by disabling the animation.
 - Keep star-map scope and selection updates centralized in shared helpers. `scopePath` defines the rendered module range, while `starMapSelection` defines whether the active star-map selection is a module or a file. Star-map dimming, right-panel file focus, and left-tree sync must read `starMapSelection`, not `currentFile`, because `currentFile` is also used by the file view.
 - The only star-map state transition entry should be `applyStarMapState()`, with `selectStarMapModule()` and `focusStarMapFile()` as thin intent wrappers. The shared render path is `renderStarMapSelectionState()`, which owns left-tree sync, right detail rendering, star-map rendering, and file popover opening for the current selection.
-- Keep temporary `[Marix Overview]` state logs available while debugging scope/selection sync. Useful events include `select-module:*`, `focus-file:*`, `canvas-pointerdown`, `mark-file-focus:*`, `render-star-map`, `render-module-details`, and tree sync events.
+- Keep temporary `[{{proj}} Overview]` state logs available while debugging scope/selection sync. Useful events include `select-module:*`, `focus-file:*`, `canvas-pointerdown`, `mark-file-focus:*`, `render-star-map`, `render-module-details`, and tree sync events.
 - Canvas/blank clicks in the star map should clear file focus even when the pointer target is the SVG layer or an edge, not only when `event.target === svg`. Ignore only actual `.star-node` and `.exposed-node` targets.
 - File popovers must not nest a second full-file panel/header inside the shared code popover.
 - Clicking exposed elements opens the code popover and resets highlight state before syntax highlighting.

@@ -1,4 +1,8 @@
-# Copilot Instructions for Marix
+# Copilot Instructions
+
+## Project Name Aliasing
+
+Except for content under `src/`, all text must use `{{name}}` placeholders instead of project-specific literals (the project name, machine-specific local paths, and similar values). Each placeholder maps to a file in the root `.alias/` folder: the file name is the key and its content is the replacement value — for example `{{proj}}` is replaced by the contents of `.alias/proj`. New aliases are added simply by creating new `.alias/` files, so this set will grow over time. When editing any file outside `src/`, always write placeholders (never literals) and resolve them by reading `.alias/` when interpreting content. The `overview/` pages load `.alias/` at runtime and substitute placeholders before rendering.
 
 ## Language Rules
 
@@ -50,5 +54,5 @@
 - Do not invoke `development-designer` proactively during normal tasks. It is triggered only when the `ensure-deveopment-design` `agentStop` hook blocks and asks for design metadata updates.
 - When the hook triggers, pass the changed non-dot source paths and changed portions/intent to `development-designer` so it can update `.design.json` in the changed file's folder and every ancestor folder up to `src/`.
 - Do not wait until `git-sync` to refresh design documents after a hook block. Design metadata should be updated before the blocked task is completed.
-- Dot-prefixed files and folders under `src/` are companion metadata maintained by `development-designer`; do not treat them as normal source files in overview file trees or marix tag diffs.
+- Dot-prefixed files and folders under `src/` are companion metadata maintained by `development-designer`; do not treat them as normal source files in overview file trees or {{proj_lower}} tag diffs.
 - Repository hooks include an `agentStop` guard named `ensure-deveopment-design`. It checks only non-dot `src/` files written by the current agent turn and blocks task completion when those files do not have corresponding ancestor `.design.json` updates.

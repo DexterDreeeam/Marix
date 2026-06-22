@@ -17,7 +17,7 @@
       resetDataSourceTool: "Choose data source again",
       selectFile: "Select a file to view",
       scopeLabel: "Scope",
-      welcomeTitle: "Welcome to Marix Overview",
+      welcomeTitle: "Welcome to {{proj}} Overview",
       welcomeIntro: "Browse repository files from the sidebar.",
       welcomeModified: "Files marked with M have been modified since the last tag.",
       welcomeAdded: "Files marked with A are newly added.",
@@ -49,7 +49,7 @@
       reason: "Reason",
       reasonPending: "Pending overview-engineer annotation.",
       starTitle: "Star Map",
-      starDescription: "Browse repository modules as a nested star map. Modules are derived from folder hierarchy, and changed modules are highlighted from marix tag diffs.",
+      starDescription: "Browse repository modules as a nested star map. Modules are derived from folder hierarchy, and changed modules are highlighted from {{proj_lower}} tag diffs.",
       starHelp: "Wheel to zoom. Drag the canvas to pan. Select a module to inspect it. Use the details panel to expand or collapse submodules.",
       resetView: "Reset view",
       rootModule: "Repository root",
@@ -86,7 +86,7 @@
       resetDataSourceTool: "重新选择数据源",
       selectFile: "选择一个文件查看",
       scopeLabel: "范围",
-      welcomeTitle: "欢迎来到 Marix 总览",
+      welcomeTitle: "欢迎来到 {{proj}} 总览",
       welcomeIntro: "从左侧浏览仓库文件。",
       welcomeModified: "标记为 M 的文件表示从上一个 tag 后被修改。",
       welcomeAdded: "标记为 A 的文件表示新增加。",
@@ -118,7 +118,7 @@
       reason: "原因",
       reasonPending: "等待 overview-engineer 补充说明。",
       starTitle: "星图视图",
-      starDescription: "以嵌套星图浏览仓库模块。模块根据文件夹层级生成，并根据 marix tag diff 高亮改动模块。",
+      starDescription: "以嵌套星图浏览仓库模块。模块根据文件夹层级生成，并根据 {{proj_lower}} tag diff 高亮改动模块。",
       starHelp: "鼠标滚轮缩放。拖动画布平移。选择模块查看详情。可在右侧面板展开或折叠子模块。",
       resetView: "重置视图",
       rootModule: "仓库根模块",
@@ -144,25 +144,25 @@
   };
 
   const STORAGE_KEYS = {
-    language: "marix-overview-language",
-    overviewMode: "marix-overview-mode",
-    viewWholeFile: "marix-overview-view-whole-file",
-    treeChangedFilesOnly: "marix-overview-tree-changed-files-only",
-    starMapShowAllFiles: "marix-overview-star-map-show-all-files",
-    currentFile: "marix-overview-current-file",
-    scopePath: "marix-overview-scope-path",
-    collapsedModules: "marix-overview-collapsed-modules",
-    treeCollapsedFolders: "marix-overview-tree-collapsed-folders",
-    dataSource: "marix-overview-data-source"
+    language: "{{proj_lower}}-overview-language",
+    overviewMode: "{{proj_lower}}-overview-mode",
+    viewWholeFile: "{{proj_lower}}-overview-view-whole-file",
+    treeChangedFilesOnly: "{{proj_lower}}-overview-tree-changed-files-only",
+    starMapShowAllFiles: "{{proj_lower}}-overview-star-map-show-all-files",
+    currentFile: "{{proj_lower}}-overview-current-file",
+    scopePath: "{{proj_lower}}-overview-scope-path",
+    collapsedModules: "{{proj_lower}}-overview-collapsed-modules",
+    treeCollapsedFolders: "{{proj_lower}}-overview-tree-collapsed-folders",
+    dataSource: "{{proj_lower}}-overview-data-source"
   };
 
   const GITHUB_OWNER = "DexterDreeeam";
-  const GITHUB_REPO = "Marix";
+  let GITHUB_REPO = "{{proj}}";
   const MAX_DYNAMIC_FILE_SIZE = 100 * 1024;
-  const LOG_PREFIX = "[Marix Overview]";
+  let LOG_PREFIX = "[{{proj}} Overview]";
   const DATA_SOURCE_GITHUB = "github";
   const DATA_SOURCE_LOCAL = "local";
-  const LOCAL_DB_NAME = "marix-overview-local-source";
+  let LOCAL_DB_NAME = "{{proj_lower}}-overview-local-source";
   const LOCAL_DB_STORE = "handles";
   const LOCAL_ROOT_HANDLE_KEY = "root";
   const STAR_MAP_DEBUG = true;

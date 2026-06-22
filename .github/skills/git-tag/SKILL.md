@@ -1,6 +1,6 @@
 ---
 name: git-tag
-description: Commit current changes, create a marix tag, and synchronize the current branch with remote. Use when the user asks to tag, create a patch point, or run git-tag.
+description: Commit current changes, create a {{proj_lower}} tag, and synchronize the current branch with remote. Use when the user asks to tag, create a patch point, or run git-tag.
 ---
 
 ## Workflow
@@ -12,12 +12,12 @@ description: Commit current changes, create a marix tag, and synchronize the cur
 5. **Create Tag** — Create an annotated tag on this source-change commit in the format:
 
    ```
-   marix_tag_<timestamp>_<purpose>
+   {{proj_lower}}_tag_<timestamp>_<purpose>
    ```
 
    - `<timestamp>`: current time in `YYYYMMDD_HHmmss` format (local time).
    - `<purpose>`: a short snake_case summary of the change (e.g., `add_model_adapter`, `fix_memory_leak`).
-   - Example: `marix_tag_20260618_150900_add_git_skills`
+   - Example: `{{proj_lower}}_tag_20260618_150900_add_git_skills`
 
 6. **Reset Design JSON After Tag** — After the tag is successfully created, run `design-json-reset`. If it changes any `.design.json` files, create a second commit with a concise English message (≤20 words) and the same `Co-authored-by` trailer. The tag must remain on the previous source-change commit, not this reset commit.
 7. **Sync Remote** — Push the current branch and the created tag to remote:
@@ -27,8 +27,8 @@ description: Commit current changes, create a marix tag, and synchronize the cur
 
 ## Rules
 
-- This skill only creates tags with the `marix_tag_` prefix. It does NOT modify or interact with any other user-defined tags.
+- This skill only creates tags with the `{{proj_lower}}_tag_` prefix. It does NOT modify or interact with any other user-defined tags.
 - If there are no changes to commit, skip the commit step and only create the tag on the current HEAD.
 - If `design-json-reset` produces a reset commit, push the branch after that reset commit so the branch HEAD has reset `.design.json` statuses while the tag points at the source-change commit.
-- Pushing the current branch and the created `marix_tag_*` tag is part of this skill after the user explicitly invokes `git-tag`.
-- Do NOT use `git push --tags`; only push the newly created `marix_tag_*` tag.
+- Pushing the current branch and the created `{{proj_lower}}_tag_*` tag is part of this skill after the user explicitly invokes `git-tag`.
+- Do NOT use `git push --tags`; only push the newly created `{{proj_lower}}_tag_*` tag.

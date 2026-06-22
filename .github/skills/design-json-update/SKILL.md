@@ -1,6 +1,6 @@
 ---
 name: design-json-update
-description: Update Marix src/.design.json metadata. Use from development-designer after ensure-deveopment-design blocks, before git-tag, or directly when the user asks to refresh source design JSON.
+description: Update {{proj}} src/.design.json metadata. Use from development-designer after ensure-deveopment-design blocks, before git-tag, or directly when the user asks to refresh source design JSON.
 ---
 
 ## Purpose

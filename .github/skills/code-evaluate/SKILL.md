@@ -32,13 +32,13 @@ Evaluate code organization, file size, and lightweight style health. This skill 
 Use these checks as lightweight guidance when evaluating Rust code:
 
 - **Formatting and linting**
-  - The Marix Rust workspace root is `src/`; run Cargo commands from `src/` or pass `--manifest-path src/Cargo.toml`.
+  - The {{proj}} Rust workspace root is `src/`; run Cargo commands from `src/` or pass `--manifest-path src/Cargo.toml`.
   - Cargo build output belongs under `src/.target/`, as configured by `src/.cargo/config.toml`.
   - Prefer `cargo fmt` / rustfmt formatting when a Cargo project is present.
   - Prefer `cargo clippy --all-targets --all-features` when a Cargo project is present.
   - If the repository does not support those commands, report that they were not run rather than adding tooling.
 - **Naming**
-  - Apply the Marix Rust naming convention as an advisory style check for Rust code only. Do not apply these rules to non-Rust code.
+  - Apply the {{proj}} Rust naming convention as an advisory style check for Rust code only. Do not apply these rules to non-Rust code.
   - File names, modules, structs, enums, traits, and type definitions should use `UpperCamelCase`.
   - Functions and methods should use `snake_case`.
   - Macros should use `snake_case!`.

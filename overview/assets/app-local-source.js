@@ -57,7 +57,7 @@
 
   async function buildLocalDiffFromLatestTag(rootHandle, localTree) {
     const gitHandle = await rootHandle.getDirectoryHandle(".git");
-    const tags = await fetchLocalMarixTags(gitHandle);
+    const tags = await fetchLocalProjectTags(gitHandle);
     const diff = { prev_tag: null, latest_tag: "local", changes: {} };
     if (tags.length === 0) return diff;
 
@@ -85,12 +85,13 @@
     return diff;
   }
 
-  async function fetchLocalMarixTags(gitHandle) {
+  async function fetchLocalProjectTags(gitHandle) {
     const tags = new Map();
     await collectLocalLooseTags(gitHandle, "refs/tags", "", tags);
     await collectLocalPackedTags(gitHandle, tags);
+    const tagPrefix = resolveAliases("{{proj_lower}}_tag_");
     return Array.from(tags.entries())
-      .filter(([name]) => name.startsWith("marix_tag_"))
+      .filter(([name]) => name.startsWith(tagPrefix))
       .map(([name, sha]) => ({ name, sha }))
       .sort((a, b) => a.name.localeCompare(b.name));
   }

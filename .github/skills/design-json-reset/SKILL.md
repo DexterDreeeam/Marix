@@ -1,17 +1,17 @@
 ---
 name: design-json-reset
-description: Reset Marix src/.design.json changeStatus fields after a successful marix tag. Use only from git-tag after the tag is created.
+description: Reset {{proj}} src/.design.json changeStatus fields after a successful {{proj_lower}} tag. Use only from git-tag after the tag is created.
 ---
 
 ## Purpose
 
-Reset committed source design metadata status after a successful `marix_tag_*` tag is created.
+Reset committed source design metadata status after a successful `{{proj_lower}}_tag_*` tag is created.
 
 This skill is intentionally narrow: it only resets `changeStatus` values in `.design.json` files under `src/`. It does not refresh structure, discover new elements, edit source code, or parse legacy `.design.md`.
 
 ## Trigger
 
-- Use this skill only after `git-tag` successfully creates the annotated `marix_tag_*` tag on the source-change commit.
+- Use this skill only after `git-tag` successfully creates the annotated `{{proj_lower}}_tag_*` tag on the source-change commit.
 - After this skill changes `.design.json`, `git-tag` should create a second commit for the reset, then push the branch and the newly created tag together.
 
 ## Workflow
