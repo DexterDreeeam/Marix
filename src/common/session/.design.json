@@ -11,13 +11,20 @@
     {
       "name": "PipeClient",
       "type": "trait",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/pipe_client.rs",
-          "lineStart": 3,
-          "lineEnd": 14,
-          "language": "rust"
+          "lineStart": 1,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 4,
+              "lineEnd": 11
+            }
+          ]
         }
       ]
     },
@@ -47,46 +54,20 @@
       ]
     },
     {
-      "name": "PipeReceiveHandler",
-      "type": "type-alias",
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/session/pipe_response.rs",
-          "lineStart": 1,
-          "lineEnd": 1,
-          "language": "rust"
-        }
-      ]
-    },
-    {
-      "name": "PipeCloseHandler",
-      "type": "type-alias",
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/session/pipe_response.rs",
-          "lineStart": 2,
-          "lineEnd": 2,
-          "language": "rust"
-        }
-      ]
-    },
-    {
       "name": "PipeResponse",
       "type": "enum",
       "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/pipe_response.rs",
-          "lineStart": 5,
-          "lineEnd": 8,
+          "lineStart": 2,
+          "lineEnd": 5,
           "language": "rust"
         },
         {
           "sourcePath": "src/common/session/pipe_response.rs",
-          "lineStart": 10,
-          "lineEnd": 22,
+          "lineStart": 7,
+          "lineEnd": 19,
           "language": "rust"
         }
       ]
@@ -94,13 +75,20 @@
     {
       "name": "PipeServer",
       "type": "trait",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/pipe_server.rs",
-          "lineStart": 3,
-          "lineEnd": 14,
-          "language": "rust"
+          "lineStart": 1,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 4,
+              "lineEnd": 11
+            }
+          ]
         }
       ]
     },
@@ -154,6 +142,9 @@
     }
   ],
   "modified": [
-    "session_config.rs"
+    "session_config.rs",
+    "pipe_client.rs",
+    "pipe_server.rs",
+    "pipe_response.rs"
   ]
 }

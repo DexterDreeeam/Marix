@@ -18,6 +18,7 @@ At the start of each task, read `.github/experience/hyperv-operator.md` if it ex
 ## Current Context
 
 - Target Hyper-V VM: `{{proj}}_TestVm`. Reuse it when it already exists; otherwise provision it fully unattended (see **Zero-Touch VM Provisioning**) — no manual steps inside the guest.
+- `{{proj}}_TestVm` is the only valid target VM for {{proj}} operations. Never substitute another existing VM name; if this VM cannot be found, verified, or provisioned because host permissions are insufficient, report the operation as blocked.
 - Guest Service Interface is enabled and supports `Copy-VMFile` from host to guest.
 - The current CLI deployment path inside the VM is `{{vm_cli_root}}`.
 - The copied CLI launcher is `{{vm_cli_root}}\run-{{proj_lower}}-cli.cmd`.

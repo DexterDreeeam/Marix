@@ -1,7 +1,14 @@
 "use strict";
   async function fetchLocalRepositoryTree(rootHandle) {
     const files = [];
-    await collectLocalFiles(rootHandle, "", files);
+    let sourceHandle = null;
+    try {
+      sourceHandle = await rootHandle.getDirectoryHandle(SOURCE_ROOT);
+    } catch (e) {
+      if (e && e.name === "NotFoundError") return files;
+      throw e;
+    }
+    await collectLocalFiles(sourceHandle, SOURCE_ROOT, files);
     return files;
   }
 

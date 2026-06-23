@@ -194,6 +194,7 @@
     updateActionButton("btn-reset-data-source", "resetDataSourceTool");
     updateTreeFilterButton();
     updateDataSourceDependentControls();
+    if (typeof refreshActiveReloadBannerLanguage === "function") refreshActiveReloadBannerLanguage();
 
     renderWelcome();
     renderMode();
@@ -431,6 +432,7 @@
   }
 
   async function resetDataSourceChoice() {
+    if (typeof hideActiveReloadBanner === "function") hideActiveReloadBanner();
     await clearCachedDataSource();
     localStorage.removeItem(STORAGE_KEYS.currentFile);
     localStorage.removeItem(STORAGE_KEYS.scopePath);

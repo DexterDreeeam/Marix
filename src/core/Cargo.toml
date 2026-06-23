@@ -3,11 +3,7 @@ name = "marix-core"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Marix agent core library and server binary."
-
-[lib]
-name = "marix_core"
-path = "lib.rs"
+description = "Marix core pipe server binary."
 
 [[bin]]
 name = "marix-core"
@@ -15,5 +11,3 @@ path = "main.rs"
 
 [dependencies]
 marix-common.workspace = true
-marix-config.workspace = true
-serde_json.workspace = true

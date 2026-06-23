@@ -6,6 +6,5 @@ pub use protocol::{
     UserMessageType,
 };
 pub use session::{
-    PipeClient, PipeCloseHandler, PipeError, PipeReceiveHandler, PipeResponse, PipeServer,
-    SessionConfig,
+    PipeClient, PipeError, PipeResponse, PipeServer, SessionConfig,
 };

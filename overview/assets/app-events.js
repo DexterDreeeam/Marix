@@ -3,6 +3,7 @@
     const searchInput = document.getElementById("search-input");
     let searchTimeout;
     bindGlobalTooltips();
+    bindActiveReloadBannerEvents();
 
     searchInput.addEventListener("input", () => {
       clearTimeout(searchTimeout);

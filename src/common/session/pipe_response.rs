@@ -1,6 +1,3 @@
-pub type PipeReceiveHandler<Payload> = Box<dyn Fn(Payload) -> PipeResponse + Send + 'static>;
-pub type PipeCloseHandler = Box<dyn Fn() -> PipeResponse + Send + 'static>;
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PipeResponse {
     Accepted,

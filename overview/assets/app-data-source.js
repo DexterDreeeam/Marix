@@ -155,7 +155,6 @@
       includedFiles: tree.length,
       visibleSourceFiles: tree.filter(item => shouldIncludeVisibleSourcePath(item.path)).length
     });
-
     let diff = { prev_tag: null, latest_tag: null, changes: {} };
     try {
       diff = await buildLocalDiffFromLatestTag(rootHandle, tree);
