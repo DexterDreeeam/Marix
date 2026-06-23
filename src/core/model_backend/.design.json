@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/core/model_backend",
+    "name": "model_backend",
+    "purpose": "Dynamic model backend boundary and concrete backend implementations for core.",
+    "changeStatus": "added"
+  },
+  "added": [
+    "."
+  ],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "ModelBackend",
+      "type": "trait",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/model_backend/mod.rs",
+          "lineStart": 9,
+          "lineEnd": 14,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 14
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ModelBackendOutput",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/model_backend/mod.rs",
+          "lineStart": 16,
+          "lineEnd": 27,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 16,
+              "lineEnd": 27
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ModelBackendError",
+      "type": "enum",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/model_backend/mod.rs",
+          "lineStart": 29,
+          "lineEnd": 68,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 29,
+              "lineEnd": 68
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ModelBackendDeepseek",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/model_backend/deepseek.rs",
+          "lineStart": 15,
+          "lineEnd": 20,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 20
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/core/model_backend/deepseek.rs",
+          "lineStart": 22,
+          "lineEnd": 92,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 92
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/core/model_backend/deepseek.rs",
+          "lineStart": 94,
+          "lineEnd": 103,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 94,
+              "lineEnd": 103
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/core/model_backend/deepseek.rs",
+          "lineStart": 105,
+          "lineEnd": 170,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 105,
+              "lineEnd": 170
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

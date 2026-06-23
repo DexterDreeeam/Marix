@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/common/structure",
+    "name": "structure",
+    "purpose": "Shared runtime data structures that coordinate dynamic state between producers and consumers.",
+    "changeStatus": "added"
+  },
+  "added": [
+    "."
+  ],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "DynamicResponseSignal",
+      "type": "enum",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/dynamic_response.rs",
+          "lineStart": 6,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "DynamicResponse",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/dynamic_response.rs",
+          "lineStart": 165,
+          "lineEnd": 211,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 165,
+              "lineEnd": 211
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "DynamicResponseProducer",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/dynamic_response.rs",
+          "lineStart": 170,
+          "lineEnd": 267,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 170,
+              "lineEnd": 267
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

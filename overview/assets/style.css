@@ -371,9 +371,9 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 #global-tooltip { position: fixed; z-index: 9999; padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-tertiary); color: var(--text-primary); font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; white-space: nowrap; pointer-events: none; box-shadow: 0 8px 24px rgba(0,0,0,0.28); opacity: 0; transition: opacity 0.12s; }
 #viewer-content.star-active .code-popover { top: 24px; bottom: 24px; left: 32px; right: 332px; }
 .code-popover-backdrop { position: absolute; inset: 0; z-index: 20; background: rgba(1, 4, 9, 0.62); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
-.code-popover { position: absolute; top: 24px; bottom: 24px; left: 24px; right: 24px; z-index: 21; width: auto; max-width: none; display: flex; flex-direction: column; border: 1px solid var(--accent); border-radius: 12px; background: var(--bg-secondary); box-shadow: 0 0 0 1px rgba(88, 166, 255, 0.45), 0 30px 90px 10px rgba(0, 0, 0, 0.85), 0 12px 32px rgba(0, 0, 0, 0.65); overflow: hidden; }
+.code-popover { position: absolute; top: 24px; bottom: 24px; left: 24px; right: 24px; z-index: 21; width: auto; max-width: none; display: flex; flex-direction: column; border: 1px solid var(--accent); border-radius: 12px; background: var(--bg-secondary); box-shadow: 0 0 0 1px rgba(88, 166, 255, 0.45), 0 30px 90px 10px rgba(0, 0, 0, 0.85), 0 12px 32px rgba(0, 0, 0, 0.65); overflow: hidden; overscroll-behavior: contain; }
 .code-popover-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--bg-tertiary); }
-.code-popover-content { flex: 1; overflow: auto; background: var(--bg-primary); }
+.code-popover-content { flex: 1; overflow: auto; overscroll-behavior: contain; background: var(--bg-primary); }
 .code-popover-code { padding: 14px; white-space: pre; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 13px; line-height: 1.5; }
 .code-popover-file { padding: 14px; }
 .code-segment-panel { margin-bottom: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-secondary); overflow: hidden; }

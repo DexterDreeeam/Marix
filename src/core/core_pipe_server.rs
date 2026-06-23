@@ -1,10 +1,9 @@
 use marix_common::{
-    ChatMessageInput, ChatMessageOutput, PipeError, PipeResponse, PipeServer, UserMessage,
-    UserMessageType,
+    ChatMessageInput, ChatMessageOutput, DynamicResponseSignal, PipeError, PipeResponse,
+    PipeServer, UserMessage, UserMessageType,
 };
 
-use crate::model_backend::ModelBackend;
-use crate::model_backend_deepseek::ModelBackendDeepseek;
+use crate::model_backend::{ModelBackend, ModelBackendDeepseek};
 use crate::preprocess::Preprocessor;
 
 #[derive(Debug)]
@@ -79,10 +78,20 @@ impl PipeServer for CorePipeServer {
             Ok(preprocessed) => preprocessed,
             Err(error) => return Ok(PipeResponse::rejected(error.to_string())),
         };
-        let output = self
+        let response = self
             .model_backend
-            .wait_response(preprocessed)
+            .request_response(preprocessed)
             .map_err(|error| PipeError::ReceiveFailed(error.to_string()))?;
+        let output = loop {
+            match response.wait(None) {
+                DynamicResponseSignal::Changed => {}
+                DynamicResponseSignal::Finished => break response.get(),
+                DynamicResponseSignal::Failed(reason) => {
+                    return Err(PipeError::ReceiveFailed(reason));
+                }
+                DynamicResponseSignal::TimedOut => {}
+            }
+        };
 
         self.send(ChatMessageOutput::new(output.content))
     }

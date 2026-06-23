@@ -3,9 +3,12 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared protocol, session, and pipe interface crate package.",
+    "purpose": "Shared protocol, session, structure, and pipe interface crate package.",
     "changeStatus": "modified"
   },
+  "modified": [
+    "lib.rs"
+  ],
   "childModules": [
     {
       "path": "src/common/protocol",
@@ -16,6 +19,11 @@
       "path": "src/common/session",
       "name": "session",
       "purpose": "Shared session configuration and client/server pipe transport."
+    },
+    {
+      "path": "src/common/structure",
+      "name": "structure",
+      "purpose": "Shared runtime data structures that coordinate dynamic state between producers and consumers."
     }
   ],
   "elements": []

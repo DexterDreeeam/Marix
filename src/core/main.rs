@@ -1,6 +1,5 @@
 mod core_pipe_server;
 mod model_backend;
-mod model_backend_deepseek;
 mod preprocess;
 
 use std::io;

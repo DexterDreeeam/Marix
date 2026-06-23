@@ -1,10 +1,16 @@
+pub mod deepseek;
+
+use marix_common::DynamicResponse;
+
 use crate::preprocess::PreprocessOutput;
 
+pub use deepseek::ModelBackendDeepseek;
+
 pub trait ModelBackend: std::fmt::Debug {
-    fn wait_response(
+    fn request_response(
         &mut self,
         input: PreprocessOutput,
-    ) -> Result<ModelBackendOutput, ModelBackendError>;
+    ) -> Result<DynamicResponse<ModelBackendOutput>, ModelBackendError>;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -36,6 +42,12 @@ impl From<std::io::Error> for ModelBackendError {
 impl From<serde_json::Error> for ModelBackendError {
     fn from(error: serde_json::Error) -> Self {
         Self::InvalidResponse(error.to_string())
+    }
+}
+
+impl From<reqwest::Error> for ModelBackendError {
+    fn from(error: reqwest::Error) -> Self {
+        Self::RequestFailed(error.to_string())
     }
 }
 

@@ -37,6 +37,7 @@
 
     document.getElementById("code-popover-backdrop").addEventListener("click", hideCodePopover);
     document.getElementById("btn-close-code-popover").addEventListener("click", hideCodePopover);
+    bindCodePopoverScrollGuard();
     document.addEventListener("keydown", evt => {
       if (evt.key === "Escape") hideCodePopover();
     });
@@ -85,6 +86,51 @@
     svg.addEventListener("pointerleave", () => {
       panState = null;
     });
+  }
+
+  function bindCodePopoverScrollGuard() {
+    const backdrop = document.getElementById("code-popover-backdrop");
+    const popover = document.getElementById("code-popover");
+    backdrop.addEventListener("wheel", blockWheelBehindPopover, { passive: false });
+    popover.addEventListener("wheel", evt => {
+      evt.stopPropagation();
+      if (!canScrollInsidePopover(evt.target, popover, evt.deltaX, evt.deltaY)) {
+        evt.preventDefault();
+      }
+    }, { passive: false });
+  }
+
+  function blockWheelBehindPopover(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+  }
+
+  function canScrollInsidePopover(target, boundary, deltaX, deltaY) {
+    let element = target instanceof Element ? target : target && target.parentElement;
+    while (element && element !== boundary.parentElement) {
+      if (element instanceof HTMLElement && canElementScrollByDelta(element, deltaX, deltaY)) {
+        return true;
+      }
+      if (element === boundary) break;
+      element = element.parentElement;
+    }
+    return false;
+  }
+
+  function canElementScrollByDelta(element, deltaX, deltaY) {
+    const style = window.getComputedStyle(element);
+    return canElementScrollAxis(element, style.overflowY, element.scrollTop, element.clientHeight, element.scrollHeight, deltaY)
+      || canElementScrollAxis(element, style.overflowX, element.scrollLeft, element.clientWidth, element.scrollWidth, deltaX);
+  }
+
+  function canElementScrollAxis(element, overflow, position, viewportSize, contentSize, delta) {
+    if (!delta || !isScrollableOverflow(overflow) || contentSize <= viewportSize + 1) return false;
+    if (delta < 0) return position > 0;
+    return position + viewportSize < contentSize - 1;
+  }
+
+  function isScrollableOverflow(overflow) {
+    return overflow === "auto" || overflow === "scroll" || overflow === "overlay";
   }
 
   function bindStarMapResizeObserver(svg) {
