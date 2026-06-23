@@ -4,14 +4,14 @@
     "path": "src/common/session",
     "name": "session",
     "purpose": "Shared session configuration and client/server pipe transport.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
     {
       "name": "PipeClient",
       "type": "trait",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/pipe_client.rs",
@@ -75,7 +75,7 @@
     {
       "name": "PipeServer",
       "type": "trait",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/pipe_server.rs",
@@ -95,7 +95,7 @@
     {
       "name": "DEFAULT_CORE_PORT",
       "type": "const",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/session_config.rs",
@@ -115,7 +115,7 @@
     {
       "name": "SessionConfig",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/session_config.rs",
@@ -140,11 +140,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "session_config.rs",
-    "pipe_client.rs",
-    "pipe_server.rs",
-    "pipe_response.rs"
   ]
 }
