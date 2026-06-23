@@ -1,7 +1,7 @@
 use super::{PipeError, PipeResponse};
-use crate::protocol::UserMessage;
+use crate::message::UserMessage;
 
-pub trait PipeServer {
+pub trait Pipe {
     fn send(&mut self, message: impl UserMessage) -> Result<PipeResponse, PipeError>;
 
     fn on_receive(&mut self, message: impl UserMessage) -> Result<PipeResponse, PipeError>;

@@ -7,14 +7,15 @@
     "changeStatus": "modified"
   },
   "added": [
-    "core_pipe_server.rs"
+    "pipe_server.rs"
   ],
   "modified": [
     "Cargo.toml",
     "main.rs"
   ],
   "deleted": [
-    "core.rs"
+    "core.rs",
+    "core_pipe_server.rs"
   ],
   "childModules": [
     {
@@ -30,57 +31,48 @@
   ],
   "elements": [
     {
-      "name": "CorePipeServer",
+      "name": "PipeServer",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/core/core_pipe_server.rs",
-          "lineStart": 10,
-          "lineEnd": 14,
+          "sourcePath": "src/core/pipe_server.rs",
+          "lineStart": 11,
+          "lineEnd": 16,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 12
+              "lineStart": 11,
+              "lineEnd": 16
             }
           ],
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/core/core_pipe_server.rs",
-          "lineStart": 16,
-          "lineEnd": 30,
+          "sourcePath": "src/core/pipe_server.rs",
+          "lineStart": 18,
+          "lineEnd": 32,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 17,
-              "lineEnd": 20
-            },
-            {
-              "lineStart": 26,
-              "lineEnd": 29
+              "lineStart": 18,
+              "lineEnd": 32
             }
           ],
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/core/core_pipe_server.rs",
-          "lineStart": 32,
-          "lineEnd": 107,
+          "sourcePath": "src/core/pipe_server.rs",
+          "lineStart": 34,
+          "lineEnd": 142,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 81,
-              "lineEnd": 94
+              "lineStart": 34,
+              "lineEnd": 142
             }
           ],
-          "modifiedLines": [
-            {
-              "lineStart": 96,
-              "lineEnd": 96
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     }

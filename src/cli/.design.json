@@ -3,9 +3,15 @@
   "module": {
     "path": "src/cli",
     "name": "cli",
-    "purpose": "CLI binary crate package using pipe sender boundary.",
-    "changeStatus": "unchanged"
+    "purpose": "CLI binary crate package using pipe client boundary.",
+    "changeStatus": "modified"
   },
+  "added": [
+    "pipe_client.rs"
+  ],
+  "modified": [
+    "main.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -43,6 +49,39 @@
           "lineStart": 19,
           "lineEnd": 27,
           "language": "rust"
+        }
+      ]
+    },
+    {
+      "name": "PipeClient",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/cli/pipe_client.rs",
+          "lineStart": 7,
+          "lineEnd": 24,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 24
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/cli/pipe_client.rs",
+          "lineStart": 26,
+          "lineEnd": 46,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 26,
+              "lineEnd": 46
+            }
+          ],
+          "modifiedLines": []
         }
       ]
     }

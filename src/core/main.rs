@@ -1,11 +1,11 @@
-mod core_pipe_server;
 mod model_backend;
+mod pipe_server;
 mod preprocess;
 
 use std::io;
 
-use crate::core_pipe_server::CorePipeServer;
-use marix_common::{ChatMessageInput, PipeError, PipeResponse, PipeServer};
+use crate::pipe_server::PipeServer;
+use marix_common::{ChatMessageInput, Pipe, PipeError, PipeResponse};
 
 fn main() -> io::Result<()> {
     let input = std::env::args().skip(1).collect::<Vec<_>>().join(" ");
@@ -13,7 +13,7 @@ fn main() -> io::Result<()> {
         return Ok(());
     }
 
-    let mut pipe = CorePipeServer::default();
+    let mut pipe = PipeServer::default();
     let response = pipe
         .on_receive(ChatMessageInput::new(input))
         .map_err(pipe_error_to_io)?;

@@ -5,6 +5,7 @@ use super::ProtocolConvertError;
 pub enum UserMessageType {
     ChatMessageInput = 1,
     ChatMessageOutput = 2,
+    CompleteMessage = 3,
 }
 
 impl UserMessageType {
@@ -15,6 +16,7 @@ impl UserMessageType {
         match code {
             1 => Ok(Self::ChatMessageInput),
             2 => Ok(Self::ChatMessageOutput),
+            3 => Ok(Self::CompleteMessage),
             other => Err(ProtocolConvertError::UnknownMessageType(other)),
         }
     }
@@ -26,6 +28,8 @@ impl UserMessageType {
 
 pub trait UserMessage {
     fn get_type(&self) -> UserMessageType;
+
+    fn correlation_id(&self) -> &str;
 
     fn to_bytes(&self) -> Result<Vec<u8>, ProtocolConvertError>;
 

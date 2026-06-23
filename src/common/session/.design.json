@@ -3,31 +3,38 @@
   "module": {
     "path": "src/common/session",
     "name": "session",
-    "purpose": "Shared session configuration and client/server pipe transport.",
+    "purpose": "Shared session configuration and bidirectional pipe transport contract.",
     "changeStatus": "modified"
   },
+  "added": [
+    "pipe.rs"
+  ],
   "modified": [
-    "session_config.rs"
+    "mod.rs"
+  ],
+  "deleted": [
+    "pipe_client.rs",
+    "pipe_server.rs"
   ],
   "childModules": [],
   "elements": [
     {
-      "name": "PipeClient",
+      "name": "Pipe",
       "type": "trait",
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/common/session/pipe_client.rs",
-          "lineStart": 1,
+          "sourcePath": "src/common/session/pipe.rs",
+          "lineStart": 4,
           "lineEnd": 12,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
               "lineStart": 4,
-              "lineEnd": 11
+              "lineEnd": 12
             }
-          ]
+          ],
+          "modifiedLines": []
         }
       ]
     },
@@ -76,46 +83,6 @@
       ]
     },
     {
-      "name": "PipeServer",
-      "type": "trait",
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/session/pipe_server.rs",
-          "lineStart": 1,
-          "lineEnd": 12,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 4,
-              "lineEnd": 11
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "DEFAULT_CORE_PORT",
-      "type": "const",
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/session/session_config.rs",
-          "lineStart": 4,
-          "lineEnd": 4,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 4,
-              "lineEnd": 4
-            }
-          ]
-        }
-      ]
-    },
-    {
       "name": "SessionConfig",
       "type": "struct",
       "changeStatus": "unchanged",
@@ -134,12 +101,7 @@
           "lineEnd": 31,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 21,
-              "lineEnd": 24
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     }

@@ -48,7 +48,8 @@
     if (treeChangedFilesOnly) {
       const changedFiles = {};
       for (const path of getChangedVisiblePaths().sort()) {
-        changedFiles[path] = (manifest.files || {})[path] || { size: 0, content: "" };
+        const file = (manifest.files || {})[path];
+        if (file) changedFiles[path] = file;
       }
       return changedFiles;
     }
@@ -56,7 +57,8 @@
     const files = getVisibleManifestFiles();
     for (const path of getChangedVisiblePaths().sort()) {
       if (!shouldIncludeVisibleSourcePath(path)) continue;
-      files[path] = (manifest.files || {})[path] || { size: 0, content: "" };
+      const file = (manifest.files || {})[path];
+      if (file) files[path] = file;
     }
     return files;
   }

@@ -1,10 +1,10 @@
-pub mod protocol;
+pub mod message;
 pub mod session;
 pub mod structure;
 
-pub use protocol::{
-    ChatMessageBase, ChatMessageInput, ChatMessageOutput, ProtocolConvertError, UserMessage,
-    UserMessageType,
+pub use message::{
+    ChatMessageBase, ChatMessageInput, ChatMessageOutput, CompleteMessage, ProtocolConvertError,
+    UserMessage, UserMessageType,
 };
-pub use session::{PipeClient, PipeError, PipeResponse, PipeServer, SessionConfig};
+pub use session::{Pipe, PipeError, PipeResponse, SessionConfig};
 pub use structure::{DynamicResponse, DynamicResponseProducer, DynamicResponseSignal};

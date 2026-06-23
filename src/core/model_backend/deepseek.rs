@@ -20,7 +20,7 @@ pub struct ModelBackendDeepseek {
 }
 
 impl ModelBackendDeepseek {
-    pub fn from_env() -> Self {
+    pub fn new() -> Self {
         Self {
             api_key: std::env::var("DEEPSEEK_API_KEY").ok(),
             endpoint: std::env::var("DEEPSEEK_API_ENDPOINT")

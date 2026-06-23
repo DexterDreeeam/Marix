@@ -3,17 +3,24 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared protocol, session, structure, and pipe interface crate package.",
+    "purpose": "Shared message, session, structure, and pipe interface crate package.",
     "changeStatus": "modified"
   },
   "modified": [
+    "Cargo.toml",
     "lib.rs"
+  ],
+  "added": [
+    "message"
+  ],
+  "deleted": [
+    "protocol"
   ],
   "childModules": [
     {
-      "path": "src/common/protocol",
-      "name": "protocol",
-      "purpose": "Shared cross-package protocol definitions."
+      "path": "src/common/message",
+      "name": "message",
+      "purpose": "Shared cross-package message definitions."
     },
     {
       "path": "src/common/session",
