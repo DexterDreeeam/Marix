@@ -1,9 +1,11 @@
-mod core;
+mod core_pipe_server;
+mod model_backend;
+mod model_backend_deepseek;
 mod preprocess;
 
 use std::io;
 
-use crate::core::CorePipeServer;
+use crate::core_pipe_server::CorePipeServer;
 use marix_common::{ChatMessageInput, PipeError, PipeResponse, PipeServer};
 
 fn main() -> io::Result<()> {
@@ -26,8 +28,6 @@ fn pipe_error_to_io(error: PipeError) -> io::Error {
 fn pipe_response_to_io_result(response: PipeResponse) -> io::Result<()> {
     match response {
         PipeResponse::Accepted => Ok(()),
-        PipeResponse::Rejected(reason) => {
-            Err(io::Error::new(io::ErrorKind::InvalidInput, reason))
-        }
+        PipeResponse::Rejected(reason) => Err(io::Error::new(io::ErrorKind::InvalidInput, reason)),
     }
 }

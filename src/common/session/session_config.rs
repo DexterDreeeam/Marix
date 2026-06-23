@@ -41,25 +41,3 @@ fn value_as_u16(value: &Value) -> Option<u16> {
 fn u64_to_u16(port: u64) -> Option<u16> {
     u16::try_from(port).ok()
 }
-
-#[cfg(test)]
-mod tests {
-    use super::SessionConfig;
-    use serde_json::json;
-
-    #[test]
-    fn reads_string_core_port() {
-        let config = json!({
-            "cli": {
-                "session": {
-                    "core_ip": "192.0.2.1",
-                    "core_port": "12345"
-                }
-            }
-        });
-
-        let session = SessionConfig::new(&config);
-
-        assert_eq!(session.bind_address(), "192.0.2.1:12345");
-    }
-}

@@ -1,9 +1,11 @@
 "use strict";
   const ACTIVE_RELOAD_BANNER_COOLDOWN_MS = 30000;
+  const ACTIVE_RELOAD_BANNER_MIN_INACTIVE_MS = 15000;
   const ACTIVE_RELOAD_BANNER_COUNTDOWN_SECONDS = 5;
   let activeReloadBannerWasInactive = false;
   let activeReloadBannerEventsBound = false;
   let activeReloadBannerLastShownAt = 0;
+  let activeReloadBannerInactiveStartedAt = 0;
   let activeReloadBannerTimer = null;
   let activeReloadBannerRemainingSeconds = 0;
 
@@ -11,6 +13,7 @@
     if (activeReloadBannerEventsBound) return;
     activeReloadBannerEventsBound = true;
     activeReloadBannerWasInactive = isOverviewTabInactive();
+    activeReloadBannerInactiveStartedAt = activeReloadBannerWasInactive ? Date.now() : 0;
 
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "hidden") {
@@ -32,19 +35,36 @@
   }
 
   function markActiveReloadBannerInactive(reason) {
+    if (!activeReloadBannerWasInactive) {
+      activeReloadBannerInactiveStartedAt = Date.now();
+    }
     activeReloadBannerWasInactive = true;
     hideActiveReloadBanner();
-    logOverview("active reload banner marked inactive", { reason });
+    logOverview("active reload banner marked inactive", {
+      reason,
+      inactiveStartedAt: activeReloadBannerInactiveStartedAt
+    });
   }
 
   function handleActiveReloadBannerActivation(reason, options = {}) {
     if (document.visibilityState === "hidden") return;
     if (!activeReloadBannerWasInactive && !options.force) return;
+    const now = Date.now();
+    const inactiveStartedAt = activeReloadBannerInactiveStartedAt;
+    const inactiveElapsedMs = inactiveStartedAt ? now - inactiveStartedAt : 0;
     activeReloadBannerWasInactive = false;
-    showActiveReloadBanner(reason);
+    activeReloadBannerInactiveStartedAt = 0;
+    if (inactiveElapsedMs <= ACTIVE_RELOAD_BANNER_MIN_INACTIVE_MS) {
+      logOverview("active reload banner skipped by inactive duration", {
+        reason,
+        inactiveElapsedMs
+      });
+      return;
+    }
+    showActiveReloadBanner(reason, { inactiveElapsedMs });
   }
 
-  function showActiveReloadBanner(reason) {
+  function showActiveReloadBanner(reason, details = {}) {
     if (!shouldShowActiveReloadBanner()) return;
 
     const now = Date.now();
@@ -63,7 +83,7 @@
     banner.dataset.visible = "true";
     updateActiveReloadBannerText();
     startActiveReloadBannerCountdown();
-    logOverview("active reload banner shown", { reason });
+    logOverview("active reload banner shown", { reason, ...details });
   }
 
   function shouldShowActiveReloadBanner() {

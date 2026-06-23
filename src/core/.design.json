@@ -3,9 +3,21 @@
   "module": {
     "path": "src/core",
     "name": "core",
-    "purpose": "Core pipe server binary crate package centered on common UserMessage pipe handling and the preprocessing boundary.",
-    "changeStatus": "unchanged"
+    "purpose": "Core pipe server binary crate package that preprocesses UserMessage input and routes it through a model backend boundary.",
+    "changeStatus": "modified"
   },
+  "added": [
+    "core_pipe_server.rs",
+    "model_backend.rs",
+    "model_backend_deepseek.rs"
+  ],
+  "modified": [
+    "Cargo.toml",
+    "main.rs"
+  ],
+  "deleted": [
+    "core.rs"
+  ],
   "childModules": [
     {
       "path": "src/core/preprocess",
@@ -17,25 +29,161 @@
     {
       "name": "CorePipeServer",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
-          "sourcePath": "src/core/core.rs",
-          "lineStart": 8,
-          "lineEnd": 12,
-          "language": "rust"
+          "sourcePath": "src/core/core_pipe_server.rs",
+          "lineStart": 10,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 13,
+              "lineEnd": 13
+            }
+          ],
+          "modifiedLines": []
         },
         {
-          "sourcePath": "src/core/core.rs",
-          "lineStart": 14,
-          "lineEnd": 24,
-          "language": "rust"
+          "sourcePath": "src/core/core_pipe_server.rs",
+          "lineStart": 17,
+          "lineEnd": 31,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 18,
+              "lineEnd": 21
+            },
+            {
+              "lineStart": 27,
+              "lineEnd": 30
+            }
+          ],
+          "modifiedLines": []
         },
         {
-          "sourcePath": "src/core/core.rs",
-          "lineStart": 26,
-          "lineEnd": 79,
-          "language": "rust"
+          "sourcePath": "src/core/core_pipe_server.rs",
+          "lineStart": 33,
+          "lineEnd": 98,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 82,
+              "lineEnd": 85
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 87,
+              "lineEnd": 87
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ModelBackend",
+      "type": "trait",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/model_backend.rs",
+          "lineStart": 3,
+          "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 8
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ModelBackendOutput",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/model_backend.rs",
+          "lineStart": 10,
+          "lineEnd": 21,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 21
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ModelBackendError",
+      "type": "enum",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/model_backend.rs",
+          "lineStart": 23,
+          "lineEnd": 56,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 56
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ModelBackendDeepseek",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/model_backend_deepseek.rs",
+          "lineStart": 11,
+          "lineEnd": 16,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 16
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/core/model_backend_deepseek.rs",
+          "lineStart": 18,
+          "lineEnd": 85,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 18,
+              "lineEnd": 85
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/core/model_backend_deepseek.rs",
+          "lineStart": 87,
+          "lineEnd": 94,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 87,
+              "lineEnd": 94
+            }
+          ],
+          "modifiedLines": []
         }
       ]
     }

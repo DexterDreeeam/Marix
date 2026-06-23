@@ -4,8 +4,11 @@
     "path": "src",
     "name": "src",
     "purpose": "Rust workspace root for flat Marix package modules and pipe sender/listener interfaces.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "Cargo.lock"
+  ],
   "childModules": [
     {
       "path": "src/cli",
@@ -25,7 +28,7 @@
     {
       "path": "src/core",
       "name": "core",
-      "purpose": "Core pipe server binary crate package centered on common UserMessage pipe handling and the preprocessing boundary."
+      "purpose": "Core pipe server binary crate package that preprocesses UserMessage input and routes it through a model backend boundary."
     }
   ],
   "elements": []
