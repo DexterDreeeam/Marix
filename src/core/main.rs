@@ -4,18 +4,16 @@ mod preprocess;
 
 use std::io;
 
+use marix_common::{PipeError, PipeResponse, SessionConfig};
+use marix_config::config;
+
 use crate::pipe_server::PipeServer;
-use marix_common::{ChatMessageInput, Pipe, PipeError, PipeResponse};
 
 fn main() -> io::Result<()> {
-    let input = std::env::args().skip(1).collect::<Vec<_>>().join(" ");
-    if input.is_empty() {
-        return Ok(());
-    }
-
-    let mut pipe = PipeServer::default();
-    let response = pipe
-        .on_receive(ChatMessageInput::new(input))
+    let session_config = SessionConfig::new(config.as_value());
+    let response = PipeServer::new(session_config)
+        .map_err(pipe_error_to_io)?
+        .run()
         .map_err(pipe_error_to_io)?;
     pipe_response_to_io_result(response)
 }

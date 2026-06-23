@@ -3,7 +3,7 @@
   "module": {
     "path": "src/core",
     "name": "core",
-    "purpose": "Core pipe server binary crate package that preprocesses UserMessage input and routes it through a model backend boundary.",
+    "purpose": "Core pipe server binary crate package that listens for UserMessage input and routes it through a configured model backend boundary.",
     "changeStatus": "modified"
   },
   "added": [
@@ -37,42 +37,125 @@
       "codeSegments": [
         {
           "sourcePath": "src/core/pipe_server.rs",
-          "lineStart": 11,
-          "lineEnd": 16,
+          "lineStart": 12,
+          "lineEnd": 20,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 11,
-              "lineEnd": 16
+              "lineStart": 12,
+              "lineEnd": 20
             }
           ],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/core/pipe_server.rs",
-          "lineStart": 18,
-          "lineEnd": 32,
-          "language": "rust",
-          "addedLines": [
+          "modifiedLines": [
             {
               "lineStart": 18,
-              "lineEnd": 32
+              "lineEnd": 18
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/core/pipe_server.rs",
-          "lineStart": 34,
-          "lineEnd": 142,
+          "lineStart": 22,
+          "lineEnd": 151,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 34,
-              "lineEnd": 142
+              "lineStart": 22,
+              "lineEnd": 151
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 32,
+              "lineEnd": 32
+            },
+            {
+              "lineStart": 50,
+              "lineEnd": 83
+            },
+            {
+              "lineStart": 91,
+              "lineEnd": 150
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/core/pipe_server.rs",
+          "lineStart": 170,
+          "lineEnd": 232,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 170,
+              "lineEnd": 232
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 213,
+              "lineEnd": 217
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "require_accepted",
+      "type": "function",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/pipe_server.rs",
+          "lineStart": 153,
+          "lineEnd": 158,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 153,
+              "lineEnd": 158
             }
           ],
           "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "build_model_backend",
+      "type": "function",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/pipe_server.rs",
+          "lineStart": 160,
+          "lineEnd": 168,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 160,
+              "lineEnd": 168
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "type": "function",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/main.rs",
+          "lineStart": 12,
+          "lineEnd": 30,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 29
+            }
+          ]
         }
       ]
     }

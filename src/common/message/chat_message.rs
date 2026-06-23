@@ -7,12 +7,12 @@ const MESSAGE_TYPE_BYTES: usize = 1;
 const FIELD_LENGTH_BYTES: usize = std::mem::size_of::<u64>();
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ChatMessageBase {
+pub struct ChatMessage {
     pub correlation_id: String,
     pub text: String,
 }
 
-impl ChatMessageBase {
+impl ChatMessage {
     pub fn new(correlation_id: impl Into<String>, text: impl Into<String>) -> Self {
         Self {
             correlation_id: correlation_id.into(),
@@ -55,13 +55,13 @@ impl ChatMessageBase {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ChatMessageInput {
-    pub base: ChatMessageBase,
+    pub base: ChatMessage,
 }
 
 impl ChatMessageInput {
     pub fn new(text: impl Into<String>) -> Self {
         Self {
-            base: ChatMessageBase::with_random_correlation_id(text),
+            base: ChatMessage::with_random_correlation_id(text),
         }
     }
 
@@ -89,20 +89,20 @@ impl UserMessage for ChatMessageInput {
 
     fn from_bytes(bytes: &[u8]) -> Result<Self, ProtocolConvertError> {
         Ok(Self {
-            base: ChatMessageBase::from_bytes(bytes)?,
+            base: ChatMessage::from_bytes(bytes)?,
         })
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ChatMessageOutput {
-    pub base: ChatMessageBase,
+    pub base: ChatMessage,
 }
 
 impl ChatMessageOutput {
     pub fn new(correlation_id: impl Into<String>, text: impl Into<String>) -> Self {
         Self {
-            base: ChatMessageBase::new(correlation_id, text),
+            base: ChatMessage::new(correlation_id, text),
         }
     }
 
@@ -215,7 +215,7 @@ impl UserMessage for ChatMessageOutput {
 
     fn from_bytes(bytes: &[u8]) -> Result<Self, ProtocolConvertError> {
         Ok(Self {
-            base: ChatMessageBase::from_bytes(bytes)?,
+            base: ChatMessage::from_bytes(bytes)?,
         })
     }
 }

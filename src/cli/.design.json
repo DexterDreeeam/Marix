@@ -3,17 +3,38 @@
   "module": {
     "path": "src/cli",
     "name": "cli",
-    "purpose": "CLI binary crate package using pipe client boundary.",
+    "purpose": "CLI binary crate package using pipe client send boundary, receive-handler callback, and streaming stdout output.",
     "changeStatus": "modified"
   },
   "added": [
     "pipe_client.rs"
   ],
   "modified": [
+    "config.json",
     "main.rs"
   ],
   "childModules": [],
   "elements": [
+    {
+      "name": "config",
+      "type": "configuration",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/cli/config.json",
+          "lineStart": 1,
+          "lineEnd": 12,
+          "language": "json",
+          "addedLines": [
+            {
+              "lineStart": 2,
+              "lineEnd": 4
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
     {
       "name": "Interface",
       "type": "trait",
@@ -59,29 +80,116 @@
       "codeSegments": [
         {
           "sourcePath": "src/cli/pipe_client.rs",
-          "lineStart": 7,
-          "lineEnd": 24,
+          "lineStart": 11,
+          "lineEnd": 20,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 7,
-              "lineEnd": 24
+              "lineStart": 11,
+              "lineEnd": 20
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/cli/pipe_client.rs",
-          "lineStart": 26,
-          "lineEnd": 46,
+          "lineStart": 22,
+          "lineEnd": 44,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 26,
-              "lineEnd": 46
+              "lineStart": 22,
+              "lineEnd": 44
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 43
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/cli/pipe_client.rs",
+          "lineStart": 46,
+          "lineEnd": 81,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 46,
+              "lineEnd": 81
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 55,
+              "lineEnd": 58
+            },
+            {
+              "lineStart": 64,
+              "lineEnd": 80
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/cli/pipe_client.rs",
+          "lineStart": 83,
+          "lineEnd": 139,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 83,
+              "lineEnd": 139
             }
           ],
           "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "run_session",
+      "type": "function",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/cli/main.rs",
+          "lineStart": 27,
+          "lineEnd": 43,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 29,
+              "lineEnd": 34
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 35,
+              "lineEnd": 42
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/cli/main.rs",
+          "lineStart": 45,
+          "lineEnd": 117,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 45,
+              "lineEnd": 90
+            },
+            {
+              "lineStart": 103,
+              "lineEnd": 117
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 92,
+              "lineEnd": 96
+            }
+          ]
         }
       ]
     }

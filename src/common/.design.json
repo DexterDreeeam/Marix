@@ -3,7 +3,7 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared message, session, structure, and pipe interface crate package.",
+    "purpose": "Shared message, session, structure, pipe send/on_receive contract, and configured model backend names.",
     "changeStatus": "modified"
   },
   "modified": [
@@ -25,7 +25,7 @@
     {
       "path": "src/common/session",
       "name": "session",
-      "purpose": "Shared session configuration and client/server pipe transport."
+      "purpose": "Shared session configuration, send/on_receive pipe contract, frame helpers, and model backend selection."
     },
     {
       "path": "src/common/structure",

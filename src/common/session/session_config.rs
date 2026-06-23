@@ -2,16 +2,19 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 pub const DEFAULT_CORE_PORT: u16 = 0;
+pub const DEFAULT_MODEL_BACKEND: &str = "deepseek";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SessionConfig {
     pub core_ip: String,
     pub core_port: u16,
+    pub model_backend: String,
 }
 
 impl SessionConfig {
     pub fn new(config: &Value) -> Self {
         let session = config.get("cli").and_then(|cli| cli.get("session"));
+        let core = config.get("core");
         Self {
             core_ip: session
                 .and_then(|session| session.get("core_ip"))
@@ -22,11 +25,20 @@ impl SessionConfig {
                 .and_then(|session| session.get("core_port"))
                 .and_then(value_as_u16)
                 .unwrap_or(DEFAULT_CORE_PORT),
+            model_backend: core
+                .and_then(|core| core.get("model_backend"))
+                .and_then(Value::as_str)
+                .unwrap_or(DEFAULT_MODEL_BACKEND)
+                .to_owned(),
         }
     }
 
     pub fn bind_address(&self) -> String {
         format!("{}:{}", self.core_ip, self.core_port)
+    }
+
+    pub fn model_backend(&self) -> &str {
+        &self.model_backend
     }
 }
 
