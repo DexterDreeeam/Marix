@@ -1,6 +1,6 @@
 "use strict";
   const ACTIVE_RELOAD_BANNER_COOLDOWN_MS = 30000;
-  const ACTIVE_RELOAD_BANNER_COUNTDOWN_SECONDS = 3;
+  const ACTIVE_RELOAD_BANNER_COUNTDOWN_SECONDS = 5;
   let activeReloadBannerWasInactive = false;
   let activeReloadBannerEventsBound = false;
   let activeReloadBannerLastShownAt = 0;
@@ -88,14 +88,10 @@
       <span class="active-reload-banner-message" data-role="message"></span>
       <span class="active-reload-banner-countdown" data-role="countdown"></span>
       <button class="active-reload-banner-action" type="button" data-role="reload"></button>
-      <button class="active-reload-banner-dismiss" type="button" data-role="dismiss" aria-label=""></button>
     `;
 
     banner.querySelector("[data-role='reload']").addEventListener("click", () => {
       window.location.reload();
-    });
-    banner.querySelector("[data-role='dismiss']").addEventListener("click", () => {
-      hideActiveReloadBanner();
     });
     document.body.appendChild(banner);
     return banner;
@@ -106,12 +102,9 @@
     const message = banner.querySelector("[data-role='message']");
     const countdown = banner.querySelector("[data-role='countdown']");
     const reload = banner.querySelector("[data-role='reload']");
-    const dismiss = banner.querySelector("[data-role='dismiss']");
     message.textContent = t("activeReloadBannerMessage");
     countdown.textContent = t("activeReloadBannerCountdown").replace("{seconds}", String(activeReloadBannerRemainingSeconds));
     reload.textContent = t("activeReloadBannerReload");
-    dismiss.textContent = t("activeReloadBannerDismiss");
-    dismiss.setAttribute("aria-label", t("activeReloadBannerDismiss"));
   }
 
   function refreshActiveReloadBannerLanguage() {
