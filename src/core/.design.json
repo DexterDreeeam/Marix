@@ -4,19 +4,8 @@
     "path": "src/core",
     "name": "core",
     "purpose": "Core pipe server binary crate package that listens for UserMessage input and routes it through a configured model backend boundary.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "pipe_server.rs"
-  ],
-  "modified": [
-    "Cargo.toml",
-    "main.rs"
-  ],
-  "deleted": [
-    "core.rs",
-    "core_pipe_server.rs"
-  ],
   "childModules": [
     {
       "path": "src/core/model_backend",
@@ -33,7 +22,7 @@
     {
       "name": "PipeServer",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/pipe_server.rs",
@@ -102,7 +91,7 @@
     {
       "name": "require_accepted",
       "type": "function",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/pipe_server.rs",
@@ -122,7 +111,7 @@
     {
       "name": "build_model_backend",
       "type": "function",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/pipe_server.rs",
@@ -142,7 +131,7 @@
     {
       "name": "main",
       "type": "function",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/main.rs",

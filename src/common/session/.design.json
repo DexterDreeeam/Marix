@@ -4,27 +4,14 @@
     "path": "src/common/session",
     "name": "session",
     "purpose": "Shared session configuration, send/on_receive pipe contract, frame helpers, and model backend selection.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "pipe.rs"
-  ],
-  "modified": [
-    "mod.rs",
-    "pipe_error.rs",
-    "pipe_response.rs",
-    "session_config.rs"
-  ],
-  "deleted": [
-    "pipe_client.rs",
-    "pipe_server.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "Pipe",
       "type": "trait",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/pipe.rs",
@@ -49,7 +36,7 @@
     {
       "name": "write_pipe_message",
       "type": "function",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/pipe.rs",
@@ -69,7 +56,7 @@
     {
       "name": "read_pipe_message",
       "type": "function",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/pipe.rs",
@@ -89,7 +76,7 @@
     {
       "name": "PipeError",
       "type": "enum",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/pipe_error.rs",
@@ -130,7 +117,7 @@
     {
       "name": "PipeResponse",
       "type": "enum",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/pipe_response.rs",
@@ -163,7 +150,7 @@
     {
       "name": "SessionConfig",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/session/session_config.rs",

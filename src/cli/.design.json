@@ -4,21 +4,14 @@
     "path": "src/cli",
     "name": "cli",
     "purpose": "CLI binary crate package using pipe client send boundary, receive-handler callback, and streaming stdout output.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "pipe_client.rs"
-  ],
-  "modified": [
-    "config.json",
-    "main.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "config",
       "type": "configuration",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/cli/config.json",
@@ -76,7 +69,7 @@
     {
       "name": "PipeClient",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/cli/pipe_client.rs",
@@ -149,7 +142,7 @@
     {
       "name": "run_session",
       "type": "function",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/cli/main.rs",
