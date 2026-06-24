@@ -3,9 +3,12 @@
   "module": {
     "path": "src/cli",
     "name": "cli",
-    "purpose": "CLI binary crate package using pipe client send boundary, receive-handler callback, and streaming stdout output.",
-    "changeStatus": "unchanged"
+    "purpose": "CLI binary crate package using a persistent interactive prompt loop, pipe client send boundary, receive-handler callback, and streaming stdout output.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "main.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -18,12 +21,7 @@
           "lineStart": 1,
           "lineEnd": 12,
           "language": "json",
-          "addedLines": [
-            {
-              "lineStart": 2,
-              "lineEnd": 4
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -37,7 +35,9 @@
           "sourcePath": "src/cli/interface.rs",
           "lineStart": 3,
           "lineEnd": 6,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -50,19 +50,25 @@
           "sourcePath": "src/cli/interface.rs",
           "lineStart": 9,
           "lineEnd": 11,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/cli/interface.rs",
           "lineStart": 13,
           "lineEnd": 17,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/cli/interface.rs",
           "lineStart": 19,
           "lineEnd": 27,
-          "language": "rust"
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -73,15 +79,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/cli/pipe_client.rs",
-          "lineStart": 11,
+          "lineStart": 15,
           "lineEnd": 20,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 11,
-              "lineEnd": 20
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -89,50 +90,114 @@
           "lineStart": 22,
           "lineEnd": 44,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 22,
-              "lineEnd": 44
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 23,
-              "lineEnd": 43
-            }
-          ]
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/cli/pipe_client.rs",
           "lineStart": 46,
           "lineEnd": 81,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 46,
-              "lineEnd": 81
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 55,
-              "lineEnd": 58
-            },
-            {
-              "lineStart": 64,
-              "lineEnd": 80
-            }
-          ]
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/cli/pipe_client.rs",
           "lineStart": 83,
+          "lineEnd": 90,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/cli/pipe_client.rs",
+          "lineStart": 93,
+          "lineEnd": 105,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/cli/pipe_client.rs",
+          "lineStart": 107,
+          "lineEnd": 127,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/cli/pipe_client.rs",
+          "lineStart": 129,
           "lineEnd": 139,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "type": "function",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/cli/main.rs",
+          "lineStart": 19,
+          "lineEnd": 21,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "run_session",
+      "type": "function",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/cli/main.rs",
+          "lineStart": 23,
+          "lineEnd": 59,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 83,
-              "lineEnd": 139
+              "lineStart": 33,
+              "lineEnd": 55
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 23
+            },
+            {
+              "lineStart": 58,
+              "lineEnd": 58
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "print_until_complete",
+      "type": "function",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/cli/main.rs",
+          "lineStart": 61,
+          "lineEnd": 105,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 64,
+              "lineEnd": 64
             }
           ],
           "modifiedLines": []
@@ -140,49 +205,77 @@
       ]
     },
     {
-      "name": "run_session",
+      "name": "pipe_response_to_io_result",
       "type": "function",
       "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/cli/main.rs",
-          "lineStart": 27,
-          "lineEnd": 43,
+          "lineStart": 107,
+          "lineEnd": 112,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 29,
-              "lineEnd": 34
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 35,
-              "lineEnd": 42
-            }
-          ]
-        },
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "pipe_error_to_io",
+      "type": "function",
+      "changeStatus": "unchanged",
+      "codeSegments": [
         {
           "sourcePath": "src/cli/main.rs",
-          "lineStart": 45,
-          "lineEnd": 117,
+          "lineStart": 114,
+          "lineEnd": 116,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 45,
-              "lineEnd": 90
-            },
-            {
-              "lineStart": 103,
-              "lineEnd": 117
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 92,
-              "lineEnd": 96
-            }
-          ]
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "chat_message_output_from_user_message",
+      "type": "function",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/cli/main.rs",
+          "lineStart": 118,
+          "lineEnd": 123,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "complete_message_from_user_message",
+      "type": "function",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/cli/main.rs",
+          "lineStart": 125,
+          "lineEnd": 128,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "protocol_error_to_io",
+      "type": "function",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/cli/main.rs",
+          "lineStart": 130,
+          "lineEnd": 132,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     }

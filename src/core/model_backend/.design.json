@@ -3,9 +3,12 @@
   "module": {
     "path": "src/core/model_backend",
     "name": "model_backend",
-    "purpose": "Dynamic model backend boundary and concrete backend implementations for core.",
-    "changeStatus": "unchanged"
+    "purpose": "Dynamic model backend boundary and concrete backend implementations for core, including sanitized DeepSeek header configuration.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "deepseek.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -18,12 +21,7 @@
           "lineStart": 9,
           "lineEnd": 14,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 14
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -38,12 +36,7 @@
           "lineStart": 16,
           "lineEnd": 27,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 16,
-              "lineEnd": 27
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -58,12 +51,7 @@
           "lineStart": 29,
           "lineEnd": 68,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 29,
-              "lineEnd": 68
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -71,63 +59,126 @@
     {
       "name": "ModelBackendDeepseek",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/model_backend/deepseek.rs",
-          "lineStart": 15,
-          "lineEnd": 20,
+          "lineStart": 16,
+          "lineEnd": 21,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 15,
-              "lineEnd": 20
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/core/model_backend/deepseek.rs",
-          "lineStart": 22,
-          "lineEnd": 92,
+          "lineStart": 23,
+          "lineEnd": 132,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 22,
-              "lineEnd": 92
+              "lineStart": 25,
+              "lineEnd": 29
+            },
+            {
+              "lineStart": 33,
+              "lineEnd": 33
+            },
+            {
+              "lineStart": 36,
+              "lineEnd": 36
+            },
+            {
+              "lineStart": 48,
+              "lineEnd": 48
+            },
+            {
+              "lineStart": 53,
+              "lineEnd": 56
+            },
+            {
+              "lineStart": 73,
+              "lineEnd": 76
+            },
+            {
+              "lineStart": 78,
+              "lineEnd": 78
+            },
+            {
+              "lineStart": 82,
+              "lineEnd": 85
+            },
+            {
+              "lineStart": 96,
+              "lineEnd": 96
+            },
+            {
+              "lineStart": 108,
+              "lineEnd": 108
+            },
+            {
+              "lineStart": 113,
+              "lineEnd": 113
+            },
+            {
+              "lineStart": 118,
+              "lineEnd": 131
             }
           ],
           "modifiedLines": [
             {
-              "lineStart": 23,
-              "lineEnd": 23
+              "lineStart": 31,
+              "lineEnd": 31
+            },
+            {
+              "lineStart": 72,
+              "lineEnd": 72
             }
           ]
         },
         {
           "sourcePath": "src/core/model_backend/deepseek.rs",
-          "lineStart": 94,
-          "lineEnd": 103,
+          "lineStart": 134,
+          "lineEnd": 143,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 94,
-              "lineEnd": 103
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/core/model_backend/deepseek.rs",
-          "lineStart": 105,
-          "lineEnd": 170,
+          "lineStart": 145,
+          "lineEnd": 159,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 105,
-              "lineEnd": 170
-            }
-          ],
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "take_next_sse_event",
+      "type": "function",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/model_backend/deepseek.rs",
+          "lineStart": 161,
+          "lineEnd": 178,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "handle_sse_event",
+      "type": "function",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/model_backend/deepseek.rs",
+          "lineStart": 180,
+          "lineEnd": 210,
+          "language": "rust",
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

@@ -3,14 +3,21 @@
   "module": {
     "path": "src/core",
     "name": "core",
-    "purpose": "Core pipe server binary crate package that listens for UserMessage input and routes it through a configured model backend boundary.",
-    "changeStatus": "unchanged"
+    "purpose": "Core pipe server binary crate package that logs each run, listens for UserMessage input, and routes it through a configured model backend boundary.",
+    "changeStatus": "modified"
   },
+  "added": [
+    "run_log.rs"
+  ],
+  "modified": [
+    "main.rs",
+    "pipe_server.rs"
+  ],
   "childModules": [
     {
       "path": "src/core/model_backend",
       "name": "model_backend",
-      "purpose": "Dynamic model backend boundary and concrete backend implementations for core."
+      "purpose": "Dynamic model backend boundary and concrete backend implementations for core, including sanitized DeepSeek header configuration."
     },
     {
       "path": "src/core/preprocess",
@@ -22,69 +29,114 @@
     {
       "name": "PipeServer",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/pipe_server.rs",
-          "lineStart": 12,
-          "lineEnd": 20,
+          "lineStart": 13,
+          "lineEnd": 21,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 12,
-              "lineEnd": 20
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 18,
-              "lineEnd": 18
-            }
-          ]
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/core/pipe_server.rs",
-          "lineStart": 22,
-          "lineEnd": 151,
+          "lineStart": 23,
+          "lineEnd": 203,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 22,
-              "lineEnd": 151
-            }
-          ],
-          "modifiedLines": [
+              "lineStart": 26,
+              "lineEnd": 29
+            },
             {
               "lineStart": 32,
               "lineEnd": 32
             },
             {
-              "lineStart": 50,
-              "lineEnd": 83
+              "lineStart": 45,
+              "lineEnd": 55
             },
             {
-              "lineStart": 91,
-              "lineEnd": 150
+              "lineStart": 58,
+              "lineEnd": 61
+            },
+            {
+              "lineStart": 79,
+              "lineEnd": 81
+            },
+            {
+              "lineStart": 83,
+              "lineEnd": 85
+            },
+            {
+              "lineStart": 94,
+              "lineEnd": 97
+            },
+            {
+              "lineStart": 99,
+              "lineEnd": 100
+            },
+            {
+              "lineStart": 105,
+              "lineEnd": 105
+            },
+            {
+              "lineStart": 137,
+              "lineEnd": 139
+            },
+            {
+              "lineStart": 149,
+              "lineEnd": 151
+            },
+            {
+              "lineStart": 156,
+              "lineEnd": 158
+            },
+            {
+              "lineStart": 167,
+              "lineEnd": 170
+            },
+            {
+              "lineStart": 180,
+              "lineEnd": 183
+            },
+            {
+              "lineStart": 188,
+              "lineEnd": 190
+            },
+            {
+              "lineStart": 194,
+              "lineEnd": 196
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 57,
+              "lineEnd": 57
+            },
+            {
+              "lineStart": 78,
+              "lineEnd": 78
+            },
+            {
+              "lineStart": 82,
+              "lineEnd": 82
             }
           ]
         },
         {
           "sourcePath": "src/core/pipe_server.rs",
-          "lineStart": 170,
-          "lineEnd": 232,
+          "lineStart": 223,
+          "lineEnd": 286,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 170,
-              "lineEnd": 232
+              "lineStart": 278,
+              "lineEnd": 278
             }
           ],
-          "modifiedLines": [
-            {
-              "lineStart": 213,
-              "lineEnd": 217
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -95,15 +147,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/core/pipe_server.rs",
-          "lineStart": 153,
-          "lineEnd": 158,
+          "lineStart": 205,
+          "lineEnd": 210,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 153,
-              "lineEnd": 158
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -111,17 +158,17 @@
     {
       "name": "build_model_backend",
       "type": "function",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/core/pipe_server.rs",
-          "lineStart": 160,
-          "lineEnd": 168,
+          "lineStart": 212,
+          "lineEnd": 221,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 160,
-              "lineEnd": 168
+              "lineStart": 214,
+              "lineEnd": 214
             }
           ],
           "modifiedLines": []
@@ -131,20 +178,107 @@
     {
       "name": "main",
       "type": "function",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/main.rs",
+          "lineStart": 13,
+          "lineEnd": 33,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 15
+            },
+            {
+              "lineStart": 17,
+              "lineEnd": 21
+            },
+            {
+              "lineStart": 26,
+              "lineEnd": 31
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 22
+            },
+            {
+              "lineStart": 25,
+              "lineEnd": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "pipe_error_to_io",
+      "type": "function",
       "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/core/main.rs",
-          "lineStart": 12,
-          "lineEnd": 30,
+          "lineStart": 35,
+          "lineEnd": 37,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "pipe_response_to_io_result",
+      "type": "function",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/main.rs",
+          "lineStart": 39,
+          "lineEnd": 44,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "init",
+      "type": "function",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/run_log.rs",
+          "lineStart": 9,
+          "lineEnd": 26,
+          "language": "rust",
+          "addedLines": [
             {
-              "lineStart": 25,
-              "lineEnd": 29
+              "lineStart": 9,
+              "lineEnd": 26
             }
-          ]
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "record",
+      "type": "function",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/core/run_log.rs",
+          "lineStart": 28,
+          "lineEnd": 41,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 28,
+              "lineEnd": 41
+            }
+          ],
+          "modifiedLines": []
         }
       ]
     }

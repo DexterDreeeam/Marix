@@ -3,7 +3,7 @@ mod interface;
 mod output;
 mod pipe_client;
 
-use std::io::{self, Write};
+use std::io::{self, BufRead, Write};
 use std::sync::mpsc::{self, Receiver};
 
 use marix_common::{
@@ -17,14 +17,10 @@ pub use output::ChatMessageOutput;
 pub use pipe_client::PipeClient;
 
 fn main() -> io::Result<()> {
-    let input = std::env::args().skip(1).collect::<Vec<_>>().join(" ");
-    if !input.is_empty() {
-        run_session(ChatMessageInput::new(input))?;
-    }
-    Ok(())
+    run_session()
 }
 
-fn run_session(input: ChatMessageInput) -> io::Result<()> {
+fn run_session() -> io::Result<()> {
     let session_config = SessionConfig::new(config.as_value());
     let (message_sender, message_receiver) = mpsc::channel();
     let receive_handler = move |message| {
@@ -34,20 +30,39 @@ fn run_session(input: ChatMessageInput) -> io::Result<()> {
     };
     let mut pipe_client =
         PipeClient::new(session_config, receive_handler).map_err(pipe_error_to_io)?;
-    let correlation_id = input.correlation_id().to_owned();
-    pipe_response_to_io_result(pipe_client.send(input).map_err(pipe_error_to_io)?)?;
+    let mut stdin = io::stdin().lock();
+    let mut stdout = io::stdout().lock();
+    let mut input = String::new();
 
-    let output = print_until_complete(&message_receiver, &correlation_id);
+    loop {
+        input.clear();
+        write!(stdout, "> ")?;
+        stdout.flush()?;
+        if stdin.read_line(&mut input)? == 0 {
+            break;
+        }
+        let text = input.trim();
+        if text.is_empty() {
+            continue;
+        }
+        if matches!(text, "exit" | "quit") {
+            break;
+        }
+        let message = ChatMessageInput::new(text.to_owned());
+        let correlation_id = message.correlation_id().to_owned();
+        pipe_response_to_io_result(pipe_client.send(message).map_err(pipe_error_to_io)?)?;
+        print_until_complete(&message_receiver, &correlation_id, &mut stdout)?;
+    }
+
     pipe_response_to_io_result(pipe_client.close().map_err(pipe_error_to_io)?)?;
-    output
+    Ok(())
 }
 
 fn print_until_complete(
     message_receiver: &Receiver<Box<dyn UserMessage + Send>>,
     correlation_id: &str,
+    stdout: &mut impl Write,
 ) -> io::Result<()> {
-    let mut stdout = io::stdout().lock();
-
     loop {
         let message = message_receiver.recv().map_err(|_| {
             io::Error::new(

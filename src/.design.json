@@ -3,14 +3,14 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace root for flat Marix package modules, pipe send/on_receive contracts, and client receive callbacks.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace root for flat Marix package modules, pipe send/on_receive contracts, client receive callbacks, interactive CLI streaming, and core run logging.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/cli",
       "name": "cli",
-      "purpose": "CLI binary crate package using pipe client send boundary, receive-handler callback, and streaming stdout output."
+      "purpose": "CLI binary crate package using a persistent interactive prompt loop, pipe client send boundary, receive-handler callback, and streaming stdout output."
     },
     {
       "path": "src/common",
@@ -25,7 +25,7 @@
     {
       "path": "src/core",
       "name": "core",
-      "purpose": "Core pipe server binary crate package that preprocesses UserMessage input and routes it through a configured model backend boundary."
+      "purpose": "Core pipe server binary crate package that logs each run, preprocesses UserMessage input, and routes it through a configured model backend boundary."
     }
   ],
   "elements": []
