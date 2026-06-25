@@ -1,17 +1,18 @@
 "use strict";
     function renderFullFilePanel(path, content, change, ext, options = {}) {
       const markers = collectDiffMarkers(change.diff_lines || []);
+      const includeDeleted = options.includeDeleted !== false;
       const lines = content.split(/\r?\n/);
       const languageName = getLanguageFromExt(ext);
       const body = [];
 
       for (let i = 0; i < lines.length; i++) {
         const lineNumber = i + 1;
-        body.push(renderDeletedLines(markers.deletedBefore.get(lineNumber), languageName));
-        body.push(renderFullFileLine(lineNumber, lines[i], markers.addedLines.has(lineNumber), languageName));
+        if (includeDeleted) body.push(renderDeletedLines(markers.deletedBefore.get(lineNumber), languageName));
+        body.push(renderFullFileLine(lineNumber, lines[i], getFullFileLineClass(markers, lineNumber), languageName));
       }
 
-      body.push(renderDeletedLines(markers.deletedBefore.get(lines.length + 1), languageName));
+      if (includeDeleted) body.push(renderDeletedLines(markers.deletedBefore.get(lines.length + 1), languageName));
 
       if (options.embedded) {
         return `<div class="full-file-lines full-file-lines-embedded">${body.join("")}</div>`;
@@ -30,9 +31,11 @@
 
     function collectDiffMarkers(diffLines) {
       const addedLines = new Set();
+      const modifiedLines = new Set();
       const deletedBefore = new Map();
       let oldLine = 0;
       let newLine = 0;
+      let pendingDeletedReplacement = false;
 
       for (const line of diffLines) {
         if (line.startsWith("@@")) {
@@ -41,40 +44,53 @@
             oldLine = Number(match[1]);
             newLine = Number(match[2]);
           }
+          pendingDeletedReplacement = false;
           continue;
         }
 
         if (line.startsWith("+")) {
-          addedLines.add(newLine);
+          if (pendingDeletedReplacement) {
+            modifiedLines.add(newLine);
+          } else {
+            addedLines.add(newLine);
+          }
           newLine += 1;
         } else if (line.startsWith("-")) {
           const bucket = deletedBefore.get(newLine) || [];
           bucket.push(line.substring(1));
           deletedBefore.set(newLine, bucket);
           oldLine += 1;
+          pendingDeletedReplacement = true;
         } else if (line.startsWith(" ")) {
           oldLine += 1;
           newLine += 1;
+          pendingDeletedReplacement = false;
         }
       }
 
-      return { addedLines, deletedBefore };
+      return { addedLines, modifiedLines, deletedBefore };
     }
 
     function renderFullFileLegend() {
       return `
         <div class="full-file-legend">
           <span class="legend-item legend-added">${escapeHtml(t("addedLine"))}</span>
+          <span class="legend-item legend-modified">${escapeHtml(t("modifiedLine"))}</span>
           <span class="legend-item legend-existing">${escapeHtml(t("existingLine"))}</span>
           <span class="legend-item legend-deleted">${escapeHtml(t("deletedLine"))}</span>
         </div>
       `;
     }
 
-    function renderFullFileLine(lineNumber, content, isAdded, languageName) {
-      const cls = isAdded ? "full-line-add" : "full-line-existing";
+    function getFullFileLineClass(markers, lineNumber) {
+      if (markers.addedLines.has(lineNumber)) return "full-line-add";
+      if (markers.modifiedLines.has(lineNumber)) return "full-line-modified";
+      return "full-line-existing";
+    }
+
+    function renderFullFileLine(lineNumber, content, lineClass, languageName) {
       return `
-        <div class="full-file-line ${cls}">
+        <div class="full-file-line ${lineClass}">
           <span class="full-line-number">${lineNumber}</span>
           <span class="full-line-content">${highlightLine(content, languageName)}</span>
         </div>

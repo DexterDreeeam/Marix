@@ -1,6 +1,4 @@
 "use strict";
-  let codePopoverFindMatches = [];
-  let codePopoverFindIndex = -1;
 
   function renderModuleDetails(node) {
     if (!node) return;
@@ -356,26 +354,31 @@
 
   async function showCodeSegmentsPopover(title, segments, status = "unchanged") {
     const blocks = [];
+    const segmentsByPath = new Map();
     for (const segment of segments) {
-      const entry = await ensureFileContent(segment.sourcePath);
+      const fileSegments = segmentsByPath.get(segment.sourcePath) || [];
+      fileSegments.push(segment);
+      segmentsByPath.set(segment.sourcePath, fileSegments);
+    }
+
+    for (const [sourcePath, fileSegments] of segmentsByPath) {
+      const entry = await ensureFileContent(sourcePath);
       const content = (entry && entry.content) || "";
-      const lines = content.split(/\r?\n/).slice(segment.lineStart - 1, segment.lineEnd);
-      const languageName = segment.language || getLanguageFromExt(segment.sourcePath.split(".").pop().toLowerCase());
-      blocks.push(renderCodeSegment(segment, lines, languageName, status));
+      const languageName = fileSegments.find(segment => segment.language)?.language || getLanguageFromExt(sourcePath.split(".").pop().toLowerCase());
+      blocks.push(renderDesignFullFilePanel(sourcePath, content, fileSegments, languageName, status));
     }
     showCodePopover(title, blocks.join(""), "", "code-popover-file");
   }
 
-  function renderCodeSegment(segment, lines, languageName, elementStatus) {
-    const label = `${segment.sourcePath}:${segment.lineStart}-${segment.lineEnd}`;
-    const status = normalizeStatus(segment.changeStatus || elementStatus);
+  function renderDesignFullFilePanel(sourcePath, content, segments, languageName, elementStatus) {
+    const lines = content.split(/\r?\n/);
     const body = lines.map((line, index) => {
-      const lineNumber = segment.lineStart + index;
-      return renderCodeSegmentLine(lineNumber, line, getCodeSegmentLineClass(segment, status, lineNumber), languageName);
+      const lineNumber = index + 1;
+      return renderCodeSegmentLine(lineNumber, line, getDesignFullFileLineClass(segments, elementStatus, lineNumber), languageName);
     }).join("");
     return `
       <section class="code-segment-panel">
-        <div class="code-segment-label">${escapeHtml(label)}</div>
+        <div class="code-segment-label">${escapeHtml(sourcePath)}</div>
         <div class="full-file-lines full-file-lines-embedded">${body}</div>
       </section>
     `;
@@ -390,10 +393,13 @@
     `;
   }
 
-  function getCodeSegmentLineClass(segment, status, lineNumber) {
-    if (status === "added") return "full-line-add";
-    if (isLineInCodeSegmentRanges(lineNumber, segment.addedLines)) return "full-line-add";
-    if (isLineInCodeSegmentRanges(lineNumber, segment.modifiedLines)) return "full-line-modified";
+  function getDesignFullFileLineClass(segments, elementStatus, lineNumber) {
+    for (const segment of segments) {
+      const status = normalizeStatus(segment.changeStatus || elementStatus);
+      if (status === "added" && lineNumber >= segment.lineStart && lineNumber <= segment.lineEnd) return "full-line-add";
+      if (isLineInCodeSegmentRanges(lineNumber, segment.addedLines)) return "full-line-add";
+      if (isLineInCodeSegmentRanges(lineNumber, segment.modifiedLines)) return "full-line-modified";
+    }
     return "full-line-existing";
   }
 
@@ -406,7 +412,6 @@
     const popover = document.getElementById("code-popover");
     const codeEl = document.getElementById("code-popover-content");
     document.getElementById("code-popover-title").textContent = title;
-    resetCodePopoverFindState();
     codeEl.className = `code-popover-content ${contentClass}`;
     codeEl.removeAttribute("data-highlighted");
     if (languageName) codeEl.classList.add(`language-${languageName}`);
@@ -423,10 +428,9 @@
     const popover = document.getElementById("code-popover");
     const codeEl = document.getElementById("code-popover-content");
     document.getElementById("code-popover-title").textContent = path;
-    resetCodePopoverFindState();
     codeEl.className = "code-popover-content code-popover-file";
     codeEl.removeAttribute("data-highlighted");
-    codeEl.innerHTML = renderFullFilePanel(path, (entry && entry.content) || "", change, ext, { embedded: true });
+    codeEl.innerHTML = renderFullFilePanel(path, (entry && entry.content) || "", change, ext, { embedded: true, includeDeleted: false });
     backdrop.style.display = "block";
     popover.style.display = "flex";
   }
@@ -434,186 +438,16 @@
   function hideCodePopover() {
     document.getElementById("code-popover-backdrop").style.display = "none";
     document.getElementById("code-popover").style.display = "none";
-    resetCodePopoverFindState();
-  }
-
-  function bindCodePopoverFindEvents() {
-    const input = document.getElementById("code-popover-find-input");
-    const previousButton = document.getElementById("btn-code-popover-find-prev");
-    const nextButton = document.getElementById("btn-code-popover-find-next");
-    input.addEventListener("input", updateCodePopoverFind);
-    input.addEventListener("keydown", evt => {
-      if (evt.key !== "Enter") return;
-      evt.preventDefault();
-      moveCodePopoverFindSelection(evt.shiftKey ? -1 : 1);
-    });
-    previousButton.addEventListener("click", () => moveCodePopoverFindSelection(-1));
-    nextButton.addEventListener("click", () => moveCodePopoverFindSelection(1));
-  }
-
-  function handleCodePopoverFindShortcut(evt) {
-    if (!(evt.ctrlKey || evt.metaKey) || evt.shiftKey || evt.altKey || evt.key.toLowerCase() !== "f") return false;
-    if (!isCodePopoverVisible()) return false;
-    evt.preventDefault();
-    focusCodePopoverFind();
-    return true;
-  }
-
-  function handleCodePopoverFindEscape(evt) {
-    if (evt.key !== "Escape" || !isCodePopoverFindOpen()) return false;
-    evt.preventDefault();
-    closeCodePopoverFind();
-    return true;
-  }
-
-  function focusCodePopoverFind() {
-    openCodePopoverFind();
-    const input = document.getElementById("code-popover-find-input");
-    input.focus();
-    input.select();
   }
 
   function isCodePopoverVisible() {
     return document.getElementById("code-popover").style.display !== "none";
   }
 
-  function isCodePopoverFindOpen() {
-    return document.getElementById("code-popover-find")?.classList.contains("is-open");
-  }
-
-  function openCodePopoverFind() {
-    document.getElementById("code-popover-find")?.classList.add("is-open");
-  }
-
-  function closeCodePopoverFind() {
-    document.getElementById("code-popover-find")?.classList.remove("is-open");
-  }
-
-  function resetCodePopoverFindState() {
-    const input = document.getElementById("code-popover-find-input");
-    const content = document.getElementById("code-popover-content");
-    if (content) clearCodePopoverFindHighlights(content);
-    if (input) input.value = "";
-    closeCodePopoverFind();
-    codePopoverFindMatches = [];
-    codePopoverFindIndex = -1;
-    updateCodePopoverFindCount();
-  }
-
-  function updateCodePopoverFind() {
-    const input = document.getElementById("code-popover-find-input");
-    const content = document.getElementById("code-popover-content");
-    const query = input.value;
-    clearCodePopoverFindHighlights(content);
-    codePopoverFindMatches = [];
-    codePopoverFindIndex = -1;
-    if (!query) {
-      updateCodePopoverFindCount();
-      return;
-    }
-
-    const textNodes = collectCodePopoverFindTextNodes(content, query);
-    for (const textNode of textNodes) {
-      highlightCodePopoverTextNode(textNode, query);
-    }
-    if (codePopoverFindMatches.length > 0) {
-      codePopoverFindIndex = 0;
-      applyCodePopoverFindSelection({ scroll: true });
-    }
-    updateCodePopoverFindCount();
-  }
-
-  function collectCodePopoverFindTextNodes(root, query) {
-    const nodes = [];
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-      acceptNode(node) {
-        if (!node.nodeValue || !node.nodeValue.includes(query)) return NodeFilter.FILTER_REJECT;
-        const parent = node.parentElement;
-        if (!parent || parent.closest(".full-line-number")) return NodeFilter.FILTER_REJECT;
-        return NodeFilter.FILTER_ACCEPT;
-      }
-    });
-    while (walker.nextNode()) nodes.push(walker.currentNode);
-    return nodes;
-  }
-
-  function highlightCodePopoverTextNode(textNode, query) {
-    const text = textNode.nodeValue;
-    let cursor = 0;
-    let lastAppended = 0;
-    let foundMatch = false;
-    const fragment = document.createDocumentFragment();
-    while (cursor < text.length) {
-      const index = text.indexOf(query, cursor);
-      if (index === -1) break;
-      const end = index + query.length;
-      if (!isWholeWordCodePopoverFindMatch(text, query, index, end)) {
-        cursor = index + 1;
-        continue;
-      }
-      fragment.append(document.createTextNode(text.slice(lastAppended, index)));
-      const match = document.createElement("mark");
-      match.className = "code-popover-find-match";
-      match.textContent = text.slice(index, end);
-      fragment.append(match);
-      codePopoverFindMatches.push(match);
-      cursor = end;
-      lastAppended = end;
-      foundMatch = true;
-    }
-    if (!foundMatch) return;
-    fragment.append(document.createTextNode(text.slice(lastAppended)));
-    textNode.replaceWith(fragment);
-  }
-
-  function isWholeWordCodePopoverFindMatch(text, query, start, end) {
-    const first = query.charAt(0);
-    const last = query.charAt(query.length - 1);
-    const before = start > 0 ? text.charAt(start - 1) : "";
-    const after = end < text.length ? text.charAt(end) : "";
-    const beforeAllowed = !isCodePopoverWordCharacter(first) || before === "" || !isCodePopoverWordCharacter(before);
-    const afterAllowed = !isCodePopoverWordCharacter(last) || after === "" || !isCodePopoverWordCharacter(after);
-    return beforeAllowed && afterAllowed;
-  }
-
-  function isCodePopoverWordCharacter(character) {
-    if (!character) return false;
-    const code = character.charCodeAt(0);
-    return (code >= 48 && code <= 57) || (code >= 65 && code <= 90) || (code >= 97 && code <= 122) || character === "_";
-  }
-
-  function clearCodePopoverFindHighlights(root) {
-    if (!root) return;
-    for (const match of Array.from(root.querySelectorAll(".code-popover-find-match"))) {
-      const parent = match.parentNode;
-      match.replaceWith(document.createTextNode(match.textContent || ""));
-      if (parent) parent.normalize();
-    }
-  }
-
-  function moveCodePopoverFindSelection(delta) {
-    if (codePopoverFindMatches.length === 0) return;
-    codePopoverFindIndex = (codePopoverFindIndex + delta + codePopoverFindMatches.length) % codePopoverFindMatches.length;
-    applyCodePopoverFindSelection({ scroll: true });
-    updateCodePopoverFindCount();
-  }
-
-  function applyCodePopoverFindSelection({ scroll } = {}) {
-    for (const match of codePopoverFindMatches) match.classList.remove("current");
-    const current = codePopoverFindMatches[codePopoverFindIndex];
-    if (!current) return;
-    current.classList.add("current");
-    if (scroll) current.scrollIntoView({ block: "center", inline: "nearest" });
-  }
-
-  function updateCodePopoverFindCount() {
-    const count = document.getElementById("code-popover-find-count");
-    if (!count) return;
-    if (codePopoverFindMatches.length === 0) {
-      count.textContent = document.getElementById("code-popover-find-input")?.value ? "0/0" : "";
-      return;
-    }
-    count.textContent = `${codePopoverFindIndex + 1}/${codePopoverFindMatches.length}`;
+  function handleCodePopoverOutsidePointer(evt) {
+    if (!isCodePopoverVisible()) return;
+    const popover = document.getElementById("code-popover");
+    if (popover && !popover.contains(evt.target)) hideCodePopover();
   }
 
   function getDesignDocumentForModule(modulePath) {

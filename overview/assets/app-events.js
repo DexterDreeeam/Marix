@@ -37,11 +37,9 @@
 
     document.getElementById("code-popover-backdrop").addEventListener("click", hideCodePopover);
     document.getElementById("btn-close-code-popover").addEventListener("click", hideCodePopover);
-    bindCodePopoverFindEvents();
     bindCodePopoverScrollGuard();
+    document.addEventListener("pointerdown", handleCodePopoverOutsidePointer);
     document.addEventListener("keydown", evt => {
-      if (handleCodePopoverFindShortcut(evt)) return;
-      if (handleCodePopoverFindEscape(evt)) return;
       if (evt.key === "Escape") hideCodePopover();
     });
 
