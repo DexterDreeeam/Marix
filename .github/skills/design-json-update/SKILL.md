@@ -11,14 +11,16 @@ This skill owns the mechanics of discovering which `.design.json` files need upd
 
 ## Inputs
 
-- **Focused update** — The caller provides a list of changed non-dot source paths under `src/`, plus the changed portions or intent. This is the normal hook flow:
+- **Focused update** — The caller provides a list of changed design-tracked source paths under `src/`, plus the changed portions or intent. This is the normal hook flow:
   `ensure-deveopment-design` → `development-designer` → `design-json-update`.
-- **Full update** — If the user invokes this skill directly without a file list, refresh every `.design.json` under `src/` and create missing `.design.json` files for every non-dot source folder.
+- **Full update** — If the user invokes this skill directly without a file list, refresh every `.design.json` under `src/` and create missing `.design.json` files for every design-tracked source folder.
 - **Pre-tag update** — When invoked from `git-tag`, refresh `.design.json` before the tag commit so `changeStatus` records the actual source changes being tagged.
 
 ## Path Rules
 
 - A non-dot source path is any path under `src/` where neither the file name nor any parent directory segment starts with `.`.
+- A design-tracked source path is a non-dot source path that is not under `src/tests/`.
+- `src/tests/` contains integration tests. Ignore that folder completely for design metadata: do not create `src/tests/.design.json`, do not list it as a child module, and do not treat its files as source changes.
 - Every dot-prefixed file or folder under `src/` is companion metadata and must not be listed as a normal source file, child module, or source change entry.
 - `.design.json` is the only design metadata format. Do not generate, parse, or preserve legacy Markdown design metadata.
 
@@ -27,7 +29,7 @@ This skill owns the mechanics of discovering which `.design.json` files need upd
 For a focused update:
 
 1. Normalize the provided changed paths.
-2. Keep only non-dot source paths under `src/`.
+2. Keep only design-tracked source paths under `src/`.
 3. For each changed file, update `.design.json` in:
    - the file's direct folder,
    - every ancestor folder,
@@ -37,8 +39,8 @@ For a focused update:
 For a full update:
 
 1. Walk `src/`.
-2. Ignore every dot-prefixed file/folder.
-3. Treat every non-dot folder under `src/` as a source module.
+2. Ignore every dot-prefixed file/folder and the `src/tests/` folder.
+3. Treat every remaining non-dot folder under `src/` as a source module.
 4. Update or create `.design.json` in every source module folder.
 
 ## Required Metadata Completeness
@@ -46,7 +48,7 @@ For a full update:
 Each `.design.json` must describe the current source truth for its module:
 
 - `module`: path, name, purpose, and `changeStatus` when known.
-- `childModules`: direct non-dot child source folders only. Do not put `changeStatus` on child module entries; each child folder records its own folder status in its own `.design.json`.
+- `childModules`: direct design-tracked child source folders only. Do not put `changeStatus` on child module entries; each child folder records its own folder status in its own `.design.json`.
 - Direct module/file status arrays for changed items in the current folder only:
   - `added`,
   - `modified`,
@@ -105,10 +107,10 @@ After updating:
 
 1. Parse every changed `.design.json` as JSON.
 2. Confirm no legacy Markdown design metadata files exist.
-3. Confirm no dot-prefixed source path is listed as a normal child module or file.
+3. Confirm no dot-prefixed source path and no `src/tests/` path is listed as a normal child module or file.
 4. Confirm `childModules` entries do not contain `changeStatus`.
 5. Confirm top-level status arrays list only `"."` or direct current-folder file names, never child folder paths or unchanged files.
-6. For each changed source file, compare public definitions in source with top-level `elements`; verify each element has all relevant `codeSegments`, including impl blocks where applicable. Report any deliberate omissions.
+6. For each changed design-tracked source file, compare public definitions in source with top-level `elements`; verify each element has all relevant `codeSegments`, including impl blocks where applicable. Report any deliberate omissions.
 7. Confirm element `changeStatus` is not inherited from file status wholesale: unchanged elements in modified files must remain `unchanged` when their own `codeSegments` did not change.
 8. Ensure `ensure-deveopment-design` would return `allow` for the current agent's changed files.
 

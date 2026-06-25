@@ -77,4 +77,15 @@ Prefer structured diagnostics or existing logging paths over raw print macros.
 - Keep deployment, topology, transport, model, and configuration boundaries decoupled.
 - Separate public inherent methods and private inherent methods into different `impl`
   blocks for the same type.
+- Route third-party crate types, functions, and macros used by Rust source through
+  crate-local wrappers under `src/common/external/<crate>.rs` instead of importing
+  those crates directly from feature code.
+- Import crate-local external namespaces with `use crate::common::external::*;`,
+  then call through the released crate namespace, such as `tokio::Runtime`,
+  `tokio::TcpStream`, or `remoc::connect_remoc(...)`, instead of deep-importing
+  third-party members in feature modules.
+- Re-export derive macros needed by feature modules from `common::external` and
+  use them by their released names, such as `Serialize` and `Deserialize`.
+- If a namespaced macro conflicts with Rust extern prelude resolution, qualify it
+  through the local scope, such as `self::serde_json::json!`.
 - Place `impl fmt::Debug for ...` blocks at the end of Rust files, after behavior impls and helper functions.

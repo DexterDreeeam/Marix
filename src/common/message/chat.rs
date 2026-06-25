@@ -7,6 +7,6 @@ pub struct ChatMessage {
 
 impl UserMessage for ChatMessage {
     fn message_type(&self) -> UserMessageType {
-        panic!("not implemented")
+        UserMessageType::Chat
     }
 }

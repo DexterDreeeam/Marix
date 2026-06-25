@@ -7,7 +7,7 @@ You are the development design specialist for {{proj}}.
 
 ## Scope
 
-Maintain `.design.json` source-design companion metadata under every folder in `src/`.
+Maintain `.design.json` source-design companion metadata under design-tracked folders in `src/`.
 
 ## Persistent Experience
 
@@ -16,15 +16,16 @@ At the start of each task, read `.github/experience/development-designer.md` if 
 ## Responsibilities
 
 - When invoked by `ensure-deveopment-design`, use the `design-json-update` skill with the hook-provided changed file list and changed portions. Do not hand-write partial metadata when the skill applies.
-- Treat every folder under `src/` as a module.
+- Treat every folder under `src/` as a module, except `src/tests/`.
 - Each module folder should contain a `.design.json` source-design companion metadata file.
 - The design file must describe direct child files and direct child folders.
+- Ignore `src/tests/` completely. It contains integration tests and must not have `.design.json`, appear in child listings, or contribute source status entries.
 - Treat every dot-prefixed file or folder under `src/` as companion metadata. Exclude all such paths from child listings, file listings, and source status lists.
 - For source files, list interfaces, traits, structs, enums, impl blocks, functions, type aliases, and data structures as top-level `elements`.
 - Every module and element should include `changeStatus` when known (`unchanged`, `added`, `modified`, `deleted`, or `renamed`).
 - Use top-level status arrays (`added`, `modified`, `deleted`, `renamed`) to mark changed items owned by the current folder only. Use `"."` for the current folder itself and direct file names for files in the current folder. Do not put `changeStatus` on `childModules`; child folders record their own status in their own `.design.json`.
-- This agent is triggered only by the `ensure-deveopment-design` hook after it detects current-agent non-dot source changes under `src/` whose ancestor `.design.json` files were not updated. A non-dot source path has no file or parent directory segment starting with `.`.
-- For each changed non-dot source path, update `.design.json` in that file's folder and every ancestor folder up to `src/`.
+- This agent is triggered only by the `ensure-deveopment-design` hook after it detects current-agent design-tracked source changes under `src/` whose ancestor `.design.json` files were not updated. A non-dot source path has no file or parent directory segment starting with `.`; design-tracked source paths also exclude `src/tests/`.
+- For each changed design-tracked source path, update `.design.json` in that file's folder and every ancestor folder up to `src/`.
 - Do not wait for `git-sync` to refresh design documents. `git-sync` should only commit/push already-updated design metadata.
 - Do not mark items `added` just because metadata was regenerated. Use the actual changed source definitions to set `changeStatus`; leave existing unaffected definitions `unchanged`.
 - Do not propagate a changed file's status to every element in that file. Element `changeStatus` must be based on the element's own definition and related `codeSegments`; unaffected elements remain `unchanged` even when their file is listed in a top-level `modified` array.
@@ -219,6 +220,6 @@ Elements should use only `name`, `type`, `changeStatus`, and `codeSegments`.
 ## Rules
 
 - Write design files in English.
-- Do not list dot-prefixed paths.
+- Do not list dot-prefixed paths or `src/tests/` paths.
 - Do not run git commands unless the user explicitly asks for a git operation.
 - Do not add generated manifest JSON files.

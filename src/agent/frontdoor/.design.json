@@ -3,8 +3,8 @@
   "module": {
     "path": "src/agent/frontdoor",
     "name": "frontdoor",
-    "purpose": "Agent frontdoor session and task endpoint drafts for accepting one client session and multiple user-message tasks.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent frontdoor session endpoint backed by remoc/TCP and task endpoint stubs for future user-message tasks.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -31,17 +31,37 @@
     {
       "name": "AgentSession",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/session.rs",
-          "lineStart": 5,
-          "lineEnd": 35,
+          "lineStart": 8,
+          "lineEnd": 58,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 58
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "agent remoc session private helpers",
+      "type": "private-methods",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/frontdoor/session.rs",
+          "lineStart": 60,
+          "lineEnd": 123,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 5,
-              "lineEnd": 35
+              "lineStart": 60,
+              "lineEnd": 123
             }
           ],
           "modifiedLines": []
@@ -51,20 +71,20 @@
     {
       "name": "AgentTask",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/task.rs",
           "lineStart": 4,
           "lineEnd": 18,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 4,
               "lineEnd": 18
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     }

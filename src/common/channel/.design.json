@@ -3,26 +3,26 @@
   "module": {
     "path": "src/common/channel",
     "name": "channel",
-    "purpose": "Shared channel error type used by client and agent session/task endpoints.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared channel error type and crate-internal remoc SessionEvent protocol serialized through common external namespaces.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
     {
       "name": "channel module entry",
       "type": "module-entry",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/channel/mod.rs",
           "lineStart": 1,
-          "lineEnd": 3,
+          "lineEnd": 5,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 1,
-              "lineEnd": 3
+              "lineEnd": 5
             }
           ]
         }
@@ -31,17 +31,37 @@
     {
       "name": "ChannelError",
       "type": "enum",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/channel/error.rs",
           "lineStart": 1,
-          "lineEnd": 6,
+          "lineEnd": 36,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 36
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SessionEvent",
+      "type": "enum",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/channel/session.rs",
+          "lineStart": 1,
+          "lineEnd": 7,
           "language": "rust",
           "addedLines": [
             {
               "lineStart": 1,
-              "lineEnd": 6
+              "lineEnd": 7
             }
           ],
           "modifiedLines": []

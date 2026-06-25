@@ -3,8 +3,8 @@
   "module": {
     "path": "src/agent/model",
     "name": "model",
-    "purpose": "Public model request interface, crate-internal backend implementation boundary, model error definitions, and streaming Deepseek backend implementation.",
-    "changeStatus": "unchanged"
+    "purpose": "Public model request interface, crate-internal backend implementation boundary, model error definitions, and streaming Deepseek backend implementation through common external namespaces.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -31,79 +31,79 @@
     {
       "name": "DeepseekBackend",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend_deepseek.rs",
-          "lineStart": 14,
-          "lineEnd": 18,
+          "lineStart": 12,
+          "lineEnd": 16,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 14,
-              "lineEnd": 18
+              "lineStart": 12,
+              "lineEnd": 16
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/agent/model/backend_deepseek.rs",
-          "lineStart": 20,
-          "lineEnd": 27,
+          "lineStart": 18,
+          "lineEnd": 25,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 20,
-              "lineEnd": 27
+              "lineStart": 18,
+              "lineEnd": 25
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/agent/model/backend_deepseek.rs",
-          "lineStart": 29,
-          "lineEnd": 87,
+          "lineStart": 27,
+          "lineEnd": 85,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 29,
-              "lineEnd": 87
+              "lineStart": 27,
+              "lineEnd": 85
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/agent/model/backend_deepseek.rs",
-          "lineStart": 172,
-          "lineEnd": 181,
+          "lineStart": 170,
+          "lineEnd": 179,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 172,
-              "lineEnd": 181
+              "lineStart": 170,
+              "lineEnd": 179
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
     {
       "name": "Deepseek streaming helpers",
       "type": "functions",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend_deepseek.rs",
-          "lineStart": 89,
-          "lineEnd": 170,
+          "lineStart": 87,
+          "lineEnd": 168,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 89,
-              "lineEnd": 170
+              "lineStart": 87,
+              "lineEnd": 168
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -208,20 +208,20 @@
     {
       "name": "ModelBackendError",
       "type": "enum",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/error.rs",
-          "lineStart": 3,
-          "lineEnd": 42,
+          "lineStart": 5,
+          "lineEnd": 44,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 3,
-              "lineEnd": 42
+              "lineStart": 5,
+              "lineEnd": 44
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     }

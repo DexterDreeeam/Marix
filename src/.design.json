@@ -3,24 +3,27 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Second-generation Rust source organized into client, agent, and common modules with resolved typed configuration, chat message drafts, concrete session/task endpoint drafts, and model request backend implementation.",
-    "changeStatus": "unchanged"
+    "purpose": "Second-generation Rust source organized into client, agent, and common modules with resolved typed configuration, chat message drafts, centralized external-library namespaces, remoc-backed session endpoint prototype, design-ignored integration tests, and model request backend implementation.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Client-facing draft split into CLI and concrete core client session/task endpoints."
+      "purpose": "Client-facing draft split into CLI and a remoc-backed core client session endpoint.",
+      "changeStatus": "modified"
     },
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent engine module, frontdoor session/task endpoints, public model request interface, Deepseek backend implementation, and future retrieval/tool interfaces."
+      "purpose": "Agent engine module, remoc-backed frontdoor session endpoint, public model request interface, Deepseek backend implementation, and future retrieval/tool interfaces.",
+      "changeStatus": "modified"
     },
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration, chat user messages, and shared channel errors."
+      "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration, chat user messages, shared channel errors, remoc session protocol messages, and centralized crate-local external-library namespaces.",
+      "changeStatus": "modified"
     }
   ],
   "elements": [
@@ -32,12 +35,12 @@
         {
           "sourcePath": "src/Cargo.toml",
           "lineStart": 1,
-          "lineEnd": 14,
+          "lineEnd": 16,
           "language": "toml",
           "addedLines": [
             {
               "lineStart": 1,
-              "lineEnd": 14
+              "lineEnd": 16
             }
           ],
           "modifiedLines": []
@@ -52,12 +55,12 @@
         {
           "sourcePath": "src/Cargo.lock",
           "lineStart": 1,
-          "lineEnd": 1451,
+          "lineEnd": 1579,
           "language": "toml",
           "addedLines": [
             {
               "lineStart": 1,
-              "lineEnd": 1451
+              "lineEnd": 1579
             }
           ],
           "modifiedLines": []

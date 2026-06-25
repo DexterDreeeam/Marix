@@ -17,6 +17,7 @@ function Test-NonDotSourcePath {
   param([string]$Path)
   $parts = (Convert-ToRepoPath $Path) -split "/"
   if ($parts.Count -lt 2 -or $parts[0] -ne "src") { return $false }
+  if ($parts[1] -eq "tests") { return $false }
   foreach ($part in $parts[1..($parts.Count - 1)]) {
     if ($part.StartsWith(".")) { return $false }
   }

@@ -3,10 +3,8 @@ use std::io::Read;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread;
 
-use reqwest::blocking::{Client, Response};
-use serde_json::{json, Value};
-
 use crate::common::config::DeepseekConfig;
+use crate::common::external::*;
 
 use super::backend::ModelBackendImpl;
 use super::{ModelBackendError, ModelRequest, ModelResponse};
@@ -14,14 +12,14 @@ use super::{ModelBackendError, ModelRequest, ModelResponse};
 #[derive(Clone)]
 pub struct DeepseekBackend<'config> {
     config: &'config DeepseekConfig,
-    client: Client,
+    client: reqwest::blocking::Client,
 }
 
 impl<'config> DeepseekBackend<'config> {
     pub fn new(config: &'config DeepseekConfig) -> Self {
         Self {
             config,
-            client: Client::new(),
+            client: reqwest::blocking::Client::new(),
         }
     }
 }
@@ -50,7 +48,7 @@ impl ModelBackendImpl for DeepseekBackend<'_> {
         &mut self,
         request: ModelRequest,
     ) -> Result<Receiver<ModelResponse>, ModelBackendError> {
-        let payload = json!({
+        let payload = self::serde_json::json!({
             "model": self.config.model.trim(),
             "messages": [
                 {
@@ -87,7 +85,7 @@ impl ModelBackendImpl for DeepseekBackend<'_> {
 }
 
 fn stream_response(
-    response: &mut Response,
+    response: &mut reqwest::blocking::Response,
     sender: &Sender<ModelResponse>,
 ) -> Result<(), ModelBackendError> {
     let mut pending = String::new();
@@ -147,14 +145,14 @@ fn handle_sse_event(
         if data == "[DONE]" {
             return Ok(true);
         }
-        let value: Value = serde_json::from_str(data)?;
+        let value: serde_json::Value = serde_json::from_str(data)?;
         let content = value
             .get("choices")
-            .and_then(Value::as_array)
+            .and_then(serde_json::Value::as_array)
             .and_then(|choices| choices.first())
             .and_then(|choice| choice.get("delta"))
             .and_then(|delta| delta.get("content"))
-            .and_then(Value::as_str)
+            .and_then(serde_json::Value::as_str)
             .filter(|content| !content.is_empty());
         if let Some(content) = content {
             if sender

@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/common/external",
+    "name": "external",
+    "purpose": "Crate-local third-party library namespace wrappers, derive macro re-exports, and helper entrypoints that keep external crate usage visible through common::external modules.",
+    "changeStatus": "added"
+  },
+  "childModules": [],
+  "elements": [
+    {
+      "name": "external module entry",
+      "type": "module-entry",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/external/mod.rs",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 8
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "remoc namespace wrapper and connection helper",
+      "type": "module",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/external/remoc.rs",
+          "lineStart": 1,
+          "lineEnd": 22,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 22
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "reqwest namespace wrapper",
+      "type": "module",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/external/reqwest.rs",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 2
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "serde namespace wrapper",
+      "type": "module",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/external/serde.rs",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 1
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "serde_json namespace wrapper",
+      "type": "module",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/external/serde_json.rs",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 1
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "tokio namespace wrapper",
+      "type": "module",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/external/tokio.rs",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 5
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "toml namespace wrapper",
+      "type": "module",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/external/toml.rs",
+          "lineStart": 1,
+          "lineEnd": 2,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 2
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

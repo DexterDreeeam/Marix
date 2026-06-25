@@ -3,8 +3,8 @@
   "module": {
     "path": "src/common/config",
     "name": "config",
-    "purpose": "Strongly typed single-entry TOML configuration loader with alias substitution and credential resolution.",
-    "changeStatus": "unchanged"
+    "purpose": "Strongly typed single-entry TOML configuration loader with alias substitution, credential resolution, and common external namespace usage for serde and TOML.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -84,7 +84,7 @@
     {
       "name": "runtime config types",
       "type": "structs-and-enums",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
@@ -97,14 +97,19 @@
               "lineEnd": 48
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 27,
+              "lineEnd": 48
+            }
+          ]
         }
       ]
     },
     {
       "name": "service config types",
       "type": "structs-and-enums",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
@@ -117,7 +122,12 @@
               "lineEnd": 112
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 50,
+              "lineEnd": 112
+            }
+          ]
         },
         {
           "sourcePath": "src/common/config/config.rs",
@@ -137,7 +147,7 @@
     {
       "name": "raw config decoding",
       "type": "private-types",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
@@ -150,14 +160,19 @@
               "lineEnd": 145
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 114,
+              "lineEnd": 145
+            }
+          ]
         }
       ]
     },
     {
       "name": "config loading pipeline",
       "type": "functions",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
@@ -170,14 +185,19 @@
               "lineEnd": 254
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 147,
+              "lineEnd": 254
+            }
+          ]
         }
       ]
     },
     {
       "name": "ConfigError",
       "type": "enum",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
@@ -190,7 +210,12 @@
               "lineEnd": 290
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 257,
+              "lineEnd": 290
+            }
+          ]
         }
       ]
     }

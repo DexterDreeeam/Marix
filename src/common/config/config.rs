@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::fmt;
 use std::path::{Path, PathBuf};
 
-use serde::Deserialize;
+use crate::common::external::*;
 
 pub const CONFIG_FILE: &str = "src/config.toml";
 

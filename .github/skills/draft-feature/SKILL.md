@@ -73,7 +73,7 @@ Use this checklist before reporting:
 
 ## Source Design Metadata
 
-If Rust source files under `src/` are changed, keep source design metadata consistent through the normal source-design workflow. If the source-design hook blocks, pass the changed non-dot source paths and interface intent to the design metadata updater before completing the task.
+If Rust source files under `src/` are changed, keep source design metadata consistent through the normal source-design workflow. If the source-design hook blocks, pass the changed design-tracked source paths and interface intent to the design metadata updater before completing the task.
 
 ## Reporting
 

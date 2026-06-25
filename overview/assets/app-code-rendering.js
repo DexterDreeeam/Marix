@@ -186,6 +186,7 @@
 
     const value = token.value;
     if (value === "pub") return `<span class="mx-code-visibility">${escapeHtml(value)}</span>`;
+    if (nextPunctuation(tokens, index) === "::") return `<span class="mx-code-namespace">${escapeHtml(value)}</span>`;
     if (RUST_PRIMITIVES.has(value)) return `<span class="mx-code-primitive">${escapeHtml(value)}</span>`;
     if (nextPunctuation(tokens, index) === "!") return `<span class="mx-code-macro">${escapeHtml(value)}</span>`;
     if (RUST_KEYWORDS.has(value)) return `<span class="mx-code-keyword">${escapeHtml(value)}</span>`;

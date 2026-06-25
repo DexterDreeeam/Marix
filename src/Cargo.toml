@@ -9,6 +9,8 @@ path = "mod.rs"
 
 [dependencies]
 reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+remoc = "0.18"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+tokio = { version = "1", features = ["net", "rt-multi-thread", "time"] }
 toml = "0.9"

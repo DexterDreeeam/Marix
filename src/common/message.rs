@@ -1,3 +1,7 @@
+pub mod chat;
+
+pub use chat::ChatMessage;
+
 pub trait UserMessage {
     fn message_type(&self) -> UserMessageType;
 }

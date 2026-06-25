@@ -3,44 +3,73 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration, chat user messages, and shared channel errors.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration, chat user messages, shared channel errors, remoc session protocol messages, and centralized crate-local external-library namespaces.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/common/channel",
       "name": "channel",
-      "purpose": "Shared channel error type used by client and agent session/task endpoints."
+      "purpose": "Shared channel error type and crate-internal remoc SessionEvent protocol used by client and agent endpoints.",
+      "changeStatus": "modified"
     },
     {
       "path": "src/common/config",
       "name": "config",
-      "purpose": "Strongly typed single-entry TOML configuration loader with alias and credential resolution."
+      "purpose": "Strongly typed single-entry TOML configuration loader with alias and credential resolution.",
+      "changeStatus": "modified"
+    },
+    {
+      "path": "src/common/external",
+      "name": "external",
+      "purpose": "Crate-local third-party library namespace wrappers used by source modules instead of importing external crates directly.",
+      "changeStatus": "added"
     },
     {
       "path": "src/common/message",
       "name": "message",
-      "purpose": "Shared user message trait, user message type enum, and chat message payload type exchanged between client and agent."
+      "purpose": "Shared user message trait, user message type enum, and chat message payload type exchanged between client and agent.",
+      "changeStatus": "modified"
     }
   ],
   "elements": [
     {
       "name": "common module entry",
       "type": "module-entry",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/mod.rs",
           "lineStart": 1,
-          "lineEnd": 3,
+          "lineEnd": 4,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 1,
-              "lineEnd": 3
+              "lineEnd": 4
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "message module file",
+      "type": "module",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/message.rs",
+          "lineStart": 1,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
         }
       ]
     }

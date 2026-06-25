@@ -13,6 +13,7 @@ is_non_dot_source_path() {
   local path
   path="$(to_repo_path "$1")"
   [[ "$path" == src/* ]] || return 1
+  [[ "$path" != src/tests && "$path" != src/tests/* ]] || return 1
   IFS='/' read -r -a parts <<< "$path"
   local part
   for part in "${parts[@]:1}"; do

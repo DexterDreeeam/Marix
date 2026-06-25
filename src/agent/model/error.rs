@@ -1,5 +1,7 @@
 use std::fmt;
 
+use crate::common::external::*;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ModelBackendError {
     Unavailable(String),

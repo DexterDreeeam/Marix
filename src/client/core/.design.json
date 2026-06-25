@@ -3,8 +3,8 @@
   "module": {
     "path": "src/client/core",
     "name": "core",
-    "purpose": "Core client session and task endpoint drafts for connecting to an agent and exchanging user messages.",
-    "changeStatus": "unchanged"
+    "purpose": "Core client session endpoint backed by remoc/TCP and task endpoint stubs for future user-message tasks.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -31,17 +31,37 @@
     {
       "name": "ClientSession",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/core/session.rs",
-          "lineStart": 6,
-          "lineEnd": 34,
+          "lineStart": 9,
+          "lineEnd": 43,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 43
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client remoc session private helpers",
+      "type": "private-methods",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/core/session.rs",
+          "lineStart": 45,
+          "lineEnd": 115,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 6,
-              "lineEnd": 34
+              "lineStart": 45,
+              "lineEnd": 115
             }
           ],
           "modifiedLines": []
@@ -51,20 +71,20 @@
     {
       "name": "ClientTask",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/core/task.rs",
           "lineStart": 4,
           "lineEnd": 18,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 4,
               "lineEnd": 18
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     }

@@ -3,8 +3,8 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent engine module, frontdoor session/task endpoints, public model request interface, Deepseek backend implementation, and future retrieval/tool interfaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent engine module, remoc-backed frontdoor session endpoint, public model request interface, Deepseek backend implementation through common external namespaces, and future retrieval/tool interfaces.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
@@ -15,12 +15,14 @@
     {
       "path": "src/agent/frontdoor",
       "name": "frontdoor",
-      "purpose": "Agent frontdoor session and task endpoint drafts for accepting one client session and multiple user-message tasks."
+      "purpose": "Agent frontdoor session endpoint backed by remoc/TCP and task endpoint stubs for future user-message tasks.",
+      "changeStatus": "modified"
     },
     {
       "path": "src/agent/model",
       "name": "model",
-      "purpose": "Public model request interface, crate-internal backend implementation boundary, model error definitions, and streaming Deepseek backend implementation."
+      "purpose": "Public model request interface, crate-internal backend implementation boundary, model error definitions, and streaming Deepseek backend implementation through common external namespaces.",
+      "changeStatus": "modified"
     }
   ],
   "elements": [

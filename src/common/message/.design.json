@@ -4,34 +4,14 @@
     "path": "src/common/message",
     "name": "message",
     "purpose": "Shared user message trait, user message type enum, and chat message payload type exchanged between client and agent.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
     {
-      "name": "message module entry",
-      "type": "module-entry",
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/message/mod.rs",
-          "lineStart": 1,
-          "lineEnd": 5,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 1,
-              "lineEnd": 5
-            }
-          ]
-        }
-      ]
-    },
-    {
       "name": "ChatMessage",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/chat.rs",
@@ -42,46 +22,6 @@
             {
               "lineStart": 1,
               "lineEnd": 12
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "UserMessage",
-      "type": "trait",
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/message/message.rs",
-          "lineStart": 1,
-          "lineEnd": 3,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 1,
-              "lineEnd": 3
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "UserMessageType",
-      "type": "enum",
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/message/message.rs",
-          "lineStart": 5,
-          "lineEnd": 8,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 5,
-              "lineEnd": 8
             }
           ],
           "modifiedLines": []

@@ -57,8 +57,9 @@ Except for content under `src/`, all text must use `{{name}}` placeholders inste
 ## Source Design Maintenance
 
 - A non-dot source file is any path under `src/` where neither the file name nor any parent directory segment starts with `.`.
+- Design-tracked source files exclude `src/tests/`; integration tests live there but must not have or require source design metadata.
 - Do not invoke `development-designer` proactively during normal tasks. It is triggered only when the `ensure-deveopment-design` `agentStop` hook blocks and asks for design metadata updates.
-- When the hook triggers, pass the changed non-dot source paths and changed portions/intent to `development-designer` so it can update `.design.json` in the changed file's folder and every ancestor folder up to `src/`.
+- When the hook triggers, pass the changed design-tracked source paths and changed portions/intent to `development-designer` so it can update `.design.json` in the changed file's folder and every ancestor folder up to `src/`.
 - Do not wait until `git-sync` to refresh design documents after a hook block. Design metadata should be updated before the blocked task is completed.
 - Dot-prefixed files and folders under `src/` are companion metadata maintained by `development-designer`; do not treat them as normal source files in overview file trees or {{proj_lower}} tag diffs.
-- Repository hooks include an `agentStop` guard named `ensure-deveopment-design`. It checks only non-dot `src/` files written by the current agent turn and blocks task completion when those files do not have corresponding ancestor `.design.json` updates.
+- Repository hooks include an `agentStop` guard named `ensure-deveopment-design`. It checks only design-tracked `src/` files written by the current agent turn and blocks task completion when those files do not have corresponding ancestor `.design.json` updates.
