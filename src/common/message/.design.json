@@ -4,14 +4,14 @@
     "path": "src/common/message",
     "name": "message",
     "purpose": "Shared user message trait, user message type enum, and chat message payload type exchanged between client and agent.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
     {
       "name": "message module entry",
       "type": "module-entry",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/mod.rs",
@@ -31,7 +31,7 @@
     {
       "name": "ChatMessage",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/chat.rs",
@@ -51,7 +51,7 @@
     {
       "name": "UserMessage",
       "type": "trait",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/message.rs",
@@ -71,7 +71,7 @@
     {
       "name": "UserMessageType",
       "type": "enum",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/message.rs",

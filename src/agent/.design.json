@@ -4,7 +4,7 @@
     "path": "src/agent",
     "name": "agent",
     "purpose": "Agent engine module, frontdoor session/task endpoints, public model request interface, Deepseek backend implementation, and future retrieval/tool interfaces.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -15,8 +15,7 @@
     {
       "path": "src/agent/frontdoor",
       "name": "frontdoor",
-      "purpose": "Agent frontdoor session and task endpoint drafts for accepting one client session and multiple user-message tasks.",
-      "changeStatus": "modified"
+      "purpose": "Agent frontdoor session and task endpoint drafts for accepting one client session and multiple user-message tasks."
     },
     {
       "path": "src/agent/model",
@@ -28,7 +27,7 @@
     {
       "name": "agent module entry",
       "type": "module-entry",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/mod.rs",

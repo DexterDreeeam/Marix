@@ -4,14 +4,14 @@
     "path": "src/agent/frontdoor",
     "name": "frontdoor",
     "purpose": "Agent frontdoor session and task endpoint drafts for accepting one client session and multiple user-message tasks.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
     {
       "name": "frontdoor module entry",
       "type": "module-entry",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/mod.rs",
@@ -31,7 +31,7 @@
     {
       "name": "AgentSession",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/session.rs",
@@ -51,7 +51,7 @@
     {
       "name": "AgentTask",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/task.rs",

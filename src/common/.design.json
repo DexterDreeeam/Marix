@@ -4,14 +4,13 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration, chat user messages, and shared channel errors.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
       "path": "src/common/channel",
       "name": "channel",
-      "purpose": "Shared channel error type used by client and agent session/task endpoints.",
-      "changeStatus": "modified"
+      "purpose": "Shared channel error type used by client and agent session/task endpoints."
     },
     {
       "path": "src/common/config",
@@ -21,15 +20,14 @@
     {
       "path": "src/common/message",
       "name": "message",
-      "purpose": "Shared user message trait, user message type enum, and chat message payload type exchanged between client and agent.",
-      "changeStatus": "modified"
+      "purpose": "Shared user message trait, user message type enum, and chat message payload type exchanged between client and agent."
     }
   ],
   "elements": [
     {
       "name": "common module entry",
       "type": "module-entry",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/mod.rs",
