@@ -52,6 +52,14 @@ names except for small callback parameters or established DOM/event names.
 - Keep keyboard shortcuts scoped to the visible surface they control.
 - Avoid leaking UI state across hidden or destroyed panels.
 
+## Comments
+
+- Prefer self-explanatory names, control flow, and module structure over comments.
+- Add comments only for non-obvious intent, invariants, browser quirks, or caller-visible edge cases.
+- Do not add comments to every function, class, object, or interface.
+- Keep comments brief. If a file needs longer context, put that explanation once at the top of the file.
+- Keep comments in English.
+
 ## Error Handling
 
 - Do not swallow errors silently.
@@ -79,4 +87,3 @@ Flag these unless locally justified:
 - Prefer typed state objects by convention over parallel loose variables when state grows.
 - Prefer enums or named mode constants over unclear boolean mode parameters.
 - Keep data loading, rendering, event binding, and state mutation boundaries separate.
-

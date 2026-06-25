@@ -35,11 +35,13 @@ Project-specific Rust style below must not override those naming rules.
 - Prefer `cargo clippy --all-targets --all-features` when linting is needed and available.
 - If the repository cannot run a command, report that limitation instead of adding new tools.
 
-## Public API Documentation
+## Comments
 
-- Public library-like items should have rustdoc comments.
-- Document public errors, panics, edge cases, and examples when they matter to callers.
-- Any public `unsafe` item must document its safety contract.
+- Prefer self-explanatory names, signatures, and module structure over comments.
+- Add comments only for non-obvious intent, invariants, safety contracts, or caller-visible edge cases.
+- Do not add comments to every public interface or restate what a signature already says.
+- Keep comments brief. If a module needs longer context, put that explanation once at the top of the file.
+- Any public `unsafe` item must still document its safety contract.
 - Keep comments and rustdoc in English.
 
 ## Error Handling

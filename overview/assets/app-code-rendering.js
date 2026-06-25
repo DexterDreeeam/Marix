@@ -169,6 +169,9 @@
     if (token.kind !== "identifier") return escapeHtml(token.value);
 
     const value = token.value;
+    if (value === "pub") return `<span class="mx-code-visibility">${escapeHtml(value)}</span>`;
+    if (RUST_PRIMITIVES.has(value)) return `<span class="mx-code-primitive">${escapeHtml(value)}</span>`;
+    if (nextPunctuation(tokens, index) === "!") return `<span class="mx-code-macro">${escapeHtml(value)}</span>`;
     if (RUST_KEYWORDS.has(value)) return `<span class="mx-code-keyword">${escapeHtml(value)}</span>`;
     if (previousIdentifier(tokens, index) === "fn") return `<span class="mx-code-function">${escapeHtml(value)}</span>`;
     if (/^[A-Z]/.test(value)) return `<span class="mx-code-type">${escapeHtml(value)}</span>`;
@@ -197,6 +200,11 @@
     "extern", "false", "fn", "for", "if", "impl", "in", "let", "loop", "match", "mod",
     "move", "mut", "pub", "ref", "return", "self", "Self", "static", "struct", "super",
     "trait", "true", "type", "unsafe", "use", "where", "while"
+  ]);
+
+  const RUST_PRIMITIVES = new Set([
+    "bool", "char", "f32", "f64", "i8", "i16", "i32", "i64", "i128", "isize",
+    "str", "u8", "u16", "u32", "u64", "u128", "usize"
   ]);
 
   function splitDiffSections(diffLines, hunks) {
