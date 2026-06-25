@@ -4,14 +4,13 @@
     "path": "src/client",
     "name": "client",
     "purpose": "Client-facing draft split into CLI and a remoc-backed core client session endpoint.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
       "path": "src/client/core",
       "name": "core",
-      "purpose": "Core client session endpoint backed by remoc/TCP and task endpoint stubs for future user-message tasks.",
-      "changeStatus": "modified"
+      "purpose": "Core client session endpoint backed by remoc/TCP and task endpoint stubs for future user-message tasks."
     },
     {
       "path": "src/client/cli",

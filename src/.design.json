@@ -4,26 +4,23 @@
     "path": "src",
     "name": "src",
     "purpose": "Second-generation Rust source organized into client, agent, and common modules with resolved typed configuration, chat message drafts, centralized external-library namespaces, remoc-backed session endpoint prototype, design-ignored integration tests, and model request backend implementation.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Client-facing draft split into CLI and a remoc-backed core client session endpoint.",
-      "changeStatus": "modified"
+      "purpose": "Client-facing draft split into CLI and a remoc-backed core client session endpoint."
     },
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent engine module, remoc-backed frontdoor session endpoint, public model request interface, Deepseek backend implementation, and future retrieval/tool interfaces.",
-      "changeStatus": "modified"
+      "purpose": "Agent engine module, remoc-backed frontdoor session endpoint, public model request interface, Deepseek backend implementation, and future retrieval/tool interfaces."
     },
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration, chat user messages, shared channel errors, remoc session protocol messages, and centralized crate-local external-library namespaces.",
-      "changeStatus": "modified"
+      "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration, chat user messages, shared channel errors, remoc session protocol messages, and centralized crate-local external-library namespaces."
     }
   ],
   "elements": [

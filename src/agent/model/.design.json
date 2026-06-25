@@ -4,7 +4,7 @@
     "path": "src/agent/model",
     "name": "model",
     "purpose": "Public model request interface, crate-internal backend implementation boundary, model error definitions, and streaming Deepseek backend implementation through common external namespaces.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -31,7 +31,7 @@
     {
       "name": "DeepseekBackend",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend_deepseek.rs",
@@ -90,7 +90,7 @@
     {
       "name": "Deepseek streaming helpers",
       "type": "functions",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend_deepseek.rs",
@@ -208,7 +208,7 @@
     {
       "name": "ModelBackendError",
       "type": "enum",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/error.rs",

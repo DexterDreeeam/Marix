@@ -4,7 +4,7 @@
     "path": "src/agent/frontdoor",
     "name": "frontdoor",
     "purpose": "Agent frontdoor session endpoint backed by remoc/TCP and task endpoint stubs for future user-message tasks.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -31,7 +31,7 @@
     {
       "name": "AgentSession",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/session.rs",
@@ -51,7 +51,7 @@
     {
       "name": "agent remoc session private helpers",
       "type": "private-methods",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/session.rs",
@@ -71,7 +71,7 @@
     {
       "name": "AgentTask",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/task.rs",
