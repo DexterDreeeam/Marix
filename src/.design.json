@@ -3,24 +3,27 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Second-generation Rust source organized into client, agent, and common modules with resolved typed configuration and model request backend implementation.",
-    "changeStatus": "unchanged"
+    "purpose": "Second-generation Rust source organized into client, agent, and common modules with resolved typed configuration, chat message drafts, concrete session/task endpoint drafts, and model request backend implementation.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Client-facing draft split into CLI and core client surfaces."
+      "purpose": "Client-facing draft split into CLI and concrete core client session/task endpoints.",
+      "changeStatus": "modified"
     },
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent engine module, public model request interface, Deepseek backend implementation, and future retrieval/tool interfaces."
+      "purpose": "Agent engine module, frontdoor session/task endpoints, public model request interface, Deepseek backend implementation, and future retrieval/tool interfaces.",
+      "changeStatus": "modified"
     },
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration with alias and credential resolution."
+      "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration, chat user messages, and shared channel errors.",
+      "changeStatus": "modified"
     }
   ],
   "elements": [

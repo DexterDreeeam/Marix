@@ -3,14 +3,20 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent engine module, public model request interface, Deepseek backend implementation, and future retrieval/tool interfaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent engine module, frontdoor session/task endpoints, public model request interface, Deepseek backend implementation, and future retrieval/tool interfaces.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/agent/engine",
       "name": "engine",
       "purpose": "Agent engine module reserved for orchestration implementation."
+    },
+    {
+      "path": "src/agent/frontdoor",
+      "name": "frontdoor",
+      "purpose": "Agent frontdoor session and task endpoint drafts for accepting one client session and multiple user-message tasks.",
+      "changeStatus": "modified"
     },
     {
       "path": "src/agent/model",
@@ -22,18 +28,18 @@
     {
       "name": "agent module entry",
       "type": "module-entry",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/mod.rs",
           "lineStart": 1,
-          "lineEnd": 4,
+          "lineEnd": 5,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 1,
-              "lineEnd": 4
+              "lineEnd": 5
             }
           ]
         }

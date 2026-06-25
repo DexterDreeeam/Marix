@@ -75,4 +75,6 @@ Prefer structured diagnostics or existing logging paths over raw print macros.
 - Prefer enums or typed options over unclear boolean mode parameters.
 - Keep visibility private by default; use `pub` only for intentional API surfaces.
 - Keep deployment, topology, transport, model, and configuration boundaries decoupled.
+- Separate public inherent methods and private inherent methods into different `impl`
+  blocks for the same type.
 - Place `impl fmt::Debug for ...` blocks at the end of Rust files, after behavior impls and helper functions.

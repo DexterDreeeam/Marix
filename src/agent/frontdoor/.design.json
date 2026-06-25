@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
   "module": {
-    "path": "src/client/core",
-    "name": "core",
-    "purpose": "Core client session and task endpoint drafts for connecting to an agent and exchanging user messages.",
+    "path": "src/agent/frontdoor",
+    "name": "frontdoor",
+    "purpose": "Agent frontdoor session and task endpoint drafts for accepting one client session and multiple user-message tasks.",
     "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
     {
-      "name": "core module entry",
+      "name": "frontdoor module entry",
       "type": "module-entry",
       "changeStatus": "modified",
       "codeSegments": [
         {
-          "sourcePath": "src/client/core/mod.rs",
+          "sourcePath": "src/agent/frontdoor/mod.rs",
           "lineStart": 1,
           "lineEnd": 5,
           "language": "rust",
@@ -29,19 +29,19 @@
       ]
     },
     {
-      "name": "ClientSession",
+      "name": "AgentSession",
       "type": "struct",
       "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/client/core/session.rs",
-          "lineStart": 6,
-          "lineEnd": 34,
+          "sourcePath": "src/agent/frontdoor/session.rs",
+          "lineStart": 5,
+          "lineEnd": 35,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 6,
-              "lineEnd": 34
+              "lineStart": 5,
+              "lineEnd": 35
             }
           ],
           "modifiedLines": []
@@ -49,12 +49,12 @@
       ]
     },
     {
-      "name": "ClientTask",
+      "name": "AgentTask",
       "type": "struct",
       "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/client/core/task.rs",
+          "sourcePath": "src/agent/frontdoor/task.rs",
           "lineStart": 4,
           "lineEnd": 18,
           "language": "rust",

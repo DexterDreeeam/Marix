@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/common/channel",
+    "name": "channel",
+    "purpose": "Shared channel error type used by client and agent session/task endpoints.",
+    "changeStatus": "modified"
+  },
+  "childModules": [],
+  "elements": [
+    {
+      "name": "channel module entry",
+      "type": "module-entry",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/channel/mod.rs",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ChannelError",
+      "type": "enum",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/channel/error.rs",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 6
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

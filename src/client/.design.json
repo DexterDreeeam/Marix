@@ -3,14 +3,15 @@
   "module": {
     "path": "src/client",
     "name": "client",
-    "purpose": "Client-facing draft split into CLI and core client surfaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Client-facing draft split into CLI and concrete core client session/task endpoints.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/client/core",
       "name": "core",
-      "purpose": "Core client draft placeholder."
+      "purpose": "Core client session and task endpoint drafts for connecting to an agent and exchanging user messages.",
+      "changeStatus": "modified"
     },
     {
       "path": "src/client/cli",

@@ -3,15 +3,48 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration with alias and credential resolution.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration, chat user messages, and shared channel errors.",
+    "changeStatus": "modified"
   },
   "childModules": [
+    {
+      "path": "src/common/channel",
+      "name": "channel",
+      "purpose": "Shared channel error type used by client and agent session/task endpoints.",
+      "changeStatus": "modified"
+    },
     {
       "path": "src/common/config",
       "name": "config",
       "purpose": "Strongly typed single-entry TOML configuration loader with alias and credential resolution."
+    },
+    {
+      "path": "src/common/message",
+      "name": "message",
+      "purpose": "Shared user message trait, user message type enum, and chat message payload type exchanged between client and agent.",
+      "changeStatus": "modified"
     }
   ],
-  "elements": []
+  "elements": [
+    {
+      "name": "common module entry",
+      "type": "module-entry",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/mod.rs",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 3
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
