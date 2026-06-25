@@ -4,7 +4,7 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration, serializable chat user message envelopes, shared channel errors, remoc session/task protocol messages, and centralized crate-local external-library namespaces.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -28,14 +28,11 @@
       "purpose": "Shared user message trait, user message type enum, serializable user message envelope, and chat message payload type exchanged between client and agent."
     }
   ],
-  "modified": [
-    "message.rs"
-  ],
   "elements": [
     {
       "name": "common module entry",
       "type": "module-entry",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/mod.rs",
