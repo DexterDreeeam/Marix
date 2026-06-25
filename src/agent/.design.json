@@ -4,27 +4,25 @@
     "path": "src/agent",
     "name": "agent",
     "purpose": "Agent engine module, public model request interface, Deepseek backend implementation, and future retrieval/tool interfaces.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
       "path": "src/agent/engine",
       "name": "engine",
-      "purpose": "Agent engine module reserved for orchestration implementation.",
-      "changeStatus": "added"
+      "purpose": "Agent engine module reserved for orchestration implementation."
     },
     {
       "path": "src/agent/model",
       "name": "model",
-      "purpose": "Public model request interface, crate-internal backend implementation boundary, model error definitions, and streaming Deepseek backend implementation.",
-      "changeStatus": "added"
+      "purpose": "Public model request interface, crate-internal backend implementation boundary, model error definitions, and streaming Deepseek backend implementation."
     }
   ],
   "elements": [
     {
       "name": "agent module entry",
       "type": "module-entry",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/mod.rs",

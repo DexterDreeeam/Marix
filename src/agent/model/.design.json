@@ -4,14 +4,14 @@
     "path": "src/agent/model",
     "name": "model",
     "purpose": "Public model request interface, crate-internal backend implementation boundary, model error definitions, and streaming Deepseek backend implementation.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
     {
       "name": "model module entry",
       "type": "module-entry",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/mod.rs",
@@ -31,7 +31,7 @@
     {
       "name": "DeepseekBackend",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend_deepseek.rs",
@@ -90,7 +90,7 @@
     {
       "name": "Deepseek streaming helpers",
       "type": "functions",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend_deepseek.rs",
@@ -110,7 +110,7 @@
     {
       "name": "ModelBackend",
       "type": "trait",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend.rs",
@@ -148,7 +148,7 @@
     {
       "name": "ModelBackendImpl",
       "type": "trait",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend.rs",
@@ -168,7 +168,7 @@
     {
       "name": "ModelRequest",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend.rs",
@@ -188,7 +188,7 @@
     {
       "name": "ModelResponse",
       "type": "enum",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend.rs",
@@ -208,7 +208,7 @@
     {
       "name": "ModelBackendError",
       "type": "enum",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/error.rs",
