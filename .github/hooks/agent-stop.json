@@ -8,13 +8,6 @@
         "powershell": "powershell -NoProfile -ExecutionPolicy Bypass -File .github/hooks/ensure-deveopment-design.ps1",
         "cwd": ".",
         "timeoutSec": 15
-      },
-      {
-        "type": "command",
-        "bash": "if command -v powershell.exe >/dev/null 2>&1; then powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File .github/hooks/play-agent-stop-sound.ps1 >/dev/null 2>&1; elif command -v powershell >/dev/null 2>&1; then powershell -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File .github/hooks/play-agent-stop-sound.ps1 >/dev/null 2>&1; fi",
-        "powershell": "powershell -NoProfile -ExecutionPolicy Bypass -File .github/hooks/play-agent-stop-sound.ps1",
-        "cwd": ".",
-        "timeoutSec": 5
       }
     ]
   }

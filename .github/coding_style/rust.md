@@ -50,6 +50,7 @@ Project-specific Rust style below must not override those naming rules.
 - Avoid `panic!` for normal control flow or recoverable errors.
 - Prefer meaningful error types and actionable error messages.
 - Do not swallow errors silently. Surface or propagate them through existing patterns.
+- Put module-specific error types and their `From`, `Display`, and `Error` implementations in a dedicated `error.rs`; re-export them from the module entry when they are public API.
 
 ## Production Hygiene
 
@@ -74,3 +75,4 @@ Prefer structured diagnostics or existing logging paths over raw print macros.
 - Prefer enums or typed options over unclear boolean mode parameters.
 - Keep visibility private by default; use `pub` only for intentional API surfaces.
 - Keep deployment, topology, transport, model, and configuration boundaries decoupled.
+- Place `impl fmt::Debug for ...` blocks at the end of Rust files, after behavior impls and helper functions.

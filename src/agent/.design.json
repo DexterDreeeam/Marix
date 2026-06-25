@@ -3,28 +3,41 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent loop and future retrieval/tool interface drafts.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent engine module, public model request interface, Deepseek backend implementation, and future retrieval/tool interfaces.",
+    "changeStatus": "modified"
   },
-  "childModules": [],
+  "childModules": [
+    {
+      "path": "src/agent/engine",
+      "name": "engine",
+      "purpose": "Agent engine module reserved for orchestration implementation.",
+      "changeStatus": "added"
+    },
+    {
+      "path": "src/agent/model",
+      "name": "model",
+      "purpose": "Public model request interface, crate-internal backend implementation boundary, model error definitions, and streaming Deepseek backend implementation.",
+      "changeStatus": "added"
+    }
+  ],
   "elements": [
     {
-      "name": "AgentLoop",
-      "type": "struct",
-      "changeStatus": "unchanged",
+      "name": "agent module entry",
+      "type": "module-entry",
+      "changeStatus": "modified",
       "codeSegments": [
         {
-          "sourcePath": "src/agent/loop.rs",
-          "lineStart": 2,
-          "lineEnd": 2,
+          "sourcePath": "src/agent/mod.rs",
+          "lineStart": 1,
+          "lineEnd": 4,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 2,
-              "lineEnd": 2
+              "lineStart": 1,
+              "lineEnd": 4
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     }

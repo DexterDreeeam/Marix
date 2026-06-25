@@ -190,6 +190,7 @@
     if (nextPunctuation(tokens, index) === "!") return `<span class="mx-code-macro">${escapeHtml(value)}</span>`;
     if (RUST_KEYWORDS.has(value)) return `<span class="mx-code-keyword">${escapeHtml(value)}</span>`;
     if (previousIdentifier(tokens, index) === "fn") return `<span class="mx-code-function">${escapeHtml(value)}</span>`;
+    if (nextPunctuation(tokens, index) === "(" && !/^[A-Z]/.test(value)) return `<span class="mx-code-function">${escapeHtml(value)}</span>`;
     if (/^[A-Z]/.test(value)) return `<span class="mx-code-type">${escapeHtml(value)}</span>`;
     if (nextPunctuation(tokens, index) === ":") return `<span class="mx-code-variable">${escapeHtml(value)}</span>`;
     return `<span class="mx-code-variable">${escapeHtml(value)}</span>`;

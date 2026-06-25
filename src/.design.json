@@ -3,16 +3,10 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Second-generation Rust source draft organized into client, agent, common, and internal structure modules while re-exporting dynamic structures at the top level.",
-    "changeStatus": "unchanged"
+    "purpose": "Second-generation Rust source organized into client, agent, and common modules with resolved typed configuration and model request backend implementation.",
+    "changeStatus": "modified"
   },
   "childModules": [
-    {
-      "path": "src/structure",
-      "name": "structure",
-      "purpose": "Shared utility and template structure drafts.",
-      "changeStatus": "modified"
-    },
     {
       "path": "src/client",
       "name": "client",
@@ -21,13 +15,76 @@
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent loop and future retrieval/tool interface drafts."
+      "purpose": "Agent engine module, public model request interface, Deepseek backend implementation, and future retrieval/tool interfaces.",
+      "changeStatus": "modified"
     },
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared draft interfaces used across the second-generation source tree."
+      "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration with alias and credential resolution.",
+      "changeStatus": "modified"
     }
   ],
-  "elements": []
+  "elements": [
+    {
+      "name": "Cargo manifest",
+      "type": "manifest",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/Cargo.toml",
+          "lineStart": 1,
+          "lineEnd": 14,
+          "language": "toml",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 14
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Cargo lockfile",
+      "type": "lockfile",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/Cargo.lock",
+          "lineStart": 1,
+          "lineEnd": 1451,
+          "language": "toml",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 1451
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "config",
+      "type": "configuration",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/config.toml",
+          "lineStart": 1,
+          "lineEnd": 31,
+          "language": "toml",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 31
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
 }

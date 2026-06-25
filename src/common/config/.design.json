@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/common/config",
+    "name": "config",
+    "purpose": "Strongly typed single-entry TOML configuration loader with alias substitution and credential resolution.",
+    "changeStatus": "modified"
+  },
+  "childModules": [],
+  "elements": [
+    {
+      "name": "config module entry",
+      "type": "module-entry",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/mod.rs",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 8
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "CONFIG_FILE",
+      "type": "const",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 7
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Config",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 9,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 18
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 20,
+          "lineEnd": 25,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 25
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "runtime config types",
+      "type": "structs-and-enums",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 27,
+          "lineEnd": 48,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 27,
+              "lineEnd": 48
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "service config types",
+      "type": "structs-and-enums",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 50,
+          "lineEnd": 112,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 50,
+              "lineEnd": 112
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 292,
+          "lineEnd": 301,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 292,
+              "lineEnd": 301
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "raw config decoding",
+      "type": "private-types",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 114,
+          "lineEnd": 145,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 114,
+              "lineEnd": 145
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "config loading pipeline",
+      "type": "functions",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 147,
+          "lineEnd": 254,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 147,
+              "lineEnd": 254
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ConfigError",
+      "type": "enum",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 257,
+          "lineEnd": 290,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 257,
+              "lineEnd": 290
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

@@ -3,9 +3,16 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared draft interfaces used across the second-generation source tree.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration with alias and credential resolution.",
+    "changeStatus": "modified"
   },
-  "childModules": [],
+  "childModules": [
+    {
+      "path": "src/common/config",
+      "name": "config",
+      "purpose": "Strongly typed single-entry TOML configuration loader with alias and credential resolution.",
+      "changeStatus": "added"
+    }
+  ],
   "elements": []
 }

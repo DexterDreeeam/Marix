@@ -1,0 +1,31 @@
+[runtime]
+environment = "development"
+mode = "network"
+
+[core]
+bind_address = "{{ubuntu_ip}}:{{ubuntu_core_port}}"
+worker_threads = 4
+
+[client]
+core_address = "{{ubuntu_ip}}:{{ubuntu_core_port}}"
+interactive = true
+request_timeout_ms = 30000
+
+[agent]
+enabled = true
+max_turns = 32
+
+[model]
+backend = "deepseek"
+
+[model.deepseek]
+endpoint = "https://api.deepseek.com/chat/completions"
+model = "deepseek-chat"
+api_key = { name = "DEEPSEEK_API_KEY" }
+
+[logging]
+directory = "logs"
+level = "info"
+
+[credential]
+directory = ".credential"
