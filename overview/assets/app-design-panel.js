@@ -459,7 +459,15 @@
     return true;
   }
 
+  function handleCodePopoverFindEscape(evt) {
+    if (evt.key !== "Escape" || !isCodePopoverFindOpen()) return false;
+    evt.preventDefault();
+    closeCodePopoverFind();
+    return true;
+  }
+
   function focusCodePopoverFind() {
+    openCodePopoverFind();
     const input = document.getElementById("code-popover-find-input");
     input.focus();
     input.select();
@@ -469,11 +477,24 @@
     return document.getElementById("code-popover").style.display !== "none";
   }
 
+  function isCodePopoverFindOpen() {
+    return document.getElementById("code-popover-find")?.classList.contains("is-open");
+  }
+
+  function openCodePopoverFind() {
+    document.getElementById("code-popover-find")?.classList.add("is-open");
+  }
+
+  function closeCodePopoverFind() {
+    document.getElementById("code-popover-find")?.classList.remove("is-open");
+  }
+
   function resetCodePopoverFindState() {
     const input = document.getElementById("code-popover-find-input");
     const content = document.getElementById("code-popover-content");
     if (content) clearCodePopoverFindHighlights(content);
     if (input) input.value = "";
+    closeCodePopoverFind();
     codePopoverFindMatches = [];
     codePopoverFindIndex = -1;
     updateCodePopoverFindCount();

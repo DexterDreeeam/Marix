@@ -41,6 +41,7 @@
     bindCodePopoverScrollGuard();
     document.addEventListener("keydown", evt => {
       if (handleCodePopoverFindShortcut(evt)) return;
+      if (handleCodePopoverFindEscape(evt)) return;
       if (evt.key === "Escape") hideCodePopover();
     });
 

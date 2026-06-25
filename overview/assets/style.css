@@ -375,8 +375,9 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .code-popover-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--bg-tertiary); }
 .code-popover-header strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .code-popover-header-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
-.code-popover-find { display: flex; align-items: center; gap: 6px; padding: 3px 5px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-secondary); }
-.code-popover-find-input { width: 180px; border: 0; outline: none; background: transparent; color: var(--text-primary); font: inherit; font-size: 12px; }
+.code-popover-find { position: absolute; top: 48px; right: 12px; z-index: 2; display: none; align-items: center; gap: 6px; padding: 5px 6px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-secondary); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45); }
+.code-popover-find.is-open { display: flex; }
+.code-popover-find-input { width: 220px; border: 0; outline: none; background: transparent; color: var(--text-primary); font: inherit; font-size: 12px; }
 .code-popover-find-input::-webkit-search-cancel-button { filter: invert(1); opacity: 0.7; }
 .code-popover-find-count { min-width: 42px; color: var(--text-muted); font-family: 'SFMono-Regular', Consolas, monospace; font-size: 11px; text-align: right; }
 .code-popover-find-btn { width: 24px; height: 24px; padding: 0; }
