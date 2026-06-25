@@ -1,6 +1,9 @@
 use super::{UserMessage, UserMessageType};
+use crate::common::external::*;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+use super::UserMessageEnvelope;
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ChatMessage {
     pub content: String,
 }
@@ -8,5 +11,9 @@ pub struct ChatMessage {
 impl UserMessage for ChatMessage {
     fn message_type(&self) -> UserMessageType {
         UserMessageType::Chat
+    }
+
+    fn into_envelope(self) -> UserMessageEnvelope {
+        UserMessageEnvelope::Chat(self)
     }
 }

@@ -3,15 +3,19 @@
   "module": {
     "path": "src/common/channel",
     "name": "channel",
-    "purpose": "Shared channel error type and crate-internal remoc SessionEvent protocol serialized through common external namespaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared channel error type and crate-internal remoc session/task event protocol serialized through common external namespaces.",
+    "changeStatus": "modified"
   },
   "childModules": [],
+  "modified": [
+    "mod.rs",
+    "session.rs"
+  ],
   "elements": [
     {
       "name": "channel module entry",
       "type": "module-entry",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/channel/mod.rs",
@@ -51,20 +55,25 @@
     {
       "name": "SessionEvent",
       "type": "enum",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/channel/session.rs",
           "lineStart": 1,
-          "lineEnd": 7,
+          "lineEnd": 31,
           "language": "rust",
           "addedLines": [
             {
               "lineStart": 1,
-              "lineEnd": 7
+              "lineEnd": 31
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 31
+            }
+          ]
         }
       ]
     }

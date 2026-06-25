@@ -3,8 +3,8 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Second-generation Rust source organized into client, agent, and common modules with resolved typed configuration, chat message drafts, centralized external-library namespaces, remoc-backed session endpoint prototype, design-ignored integration tests, and model request backend implementation.",
-    "changeStatus": "unchanged"
+    "purpose": "Second-generation Rust source organized into client, agent, and common modules with resolved typed configuration, serializable chat message envelopes, centralized external-library namespaces, remoc-backed session and task endpoints, design-ignored integration tests, and model request backend implementation.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
@@ -23,11 +23,14 @@
       "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration, chat user messages, shared channel errors, remoc session protocol messages, and centralized crate-local external-library namespaces."
     }
   ],
+  "modified": [
+    "Cargo.toml"
+  ],
   "elements": [
     {
       "name": "Cargo manifest",
       "type": "manifest",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/Cargo.toml",
@@ -40,7 +43,12 @@
               "lineEnd": 16
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 15
+            }
+          ]
         }
       ]
     },

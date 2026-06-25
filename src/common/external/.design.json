@@ -3,15 +3,18 @@
   "module": {
     "path": "src/common/external",
     "name": "external",
-    "purpose": "Crate-local third-party library namespace wrappers, derive macro re-exports, and helper entrypoints that keep external crate usage visible through common::external modules.",
-    "changeStatus": "unchanged"
+    "purpose": "Crate-local third-party library namespace wrappers, derive macro re-exports, runtime synchronization types, and helper entrypoints that keep external crate usage visible through common::external modules.",
+    "changeStatus": "modified"
   },
   "childModules": [],
+  "modified": [
+    "tokio.rs"
+  ],
   "elements": [
     {
       "name": "external module entry",
       "type": "module-entry",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/external/mod.rs",
@@ -116,15 +119,20 @@
         {
           "sourcePath": "src/common/external/tokio.rs",
           "lineStart": 1,
-          "lineEnd": 5,
+          "lineEnd": 6,
           "language": "rust",
           "addedLines": [
             {
               "lineStart": 1,
-              "lineEnd": 5
+              "lineEnd": 6
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 5
+            }
+          ]
         }
       ]
     },

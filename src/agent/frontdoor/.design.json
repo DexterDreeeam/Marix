@@ -3,26 +3,30 @@
   "module": {
     "path": "src/agent/frontdoor",
     "name": "frontdoor",
-    "purpose": "Agent frontdoor session endpoint backed by remoc/TCP and task endpoint stubs for future user-message tasks.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent frontdoor session endpoint backed by remoc/TCP with accepted user-message tasks and bidirectional task messaging.",
+    "changeStatus": "modified"
   },
   "childModules": [],
+  "modified": [
+    "session.rs",
+    "task.rs"
+  ],
   "elements": [
     {
       "name": "frontdoor module entry",
       "type": "module-entry",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/mod.rs",
           "lineStart": 1,
-          "lineEnd": 5,
+          "lineEnd": 4,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 1,
-              "lineEnd": 5
+              "lineEnd": 4
             }
           ]
         }
@@ -31,18 +35,18 @@
     {
       "name": "AgentSession",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/session.rs",
-          "lineStart": 8,
-          "lineEnd": 58,
+          "lineStart": 14,
+          "lineEnd": 69,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 8,
-              "lineEnd": 58
+              "lineStart": 14,
+              "lineEnd": 69
             }
           ]
         }
@@ -51,17 +55,17 @@
     {
       "name": "agent remoc session private helpers",
       "type": "private-methods",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/session.rs",
-          "lineStart": 60,
-          "lineEnd": 123,
+          "lineStart": 71,
+          "lineEnd": 262,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 60,
-              "lineEnd": 123
+              "lineStart": 71,
+              "lineEnd": 262
             }
           ],
           "modifiedLines": []
@@ -71,18 +75,18 @@
     {
       "name": "AgentTask",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/task.rs",
-          "lineStart": 4,
-          "lineEnd": 18,
+          "lineStart": 12,
+          "lineEnd": 112,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 4,
-              "lineEnd": 18
+              "lineStart": 12,
+              "lineEnd": 112
             }
           ]
         }

@@ -3,8 +3,8 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent engine module, remoc-backed frontdoor session endpoint, public model request interface, Deepseek backend implementation through common external namespaces, and future retrieval/tool interfaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent engine module, remoc-backed frontdoor session/task endpoint, public model request interface, Deepseek backend implementation through common external namespaces, and future retrieval/tool interfaces.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
@@ -15,7 +15,7 @@
     {
       "path": "src/agent/frontdoor",
       "name": "frontdoor",
-      "purpose": "Agent frontdoor session endpoint backed by remoc/TCP and task endpoint stubs for future user-message tasks."
+      "purpose": "Agent frontdoor session endpoint backed by remoc/TCP with accepted user-message tasks and bidirectional task messaging."
     },
     {
       "path": "src/agent/model",

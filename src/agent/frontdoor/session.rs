@@ -1,24 +1,37 @@
+use std::collections::HashMap;
 use std::net::SocketAddr;
+use std::sync::{mpsc, Arc, Mutex};
 
-use crate::common::channel::{ChannelError, SessionEvent};
+use crate::common::channel::{ChannelError, SessionEvent, SessionTaskId, SessionTaskSignal};
 use crate::common::external::*;
+use crate::common::message::UserMessageEnvelope;
 
-use super::AgentTask;
+use super::task::AgentTask;
+
+type SharedSessionSender = Arc<tokio::Mutex<remoc::base::Sender<SessionEvent>>>;
+type SharedTaskRoutes = Arc<Mutex<HashMap<SessionTaskId, mpsc::Sender<SessionTaskSignal>>>>;
 
 pub struct AgentSession {
     bind_address: SocketAddr,
-    runtime: tokio::Runtime,
-    to_client_tx: Option<remoc::base::Sender<SessionEvent>>,
+    runtime: Arc<tokio::Runtime>,
+    to_client_tx: Option<SharedSessionSender>,
     command_loop: Option<tokio::JoinHandle<()>>,
+    task_routes: SharedTaskRoutes,
+    accepted_task_tx: mpsc::Sender<AgentTask>,
+    accepted_task_rx: mpsc::Receiver<AgentTask>,
 }
 
 impl AgentSession {
     pub fn new(bind_address: SocketAddr) -> Result<Self, ChannelError> {
+        let (accepted_task_tx, accepted_task_rx) = mpsc::channel();
         Ok(Self {
             bind_address,
-            runtime: Self::build_runtime()?,
+            runtime: Arc::new(Self::build_runtime()?),
             to_client_tx: None,
             command_loop: None,
+            task_routes: Arc::new(Mutex::new(HashMap::new())),
+            accepted_task_tx,
+            accepted_task_rx,
         })
     }
 
@@ -30,29 +43,27 @@ impl AgentSession {
             ));
         }
 
-        let (mut to_client_tx, from_client_rx) = self.runtime.block_on(self.accept_remoc())?;
+        let (to_client_tx, from_client_rx) = self.runtime.block_on(self.accept_remoc())?;
+        let to_client_tx = Arc::new(tokio::Mutex::new(to_client_tx));
         self.runtime
-            .block_on(Self::send_event(&mut to_client_tx, SessionEvent::Accepted))?;
+            .block_on(Self::send_event(&to_client_tx, SessionEvent::Accepted))?;
 
-        self.command_loop = Some(self.spawn_command_loop(from_client_rx));
+        self.command_loop =
+            Some(self.spawn_command_loop(from_client_rx, Arc::clone(&to_client_tx)));
         self.to_client_tx = Some(to_client_tx);
         Ok(())
     }
 
-    pub async fn accept_task(&self) -> Result<AgentTask, ChannelError> {
-        Err(ChannelError::Unsupported(
-            "agent task acceptance is not implemented".to_owned(),
-        ))
-    }
-
     pub fn close(&mut self) -> Result<(), ChannelError> {
-        if let Some(mut to_client_tx) = self.to_client_tx.take() {
+        if let Some(to_client_tx) = self.to_client_tx.take() {
             self.runtime
-                .block_on(Self::send_close_event(&mut to_client_tx))?;
+                .block_on(Self::send_close_event(&to_client_tx))?;
         }
         if let Some(command_loop) = self.command_loop.take() {
             command_loop.abort();
         }
+        self.drain_accepted_tasks();
+        Self::close_all_task_routes(&self.task_routes);
         Ok(())
     }
 }
@@ -76,18 +87,18 @@ impl AgentSession {
     }
 
     async fn send_event(
-        to_client_tx: &mut remoc::base::Sender<SessionEvent>,
+        to_client_tx: &SharedSessionSender,
         event: SessionEvent,
     ) -> Result<(), ChannelError> {
+        let mut to_client_tx = to_client_tx.lock().await;
         to_client_tx
             .send(event)
             .await
             .map_err(|error| ChannelError::SendFailed(error.to_string()))
     }
 
-    async fn send_close_event(
-        to_client_tx: &mut remoc::base::Sender<SessionEvent>,
-    ) -> Result<(), ChannelError> {
+    async fn send_close_event(to_client_tx: &SharedSessionSender) -> Result<(), ChannelError> {
+        let mut to_client_tx = to_client_tx.lock().await;
         match to_client_tx.send(SessionEvent::Close).await {
             Ok(()) => Ok(()),
             Err(error) if error.is_disconnected() => Ok(()),
@@ -98,9 +109,59 @@ impl AgentSession {
     fn spawn_command_loop(
         &self,
         mut from_client_rx: remoc::base::Receiver<SessionEvent>,
+        to_client_tx: SharedSessionSender,
     ) -> tokio::JoinHandle<()> {
+        let accepted_task_tx = self.accepted_task_tx.clone();
+        let task_routes = Arc::clone(&self.task_routes);
+        let runtime = Arc::clone(&self.runtime);
         self.runtime.spawn(async move {
-            let _ = from_client_rx.recv().await;
+            while let Ok(Some(event)) = from_client_rx.recv().await {
+                match event {
+                    SessionEvent::Accepted => {}
+                    SessionEvent::Close => {
+                        Self::close_all_task_routes(&task_routes);
+                        break;
+                    }
+                    SessionEvent::TaskCreate { task_id, message } => {
+                        if Self::accept_task(
+                            &accepted_task_tx,
+                            &task_routes,
+                            &runtime,
+                            &to_client_tx,
+                            task_id,
+                            message,
+                        )
+                        .is_err()
+                        {
+                            break;
+                        }
+                    }
+                    SessionEvent::TaskMessage { task_id, message } => {
+                        Self::route_task_signal(
+                            &task_routes,
+                            task_id,
+                            SessionTaskSignal::Message(message),
+                            false,
+                        );
+                    }
+                    SessionEvent::TaskCancel { task_id } => {
+                        Self::route_task_signal(
+                            &task_routes,
+                            task_id,
+                            SessionTaskSignal::Cancel,
+                            true,
+                        );
+                    }
+                    SessionEvent::TaskComplete { task_id } => {
+                        Self::route_task_signal(
+                            &task_routes,
+                            task_id,
+                            SessionTaskSignal::Complete,
+                            true,
+                        );
+                    }
+                }
+            }
         })
     }
 
@@ -118,6 +179,84 @@ impl AgentSession {
         if command_loop.is_finished() {
             self.command_loop = None;
             self.to_client_tx = None;
+            self.drain_accepted_tasks();
+            Self::close_all_task_routes(&self.task_routes);
+        }
+    }
+
+    fn drain_accepted_tasks(&mut self) {
+        while self.accepted_task_rx.try_recv().is_ok() {}
+    }
+
+    fn accept_task(
+        accepted_task_tx: &mpsc::Sender<AgentTask>,
+        task_routes: &SharedTaskRoutes,
+        runtime: &Arc<tokio::Runtime>,
+        to_client_tx: &SharedSessionSender,
+        task_id: SessionTaskId,
+        message: UserMessageEnvelope,
+    ) -> Result<(), ChannelError> {
+        let (task_tx, task_rx) = mpsc::channel();
+        Self::insert_task_route(task_routes, task_id, task_tx)?;
+        let task = AgentTask::new(
+            task_id,
+            message,
+            Arc::clone(runtime),
+            Arc::clone(to_client_tx),
+            task_rx,
+            Arc::clone(task_routes),
+        );
+        if accepted_task_tx.send(task).is_err() {
+            Self::remove_task_route(task_routes, task_id);
+            return Err(ChannelError::Disconnected);
+        }
+        Ok(())
+    }
+
+    fn insert_task_route(
+        task_routes: &SharedTaskRoutes,
+        task_id: SessionTaskId,
+        task_tx: mpsc::Sender<SessionTaskSignal>,
+    ) -> Result<(), ChannelError> {
+        task_routes
+            .lock()
+            .map_err(|_| ChannelError::InvalidState("agent task routes are poisoned".to_owned()))?
+            .insert(task_id, task_tx);
+        Ok(())
+    }
+
+    fn remove_task_route(task_routes: &SharedTaskRoutes, task_id: SessionTaskId) {
+        let Ok(mut task_routes) = task_routes.lock() else {
+            return;
+        };
+        task_routes.remove(&task_id);
+    }
+
+    fn route_task_signal(
+        task_routes: &SharedTaskRoutes,
+        task_id: SessionTaskId,
+        signal: SessionTaskSignal,
+        remove: bool,
+    ) {
+        let Ok(mut task_routes) = task_routes.lock() else {
+            return;
+        };
+        let task_tx = if remove {
+            task_routes.remove(&task_id)
+        } else {
+            task_routes.get(&task_id).cloned()
+        };
+        if let Some(task_tx) = task_tx {
+            let _ = task_tx.send(signal);
+        }
+    }
+
+    fn close_all_task_routes(task_routes: &SharedTaskRoutes) {
+        let Ok(mut task_routes) = task_routes.lock() else {
+            return;
+        };
+        for (_, task_tx) in task_routes.drain() {
+            let _ = task_tx.send(SessionTaskSignal::Closed);
         }
     }
 }

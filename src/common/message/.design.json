@@ -3,28 +3,87 @@
   "module": {
     "path": "src/common/message",
     "name": "message",
-    "purpose": "Shared user message trait, user message type enum, and chat message payload type exchanged between client and agent.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared user message trait, user message type enum, serializable user message envelope, and chat message payload type exchanged between client and agent tasks.",
+    "changeStatus": "modified"
   },
   "childModules": [],
+  "modified": [
+    "message.rs",
+    "chat.rs"
+  ],
   "elements": [
+    {
+      "name": "UserMessage",
+      "type": "trait",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/message.rs",
+          "lineStart": 7,
+          "lineEnd": 13,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 13
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "UserMessageType",
+      "type": "enum",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/message.rs",
+          "lineStart": 15,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "UserMessageEnvelope",
+      "type": "enum",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/message.rs",
+          "lineStart": 20,
+          "lineEnd": 35,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 35
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
     {
       "name": "ChatMessage",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/chat.rs",
           "lineStart": 1,
-          "lineEnd": 12,
+          "lineEnd": 19,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 1,
-              "lineEnd": 12
+              "lineEnd": 19
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     }
