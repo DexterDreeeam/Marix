@@ -5,14 +5,14 @@ description: Evaluate code organization and file size. Use only when explicitly 
 
 ## Purpose
 
-Evaluate code organization, file size, and lightweight style health. This skill is explicit opt-in: it should help identify refactor opportunities and Rust/style concerns, but only the 500-line file-size rule is a required refactor trigger.
+Evaluate code organization, file size, and lightweight style health. This skill is explicit opt-in: it should help identify refactor opportunities and style concerns, but only the 500-line file-size rule is a required refactor trigger.
 
 ## Workflow
 
 1. **Scan Code Files** — Count lines for repository source files, excluding generated/build/vendor artifacts and dot-prefixed companion paths under `src/`.
 2. **Find Oversized Files** — Identify any evaluated code file above **500 lines**.
 3. **Refactor Required Violations** — If a code file exceeds 500 lines, split it into smaller focused modules or extract shared functions. Keep each resulting code file at or below 500 lines.
-4. **Run Lightweight Style Review** — For Rust and other source files, collect advisory style findings. Do not automatically refactor for advisory findings unless the user explicitly asks.
+4. **Run Lightweight Style Review** — For source files covered by `.github/coding_style/`, collect advisory style findings from the matching language document. Do not automatically refactor for advisory findings unless the user explicitly asks.
 5. **Re-check Required Rules** — Re-run the line-count scan after any required refactoring and confirm all evaluated code files are at or below 500 lines.
 6. **Report** — Summarize required violations, any modules created, final line-count status, and advisory style findings.
 
@@ -24,52 +24,19 @@ Evaluate code organization, file size, and lightweight style health. This skill 
 - Prefer focused modules with clear responsibility over arbitrary file splitting.
 - Keep generated files out of the line-count decision unless the user explicitly asks to evaluate generated output.
 - Ignore every dot-prefixed file or folder under `src/`. Those paths are companion metadata maintained by `development-designer`, not normal source files.
-- Treat the Rust/style checklist as advisory. Report findings as suggestions or notes; do not hard-fail or auto-fix them by default.
+- Treat `.github/coding_style/*.md` guidance as advisory unless that document marks a rule as required. Report advisory findings as suggestions or notes; do not hard-fail or auto-fix them by default.
 - Do not install new tools for this skill. Use existing repository tooling when available.
 
-## Rust Advisory Checklist
+## Coding Style Sources
 
-Use these checks as lightweight guidance when evaluating Rust code:
-
-- **Formatting and linting**
-  - The {{proj}} Rust workspace root is `src/`; run Cargo commands from `src/` or pass `--manifest-path src/Cargo.toml`.
-  - Cargo build output belongs under `src/.target/`, as configured by `src/.cargo/config.toml`.
-  - Prefer `cargo fmt` / rustfmt formatting when a Cargo project is present.
-  - Prefer `cargo clippy --all-targets --all-features` when a Cargo project is present.
-  - If the repository does not support those commands, report that they were not run rather than adding tooling.
-- **Naming**
-  - Apply the {{proj}} Rust naming convention as an advisory style check for Rust code only. Do not apply these rules to non-Rust code.
-  - File names, modules, structs, enums, traits, and type definitions should use `UpperCamelCase`.
-  - Functions and methods should use `snake_case`.
-  - Macros should use `snake_case!`.
-  - Local variables should use `_` + `lowerCamelCase`, for example `_messageBytes`.
-  - Constants should use `c_` + `lowerCamelCase`, for example `c_maxPayloadBytes`.
-  - Static variables and static member variables should use `s_` + `lowerCamelCase`, for example `s_defaultRuntime`.
-  - Ordinary member fields should use `m_` + `lowerCamelCase`, for example `m_chatText`.
-  - Global variables should use `g_` + `lowerCamelCase`, for example `g_runtimeState`.
-  - Generic parameters should use a single uppercase letter, for example `T`.
-  - Lifetimes should use a single lowercase letter, for example `'a`.
-- **Public API documentation**
-  - Public, library-like items should have rustdoc comments.
-  - Document public errors, panics, edge cases, and examples when they matter to callers.
-  - Any public `unsafe` item must document its safety contract.
-- **Error handling**
-  - Prefer `Result<T, E>` for recoverable failures.
-  - Avoid using `panic!` for normal control flow or recoverable errors.
-  - Prefer meaningful error types and actionable error messages.
-- **Production hygiene**
-  - Flag non-test uses of `unwrap()`, `expect()`, `panic!`, `todo!`, `unimplemented!`, `dbg!`, `println!`, and `eprintln!` unless locally justified.
-  - Prefer logging or structured diagnostics over raw print macros in production code.
-- **Readability and API shape**
-  - Flag very long functions, deeply nested logic, and repeated blocks as refactor candidates.
-  - Prefer cohesive modules and helper functions over large mixed-responsibility files.
-  - Prefer enums or typed options over unclear boolean mode parameters.
-  - Keep visibility private by default; use `pub` only for intentional API surfaces.
+- Rust: `.github/coding_style/rust.md`
+- JavaScript: `.github/coding_style/js.md`
+- If a language has no matching style document, evaluate only file size and obvious organization issues.
 
 ## Report Severity
 
 - **Required** — Files over 500 lines. These should be refactored when running this skill.
-- **Suggested** — Rust/style checklist findings that are likely worth addressing but should not be auto-fixed by default.
+- **Suggested** — Language style findings that are likely worth addressing but should not be auto-fixed by default.
 - **Note** — Context-dependent observations, tool availability, or style tradeoffs.
 
 ## Suggested PowerShell Scan
@@ -108,25 +75,5 @@ Get-ChildItem -Recurse -File |
     }
   } |
   Sort-Object Lines -Descending |
-  Format-Table -AutoSize
-```
-
-## Suggested Rust Advisory Scan
-
-```powershell
-Get-ChildItem -Recurse -File -Filter *.rs |
-  ForEach-Object {
-    $relative = $_.FullName.Substring((Get-Location).Path.Length + 1)
-    if (Test-IgnoredCodeEvaluatePath $relative) { return }
-    Select-String -Path $_.FullName -Pattern '\.(unwrap|expect)\s*\(|\b(panic|todo|unimplemented|dbg|println|eprintln)!\s*\(' |
-      ForEach-Object {
-        [pscustomobject]@{
-          Path = $relative
-          Line = $_.LineNumber
-          Match = $_.Matches.Value
-          Severity = 'Suggested'
-        }
-      }
-  } |
   Format-Table -AutoSize
 ```

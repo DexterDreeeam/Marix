@@ -24,6 +24,12 @@ Except for content under `src/`, all text must use `{{name}}` placeholders inste
   - Log messages
 - The **only exception** is specific Chinese string literals that are required by the application logic (e.g., user-facing Chinese text, i18n strings).
 
+## Coding Style
+
+- When changing code, dynamically select the matching language style document under `.github/coding_style/` and apply that document to the files being edited.
+- Use `.github/coding_style/rust.md` for Rust code and `.github/coding_style/js.md` for JavaScript code.
+- Do not apply one language's style rules to another language. If no style document exists for a language, follow the local file conventions and keep changes minimal.
+
 ## Git Policy
 
 - **Do NOT** run any git commands (`git add`, `git commit`, `git push`, `git pull`, etc.) unless the user explicitly requests a git operation (e.g., invoking `/git-sync` or asking to commit/push).

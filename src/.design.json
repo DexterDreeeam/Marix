@@ -3,29 +3,32 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace root for flat Marix package modules, pipe send/on_receive contracts, client receive callbacks, interactive CLI streaming, and core run logging.",
-    "changeStatus": "unchanged"
+    "purpose": "Second-generation Rust source draft organized into client, agent, common, and internal structure modules while re-exporting dynamic structures at the top level.",
+    "changeStatus": "added"
   },
+  "added": [
+    "."
+  ],
   "childModules": [
     {
-      "path": "src/cli",
-      "name": "cli",
-      "purpose": "CLI binary crate package using a persistent interactive prompt loop, pipe client send boundary, receive-handler callback, and streaming stdout output."
+      "path": "src/structure",
+      "name": "structure",
+      "purpose": "Shared utility and template structure drafts."
+    },
+    {
+      "path": "src/client",
+      "name": "client",
+      "purpose": "Client-facing draft split into CLI and core client surfaces."
+    },
+    {
+      "path": "src/agent",
+      "name": "agent",
+      "purpose": "Agent loop and future retrieval/tool interface drafts."
     },
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared message, session, structure, pipe send/on_receive contract, and configured model backend names."
-    },
-    {
-      "path": "src/config",
-      "name": "config",
-      "purpose": "Configuration library crate package with flat source files."
-    },
-    {
-      "path": "src/core",
-      "name": "core",
-      "purpose": "Core pipe server binary crate package that logs each run, preprocesses UserMessage input, and routes it through a configured model backend boundary."
+      "purpose": "Shared draft interfaces used across the second-generation source tree."
     }
   ],
   "elements": []

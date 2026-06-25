@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/client",
+    "name": "client",
+    "purpose": "Client-facing draft split into CLI and core client surfaces.",
+    "changeStatus": "added"
+  },
+  "added": [
+    "."
+  ],
+  "childModules": [
+    {
+      "path": "src/client/core",
+      "name": "core",
+      "purpose": "Core client draft placeholder."
+    },
+    {
+      "path": "src/client/cli",
+      "name": "cli",
+      "purpose": "CLI client draft placeholder."
+    }
+  ],
+  "elements": []
+}

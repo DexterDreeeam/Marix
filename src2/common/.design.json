@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/common",
+    "name": "common",
+    "purpose": "Shared message, session, structure, pipe send/on_receive contract, and configured model backend names.",
+    "changeStatus": "unchanged"
+  },
+  "childModules": [
+    {
+      "path": "src/common/message",
+      "name": "message",
+      "purpose": "Shared cross-package message definitions."
+    },
+    {
+      "path": "src/common/session",
+      "name": "session",
+      "purpose": "Shared session configuration, send/on_receive pipe contract, frame helpers, and model backend selection."
+    },
+    {
+      "path": "src/common/structure",
+      "name": "structure",
+      "purpose": "Shared runtime data structures that coordinate dynamic state between producers and consumers."
+    }
+  ],
+  "elements": []
+}
