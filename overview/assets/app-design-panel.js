@@ -447,7 +447,22 @@
   function handleCodePopoverOutsidePointer(evt) {
     if (!isCodePopoverVisible()) return;
     const popover = document.getElementById("code-popover");
-    if (popover && !popover.contains(evt.target)) hideCodePopover();
+    if (popover && popover.contains(evt.target)) return;
+    // Exempt the currently-selected file's tree node: re-clicking it is a
+    // clean toggle owned by the file item click handler. Without this
+    // exemption, this handler would close the popover on pointerdown and the
+    // click handler would immediately reopen it, producing a close->open
+    // flicker.
+    if (isSelectedTreeFilePointerTarget(evt.target)) return;
+    if (popover) hideCodePopover();
+  }
+
+  function isSelectedTreeFilePointerTarget(target) {
+    if (overviewMode === "star") return false;
+    if (!target || typeof target.closest !== "function") return false;
+    const item = target.closest(".tree-item.file");
+    if (!item) return false;
+    return isSelectedTreeFile(item.dataset.path);
   }
 
   function getDesignDocumentForModule(modulePath) {

@@ -120,8 +120,15 @@
           hideCodePopover();
           openFileScope(file.path, el, { openPopover: isFocusedStarMapFile(file.path) });
         } else if (isSelectedTreeFile(file.path)) {
-          // Re-clicking the already-selected file reopens its code popover.
-          showFilePopover(file.path);
+          // Clicking the already-selected file is a clean popover toggle.
+          // The outside-pointer handler exempts this node (see
+          // handleCodePopoverOutsidePointer), so this handler is the sole
+          // owner of the toggle and there is no close->open flicker.
+          if (isCodePopoverVisible()) {
+            hideCodePopover();
+          } else {
+            showFilePopover(file.path);
+          }
         } else {
           hideCodePopover();
           openFile(file.path, el);
