@@ -4,23 +4,14 @@
     "path": "src/agent/engine",
     "name": "engine",
     "purpose": "Agent loop engine public interface for per-session construction by backend type, internal session context ownership, task contexts, and task outcomes.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
-  "added": [
-    "error.rs",
-    "loop_engine.rs",
-    "session_context.rs",
-    "task_context.rs"
-  ],
-  "modified": [
-    "mod.rs"
-  ],
   "elements": [
     {
       "name": "engine module entry",
       "type": "module-entry",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/mod.rs",
@@ -40,7 +31,7 @@
     {
       "name": "LoopEngineError",
       "type": "enum",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/error.rs",
@@ -60,7 +51,7 @@
     {
       "name": "LoopEngine",
       "type": "structs-and-methods",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/loop_engine.rs",
@@ -80,7 +71,7 @@
     {
       "name": "SessionContext",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/session_context.rs",
@@ -100,7 +91,7 @@
     {
       "name": "TaskContext",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",

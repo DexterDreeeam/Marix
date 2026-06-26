@@ -4,18 +4,14 @@
     "path": "src/agent/model",
     "name": "model",
     "purpose": "Public model request interface, backend type selection, crate-internal backend implementation boundary, model error definitions, and streaming Deepseek backend implementation through common external namespaces.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
-  "modified": [
-    "backend.rs",
-    "mod.rs"
-  ],
   "elements": [
     {
       "name": "model module entry",
       "type": "module-entry",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/mod.rs",
@@ -172,7 +168,7 @@
     {
       "name": "ModelBackendType",
       "type": "enum",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend.rs",
