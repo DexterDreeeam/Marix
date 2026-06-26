@@ -1,6 +1,6 @@
 mod error;
 mod loop_engine;
-mod session_context;
+pub(crate) mod session_context;
 mod task_context;
 
 pub use error::LoopEngineError;

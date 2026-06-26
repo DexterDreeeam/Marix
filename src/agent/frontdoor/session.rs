@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::sync::{mpsc, Arc, Mutex};
 
+use crate::agent::engine::LoopEngine;
 use crate::common::channel::{ChannelError, SessionEvent, SessionTaskId, SessionTaskSignal};
 use crate::common::external::*;
 use crate::common::message::UserMessageEnvelope;
@@ -17,21 +18,18 @@ pub struct AgentSession {
     to_client_tx: Option<SharedSessionSender>,
     command_loop: Option<tokio::JoinHandle<()>>,
     task_routes: SharedTaskRoutes,
-    accepted_task_tx: mpsc::Sender<AgentTask>,
-    accepted_task_rx: mpsc::Receiver<AgentTask>,
+    engine: LoopEngine,
 }
 
 impl AgentSession {
     pub fn new(bind_address: SocketAddr) -> Result<Self, ChannelError> {
-        let (accepted_task_tx, accepted_task_rx) = mpsc::channel();
         Ok(Self {
             bind_address,
             runtime: Arc::new(Self::build_runtime()?),
             to_client_tx: None,
             command_loop: None,
             task_routes: Arc::new(Mutex::new(HashMap::new())),
-            accepted_task_tx,
-            accepted_task_rx,
+            engine: LoopEngine::new(),
         })
     }
 
@@ -111,7 +109,7 @@ impl AgentSession {
         mut from_client_rx: remoc::base::Receiver<SessionEvent>,
         to_client_tx: SharedSessionSender,
     ) -> tokio::JoinHandle<()> {
-        let accepted_task_tx = self.accepted_task_tx.clone();
+        let accepted_task_tx = self.engine.session_context().task_sender();
         let task_routes = Arc::clone(&self.task_routes);
         let runtime = Arc::clone(&self.runtime);
         self.runtime.spawn(async move {
@@ -185,7 +183,7 @@ impl AgentSession {
     }
 
     fn drain_accepted_tasks(&mut self) {
-        while self.accepted_task_rx.try_recv().is_ok() {}
+        self.engine.session_context().drain_tasks();
     }
 
     fn accept_task(
