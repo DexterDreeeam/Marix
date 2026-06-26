@@ -116,10 +116,14 @@
       if (filter && !file.path.toLowerCase().includes(filter) && !file.name.toLowerCase().includes(filter)) continue;
       const el = createTreeItem(file.name, depth, false, getPathChangeStatus(file.path), file.path);
       el.addEventListener("click", () => {
-        hideCodePopover();
         if (overviewMode === "star") {
+          hideCodePopover();
           openFileScope(file.path, el, { openPopover: isFocusedStarMapFile(file.path) });
+        } else if (isSelectedTreeFile(file.path)) {
+          // Re-clicking the already-selected file reopens its code popover.
+          showFilePopover(file.path);
         } else {
+          hideCodePopover();
           openFile(file.path, el);
         }
       });
@@ -131,6 +135,11 @@
       });
       parent.appendChild(el);
     }
+  }
+
+  function isSelectedTreeFile(path) {
+    // In file view a file is "selected" when it is the current file (no directory selection).
+    return overviewMode !== "star" && currentFile === path;
   }
 
   function sortTreeFiles(files) {
