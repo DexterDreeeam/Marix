@@ -4,12 +4,8 @@
     "path": "src/agent/frontdoor",
     "name": "frontdoor",
     "purpose": "Agent frontdoor session/task endpoint backed by remoc/TCP, routing client task messages into AgentTask handles whose draft run API returns loop-engine runtime event receivers.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    ".",
-    "task.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -46,7 +42,7 @@
     {
       "name": "AgentTask",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/task.rs",

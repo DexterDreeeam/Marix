@@ -4,21 +4,14 @@
     "path": "src/common/message",
     "name": "message",
     "purpose": "Folder-based shared user-message module where mod.rs only wires chat and message children and re-exports message types; concrete user message definitions live in message.rs alongside the chat payload type.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "message.rs"
-  ],
-  "modified": [
-    ".",
-    "mod.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "UserMessage",
       "type": "trait",
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/message.rs",
@@ -38,7 +31,7 @@
     {
       "name": "UserMessageType",
       "type": "enum",
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/message.rs",
@@ -58,7 +51,7 @@
     {
       "name": "UserMessageEnvelope",
       "type": "enum",
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/message.rs",

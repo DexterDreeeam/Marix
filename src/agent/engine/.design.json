@@ -4,14 +4,8 @@
     "path": "src/agent/engine",
     "name": "engine",
     "purpose": "Defines the compact session-scoped loop engine draft API, session status context, task contexts anchored to one initial user message, client-visible runtime task events, and lifecycle/status error types for agent task execution.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    ".",
-    "mod.rs",
-    "loop_engine.rs",
-    "task_context.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -32,7 +26,7 @@
     {
       "name": "LoopEngine",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/loop_engine.rs",
@@ -98,7 +92,7 @@
     {
       "name": "TaskRuntimeEvent",
       "type": "enum",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
@@ -133,7 +127,7 @@
     {
       "name": "TaskContext",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
