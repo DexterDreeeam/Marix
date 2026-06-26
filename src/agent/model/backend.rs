@@ -30,6 +30,11 @@ where
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ModelBackendType {
+    Deepseek,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ModelRequest {
     pub prompt: String,

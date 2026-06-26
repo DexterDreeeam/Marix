@@ -3,15 +3,19 @@
   "module": {
     "path": "src/agent/model",
     "name": "model",
-    "purpose": "Public model request interface, crate-internal backend implementation boundary, model error definitions, and streaming Deepseek backend implementation through common external namespaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Public model request interface, backend type selection, crate-internal backend implementation boundary, model error definitions, and streaming Deepseek backend implementation through common external namespaces.",
+    "changeStatus": "modified"
   },
   "childModules": [],
+  "modified": [
+    "backend.rs",
+    "mod.rs"
+  ],
   "elements": [
     {
       "name": "model module entry",
       "type": "module-entry",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/mod.rs",
@@ -166,19 +170,39 @@
       ]
     },
     {
+      "name": "ModelBackendType",
+      "type": "enum",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/model/backend.rs",
+          "lineStart": 33,
+          "lineEnd": 36,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 33,
+              "lineEnd": 36
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
       "name": "ModelRequest",
       "type": "struct",
       "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend.rs",
-          "lineStart": 34,
-          "lineEnd": 36,
+          "lineStart": 39,
+          "lineEnd": 41,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 34,
-              "lineEnd": 36
+              "lineStart": 39,
+              "lineEnd": 41
             }
           ],
           "modifiedLines": []
@@ -192,13 +216,13 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend.rs",
-          "lineStart": 39,
-          "lineEnd": 42,
+          "lineStart": 44,
+          "lineEnd": 47,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 39,
-              "lineEnd": 42
+              "lineStart": 44,
+              "lineEnd": 47
             }
           ],
           "modifiedLines": []

@@ -3,9 +3,119 @@
   "module": {
     "path": "src/agent/engine",
     "name": "engine",
-    "purpose": "Agent engine module reserved for orchestration implementation.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent loop engine public interface for per-session construction by backend type, internal session context ownership, task contexts, and task outcomes.",
+    "changeStatus": "modified"
   },
   "childModules": [],
-  "elements": []
+  "added": [
+    "error.rs",
+    "loop_engine.rs",
+    "session_context.rs",
+    "task_context.rs"
+  ],
+  "modified": [
+    "mod.rs"
+  ],
+  "elements": [
+    {
+      "name": "engine module entry",
+      "type": "module-entry",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/engine/mod.rs",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 7
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "LoopEngineError",
+      "type": "enum",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/engine/error.rs",
+          "lineStart": 1,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 9
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "LoopEngine",
+      "type": "structs-and-methods",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/engine/loop_engine.rs",
+          "lineStart": 1,
+          "lineEnd": 37,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 37
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "SessionContext",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/engine/session_context.rs",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 1
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "TaskContext",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/engine/task_context.rs",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 1
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
 }

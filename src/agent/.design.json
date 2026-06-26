@@ -3,14 +3,14 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent engine module, remoc-backed frontdoor session/task endpoint, public model request interface, Deepseek backend implementation through common external namespaces, and future retrieval/tool interfaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent loop engine interface with backend type selection, remoc-backed frontdoor session/task endpoint, public model request interface, Deepseek backend implementation through common external namespaces, and future retrieval/tool interfaces.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/agent/engine",
       "name": "engine",
-      "purpose": "Agent engine module reserved for orchestration implementation."
+      "purpose": "Agent loop engine public interface for per-session construction by backend type, internal session context ownership, task contexts, and task outcomes."
     },
     {
       "path": "src/agent/frontdoor",
@@ -20,25 +20,25 @@
     {
       "path": "src/agent/model",
       "name": "model",
-      "purpose": "Public model request interface, crate-internal backend implementation boundary, model error definitions, and streaming Deepseek backend implementation through common external namespaces."
+      "purpose": "Public model request interface, backend type selection, crate-internal backend implementation boundary, model error definitions, and streaming Deepseek backend implementation through common external namespaces."
     }
   ],
   "elements": [
     {
       "name": "agent module entry",
       "type": "module-entry",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/mod.rs",
           "lineStart": 1,
-          "lineEnd": 5,
+          "lineEnd": 8,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 1,
-              "lineEnd": 5
+              "lineEnd": 8
             }
           ]
         }
