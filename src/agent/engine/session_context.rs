@@ -1,30 +1,20 @@
-use std::sync::mpsc;
-
-use crate::agent::frontdoor::AgentTask;
-
-pub(crate) struct SessionContext {
-    accepted_task_tx: mpsc::Sender<AgentTask>,
-    accepted_task_rx: mpsc::Receiver<AgentTask>,
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum SessionStatus {
+    Created,
+    Running,
+    Stopping,
+    Stopped,
+    Failed,
 }
+
+pub(crate) struct SessionContext;
 
 impl SessionContext {
     pub(crate) fn new() -> Self {
-        let (accepted_task_tx, accepted_task_rx) = mpsc::channel();
-        Self {
-            accepted_task_tx,
-            accepted_task_rx,
-        }
+        panic!("not implemented")
     }
 
-    pub(crate) fn task_sender(&self) -> mpsc::Sender<AgentTask> {
-        self.accepted_task_tx.clone()
-    }
-
-    pub(crate) fn next_task(&self) -> Option<AgentTask> {
-        self.accepted_task_rx.try_recv().ok()
-    }
-
-    pub(crate) fn drain_tasks(&self) {
-        while self.accepted_task_rx.try_recv().is_ok() {}
+    pub(crate) fn status(&self) -> SessionStatus {
+        panic!("not implemented")
     }
 }

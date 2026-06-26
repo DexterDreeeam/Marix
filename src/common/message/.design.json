@@ -3,26 +3,33 @@
   "module": {
     "path": "src/common/message",
     "name": "message",
-    "purpose": "Shared user message trait, user message type enum, serializable user message envelope, and chat message payload type exchanged between client and agent tasks.",
-    "changeStatus": "unchanged"
+    "purpose": "Folder-based shared user-message module where mod.rs only wires chat and message children and re-exports message types; concrete user message definitions live in message.rs alongside the chat payload type.",
+    "changeStatus": "modified"
   },
+  "added": [
+    "message.rs"
+  ],
+  "modified": [
+    ".",
+    "mod.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "UserMessage",
       "type": "trait",
-      "changeStatus": "unchanged",
+      "changeStatus": "renamed",
       "codeSegments": [
         {
-          "sourcePath": "src/common/message.rs",
-          "lineStart": 7,
-          "lineEnd": 13,
+          "sourcePath": "src/common/message/message.rs",
+          "lineStart": 5,
+          "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 7,
-              "lineEnd": 13
+              "lineStart": 5,
+              "lineEnd": 11
             }
           ]
         }
@@ -31,35 +38,53 @@
     {
       "name": "UserMessageType",
       "type": "enum",
-      "changeStatus": "unchanged",
+      "changeStatus": "renamed",
       "codeSegments": [
         {
-          "sourcePath": "src/common/message.rs",
-          "lineStart": 15,
-          "lineEnd": 18,
+          "sourcePath": "src/common/message/message.rs",
+          "lineStart": 14,
+          "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 16
+            }
+          ]
         }
       ]
     },
     {
       "name": "UserMessageEnvelope",
       "type": "enum",
-      "changeStatus": "unchanged",
+      "changeStatus": "renamed",
       "codeSegments": [
         {
-          "sourcePath": "src/common/message.rs",
-          "lineStart": 20,
-          "lineEnd": 35,
+          "sourcePath": "src/common/message/message.rs",
+          "lineStart": 19,
+          "lineEnd": 21,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 20,
-              "lineEnd": 35
+              "lineStart": 19,
+              "lineEnd": 21
             }
-          ],
-          "modifiedLines": []
+          ]
+        },
+        {
+          "sourcePath": "src/common/message/message.rs",
+          "lineStart": 23,
+          "lineEnd": 33,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 33
+            }
+          ]
         }
       ]
     },
@@ -70,16 +95,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/message/chat.rs",
-          "lineStart": 1,
+          "lineStart": 7,
           "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 1,
-              "lineEnd": 19
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     }

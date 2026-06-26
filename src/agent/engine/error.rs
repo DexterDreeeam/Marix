@@ -1,7 +1,12 @@
+use crate::common::channel::SessionTaskId;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum LoopEngineError {
+pub(crate) enum LoopEngineError {
     SessionClosed,
-    TaskClosed,
+    TaskNotFound(SessionTaskId),
+    TaskClosed(SessionTaskId),
     BackendUnavailable(String),
     BackendFailed(String),
+    TaskFailed(String),
+    StatusUnavailable(SessionTaskId),
 }

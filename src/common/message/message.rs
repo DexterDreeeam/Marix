@@ -1,8 +1,6 @@
-pub mod chat;
-
-pub use chat::ChatMessage;
-
 use crate::common::external::*;
+
+use super::chat::ChatMessage;
 
 pub trait UserMessage {
     fn message_type(&self) -> UserMessageType;

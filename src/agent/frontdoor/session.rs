@@ -3,6 +3,7 @@ use std::net::SocketAddr;
 use std::sync::{mpsc, Arc, Mutex};
 
 use crate::agent::engine::LoopEngine;
+use crate::agent::model::ModelBackendType;
 use crate::common::channel::{ChannelError, SessionEvent, SessionTaskId, SessionTaskSignal};
 use crate::common::external::*;
 use crate::common::message::UserMessageEnvelope;
@@ -29,7 +30,8 @@ impl AgentSession {
             to_client_tx: None,
             command_loop: None,
             task_routes: Arc::new(Mutex::new(HashMap::new())),
-            engine: LoopEngine::new(),
+            engine: LoopEngine::new(ModelBackendType::Deepseek)
+                .map_err(|error| ChannelError::InvalidState(format!("{error:?}")))?,
         })
     }
 
@@ -109,7 +111,6 @@ impl AgentSession {
         mut from_client_rx: remoc::base::Receiver<SessionEvent>,
         to_client_tx: SharedSessionSender,
     ) -> tokio::JoinHandle<()> {
-        let accepted_task_tx = self.engine.session_context().task_sender();
         let task_routes = Arc::clone(&self.task_routes);
         let runtime = Arc::clone(&self.runtime);
         self.runtime.spawn(async move {
@@ -122,7 +123,6 @@ impl AgentSession {
                     }
                     SessionEvent::TaskCreate { task_id, message } => {
                         if Self::accept_task(
-                            &accepted_task_tx,
                             &task_routes,
                             &runtime,
                             &to_client_tx,
@@ -183,32 +183,17 @@ impl AgentSession {
     }
 
     fn drain_accepted_tasks(&mut self) {
-        self.engine.session_context().drain_tasks();
+        panic!("not implemented")
     }
 
     fn accept_task(
-        accepted_task_tx: &mpsc::Sender<AgentTask>,
         task_routes: &SharedTaskRoutes,
         runtime: &Arc<tokio::Runtime>,
         to_client_tx: &SharedSessionSender,
         task_id: SessionTaskId,
         message: UserMessageEnvelope,
     ) -> Result<(), ChannelError> {
-        let (task_tx, task_rx) = mpsc::channel();
-        Self::insert_task_route(task_routes, task_id, task_tx)?;
-        let task = AgentTask::new(
-            task_id,
-            message,
-            Arc::clone(runtime),
-            Arc::clone(to_client_tx),
-            task_rx,
-            Arc::clone(task_routes),
-        );
-        if accepted_task_tx.send(task).is_err() {
-            Self::remove_task_route(task_routes, task_id);
-            return Err(ChannelError::Disconnected);
-        }
-        Ok(())
+        panic!("not implemented")
     }
 
     fn insert_task_route(

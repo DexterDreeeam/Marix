@@ -3,31 +3,17 @@
   "module": {
     "path": "src/agent/engine",
     "name": "engine",
-    "purpose": "Agent loop engine public interface for per-session construction by backend type, internal session context ownership, task contexts, and task outcomes.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines the compact session-scoped loop engine draft API, session status context, task contexts anchored to one initial user message, client-visible runtime task events, and lifecycle/status error types for agent task execution.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    ".",
+    "mod.rs",
+    "loop_engine.rs",
+    "task_context.rs"
+  ],
   "childModules": [],
   "elements": [
-    {
-      "name": "engine module entry",
-      "type": "module-entry",
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/agent/engine/mod.rs",
-          "lineStart": 1,
-          "lineEnd": 7,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 1,
-              "lineEnd": 7
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
     {
       "name": "LoopEngineError",
       "type": "enum",
@@ -35,35 +21,53 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/error.rs",
-          "lineStart": 1,
-          "lineEnd": 9,
+          "lineStart": 4,
+          "lineEnd": 12,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 1,
-              "lineEnd": 9
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
     },
     {
       "name": "LoopEngine",
-      "type": "structs-and-methods",
-      "changeStatus": "unchanged",
+      "type": "struct",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/loop_engine.rs",
-          "lineStart": 1,
-          "lineEnd": 37,
+          "lineStart": 8,
+          "lineEnd": 11,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/engine/loop_engine.rs",
+          "lineStart": 13,
+          "lineEnd": 35,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 1,
-              "lineEnd": 37
+              "lineStart": 29,
+              "lineEnd": 32
             }
-          ],
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SessionStatus",
+      "type": "enum",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/engine/session_context.rs",
+          "lineStart": 2,
+          "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -75,13 +79,36 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/session_context.rs",
-          "lineStart": 1,
-          "lineEnd": 1,
+          "lineStart": 10,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/engine/session_context.rs",
+          "lineStart": 12,
+          "lineEnd": 20,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "TaskRuntimeEvent",
+      "type": "enum",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/engine/task_context.rs",
+          "lineStart": 5,
+          "lineEnd": 9,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 1,
-              "lineEnd": 1
+              "lineStart": 5,
+              "lineEnd": 9
             }
           ],
           "modifiedLines": []
@@ -89,22 +116,45 @@
       ]
     },
     {
-      "name": "TaskContext",
-      "type": "struct",
+      "name": "TaskStatus",
+      "type": "enum",
       "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 1,
-          "lineEnd": 1,
+          "lineStart": 12,
+          "lineEnd": 18,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 1,
-              "lineEnd": 1
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "TaskContext",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/engine/task_context.rs",
+          "lineStart": 20,
+          "lineEnd": 20,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/engine/task_context.rs",
+          "lineStart": 22,
+          "lineEnd": 34,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 32
+            }
+          ]
         }
       ]
     }

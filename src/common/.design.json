@@ -3,9 +3,15 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration, serializable chat user message envelopes, shared channel errors, remoc session/task protocol messages, and centralized crate-local external-library namespaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration, folder-based serializable chat user message envelopes, shared channel errors, remoc session/task protocol messages, and centralized crate-local external-library namespaces.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
+  "deleted": [
+    "message.rs"
+  ],
   "childModules": [
     {
       "path": "src/common/channel",
@@ -25,54 +31,8 @@
     {
       "path": "src/common/message",
       "name": "message",
-      "purpose": "Shared user message trait, user message type enum, serializable user message envelope, and chat message payload type exchanged between client and agent."
+      "purpose": "Folder-based shared user message trait, user message type enum, serializable user message envelope, and chat message payload type exchanged between client and agent."
     }
   ],
-  "elements": [
-    {
-      "name": "common module entry",
-      "type": "module-entry",
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/mod.rs",
-          "lineStart": 1,
-          "lineEnd": 4,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 1,
-              "lineEnd": 4
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "message module file",
-      "type": "module",
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/message.rs",
-          "lineStart": 1,
-          "lineEnd": 35,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 1,
-              "lineEnd": 35
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 1,
-              "lineEnd": 35
-            }
-          ]
-        }
-      ]
-    }
-  ]
+  "elements": []
 }

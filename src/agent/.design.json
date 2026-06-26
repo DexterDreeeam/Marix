@@ -3,19 +3,22 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent loop engine interface with backend type selection, remoc-backed frontdoor session/task endpoint, public model request interface, Deepseek backend implementation through common external namespaces, and future retrieval/tool interfaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent public surface for a compact session-scoped loop engine draft, remoc-backed frontdoor session/task endpoints, public model request and backend type interfaces, Deepseek backend implementation, and future retrieval/tool interfaces.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/agent/engine",
       "name": "engine",
-      "purpose": "Agent loop engine public interface for per-session construction by backend type, internal session context ownership, task contexts, and task outcomes."
+      "purpose": "Compact session-scoped loop engine draft with session status, one-initial-message task contexts, client-visible runtime task events, and lifecycle error types."
     },
     {
       "path": "src/agent/frontdoor",
       "name": "frontdoor",
-      "purpose": "Agent frontdoor session endpoint backed by remoc/TCP with accepted user-message tasks and bidirectional task messaging."
+      "purpose": "Agent frontdoor session/task endpoint backed by remoc/TCP and aligned with loop-engine runtime event receiver task execution."
     },
     {
       "path": "src/agent/model",
@@ -23,26 +26,5 @@
       "purpose": "Public model request interface, backend type selection, crate-internal backend implementation boundary, model error definitions, and streaming Deepseek backend implementation through common external namespaces."
     }
   ],
-  "elements": [
-    {
-      "name": "agent module entry",
-      "type": "module-entry",
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/agent/mod.rs",
-          "lineStart": 1,
-          "lineEnd": 8,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 1,
-              "lineEnd": 8
-            }
-          ]
-        }
-      ]
-    }
-  ]
+  "elements": []
 }

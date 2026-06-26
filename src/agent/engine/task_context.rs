@@ -1,25 +1,34 @@
-use crate::agent::frontdoor::AgentTask;
-use crate::common::channel::ChannelError;
-use crate::common::message::{UserMessage, UserMessageEnvelope};
+use crate::common::channel::SessionTaskId;
+use crate::common::message::UserMessageEnvelope;
 
-pub struct TaskContext {
-    task: AgentTask,
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum TaskRuntimeEvent {
+    Status(TaskStatus),
+    ModelRequest(String),
+    ModelResponse(String),
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum TaskStatus {
+    Created,
+    Running,
+    Stopped,
+    Succeeded,
+    Failed(String),
+}
+
+pub(crate) struct TaskContext;
+
 impl TaskContext {
-    pub(crate) fn new(task: AgentTask) -> Self {
-        Self { task }
+    pub(crate) fn task_id(&self) -> SessionTaskId {
+        panic!("not implemented")
     }
 
-    pub(crate) fn receive(&mut self) -> Result<UserMessageEnvelope, ChannelError> {
-        self.task.receive()
+    pub(crate) fn initial_message(&self) -> &UserMessageEnvelope {
+        panic!("not implemented")
     }
 
-    pub(crate) fn send(&mut self, message: impl UserMessage) -> Result<(), ChannelError> {
-        self.task.send(message)
-    }
-
-    pub(crate) fn complete(&mut self) -> Result<(), ChannelError> {
-        self.task.complete()
+    pub(crate) fn status(&self) -> TaskStatus {
+        panic!("not implemented")
     }
 }

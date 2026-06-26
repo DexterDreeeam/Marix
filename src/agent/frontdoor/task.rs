@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::sync::{mpsc, Arc, Mutex};
 
+use crate::agent::engine::{LoopEngine, LoopEngineError, TaskRuntimeEvent};
 use crate::common::channel::ChannelError;
 use crate::common::channel::{SessionEvent, SessionTaskId, SessionTaskSignal};
 use crate::common::external::*;
@@ -37,6 +38,17 @@ impl AgentTask {
             task_routes,
             active: true,
         }
+    }
+
+    pub(crate) fn task_id(&self) -> SessionTaskId {
+        panic!("not implemented")
+    }
+
+    pub(crate) fn run(
+        &mut self,
+        engine: &LoopEngine,
+    ) -> Result<mpsc::Receiver<TaskRuntimeEvent>, LoopEngineError> {
+        panic!("not implemented")
     }
 
     pub fn send(&mut self, message: impl UserMessage) -> Result<(), ChannelError> {

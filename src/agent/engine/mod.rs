@@ -1,8 +1,9 @@
 mod error;
 mod loop_engine;
-pub(crate) mod session_context;
+mod session_context;
 mod task_context;
 
-pub use error::LoopEngineError;
-pub use loop_engine::{LoopEngine, LoopTaskOutcome};
-pub use task_context::TaskContext;
+pub(crate) use error::LoopEngineError;
+pub(crate) use loop_engine::LoopEngine;
+pub(crate) use session_context::{SessionContext, SessionStatus};
+pub(crate) use task_context::{TaskContext, TaskRuntimeEvent, TaskStatus};
