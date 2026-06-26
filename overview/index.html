@@ -105,17 +105,19 @@
               <div id="module-detail-body" class="module-detail-body"></div>
             </aside>
           </section>
-          <div id="code-popover-backdrop" class="code-popover-backdrop" style="display:none"></div>
-          <aside id="code-popover" class="code-popover" style="display:none">
-            <div class="code-popover-header">
-              <strong id="code-popover-title"></strong>
-              <div class="code-popover-header-actions">
-                <button id="btn-close-code-popover" class="tool-btn" type="button" aria-label="Close code"><i class="bi bi-x-lg"></i></button>
-              </div>
-            </div>
-            <div id="code-popover-content" class="code-popover-content"></div>
-          </aside>
         </div>
+        <!-- Popover lives in #viewer (non-scrolling) so it anchors to the visible
+             right-pane area and never scrolls away with file-view diff content. -->
+        <div id="code-popover-backdrop" class="code-popover-backdrop" style="display:none"></div>
+        <aside id="code-popover" class="code-popover" style="display:none">
+          <div class="code-popover-header">
+            <strong id="code-popover-title"></strong>
+            <div class="code-popover-header-actions">
+              <button id="btn-close-code-popover" class="tool-btn" type="button" aria-label="Close code"><i class="bi bi-x-lg"></i></button>
+            </div>
+          </div>
+          <div id="code-popover-content" class="code-popover-content"></div>
+        </aside>
       </section>
     </div>
     <div id="global-tooltip" role="tooltip" style="display:none"></div>

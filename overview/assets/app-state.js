@@ -222,6 +222,7 @@
     document.getElementById("star-map-workspace").style.display = isStar ? "flex" : "none";
     document.getElementById("viewer-header").style.display = isStar ? "none" : "flex";
     document.getElementById("viewer-content").classList.toggle("star-active", isStar);
+    document.getElementById("viewer").classList.toggle("star-active", isStar);
     document.getElementById("btn-star-map-view").classList.toggle("active", isStar);
 
     if (isStar) {
