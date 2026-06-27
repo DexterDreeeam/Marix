@@ -4,12 +4,9 @@ use std::sync::{mpsc, Arc, Mutex};
 
 use crate::common::channel::{ChannelError, SessionEvent, SessionTaskId, SessionTaskSignal};
 use crate::common::external::*;
-use crate::common::message::UserMessage;
+use crate::common::message::RequestMessage;
 
 use super::task::ClientTask;
-
-type SharedSessionSender = Arc<tokio::Mutex<remoc::base::Sender<SessionEvent>>>;
-type SharedTaskRoutes = Arc<Mutex<HashMap<SessionTaskId, mpsc::Sender<SessionTaskSignal>>>>;
 
 pub struct ClientSession {
     address: SocketAddr,
@@ -34,7 +31,10 @@ impl ClientSession {
         Ok(session)
     }
 
-    pub fn create_task(&mut self, message: impl UserMessage) -> Result<ClientTask, ChannelError> {
+    pub fn create_task(
+        &mut self,
+        message: impl RequestMessage,
+    ) -> Result<ClientTask, ChannelError> {
         let to_agent_tx = self
             .to_agent_tx
             .as_ref()
@@ -84,6 +84,11 @@ impl ClientSession {
     }
 }
 
+// -- Private -- //
+
+type SharedSessionSender = Arc<tokio::Mutex<remoc::base::Sender<SessionEvent>>>;
+type SharedTaskRoutes = Arc<Mutex<HashMap<SessionTaskId, mpsc::Sender<SessionTaskSignal>>>>;
+
 impl ClientSession {
     fn connect_agent(&mut self) -> Result<(), ChannelError> {
         let (to_agent_tx, mut from_agent_rx) = self.runtime.block_on(self.connect_remoc())?;
@@ -124,11 +129,11 @@ impl ClientSession {
                         Self::close_all_task_routes(&task_routes);
                         break;
                     }
-                    SessionEvent::TaskMessage { task_id, message } => {
+                    SessionEvent::TaskResponseMessage { task_id, message } => {
                         Self::route_task_signal(
                             &task_routes,
                             task_id,
-                            SessionTaskSignal::Message(message),
+                            SessionTaskSignal::ResponseMessage(message),
                             false,
                         );
                     }
@@ -166,7 +171,7 @@ impl ClientSession {
             Some(SessionEvent::Close) | None => Err(ChannelError::Disconnected),
             Some(
                 SessionEvent::TaskCreate { .. }
-                | SessionEvent::TaskMessage { .. }
+                | SessionEvent::TaskResponseMessage { .. }
                 | SessionEvent::TaskCancel { .. }
                 | SessionEvent::TaskComplete { .. },
             ) => Err(ChannelError::InvalidState(

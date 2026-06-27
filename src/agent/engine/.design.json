@@ -3,9 +3,14 @@
   "module": {
     "path": "src/agent/engine",
     "name": "engine",
-    "purpose": "Defines the minimal session-scoped loop engine runtime, cloneable session status context, task contexts anchored to one initial user message with direct shared task/status/runtime-event fields, client-visible runtime task events, one-shot model request execution, streamed chat responses, LoopEngine-owned private helper methods that operate through engine state, and lifecycle/status error types.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines the minimal session-scoped loop engine runtime, cloneable session status context, task contexts anchored to one initial request message with direct shared task/status/runtime-event fields, client-visible runtime task events, one-shot model request execution, streamed chat response segments, LoopEngine-owned private helper methods that operate through engine state, and lifecycle/status error types.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "loop_engine.rs",
+    "mod.rs",
+    "task_context.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -26,7 +31,7 @@
     {
       "name": "LoopEngine",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/loop_engine.rs",
@@ -54,8 +59,8 @@
           ],
           "modifiedLines": [
             {
-              "lineStart": 46,
-              "lineEnd": 52
+              "lineStart": 42,
+              "lineEnd": 44
             },
             {
               "lineStart": 57,
@@ -65,31 +70,35 @@
         },
         {
           "sourcePath": "src/agent/engine/loop_engine.rs",
-          "lineStart": 75,
-          "lineEnd": 221,
+          "lineStart": 77,
+          "lineEnd": 223,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 196,
-              "lineEnd": 216
+              "lineStart": 198,
+              "lineEnd": 218
             }
           ],
           "modifiedLines": [
             {
-              "lineStart": 81,
-              "lineEnd": 84
+              "lineStart": 183,
+              "lineEnd": 188
             },
             {
-              "lineStart": 89,
-              "lineEnd": 93
+              "lineStart": 83,
+              "lineEnd": 86
             },
             {
-              "lineStart": 161,
-              "lineEnd": 168
+              "lineStart": 91,
+              "lineEnd": 95
             },
             {
-              "lineStart": 181,
-              "lineEnd": 193
+              "lineStart": 163,
+              "lineEnd": 170
+            },
+            {
+              "lineStart": 183,
+              "lineEnd": 195
             }
           ]
         }
@@ -176,7 +185,7 @@
     {
       "name": "TaskContext",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
@@ -186,8 +195,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 27,
-              "lineEnd": 29
+              "lineStart": 26,
+              "lineEnd": 26
             }
           ]
         },

@@ -1,5 +1,9 @@
 "use strict";
+  let overviewEventsBound = false;
+
   function bindEvents() {
+    if (overviewEventsBound) return;
+    overviewEventsBound = true;
     const searchInput = document.getElementById("search-input");
     let searchTimeout;
     bindGlobalTooltips();
@@ -33,6 +37,18 @@
       saveBooleanSetting(STORAGE_KEYS.treeChangedFilesOnly, treeChangedFilesOnly);
       updateTreeFilterButton();
       renderTree(searchInput.value.trim());
+    });
+
+    document.getElementById("btn-hide-private-code").addEventListener("click", () => {
+      hidePrivateCode = !hidePrivateCode;
+      saveBooleanSetting(STORAGE_KEYS.hidePrivateCode, hidePrivateCode);
+      updatePrivateCodeButton();
+      hideCodePopover();
+      if (overviewMode === "star") {
+        renderStarMapSelectionState({ syncTree: false });
+      } else {
+        restoreFileView();
+      }
     });
 
     document.getElementById("code-popover-backdrop").addEventListener("click", hideCodePopover);

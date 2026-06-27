@@ -4,6 +4,7 @@
   let overviewMode = "file";
   let viewWholeFile = false;
   let treeChangedFilesOnly = false;
+  let hidePrivateCode = false;
   let starMapShowAllFiles = false;
   let currentFile = null;
   let currentDirectory = null;
@@ -34,6 +35,7 @@
       overviewMode = "file";
     }
     treeChangedFilesOnly = loadBooleanSetting(STORAGE_KEYS.treeChangedFilesOnly, false);
+    hidePrivateCode = loadBooleanSetting(STORAGE_KEYS.hidePrivateCode, false);
     starMapShowAllFiles = loadBooleanSetting(STORAGE_KEYS.starMapShowAllFiles, false);
     scopePath = normalizeScopePath(localStorage.getItem(STORAGE_KEYS.scopePath) || SOURCE_ROOT);
     starMapSelection = { kind: "module", path: scopePath };
@@ -83,15 +85,15 @@
       if (activeDataSource === DATA_SOURCE_LOCAL) {
         await clearCachedDataSource();
         setLoadingVisible(false);
-        await promptDataSourceChoice(t("dataSourceLocalMissing"));
-        window.location.reload();
+        const dataSource = await promptDataSourceChoice(t("dataSourceLocalMissing"));
+        await reloadOverviewData("initial-local-retry", { dataSource, bindEventsAfterLoad: true });
         return;
       }
       if (activeDataSource === DATA_SOURCE_GITHUB) {
         await clearCachedDataSource();
         setLoadingVisible(false);
-        await promptDataSourceChoice(t("overviewLoadFailed"));
-        window.location.reload();
+        const dataSource = await promptDataSourceChoice(t("overviewLoadFailed"));
+        await reloadOverviewData("initial-github-retry", { dataSource, bindEventsAfterLoad: true });
         return;
       }
       manifest = { files: {}, diff: { prev_tag: null, latest_tag: null, changes: {} }, generated_at: "" };
@@ -193,6 +195,7 @@
     updateActionButton("btn-reset-star-map", "resetView");
     updateActionButton("btn-reset-data-source", "resetDataSourceTool");
     updateTreeFilterButton();
+    updatePrivateCodeButton();
     updateDataSourceDependentControls();
     if (typeof refreshActiveReloadBannerLanguage === "function") refreshActiveReloadBannerLanguage();
 
@@ -238,6 +241,7 @@
 
     }
     updateTreeFilterButton();
+    updatePrivateCodeButton();
     updateDataSourceDependentControls();
   }
 
@@ -407,6 +411,16 @@
     );
   }
 
+  function updatePrivateCodeButton() {
+    updateToolButton(
+      "btn-hide-private-code",
+      hidePrivateCode ? "showPrivateCodeTool" : "hidePrivateCodeTool",
+      hidePrivateCode
+    );
+    const icon = document.querySelector("#btn-hide-private-code i");
+    if (icon) icon.className = hidePrivateCode ? "bi bi-eye" : "bi bi-eye-slash";
+  }
+
   function updateToolButton(id, labelKey, active) {
     const el = document.getElementById(id);
     el.dataset.tooltip = t(labelKey);
@@ -442,8 +456,8 @@
     scopePath = SOURCE_ROOT;
     starMapSelection = { kind: "module", path: SOURCE_ROOT };
     setLoadingVisible(false);
-    await promptDataSourceChoice("");
-    window.location.reload();
+    const dataSource = await promptDataSourceChoice("");
+    await reloadOverviewData("reset-data-source", { dataSource, resetSelection: true });
   }
 
   function showTooltip(target) {

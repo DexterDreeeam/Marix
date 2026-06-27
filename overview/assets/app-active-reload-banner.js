@@ -111,7 +111,9 @@
     `;
 
     banner.querySelector("[data-role='reload']").addEventListener("click", () => {
-      window.location.reload();
+      if (typeof reloadOverviewData === "function") {
+        reloadOverviewData("active-reload-banner");
+      }
     });
     document.body.appendChild(banner);
     return banner;

@@ -3,19 +3,22 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent public surface for a first minimal single-request loop engine runtime with cloneable LoopEngine state, engine-owned task contexts with direct shared task/status/runtime-event fields, remoc-backed frontdoor session/task endpoints, public model request and backend type interfaces, Deepseek backend implementation, and future retrieval/tool interfaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent public surface for a first minimal single-request loop engine runtime with cloneable LoopEngine state, engine-owned task contexts with direct shared task/status/runtime-event fields, remoc-backed request/response message frontdoor endpoints, public model request and backend type interfaces, Deepseek backend implementation, explicit public/private Rust section markers where private implementation details exist, and future retrieval/tool interfaces.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/agent/engine",
       "name": "engine",
-      "purpose": "Minimal session-scoped loop engine runtime with session status, one-initial-message task contexts, direct shared task/status/runtime-event fields, client-visible runtime task events, model streaming, and lifecycle error types."
+      "purpose": "Minimal session-scoped loop engine runtime with session status, one-initial-request task contexts, direct shared task/status/runtime-event fields, client-visible runtime task events, model streaming through chat response segments, and lifecycle error types."
     },
     {
       "path": "src/agent/frontdoor",
       "name": "frontdoor",
-      "purpose": "Agent frontdoor session/task endpoint backed by remoc/TCP and aligned with engine-owned task execution returning runtime event receivers."
+      "purpose": "Agent frontdoor session/task endpoint backed by remoc/TCP and aligned with engine-owned task execution returning runtime event receivers and streamed chat response segment payloads."
     },
     {
       "path": "src/agent/model",

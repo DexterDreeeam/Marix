@@ -3,9 +3,13 @@
   "module": {
     "path": "src/client/core",
     "name": "core",
-    "purpose": "Core client session endpoint backed by remoc/TCP with task creation and bidirectional task messaging.",
-    "changeStatus": "unchanged"
+    "purpose": "Core client session endpoint backed by remoc/TCP with task creation, initial request submission, and streamed response segment receives.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "session.rs",
+    "task.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -31,18 +35,18 @@
     {
       "name": "ClientSession",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/core/session.rs",
-          "lineStart": 14,
+          "lineStart": 11,
           "lineEnd": 85,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 14,
-              "lineEnd": 85
+              "lineStart": 34,
+              "lineEnd": 37
             }
           ]
         }
@@ -51,38 +55,42 @@
     {
       "name": "client remoc session private helpers",
       "type": "private-methods",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/core/session.rs",
-          "lineStart": 87,
-          "lineEnd": 252,
+          "lineStart": 92,
+          "lineEnd": 257,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 87,
-              "lineEnd": 252
+              "lineStart": 132,
+              "lineEnd": 156
+            },
+            {
+              "lineStart": 173,
+              "lineEnd": 175
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
     {
       "name": "ClientTask",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/core/task.rs",
-          "lineStart": 12,
-          "lineEnd": 106,
+          "lineStart": 9,
+          "lineEnd": 100,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 106
+              "lineStart": 36,
+              "lineEnd": 61
             }
           ]
         }

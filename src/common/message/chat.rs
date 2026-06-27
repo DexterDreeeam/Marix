@@ -1,19 +1,37 @@
-use super::{UserMessage, UserMessageType};
+use super::{
+    RequestMessage, RequestMessageEnvelope, RequestMessageType, ResponseMessage,
+    ResponseMessageEnvelope, ResponseMessageType,
+};
 use crate::common::external::*;
 
-use super::UserMessageEnvelope;
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ChatMessage {
+pub struct ChatRequest {
     pub content: String,
 }
 
-impl UserMessage for ChatMessage {
-    fn message_type(&self) -> UserMessageType {
-        UserMessageType::Chat
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ChatResponseSegment {
+    pub content: String,
+}
+
+// -- Private -- //
+
+impl RequestMessage for ChatRequest {
+    fn message_type(&self) -> RequestMessageType {
+        RequestMessageType::Chat
     }
 
-    fn into_envelope(self) -> UserMessageEnvelope {
-        UserMessageEnvelope::Chat(self)
+    fn into_envelope(self) -> RequestMessageEnvelope {
+        RequestMessageEnvelope::ChatRequest(self)
+    }
+}
+
+impl ResponseMessage for ChatResponseSegment {
+    fn message_type(&self) -> ResponseMessageType {
+        ResponseMessageType::ChatSegment
+    }
+
+    fn into_envelope(self) -> ResponseMessageEnvelope {
+        ResponseMessageEnvelope::ChatResponseSegment(self)
     }
 }

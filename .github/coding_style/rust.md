@@ -69,6 +69,19 @@ Prefer structured diagnostics or existing logging paths over raw print macros.
 
 ## File Structure
 
+- Organize each Rust module file into two sections: the top section is the
+  module's outward-facing interface, usually items with `pub`, `pub(crate)`, or
+  `pub(super)` visibility; the bottom section is module-internal information and
+  implementation details.
+- Separate the two sections with exactly this marker line:
+
+  ```rust
+  // -- Private -- //
+  ```
+
+- Put private helper types, private helper functions, private inherent impl
+  blocks, and other module-internal implementation details below that marker.
+  If a file has no private section, omit the marker.
 - After imports and module declarations, place top-level declarations in this
   general order:
   1. enums,

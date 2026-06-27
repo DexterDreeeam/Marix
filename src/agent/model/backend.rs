@@ -17,19 +17,6 @@ pub(super) trait ModelBackendImpl: fmt::Debug {
         -> Result<Receiver<ModelResponse>, ModelBackendError>;
 }
 
-impl<T> ModelBackend for T
-where
-    T: ModelBackendImpl,
-{
-    fn request(
-        &mut self,
-        request: ModelRequest,
-    ) -> Result<Receiver<ModelResponse>, ModelBackendError> {
-        self.ready()?;
-        self.send(request)
-    }
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ModelBackendType {
     Deepseek,
@@ -44,4 +31,19 @@ pub struct ModelRequest {
 pub enum ModelResponse {
     Content(String),
     Failed(ModelBackendError),
+}
+
+// -- Private -- //
+
+impl<T> ModelBackend for T
+where
+    T: ModelBackendImpl,
+{
+    fn request(
+        &mut self,
+        request: ModelRequest,
+    ) -> Result<Receiver<ModelResponse>, ModelBackendError> {
+        self.ready()?;
+        self.send(request)
+    }
 }

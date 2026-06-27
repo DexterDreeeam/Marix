@@ -2,17 +2,18 @@
     function renderFullFilePanel(path, content, change, ext, options = {}) {
       const markers = collectDiffMarkers(change.diff_lines || []);
       const includeDeleted = options.includeDeleted !== false;
-      const lines = content.split(/\r?\n/);
+      const lines = getPublicCodeLines(content);
+      const privateBoundary = getPrivateCodeBoundaryLine(content);
       const languageName = getLanguageFromExt(ext);
       const body = [];
 
-      for (let i = 0; i < lines.length; i++) {
-        const lineNumber = i + 1;
+      for (const line of lines) {
+        const lineNumber = line.lineNumber;
         if (includeDeleted) body.push(renderDeletedLines(markers.deletedBefore.get(lineNumber), languageName));
-        body.push(renderFullFileLine(lineNumber, lines[i], getFullFileLineClass(markers, lineNumber), languageName));
+        body.push(renderFullFileLine(lineNumber, line.content, getFullFileLineClass(markers, lineNumber), languageName));
       }
 
-      if (includeDeleted) body.push(renderDeletedLines(markers.deletedBefore.get(lines.length + 1), languageName));
+      if (includeDeleted && !privateBoundary) body.push(renderDeletedLines(markers.deletedBefore.get(lines.length + 1), languageName));
 
       if (options.embedded) {
         return `<div class="full-file-lines full-file-lines-embedded">${body.join("")}</div>`;
@@ -131,18 +132,47 @@
     }
 
   function highlightSource(content, languageName) {
+    const visibleContent = filterPrivateCodeContent(content);
     if (languageName === "rust") {
-      return String(content || "").split(/\r?\n/).map(highlightRustLine).join("\n");
+      return String(visibleContent || "").split(/\r?\n/).map(highlightRustLine).join("\n");
     }
 
       if (languageName && window.hljs && hljs.getLanguage(languageName)) {
         try {
-          return hljs.highlight(content, { language: languageName, ignoreIllegals: true }).value;
+          return hljs.highlight(visibleContent, { language: languageName, ignoreIllegals: true }).value;
         } catch (e) {
-          return escapeHtml(content);
+          return escapeHtml(visibleContent);
         }
       }
-      return escapeHtml(content);
+      return escapeHtml(visibleContent);
+  }
+
+  function getPublicCodeLines(content) {
+    const lines = String(content || "").split(/\r?\n/);
+    const boundary = getPrivateCodeBoundaryLine(content);
+    const visibleLines = boundary ? lines.slice(0, boundary - 1) : lines;
+    return visibleLines.map((line, index) => ({
+      lineNumber: index + 1,
+      content: line
+    }));
+  }
+
+  function filterPrivateCodeContent(content) {
+    if (!hidePrivateCode) return content;
+    const lines = String(content || "").split(/\r?\n/);
+    const index = lines.findIndex(isPrivateCodeMarkerLine);
+    return index >= 0 ? lines.slice(0, index).join("\n") : content;
+  }
+
+  function getPrivateCodeBoundaryLine(content) {
+    if (!hidePrivateCode) return 0;
+    const lines = String(content || "").split(/\r?\n/);
+    const index = lines.findIndex(isPrivateCodeMarkerLine);
+    return index >= 0 ? index + 1 : 0;
+  }
+
+  function isPrivateCodeMarkerLine(line) {
+    return String(line || "").trim() === PRIVATE_CODE_MARKER;
   }
 
   function highlightRustLine(line) {
@@ -248,7 +278,9 @@
 
   function renderDiffPanel(path, section, number) {
     const languageName = getLanguageFromExt(path.split(".").pop().toLowerCase());
-    const lines = section.lines.map(line => renderDiffLine(line, languageName)).join("");
+    const visibleDiffLines = filterPrivateDiffSection(path, section);
+    if (visibleDiffLines.length === 0) return "";
+    const lines = visibleDiffLines.map(line => renderDiffLine(line, languageName)).join("");
     const reason = section.reason || t("reasonPending");
     return `
       <section class="diff-panel">
@@ -275,4 +307,43 @@
         <span class="diff-line-content"><span class="diff-line-marker">${marker}</span>${highlightedContent}</span>
       </div>
     `;
+  }
+
+  function filterPrivateDiffSection(path, section) {
+    const lines = section.lines || [];
+    if (!hidePrivateCode) return lines;
+
+    const entry = (manifest && manifest.files && manifest.files[path]) || null;
+    const privateBoundary = entry && typeof entry.content === "string"
+      ? getPrivateCodeBoundaryLine(entry.content)
+      : 0;
+    const headerMatch = String(section.header || "").match(/@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
+    let oldLine = headerMatch ? Number(headerMatch[1]) : 0;
+    let newLine = headerMatch ? Number(headerMatch[2]) : 0;
+    let inferredBoundary = privateBoundary;
+    const visible = [];
+
+    for (const line of lines) {
+      const marker = line.slice(0, 1);
+      const content = line.slice(1);
+      const isMarker = isPrivateCodeMarkerLine(content);
+      const isPrivate = inferredBoundary && newLine >= inferredBoundary;
+
+      if (isMarker) {
+        inferredBoundary = inferredBoundary || newLine;
+      } else if (marker === "-" && !isPrivate && !isMarker) {
+        visible.push(line);
+      } else if ((marker === "+" || marker === " ") && !isPrivate) {
+        visible.push(line);
+      }
+
+      if (marker === "+") newLine += 1;
+      else if (marker === "-") oldLine += 1;
+      else if (marker === " ") {
+        oldLine += 1;
+        newLine += 1;
+      }
+    }
+
+    return visible;
   }

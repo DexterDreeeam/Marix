@@ -7,6 +7,8 @@ use marix::agent::frontdoor::AgentSession;
 use marix::client::core::ClientSession;
 use marix::common::channel::ChannelError;
 
+// -- Private -- //
+
 const SESSION_TIMEOUT: Duration = Duration::from_secs(3);
 const CONNECT_RETRY_DELAY: Duration = Duration::from_millis(20);
 const DISCONNECT_SETTLE_DELAY: Duration = Duration::from_millis(100);

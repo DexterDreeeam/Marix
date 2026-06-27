@@ -2,7 +2,7 @@ use std::sync::{mpsc, Arc, Mutex};
 
 use crate::agent::frontdoor::AgentTask;
 use crate::common::channel::SessionTaskId;
-use crate::common::message::UserMessageEnvelope;
+use crate::common::message::RequestMessageEnvelope;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum TaskRuntimeEvent {
@@ -23,7 +23,7 @@ pub(crate) enum TaskStatus {
 #[derive(Clone)]
 pub(crate) struct TaskContext {
     pub(super) task_id: SessionTaskId,
-    pub(super) initial_message: Arc<UserMessageEnvelope>,
+    pub(super) initial_message: Arc<RequestMessageEnvelope>,
     pub(super) task: Arc<Mutex<AgentTask>>,
     pub(super) status: Arc<Mutex<TaskStatus>>,
     pub(super) runtime_tx: Arc<Mutex<Option<mpsc::Sender<TaskRuntimeEvent>>>>,
@@ -34,7 +34,7 @@ impl TaskContext {
         self.task_id
     }
 
-    pub(crate) fn initial_message(&self) -> &UserMessageEnvelope {
+    pub(crate) fn initial_message(&self) -> &RequestMessageEnvelope {
         self.initial_message.as_ref()
     }
 

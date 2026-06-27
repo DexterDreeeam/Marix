@@ -3,14 +3,17 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration with fallible runtime loading, folder-based serializable chat user message envelopes, shared channel errors, remoc session/task protocol messages, and centralized crate-local external-library namespaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration with fallible runtime loading, directional chat request/response message envelopes, shared channel errors, remoc session/task protocol messages, explicit public/private Rust section markers where private shared implementation details exist, and centralized crate-local external-library namespaces.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/common/channel",
       "name": "channel",
-      "purpose": "Shared channel error type and crate-internal remoc SessionEvent protocol used by client and agent endpoints."
+      "purpose": "Shared channel error type and crate-internal remoc SessionEvent protocol with separate request-message and response-message task payloads."
     },
     {
       "path": "src/common/config",
@@ -25,7 +28,7 @@
     {
       "path": "src/common/message",
       "name": "message",
-      "purpose": "Folder-based shared user message trait, user message type enum, serializable user message envelope, and chat message payload type exchanged between client and agent."
+      "purpose": "Folder-based shared request and response message traits, serializable envelopes, complete chat request payloads, and streamed chat response segment payloads."
     }
   ],
   "elements": []

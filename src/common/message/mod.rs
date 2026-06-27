@@ -1,5 +1,11 @@
 pub mod chat;
-mod message;
 
-pub use chat::ChatMessage;
-pub use message::{UserMessage, UserMessageEnvelope, UserMessageType};
+pub use chat::{ChatRequest, ChatResponseSegment};
+pub use message::{
+    RequestMessage, RequestMessageEnvelope, RequestMessageType, ResponseMessage,
+    ResponseMessageEnvelope, ResponseMessageType,
+};
+
+// -- Private -- //
+
+mod message;

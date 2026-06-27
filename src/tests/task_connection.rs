@@ -6,7 +6,9 @@ use std::time::{Duration, Instant};
 use marix::agent::frontdoor::AgentSession;
 use marix::client::core::ClientSession;
 use marix::common::channel::ChannelError;
-use marix::common::message::ChatMessage;
+use marix::common::message::ChatRequest;
+
+// -- Private -- //
 
 const SESSION_TIMEOUT: Duration = Duration::from_secs(3);
 const CONNECT_RETRY_DELAY: Duration = Duration::from_millis(20);
@@ -14,20 +16,17 @@ const DISCONNECT_SETTLE_DELAY: Duration = Duration::from_millis(100);
 const TASK_COUNT: usize = 24;
 
 #[test]
-fn many_pending_tasks_can_send_and_cancel() {
+fn many_pending_tasks_can_cancel() {
     let address = unused_loopback_address();
     let agent_rx = spawn_new_agent_accept(address);
     let mut client = connect_client_with_retry(address);
     let mut agent = receive_agent(agent_rx);
 
     let mut tasks = create_tasks(&mut client, TASK_COUNT, "pending");
-    for (index, task) in tasks.iter_mut().enumerate() {
-        task.send(chat_message(&format!("pending-follow-up-{index}")))
-            .expect("client task follow-up should send");
-    }
     for task in &mut tasks {
         task.cancel().expect("client task cancel should succeed");
-        task.cancel().expect("client task cancel should be idempotent");
+        task.cancel()
+            .expect("client task cancel should be idempotent");
     }
 
     client.close().expect("client close should succeed");
@@ -44,11 +43,7 @@ fn pending_tasks_do_not_block_repeated_client_reconnects() {
         let mut client = connect_client_with_retry(address);
         agent = receive_agent(agent_rx);
 
-        let mut tasks = create_tasks(&mut client, TASK_COUNT, &format!("round-{round}"));
-        for (index, task) in tasks.iter_mut().enumerate() {
-            task.send(chat_message(&format!("round-{round}-follow-up-{index}")))
-                .expect("client task follow-up should send");
-        }
+        let tasks = create_tasks(&mut client, TASK_COUNT, &format!("round-{round}"));
 
         client.close().expect("client close should succeed");
         drop(tasks);
@@ -66,11 +61,7 @@ fn second_client_is_rejected_while_first_has_pending_tasks() {
     let mut first_client = connect_client_with_retry(address);
     let mut agent = receive_agent(agent_rx);
 
-    let mut tasks = create_tasks(&mut first_client, TASK_COUNT, "first-client");
-    for (index, task) in tasks.iter_mut().enumerate() {
-        task.send(chat_message(&format!("first-client-follow-up-{index}")))
-            .expect("first client task follow-up should send");
-    }
+    let _tasks = create_tasks(&mut first_client, TASK_COUNT, "first-client");
 
     let second_client = ClientSession::connect(address);
 
@@ -95,10 +86,10 @@ fn task_cleanup_tolerates_agent_drop() {
     drop(agent);
     thread::sleep(DISCONNECT_SETTLE_DELAY);
 
-    for (index, task) in tasks.iter_mut().enumerate() {
-        let _ = task.send(chat_message(&format!("after-agent-drop-{index}")));
+    for task in tasks.iter_mut() {
         let _ = task.cancel();
-        task.cancel().expect("client task cancel should be idempotent");
+        task.cancel()
+            .expect("client task cancel should be idempotent");
     }
     client
         .close()
@@ -116,11 +107,11 @@ fn task_operations_tolerate_agent_close() {
     agent.close().expect("agent close should succeed");
     thread::sleep(DISCONNECT_SETTLE_DELAY);
 
-    for (index, task) in tasks.iter_mut().enumerate() {
-        let _ = task.send(chat_message(&format!("after-agent-close-{index}")));
+    for task in tasks.iter_mut() {
         let _ = task.receive();
         let _ = task.cancel();
-        task.cancel().expect("client task cancel should be idempotent");
+        task.cancel()
+            .expect("client task cancel should be idempotent");
     }
     client
         .close()
@@ -135,7 +126,7 @@ fn create_tasks(
     (0..count)
         .map(|index| {
             client
-                .create_task(chat_message(&format!("{prefix}-open-{index}")))
+                .create_task(chat_request(&format!("{prefix}-open-{index}")))
                 .expect("client should create a task")
         })
         .collect()
@@ -191,8 +182,8 @@ fn unused_loopback_address() -> SocketAddr {
         .expect("loopback listener should expose its address")
 }
 
-fn chat_message(content: &str) -> ChatMessage {
-    ChatMessage {
+fn chat_request(content: &str) -> ChatRequest {
+    ChatRequest {
         content: content.to_owned(),
     }
 }

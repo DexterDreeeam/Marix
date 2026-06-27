@@ -14,6 +14,8 @@
       treeAllFilesTool: "Show all files in tree",
       showAllFilesTool: "Show all files",
       showChangedFilesTool: "Show changed files",
+      hidePrivateCodeTool: "Hide private code",
+      showPrivateCodeTool: "Show private code",
       resetDataSourceTool: "Choose data source again",
       selectFile: "Select a file to view",
       scopeLabel: "Scope",
@@ -46,7 +48,7 @@
       dataSourceLocalMissing: "The saved local folder is unavailable. Choose a data source again.",
       activeReloadBannerMessage: "Reload data?",
       activeReloadBannerCountdown: "{seconds}s",
-      activeReloadBannerReload: "Yes",
+      activeReloadBannerReload: "Reload",
       folderChangesTitle: "Folder changes",
       folderChangesSubtitle: "Showing changes for this folder and all nested files.",
       addedLine: "Added",
@@ -90,6 +92,8 @@
       treeAllFilesTool: "显示全部文件树",
       showAllFilesTool: "显示所有文件",
       showChangedFilesTool: "只显示改动文件",
+      hidePrivateCodeTool: "隐藏私有代码",
+      showPrivateCodeTool: "显示私有代码",
       resetDataSourceTool: "重新选择数据源",
       selectFile: "选择一个文件查看",
       scopeLabel: "范围",
@@ -122,7 +126,7 @@
       dataSourceLocalMissing: "已保存的本地文件夹不可用，请重新选择数据源。",
       activeReloadBannerMessage: "重载数据？",
       activeReloadBannerCountdown: "{seconds} 秒",
-      activeReloadBannerReload: "是",
+      activeReloadBannerReload: "重载",
       folderChangesTitle: "文件夹改动",
       folderChangesSubtitle: "当前展示这个文件夹及其所有子文件中的改动。",
       addedLine: "新增",
@@ -162,6 +166,7 @@
     overviewMode: "{{proj_lower}}-overview-mode",
     viewWholeFile: "{{proj_lower}}-overview-view-whole-file",
     treeChangedFilesOnly: "{{proj_lower}}-overview-tree-changed-files-only",
+    hidePrivateCode: "{{proj_lower}}-overview-hide-private-code",
     starMapShowAllFiles: "{{proj_lower}}-overview-star-map-show-all-files",
     dataSource: "{{proj_lower}}-overview-data-source",
     currentFile: "{{proj_lower}}-overview-current-file",
@@ -176,6 +181,7 @@
   let LOG_PREFIX = "[{{proj}} Overview]";
   const DATA_SOURCE_GITHUB = "github";
   const DATA_SOURCE_LOCAL = "local";
+  const PRIVATE_CODE_MARKER = "// -- Private -- //";
   let LOCAL_DB_NAME = "{{proj_lower}}-overview-local-source";
   const LOCAL_DB_STORE = "handles";
   const STAR_MAP_DEBUG = true;

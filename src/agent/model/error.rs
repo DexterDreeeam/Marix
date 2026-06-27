@@ -9,6 +9,8 @@ pub enum ModelBackendError {
     InvalidResponse(String),
 }
 
+// -- Private -- //
+
 impl From<std::io::Error> for ModelBackendError {
     fn from(error: std::io::Error) -> Self {
         Self::RequestFailed(error.to_string())

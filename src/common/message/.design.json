@@ -3,95 +3,224 @@
   "module": {
     "path": "src/common/message",
     "name": "message",
-    "purpose": "Folder-based shared user-message module where mod.rs only wires chat and message children and re-exports message types; concrete user message definitions live in message.rs alongside the chat payload type.",
-    "changeStatus": "unchanged"
+    "purpose": "Folder-based shared message module where chat requests use complete ChatRequest payloads and streamed chat responses use ChatResponseSegment payloads with separate request and response message envelopes.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "chat.rs",
+    "message.rs",
+    "mod.rs"
+  ],
   "childModules": [],
   "elements": [
     {
-      "name": "UserMessage",
-      "type": "trait",
-      "changeStatus": "unchanged",
+      "name": "RequestMessageType",
+      "type": "enum",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/message.rs",
           "lineStart": 5,
-          "lineEnd": 11,
+          "lineEnd": 8,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 5,
-              "lineEnd": 11
+              "lineEnd": 8
             }
           ]
         }
       ]
     },
     {
-      "name": "UserMessageType",
+      "name": "ResponseMessageType",
       "type": "enum",
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/message.rs",
-          "lineStart": 14,
-          "lineEnd": 16,
+          "lineStart": 10,
+          "lineEnd": 13,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 14,
-              "lineEnd": 16
+              "lineStart": 10,
+              "lineEnd": 13
             }
-          ]
+          ],
+          "modifiedLines": []
         }
       ]
     },
     {
-      "name": "UserMessageEnvelope",
+      "name": "RequestMessageEnvelope",
       "type": "enum",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/message.rs",
-          "lineStart": 19,
-          "lineEnd": 21,
+          "lineStart": 15,
+          "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 19,
-              "lineEnd": 21
+              "lineStart": 15,
+              "lineEnd": 18
             }
           ]
         },
         {
           "sourcePath": "src/common/message/message.rs",
-          "lineStart": 23,
-          "lineEnd": 33,
+          "lineStart": 43,
+          "lineEnd": 53,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 23,
-              "lineEnd": 33
+              "lineStart": 43,
+              "lineEnd": 53
             }
           ]
         }
       ]
     },
     {
-      "name": "ChatMessage",
+      "name": "ResponseMessageEnvelope",
+      "type": "enum",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/message/message.rs",
+          "lineStart": 20,
+          "lineEnd": 23,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 23
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/message/message.rs",
+          "lineStart": 55,
+          "lineEnd": 65,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 55,
+              "lineEnd": 65
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "RequestMessage",
+      "type": "trait",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/message/message.rs",
+          "lineStart": 25,
+          "lineEnd": 31,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 31
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ResponseMessage",
+      "type": "trait",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/message/message.rs",
+          "lineStart": 33,
+          "lineEnd": 39,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 33,
+              "lineEnd": 39
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ChatRequest",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/chat.rs",
           "lineStart": 7,
-          "lineEnd": 19,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 10
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/common/message/chat.rs",
+          "lineStart": 19,
+          "lineEnd": 27,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 19,
+              "lineEnd": 27
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ChatResponseSegment",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/message/chat.rs",
+          "lineStart": 12,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 15
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/message/chat.rs",
+          "lineStart": 29,
+          "lineEnd": 37,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 29,
+              "lineEnd": 37
+            }
+          ],
           "modifiedLines": []
         }
       ]

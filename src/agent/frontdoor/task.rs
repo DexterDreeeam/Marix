@@ -5,17 +5,13 @@ use crate::agent::engine::{LoopEngine, LoopEngineError, TaskContext, TaskRuntime
 use crate::common::channel::ChannelError;
 use crate::common::channel::{SessionEvent, SessionTaskId, SessionTaskSignal};
 use crate::common::external::*;
-use crate::common::message::{UserMessage, UserMessageEnvelope};
-
-type SharedSessionSender = Arc<tokio::Mutex<remoc::base::Sender<SessionEvent>>>;
-type SharedTaskRoutes = Arc<Mutex<HashMap<SessionTaskId, mpsc::Sender<SessionTaskSignal>>>>;
+use crate::common::message::{RequestMessageEnvelope, ResponseMessage};
 
 pub struct AgentTask {
     task_id: SessionTaskId,
-    initial_message: Option<UserMessageEnvelope>,
+    initial_message: Option<RequestMessageEnvelope>,
     runtime: Arc<tokio::Runtime>,
     to_client_tx: SharedSessionSender,
-    from_client_rx: mpsc::Receiver<SessionTaskSignal>,
     task_routes: SharedTaskRoutes,
     active: bool,
 }
@@ -23,10 +19,9 @@ pub struct AgentTask {
 impl AgentTask {
     pub(crate) fn new(
         task_id: SessionTaskId,
-        initial_message: UserMessageEnvelope,
+        initial_message: RequestMessageEnvelope,
         runtime: Arc<tokio::Runtime>,
         to_client_tx: SharedSessionSender,
-        from_client_rx: mpsc::Receiver<SessionTaskSignal>,
         task_routes: SharedTaskRoutes,
     ) -> Self {
         Self {
@@ -34,7 +29,6 @@ impl AgentTask {
             initial_message: Some(initial_message),
             runtime,
             to_client_tx,
-            from_client_rx,
             task_routes,
             active: true,
         }
@@ -53,31 +47,19 @@ impl AgentTask {
         Ok((context, runtime_rx))
     }
 
-    pub fn send(&mut self, message: impl UserMessage) -> Result<(), ChannelError> {
+    pub fn send(&mut self, message: impl ResponseMessage) -> Result<(), ChannelError> {
         self.ensure_active()?;
-        self.send_event(SessionEvent::TaskMessage {
+        self.send_event(SessionEvent::TaskResponseMessage {
             task_id: self.task_id,
             message: message.into_envelope(),
         })
     }
 
-    pub fn receive(&mut self) -> Result<UserMessageEnvelope, ChannelError> {
+    pub(crate) fn take_initial_request(&mut self) -> Result<RequestMessageEnvelope, ChannelError> {
         self.ensure_active()?;
-        if let Some(message) = self.initial_message.take() {
-            return Ok(message);
-        }
-        match self
-            .from_client_rx
-            .recv()
-            .map_err(|_| ChannelError::Disconnected)?
-        {
-            SessionTaskSignal::Message(message) => Ok(message),
-            SessionTaskSignal::Cancel | SessionTaskSignal::Complete | SessionTaskSignal::Closed => {
-                self.active = false;
-                self.remove_route()?;
-                Err(ChannelError::Disconnected)
-            }
-        }
+        self.initial_message.take().ok_or_else(|| {
+            ChannelError::InvalidState("agent task initial request is missing".to_owned())
+        })
     }
 
     pub fn complete(&mut self) -> Result<(), ChannelError> {
@@ -92,6 +74,11 @@ impl AgentTask {
         result
     }
 }
+
+// -- Private -- //
+
+type SharedSessionSender = Arc<tokio::Mutex<remoc::base::Sender<SessionEvent>>>;
+type SharedTaskRoutes = Arc<Mutex<HashMap<SessionTaskId, mpsc::Sender<SessionTaskSignal>>>>;
 
 impl AgentTask {
     fn send_event(&self, event: SessionEvent) -> Result<(), ChannelError> {

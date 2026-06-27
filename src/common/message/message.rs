@@ -1,33 +1,65 @@
 use crate::common::external::*;
 
-use super::chat::ChatMessage;
+use super::chat::{ChatRequest, ChatResponseSegment};
 
-pub trait UserMessage {
-    fn message_type(&self) -> UserMessageType;
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RequestMessageType {
+    Chat,
+}
 
-    fn into_envelope(self) -> UserMessageEnvelope
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ResponseMessageType {
+    ChatSegment,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum RequestMessageEnvelope {
+    ChatRequest(ChatRequest),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ResponseMessageEnvelope {
+    ChatResponseSegment(ChatResponseSegment),
+}
+
+pub trait RequestMessage {
+    fn message_type(&self) -> RequestMessageType;
+
+    fn into_envelope(self) -> RequestMessageEnvelope
     where
         Self: Sized;
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum UserMessageType {
-    Chat,
+pub trait ResponseMessage {
+    fn message_type(&self) -> ResponseMessageType;
+
+    fn into_envelope(self) -> ResponseMessageEnvelope
+    where
+        Self: Sized;
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum UserMessageEnvelope {
-    Chat(ChatMessage),
-}
+// -- Private -- //
 
-impl UserMessage for UserMessageEnvelope {
-    fn message_type(&self) -> UserMessageType {
+impl RequestMessage for RequestMessageEnvelope {
+    fn message_type(&self) -> RequestMessageType {
         match self {
-            Self::Chat(message) => message.message_type(),
+            Self::ChatRequest(message) => message.message_type(),
         }
     }
 
-    fn into_envelope(self) -> UserMessageEnvelope {
+    fn into_envelope(self) -> RequestMessageEnvelope {
+        self
+    }
+}
+
+impl ResponseMessage for ResponseMessageEnvelope {
+    fn message_type(&self) -> ResponseMessageType {
+        match self {
+            Self::ChatResponseSegment(message) => message.message_type(),
+        }
+    }
+
+    fn into_envelope(self) -> ResponseMessageEnvelope {
         self
     }
 }

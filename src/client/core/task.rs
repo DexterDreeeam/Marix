@@ -4,10 +4,7 @@ use std::sync::{mpsc, Arc, Mutex};
 use crate::common::channel::ChannelError;
 use crate::common::channel::{SessionEvent, SessionTaskId, SessionTaskSignal};
 use crate::common::external::*;
-use crate::common::message::{UserMessage, UserMessageEnvelope};
-
-type SharedSessionSender = Arc<tokio::Mutex<remoc::base::Sender<SessionEvent>>>;
-type SharedTaskRoutes = Arc<Mutex<HashMap<SessionTaskId, mpsc::Sender<SessionTaskSignal>>>>;
+use crate::common::message::ResponseMessageEnvelope;
 
 pub struct ClientTask {
     task_id: SessionTaskId,
@@ -36,22 +33,14 @@ impl ClientTask {
         }
     }
 
-    pub fn send(&mut self, message: impl UserMessage) -> Result<(), ChannelError> {
-        self.ensure_active()?;
-        self.send_event(SessionEvent::TaskMessage {
-            task_id: self.task_id,
-            message: message.into_envelope(),
-        })
-    }
-
-    pub fn receive(&mut self) -> Result<UserMessageEnvelope, ChannelError> {
+    pub fn receive(&mut self) -> Result<ResponseMessageEnvelope, ChannelError> {
         self.ensure_active()?;
         match self
             .from_agent_rx
             .recv()
             .map_err(|_| ChannelError::Disconnected)?
         {
-            SessionTaskSignal::Message(message) => Ok(message),
+            SessionTaskSignal::ResponseMessage(message) => Ok(message),
             SessionTaskSignal::Cancel | SessionTaskSignal::Complete | SessionTaskSignal::Closed => {
                 self.active = false;
                 self.remove_route()?;
@@ -72,6 +61,11 @@ impl ClientTask {
         result
     }
 }
+
+// -- Private -- //
+
+type SharedSessionSender = Arc<tokio::Mutex<remoc::base::Sender<SessionEvent>>>;
+type SharedTaskRoutes = Arc<Mutex<HashMap<SessionTaskId, mpsc::Sender<SessionTaskSignal>>>>;
 
 impl ClientTask {
     fn send_event(&self, event: SessionEvent) -> Result<(), ChannelError> {

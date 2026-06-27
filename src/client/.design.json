@@ -3,14 +3,17 @@
   "module": {
     "path": "src/client",
     "name": "client",
-    "purpose": "Client-facing draft split into CLI and a remoc-backed core client session/task endpoint.",
-    "changeStatus": "unchanged"
+    "purpose": "Client-facing draft split into CLI and a remoc-backed core client session/task endpoint that sends the initial task request, receives streamed response message segments, and separates public client interfaces from private transport helpers with explicit Rust section markers where needed.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/client/core",
       "name": "core",
-      "purpose": "Core client session endpoint backed by remoc/TCP with task creation and bidirectional task messaging."
+      "purpose": "Core client session endpoint backed by remoc/TCP with task creation, initial request submission, and streamed response segment receives."
     },
     {
       "path": "src/client/cli",

@@ -10,6 +10,8 @@ pub enum ChannelError {
     Unsupported(String),
 }
 
+// -- Private -- //
+
 impl From<std::io::Error> for ChannelError {
     fn from(error: std::io::Error) -> Self {
         Self::TransportFailed(error.to_string())

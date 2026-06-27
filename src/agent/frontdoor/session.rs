@@ -6,12 +6,9 @@ use crate::agent::engine::LoopEngine;
 use crate::agent::model::ModelBackendType;
 use crate::common::channel::{ChannelError, SessionEvent, SessionTaskId, SessionTaskSignal};
 use crate::common::external::*;
-use crate::common::message::UserMessageEnvelope;
+use crate::common::message::RequestMessageEnvelope;
 
 use super::task::AgentTask;
-
-type SharedSessionSender = Arc<tokio::Mutex<remoc::base::Sender<SessionEvent>>>;
-type SharedTaskRoutes = Arc<Mutex<HashMap<SessionTaskId, mpsc::Sender<SessionTaskSignal>>>>;
 
 pub struct AgentSession {
     bind_address: SocketAddr,
@@ -69,6 +66,11 @@ impl AgentSession {
         Ok(())
     }
 }
+
+// -- Private -- //
+
+type SharedSessionSender = Arc<tokio::Mutex<remoc::base::Sender<SessionEvent>>>;
+type SharedTaskRoutes = Arc<Mutex<HashMap<SessionTaskId, mpsc::Sender<SessionTaskSignal>>>>;
 
 impl AgentSession {
     async fn accept_remoc(
@@ -138,14 +140,7 @@ impl AgentSession {
                             break;
                         }
                     }
-                    SessionEvent::TaskMessage { task_id, message } => {
-                        Self::route_task_signal(
-                            &task_routes,
-                            task_id,
-                            SessionTaskSignal::Message(message),
-                            false,
-                        );
-                    }
+                    SessionEvent::TaskResponseMessage { .. } => {}
                     SessionEvent::TaskCancel { task_id } => {
                         Self::route_task_signal(
                             &task_routes,
@@ -196,16 +191,15 @@ impl AgentSession {
         runtime: &Arc<tokio::Runtime>,
         to_client_tx: &SharedSessionSender,
         task_id: SessionTaskId,
-        message: UserMessageEnvelope,
+        message: RequestMessageEnvelope,
     ) -> Result<(), ChannelError> {
-        let (task_tx, task_rx) = mpsc::channel();
+        let (task_tx, _task_rx) = mpsc::channel();
         Self::insert_task_route(task_routes, task_id, task_tx)?;
         let task = AgentTask::new(
             task_id,
             message,
             Arc::clone(runtime),
             Arc::clone(to_client_tx),
-            task_rx,
             Arc::clone(task_routes),
         );
         if let Err(error) = task.run(engine.as_ref()) {

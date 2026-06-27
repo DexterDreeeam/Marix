@@ -1,5 +1,5 @@
 use crate::common::external::*;
-use crate::common::message::UserMessageEnvelope;
+use crate::common::message::{RequestMessageEnvelope, ResponseMessageEnvelope};
 
 pub(crate) type SessionTaskId = u64;
 
@@ -9,11 +9,11 @@ pub(crate) enum SessionEvent {
     Close,
     TaskCreate {
         task_id: SessionTaskId,
-        message: UserMessageEnvelope,
+        message: RequestMessageEnvelope,
     },
-    TaskMessage {
+    TaskResponseMessage {
         task_id: SessionTaskId,
-        message: UserMessageEnvelope,
+        message: ResponseMessageEnvelope,
     },
     TaskCancel {
         task_id: SessionTaskId,
@@ -24,7 +24,7 @@ pub(crate) enum SessionEvent {
 }
 
 pub(crate) enum SessionTaskSignal {
-    Message(UserMessageEnvelope),
+    ResponseMessage(ResponseMessageEnvelope),
     Cancel,
     Complete,
     Closed,

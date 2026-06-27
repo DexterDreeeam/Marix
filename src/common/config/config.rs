@@ -110,6 +110,8 @@ pub struct CredentialConfig {
     pub directory: String,
 }
 
+// -- Private -- //
+
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct RawConfig {

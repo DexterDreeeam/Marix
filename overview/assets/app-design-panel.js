@@ -371,10 +371,9 @@
   }
 
   function renderDesignFullFilePanel(sourcePath, content, segments, languageName, elementStatus) {
-    const lines = content.split(/\r?\n/);
-    const body = lines.map((line, index) => {
-      const lineNumber = index + 1;
-      return renderCodeSegmentLine(lineNumber, line, getDesignFullFileLineClass(segments, elementStatus, lineNumber), languageName);
+    const lines = getPublicCodeLines(content);
+    const body = lines.map(line => {
+      return renderCodeSegmentLine(line.lineNumber, line.content, getDesignFullFileLineClass(segments, elementStatus, line.lineNumber), languageName);
     }).join("");
     return `
       <section class="code-segment-panel">

@@ -31,6 +31,7 @@
     }
 
     if (!viewWholeFile) {
+      if (hidePrivateCode && fileData) await ensureFileContent(path);
       showChangedSections(path, change || { diff_lines: [], hunks: [] });
       return;
     }
@@ -135,7 +136,7 @@
     if (viewWholeFile) {
       await showFolderWholeFiles(dirPath, changedFiles);
     } else {
-      showFolderChangedSections(dirPath, changedFiles);
+      await showFolderChangedSections(dirPath, changedFiles);
     }
   }
 
@@ -159,7 +160,7 @@
     return index >= 0 ? path.slice(0, index) : "";
   }
 
-  function showFolderChangedSections(dirPath, files) {
+  async function showFolderChangedSections(dirPath, files) {
     const diffView = document.getElementById("diff-view");
     diffView.style.display = "block";
     if (files.length === 0) {
@@ -167,14 +168,22 @@
       return;
     }
 
+    if (hidePrivateCode) {
+      await Promise.all(files.map(async file => {
+        if ((manifest.files || {})[file]) await ensureFileContent(file);
+      }));
+    }
+
     const panels = files.map(file => {
       const change = getChange(file);
       const sections = splitDiffSections(change.diff_lines || [], change.hunks || []);
       if (sections.length === 0) return "";
+      const filePanels = sections.map((section, index) => renderDiffPanel(file, section, index + 1)).filter(Boolean).join("");
+      if (!filePanels) return "";
       return `
         <section class="folder-change-group">
           <h4>${escapeHtml(file)}</h4>
-          <div class="diff-panel-list">${sections.map((section, index) => renderDiffPanel(file, section, index + 1)).join("")}</div>
+          <div class="diff-panel-list">${filePanels}</div>
         </section>
       `;
     }).join("");
@@ -265,7 +274,11 @@
       return;
     }
 
-    const panels = sections.map((section, index) => renderDiffPanel(path, section, index + 1)).join("");
+    const panels = sections.map((section, index) => renderDiffPanel(path, section, index + 1)).filter(Boolean).join("");
+    if (!panels) {
+      diffView.innerHTML = `<div class="diff-empty">${escapeHtml(t("noChangedSections"))}</div>`;
+      return;
+    }
     diffView.innerHTML = `
       <div class="diff-view-header">
         <h3>${escapeHtml(t("diffPanelTitle"))}</h3>

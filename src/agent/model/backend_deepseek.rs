@@ -24,6 +24,8 @@ impl<'config> DeepseekBackend<'config> {
     }
 }
 
+// -- Private -- //
+
 impl ModelBackendImpl for DeepseekBackend<'_> {
     fn ready(&self) -> Result<(), ModelBackendError> {
         if self.config.api_key.trim().is_empty() {

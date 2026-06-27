@@ -9,8 +9,8 @@ use crate::agent::model::{
 };
 use crate::common::channel::SessionTaskId;
 use crate::common::config::Config;
-use crate::common::message::ChatMessage;
-use crate::common::message::UserMessageEnvelope;
+use crate::common::message::ChatResponseSegment;
+use crate::common::message::RequestMessageEnvelope;
 
 use super::{LoopEngineError, SessionContext, TaskContext, TaskRuntimeEvent, TaskStatus};
 
@@ -40,7 +40,7 @@ impl LoopEngine {
     ) -> Result<TaskContext, LoopEngineError> {
         let task_id = task.task_id();
         let initial_message = Arc::new(
-            task.receive()
+            task.take_initial_request()
                 .map_err(|error| LoopEngineError::TaskFailed(error.to_string()))?,
         );
         let context = TaskContext {
@@ -71,6 +71,8 @@ impl LoopEngine {
         Ok(runtime_rx)
     }
 }
+
+// -- Private -- //
 
 impl LoopEngine {
     fn attach_runtime_sender(
@@ -152,9 +154,9 @@ impl LoopEngine {
         Ok(())
     }
 
-    fn prompt_from_message(&self, message: &UserMessageEnvelope) -> String {
+    fn prompt_from_message(&self, message: &RequestMessageEnvelope) -> String {
         match message {
-            UserMessageEnvelope::Chat(chat) => chat.content.clone(),
+            RequestMessageEnvelope::ChatRequest(chat) => chat.content.clone(),
         }
     }
 
@@ -183,7 +185,7 @@ impl LoopEngine {
         context: &TaskContext,
         content: String,
     ) -> Result<(), crate::common::channel::ChannelError> {
-        self.task(context).send(ChatMessage { content })
+        self.task(context).send(ChatResponseSegment { content })
     }
 
     fn complete_client_task(
