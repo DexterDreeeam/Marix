@@ -41,14 +41,15 @@ impl AgentTask {
     }
 
     pub(crate) fn task_id(&self) -> SessionTaskId {
-        panic!("not implemented")
+        self.task_id
     }
 
     pub(crate) fn run(
-        &mut self,
+        self,
         engine: &LoopEngine,
     ) -> Result<mpsc::Receiver<TaskRuntimeEvent>, LoopEngineError> {
-        panic!("not implemented")
+        let context = engine.create_task_context(self)?;
+        engine.run_task(context)
     }
 
     pub fn send(&mut self, message: impl UserMessage) -> Result<(), ChannelError> {

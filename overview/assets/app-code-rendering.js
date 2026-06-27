@@ -247,7 +247,8 @@
   }
 
   function renderDiffPanel(path, section, number) {
-    const lines = section.lines.map(renderDiffLine).join("");
+    const languageName = getLanguageFromExt(path.split(".").pop().toLowerCase());
+    const lines = section.lines.map(line => renderDiffLine(line, languageName)).join("");
     const reason = section.reason || t("reasonPending");
     return `
       <section class="diff-panel">
@@ -263,9 +264,15 @@
     `;
   }
 
-  function renderDiffLine(line) {
+  function renderDiffLine(line, languageName) {
     let cls = "diff-line-context";
     if (line.startsWith("+")) cls = "diff-line-add";
     else if (line.startsWith("-")) cls = "diff-line-del";
-    return `<div class="diff-line ${cls}"><span class="diff-line-content">${escapeHtml(line)}</span></div>`;
+    const marker = escapeHtml(line.slice(0, 1));
+    const highlightedContent = highlightLine(line.slice(1), languageName);
+    return `
+      <div class="diff-line ${cls}">
+        <span class="diff-line-content"><span class="diff-line-marker">${marker}</span>${highlightedContent}</span>
+      </div>
+    `;
   }

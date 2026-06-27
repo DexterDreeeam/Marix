@@ -3,9 +3,14 @@
   "module": {
     "path": "src/agent/engine",
     "name": "engine",
-    "purpose": "Defines the compact session-scoped loop engine draft API, session status context, task contexts anchored to one initial user message, client-visible runtime task events, and lifecycle/status error types for agent task execution.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines the minimal session-scoped loop engine runtime, session status context, task contexts anchored to one initial user message, client-visible runtime task events, one-shot model request execution, streamed chat responses, and lifecycle/status error types.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "loop_engine.rs",
+    "session_context.rs",
+    "task_context.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -26,26 +31,40 @@
     {
       "name": "LoopEngine",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/loop_engine.rs",
-          "lineStart": 8,
-          "lineEnd": 11,
+          "lineStart": 78,
+          "lineEnd": 81,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 79,
+              "lineEnd": 80
+            }
+          ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/engine/loop_engine.rs",
-          "lineStart": 13,
-          "lineEnd": 35,
+          "lineStart": 83,
+          "lineEnd": 115,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 84,
+              "lineEnd": 89
+            },
+            {
+              "lineStart": 95,
+              "lineEnd": 114
+            }
+          ],
           "modifiedLines": [
             {
-              "lineStart": 29,
-              "lineEnd": 32
+              "lineStart": 91,
+              "lineEnd": 93
             }
           ]
         }
@@ -58,7 +77,7 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/session_context.rs",
-          "lineStart": 2,
+          "lineStart": 1,
           "lineEnd": 8,
           "language": "rust",
           "addedLines": [],
@@ -69,22 +88,32 @@
     {
       "name": "SessionContext",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/session_context.rs",
           "lineStart": 10,
-          "lineEnd": 10,
+          "lineEnd": 12,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 11
+            }
+          ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/engine/session_context.rs",
-          "lineStart": 12,
-          "lineEnd": 20,
+          "lineStart": 14,
+          "lineEnd": 24,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 23
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -96,15 +125,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 5,
-          "lineEnd": 9,
+          "lineStart": 9,
+          "lineEnd": 14,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 5,
-              "lineEnd": 9
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -112,43 +136,79 @@
     {
       "name": "TaskStatus",
       "type": "enum",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 12,
-          "lineEnd": 18,
+          "lineStart": 16,
+          "lineEnd": 23,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 18,
+              "lineEnd": 22
+            }
+          ]
         }
       ]
     },
     {
       "name": "TaskContext",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 20,
-          "lineEnd": 20,
+          "lineStart": 25,
+          "lineEnd": 30,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 26,
+              "lineEnd": 29
+            }
+          ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 22,
-          "lineEnd": 34,
+          "lineStart": 32,
+          "lineEnd": 54,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 23,
-              "lineEnd": 32
+              "lineStart": 33,
+              "lineEnd": 53
             }
-          ]
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/engine/task_context.rs",
+          "lineStart": 56,
+          "lineEnd": 81,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 57,
+              "lineEnd": 80
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/engine/task_context.rs",
+          "lineStart": 83,
+          "lineEnd": 89,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 84,
+              "lineEnd": 88
+            }
+          ],
+          "modifiedLines": []
         }
       ]
     }

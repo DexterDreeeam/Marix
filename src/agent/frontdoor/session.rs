@@ -19,7 +19,7 @@ pub struct AgentSession {
     to_client_tx: Option<SharedSessionSender>,
     command_loop: Option<tokio::JoinHandle<()>>,
     task_routes: SharedTaskRoutes,
-    engine: LoopEngine,
+    engine: Arc<LoopEngine>,
 }
 
 impl AgentSession {
@@ -30,8 +30,10 @@ impl AgentSession {
             to_client_tx: None,
             command_loop: None,
             task_routes: Arc::new(Mutex::new(HashMap::new())),
-            engine: LoopEngine::new(ModelBackendType::Deepseek)
-                .map_err(|error| ChannelError::InvalidState(format!("{error:?}")))?,
+            engine: Arc::new(
+                LoopEngine::new(ModelBackendType::Deepseek)
+                    .map_err(|error| ChannelError::InvalidState(format!("{error:?}")))?,
+            ),
         })
     }
 
@@ -113,6 +115,7 @@ impl AgentSession {
     ) -> tokio::JoinHandle<()> {
         let task_routes = Arc::clone(&self.task_routes);
         let runtime = Arc::clone(&self.runtime);
+        let engine = Arc::clone(&self.engine);
         self.runtime.spawn(async move {
             while let Ok(Some(event)) = from_client_rx.recv().await {
                 match event {
@@ -123,6 +126,7 @@ impl AgentSession {
                     }
                     SessionEvent::TaskCreate { task_id, message } => {
                         if Self::accept_task(
+                            &engine,
                             &task_routes,
                             &runtime,
                             &to_client_tx,
@@ -183,17 +187,32 @@ impl AgentSession {
     }
 
     fn drain_accepted_tasks(&mut self) {
-        panic!("not implemented")
+        // Task execution is started from TaskCreate, so there is no accepted-task queue to drain.
     }
 
     fn accept_task(
+        engine: &Arc<LoopEngine>,
         task_routes: &SharedTaskRoutes,
         runtime: &Arc<tokio::Runtime>,
         to_client_tx: &SharedSessionSender,
         task_id: SessionTaskId,
         message: UserMessageEnvelope,
     ) -> Result<(), ChannelError> {
-        panic!("not implemented")
+        let (task_tx, task_rx) = mpsc::channel();
+        Self::insert_task_route(task_routes, task_id, task_tx)?;
+        let task = AgentTask::new(
+            task_id,
+            message,
+            Arc::clone(runtime),
+            Arc::clone(to_client_tx),
+            task_rx,
+            Arc::clone(task_routes),
+        );
+        if let Err(error) = task.run(engine.as_ref()) {
+            Self::remove_task_route(task_routes, task_id);
+            return Err(ChannelError::InvalidState(format!("{error:?}")));
+        }
+        Ok(())
     }
 
     fn insert_task_route(

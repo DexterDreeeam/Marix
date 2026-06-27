@@ -3,9 +3,12 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration, folder-based serializable chat user message envelopes, shared channel errors, remoc session/task protocol messages, and centralized crate-local external-library namespaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration with fallible runtime loading, folder-based serializable chat user message envelopes, shared channel errors, remoc session/task protocol messages, and centralized crate-local external-library namespaces.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/common/channel",
@@ -15,7 +18,7 @@
     {
       "path": "src/common/config",
       "name": "config",
-      "purpose": "Strongly typed single-entry TOML configuration loader with alias and credential resolution."
+      "purpose": "Strongly typed single-entry TOML configuration loader with fallible runtime loading, alias substitution, and credential resolution."
     },
     {
       "path": "src/common/external",

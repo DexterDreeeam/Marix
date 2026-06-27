@@ -3,9 +3,12 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Second-generation Rust source organized into client, agent, and common modules with resolved typed configuration, folder-based chat message envelopes, centralized external-library namespaces, remoc-backed session/task endpoints, and a compact session-scoped agent loop engine draft API.",
-    "changeStatus": "unchanged"
+    "purpose": "Second-generation Rust source organized into client, agent, and common modules with typed configuration, folder-based chat message envelopes, centralized external-library namespaces, remoc-backed session/task endpoints, and a first minimal single-request loop-engine runtime.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/client",
@@ -15,12 +18,12 @@
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent public surface for compact loop engine interfaces, remoc-backed frontdoor session/task endpoints, model backend selection, and model backend implementations."
+      "purpose": "Agent public surface for a minimal loop engine runtime, remoc-backed frontdoor session/task endpoints, model backend selection, and model backend implementations."
     },
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration, folder-based chat user messages, shared channel errors, remoc session protocol messages, and centralized crate-local external-library namespaces."
+      "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration with fallible loading, folder-based chat user messages, shared channel errors, remoc session protocol messages, and centralized crate-local external-library namespaces."
     }
   ],
   "elements": []

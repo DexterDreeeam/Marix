@@ -3,19 +3,22 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent public surface for a compact session-scoped loop engine draft, remoc-backed frontdoor session/task endpoints, public model request and backend type interfaces, Deepseek backend implementation, and future retrieval/tool interfaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent public surface for a first minimal single-request loop engine runtime, remoc-backed frontdoor session/task endpoints, public model request and backend type interfaces, Deepseek backend implementation, and future retrieval/tool interfaces.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/agent/engine",
       "name": "engine",
-      "purpose": "Compact session-scoped loop engine draft with session status, one-initial-message task contexts, client-visible runtime task events, and lifecycle error types."
+      "purpose": "Minimal session-scoped loop engine runtime with session status, one-initial-message task contexts, client-visible runtime task events, model streaming, and lifecycle error types."
     },
     {
       "path": "src/agent/frontdoor",
       "name": "frontdoor",
-      "purpose": "Agent frontdoor session/task endpoint backed by remoc/TCP and aligned with loop-engine runtime event receiver task execution."
+      "purpose": "Agent frontdoor session/task endpoint backed by remoc/TCP and aligned with engine-owned task execution returning runtime event receivers."
     },
     {
       "path": "src/agent/model",

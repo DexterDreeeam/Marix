@@ -7,14 +7,18 @@ pub(crate) enum SessionStatus {
     Failed,
 }
 
-pub(crate) struct SessionContext;
+pub(crate) struct SessionContext {
+    status: SessionStatus,
+}
 
 impl SessionContext {
     pub(crate) fn new() -> Self {
-        panic!("not implemented")
+        Self {
+            status: SessionStatus::Created,
+        }
     }
 
     pub(crate) fn status(&self) -> SessionStatus {
-        panic!("not implemented")
+        self.status
     }
 }

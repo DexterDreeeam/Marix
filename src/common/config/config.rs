@@ -18,9 +18,8 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn load() -> Self {
-        load_config(Path::new(CONFIG_FILE))
-            .unwrap_or_else(|error| panic!("failed to load config from {CONFIG_FILE}: {error}"))
+    pub fn load() -> Result<Self, String> {
+        load_config(Path::new(CONFIG_FILE)).map_err(|error| error.to_string())
     }
 }
 
