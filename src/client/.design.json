@@ -4,11 +4,8 @@
     "path": "src/client",
     "name": "client",
     "purpose": "Client-facing draft split into a minimal streaming CLI binary/interface with mod.rs-only module wiring and a remoc-backed core client session/task endpoint that sends the initial task request, receives streamed response message segments, and separates public client interfaces from private transport helpers with explicit Rust section markers where needed.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "."
-  ],
   "childModules": [
     {
       "path": "src/client/core",

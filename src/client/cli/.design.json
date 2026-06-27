@@ -4,21 +4,14 @@
     "path": "src/client/cli",
     "name": "cli",
     "purpose": "Minimal CLI binary entry without a private section marker and public interface for connecting to the core client endpoint, sending one prompt as an initial chat request, streaming response segments to stdout, and reporting how many segments were printed, with mod.rs limited to module wiring.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "command.rs",
-    "main.rs"
-  ],
-  "modified": [
-    "mod.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "CliError",
       "type": "enum",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/command.rs",
@@ -38,7 +31,7 @@
     {
       "name": "run",
       "type": "function",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/command.rs",
@@ -58,7 +51,7 @@
     {
       "name": "CliRequest",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/command.rs",
@@ -78,7 +71,7 @@
     {
       "name": "CliRunResult",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/command.rs",

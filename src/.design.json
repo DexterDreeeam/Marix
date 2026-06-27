@@ -4,12 +4,8 @@
     "path": "src",
     "name": "src",
     "purpose": "Second-generation Rust source organized into client, agent, and common modules with typed configuration, a minimal streaming CLI interface, a minimal agent binary main entrypoint that loads configuration and serves accepted clients, marker-free binary main entry files, directional chat request/response envelopes and segments, centralized external-library namespaces, remoc-backed session/task endpoints, explicit public/private Rust section markers where private implementation details exist, and a first minimal single-request loop-engine runtime whose engine-owned task contexts store direct shared task/status/runtime-event fields.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "Cargo.toml",
-    "."
-  ],
   "childModules": [
     {
       "path": "src/client",
