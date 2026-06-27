@@ -1,17 +1,21 @@
 ---
 name: draft-feature
-description: Draft Rust public interfaces for a requested feature without implementing behavior. Use when the user asks to draft a feature API.
+description: Design Rust public interfaces for a requested feature without implementing behavior. Use when the user asks to design/设计 a feature API, not when they ask to implement/实现 it.
 ---
 
 ## Purpose
 
-Draft the public Rust interface for a requested feature without implementing the feature behavior.
+Design the public Rust interface for a requested feature without implementing the feature behavior.
 
-This skill is for API shaping and review only. It may add or edit Rust source files, modules, traits, structs, enums, type aliases, constants, and public function or method signatures, but it must not add working behavior. Drafted code does not need to compile.
+This skill is for API shaping and review only. It may add or edit Rust source files, modules, public traits, public structs and their public data, public enums, public type aliases, public constants, and public function or method signatures, but it must not add working behavior. Drafted code does not need to compile.
+
+Use `implement-feature` instead when the user asks to implement/实现 a feature on top of an already designed interface.
 
 ## Trigger
 
-Use this skill when the user invokes `draft-feature` and appends the feature they want to design.
+Use this skill when the user invokes `draft-feature`, asks to design a feature, or uses the Chinese keyword `设计` for a feature/API request.
+
+Do not use this skill when the user asks to implement/实现 behavior. That is `implement-feature`.
 
 Examples:
 
@@ -30,20 +34,22 @@ Examples:
    - public constants when they are part of the API,
    - public free functions,
    - public inherent methods.
-4. **Use Non-Implementation Stubs** — Where a method or function body is useful to show the intended public call shape, the body must be only:
+4. **Ignore Private Implementation Shape** — Do not spend effort on non-public methods, private helper data, private helper types, algorithms, IO, persistence, or runtime wiring. Private details should only exist when unavoidable as placeholders for the public shape.
+5. **Use Non-Implementation Stubs** — Where a method or function body is useful to show the intended public call shape, the body must be only:
 
    ```rust
    panic!("not implemented")
    ```
 
    Trait methods should use signature-only declarations with semicolons unless a body is part of the public API shape. Do not add bodies, fields, helper types, or implementation scaffolding only to satisfy the compiler.
-5. **Review the Interface** — After editing, review the drafted public interface for cohesion, naming, ownership, error shape, extensibility, and whether it exposes too much or too little.
-6. **Report** — Summarize the public API that was drafted, any files added or edited, and the interface review findings.
+6. **Review the Interface** — After editing, review the drafted public interface for cohesion, naming, ownership, error shape, extensibility, and whether it exposes too much or too little.
+7. **Report** — Summarize the public API that was drafted, any files added or edited, and the interface review findings.
 
 ## Rules
 
 - Do not implement feature behavior.
 - Do not add private helper functions, private helper methods, internal algorithms, parsing logic, validation logic, IO, networking, threading, persistence, or background work.
+- Focus on public interface design: struct types and public data, modified or added public interfaces, and new public enums. Do not focus on non-public methods, non-public data, or private implementation types.
 - Drafted Rust code does not need to compile.
 - Do not add fields, marker types, `PhantomData`, constructors, impl blocks, type bounds, or visibility only to make the draft compile.
 - Do not add tests for behavior or compilation shape.

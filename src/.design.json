@@ -3,7 +3,7 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Second-generation Rust source organized into client, agent, and common modules with typed configuration, folder-based chat message envelopes, centralized external-library namespaces, remoc-backed session/task endpoints, and a first minimal single-request loop-engine runtime.",
+    "purpose": "Second-generation Rust source organized into client, agent, and common modules with typed configuration, folder-based chat message envelopes, centralized external-library namespaces, remoc-backed session/task endpoints, and a first minimal single-request loop-engine runtime whose engine-owned task contexts store direct shared task/status/runtime-event fields.",
     "changeStatus": "modified"
   },
   "modified": [
@@ -18,7 +18,7 @@
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent public surface for a minimal loop engine runtime, remoc-backed frontdoor session/task endpoints, model backend selection, and model backend implementations."
+      "purpose": "Agent public surface for a minimal loop engine runtime with direct task-context state fields, remoc-backed frontdoor session/task endpoints, model backend selection, and model backend implementations."
     },
     {
       "path": "src/common",

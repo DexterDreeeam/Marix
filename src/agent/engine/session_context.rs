@@ -7,6 +7,7 @@ pub(crate) enum SessionStatus {
     Failed,
 }
 
+#[derive(Clone)]
 pub(crate) struct SessionContext {
     status: SessionStatus,
 }

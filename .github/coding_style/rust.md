@@ -73,12 +73,17 @@ Prefer structured diagnostics or existing logging paths over raw print macros.
   general order:
   1. enums,
   2. traits,
-  3. free functions,
+  3. free functions that are truly module-level and cannot belong to a type,
   4. structs.
 - For each struct, place that struct's inherent `impl` blocks immediately after
   the struct definition before declaring the next struct.
 - When a struct has both public and private inherent methods, split them into
   separate `impl` blocks and place the public `impl` before the private `impl`.
+- Avoid top-level free functions in Rust module files unless there is a clear
+  module-level reason they cannot belong to a type. This is especially important
+  in a primary module file whose behavior is centered on one main struct: put
+  helper behavior in that struct's second, private `impl` block instead of as
+  free functions.
 - Place public enums near the top of the file, before traits, functions, or
   structs that use or return them, unless local readability strongly favors
   another order.
@@ -94,6 +99,9 @@ Prefer structured diagnostics or existing logging paths over raw print macros.
 - Extract repeated logic into cohesive modules or public/private APIs that match the task.
 - Prefer enums or typed options over unclear boolean mode parameters.
 - Keep visibility private by default; use `pub` only for intentional API surfaces.
+- Do not add or widen `pub`, `pub(crate)`, or `pub(super)` functions beyond the
+  agreed interface. If a change appears to require a new public method or
+  function, stop and ask for approval before adding it.
 - Keep deployment, topology, transport, model, and configuration boundaries decoupled.
 - Route third-party crate types, functions, and macros used by Rust source through
   crate-local wrappers under `src/common/external/<crate>.rs` instead of importing

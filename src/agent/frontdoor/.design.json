@@ -3,7 +3,7 @@
   "module": {
     "path": "src/agent/frontdoor",
     "name": "frontdoor",
-    "purpose": "Agent frontdoor session/task endpoint backed by remoc/TCP, storing a shared loop engine and starting engine-owned AgentTask execution from TaskCreate while preserving task route cleanup.",
+    "purpose": "Agent frontdoor session/task endpoint backed by remoc/TCP, storing a shared loop engine and starting hosted TaskContext execution from TaskCreate while preserving transport task route cleanup.",
     "changeStatus": "modified"
   },
   "modified": [
@@ -104,39 +104,30 @@
           "lineEnd": 21,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 15,
-              "lineEnd": 15
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/frontdoor/task.rs",
           "lineStart": 23,
-          "lineEnd": 93,
+          "lineEnd": 94,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 43,
+              "lineStart": 51,
               "lineEnd": 53
             }
           ],
           "modifiedLines": [
             {
-              "lineStart": 32,
-              "lineEnd": 40
-            },
-            {
-              "lineStart": 63,
-              "lineEnd": 80
+              "lineStart": 47,
+              "lineEnd": 50
             }
           ]
         },
         {
           "sourcePath": "src/agent/frontdoor/task.rs",
-          "lineStart": 95,
-          "lineEnd": 125,
+          "lineStart": 96,
+          "lineEnd": 126,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

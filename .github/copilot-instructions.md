@@ -30,6 +30,12 @@ Except for content under `src/`, all text must use `{{name}}` placeholders inste
 - Use `.github/coding_style/rust.md` for Rust code and `.github/coding_style/js.md` for JavaScript code.
 - Do not apply one language's style rules to another language. If no style document exists for a language, follow the local file conventions and keep changes minimal.
 
+## Feature Workflow Skills
+
+- Use `draft-feature` when the user asks to design a feature/API or uses the keyword `设计`/`design`. It should shape public Rust interfaces only: public struct types and data, new public enums, and public interfaces that need to be added or adjusted. It should not focus on non-public methods, data, or implementation types.
+- Use `implement-feature` when the user asks to implement a feature or uses the keyword `实现`/`implement`. It should implement behavior behind existing public interfaces and must not add new public enums, structs, functions, methods, traits, type aliases, constants, or public data fields.
+- If `implement-feature` cannot complete the behavior under the existing outward-facing interface, or the implementation would become awkward or infeasible, stop immediately. Explain why the current interface cannot implement the feature cleanly, propose one concrete interface improvement, and wait for user approval before changing the design.
+
 ## Git Policy
 
 - **Do NOT** run any git commands (`git add`, `git commit`, `git push`, `git pull`, etc.) unless the user explicitly requests a git operation (e.g., invoking `/git-sync` or asking to commit/push).
