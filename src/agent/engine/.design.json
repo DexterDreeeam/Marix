@@ -4,13 +4,8 @@
     "path": "src/agent/engine",
     "name": "engine",
     "purpose": "Defines the minimal session-scoped loop engine runtime, cloneable session status context, task contexts anchored to one initial user message with direct shared task/status/runtime-event fields, client-visible runtime task events, one-shot model request execution, streamed chat responses, LoopEngine-owned private helper methods that operate through engine state, and lifecycle/status error types.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "loop_engine.rs",
-    "session_context.rs",
-    "task_context.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -31,7 +26,7 @@
     {
       "name": "LoopEngine",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/loop_engine.rs",
@@ -118,7 +113,7 @@
     {
       "name": "SessionContext",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/session_context.rs",
@@ -161,7 +156,7 @@
     {
       "name": "TaskStatus",
       "type": "enum",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
@@ -181,7 +176,7 @@
     {
       "name": "TaskContext",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",

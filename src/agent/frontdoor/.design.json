@@ -4,18 +4,14 @@
     "path": "src/agent/frontdoor",
     "name": "frontdoor",
     "purpose": "Agent frontdoor session/task endpoint backed by remoc/TCP, storing a shared loop engine and starting hosted TaskContext execution from TaskCreate while preserving transport task route cleanup.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "session.rs",
-    "task.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "AgentSession",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/session.rs",
@@ -96,7 +92,7 @@
     {
       "name": "AgentTask",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/task.rs",
