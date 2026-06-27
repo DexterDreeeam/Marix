@@ -4,12 +4,8 @@
     "path": "src/client/core",
     "name": "core",
     "purpose": "Core client session endpoint backed by remoc/TCP with task creation, initial request submission, and streamed response segment receives.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "session.rs",
-    "task.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -35,7 +31,7 @@
     {
       "name": "ClientSession",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/core/session.rs",
@@ -55,7 +51,7 @@
     {
       "name": "client remoc session private helpers",
       "type": "private-methods",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/core/session.rs",
@@ -79,7 +75,7 @@
     {
       "name": "ClientTask",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/core/task.rs",

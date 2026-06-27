@@ -4,12 +4,8 @@
     "path": "src/common/channel",
     "name": "channel",
     "purpose": "Shared channel error type and crate-internal remoc session/task event protocol serialized through common external namespaces, with separate request-message and response-message task event payloads.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "error.rs",
-    "session.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -50,7 +46,7 @@
     {
       "name": "SessionEvent",
       "type": "enum",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/channel/session.rs",

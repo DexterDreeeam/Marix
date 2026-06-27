@@ -4,19 +4,14 @@
     "path": "src/common/message",
     "name": "message",
     "purpose": "Folder-based shared message module where chat requests use complete ChatRequest payloads and streamed chat responses use ChatResponseSegment payloads with separate request and response message envelopes.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "chat.rs",
-    "message.rs",
-    "mod.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "RequestMessageType",
       "type": "enum",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/message.rs",
@@ -36,7 +31,7 @@
     {
       "name": "ResponseMessageType",
       "type": "enum",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/message.rs",
@@ -56,7 +51,7 @@
     {
       "name": "RequestMessageEnvelope",
       "type": "enum",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/message.rs",
@@ -89,7 +84,7 @@
     {
       "name": "ResponseMessageEnvelope",
       "type": "enum",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/message.rs",
@@ -122,7 +117,7 @@
     {
       "name": "RequestMessage",
       "type": "trait",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/message.rs",
@@ -142,7 +137,7 @@
     {
       "name": "ResponseMessage",
       "type": "trait",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/message.rs",
@@ -162,7 +157,7 @@
     {
       "name": "ChatRequest",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/chat.rs",
@@ -195,7 +190,7 @@
     {
       "name": "ChatResponseSegment",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/chat.rs",
