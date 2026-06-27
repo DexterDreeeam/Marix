@@ -7,6 +7,14 @@ license = "MIT"
 [lib]
 path = "mod.rs"
 
+[[bin]]
+name = "marix-cli"
+path = "client/cli/main.rs"
+
+[[bin]]
+name = "marix-agent"
+path = "agent/main.rs"
+
 [dependencies]
 reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
 remoc = "0.18"

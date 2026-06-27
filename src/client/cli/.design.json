@@ -3,9 +3,97 @@
   "module": {
     "path": "src/client/cli",
     "name": "cli",
-    "purpose": "CLI client draft placeholder.",
-    "changeStatus": "unchanged"
+    "purpose": "Minimal CLI binary entry without a private section marker and public interface for connecting to the core client endpoint, sending one prompt as an initial chat request, streaming response segments to stdout, and reporting how many segments were printed, with mod.rs limited to module wiring.",
+    "changeStatus": "modified"
   },
+  "added": [
+    "command.rs",
+    "main.rs"
+  ],
+  "modified": [
+    "mod.rs"
+  ],
   "childModules": [],
-  "elements": []
+  "elements": [
+    {
+      "name": "CliError",
+      "type": "enum",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/cli/command.rs",
+          "lineStart": 8,
+          "lineEnd": 13,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 13
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "run",
+      "type": "function",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/cli/command.rs",
+          "lineStart": 15,
+          "lineEnd": 24,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 24
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "CliRequest",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/cli/command.rs",
+          "lineStart": 26,
+          "lineEnd": 30,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 26,
+              "lineEnd": 30
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "CliRunResult",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/cli/command.rs",
+          "lineStart": 32,
+          "lineEnd": 35,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 32,
+              "lineEnd": 35
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
 }

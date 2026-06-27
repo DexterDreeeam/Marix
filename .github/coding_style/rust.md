@@ -82,6 +82,15 @@ Prefer structured diagnostics or existing logging paths over raw print macros.
 - Put private helper types, private helper functions, private inherent impl
   blocks, and other module-internal implementation details below that marker.
   If a file has no private section, omit the marker.
+- Omit the marker in binary `main.rs` entry files that have no primary module
+  struct/API type, even when the file contains private constants or helper
+  functions.
+- Do not apply the public/private section marker rule to integration tests under
+  `src/tests/`; tests should not contain a private section marker.
+- Keep `mod.rs` files limited to module declarations and re-exports. Do not put
+  concrete types, constants, functions, trait definitions, impl blocks, behavior,
+  or helper code in `mod.rs`; move those items into focused sibling module files
+  and wire them from `mod.rs`.
 - After imports and module declarations, place top-level declarations in this
   general order:
   1. enums,

@@ -8,12 +8,12 @@ use marix::client::core::ClientSession;
 use marix::common::channel::ChannelError;
 use marix::common::message::ChatRequest;
 
-// -- Private -- //
-
 const SESSION_TIMEOUT: Duration = Duration::from_secs(3);
 const CONNECT_RETRY_DELAY: Duration = Duration::from_millis(20);
 const DISCONNECT_SETTLE_DELAY: Duration = Duration::from_millis(100);
+const TASK_COMPLETION_RACE_DELAY: Duration = Duration::from_millis(120);
 const TASK_COUNT: usize = 24;
+const TASK_STARTUP_DELAY_MS: [u64; 5] = [0, 1, 5, 20, 50];
 
 #[test]
 fn many_pending_tasks_can_cancel() {
@@ -31,6 +31,73 @@ fn many_pending_tasks_can_cancel() {
 
     client.close().expect("client close should succeed");
     agent.close().expect("agent close should succeed");
+}
+
+#[test]
+fn tasks_cancel_after_startup_delays() {
+    let address = unused_loopback_address();
+    let agent_rx = spawn_new_agent_accept(address);
+    let mut client = connect_client_with_retry(address);
+    let mut agent = receive_agent(agent_rx);
+
+    for delay_ms in TASK_STARTUP_DELAY_MS {
+        let mut task = client
+            .create_task(chat_request(&format!("startup-delay-{delay_ms}")))
+            .expect("client should create a delayed task");
+
+        sleep_startup_delay(delay_ms);
+
+        task.cancel()
+            .expect("client task cancel should tolerate startup delay");
+        task.cancel()
+            .expect("client task cancel should remain idempotent after startup delay");
+    }
+
+    client.close().expect("client close should succeed");
+    agent.close().expect("agent close should succeed");
+}
+
+#[test]
+fn task_cancels_tolerate_short_completion_window() {
+    let address = unused_loopback_address();
+    let agent_rx = spawn_new_agent_accept(address);
+    let mut client = connect_client_with_retry(address);
+    let mut agent = receive_agent(agent_rx);
+
+    let mut tasks = create_tasks(&mut client, TASK_COUNT, "completion-window");
+    thread::sleep(TASK_COMPLETION_RACE_DELAY);
+
+    for task in tasks.iter_mut() {
+        task.cancel()
+            .expect("client task cancel should tolerate possible completion race");
+        task.cancel()
+            .expect("client task cancel should remain idempotent after completion race");
+    }
+
+    client.close().expect("client close should succeed");
+    agent.close().expect("agent close should succeed");
+}
+
+#[test]
+fn task_terminal_receive_tolerates_agent_close_after_startup_delays() {
+    for delay_ms in TASK_STARTUP_DELAY_MS {
+        let address = unused_loopback_address();
+        let agent_rx = spawn_new_agent_accept(address);
+        let mut client = connect_client_with_retry(address);
+        let mut agent = receive_agent(agent_rx);
+        let mut task = client
+            .create_task(chat_request(&format!("terminal-delay-{delay_ms}")))
+            .expect("client should create a terminal-delay task");
+
+        sleep_startup_delay(delay_ms);
+        agent.close().expect("agent close should succeed");
+        thread::sleep(DISCONNECT_SETTLE_DELAY);
+
+        assert_task_disconnected(task.receive());
+        client
+            .close()
+            .expect("client close should tolerate a closed agent");
+    }
 }
 
 #[test]
@@ -172,6 +239,21 @@ fn connect_client_with_retry(address: SocketAddr) -> ClientSession {
     }
 
     panic!("client did not connect before timeout: {last_error:?}");
+}
+
+fn sleep_startup_delay(delay_ms: u64) {
+    if delay_ms > 0 {
+        thread::sleep(Duration::from_millis(delay_ms));
+    }
+}
+
+fn assert_task_disconnected(
+    result: Result<marix::common::message::ResponseMessageEnvelope, ChannelError>,
+) {
+    assert!(
+        matches!(result, Err(ChannelError::Disconnected)),
+        "task should receive a terminal disconnection signal, got {result:?}"
+    );
 }
 
 fn unused_loopback_address() -> SocketAddr {
