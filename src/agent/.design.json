@@ -3,9 +3,12 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent public surface for a first minimal single-request loop engine runtime with cloneable LoopEngine state, engine-owned task contexts with direct shared task/status/runtime-event fields, remoc-backed request/response message frontdoor endpoints, a minimal agent binary main entrypoint without a private section marker, public model request and backend type interfaces, Deepseek backend implementation, explicit public/private Rust section markers where private implementation details exist, and future retrieval/tool interfaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent public surface for a first minimal single-request loop engine runtime with cloneable LoopEngine state, engine-owned task contexts with direct shared task/status/runtime-event fields, remoc-backed request/response message frontdoor endpoints, a minimal agent binary main entrypoint that reads its bind address from agent config without a private section marker, public model request and backend type interfaces, Deepseek backend implementation, explicit public/private Rust section markers where private implementation details exist, and future retrieval/tool interfaces.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "main.rs"
+  ],
   "childModules": [
     {
       "path": "src/agent/engine",

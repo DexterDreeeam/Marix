@@ -3,9 +3,12 @@
   "module": {
     "path": "src/common/config",
     "name": "config",
-    "purpose": "Strongly typed TOML configuration model and fallible loader with alias substitution and credential resolution.",
-    "changeStatus": "unchanged"
+    "purpose": "Strongly typed TOML configuration model and fallible loader with source-tree, deployment-root, and environment-selected config discovery, optional core settings, agent-owned bind address configuration, alias substitution, and credential resolution.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "config.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -15,8 +18,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 7,
-          "lineEnd": 7,
+          "lineStart": 8,
+          "lineEnd": 8,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -26,28 +29,28 @@
     {
       "name": "Config",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 9,
-          "lineEnd": 18,
+          "lineStart": 10,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 20,
-          "lineEnd": 24,
+          "lineStart": 21,
+          "lineEnd": 25,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 21,
-              "lineEnd": 23
+              "lineStart": 22,
+              "lineEnd": 24
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -58,8 +61,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 26,
-          "lineEnd": 31,
+          "lineStart": 27,
+          "lineEnd": 32,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -73,8 +76,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 33,
-          "lineEnd": 39,
+          "lineStart": 34,
+          "lineEnd": 40,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -88,8 +91,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 41,
-          "lineEnd": 47,
+          "lineStart": 42,
+          "lineEnd": 48,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -103,8 +106,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 49,
-          "lineEnd": 54,
+          "lineStart": 50,
+          "lineEnd": 55,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -118,8 +121,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 56,
-          "lineEnd": 62,
+          "lineStart": 57,
+          "lineEnd": 63,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -129,14 +132,19 @@
     {
       "name": "AgentConfig",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 64,
-          "lineEnd": 69,
+          "lineStart": 65,
+          "lineEnd": 71,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 69,
+              "lineEnd": 69
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -148,8 +156,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 71,
-          "lineEnd": 75,
+          "lineStart": 73,
+          "lineEnd": 77,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -163,8 +171,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 77,
-          "lineEnd": 81,
+          "lineStart": 79,
+          "lineEnd": 83,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -178,16 +186,16 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 83,
-          "lineEnd": 88,
+          "lineStart": 85,
+          "lineEnd": 90,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 293,
-          "lineEnd": 302,
+          "lineStart": 322,
+          "lineEnd": 331,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -201,8 +209,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 90,
-          "lineEnd": 95,
+          "lineStart": 92,
+          "lineEnd": 97,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -216,8 +224,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 97,
-          "lineEnd": 105,
+          "lineStart": 99,
+          "lineEnd": 107,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -231,8 +239,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 107,
-          "lineEnd": 111,
+          "lineStart": 109,
+          "lineEnd": 113,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

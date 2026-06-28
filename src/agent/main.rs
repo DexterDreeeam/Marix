@@ -22,7 +22,7 @@ fn run_agent() -> Result<(), String> {
     if !config.agent.enabled {
         return Err("agent is disabled by configuration".to_owned());
     }
-    let bind_address = parse_bind_address(&config.core.bind_address)?;
+    let bind_address = parse_bind_address(&config.agent.bind_address)?;
     let mut session = AgentSession::new(bind_address).map_err(format_channel_error)?;
     serve_session(&mut session).map_err(format_channel_error)
 }

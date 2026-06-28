@@ -3,9 +3,12 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration with fallible runtime loading, directional chat request/response message envelopes, shared channel errors, remoc session/task protocol messages, explicit public/private Rust section markers where private shared implementation details exist, and centralized crate-local external-library namespaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration with deployable runtime loading, optional core settings, agent-owned bind address settings, directional chat request/response message envelopes, shared channel errors, remoc session/task protocol messages, explicit public/private Rust section markers where private shared implementation details exist, and centralized crate-local external-library namespaces.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/common/channel",
@@ -15,7 +18,7 @@
     {
       "path": "src/common/config",
       "name": "config",
-      "purpose": "Strongly typed single-entry TOML configuration loader with fallible runtime loading, alias substitution, and credential resolution."
+      "purpose": "Strongly typed TOML configuration loader with source-tree, deployment-root, and environment-selected config discovery, optional core settings, agent-owned bind address settings, alias substitution, and credential resolution."
     },
     {
       "path": "src/common/external",

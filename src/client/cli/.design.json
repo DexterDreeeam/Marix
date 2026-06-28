@@ -3,9 +3,12 @@
   "module": {
     "path": "src/client/cli",
     "name": "cli",
-    "purpose": "Minimal CLI binary entry without a private section marker and public interface for connecting to the core client endpoint, sending one prompt as an initial chat request, streaming response segments to stdout, and reporting how many segments were printed, with mod.rs limited to module wiring.",
-    "changeStatus": "unchanged"
+    "purpose": "Interactive CLI binary entry without a private section marker plus public interface for connecting to the core client endpoint, sending each typed prompt as a chat request, streaming response segments to stdout, and reporting how many segments were printed, with mod.rs limited to module wiring.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "main.rs"
+  ],
   "childModules": [],
   "elements": [
     {

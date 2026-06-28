@@ -2,10 +2,6 @@
 environment = "development"
 mode = "network"
 
-[core]
-bind_address = "{{ubuntu_ip}}:{{ubuntu_core_port}}"
-worker_threads = 4
-
 [client]
 core_address = "{{ubuntu_ip}}:{{ubuntu_core_port}}"
 interactive = true
@@ -13,6 +9,7 @@ request_timeout_ms = 30000
 
 [agent]
 enabled = true
+bind_address = "0.0.0.0:{{ubuntu_core_port}}"
 max_turns = 32
 
 [model]

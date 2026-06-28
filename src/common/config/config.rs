@@ -1,4 +1,5 @@
 use std::collections::BTreeMap;
+use std::env;
 use std::fmt;
 use std::path::{Path, PathBuf};
 
@@ -19,7 +20,7 @@ pub struct Config {
 
 impl Config {
     pub fn load() -> Result<Self, String> {
-        load_config(Path::new(CONFIG_FILE)).map_err(|error| error.to_string())
+        load_config(&config_path()).map_err(|error| error.to_string())
     }
 }
 
@@ -65,6 +66,7 @@ pub struct ClientConfig {
 #[serde(deny_unknown_fields)]
 pub struct AgentConfig {
     pub enabled: bool,
+    pub bind_address: String,
     pub max_turns: u32,
 }
 
@@ -116,7 +118,7 @@ pub struct CredentialConfig {
 #[serde(deny_unknown_fields)]
 struct RawConfig {
     runtime: RuntimeConfig,
-    core: CoreConfig,
+    core: Option<CoreConfig>,
     client: ClientConfig,
     agent: AgentConfig,
     model: RawModelConfig,
@@ -145,6 +147,22 @@ struct CredentialRef {
     name: String,
 }
 
+const CONFIG_ENV_VAR: &str = "MARIX_CONFIG";
+const DEPLOYED_CONFIG_FILE: &str = "config.toml";
+
+fn config_path() -> PathBuf {
+    if let Some(path) = env::var_os(CONFIG_ENV_VAR).filter(|value| !value.is_empty()) {
+        return PathBuf::from(path);
+    }
+
+    let source_config = PathBuf::from(CONFIG_FILE);
+    if source_config.is_file() {
+        return source_config;
+    }
+
+    PathBuf::from(DEPLOYED_CONFIG_FILE)
+}
+
 fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
     let repo_root = repository_root_for_config(config_path);
     let aliases = load_aliases(&repo_root.join(".alias"))?;
@@ -156,7 +174,7 @@ fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
 
     Ok(Config {
         runtime: raw_config.runtime,
-        core: raw_config.core,
+        core: raw_config.core.unwrap_or_else(default_core_config),
         client: raw_config.client,
         agent: raw_config.agent,
         model: ModelConfig {
@@ -172,9 +190,20 @@ fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
     })
 }
 
+fn default_core_config() -> CoreConfig {
+    CoreConfig {
+        bind_address: "127.0.0.1:0".to_owned(),
+        worker_threads: 1,
+    }
+}
+
 fn repository_root_for_config(config_path: &Path) -> PathBuf {
     let config_dir = path_parent_or_current(config_path);
-    path_parent_or_current(config_dir).to_path_buf()
+    if config_dir.file_name().and_then(|name| name.to_str()) == Some("src") {
+        path_parent_or_current(config_dir).to_path_buf()
+    } else {
+        config_dir.to_path_buf()
+    }
 }
 
 fn path_parent_or_current(path: &Path) -> &Path {
