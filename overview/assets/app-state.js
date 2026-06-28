@@ -192,6 +192,7 @@
     updateToolButton("btn-star-map-view", "starMapView", overviewMode === "star");
     updateActionButton("btn-language", "languageTool");
     updateActionButton("btn-collapse-all", "collapseAllTool");
+    updateActionButton("btn-workflow-star-map", "workflowTool");
     updateActionButton("btn-reset-star-map", "resetView");
     updateActionButton("btn-reset-data-source", "resetDataSourceTool");
     updateTreeFilterButton();

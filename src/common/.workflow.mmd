@@ -1,0 +1,42 @@
+flowchart LR
+  subgraph config["config"]
+    Config["Config"]
+    RuntimeConfig["RuntimeConfig"]
+    AgentConfig["AgentConfig"]
+    ClientConfig["ClientConfig"]
+    ModelConfig["ModelConfig"]
+  end
+
+  subgraph message["message"]
+    RequestEnvelope["RequestMessageEnvelope"]
+    ResponseEnvelope["ResponseMessageEnvelope"]
+    ChatRequest["ChatRequest"]
+    ChatResponseSegment["ChatResponseSegment"]
+  end
+
+  subgraph channel["channel"]
+    SessionEvent["SessionEvent"]
+    ChannelError["ChannelError"]
+  end
+
+  subgraph external["external"]
+    Remoc["remoc namespace"]
+    Serde["serde namespace"]
+    Tokio["tokio namespace"]
+    Toml["toml namespace"]
+  end
+
+  Config -->|"runtime mode/environment"| RuntimeConfig
+  Config -->|"agent listener"| AgentConfig
+  Config -->|"client endpoint"| ClientConfig
+  Config -->|"backend settings"| ModelConfig
+  Toml -->|"parses config"| Config
+  Serde -->|"serializes envelopes"| RequestEnvelope
+  Serde -->|"serializes envelopes"| ResponseEnvelope
+  ChatRequest -->|"payload for request envelope"| RequestEnvelope
+  ChatResponseSegment -->|"payload for response envelope"| ResponseEnvelope
+  RequestEnvelope -->|"task create payload"| SessionEvent
+  ResponseEnvelope -->|"task response payload"| SessionEvent
+  SessionEvent -->|"transported by"| Remoc
+  Remoc -->|"shared failure mapping"| ChannelError
+  Tokio -->|"async runtime boundary"| Remoc

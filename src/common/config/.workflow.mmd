@@ -1,0 +1,45 @@
+flowchart LR
+  subgraph config_rs["config.rs"]
+    CONFIG_FILE["CONFIG_FILE"]
+    Config["Config"]
+    RuntimeConfig["RuntimeConfig"]
+    CoreConfig["CoreConfig"]
+    ClientConfig["ClientConfig"]
+    AgentConfig["AgentConfig"]
+    ModelConfig["ModelConfig"]
+    LoggingConfig["LoggingConfig"]
+    CredentialConfig["CredentialConfig"]
+  end
+
+  subgraph model_rs["model.rs"]
+    ModelBackend["ModelBackend"]
+    DeepseekConfig["DeepseekConfig"]
+  end
+
+  subgraph runtime_rs["runtime.rs"]
+    RuntimeEnvironment["RuntimeEnvironment"]
+    RuntimeMode["RuntimeMode"]
+  end
+
+  AliasFiles[".alias values"]
+  CredentialFiles["credential files"]
+  TomlParser["toml parser"]
+  AgentMain["agent main"]
+  CliRun["cli run"]
+
+  CONFIG_FILE -->|"default path name"| Config
+  TomlParser -->|"loads TOML"| Config
+  AliasFiles -->|"substitutes placeholders"| Config
+  CredentialFiles -->|"resolves secrets paths"| CredentialConfig
+  Config -->|"runtime settings"| RuntimeConfig
+  RuntimeConfig -->|"environment"| RuntimeEnvironment
+  RuntimeConfig -->|"mode"| RuntimeMode
+  Config -->|"optional core endpoint"| CoreConfig
+  Config -->|"client endpoint"| ClientConfig
+  Config -->|"agent bind address"| AgentConfig
+  Config -->|"model settings"| ModelConfig
+  ModelConfig -->|"backend selector"| ModelBackend
+  ModelBackend -->|"Deepseek settings"| DeepseekConfig
+  Config -->|"logging options"| LoggingConfig
+  AgentConfig -->|"listener address"| AgentMain
+  ClientConfig -->|"server address"| CliRun

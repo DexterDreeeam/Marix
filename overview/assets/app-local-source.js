@@ -36,14 +36,14 @@
         size: item.size || 0,
         localHandle: item.localHandle
       };
-      if (isDesignDocumentPathName(item.path)) {
+      if (shouldPreloadManifestContentPath(item.path)) {
         if ((item.size || 0) > MAX_DYNAMIC_FILE_SIZE) {
           entry.content = `[File too large: ${item.size} bytes]`;
         } else {
           try {
             entry.content = await readLocalFileText(item.localHandle);
           } catch (e) {
-            logOverviewError(`local design content load failed: ${item.path}`, e);
+            logOverviewError(`local companion content load failed: ${item.path}`, e);
             entry.content = "[Unable to read file]";
           }
         }
@@ -52,7 +52,8 @@
     }
     logOverview("local file metadata loaded", {
       files: Object.keys(files).length,
-      preloadedDesignFiles: Object.keys(files).filter(path => isDesignDocumentPathName(path) && files[path].content).length
+      preloadedDesignFiles: Object.keys(files).filter(path => isDesignDocumentPathName(path) && files[path].content).length,
+      preloadedWorkflowFiles: Object.keys(files).filter(path => isWorkflowDocumentPathName(path) && files[path].content).length
     });
     return files;
   }

@@ -1,0 +1,32 @@
+flowchart LR
+  subgraph main_rs["main.rs"]
+    Main["marix-cli main"]
+    InteractiveLoop["stdin prompt loop"]
+    OneShot["argument prompt mode"]
+  end
+
+  subgraph command_rs["command.rs"]
+    CliRequest["CliRequest"]
+    Run["run"]
+    CliRunResult["CliRunResult"]
+    CliError["CliError"]
+  end
+
+  ClientSession["ClientSession"]
+  ClientTask["ClientTask"]
+  ChatRequest["ChatRequest"]
+  ChatResponseSegment["ChatResponseSegment"]
+
+  Main -->|"no args"| InteractiveLoop
+  Main -->|"args joined as prompt"| OneShot
+  InteractiveLoop -->|"one request per non-empty line"| CliRequest
+  OneShot -->|"single request"| CliRequest
+  CliRequest -->|"execute client flow"| Run
+  Run -->|"opens core client"| ClientSession
+  Run -->|"wraps prompt"| ChatRequest
+  ClientSession -->|"creates remote task"| ClientTask
+  ClientTask -->|"sends initial ChatRequest"| ChatRequest
+  ClientTask -->|"streams response segments"| ChatResponseSegment
+  ChatResponseSegment -->|"stdout write"| Run
+  Run -->|"returns count"| CliRunResult
+  Run -->|"maps transport/config failures"| CliError

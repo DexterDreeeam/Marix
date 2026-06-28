@@ -1,0 +1,22 @@
+flowchart LR
+  subgraph error_rs["error.rs"]
+    ChannelError["ChannelError"]
+  end
+
+  subgraph session_rs["session.rs"]
+    SessionEvent["SessionEvent"]
+  end
+
+  RequestMessageEnvelope["RequestMessageEnvelope"]
+  ResponseMessageEnvelope["ResponseMessageEnvelope"]
+  RemocTransport["remoc transport"]
+  ClientSession["ClientSession"]
+  AgentSession["AgentSession"]
+
+  ClientSession -->|"sends TaskCreate"| SessionEvent
+  SessionEvent -->|"request payload"| RequestMessageEnvelope
+  SessionEvent -->|"response payload route"| ResponseMessageEnvelope
+  RemocTransport -->|"delivers events"| AgentSession
+  AgentSession -->|"streams responses"| RemocTransport
+  RemocTransport -->|"connection and send failures"| ChannelError
+  SessionEvent -->|"serialization failures"| ChannelError

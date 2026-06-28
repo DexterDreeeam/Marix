@@ -1,0 +1,36 @@
+flowchart LR
+  subgraph context_rs["context.rs"]
+    SessionContext["SessionContext"]
+    SessionStatus["SessionStatus"]
+    TaskContext["TaskContext"]
+    TaskStatus["TaskStatus"]
+  end
+
+  subgraph event_rs["event.rs"]
+    TaskRuntimeEvent["TaskRuntimeEvent"]
+  end
+
+  subgraph engine_rs["engine.rs"]
+    LoopEngine["LoopEngine"]
+  end
+
+  subgraph error_rs["error.rs"]
+    LoopEngineError["LoopEngineError"]
+  end
+
+  AgentTask["AgentTask"]
+  UserMessageEnvelope["UserMessageEnvelope"]
+  ModelBackend["ModelBackend"]
+  ChatResponseSegment["ChatResponseSegment"]
+
+  LoopEngine -->|"owns session state"| SessionContext
+  SessionContext -->|"reports lifecycle"| SessionStatus
+  LoopEngine -->|"creates from accepted task"| TaskContext
+  AgentTask -->|"provides initial request"| UserMessageEnvelope
+  UserMessageEnvelope -->|"stored as task input"| TaskContext
+  TaskContext -->|"tracks execution"| TaskStatus
+  LoopEngine -->|"publishes runtime visibility"| TaskRuntimeEvent
+  LoopEngine -->|"requests one model stream"| ModelBackend
+  ModelBackend -->|"returns streamed text"| ChatResponseSegment
+  LoopEngine -->|"forwards response segments through task"| AgentTask
+  LoopEngine -->|"surfaces lifecycle failures"| LoopEngineError

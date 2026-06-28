@@ -20,6 +20,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/markdown.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
   <div id="app">
@@ -90,6 +91,9 @@
           <section id="star-map-workspace" style="display:none">
             <div class="star-map-canvas">
               <div class="star-map-toolset" role="toolbar" aria-label="Star map tools">
+                <button id="btn-workflow-star-map" class="tool-btn" type="button" aria-label="Workflow"><i class="bi bi-diagram-3"></i></button>
+              </div>
+              <div class="star-map-reset-toolset" role="toolbar" aria-label="Star map reset tools">
                 <button id="btn-reset-star-map" class="tool-btn" type="button" aria-label="Reset view"><i class="bi bi-crosshair"></i></button>
               </div>
               <svg id="star-map-svg" viewBox="-900 -600 1800 1200" role="img" aria-label="Module star map">
@@ -139,6 +143,7 @@
   <script src="assets/app-star-map-elements.js"></script>
   <script src="assets/app-star-map.js"></script>
   <script src="assets/app-design-panel.js"></script>
+  <script src="assets/app-workflow.js"></script>
   <script src="assets/app-data-reload.js"></script>
   <script src="assets/app-events.js"></script>
 </body>

@@ -1,0 +1,38 @@
+flowchart LR
+  subgraph main_rs["main.rs"]
+    AgentMain["marix-agent main"]
+  end
+
+  subgraph frontdoor["frontdoor"]
+    AgentSession["AgentSession"]
+    AgentTask["AgentTask"]
+  end
+
+  subgraph engine["engine"]
+    LoopEngine["LoopEngine"]
+    TaskContext["TaskContext"]
+    TaskRuntimeEvent["TaskRuntimeEvent"]
+  end
+
+  subgraph model["model"]
+    ModelBackendType["ModelBackendType"]
+    ModelBackendImpl["ModelBackendImpl"]
+    DeepseekBackend["DeepseekBackend"]
+  end
+
+  Config["Config"]
+  SessionEvent["SessionEvent"]
+  ChatResponseSegment["ChatResponseSegment"]
+
+  AgentMain -->|"loads agent bind address"| Config
+  AgentMain -->|"serves accepted TCP clients"| AgentSession
+  AgentSession -->|"receives SessionEvent::TaskCreate"| SessionEvent
+  AgentSession -->|"owns task route"| AgentTask
+  AgentTask -->|"execution request"| LoopEngine
+  LoopEngine -->|"creates and updates"| TaskContext
+  TaskContext -->|"publishes progress"| TaskRuntimeEvent
+  LoopEngine -->|"selects backend"| ModelBackendType
+  ModelBackendType -->|"dispatches to implementation"| ModelBackendImpl
+  ModelBackendImpl -->|"streams model output"| DeepseekBackend
+  DeepseekBackend -->|"emits response text"| ChatResponseSegment
+  ChatResponseSegment -->|"sent by task endpoint"| AgentTask

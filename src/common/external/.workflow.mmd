@@ -1,0 +1,41 @@
+flowchart LR
+  subgraph remoc_rs["remoc.rs"]
+    RemocNamespace["remoc namespace wrapper"]
+    RemocConnect["connection helper"]
+  end
+
+  subgraph serde_rs["serde.rs"]
+    SerdeNamespace["serde namespace wrapper"]
+  end
+
+  subgraph serde_json_rs["serde_json.rs"]
+    SerdeJsonNamespace["serde_json namespace wrapper"]
+  end
+
+  subgraph tokio_rs["tokio.rs"]
+    TokioNamespace["tokio namespace wrapper"]
+  end
+
+  subgraph reqwest_rs["reqwest.rs"]
+    ReqwestNamespace["reqwest namespace wrapper"]
+  end
+
+  subgraph toml_rs["toml.rs"]
+    TomlNamespace["toml namespace wrapper"]
+  end
+
+  ClientCore["client/core"]
+  AgentFrontdoor["agent/frontdoor"]
+  CommonMessage["common/message"]
+  CommonConfig["common/config"]
+  AgentModel["agent/model"]
+
+  RemocNamespace -->|"transport types"| ClientCore
+  RemocNamespace -->|"transport types"| AgentFrontdoor
+  RemocConnect -->|"TCP session setup"| ClientCore
+  SerdeNamespace -->|"derive and serialization traits"| CommonMessage
+  SerdeNamespace -->|"derive and serialization traits"| CommonConfig
+  SerdeJsonNamespace -->|"JSON payload handling"| AgentModel
+  TokioNamespace -->|"async runtime and channels"| AgentFrontdoor
+  ReqwestNamespace -->|"HTTP streaming client"| AgentModel
+  TomlNamespace -->|"configuration parsing"| CommonConfig

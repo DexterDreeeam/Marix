@@ -206,14 +206,14 @@
     for (const item of tree) {
       const entry = { size: item.size || 0 };
       if (item.sha) entry.sha = item.sha;
-      if (isDesignDocumentPathName(item.path)) {
+      if (shouldPreloadManifestContentPath(item.path)) {
         if ((item.size || 0) > MAX_DYNAMIC_FILE_SIZE) {
           entry.content = `[File too large: ${item.size} bytes]`;
         } else {
           try {
             entry.content = await fetchBlobText(repoApi, item);
           } catch (e) {
-            logOverviewError(`design content load failed: ${item.path}`, e);
+            logOverviewError(`companion content load failed: ${item.path}`, e);
             entry.content = "[Unable to read file]";
           }
         }
@@ -222,7 +222,8 @@
     }
     logOverview("file metadata loaded", {
       files: Object.keys(files).length,
-      preloadedDesignFiles: Object.keys(files).filter(path => isDesignDocumentPathName(path) && files[path].content).length
+      preloadedDesignFiles: Object.keys(files).filter(path => isDesignDocumentPathName(path) && files[path].content).length,
+      preloadedWorkflowFiles: Object.keys(files).filter(path => isWorkflowDocumentPathName(path) && files[path].content).length
     });
     return files;
   }
@@ -305,7 +306,7 @@
     if (!path || isGeneratedPath(path)) return false;
     if (path.split("/").some(part => isExcludedPathPart(part))) return false;
     if (!isSourcePathName(path)) return false;
-    if (isDesignDocumentPathName(path)) return !hasHiddenAncestorPathName(path);
+    if (isCompanionDocumentPathName(path)) return !hasHiddenAncestorPathName(path);
     return !isHiddenPathName(path);
   }
 
@@ -335,6 +336,18 @@
 
   function isDesignDocumentPathName(path) {
     return String(path || "").endsWith("/.design.json");
+  }
+
+  function isWorkflowDocumentPathName(path) {
+    return String(path || "").endsWith("/.workflow.mmd");
+  }
+
+  function isCompanionDocumentPathName(path) {
+    return isDesignDocumentPathName(path) || isWorkflowDocumentPathName(path);
+  }
+
+  function shouldPreloadManifestContentPath(path) {
+    return isCompanionDocumentPathName(path);
   }
 
   function isImagePathName(path) {

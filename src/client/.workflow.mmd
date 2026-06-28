@@ -1,0 +1,28 @@
+flowchart LR
+  subgraph cli["cli"]
+    CliMain["marix-cli main"]
+    CliRequest["CliRequest"]
+    CliRun["run"]
+    CliRunResult["CliRunResult"]
+  end
+
+  subgraph core["core"]
+    ClientSession["ClientSession"]
+    ClientTask["ClientTask"]
+  end
+
+  Config["Config"]
+  ChatRequest["ChatRequest"]
+  SessionEvent["SessionEvent"]
+  ChatResponseSegment["ChatResponseSegment"]
+
+  CliMain -->|"interactive prompt line"| CliRequest
+  CliRequest -->|"sent to public runner"| CliRun
+  CliRun -->|"loads client endpoint"| Config
+  CliRun -->|"opens remoc session"| ClientSession
+  ClientSession -->|"creates task route"| SessionEvent
+  CliRun -->|"wraps prompt"| ChatRequest
+  ChatRequest -->|"initial task payload"| ClientTask
+  ClientTask -->|"receives response stream"| ChatResponseSegment
+  ChatResponseSegment -->|"printed to stdout"| CliRun
+  CliRun -->|"segment count"| CliRunResult

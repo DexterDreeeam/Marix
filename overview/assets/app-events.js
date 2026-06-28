@@ -64,6 +64,10 @@
       renderStarMap();
     });
 
+    document.getElementById("btn-workflow-star-map").addEventListener("click", () => {
+      showWorkflowPopover();
+    });
+
     const svg = document.getElementById("star-map-svg");
     bindStarMapResizeObserver(svg);
     svg.addEventListener("wheel", evt => {

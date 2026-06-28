@@ -1,0 +1,35 @@
+flowchart LR
+  subgraph request_rs["request.rs"]
+    ModelRequest["ModelRequest"]
+  end
+
+  subgraph response_rs["response.rs"]
+    ModelResponse["ModelResponse"]
+  end
+
+  subgraph backend_rs["backend.rs"]
+    ModelBackend["ModelBackend"]
+    ModelBackendImpl["ModelBackendImpl"]
+    ModelBackendType["ModelBackendType"]
+  end
+
+  subgraph deepseek_rs["deepseek.rs"]
+    DeepseekBackend["DeepseekBackend"]
+    DeepseekStream["Deepseek streaming helpers"]
+  end
+
+  subgraph error_rs["error.rs"]
+    ModelBackendError["ModelBackendError"]
+  end
+
+  Config["ModelConfig"]
+  HttpClient["reqwest client"]
+
+  Config -->|"selects backend type"| ModelBackendType
+  ModelBackendType -->|"constructs implementation"| ModelBackendImpl
+  ModelBackend -->|"public request boundary"| ModelRequest
+  ModelBackendImpl -->|"delegates request"| DeepseekBackend
+  DeepseekBackend -->|"uses HTTP stream"| HttpClient
+  HttpClient -->|"SSE chunks"| DeepseekStream
+  DeepseekStream -->|"normalizes output"| ModelResponse
+  DeepseekBackend -->|"maps provider failures"| ModelBackendError

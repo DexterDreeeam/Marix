@@ -1,0 +1,38 @@
+flowchart LR
+  subgraph client["src/client"]
+    CliEntry["marix-cli main"]
+    CliRun["cli::run"]
+    ClientSession["ClientSession"]
+    ClientTask["ClientTask"]
+  end
+
+  subgraph agent["src/agent"]
+    AgentEntry["marix-agent main"]
+    AgentSession["AgentSession"]
+    AgentTask["AgentTask"]
+    LoopEngine["LoopEngine"]
+    ModelBackend["Model backend"]
+  end
+
+  subgraph common["src/common"]
+    Config["Config"]
+    SessionEvent["SessionEvent"]
+    ChatRequest["ChatRequest"]
+    ChatResponseSegment["ChatResponseSegment"]
+    ExternalNamespaces["external namespaces"]
+  end
+
+  CliEntry -->|"loads client config"| Config
+  AgentEntry -->|"loads agent bind address"| Config
+  CliEntry -->|"interactive prompts"| CliRun
+  CliRun -->|"opens task session"| ClientSession
+  ClientSession -->|"TaskCreate with ChatRequest"| SessionEvent
+  SessionEvent -->|"accepted by remoc frontdoor"| AgentSession
+  AgentSession -->|"creates task endpoint"| AgentTask
+  AgentTask -->|"delegates execution"| LoopEngine
+  LoopEngine -->|"requests model stream"| ModelBackend
+  ModelBackend -->|"streams segments"| ChatResponseSegment
+  ChatResponseSegment -->|"returns through task route"| ClientTask
+  ClientTask -->|"prints streamed output"| CliRun
+  ExternalNamespaces -->|"shared transport/runtime crates"| ClientSession
+  ExternalNamespaces -->|"shared transport/runtime crates"| AgentSession

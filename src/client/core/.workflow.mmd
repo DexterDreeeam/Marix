@@ -1,0 +1,25 @@
+flowchart LR
+  subgraph session_rs["session.rs"]
+    ClientSession["ClientSession"]
+    RemocHelpers["client remoc session private helpers"]
+  end
+
+  subgraph task_rs["task.rs"]
+    ClientTask["ClientTask"]
+  end
+
+  Config["ClientConfig"]
+  SessionEvent["SessionEvent"]
+  RequestMessageEnvelope["RequestMessageEnvelope"]
+  ResponseMessageEnvelope["ResponseMessageEnvelope"]
+  ChannelError["ChannelError"]
+
+  Config -->|"target address"| ClientSession
+  ClientSession -->|"connects over remoc"| RemocHelpers
+  ClientSession -->|"creates task route"| SessionEvent
+  SessionEvent -->|"carries request envelope"| RequestMessageEnvelope
+  ClientSession -->|"returns task endpoint"| ClientTask
+  ClientTask -->|"sends initial request"| RequestMessageEnvelope
+  ResponseMessageEnvelope -->|"received stream"| ClientTask
+  RemocHelpers -->|"transport failures"| ChannelError
+  ClientTask -->|"task failures"| ChannelError
