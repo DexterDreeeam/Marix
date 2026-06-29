@@ -392,12 +392,10 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .code-popover-file { padding: 14px; }
 .code-popover-workflow { display: flex; padding: 0; }
 .workflow-viewer { position: relative; flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; background: radial-gradient(circle at 50% 40%, rgba(88, 166, 255, 0.08), transparent 38%), var(--bg-primary); }
-.workflow-toolbar { position: absolute; right: 14px; top: 14px; z-index: 2; display: inline-flex; align-items: center; gap: 6px; padding: 6px; border: 1px solid rgba(88, 166, 255, 0.24); border-radius: 999px; background: rgba(13, 17, 23, 0.88); box-shadow: 0 8px 24px rgba(0,0,0,0.26); }
-.workflow-zoom-button { min-width: 34px; height: 30px; padding: 0 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg-tertiary); color: var(--text-primary); cursor: pointer; font-size: 13px; font-weight: 800; }
-.workflow-zoom-button:hover, .workflow-zoom-button:focus-visible { border-color: var(--accent); color: var(--accent-hover); outline: none; }
-.workflow-zoom-fit { min-width: 54px; }
-.workflow-diagram-shell { flex: 1; min-width: 0; min-height: 0; overflow: auto; display: grid; place-items: center; padding: 28px; overscroll-behavior: contain; }
-.workflow-diagram-shell.workflow-diagram-overflow { place-items: start; }
+.workflow-reset-toolset { position: absolute; right: 12px; bottom: 12px; z-index: 2; display: flex; gap: 8px; }
+.workflow-diagram-shell { flex: 1; min-width: 0; min-height: 0; overflow: hidden; position: relative; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+.workflow-diagram-shell.workflow-grabbing { cursor: grabbing; }
+.workflow-stage { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; }
 .workflow-mermaid { color: var(--text-primary); }
 .workflow-mermaid svg { display: block; max-width: none; height: auto; }
 .workflow-empty { width: 100%; margin: auto; padding: 24px; border: 1px dashed var(--border); border-radius: 10px; color: var(--text-secondary); text-align: center; }

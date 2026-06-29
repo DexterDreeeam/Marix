@@ -52,13 +52,13 @@
   function renderWorkflowDiagram(diagramId, viewportId, source) {
     return `
       <div class="workflow-viewer">
-        <div class="workflow-toolbar" aria-label="Workflow zoom controls">
-          <button class="workflow-zoom-button" type="button" data-workflow-zoom="out" aria-label="${escapeHtml(t("workflowZoomOut"))}">-</button>
-          <button class="workflow-zoom-button workflow-zoom-fit" type="button" data-workflow-zoom="fit" data-i18n="workflowFit">${escapeHtml(t("workflowFit"))}</button>
-          <button class="workflow-zoom-button" type="button" data-workflow-zoom="in" aria-label="${escapeHtml(t("workflowZoomIn"))}">+</button>
-        </div>
         <div id="${escapeHtml(viewportId)}" class="workflow-diagram-shell">
-          <div id="${escapeHtml(diagramId)}" class="mermaid workflow-mermaid">${escapeHtml(source)}</div>
+          <div class="workflow-stage">
+            <div id="${escapeHtml(diagramId)}" class="mermaid workflow-mermaid">${escapeHtml(source)}</div>
+          </div>
+        </div>
+        <div class="workflow-reset-toolset" role="toolbar" aria-label="Workflow reset tools">
+          <button class="tool-btn" type="button" data-workflow-zoom="fit" aria-label="${escapeHtml(t("workflowReset"))}"><i class="bi bi-crosshair"></i></button>
         </div>
       </div>
     `;
@@ -104,20 +104,34 @@
   function initializeWorkflowDiagramZoom(viewportId) {
     const viewport = document.getElementById(viewportId);
     const svg = viewport && viewport.querySelector("svg");
-    if (!viewport || !svg) return;
+    const stage = viewport && viewport.querySelector(".workflow-stage");
+    if (!viewport || !svg || !stage) return;
 
     const size = getWorkflowSvgSize(svg);
     if (!size.width || !size.height) return;
 
+    // Pin the stage to the diagram's intrinsic size and pan/zoom via a single
+    // transform, mirroring the star map's translate/scale model. This keeps zoom
+    // continuous (no scroll-position jumps) and lets the cursor act as an anchor.
+    svg.style.width = `${size.width}px`;
+    svg.style.height = `${size.height}px`;
+    svg.style.maxWidth = "none";
+    svg.style.maxHeight = "none";
+    stage.style.width = `${size.width}px`;
+    stage.style.height = `${size.height}px`;
+
     workflowZoomState = {
       viewport,
-      svg,
-      container: svg.closest(".workflow-mermaid") || svg,
+      stage,
       baseWidth: size.width,
       baseHeight: size.height,
-      scale: 1
+      scale: 1,
+      x: 0,
+      y: 0,
+      pan: null
     };
     bindWorkflowZoomControls(workflowZoomState);
+    bindWorkflowPan(workflowZoomState);
     viewport.addEventListener("wheel", handleWorkflowWheelZoom, { passive: false });
     requestAnimationFrame(() => fitWorkflowDiagram(workflowZoomState));
   }
@@ -163,6 +177,32 @@
     }
   }
 
+  function bindWorkflowPan(state) {
+    const viewport = state.viewport;
+    viewport.addEventListener("pointerdown", evt => {
+      if (evt.button !== 0) return;
+      evt.preventDefault();
+      state.pan = { x: evt.clientX, y: evt.clientY, startX: state.x, startY: state.y };
+      viewport.classList.add("workflow-grabbing");
+      if (typeof viewport.setPointerCapture === "function") {
+        viewport.setPointerCapture(evt.pointerId);
+      }
+    });
+    viewport.addEventListener("pointermove", evt => {
+      if (!state.pan) return;
+      state.x = state.pan.startX + evt.clientX - state.pan.x;
+      state.y = state.pan.startY + evt.clientY - state.pan.y;
+      applyWorkflowTransform(state);
+    });
+    const endPan = () => {
+      state.pan = null;
+      viewport.classList.remove("workflow-grabbing");
+    };
+    viewport.addEventListener("pointerup", endPan);
+    viewport.addEventListener("pointercancel", endPan);
+    viewport.addEventListener("pointerleave", endPan);
+  }
+
   function handleWorkflowWheelZoom(evt) {
     if (!workflowZoomState || evt.currentTarget !== workflowZoomState.viewport) return;
     evt.preventDefault();
@@ -176,49 +216,37 @@
     const availableWidth = Math.max(1, state.viewport.clientWidth - 48);
     const availableHeight = Math.max(1, state.viewport.clientHeight - 48);
     const scale = clampWorkflowZoom(Math.min(availableWidth / state.baseWidth, availableHeight / state.baseHeight));
-    applyWorkflowZoom(state, scale);
-    centerWorkflowDiagram(state);
+    state.scale = scale;
+    state.x = (state.viewport.clientWidth - state.baseWidth * scale) / 2;
+    state.y = (state.viewport.clientHeight - state.baseHeight * scale) / 2;
+    applyWorkflowTransform(state);
   }
 
   function zoomWorkflowDiagramAtCenter(state, factor) {
-    const centerX = state.viewport.scrollLeft + state.viewport.clientWidth / 2;
-    const centerY = state.viewport.scrollTop + state.viewport.clientHeight / 2;
-    const previousScale = state.scale;
-    applyWorkflowZoom(state, clampWorkflowZoom(previousScale * factor));
-    const ratio = state.scale / previousScale;
-    state.viewport.scrollLeft = centerX * ratio - state.viewport.clientWidth / 2;
-    state.viewport.scrollTop = centerY * ratio - state.viewport.clientHeight / 2;
+    zoomWorkflowDiagramAtPoint(state, factor, state.viewport.clientWidth / 2, state.viewport.clientHeight / 2);
   }
 
   function zoomWorkflowDiagramAtPointer(state, factor, clientX, clientY) {
     const rect = state.viewport.getBoundingClientRect();
-    const pointerX = clientX - rect.left;
-    const pointerY = clientY - rect.top;
-    const contentX = state.viewport.scrollLeft + pointerX;
-    const contentY = state.viewport.scrollTop + pointerY;
+    zoomWorkflowDiagramAtPoint(state, factor, clientX - rect.left, clientY - rect.top);
+  }
+
+  function zoomWorkflowDiagramAtPoint(state, factor, pointerX, pointerY) {
     const previousScale = state.scale;
-    applyWorkflowZoom(state, clampWorkflowZoom(previousScale * factor));
-    const ratio = state.scale / previousScale;
-    state.viewport.scrollLeft = contentX * ratio - pointerX;
-    state.viewport.scrollTop = contentY * ratio - pointerY;
+    const nextScale = clampWorkflowZoom(previousScale * factor);
+    if (nextScale === previousScale) return;
+    // Keep the content point under the cursor fixed: solve for translate so the
+    // pointer maps to the same stage coordinate before and after the zoom.
+    const contentX = (pointerX - state.x) / previousScale;
+    const contentY = (pointerY - state.y) / previousScale;
+    state.scale = nextScale;
+    state.x = pointerX - contentX * nextScale;
+    state.y = pointerY - contentY * nextScale;
+    applyWorkflowTransform(state);
   }
 
-  function applyWorkflowZoom(state, scale) {
-    state.scale = scale;
-    const width = Math.max(1, state.baseWidth * scale);
-    const height = Math.max(1, state.baseHeight * scale);
-    state.container.style.width = `${width}px`;
-    state.container.style.height = `${height}px`;
-    state.svg.style.width = `${width}px`;
-    state.svg.style.height = `${height}px`;
-    state.svg.style.maxWidth = "none";
-    state.svg.style.maxHeight = "none";
-    state.viewport.classList.toggle("workflow-diagram-overflow", width > state.viewport.clientWidth || height > state.viewport.clientHeight);
-  }
-
-  function centerWorkflowDiagram(state) {
-    state.viewport.scrollLeft = Math.max(0, (state.container.offsetWidth - state.viewport.clientWidth) / 2);
-    state.viewport.scrollTop = Math.max(0, (state.container.offsetHeight - state.viewport.clientHeight) / 2);
+  function applyWorkflowTransform(state) {
+    state.stage.style.transform = `translate(${state.x}px, ${state.y}px) scale(${state.scale})`;
   }
 
   function clampWorkflowZoom(scale) {
