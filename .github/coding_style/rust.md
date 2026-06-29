@@ -118,6 +118,10 @@ Prefer structured diagnostics or existing logging paths over raw print macros.
 
 - Keep functions focused and shallow.
 - Avoid deeply nested control flow.
+- Avoid `type` aliases unless the underlying type is a long generic with at least
+  two levels of generic nesting (for example
+  `Arc<Mutex<HashMap<K, Sender<V>>>>`). Do not alias plain types such as `String`
+  or shallow generics; spell them out so call sites stay self-describing.
 - Extract repeated logic into cohesive modules or public/private APIs that match the task.
 - Prefer enums or typed options over unclear boolean mode parameters.
 - Keep visibility private by default; use `pub` only for intentional API surfaces.

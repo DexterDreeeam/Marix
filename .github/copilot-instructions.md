@@ -11,17 +11,17 @@ Except for content under `src/`, all text must use `{{name}}` placeholders inste
 
 ### Documentation
 - Documentation uses **dual-language** versions:
-  - English version: `filename.md` (e.g., `README.md`, `DESIGN.md`)
-  - Chinese version: `filename.cn.md` (e.g., `README.cn.md`, `DESIGN.cn.md`)
+    - English version: `filename.md` (e.g., `README.md`, `DESIGN.md`)
+    - Chinese version: `filename.cn.md` (e.g., `README.cn.md`, `DESIGN.cn.md`)
 - Most documentation files are Markdown (`.md`).
 - Both versions must be kept in sync when content changes.
 
 ### Code
 - All code MUST be written in **English**, including:
-  - Variable names, function names, class names
-  - Comments
-  - Commit messages
-  - Log messages
+    - Variable names, function names, class names
+    - Comments
+    - Commit messages
+    - Log messages
 - The **only exception** is specific Chinese string literals that are required by the application logic (e.g., user-facing Chinese text, i18n strings).
 
 ## Coding Style
@@ -67,5 +67,5 @@ Except for content under `src/`, all text must use `{{name}}` placeholders inste
 - Do not invoke `development-designer` proactively during normal tasks. It is triggered only when the `ensure-deveopment-design` `agentStop` hook blocks and asks for design metadata updates.
 - When the hook triggers, pass the changed design-tracked source paths and changed portions/intent to `development-designer` so it can update `.design.json` in the changed file's folder and every ancestor folder up to `src/`.
 - Do not wait until `git-sync` to refresh design documents after a hook block. Design metadata should be updated before the blocked task is completed.
-- Dot-prefixed files and folders under `src/` are companion metadata maintained by `development-designer`; do not treat them as normal source files in overview file trees or {{proj_lower}} tag diffs.
+- Dot-prefixed files and folders under `src/` are companion metadata maintained by `development-designer`; do not treat them as normal source files in overview file trees or {{proj\_lower}} tag diffs.
 - Repository hooks include an `agentStop` guard named `ensure-deveopment-design`. It checks only design-tracked `src/` files written by the current agent turn and blocks task completion when those files do not have corresponding ancestor `.design.json` updates.
