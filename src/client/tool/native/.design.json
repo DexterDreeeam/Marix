@@ -4,13 +4,8 @@
     "path": "src/client/tool/native",
     "name": "native",
     "purpose": "Defines folder-organized native tool type stubs. Native tools implement the ordinary Tool trait directly, expose static ToolPreview metadata, and are aggregated by NATIVE_TOOL_LIST plus PRIMARY_NATIVE_TOOL_LIST.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    ".",
-    "mod.rs",
-    "native_tool_list.rs"
-  ],
   "childModules": [
     {
       "path": "src/client/tool/native/file",
@@ -47,7 +42,7 @@
     {
       "name": "PRIMARY_NATIVE_TOOL_LIST",
       "type": "const",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/native_tool_list.rs",
@@ -67,7 +62,7 @@
     {
       "name": "NATIVE_TOOL_LIST",
       "type": "const",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/native_tool_list.rs",

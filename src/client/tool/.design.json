@@ -4,17 +4,8 @@
     "path": "src/client/tool",
     "name": "tool",
     "purpose": "Client-side tool interface layer with a unified Tool trait, ToolType limited to Primary, Native, Skill, and User, DefaultPreview and ToolPreview preview records, ToolRegistry default/tool preview APIs, typed errors, CategoryPreview category metadata, and folder-organized category/native preview lists.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    ".",
-    "mod.rs",
-    "tool.rs",
-    "registry.rs"
-  ],
-  "deleted": [
-    "mcp.rs"
-  ],
   "childModules": [
     {
       "path": "src/client/tool/category",
@@ -76,7 +67,7 @@
     {
       "name": "DefaultPreview",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/registry.rs",
@@ -96,7 +87,7 @@
     {
       "name": "ToolRegistry",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/registry.rs",
@@ -124,7 +115,7 @@
     {
       "name": "ToolType",
       "type": "enum",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",

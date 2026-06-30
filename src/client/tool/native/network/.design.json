@@ -4,19 +4,14 @@
     "path": "src/client/tool/native/network",
     "name": "network",
     "purpose": "Owns native network Tool implementation stubs and ToolPreview metadata for HTTP requests and DNS lookup.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "mod.rs",
-    "http_request.rs",
-    "dns_lookup.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "HttpRequestTool",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/network/http_request.rs",
@@ -62,7 +57,7 @@
     {
       "name": "DnsLookupTool",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/network/dns_lookup.rs",
