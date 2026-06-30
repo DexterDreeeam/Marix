@@ -3,12 +3,11 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration with deployable runtime loading, optional core settings, agent-owned bind address settings, config-gated logging messages and file logging helpers, directional chat request/response message envelopes, shared channel errors, remoc session/task protocol messages, explicit public/private Rust section markers where private shared implementation details exist, and centralized crate-local external-library namespaces.",
+    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration with deployable runtime loading, optional core settings, agent-owned bind address settings, config-gated logging messages and direct warning/error file logging helpers, directional chat request/response message envelopes, shared channel errors, remoc session/task protocol messages, explicit public/private Rust section markers where private shared implementation details exist, and centralized crate-local external-library namespaces.",
     "changeStatus": "modified"
   },
   "modified": [
-    ".",
-    "mod.rs"
+    "."
   ],
   "childModules": [
     {
@@ -29,7 +28,7 @@
     {
       "path": "src/common/logging",
       "name": "logging",
-      "purpose": "Config-gated logging API with tagged log messages, structured logging errors, debug-build logging, platform-specific log directories, timestamped log files, and log-file pruning."
+      "purpose": "Config-gated logging API with tagged log messages, structured logging errors, direct log/warning/error/debug functions, platform-specific log directories, timestamped log files, and log-file pruning."
     },
     {
       "path": "src/common/message",

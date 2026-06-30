@@ -9,7 +9,7 @@ flowchart LR
   end
 
   subgraph logging["logging"]
-    LoggerApi["log/debug"]
+    LoggerApi["log/warning/error/debug"]
     LogMessage["LogMessage"]
     LogTag["LogTag"]
     LoggingError["LoggingError"]

@@ -3,7 +3,7 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Second-generation Rust source organized into client, agent, and common modules with deployable typed configuration, config-gated common logging, optional core settings, agent-owned bind address settings, an interactive streaming CLI interface, a minimal agent binary main entrypoint that loads configuration and serves accepted clients, marker-free binary main entry files, directional chat request/response envelopes and segments, centralized external-library namespaces, remoc-backed session/task endpoints, explicit public/private Rust section markers where private shared implementation details exist, and a first minimal single-request loop-engine runtime whose engine-owned task contexts store direct shared task/status/runtime-event fields.",
+    "purpose": "Second-generation Rust source organized into client, agent, and common modules with deployable typed configuration, config-gated common logging with direct warning/error shortcuts, optional core settings, agent-owned bind address settings, an interactive streaming CLI interface, a minimal agent binary main entrypoint that loads configuration and serves accepted clients, marker-free binary main entry files, directional chat request/response envelopes and segments, centralized external-library namespaces, remoc-backed session/task endpoints, explicit public/private Rust section markers where private shared implementation details exist, and a first minimal single-request loop-engine runtime whose engine-owned task contexts store direct shared task/status/runtime-event fields.",
     "changeStatus": "modified"
   },
   "modified": [
@@ -23,7 +23,7 @@
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared interfaces used across the second-generation source tree, including deployable typed TOML configuration with optional core settings, agent-owned bind address settings, config-gated common logging, fallible loading, directional chat request messages and response segments, shared channel errors, remoc session protocol messages, and centralized crate-local external-library namespaces."
+      "purpose": "Shared interfaces used across the second-generation source tree, including deployable typed TOML configuration with optional core settings, agent-owned bind address settings, config-gated common logging with direct warning/error shortcuts, fallible loading, directional chat request messages and response segments, shared channel errors, remoc session protocol messages, and centralized crate-local external-library namespaces."
     }
   ],
   "elements": []

@@ -10,6 +10,8 @@ flowchart LR
 
   subgraph logger_rs["logger.rs"]
     LogFn["log\nfunction"]
+    WarningFn["warning\nfunction"]
+    ErrorFn["error\nfunction"]
     DebugFn["debug\nfunction"]
     ConfigCache["LOGGING_CONFIG\nOnceLock"]
     FileCache["LOG_FILE\nOnceLock"]
@@ -23,6 +25,10 @@ flowchart LR
   LogPath["timestamped .log path"]
 
   LogFn -->|"accepts Into LogMessage"| LogMessage
+  WarningFn -->|"builds LogMessage::warning"| LogMessage
+  ErrorFn -->|"builds LogMessage::error"| LogMessage
+  WarningFn -->|"delegates tagged write"| LogFn
+  ErrorFn -->|"delegates tagged write"| LogFn
   LogMessage -->|"carries"| LogTag
   LogFn -->|"checks tag gate"| LoggingConfig
   DebugFn -->|"debug builds write DEBUG"| LogFile
@@ -37,5 +43,7 @@ flowchart LR
   FileCache -->|"shares mutex"| LogFile
   LogFile -->|"flushes and syncs"| LogPath
   LogFn -->|"returns"| LoggingError
+  WarningFn -->|"returns"| LoggingError
+  ErrorFn -->|"returns"| LoggingError
   DebugFn -->|"returns"| LoggingError
   LogFile -->|"maps I/O or clock failures"| LoggingError

@@ -7,6 +7,11 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use crate::common::config::{Config, LoggingConfig};
 use crate::common::logging::{LogMessage, LogTag, LoggingError};
 
+static LOGGING_CONFIG: OnceLock<Result<LoggingConfig, LoggingError>> = OnceLock::new();
+static LOG_FILE: OnceLock<Result<Mutex<LogFile>, LoggingError>> = OnceLock::new();
+
+const MAX_LOG_FILE_COUNT: usize = 20;
+
 /// Writes an info, warning, or error log message when the matching config flag is enabled.
 pub fn log(message: impl Into<LogMessage>) -> Result<(), LoggingError> {
     let message = message.into();
@@ -14,6 +19,16 @@ pub fn log(message: impl Into<LogMessage>) -> Result<(), LoggingError> {
         return Ok(());
     }
     write_log_line(message.tag.label(), &message.message)
+}
+
+/// Writes a warning log message when warning logging is enabled.
+pub fn warning(message: impl Into<String>) -> Result<(), LoggingError> {
+    log(LogMessage::warning(message))
+}
+
+/// Writes an error log message when error logging is enabled.
+pub fn error(message: impl Into<String>) -> Result<(), LoggingError> {
+    log(LogMessage::error(message))
 }
 
 /// Writes a debug-only log message; the closure is evaluated only in debug builds.
@@ -65,11 +80,6 @@ impl LogFile {
         Ok(())
     }
 }
-
-static LOGGING_CONFIG: OnceLock<Result<LoggingConfig, LoggingError>> = OnceLock::new();
-static LOG_FILE: OnceLock<Result<Mutex<LogFile>, LoggingError>> = OnceLock::new();
-
-const MAX_LOG_FILE_COUNT: usize = 20;
 
 impl LogTag {
     fn label(self) -> &'static str {
