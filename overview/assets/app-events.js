@@ -39,18 +39,7 @@
       renderTree(searchInput.value.trim());
     });
 
-    document.getElementById("btn-hide-private-code").addEventListener("click", () => {
-      hidePrivateCode = !hidePrivateCode;
-      saveBooleanSetting(STORAGE_KEYS.hidePrivateCode, hidePrivateCode);
-      updatePrivateCodeButton();
-      hideCodePopover();
-      if (overviewMode === "star") {
-        renderStarMapSelectionState({ syncTree: false });
-      } else {
-        restoreFileView();
-      }
-    });
-
+    document.addEventListener("click", handlePrivateCodeRevealClick);
     document.getElementById("code-popover-backdrop").addEventListener("click", hideCodePopover);
     document.getElementById("btn-close-code-popover").addEventListener("click", hideCodePopover);
     bindCodePopoverScrollGuard();

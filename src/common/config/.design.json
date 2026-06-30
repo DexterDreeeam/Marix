@@ -3,9 +3,12 @@
   "module": {
     "path": "src/common/config",
     "name": "config",
-    "purpose": "Strongly typed TOML configuration model and fallible loader with source-tree, deployment-root, and environment-selected config discovery, optional core settings, agent-owned bind address configuration, alias substitution, and credential resolution.",
-    "changeStatus": "unchanged"
+    "purpose": "Strongly typed TOML configuration model and fallible loader with source-tree, deployment-root, and environment-selected config discovery, optional core settings, agent-owned bind address configuration, config-gated logging directory/level/info/warning/error switches, alias substitution, and credential resolution.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "config.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -42,12 +45,7 @@
           "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 22,
-              "lineEnd": 24
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -136,12 +134,7 @@
           "lineStart": 65,
           "lineEnd": 71,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 69,
-              "lineEnd": 69
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -191,8 +184,8 @@
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 322,
-          "lineEnd": 331,
+          "lineStart": 328,
+          "lineEnd": 337,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -202,14 +195,19 @@
     {
       "name": "LoggingConfig",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
           "lineStart": 92,
-          "lineEnd": 97,
+          "lineEnd": 103,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 97,
+              "lineEnd": 102
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -221,8 +219,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 99,
-          "lineEnd": 107,
+          "lineStart": 105,
+          "lineEnd": 113,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -236,8 +234,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 109,
-          "lineEnd": 113,
+          "lineStart": 115,
+          "lineEnd": 119,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

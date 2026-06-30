@@ -2,21 +2,21 @@
     function renderFullFilePanel(path, content, change, ext, options = {}) {
       const markers = collectDiffMarkers(change.diff_lines || []);
       const includeDeleted = options.includeDeleted !== false;
-      const lines = getPublicCodeLines(content);
-      const privateBoundary = getPrivateCodeBoundaryLine(content);
+      const parts = splitPrivateCodeLines(content);
       const languageName = getLanguageFromExt(ext);
-      const body = [];
+      let body = renderFullFileLineGroup(parts.publicLines, markers, languageName, includeDeleted);
+      let privateBody = renderFullFileLineGroup(parts.privateLines, markers, languageName, includeDeleted);
 
-      for (const line of lines) {
-        const lineNumber = line.lineNumber;
-        if (includeDeleted) body.push(renderDeletedLines(markers.deletedBefore.get(lineNumber), languageName));
-        body.push(renderFullFileLine(lineNumber, line.content, getFullFileLineClass(markers, lineNumber), languageName));
+      if (includeDeleted && parts.hasMarker) {
+        privateBody += renderDeletedLines(markers.deletedBefore.get(parts.totalLines + 1), languageName);
+      } else if (includeDeleted) {
+        body += renderDeletedLines(markers.deletedBefore.get(parts.totalLines + 1), languageName);
       }
 
-      if (includeDeleted && !privateBoundary) body.push(renderDeletedLines(markers.deletedBefore.get(lines.length + 1), languageName));
+      body += renderPrivateCodeReveal(privateBody);
 
       if (options.embedded) {
-        return `<div class="full-file-lines full-file-lines-embedded">${body.join("")}</div>`;
+        return `<div class="full-file-lines full-file-lines-embedded">${body}</div>`;
       }
 
       return `
@@ -25,9 +25,17 @@
             <code>${escapeHtml(path)}</code>
             ${renderFullFileLegend()}
           </div>
-          <div class="full-file-lines">${body.join("")}</div>
+          <div class="full-file-lines">${body}</div>
         </div>
       `;
+    }
+
+    function renderFullFileLineGroup(lines, markers, languageName, includeDeleted) {
+     return lines.map(line => {
+       const lineNumber = line.lineNumber;
+       const deleted = includeDeleted ? renderDeletedLines(markers.deletedBefore.get(lineNumber), languageName) : "";
+       return `${deleted}${renderFullFileLine(lineNumber, line.content, getFullFileLineClass(markers, lineNumber), languageName)}`;
+     }).join("");
     }
 
     function collectDiffMarkers(diffLines) {
@@ -132,40 +140,93 @@
     }
 
   function highlightSource(content, languageName) {
-    const visibleContent = filterPrivateCodeContent(content);
+    const source = String(content || "");
     if (languageName === "rust") {
-      return String(visibleContent || "").split(/\r?\n/).map(highlightRustLine).join("\n");
+      return source.split(/\r?\n/).map(highlightRustLine).join("\n");
     }
 
       if (languageName && window.hljs && hljs.getLanguage(languageName)) {
         try {
-          return hljs.highlight(visibleContent, { language: languageName, ignoreIllegals: true }).value;
+          return hljs.highlight(source, { language: languageName, ignoreIllegals: true }).value;
         } catch (e) {
-          return escapeHtml(visibleContent);
+          return escapeHtml(source);
         }
       }
-      return escapeHtml(visibleContent);
+      return escapeHtml(source);
   }
 
-  function getPublicCodeLines(content) {
+  function splitPrivateSourceContent(content) {
     const lines = String(content || "").split(/\r?\n/);
-    const boundary = getPrivateCodeBoundaryLine(content);
-    const visibleLines = boundary ? lines.slice(0, boundary - 1) : lines;
-    return visibleLines.map((line, index) => ({
-      lineNumber: index + 1,
+    const index = lines.findIndex(isPrivateCodeMarkerLine);
+    if (index < 0) return { publicContent: String(content || ""), privateContent: "" };
+    return {
+      publicContent: lines.slice(0, index).join("\n"),
+      privateContent: lines.slice(index + 1).join("\n")
+    };
+  }
+
+  function splitPrivateCodeLines(content) {
+    const lines = String(content || "").split(/\r?\n/);
+    const index = lines.findIndex(isPrivateCodeMarkerLine);
+    if (index < 0) {
+      return { publicLines: mapCodeLines(lines, 1), privateLines: [], totalLines: lines.length, hasMarker: false };
+    }
+    return {
+      publicLines: mapCodeLines(lines.slice(0, index), 1),
+      privateLines: mapCodeLines(lines.slice(index + 1), index + 2),
+      totalLines: lines.length,
+      hasMarker: true
+    };
+  }
+
+  function mapCodeLines(lines, firstLineNumber) {
+    return lines.map((line, index) => ({
+      lineNumber: firstLineNumber + index,
       content: line
     }));
   }
 
-  function filterPrivateCodeContent(content) {
-    if (!hidePrivateCode) return content;
-    const lines = String(content || "").split(/\r?\n/);
-    const index = lines.findIndex(isPrivateCodeMarkerLine);
-    return index >= 0 ? lines.slice(0, index).join("\n") : content;
+  function renderPrivateCodeReveal(privateHtml) {
+    if (!privateHtml) return "";
+    return `
+      <div class="private-code-reveal">
+        <div class="private-code-action">
+          <button class="private-code-toggle" type="button" data-private-code-reveal aria-expanded="false">
+            <i class="bi bi-eye" aria-hidden="true"></i>
+            <span>${escapeHtml(t("showPrivate"))}</span>
+          </button>
+        </div>
+        <div class="private-code-content" hidden>${privateHtml}</div>
+      </div>
+    `;
+  }
+
+  function renderHighlightedSourceWithPrivateReveal(content, languageName) {
+    const parts = splitPrivateSourceContent(content);
+    const publicHtml = highlightSource(parts.publicContent, languageName);
+    const privateHtml = parts.privateContent
+      ? `<div class="private-plain-code">${highlightSource(parts.privateContent, languageName)}</div>`
+      : "";
+    return `${publicHtml}${renderPrivateCodeReveal(privateHtml)}`;
+  }
+
+  function handlePrivateCodeRevealClick(evt) {
+    const button = evt.target.closest("[data-private-code-reveal]");
+    if (!button) return;
+    evt.preventDefault();
+    revealPrivateCodeContent(button);
+  }
+
+  function revealPrivateCodeContent(button) {
+    const reveal = button.closest(".private-code-reveal");
+    const content = reveal && reveal.querySelector(".private-code-content");
+    if (!reveal || !content) return;
+    reveal.classList.add("private-code-expanded");
+    content.hidden = false;
+    button.setAttribute("aria-expanded", "true");
   }
 
   function getPrivateCodeBoundaryLine(content) {
-    if (!hidePrivateCode) return 0;
     const lines = String(content || "").split(/\r?\n/);
     const index = lines.findIndex(isPrivateCodeMarkerLine);
     return index >= 0 ? index + 1 : 0;
@@ -278,9 +339,11 @@
 
   function renderDiffPanel(path, section, number) {
     const languageName = getLanguageFromExt(path.split(".").pop().toLowerCase());
-    const visibleDiffLines = filterPrivateDiffSection(path, section);
-    if (visibleDiffLines.length === 0) return "";
-    const lines = visibleDiffLines.map(line => renderDiffLine(line, languageName)).join("");
+    const diffParts = splitPrivateDiffSection(path, section);
+    const publicLines = diffParts.publicLines.map(line => renderDiffLine(line, languageName)).join("");
+    const privateLines = diffParts.privateLines.map(line => renderDiffLine(line, languageName)).join("");
+    if (!publicLines && !privateLines) return "";
+    const lines = `${publicLines}${renderPrivateCodeReveal(privateLines)}`;
     const reason = section.reason || t("reasonPending");
     return `
       <section class="diff-panel">
@@ -309,41 +372,37 @@
     `;
   }
 
-  function filterPrivateDiffSection(path, section) {
+  function splitPrivateDiffSection(path, section) {
     const lines = section.lines || [];
-    if (!hidePrivateCode) return lines;
-
     const entry = (manifest && manifest.files && manifest.files[path]) || null;
     const privateBoundary = entry && typeof entry.content === "string"
       ? getPrivateCodeBoundaryLine(entry.content)
       : 0;
     const headerMatch = String(section.header || "").match(/@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
-    let oldLine = headerMatch ? Number(headerMatch[1]) : 0;
     let newLine = headerMatch ? Number(headerMatch[2]) : 0;
-    let inferredBoundary = privateBoundary;
-    const visible = [];
+    let privateStarted = Boolean(privateBoundary && newLine > privateBoundary);
+    const publicLines = [];
+    const privateLines = [];
 
     for (const line of lines) {
       const marker = line.slice(0, 1);
       const content = line.slice(1);
       const isMarker = isPrivateCodeMarkerLine(content);
-      const isPrivate = inferredBoundary && newLine >= inferredBoundary;
+      const isPrivate = privateStarted || Boolean(privateBoundary && newLine > privateBoundary);
 
       if (isMarker) {
-        inferredBoundary = inferredBoundary || newLine;
-      } else if (marker === "-" && !isPrivate && !isMarker) {
-        visible.push(line);
-      } else if ((marker === "+" || marker === " ") && !isPrivate) {
-        visible.push(line);
+        privateStarted = true;
+      } else if (isPrivate) {
+        privateLines.push(line);
+      } else {
+        publicLines.push(line);
       }
 
       if (marker === "+") newLine += 1;
-      else if (marker === "-") oldLine += 1;
       else if (marker === " ") {
-        oldLine += 1;
         newLine += 1;
       }
     }
 
-    return visible;
+    return { publicLines, privateLines };
   }

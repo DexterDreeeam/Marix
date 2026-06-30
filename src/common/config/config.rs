@@ -2,10 +2,14 @@ use std::collections::BTreeMap;
 use std::env;
 use std::fmt;
 use std::path::{Path, PathBuf};
+use std::sync::OnceLock;
 
 use crate::common::external::*;
 
 pub const CONFIG_FILE: &str = "src/config.toml";
+const CONFIG_ENV_VAR: &str = "MARIX_CONFIG";
+const DEPLOYED_CONFIG_FILE: &str = "config.toml";
+static CONFIG_CACHE: OnceLock<Result<Config, String>> = OnceLock::new();
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Config {
@@ -20,7 +24,9 @@ pub struct Config {
 
 impl Config {
     pub fn load() -> Result<Self, String> {
-        load_config(&config_path()).map_err(|error| error.to_string())
+        CONFIG_CACHE
+            .get_or_init(|| load_config(&config_path()).map_err(|error| error.to_string()))
+            .clone()
     }
 }
 
@@ -94,6 +100,12 @@ pub struct DeepseekConfig {
 pub struct LoggingConfig {
     pub directory: String,
     pub level: LogLevel,
+    #[serde(default)]
+    pub enable_log_info: bool,
+    #[serde(default)]
+    pub enable_log_warning: bool,
+    #[serde(default)]
+    pub enable_log_error: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
@@ -146,9 +158,6 @@ struct RawDeepseekConfig {
 struct CredentialRef {
     name: String,
 }
-
-const CONFIG_ENV_VAR: &str = "MARIX_CONFIG";
-const DEPLOYED_CONFIG_FILE: &str = "config.toml";
 
 fn config_path() -> PathBuf {
     if let Some(path) = env::var_os(CONFIG_ENV_VAR).filter(|value| !value.is_empty()) {

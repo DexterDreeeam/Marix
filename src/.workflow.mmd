@@ -16,6 +16,7 @@ flowchart LR
 
   subgraph common["src/common"]
     Config["Config"]
+    CommonLogging["common logging"]
     SessionEvent["SessionEvent"]
     ChatRequest["ChatRequest"]
     ChatResponseSegment["ChatResponseSegment"]
@@ -24,6 +25,7 @@ flowchart LR
 
   CliEntry -->|"loads client config"| Config
   AgentEntry -->|"loads agent bind address"| Config
+  Config -->|"gates info/warning/error logs"| CommonLogging
   CliEntry -->|"interactive prompts"| CliRun
   CliRun -->|"opens task session"| ClientSession
   ClientSession -->|"TaskCreate with ChatRequest"| SessionEvent

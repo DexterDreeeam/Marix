@@ -217,6 +217,16 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .full-line-del { background: var(--diff-del-bg); color: var(--text-primary); }
 .full-line-del .full-line-number { color: var(--red); }
 .full-line-del .full-line-content { text-decoration: line-through; opacity: 0.86; }
+.private-code-reveal { border-top: 1px solid rgba(88, 166, 255, 0.22); background: rgba(88, 166, 255, 0.045); white-space: normal; }
+.private-code-action { padding: 10px 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
+.private-code-toggle { display: inline-flex; align-items: center; gap: 7px; min-height: 30px; padding: 6px 12px; border: 1px solid rgba(88, 166, 255, 0.44); border-radius: 999px; background: rgba(88, 166, 255, 0.12); color: var(--accent-hover); cursor: pointer; font-size: 12px; font-weight: 800; line-height: 1; transition: border-color 0.15s, background 0.15s, color 0.15s; }
+.private-code-toggle:hover, .private-code-toggle:focus-visible { border-color: var(--accent-hover); background: rgba(88, 166, 255, 0.2); color: #ffffff; outline: none; }
+.private-code-expanded .private-code-action { display: none; }
+.private-code-content { border-top: 1px solid rgba(88, 166, 255, 0.14); }
+.private-code-content[hidden] { display: none; }
+.private-plain-code { margin: 0; overflow-x: auto; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 13px; line-height: 1.5; white-space: pre; }
+.private-markdown-content { padding: 0 16px 16px; }
+#code-view > .private-code-reveal { margin-top: 8px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--bg-secondary); }
 
 /* ── Star Map ── */
 #star-map-workspace { height: 100%; min-height: 0; overflow: hidden; background: radial-gradient(circle at 30% 20%, rgba(88, 166, 255, 0.12), transparent 28%), var(--bg-primary); }

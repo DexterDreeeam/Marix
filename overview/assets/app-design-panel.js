@@ -371,14 +371,17 @@
   }
 
   function renderDesignFullFilePanel(sourcePath, content, segments, languageName, elementStatus) {
-    const lines = getPublicCodeLines(content);
-    const body = lines.map(line => {
+    const parts = splitPrivateCodeLines(content);
+    const publicBody = parts.publicLines.map(line => {
+      return renderCodeSegmentLine(line.lineNumber, line.content, getDesignFullFileLineClass(segments, elementStatus, line.lineNumber), languageName);
+    }).join("");
+    const privateBody = parts.privateLines.map(line => {
       return renderCodeSegmentLine(line.lineNumber, line.content, getDesignFullFileLineClass(segments, elementStatus, line.lineNumber), languageName);
     }).join("");
     return `
       <section class="code-segment-panel">
         <div class="code-segment-label">${escapeHtml(sourcePath)}</div>
-        <div class="full-file-lines full-file-lines-embedded">${body}</div>
+        <div class="full-file-lines full-file-lines-embedded">${publicBody}${renderPrivateCodeReveal(privateBody)}</div>
       </section>
     `;
   }
@@ -414,7 +417,7 @@
     codeEl.className = `code-popover-content ${contentClass}`;
     codeEl.removeAttribute("data-highlighted");
     if (languageName) codeEl.classList.add(`language-${languageName}`);
-    codeEl.innerHTML = languageName ? highlightSource(contentHtml, languageName) : contentHtml;
+    codeEl.innerHTML = languageName ? renderHighlightedSourceWithPrivateReveal(contentHtml, languageName) : contentHtml;
     backdrop.style.display = "block";
     popover.style.display = "flex";
   }

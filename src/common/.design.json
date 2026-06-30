@@ -3,9 +3,13 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration with deployable runtime loading, optional core settings, agent-owned bind address settings, directional chat request/response message envelopes, shared channel errors, remoc session/task protocol messages, explicit public/private Rust section markers where private shared implementation details exist, and centralized crate-local external-library namespaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration with deployable runtime loading, optional core settings, agent-owned bind address settings, config-gated logging messages and file logging helpers, directional chat request/response message envelopes, shared channel errors, remoc session/task protocol messages, explicit public/private Rust section markers where private shared implementation details exist, and centralized crate-local external-library namespaces.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    ".",
+    "mod.rs"
+  ],
   "childModules": [
     {
       "path": "src/common/channel",
@@ -15,12 +19,17 @@
     {
       "path": "src/common/config",
       "name": "config",
-      "purpose": "Strongly typed TOML configuration loader with source-tree, deployment-root, and environment-selected config discovery, optional core settings, agent-owned bind address settings, alias substitution, and credential resolution."
+      "purpose": "Strongly typed TOML configuration loader with source-tree, deployment-root, and environment-selected config discovery, optional core settings, agent-owned bind address settings, logging directory/level/enable flags, alias substitution, and credential resolution."
     },
     {
       "path": "src/common/external",
       "name": "external",
       "purpose": "Crate-local third-party library namespace wrappers used by source modules instead of importing external crates directly."
+    },
+    {
+      "path": "src/common/logging",
+      "name": "logging",
+      "purpose": "Config-gated logging API with tagged log messages, structured logging errors, debug-build logging, platform-specific log directories, timestamped log files, and log-file pruning."
     },
     {
       "path": "src/common/message",

@@ -5,6 +5,14 @@ flowchart LR
     AgentConfig["AgentConfig"]
     ClientConfig["ClientConfig"]
     ModelConfig["ModelConfig"]
+    LoggingConfig["LoggingConfig"]
+  end
+
+  subgraph logging["logging"]
+    LoggerApi["log/debug"]
+    LogMessage["LogMessage"]
+    LogTag["LogTag"]
+    LoggingError["LoggingError"]
   end
 
   subgraph message["message"]
@@ -30,6 +38,11 @@ flowchart LR
   Config -->|"agent listener"| AgentConfig
   Config -->|"client endpoint"| ClientConfig
   Config -->|"backend settings"| ModelConfig
+  Config -->|"logging section"| LoggingConfig
+  LoggingConfig -->|"info/warning/error gates"| LoggerApi
+  LoggerApi -->|"accepts Into LogMessage"| LogMessage
+  LogMessage -->|"carries tag"| LogTag
+  LoggerApi -->|"returns failures"| LoggingError
   Toml -->|"parses config"| Config
   Serde -->|"serializes envelopes"| RequestEnvelope
   Serde -->|"serializes envelopes"| ResponseEnvelope

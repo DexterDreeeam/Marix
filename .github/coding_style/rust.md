@@ -82,6 +82,9 @@ Prefer structured diagnostics or existing logging paths over raw print macros.
 - Put private helper types, private helper functions, private inherent impl
   blocks, and other module-internal implementation details below that marker.
   If a file has no private section, omit the marker.
+- Place file-level `const` and `static` items immediately after imports and
+  module declarations, before other top-level items. Keep them above the private
+  section marker even when their visibility is private.
 - Omit the marker in binary `main.rs` entry files that have no primary module
   struct/API type, even when the file contains private constants or helper
   functions.

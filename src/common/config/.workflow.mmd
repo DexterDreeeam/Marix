@@ -8,6 +8,7 @@ flowchart LR
     AgentConfig["AgentConfig"]
     ModelConfig["ModelConfig"]
     LoggingConfig["LoggingConfig"]
+    LoggingFlags["enable_log_info/warning/error"]
     CredentialConfig["CredentialConfig"]
   end
 
@@ -26,6 +27,7 @@ flowchart LR
   TomlParser["toml parser"]
   AgentMain["agent main"]
   CliRun["cli run"]
+  LoggingModule["common logging module"]
 
   CONFIG_FILE -->|"default path name"| Config
   TomlParser -->|"loads TOML"| Config
@@ -41,5 +43,7 @@ flowchart LR
   ModelConfig -->|"backend selector"| ModelBackend
   ModelBackend -->|"Deepseek settings"| DeepseekConfig
   Config -->|"logging options"| LoggingConfig
+  LoggingConfig -->|"serde-default gates"| LoggingFlags
+  LoggingFlags -->|"enable log writes"| LoggingModule
   AgentConfig -->|"listener address"| AgentMain
   ClientConfig -->|"server address"| CliRun

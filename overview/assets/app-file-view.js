@@ -31,7 +31,7 @@
     }
 
     if (!viewWholeFile) {
-      if (hidePrivateCode && fileData) await ensureFileContent(path);
+      await ensureFileContent(path);
       showChangedSections(path, change || { diff_lines: [], hunks: [] });
       return;
     }
@@ -168,11 +168,9 @@
       return;
     }
 
-    if (hidePrivateCode) {
-      await Promise.all(files.map(async file => {
-        if ((manifest.files || {})[file]) await ensureFileContent(file);
-      }));
-    }
+    await Promise.all(files.map(async file => {
+      if ((manifest.files || {})[file]) await ensureFileContent(file);
+    }));
 
     const panels = files.map(file => {
       const change = getChange(file);
@@ -233,8 +231,12 @@
 
   function showMarkdown(content) {
     const el = document.getElementById("markdown-view");
+    const parts = splitPrivateSourceContent(content);
     el.style.display = "block";
-    el.innerHTML = marked.parse(content);
+    el.innerHTML = `
+      ${marked.parse(parts.publicContent)}
+      ${renderPrivateCodeReveal(parts.privateContent ? `<div class="private-markdown-content">${marked.parse(parts.privateContent)}</div>` : "")}
+    `;
     el.querySelectorAll("pre code").forEach(block => hljs.highlightElement(block));
   }
 
@@ -261,7 +263,15 @@
     codeEl.className = "";
     codeEl.removeAttribute("data-highlighted");
     if (lang) codeEl.classList.add(`language-${lang}`);
-    codeEl.innerHTML = highlightSource(content, lang);
+    const parts = splitPrivateSourceContent(content);
+    codeEl.innerHTML = highlightSource(parts.publicContent, lang);
+    const existingReveal = view.querySelector(".private-code-reveal");
+    if (existingReveal) existingReveal.remove();
+    if (parts.privateContent) {
+      const languageClass = lang ? ` class="language-${escapeHtml(lang)}"` : "";
+      const privateHtml = `<pre class="private-plain-code"><code${languageClass}>${highlightSource(parts.privateContent, lang)}</code></pre>`;
+      view.insertAdjacentHTML("beforeend", renderPrivateCodeReveal(privateHtml));
+    }
   }
 
   function showChangedSections(path, change) {

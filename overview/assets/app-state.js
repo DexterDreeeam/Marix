@@ -4,7 +4,6 @@
   let overviewMode = "file";
   let viewWholeFile = false;
   let treeChangedFilesOnly = false;
-  let hidePrivateCode = false;
   let starMapShowAllFiles = false;
   let currentFile = null;
   let currentDirectory = null;
@@ -35,7 +34,6 @@
       overviewMode = "file";
     }
     treeChangedFilesOnly = loadBooleanSetting(STORAGE_KEYS.treeChangedFilesOnly, false);
-    hidePrivateCode = loadBooleanSetting(STORAGE_KEYS.hidePrivateCode, false);
     starMapShowAllFiles = loadBooleanSetting(STORAGE_KEYS.starMapShowAllFiles, false);
     scopePath = normalizeScopePath(localStorage.getItem(STORAGE_KEYS.scopePath) || SOURCE_ROOT);
     starMapSelection = { kind: "module", path: scopePath };
@@ -196,7 +194,6 @@
     updateActionButton("btn-reset-star-map", "resetView");
     updateActionButton("btn-reset-data-source", "resetDataSourceTool");
     updateTreeFilterButton();
-    updatePrivateCodeButton();
     updateDataSourceDependentControls();
     if (typeof refreshActiveReloadBannerLanguage === "function") refreshActiveReloadBannerLanguage();
 
@@ -242,7 +239,6 @@
 
     }
     updateTreeFilterButton();
-    updatePrivateCodeButton();
     updateDataSourceDependentControls();
   }
 
@@ -410,16 +406,6 @@
       treeChangedFilesOnly ? "treeAllFilesTool" : "treeChangedFilesOnlyTool",
       treeChangedFilesOnly
     );
-  }
-
-  function updatePrivateCodeButton() {
-    updateToolButton(
-      "btn-hide-private-code",
-      hidePrivateCode ? "showPrivateCodeTool" : "hidePrivateCodeTool",
-      hidePrivateCode
-    );
-    const icon = document.querySelector("#btn-hide-private-code i");
-    if (icon) icon.className = hidePrivateCode ? "bi bi-eye" : "bi bi-eye-slash";
   }
 
   function updateToolButton(id, labelKey, active) {
