@@ -3,19 +3,32 @@
   "module": {
     "path": "src/client",
     "name": "client",
-    "purpose": "Client-facing draft split into an interactive streaming CLI binary/interface with mod.rs-only module wiring and a remoc-backed core client session/task endpoint that sends each prompt request, receives streamed response message segments, and separates public client interfaces from private transport helpers with explicit Rust section markers where needed.",
-    "changeStatus": "unchanged"
+    "purpose": "Client-facing draft split into an interactive streaming CLI binary/interface, a remoc-backed core client session/task endpoint, a client-side executor draft for streamed tool invocations, and a unified tool interface layer where Tool carries type/platform/category/name/description/schema/invoke contracts while ToolRegistry publishes DefaultPreview and ToolPreview records from category metadata and native tools.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
+    {
+      "path": "src/client/cli",
+      "name": "cli",
+      "purpose": "Interactive CLI binary entry and public interface for connecting to the core client endpoint, sending each typed prompt as a chat request, streaming response segments to stdout, and reporting how many segments were printed, with mod.rs limited to module wiring."
+    },
     {
       "path": "src/client/core",
       "name": "core",
       "purpose": "Core client session endpoint backed by remoc/TCP with task creation, initial request submission, and streamed response segment receives."
     },
     {
-      "path": "src/client/cli",
-      "name": "cli",
-      "purpose": "Interactive CLI binary entry and public interface for connecting to the core client endpoint, sending each typed prompt as a chat request, streaming response segments to stdout, and reporting how many segments were printed, with mod.rs limited to module wiring."
+      "path": "src/client/executor",
+      "name": "executor",
+      "purpose": "Client-side executor draft that dispatches tool invocations through a registry and streams tool outcomes over a channel."
+    },
+    {
+      "path": "src/client/tool",
+      "name": "tool",
+      "purpose": "Client-side unified tool interface layer with direct Tool metadata methods, ToolType Primary/Native/Skill/User variants, ToolPreview/DefaultPreview registry advertising, CategoryPreview category metadata from category.rs, typed errors, and folder-organized category/native preview lists."
     }
   ],
   "elements": []

@@ -1,11 +1,14 @@
-use super::descriptor::ToolDescriptor;
+use super::category::CategoryPreview;
 use super::error::ToolError;
-use super::mcp::McpServer;
-use super::tool::Tool;
+use super::tool::{Tool, ToolPreview};
+
+pub struct DefaultPreview {
+    pub primary_tool_previews: Vec<ToolPreview>,
+    pub category_previews: Vec<CategoryPreview>,
+}
 
 /// Collection of available tools, keyed by name. Builtins are registered at
-/// startup; user tools are registered at runtime. Advertised to the engine as a
-/// descriptor list.
+/// startup; user tools are registered at runtime.
 pub struct ToolRegistry;
 
 impl ToolRegistry {
@@ -17,11 +20,11 @@ impl ToolRegistry {
         panic!("not implemented")
     }
 
-    pub fn register_mcp_server(&mut self, server: Box<dyn McpServer>) -> Result<(), ToolError> {
+    pub fn default_preview(&self) -> DefaultPreview {
         panic!("not implemented")
     }
 
-    pub fn descriptors(&self) -> Vec<ToolDescriptor> {
+    pub fn tool_preview(&self) -> Vec<ToolPreview> {
         panic!("not implemented")
     }
 

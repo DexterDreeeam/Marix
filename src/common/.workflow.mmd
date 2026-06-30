@@ -1,7 +1,7 @@
 flowchart LR
   subgraph config["config"]
     Config["Config"]
-    RuntimeConfig["RuntimeConfig"]
+    RuntimeConfig["RuntimeConfig\nmarix paths"]
     AgentConfig["AgentConfig"]
     ClientConfig["ClientConfig"]
     ModelConfig["ModelConfig"]
@@ -10,6 +10,8 @@ flowchart LR
 
   subgraph logging["logging"]
     LoggerApi["log/warning/error/debug"]
+    ProcessRole["ProcessRole\ninternal"]
+    LogDirectory["<marix_path>/log"]
     LogMessage["LogMessage"]
     LogTag["LogTag"]
     LoggingError["LoggingError"]
@@ -34,16 +36,19 @@ flowchart LR
     Toml["toml namespace"]
   end
 
-  Config -->|"runtime mode/environment"| RuntimeConfig
+  Toml -->|"parses config"| Config
+  Config -->|"runtime mode/environment and paths"| RuntimeConfig
   Config -->|"agent listener"| AgentConfig
   Config -->|"client endpoint"| ClientConfig
   Config -->|"backend settings"| ModelConfig
   Config -->|"logging section"| LoggingConfig
+  RuntimeConfig -->|"role-specific Marix base"| ProcessRole
+  ProcessRole -->|"selects"| LogDirectory
+  LogDirectory -->|"stores log files"| LoggerApi
   LoggingConfig -->|"info/warning/error gates"| LoggerApi
   LoggerApi -->|"accepts Into LogMessage"| LogMessage
   LogMessage -->|"carries tag"| LogTag
   LoggerApi -->|"returns failures"| LoggingError
-  Toml -->|"parses config"| Config
   Serde -->|"serializes envelopes"| RequestEnvelope
   Serde -->|"serializes envelopes"| ResponseEnvelope
   ChatRequest -->|"payload for request envelope"| RequestEnvelope

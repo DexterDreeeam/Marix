@@ -1,6 +1,9 @@
 [runtime]
 environment = "development"
 mode = "network"
+marix_path = "C:\\marix"
+marix_path_client = "C:\\marix"
+marix_path_agent = "."
 
 [client]
 core_address = "{{ubuntu_ip}}:{{ubuntu_core_port}}"
@@ -21,7 +24,7 @@ model = "deepseek-chat"
 api_key = { name = "DEEPSEEK_API_KEY" }
 
 [logging]
-directory = "logs"
+directory = "log"
 level = "info"
 enable_log_info = false
 enable_log_warning = false

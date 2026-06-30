@@ -1,49 +1,43 @@
 flowchart LR
   subgraph config_rs["config.rs"]
     CONFIG_FILE["CONFIG_FILE"]
-    Config["Config"]
-    RuntimeConfig["RuntimeConfig"]
+    Config["Config\nstruct + load"]
+    RuntimeConfig["RuntimeConfig\nruntime paths"]
+    RuntimeEnvironment["RuntimeEnvironment"]
+    RuntimeMode["RuntimeMode"]
     CoreConfig["CoreConfig"]
     ClientConfig["ClientConfig"]
     AgentConfig["AgentConfig"]
     ModelConfig["ModelConfig"]
     LoggingConfig["LoggingConfig"]
-    LoggingFlags["enable_log_info/warning/error"]
     CredentialConfig["CredentialConfig"]
-  end
-
-  subgraph model_rs["model.rs"]
-    ModelBackend["ModelBackend"]
-    DeepseekConfig["DeepseekConfig"]
-  end
-
-  subgraph runtime_rs["runtime.rs"]
-    RuntimeEnvironment["RuntimeEnvironment"]
-    RuntimeMode["RuntimeMode"]
+    RuntimePathResolver["runtime path resolver\ninternal helpers"]
   end
 
   AliasFiles[".alias values"]
   CredentialFiles["credential files"]
   TomlParser["toml parser"]
+  ConfigRoot["config repository/deployment root"]
   AgentMain["agent main"]
   CliRun["cli run"]
   LoggingModule["common logging module"]
 
-  CONFIG_FILE -->|"default path name"| Config
-  TomlParser -->|"loads TOML"| Config
+  CONFIG_FILE -->|"default source config name"| Config
+  TomlParser -->|"deserializes TOML"| Config
   AliasFiles -->|"substitutes placeholders"| Config
-  CredentialFiles -->|"resolves secrets paths"| CredentialConfig
-  Config -->|"runtime settings"| RuntimeConfig
+  Config -->|"owns runtime section"| RuntimeConfig
   RuntimeConfig -->|"environment"| RuntimeEnvironment
   RuntimeConfig -->|"mode"| RuntimeMode
+  ConfigRoot -->|"base for relative paths"| RuntimePathResolver
+  RuntimePathResolver -->|"normalizes marix_path and role overrides"| RuntimeConfig
   Config -->|"optional core endpoint"| CoreConfig
   Config -->|"client endpoint"| ClientConfig
   Config -->|"agent bind address"| AgentConfig
   Config -->|"model settings"| ModelConfig
-  ModelConfig -->|"backend selector"| ModelBackend
-  ModelBackend -->|"Deepseek settings"| DeepseekConfig
-  Config -->|"logging options"| LoggingConfig
-  LoggingConfig -->|"serde-default gates"| LoggingFlags
-  LoggingFlags -->|"enable log writes"| LoggingModule
+  Config -->|"logging switches"| LoggingConfig
+  Config -->|"credential directory"| CredentialConfig
+  CredentialConfig -->|"resolves secret files"| CredentialFiles
+  RuntimeConfig -->|"selected Marix path"| LoggingModule
+  LoggingConfig -->|"info/warning/error gates"| LoggingModule
   AgentConfig -->|"listener address"| AgentMain
   ClientConfig -->|"server address"| CliRun

@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/client/tool/native/shell",
+    "name": "shell",
+    "purpose": "Owns the native shell command execution Tool implementation stub and ToolPreview metadata.",
+    "changeStatus": "modified"
+  },
+  "modified": [
+    "mod.rs",
+    "shell_execute.rs"
+  ],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "ShellExecuteTool",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/tool/native/shell/shell_execute.rs",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/shell/shell_execute.rs",
+          "lineStart": 9,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 14
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/shell/shell_execute.rs",
+          "lineStart": 17,
+          "lineEnd": 45,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 30,
+              "lineEnd": 40
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 17
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

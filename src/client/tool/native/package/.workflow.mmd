@@ -1,0 +1,13 @@
+flowchart LR
+  %% native package tools expose one Tool-implementing struct for package metadata queries.
+  ToolPreview["ToolPreview\nname/description/schema"]
+  ToolTrait["Tool\ntrait"]
+  NativeToolList["NATIVE_TOOL_LIST\nconst array"]
+
+  subgraph package_query_rs["package_query.rs"]
+    PackageQueryTool["PackageQueryTool\nstruct"]
+  end
+
+  PackageQueryTool -->|"implements tool interface"| ToolTrait
+  PackageQueryTool -->|"PREVIEW metadata"| ToolPreview
+  NativeToolList -->|"includes PackageQueryTool::PREVIEW"| ToolPreview

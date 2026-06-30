@@ -3,9 +3,12 @@
   "module": {
     "path": "src/common/logging",
     "name": "logging",
-    "purpose": "Common logging module with tagged log messages, structured logging errors, config-gated info/warning/error writes, direct warning/error shortcut functions, debug-build logging, platform-specific log directory selection, timestamped log-file creation, and pruning to retain at most 20 log files.",
-    "changeStatus": "unchanged"
+    "purpose": "Common logging module with tagged log messages, structured logging errors, config-gated info/warning/error writes, direct warning/error shortcut functions, debug-build logging, runtime-config-selected log directories under the process role's Marix path plus a fixed log child folder, timestamped log-file creation, and pruning to retain at most 20 log files.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "logger.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -104,14 +107,66 @@
     {
       "name": "log",
       "type": "function",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 15,
-          "lineEnd": 22,
+          "lineStart": 11,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 11
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 17,
+          "lineEnd": 24,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 60,
+          "lineEnd": 64,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 60,
+              "lineEnd": 64
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 139,
+          "lineEnd": 142,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 139,
+              "lineEnd": 142
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 201,
+          "lineEnd": 232,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 201,
+              "lineEnd": 232
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -123,15 +178,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 24,
-          "lineEnd": 27,
+          "lineStart": 27,
+          "lineEnd": 29,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 24,
-              "lineEnd": 27
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -143,15 +193,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 29,
-          "lineEnd": 32,
+          "lineStart": 32,
+          "lineEnd": 34,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 29,
-              "lineEnd": 32
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -163,16 +208,16 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 34,
-          "lineEnd": 41,
+          "lineStart": 37,
+          "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 43,
-          "lineEnd": 50,
+          "lineStart": 46,
+          "lineEnd": 52,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

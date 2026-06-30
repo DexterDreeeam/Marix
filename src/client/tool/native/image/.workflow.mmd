@@ -1,0 +1,18 @@
+flowchart LR
+  %% native image tools expose one Tool-implementing struct per image capability.
+  ToolPreview["ToolPreview\nname/description/schema"]
+  ToolTrait["Tool\ntrait"]
+  NativeToolList["NATIVE_TOOL_LIST\nconst array"]
+
+  subgraph image_inspect_rs["image_inspect.rs"]
+    ImageInspectTool["ImageInspectTool\nstruct"]
+  end
+  subgraph image_transform_rs["image_transform.rs"]
+    ImageTransformTool["ImageTransformTool\nstruct"]
+  end
+
+  ImageInspectTool -->|"implements tool interface"| ToolTrait
+  ImageInspectTool -->|"PREVIEW metadata"| ToolPreview
+  ImageTransformTool -->|"implements tool interface"| ToolTrait
+  ImageTransformTool -->|"PREVIEW metadata"| ToolPreview
+  NativeToolList -->|"includes image tool previews"| ToolPreview

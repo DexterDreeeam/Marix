@@ -11,6 +11,31 @@ flowchart LR
     ClientTask["ClientTask"]
   end
 
+  subgraph executor["executor"]
+    Executor["Executor"]
+  end
+
+  subgraph tool["tool"]
+    ToolRegistry["ToolRegistry"]
+    ToolTrait["Tool"]
+    DefaultPreview["DefaultPreview"]
+    ToolPreview["ToolPreview"]
+    ToolInvocation["ToolInvocation"]
+    ToolOutcome["ToolOutcome"]
+  end
+
+  subgraph category["tool/category.rs + tool/category/"]
+    ToolCategoryList["TOOL_CATEGORY_LIST"]
+    ToolCategory["ToolCategory"]
+    CategoryPreview["CategoryPreview"]
+  end
+
+  subgraph native["tool/native"]
+    NativeToolList["NATIVE_TOOL_LIST"]
+    PrimaryNativeToolList["PRIMARY_NATIVE_TOOL_LIST"]
+    NativeToolStructs["category native tool structs"]
+  end
+
   Config["Config"]
   ChatRequest["ChatRequest"]
   SessionEvent["SessionEvent"]
@@ -26,3 +51,19 @@ flowchart LR
   ClientTask -->|"receives response stream"| ChatResponseSegment
   ChatResponseSegment -->|"printed to stdout"| CliRun
   CliRun -->|"segment count"| CliRunResult
+  Executor -->|"dispatches"| ToolInvocation
+  Executor -->|"uses registry"| ToolRegistry
+  ToolRegistry -->|"stores"| ToolTrait
+  ToolRegistry -->|"default_preview()"| DefaultPreview
+  ToolRegistry -->|"tool_preview()"| ToolPreview
+  DefaultPreview -->|"primary_tool_previews"| ToolPreview
+  DefaultPreview -->|"category_previews"| CategoryPreview
+  ToolRegistry -->|"streams outcomes"| ToolOutcome
+  ToolTrait -->|"reports categories"| ToolCategory
+  ToolTrait -->|"reports preview fields"| ToolPreview
+  ToolCategoryList -->|"publishes category previews"| CategoryPreview
+  NativeToolStructs -->|"implements"| ToolTrait
+  NativeToolStructs -->|"associated PREVIEW"| ToolPreview
+  NativeToolList -->|"const native previews"| ToolPreview
+  PrimaryNativeToolList -->|"primary shell/http previews"| ToolPreview
+  NativeToolList -->|"seeds native builtins"| ToolRegistry

@@ -1,0 +1,28 @@
+flowchart LR
+  %% native file tools expose one Tool-implementing struct per native file capability.
+  ToolPreview["ToolPreview\nname/description/schema"]
+  ToolTrait["Tool\ntrait"]
+  NativeToolList["NATIVE_TOOL_LIST\nconst array"]
+
+  subgraph read_file_rs["read_file.rs"]
+    ReadFileTool["ReadFileTool\nstruct"]
+  end
+  subgraph write_file_rs["write_file.rs"]
+    WriteFileTool["WriteFileTool\nstruct"]
+  end
+  subgraph list_directory_rs["list_directory.rs"]
+    ListDirectoryTool["ListDirectoryTool\nstruct"]
+  end
+  subgraph search_text_rs["search_text.rs"]
+    SearchTextTool["SearchTextTool\nstruct"]
+  end
+
+  ReadFileTool -->|"implements tool interface"| ToolTrait
+  ReadFileTool -->|"PREVIEW metadata"| ToolPreview
+  WriteFileTool -->|"implements tool interface"| ToolTrait
+  WriteFileTool -->|"PREVIEW metadata"| ToolPreview
+  ListDirectoryTool -->|"implements tool interface"| ToolTrait
+  ListDirectoryTool -->|"PREVIEW metadata"| ToolPreview
+  SearchTextTool -->|"implements tool interface"| ToolTrait
+  SearchTextTool -->|"PREVIEW metadata"| ToolPreview
+  NativeToolList -->|"includes file tool previews"| ToolPreview

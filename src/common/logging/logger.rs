@@ -1,3 +1,4 @@
+use std::env;
 use std::fs::{File, OpenOptions};
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -7,10 +8,11 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use crate::common::config::{Config, LoggingConfig};
 use crate::common::logging::{LogMessage, LogTag, LoggingError};
 
+const LOG_DIRECTORY_NAME: &str = "log";
+const MAX_LOG_FILE_COUNT: usize = 20;
+
 static LOGGING_CONFIG: OnceLock<Result<LoggingConfig, LoggingError>> = OnceLock::new();
 static LOG_FILE: OnceLock<Result<Mutex<LogFile>, LoggingError>> = OnceLock::new();
-
-const MAX_LOG_FILE_COUNT: usize = 20;
 
 /// Writes an info, warning, or error log message when the matching config flag is enabled.
 pub fn log(message: impl Into<LogMessage>) -> Result<(), LoggingError> {
@@ -53,6 +55,12 @@ where
 
 struct LogFile {
     file: File,
+}
+
+enum ProcessRole {
+    Client,
+    Agent,
+    Shared,
 }
 
 impl LogFile {
@@ -128,14 +136,9 @@ fn log_file() -> Result<&'static Mutex<LogFile>, LoggingError> {
     }
 }
 
-#[cfg(windows)]
 fn log_directory() -> Result<PathBuf, LoggingError> {
-    Ok(PathBuf::from(r"C:\marix"))
-}
-
-#[cfg(not(windows))]
-fn log_directory() -> Result<PathBuf, LoggingError> {
-    Ok(PathBuf::from(&logging_config()?.directory))
+    let config = Config::load().map_err(LoggingError::Config)?;
+    Ok(PathBuf::from(marix_path_for_process(&config)).join(LOG_DIRECTORY_NAME))
 }
 
 fn prune_log_files(directory: &Path) -> Result<(), LoggingError> {
@@ -193,6 +196,39 @@ fn timestamp_millis() -> Result<u128, LoggingError> {
 
 fn normalize_log_message(message: &str) -> String {
     message.replace("\r\n", "\\n").replace(['\r', '\n'], "\\n")
+}
+
+fn marix_path_for_process(config: &Config) -> &str {
+    match current_process_role() {
+        ProcessRole::Client => config
+            .runtime
+            .marix_path_client
+            .as_deref()
+            .unwrap_or(&config.runtime.marix_path),
+        ProcessRole::Agent => config
+            .runtime
+            .marix_path_agent
+            .as_deref()
+            .unwrap_or(&config.runtime.marix_path),
+        ProcessRole::Shared => &config.runtime.marix_path,
+    }
+}
+
+fn current_process_role() -> ProcessRole {
+    let Some(name) = env::current_exe().ok().and_then(|path| {
+        path.file_name()
+            .map(|name| name.to_string_lossy().to_lowercase())
+    }) else {
+        return ProcessRole::Shared;
+    };
+
+    if name.contains("agent") {
+        ProcessRole::Agent
+    } else if name.contains("client") || name.contains("cli") {
+        ProcessRole::Client
+    } else {
+        ProcessRole::Shared
+    }
 }
 
 struct LogFileEntry {

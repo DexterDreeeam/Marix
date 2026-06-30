@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/client/tool/native",
+    "name": "native",
+    "purpose": "Defines folder-organized native tool type stubs. Native tools implement the ordinary Tool trait directly, expose static ToolPreview metadata, and are aggregated by NATIVE_TOOL_LIST plus PRIMARY_NATIVE_TOOL_LIST.",
+    "changeStatus": "modified"
+  },
+  "modified": [
+    ".",
+    "mod.rs",
+    "native_tool_list.rs"
+  ],
+  "childModules": [
+    {
+      "path": "src/client/tool/native/file",
+      "name": "file",
+      "purpose": "Owns file-system native Tool implementation stubs and ToolPreview metadata."
+    },
+    {
+      "path": "src/client/tool/native/image",
+      "name": "image",
+      "purpose": "Owns native image inspection and transformation Tool implementation stubs and ToolPreview metadata."
+    },
+    {
+      "path": "src/client/tool/native/network",
+      "name": "network",
+      "purpose": "Owns native HTTP request and DNS lookup Tool implementation stubs and ToolPreview metadata."
+    },
+    {
+      "path": "src/client/tool/native/package",
+      "name": "package",
+      "purpose": "Owns native package metadata query Tool implementation stubs and ToolPreview metadata."
+    },
+    {
+      "path": "src/client/tool/native/shell",
+      "name": "shell",
+      "purpose": "Owns native shell command execution Tool implementation stubs and ToolPreview metadata."
+    },
+    {
+      "path": "src/client/tool/native/system",
+      "name": "system",
+      "purpose": "Owns native system, process, and environment inspection Tool implementation stubs and ToolPreview metadata."
+    }
+  ],
+  "elements": [
+    {
+      "name": "PRIMARY_NATIVE_TOOL_LIST",
+      "type": "const",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/tool/native/native_tool_list.rs",
+          "lineStart": 8,
+          "lineEnd": 25,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "NATIVE_TOOL_LIST",
+      "type": "const",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/tool/native/native_tool_list.rs",
+          "lineStart": 11,
+          "lineEnd": 25,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 25
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -35,6 +35,12 @@ impl Config {
 pub struct RuntimeConfig {
     pub environment: RuntimeEnvironment,
     pub mode: RuntimeMode,
+    #[serde(default = "default_marix_path")]
+    pub marix_path: String,
+    #[serde(default)]
+    pub marix_path_client: Option<String>,
+    #[serde(default)]
+    pub marix_path_agent: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
@@ -181,8 +187,10 @@ fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
     let credential_root = resolve_config_path(&repo_root, &raw_config.credential.directory);
     let deepseek_api_key = read_credential(&credential_root, &raw_config.model.deepseek.api_key)?;
 
+    let runtime = resolve_runtime_paths(&repo_root, raw_config.runtime);
+
     Ok(Config {
-        runtime: raw_config.runtime,
+        runtime,
         core: raw_config.core.unwrap_or_else(default_core_config),
         client: raw_config.client,
         agent: raw_config.agent,
@@ -204,6 +212,48 @@ fn default_core_config() -> CoreConfig {
         bind_address: "127.0.0.1:0".to_owned(),
         worker_threads: 1,
     }
+}
+
+fn default_marix_path() -> String {
+    ".".to_owned()
+}
+
+fn resolve_runtime_paths(repo_root: &Path, mut runtime: RuntimeConfig) -> RuntimeConfig {
+    runtime.marix_path = resolve_required_runtime_path(repo_root, &runtime.marix_path);
+    runtime.marix_path_client = resolve_optional_runtime_path(repo_root, runtime.marix_path_client);
+    runtime.marix_path_agent = resolve_optional_runtime_path(repo_root, runtime.marix_path_agent);
+    runtime
+}
+
+fn resolve_required_runtime_path(repo_root: &Path, configured_path: &str) -> String {
+    let trimmed_path = configured_path.trim();
+    let path = if trimmed_path.is_empty() {
+        repo_root.to_path_buf()
+    } else {
+        resolve_config_path(repo_root, trimmed_path)
+    };
+    path_to_config_string(path)
+}
+
+fn resolve_optional_runtime_path(
+    repo_root: &Path,
+    configured_path: Option<String>,
+) -> Option<String> {
+    configured_path.and_then(|path| {
+        let trimmed_path = path.trim();
+        if trimmed_path.is_empty() {
+            None
+        } else {
+            Some(path_to_config_string(resolve_config_path(
+                repo_root,
+                trimmed_path,
+            )))
+        }
+    })
+}
+
+fn path_to_config_string(path: PathBuf) -> String {
+    path.to_string_lossy().into_owned()
 }
 
 fn repository_root_for_config(config_path: &Path) -> PathBuf {

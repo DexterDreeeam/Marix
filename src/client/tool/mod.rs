@@ -1,11 +1,21 @@
-pub mod descriptor;
+pub mod category;
 pub mod error;
-pub mod mcp;
+pub mod native;
 pub mod registry;
 pub mod tool;
 
-pub use descriptor::{ToolDescriptor, ToolParameterSchema, ToolSource};
+pub use category::{
+    CategoryPreview, ToolCategory, ToolCategoryEnvironment, ToolCategoryFile, ToolCategoryImage,
+    ToolCategoryNetwork, ToolCategoryPackage, ToolCategoryProcess, ToolCategoryShell,
+    ToolCategorySystem, ToolCategoryText, TOOL_CATEGORY_LIST,
+};
 pub use error::ToolError;
-pub use mcp::McpServer;
-pub use registry::ToolRegistry;
-pub use tool::{Tool, ToolInvocation, ToolOutcome, ToolOutput};
+pub use native::{
+    DnsLookupTool, EnvironmentTool, HttpRequestTool, ImageInspectTool, ImageTransformTool,
+    ListDirectoryTool, PackageQueryTool, ProcessListTool, ReadFileTool, SearchTextTool,
+    ShellExecuteTool, SystemInfoTool, WriteFileTool, NATIVE_TOOL_LIST, PRIMARY_NATIVE_TOOL_LIST,
+};
+pub use registry::{DefaultPreview, ToolRegistry};
+pub use tool::{
+    Tool, ToolInvocation, ToolOutcome, ToolOutput, ToolPlatform, ToolPreview, ToolType, UserTool,
+};

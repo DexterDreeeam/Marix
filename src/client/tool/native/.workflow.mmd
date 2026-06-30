@@ -1,0 +1,38 @@
+flowchart LR
+  subgraph native_tool_list_rs["native_tool_list.rs"]
+    PrimaryNativeToolList["PRIMARY_NATIVE_TOOL_LIST\nconst array"]
+    NativeToolList["NATIVE_TOOL_LIST\nconst array"]
+  end
+
+  subgraph categories["native category folders"]
+    FileTools["file tools\nread/write/list/search"]
+    ImageTools["image tools\ninspect/transform"]
+    NetworkTools["network tools\nHTTP/DNS"]
+    ShellTools["shell tools\nexecute"]
+    SystemTools["system tools\nsystem/process/env"]
+    PackageTools["package tools\nquery"]
+  end
+
+  ToolTrait["Tool\ntrait"]
+  ToolPreview["ToolPreview\nname/description/schema"]
+  ToolType["ToolType\nPrimary/Native"]
+  ToolPlatform["ToolPlatform\nAll/Win/Ubuntu"]
+  ToolCategory["ToolCategory\ncategory ids"]
+
+  FileTools -->|"implements Tool"| ToolTrait
+  ImageTools -->|"implements Tool"| ToolTrait
+  NetworkTools -->|"implements Tool"| ToolTrait
+  ShellTools -->|"implements Tool"| ToolTrait
+  SystemTools -->|"implements Tool"| ToolTrait
+  PackageTools -->|"implements Tool"| ToolTrait
+  ToolTrait -->|"tool_type"| ToolType
+  ToolTrait -->|"platforms"| ToolPlatform
+  ToolTrait -->|"categories"| ToolCategory
+  FileTools -->|"PREVIEW"| ToolPreview
+  ImageTools -->|"PREVIEW"| ToolPreview
+  NetworkTools -->|"PREVIEW"| ToolPreview
+  ShellTools -->|"PREVIEW"| ToolPreview
+  SystemTools -->|"PREVIEW"| ToolPreview
+  PackageTools -->|"PREVIEW"| ToolPreview
+  NativeToolList -->|"collects every native preview"| ToolPreview
+  PrimaryNativeToolList -->|"collects ShellExecuteTool and HttpRequestTool previews"| ToolPreview

@@ -1,0 +1,15 @@
+flowchart LR
+  %% native shell tools expose one Tool-implementing struct for shell execution.
+  ToolPreview["ToolPreview\nname/description/schema"]
+  ToolTrait["Tool\ntrait"]
+  NativeToolList["NATIVE_TOOL_LIST\nconst array"]
+  PrimaryNativeToolList["PRIMARY_NATIVE_TOOL_LIST\nconst array"]
+
+  subgraph shell_execute_rs["shell_execute.rs"]
+    ShellExecuteTool["ShellExecuteTool\nstruct"]
+  end
+
+  ShellExecuteTool -->|"implements tool interface"| ToolTrait
+  ShellExecuteTool -->|"PREVIEW metadata"| ToolPreview
+  NativeToolList -->|"includes ShellExecuteTool::PREVIEW"| ToolPreview
+  PrimaryNativeToolList -->|"includes ShellExecuteTool::PREVIEW"| ToolPreview

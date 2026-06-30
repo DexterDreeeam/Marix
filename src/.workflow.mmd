@@ -4,6 +4,11 @@ flowchart LR
     CliRun["cli::run"]
     ClientSession["ClientSession"]
     ClientTask["ClientTask"]
+    ToolRegistry["ToolRegistry"]
+    ToolTrait["Tool"]
+    DefaultPreview["DefaultPreview"]
+    ToolPreviews["ToolPreview list"]
+    CategoryPreviews["CategoryPreview list\ncategory.rs + category/"]
   end
 
   subgraph agent["src/agent"]
@@ -16,6 +21,7 @@ flowchart LR
 
   subgraph common["src/common"]
     Config["Config"]
+    RuntimeConfig["RuntimeConfig\nmarix paths"]
     CommonLogging["common logging"]
     SessionEvent["SessionEvent"]
     ChatRequest["ChatRequest"]
@@ -23,6 +29,8 @@ flowchart LR
     ExternalNamespaces["external namespaces"]
   end
 
+  Config -->|"normalizes runtime paths"| RuntimeConfig
+  RuntimeConfig -->|"selects <marix_path>/log"| CommonLogging
   CliEntry -->|"loads client config"| Config
   AgentEntry -->|"loads agent bind address"| Config
   Config -->|"gates info/warning/error logs"| CommonLogging
@@ -36,5 +44,11 @@ flowchart LR
   ModelBackend -->|"streams segments"| ChatResponseSegment
   ChatResponseSegment -->|"returns through task route"| ClientTask
   ClientTask -->|"prints streamed output"| CliRun
+  ToolRegistry -->|"default_preview()"| DefaultPreview
+  ToolRegistry -->|"tool_preview()"| ToolPreviews
+  DefaultPreview -->|"primary_tool_previews"| ToolPreviews
+  DefaultPreview -->|"category_previews"| CategoryPreviews
+  ToolRegistry -->|"stores dyn Tool"| ToolTrait
+  ToolRegistry -->|"publishes tool previews"| ClientSession
   ExternalNamespaces -->|"shared transport/runtime crates"| ClientSession
   ExternalNamespaces -->|"shared transport/runtime crates"| AgentSession

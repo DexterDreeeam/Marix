@@ -1,0 +1,23 @@
+flowchart LR
+  %% native system tools expose one Tool-implementing struct per system capability.
+  ToolPreview["ToolPreview\nname/description/schema"]
+  ToolTrait["Tool\ntrait"]
+  NativeToolList["NATIVE_TOOL_LIST\nconst array"]
+
+  subgraph system_info_rs["system_info.rs"]
+    SystemInfoTool["SystemInfoTool\nstruct"]
+  end
+  subgraph process_list_rs["process_list.rs"]
+    ProcessListTool["ProcessListTool\nstruct"]
+  end
+  subgraph environment_rs["environment.rs"]
+    EnvironmentTool["EnvironmentTool\nstruct"]
+  end
+
+  SystemInfoTool -->|"implements tool interface"| ToolTrait
+  SystemInfoTool -->|"PREVIEW metadata"| ToolPreview
+  ProcessListTool -->|"implements tool interface"| ToolTrait
+  ProcessListTool -->|"PREVIEW metadata"| ToolPreview
+  EnvironmentTool -->|"implements tool interface"| ToolTrait
+  EnvironmentTool -->|"PREVIEW metadata"| ToolPreview
+  NativeToolList -->|"includes system tool previews"| ToolPreview

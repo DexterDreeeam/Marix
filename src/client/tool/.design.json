@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/client/tool",
+    "name": "tool",
+    "purpose": "Client-side tool interface layer with a unified Tool trait, ToolType limited to Primary, Native, Skill, and User, DefaultPreview and ToolPreview preview records, ToolRegistry default/tool preview APIs, typed errors, CategoryPreview category metadata, and folder-organized category/native preview lists.",
+    "changeStatus": "modified"
+  },
+  "modified": [
+    ".",
+    "mod.rs",
+    "tool.rs",
+    "registry.rs"
+  ],
+  "deleted": [
+    "mcp.rs"
+  ],
+  "childModules": [
+    {
+      "path": "src/client/tool/category",
+      "name": "category",
+      "purpose": "Contains per-category preview provider structs and the aggregate TOOL_CATEGORY_LIST consumed by the sibling category.rs module entry."
+    },
+    {
+      "path": "src/client/tool/native",
+      "name": "native",
+      "purpose": "Defines folder-organized native tool type stubs that implement the ordinary Tool trait directly and are aggregated as ToolPreview lists."
+    }
+  ],
+  "elements": [
+    {
+      "name": "ToolCategory",
+      "type": "enum",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/tool/category.rs",
+          "lineStart": 24,
+          "lineEnd": 34,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "CategoryPreview",
+      "type": "struct",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/tool/category.rs",
+          "lineStart": 37,
+          "lineEnd": 40,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolError",
+      "type": "enum",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/tool/error.rs",
+          "lineStart": 6,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "DefaultPreview",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/tool/registry.rs",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 8
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolRegistry",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/tool/registry.rs",
+          "lineStart": 12,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/registry.rs",
+          "lineStart": 14,
+          "lineEnd": 34,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 29
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolType",
+      "type": "enum",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/tool/tool.rs",
+          "lineStart": 8,
+          "lineEnd": 13,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 13
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ToolPlatform",
+      "type": "enum",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/tool/tool.rs",
+          "lineStart": 16,
+          "lineEnd": 22,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Tool",
+      "type": "trait",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/tool/tool.rs",
+          "lineStart": 27,
+          "lineEnd": 41,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "UserTool",
+      "type": "trait",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/tool/tool.rs",
+          "lineStart": 43,
+          "lineEnd": 43,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolPreview",
+      "type": "struct",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/tool/tool.rs",
+          "lineStart": 46,
+          "lineEnd": 50,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolInvocation",
+      "type": "struct",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/tool/tool.rs",
+          "lineStart": 55,
+          "lineEnd": 59,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolOutput",
+      "type": "struct",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/tool/tool.rs",
+          "lineStart": 63,
+          "lineEnd": 66,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolOutcome",
+      "type": "enum",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/tool/tool.rs",
+          "lineStart": 70,
+          "lineEnd": 73,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

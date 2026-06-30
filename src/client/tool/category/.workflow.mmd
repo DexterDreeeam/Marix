@@ -1,0 +1,34 @@
+flowchart LR
+  %% category.rs is the sibling Rust module entry; this folder keeps leaf category files.
+  subgraph category_rs["../category.rs"]
+    ToolCategory["ToolCategory\nenum"]
+    CategoryPreview["CategoryPreview\nstruct"]
+  end
+
+  subgraph tool_category_list_rs["tool_category_list.rs"]
+    ToolCategoryList["TOOL_CATEGORY_LIST\nconst array"]
+  end
+
+  subgraph preview_files["category preview files"]
+    ToolCategoryFile["ToolCategoryFile\nstruct"]
+    ToolCategoryImage["ToolCategoryImage\nstruct"]
+    ToolCategoryNetwork["ToolCategoryNetwork\nstruct"]
+    ToolCategoryShell["ToolCategoryShell\nstruct"]
+    ToolCategorySystem["ToolCategorySystem\nstruct"]
+    ToolCategoryProcess["ToolCategoryProcess\nstruct"]
+    ToolCategoryEnvironment["ToolCategoryEnvironment\nstruct"]
+    ToolCategoryPackage["ToolCategoryPackage\nstruct"]
+    ToolCategoryText["ToolCategoryText\nstruct"]
+  end
+
+  ToolCategoryFile -->|"PREVIEW"| CategoryPreview
+  ToolCategoryImage -->|"PREVIEW"| CategoryPreview
+  ToolCategoryNetwork -->|"PREVIEW"| CategoryPreview
+  ToolCategoryShell -->|"PREVIEW"| CategoryPreview
+  ToolCategorySystem -->|"PREVIEW"| CategoryPreview
+  ToolCategoryProcess -->|"PREVIEW"| CategoryPreview
+  ToolCategoryEnvironment -->|"PREVIEW"| CategoryPreview
+  ToolCategoryPackage -->|"PREVIEW"| CategoryPreview
+  ToolCategoryText -->|"PREVIEW"| CategoryPreview
+  ToolCategoryList -->|"aggregates previews"| CategoryPreview
+  ToolCategory -->|"stable ids used by Tool::categories"| ToolCategoryList

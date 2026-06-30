@@ -1,0 +1,20 @@
+flowchart LR
+  %% native network tools expose one Tool-implementing struct per network capability.
+  ToolPreview["ToolPreview\nname/description/schema"]
+  ToolTrait["Tool\ntrait"]
+  NativeToolList["NATIVE_TOOL_LIST\nconst array"]
+  PrimaryNativeToolList["PRIMARY_NATIVE_TOOL_LIST\nconst array"]
+
+  subgraph http_request_rs["http_request.rs"]
+    HttpRequestTool["HttpRequestTool\nstruct"]
+  end
+  subgraph dns_lookup_rs["dns_lookup.rs"]
+    DnsLookupTool["DnsLookupTool\nstruct"]
+  end
+
+  HttpRequestTool -->|"implements tool interface"| ToolTrait
+  HttpRequestTool -->|"PREVIEW metadata"| ToolPreview
+  DnsLookupTool -->|"implements tool interface"| ToolTrait
+  DnsLookupTool -->|"PREVIEW metadata"| ToolPreview
+  NativeToolList -->|"includes network tool previews"| ToolPreview
+  PrimaryNativeToolList -->|"includes HttpRequestTool::PREVIEW"| ToolPreview

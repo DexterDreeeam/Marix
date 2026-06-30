@@ -15,13 +15,15 @@ flowchart LR
     DebugFn["debug\nfunction"]
     ConfigCache["LOGGING_CONFIG\nOnceLock"]
     FileCache["LOG_FILE\nOnceLock"]
+    ProcessRole["ProcessRole\ninternal role"]
     LogFile["LogFile\ninternal file"]
     PrunePolicy["MAX_LOG_FILE_COUNT\n20"]
   end
 
   Config["Config::load"]
+  RuntimeConfig["RuntimeConfig\nmarix_path overrides"]
   LoggingConfig["LoggingConfig\ninfo/warning/error gates"]
-  Directory["log directory\nWindows C:/marix or configured"]
+  Directory["<selected marix_path>/log"]
   LogPath["timestamped .log path"]
 
   LogFn -->|"accepts Into LogMessage"| LogMessage
@@ -33,10 +35,12 @@ flowchart LR
   LogFn -->|"checks tag gate"| LoggingConfig
   DebugFn -->|"debug builds write DEBUG"| LogFile
   Config -->|"loads logging section"| LoggingConfig
+  Config -->|"loads runtime paths"| RuntimeConfig
+  RuntimeConfig -->|"client/agent/shared base path"| ProcessRole
+  ProcessRole -->|"selects base path"| Directory
   LoggingConfig -->|"cached by"| ConfigCache
   ConfigCache -->|"serves gates"| LogFn
-  LoggingConfig -->|"non-Windows directory"| Directory
-  Directory -->|"creates"| LogPath
+  Directory -->|"creates fixed log child"| LogPath
   PrunePolicy -->|"keeps newest log files"| LogPath
   LogPath -->|"opened by"| LogFile
   LogFn -->|"writes tagged line"| LogFile
