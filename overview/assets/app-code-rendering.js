@@ -190,12 +190,10 @@
     if (!privateHtml) return "";
     return `
       <div class="private-code-reveal">
-        <div class="private-code-action">
-          <button class="private-code-toggle" type="button" data-private-code-reveal aria-expanded="false">
-            <i class="bi bi-eye" aria-hidden="true"></i>
-            <span>${escapeHtml(t("showPrivate"))}</span>
-          </button>
-        </div>
+        <button class="private-code-toggle" type="button" data-private-code-reveal aria-expanded="false">
+          <i class="bi bi-eye" aria-hidden="true"></i>
+          <span>${escapeHtml(t("showPrivate"))}</span>
+        </button>
         <div class="private-code-content" hidden>${privateHtml}</div>
       </div>
     `;
