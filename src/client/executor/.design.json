@@ -4,11 +4,8 @@
     "path": "src/client/executor",
     "name": "executor",
     "purpose": "Owns the client-side executor public dispatch API that accepts ToolInvocation, uses ToolRegistry, and now returns ToolRuntime so callers receive status streaming plus cancellation shape; behavior remains a draft panic stub.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "executor.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -29,7 +26,7 @@
     {
       "name": "Executor",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/executor/executor.rs",

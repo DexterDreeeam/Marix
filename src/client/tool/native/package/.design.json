@@ -4,17 +4,14 @@
     "path": "src/client/tool/native/package",
     "name": "package",
     "purpose": "Owns the Windows-only package query native Tool implementation that parses package query arguments, runs PowerShell Get-Package with cancellation-aware child-process polling, returns shared ToolExecutionResult complete-or-cancelled helper outcomes, and streams package metadata JSON or an empty array through ToolRuntime.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "package_query.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "PackageQueryTool",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/package/package_query.rs",

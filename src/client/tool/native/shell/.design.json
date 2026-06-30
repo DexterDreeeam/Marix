@@ -4,17 +4,14 @@
     "path": "src/client/tool/native/shell",
     "name": "shell",
     "purpose": "Owns the cross-platform shell native Tool implementation that parses command/cwd/timeout arguments, selects cmd or sh by host OS, streams stdout/stderr lines, enforces timeout, and maps shared ToolExecutionResult helper completion or cancellation into ToolRuntime statuses without a cancellation payload.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "shell_execute.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "ShellExecuteTool",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/shell/shell_execute.rs",

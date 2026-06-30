@@ -4,14 +4,8 @@
     "path": "src/client/tool",
     "name": "tool",
     "purpose": "Client-side tool interface layer with a unified Tool trait using common config Platform values, ToolRuntime status streaming and cancellation, ToolInvocationStatus lifecycle states, the shared generic ToolExecutionResult helper outcome for complete-or-cancelled native helpers, ToolType variants, ToolPreview and DefaultPreview records, Config-aware ToolRegistry registration/preview/lookup behavior with unsupported-tool denial, typed ToolError failures, CategoryPreview metadata, and folder-organized native tool implementations.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    ".",
-    "tool.rs",
-    "mod.rs",
-    "registry.rs"
-  ],
   "childModules": [
     {
       "path": "src/client/tool/category",
@@ -88,7 +82,7 @@
     {
       "name": "ToolRegistry",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/registry.rs",
@@ -162,7 +156,7 @@
     {
       "name": "Tool",
       "type": "trait",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
@@ -265,7 +259,7 @@
     {
       "name": "ToolExecutionResult",
       "type": "enum",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",

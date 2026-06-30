@@ -4,18 +4,14 @@
     "path": "src/client/tool/native/network",
     "name": "network",
     "purpose": "Owns cross-platform network native Tool implementations for HTTP requests through reqwest and DNS lookups through the native resolver, streaming JSON or address statuses through ToolRuntime with cancellation checks.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "http_request.rs",
-    "dns_lookup.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "HttpRequestTool",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/network/http_request.rs",
@@ -75,7 +71,7 @@
     {
       "name": "DnsLookupTool",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/network/dns_lookup.rs",

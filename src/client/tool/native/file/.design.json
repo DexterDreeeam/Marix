@@ -4,20 +4,14 @@
     "path": "src/client/tool/native/file",
     "name": "file",
     "purpose": "Owns cross-platform file-system native Tool implementations for reading, writing, listing, and searching local files while streaming ToolRuntime status messages, checking cancellation around file-system traversal or writes, and using shared ToolExecutionResult helper outcomes for recursive list/search completion or cancellation.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "read_file.rs",
-    "write_file.rs",
-    "list_directory.rs",
-    "search_text.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "ReadFileTool",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/file/read_file.rs",
@@ -61,7 +55,7 @@
     {
       "name": "WriteFileTool",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/file/write_file.rs",
@@ -129,7 +123,7 @@
     {
       "name": "ListDirectoryTool",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/file/list_directory.rs",
@@ -218,7 +212,7 @@
     {
       "name": "SearchTextTool",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/file/search_text.rs",
