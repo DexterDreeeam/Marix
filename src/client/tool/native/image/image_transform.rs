@@ -1,8 +1,11 @@
-use std::sync::mpsc::Receiver;
+use std::{fs, sync::mpsc, thread};
 
 use crate::client::tool::{
-    Tool, ToolCategory, ToolError, ToolInvocation, ToolOutcome, ToolPlatform, ToolPreview, ToolType,
+    Tool, ToolCategory, ToolError, ToolExecutionResult, ToolInvocation, ToolInvocationStatus,
+    ToolPreview, ToolRuntime, ToolType,
 };
+use crate::common::config::Platform;
+use crate::common::external::*;
 
 pub struct ImageTransformTool;
 
@@ -16,30 +19,142 @@ impl ImageTransformTool {
 
 impl Tool for ImageTransformTool {
     fn tool_type(&self) -> ToolType {
-        panic!("not implemented")
+        ToolType::Native
     }
 
-    fn platforms(&self) -> &'static [ToolPlatform] {
-        panic!("not implemented")
+    fn platform(&self) -> Platform {
+        Platform::All
     }
 
-    fn categories(&self) -> &'static [ToolCategory] {
-        panic!("not implemented")
+    fn category(&self) -> ToolCategory {
+        ToolCategory::Image
     }
 
     fn name(&self) -> &'static str {
-        panic!("not implemented")
+        Self::PREVIEW.name
     }
 
     fn description(&self) -> &'static str {
-        panic!("not implemented")
+        Self::PREVIEW.description
     }
 
     fn schema(&self) -> &'static str {
-        panic!("not implemented")
+        Self::PREVIEW.schema
     }
 
-    fn invoke(&self, _invocation: ToolInvocation) -> Result<Receiver<ToolOutcome>, ToolError> {
-        panic!("not implemented")
+    fn invoke(&self, invocation: ToolInvocation) -> Result<ToolRuntime, ToolError> {
+        let arguments = parse_arguments(&invocation.arguments)?;
+        let (status_tx, status_rx) = mpsc::channel();
+        let (cancel_tx, cancel_rx) = mpsc::channel();
+
+        thread::spawn(move || {
+            let _ = status_tx.send(ToolInvocationStatus::Started);
+            if cancel_rx.try_recv().is_ok() {
+                let _ = status_tx.send(ToolInvocationStatus::Cancelled);
+                return;
+            }
+            match transform_image(&arguments, &cancel_rx) {
+                Ok(ToolExecutionResult::Complete(message)) => {
+                    let _ = status_tx.send(ToolInvocationStatus::Running(message));
+                    let _ = status_tx.send(ToolInvocationStatus::Complete);
+                }
+                Ok(ToolExecutionResult::Cancelled) => {
+                    let _ = status_tx.send(ToolInvocationStatus::Cancelled);
+                }
+                Err(error) => {
+                    let _ = status_tx.send(ToolInvocationStatus::Failed(error));
+                }
+            }
+        });
+
+        Ok(ToolRuntime::new(status_rx, cancel_tx))
     }
+}
+
+// -- Private -- //
+
+struct ImageTransformArguments {
+    input_path: String,
+    output_path: String,
+    operation: String,
+}
+
+fn parse_arguments(arguments: &str) -> Result<ImageTransformArguments, ToolError> {
+    let value: serde_json::Value = serde_json::from_str(arguments)
+        .map_err(|error| ToolError::InvalidArguments(error.to_string()))?;
+
+    Ok(ImageTransformArguments {
+        input_path: required_string(&value, "input_path")?,
+        output_path: required_string(&value, "output_path")?,
+        operation: required_string(&value, "operation")?.to_lowercase(),
+    })
+}
+
+fn transform_image(
+    arguments: &ImageTransformArguments,
+    cancel_rx: &mpsc::Receiver<()>,
+) -> Result<ToolExecutionResult<String>, ToolError> {
+    if arguments.operation == "copy" {
+        fs::copy(&arguments.input_path, &arguments.output_path).map_err(|error| {
+            ToolError::ExecutionFailed(format!(
+                "failed to copy {} to {}: {error}",
+                arguments.input_path, arguments.output_path
+            ))
+        })?;
+        return Ok(ToolExecutionResult::Complete(transform_result(arguments)));
+    }
+    if cancel_rx.try_recv().is_ok() {
+        return Ok(ToolExecutionResult::Cancelled);
+    }
+
+    let image = image::ImageReader::open(&arguments.input_path)
+        .map_err(|error| {
+            ToolError::ExecutionFailed(format!("failed to open {}: {error}", arguments.input_path))
+        })?
+        .decode()
+        .map_err(|error| {
+            ToolError::ExecutionFailed(format!(
+                "failed to decode {}: {error}",
+                arguments.input_path
+            ))
+        })?;
+    if cancel_rx.try_recv().is_ok() {
+        return Ok(ToolExecutionResult::Cancelled);
+    }
+
+    let transformed = match arguments.operation.as_str() {
+        "grayscale" => image.grayscale(),
+        "flip_horizontal" => image.fliph(),
+        "flip_vertical" => image.flipv(),
+        "rotate90" => image.rotate90(),
+        "rotate180" => image.rotate180(),
+        "rotate270" => image.rotate270(),
+        operation => {
+            return Err(ToolError::InvalidArguments(format!(
+                "unsupported image operation: {operation}"
+            )));
+        }
+    };
+    transformed.save(&arguments.output_path).map_err(|error| {
+        ToolError::ExecutionFailed(format!("failed to save {}: {error}", arguments.output_path))
+    })?;
+
+    Ok(ToolExecutionResult::Complete(transform_result(arguments)))
+}
+
+fn transform_result(arguments: &ImageTransformArguments) -> String {
+    self::serde_json::json!({
+        "input_path": arguments.input_path,
+        "output_path": arguments.output_path,
+        "operation": arguments.operation
+    })
+    .to_string()
+}
+
+fn required_string(value: &serde_json::Value, field: &str) -> Result<String, ToolError> {
+    value
+        .get(field)
+        .and_then(serde_json::Value::as_str)
+        .map(str::to_string)
+        .ok_or_else(|| ToolError::InvalidArguments(format!("missing string field: {field}")))
 }

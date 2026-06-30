@@ -1,28 +1,46 @@
 flowchart LR
-  %% native file tools expose one Tool-implementing struct per native file capability.
-  ToolPreview["ToolPreview\nname/description/schema"]
-  ToolTrait["Tool\ntrait"]
-  NativeToolList["NATIVE_TOOL_LIST\nconst array"]
+  ToolPreview["ToolPreview"]
+  ToolTrait["Tool platform/category/invoke"]
+  PlatformAll["Platform::All"]
+  ToolInvocation["ToolInvocation JSON arguments"]
+  ToolRuntime["ToolRuntime statuses + cancel handle"]
+  ToolInvocationStatus["ToolInvocationStatus"]
+  ToolExecutionResult["ToolExecutionResult<()>\nComplete or Cancelled"]
+  CancelSignal["cancel signal"]
+  ToolError["ToolError"]
+  LocalFileSystem["local file system"]
+  ReadFileTool["ReadFileTool"]
+  WriteFileTool["WriteFileTool"]
+  ListDirectoryTool["ListDirectoryTool"]
+  SearchTextTool["SearchTextTool"]
+  DirectoryEntries["directory entry JSON"]
+  TextMatches["text match JSON"]
 
-  subgraph read_file_rs["read_file.rs"]
-    ReadFileTool["ReadFileTool\nstruct"]
-  end
-  subgraph write_file_rs["write_file.rs"]
-    WriteFileTool["WriteFileTool\nstruct"]
-  end
-  subgraph list_directory_rs["list_directory.rs"]
-    ListDirectoryTool["ListDirectoryTool\nstruct"]
-  end
-  subgraph search_text_rs["search_text.rs"]
-    SearchTextTool["SearchTextTool\nstruct"]
-  end
-
-  ReadFileTool -->|"implements tool interface"| ToolTrait
-  ReadFileTool -->|"PREVIEW metadata"| ToolPreview
-  WriteFileTool -->|"implements tool interface"| ToolTrait
-  WriteFileTool -->|"PREVIEW metadata"| ToolPreview
-  ListDirectoryTool -->|"implements tool interface"| ToolTrait
-  ListDirectoryTool -->|"PREVIEW metadata"| ToolPreview
-  SearchTextTool -->|"implements tool interface"| ToolTrait
-  SearchTextTool -->|"PREVIEW metadata"| ToolPreview
-  NativeToolList -->|"includes file tool previews"| ToolPreview
+  ReadFileTool -->|"implements Tool"| ToolTrait
+  WriteFileTool -->|"implements Tool"| ToolTrait
+  ListDirectoryTool -->|"implements Tool"| ToolTrait
+  SearchTextTool -->|"implements Tool"| ToolTrait
+  ToolTrait -->|"platform()"| PlatformAll
+  ReadFileTool -->|"PREVIEW"| ToolPreview
+  WriteFileTool -->|"PREVIEW"| ToolPreview
+  ListDirectoryTool -->|"PREVIEW"| ToolPreview
+  SearchTextTool -->|"PREVIEW"| ToolPreview
+  ToolInvocation -->|"path"| ReadFileTool
+  ToolInvocation -->|"path/content/create_dirs"| WriteFileTool
+  ToolInvocation -->|"path/recursive"| ListDirectoryTool
+  ToolInvocation -->|"path/query/case_sensitive"| SearchTextTool
+  ReadFileTool -->|"read_to_string"| LocalFileSystem
+  WriteFileTool -->|"create dirs and write"| LocalFileSystem
+  ListDirectoryTool -->|"read_dir traversal"| DirectoryEntries
+  SearchTextTool -->|"read files and scan lines"| TextMatches
+  ListDirectoryTool -->|"recursive helper result"| ToolExecutionResult
+  SearchTextTool -->|"recursive/file helper result"| ToolExecutionResult
+  ToolExecutionResult -->|"Complete or Cancelled mapped outward"| ToolInvocationStatus
+  LocalFileSystem -->|"Running content or write result"| ToolRuntime
+  DirectoryEntries -->|"Running entry JSON"| ToolRuntime
+  TextMatches -->|"Running match JSON"| ToolRuntime
+  ToolRuntime -->|"emits Started/Running/Complete/Cancelled"| ToolInvocationStatus
+  ToolRuntime -->|"cancel()"| CancelSignal
+  CancelSignal -->|"checked before/between work"| LocalFileSystem
+  CancelSignal -->|"stops traversal/search"| ToolExecutionResult
+  ToolError -->|"InvalidArguments/ExecutionFailed/Denied"| ToolInvocationStatus

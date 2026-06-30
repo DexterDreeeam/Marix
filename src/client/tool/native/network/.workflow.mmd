@@ -1,20 +1,34 @@
 flowchart LR
-  %% native network tools expose one Tool-implementing struct per network capability.
-  ToolPreview["ToolPreview\nname/description/schema"]
-  ToolTrait["Tool\ntrait"]
-  NativeToolList["NATIVE_TOOL_LIST\nconst array"]
-  PrimaryNativeToolList["PRIMARY_NATIVE_TOOL_LIST\nconst array"]
+  ToolPreview["ToolPreview"]
+  ToolTrait["Tool platform/category/invoke"]
+  PlatformAll["Platform::All"]
+  ToolInvocation["ToolInvocation JSON arguments"]
+  ToolRuntime["ToolRuntime statuses + cancel handle"]
+  ToolInvocationStatus["ToolInvocationStatus"]
+  CancelSignal["cancel signal"]
+  ToolError["ToolError"]
+  HttpRequestTool["HttpRequestTool"]
+  DnsLookupTool["DnsLookupTool"]
+  ReqwestClient["reqwest blocking Client"]
+  NativeDns["ToSocketAddrs resolver"]
+  HttpResponse["status/body JSON"]
+  DnsAddresses["address JSON messages"]
 
-  subgraph http_request_rs["http_request.rs"]
-    HttpRequestTool["HttpRequestTool\nstruct"]
-  end
-  subgraph dns_lookup_rs["dns_lookup.rs"]
-    DnsLookupTool["DnsLookupTool\nstruct"]
-  end
-
-  HttpRequestTool -->|"implements tool interface"| ToolTrait
-  HttpRequestTool -->|"PREVIEW metadata"| ToolPreview
-  DnsLookupTool -->|"implements tool interface"| ToolTrait
-  DnsLookupTool -->|"PREVIEW metadata"| ToolPreview
-  NativeToolList -->|"includes network tool previews"| ToolPreview
-  PrimaryNativeToolList -->|"includes HttpRequestTool::PREVIEW"| ToolPreview
+  HttpRequestTool -->|"implements Tool"| ToolTrait
+  DnsLookupTool -->|"implements Tool"| ToolTrait
+  ToolTrait -->|"platform()"| PlatformAll
+  HttpRequestTool -->|"PREVIEW"| ToolPreview
+  DnsLookupTool -->|"PREVIEW"| ToolPreview
+  ToolInvocation -->|"url/method/body"| HttpRequestTool
+  ToolInvocation -->|"host"| DnsLookupTool
+  HttpRequestTool -->|"sends request"| ReqwestClient
+  ReqwestClient -->|"response"| HttpResponse
+  HttpResponse -->|"Running response JSON"| ToolRuntime
+  DnsLookupTool -->|"resolves host"| NativeDns
+  NativeDns -->|"unique addresses"| DnsAddresses
+  DnsAddresses -->|"Running address JSON"| ToolRuntime
+  ToolRuntime -->|"emits Started/Running/Complete"| ToolInvocationStatus
+  ToolRuntime -->|"cancel()"| CancelSignal
+  CancelSignal -->|"checked around network work"| HttpRequestTool
+  CancelSignal -->|"checked between addresses"| DnsLookupTool
+  ToolError -->|"InvalidArguments/ExecutionFailed"| ToolInvocationStatus

@@ -1,54 +1,35 @@
 flowchart LR
-  subgraph client["src/client"]
-    CliEntry["marix-cli main"]
-    CliRun["cli::run"]
-    ClientSession["ClientSession"]
-    ClientTask["ClientTask"]
-    ToolRegistry["ToolRegistry"]
-    ToolTrait["Tool"]
-    DefaultPreview["DefaultPreview"]
-    ToolPreviews["ToolPreview list"]
-    CategoryPreviews["CategoryPreview list\ncategory.rs + category/"]
+  subgraph common_config["common/config"]
+    Config["Config\nhost platform + typed settings"]
+    Platform["Platform\nAll / Win / Ubuntu"]
   end
-
-  subgraph agent["src/agent"]
-    AgentEntry["marix-agent main"]
+  subgraph common_runtime["common runtime support"]
+    Logging["config-gated logging"]
+    Messages["request/response messages"]
+    ExternalNamespaces["external namespaces\nserde/remoc/tokio/reqwest/image"]
+  end
+  subgraph client_tool["client/tool"]
+    ToolRegistry["ToolRegistry\ncurrent platform"]
+    ToolTrait["Tool trait"]
+    ToolRuntime["ToolRuntime\nstatus stream + cancel"]
+    ToolExecutionResult["ToolExecutionResult<T>\nComplete or Cancelled"]
+    NativeTools["native Tool implementations"]
+  end
+  subgraph agent_runtime["agent"]
     AgentSession["AgentSession"]
-    AgentTask["AgentTask"]
     LoopEngine["LoopEngine"]
-    ModelBackend["Model backend"]
   end
 
-  subgraph common["src/common"]
-    Config["Config"]
-    RuntimeConfig["RuntimeConfig\nmarix paths"]
-    CommonLogging["common logging"]
-    SessionEvent["SessionEvent"]
-    ChatRequest["ChatRequest"]
-    ChatResponseSegment["ChatResponseSegment"]
-    ExternalNamespaces["external namespaces"]
-  end
-
-  Config -->|"normalizes runtime paths"| RuntimeConfig
-  RuntimeConfig -->|"selects <marix_path>/log"| CommonLogging
-  CliEntry -->|"loads client config"| Config
-  AgentEntry -->|"loads agent bind address"| Config
-  Config -->|"gates info/warning/error logs"| CommonLogging
-  CliEntry -->|"interactive prompts"| CliRun
-  CliRun -->|"opens task session"| ClientSession
-  ClientSession -->|"TaskCreate with ChatRequest"| SessionEvent
-  SessionEvent -->|"accepted by remoc frontdoor"| AgentSession
-  AgentSession -->|"creates task endpoint"| AgentTask
-  AgentTask -->|"delegates execution"| LoopEngine
-  LoopEngine -->|"requests model stream"| ModelBackend
-  ModelBackend -->|"streams segments"| ChatResponseSegment
-  ChatResponseSegment -->|"returns through task route"| ClientTask
-  ClientTask -->|"prints streamed output"| CliRun
-  ToolRegistry -->|"default_preview()"| DefaultPreview
-  ToolRegistry -->|"tool_preview()"| ToolPreviews
-  DefaultPreview -->|"primary_tool_previews"| ToolPreviews
-  DefaultPreview -->|"category_previews"| CategoryPreviews
-  ToolRegistry -->|"stores dyn Tool"| ToolTrait
-  ToolRegistry -->|"publishes tool previews"| ClientSession
-  ExternalNamespaces -->|"shared transport/runtime crates"| ClientSession
-  ExternalNamespaces -->|"shared transport/runtime crates"| AgentSession
+  Config -->|"detects host before TOML load"| Platform
+  Config -->|"runtime/logging settings"| Logging
+  Messages -->|"transport payloads"| AgentSession
+  ExternalNamespaces -->|"remoc/tokio transport"| AgentSession
+  ExternalNamespaces -->|"reqwest/image helpers"| NativeTools
+  Config -->|"passed to ToolRegistry::new"| ToolRegistry
+  ToolRegistry -->|"stores current Platform"| Platform
+  ToolTrait -->|"platform() returns"| Platform
+  ToolTrait -->|"invoke returns"| ToolRuntime
+  NativeTools -->|"helper complete/cancel result"| ToolExecutionResult
+  ToolExecutionResult -->|"maps to Complete or Cancelled status"| ToolRuntime
+  ToolRegistry -->|"registers only supported tools"| NativeTools
+  AgentSession -->|"delegates"| LoopEngine

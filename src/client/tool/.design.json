@@ -3,9 +3,15 @@
   "module": {
     "path": "src/client/tool",
     "name": "tool",
-    "purpose": "Client-side tool interface layer with a unified Tool trait, ToolType limited to Primary, Native, Skill, and User, DefaultPreview and ToolPreview preview records, ToolRegistry default/tool preview APIs, typed errors, CategoryPreview category metadata, and folder-organized category/native preview lists.",
-    "changeStatus": "unchanged"
+    "purpose": "Client-side tool interface layer with a unified Tool trait using common config Platform values, ToolRuntime status streaming and cancellation, ToolInvocationStatus lifecycle states, the shared generic ToolExecutionResult helper outcome for complete-or-cancelled native helpers, ToolType variants, ToolPreview and DefaultPreview records, Config-aware ToolRegistry registration/preview/lookup behavior with unsupported-tool denial, typed ToolError failures, CategoryPreview metadata, and folder-organized native tool implementations.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    ".",
+    "tool.rs",
+    "mod.rs",
+    "registry.rs"
+  ],
   "childModules": [
     {
       "path": "src/client/tool/category",
@@ -15,7 +21,7 @@
     {
       "path": "src/client/tool/native",
       "name": "native",
-      "purpose": "Defines folder-organized native tool type stubs that implement the ordinary Tool trait directly and are aggregated as ToolPreview lists."
+      "purpose": "Folder-organized native Tool implementations with static ToolPreview metadata, common Platform support markers, runtime status streaming, cancellation handling, and aggregate native preview lists."
     }
   ],
   "elements": [
@@ -26,7 +32,7 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/category.rs",
-          "lineStart": 24,
+          "lineStart": 23,
           "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
@@ -41,7 +47,7 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/category.rs",
-          "lineStart": 37,
+          "lineStart": 36,
           "lineEnd": 40,
           "language": "rust",
           "addedLines": [],
@@ -56,7 +62,7 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/error.rs",
-          "lineStart": 6,
+          "lineStart": 5,
           "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
@@ -71,15 +77,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/registry.rs",
-          "lineStart": 5,
-          "lineEnd": 8,
+          "lineStart": 11,
+          "lineEnd": 14,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 5,
-              "lineEnd": 8
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -87,25 +88,56 @@
     {
       "name": "ToolRegistry",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/registry.rs",
-          "lineStart": 12,
-          "lineEnd": 12,
+          "lineStart": 16,
+          "lineEnd": 21,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 19,
+              "lineEnd": 19
+            }
+          ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/registry.rs",
-          "lineStart": 14,
-          "lineEnd": 34,
+          "lineStart": 23,
+          "lineEnd": 82,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 23,
-              "lineEnd": 29
+              "lineStart": 29,
+              "lineEnd": 35
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 24,
+              "lineEnd": 28
+            },
+            {
+              "lineStart": 39,
+              "lineEnd": 46
+            },
+            {
+              "lineStart": 58,
+              "lineEnd": 61
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/client/tool/registry.rs",
+          "lineStart": 86,
+          "lineEnd": 123,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 105,
+              "lineEnd": 122
             }
           ],
           "modifiedLines": []
@@ -120,27 +152,7 @@
         {
           "sourcePath": "src/client/tool/tool.rs",
           "lineStart": 8,
-          "lineEnd": 13,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 8,
-              "lineEnd": 13
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "ToolPlatform",
-      "type": "enum",
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 16,
-          "lineEnd": 22,
+          "lineEnd": 14,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -150,15 +162,20 @@
     {
       "name": "Tool",
       "type": "trait",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 27,
-          "lineEnd": 41,
+          "lineStart": 16,
+          "lineEnd": 33,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 22
+            }
+          ]
         }
       ]
     },
@@ -169,8 +186,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 43,
-          "lineEnd": 43,
+          "lineStart": 35,
+          "lineEnd": 35,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -184,8 +201,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 46,
-          "lineEnd": 50,
+          "lineStart": 37,
+          "lineEnd": 42,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -199,8 +216,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 55,
-          "lineEnd": 59,
+          "lineStart": 44,
+          "lineEnd": 51,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -208,14 +225,22 @@
       ]
     },
     {
-      "name": "ToolOutput",
+      "name": "ToolRuntime",
       "type": "struct",
       "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 63,
-          "lineEnd": 66,
+          "lineStart": 53,
+          "lineEnd": 56,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/tool.rs",
+          "lineStart": 73,
+          "lineEnd": 86,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -223,16 +248,36 @@
       ]
     },
     {
-      "name": "ToolOutcome",
+      "name": "ToolInvocationStatus",
       "type": "enum",
       "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 70,
-          "lineEnd": 73,
+          "lineStart": 58,
+          "lineEnd": 65,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolExecutionResult",
+      "type": "enum",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/tool/tool.rs",
+          "lineStart": 67,
+          "lineEnd": 71,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 67,
+              "lineEnd": 71
+            }
+          ],
           "modifiedLines": []
         }
       ]

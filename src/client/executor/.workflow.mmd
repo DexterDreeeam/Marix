@@ -1,0 +1,16 @@
+flowchart LR
+  subgraph executor_rs["executor.rs"]
+    Executor["Executor"]
+  end
+  subgraph error_rs["error.rs"]
+    ExecutorError["ExecutorError"]
+  end
+  ToolRegistry["ToolRegistry"]
+  ToolInvocation["ToolInvocation"]
+  ToolRuntime["ToolRuntime statuses + cancel handle"]
+  ToolInvocationStatus["ToolInvocationStatus"]
+  Executor -->|"new(registry) draft"| ToolRegistry
+  Executor -->|"execute(invocation) accepts"| ToolInvocation
+  Executor -->|"execute returns Result<ToolRuntime, ExecutorError>"| ToolRuntime
+  Executor -->|"dispatch failures"| ExecutorError
+  ToolRuntime -->|"status stream"| ToolInvocationStatus

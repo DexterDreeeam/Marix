@@ -3,14 +3,17 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Second-generation Rust source organized into client, agent, and common modules with deployable typed configuration, runtime Marix path defaults and role-specific overrides, config-gated common logging, an interactive streaming CLI interface, DefaultPreview and ToolPreview-based client tool advertising, category.rs-backed CategoryPreview metadata, folder-organized native tool preview lists, a minimal agent binary entrypoint, directional chat envelopes and segments, centralized external-library namespaces, remoc-backed session/task endpoints, and a minimal single-request loop-engine runtime.",
-    "changeStatus": "unchanged"
+    "purpose": "Second-generation Rust source organized into client, agent, and common modules with typed configuration that detects the host Platform, config-gated logging, remoc-backed messaging, an interactive streaming CLI, a Config-aware ToolRegistry that filters unsupported tools, and native Tool implementations that share ToolExecutionResult helper completion/cancellation while streaming outward ToolInvocationStatus values.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Client-facing draft with interactive CLI, remoc-backed core session/task endpoint, streamed response receives, executor/tool interfaces, ToolRegistry DefaultPreview/tool_preview advertising, CategoryPreview category metadata from category.rs plus category leaf files, and folder-organized native tools exposed as preview lists."
+      "purpose": "Client-facing modules for interactive CLI, remoc-backed core session/task endpoints, executor dispatch, and a Config-aware tool registry that filters native and external tools by common config Platform before publishing previews."
     },
     {
       "path": "src/agent",
@@ -20,7 +23,7 @@
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared interfaces including typed TOML configuration with runtime Marix path resolution, config-gated logging under the selected runtime Marix path, fallible loading, directional chat request/response messages, shared channel errors, remoc session protocol messages, and centralized crate-local external-library namespaces."
+      "purpose": "Shared interfaces including typed TOML configuration with host Platform detection, runtime Marix path resolution, config-gated logging, directional chat request/response messages, shared channel errors, remoc session protocol messages, and centralized crate-local external-library namespaces."
     }
   ],
   "elements": []

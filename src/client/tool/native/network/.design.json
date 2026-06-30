@@ -3,100 +3,124 @@
   "module": {
     "path": "src/client/tool/native/network",
     "name": "network",
-    "purpose": "Owns native network Tool implementation stubs and ToolPreview metadata for HTTP requests and DNS lookup.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns cross-platform network native Tool implementations for HTTP requests through reqwest and DNS lookups through the native resolver, streaming JSON or address statuses through ToolRuntime with cancellation checks.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "http_request.rs",
+    "dns_lookup.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "HttpRequestTool",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/network/http_request.rs",
-          "lineStart": 7,
-          "lineEnd": 7,
+          "lineStart": 10,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/network/http_request.rs",
-          "lineStart": 9,
-          "lineEnd": 15,
+          "lineStart": 12,
+          "lineEnd": 18,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 14
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/network/http_request.rs",
-          "lineStart": 17,
-          "lineEnd": 45,
+          "lineStart": 20,
+          "lineEnd": 73,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 30,
-              "lineEnd": 40
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 17,
-              "lineEnd": 17
+              "lineStart": 25,
+              "lineEnd": 26
             }
           ]
+        },
+        {
+          "sourcePath": "src/client/tool/native/network/http_request.rs",
+          "lineStart": 77,
+          "lineEnd": 81,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/network/http_request.rs",
+          "lineStart": 83,
+          "lineEnd": 102,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/network/http_request.rs",
+          "lineStart": 104,
+          "lineEnd": 139,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
     {
       "name": "DnsLookupTool",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/network/dns_lookup.rs",
-          "lineStart": 7,
-          "lineEnd": 7,
+          "lineStart": 10,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/network/dns_lookup.rs",
-          "lineStart": 9,
-          "lineEnd": 15,
+          "lineStart": 12,
+          "lineEnd": 18,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 14
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/network/dns_lookup.rs",
-          "lineStart": 17,
-          "lineEnd": 45,
+          "lineStart": 20,
+          "lineEnd": 75,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 30,
-              "lineEnd": 40
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 17,
-              "lineEnd": 17
+              "lineStart": 25,
+              "lineEnd": 26
             }
           ]
+        },
+        {
+          "sourcePath": "src/client/tool/native/network/dns_lookup.rs",
+          "lineStart": 79,
+          "lineEnd": 88,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/network/dns_lookup.rs",
+          "lineStart": 90,
+          "lineEnd": 101,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     }

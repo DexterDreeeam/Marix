@@ -1,18 +1,39 @@
 flowchart LR
-  %% native image tools expose one Tool-implementing struct per image capability.
-  ToolPreview["ToolPreview\nname/description/schema"]
-  ToolTrait["Tool\ntrait"]
-  NativeToolList["NATIVE_TOOL_LIST\nconst array"]
+  ToolPreview["ToolPreview"]
+  ToolTrait["Tool platform/category/invoke"]
+  PlatformAll["Platform::All"]
+  ToolInvocation["ToolInvocation image arguments"]
+  ToolRuntime["ToolRuntime status receiver + cancel handle"]
+  ToolInvocationStatus["ToolInvocationStatus"]
+  ToolExecutionResult["ToolExecutionResult<String>\ntransform result or Cancelled"]
+  CancelSignal["cancel signal"]
+  ToolError["ToolError"]
+  ImageInspectTool["ImageInspectTool"]
+  ImageTransformTool["ImageTransformTool"]
+  ImageReader["image::ImageReader"]
+  ImageMetadata["path/format/width/height/color JSON"]
+  TransformArguments["ImageTransformArguments"]
+  TransformOperations["copy/grayscale/flip/rotate operations"]
+  OutputImage["output image file"]
 
-  subgraph image_inspect_rs["image_inspect.rs"]
-    ImageInspectTool["ImageInspectTool\nstruct"]
-  end
-  subgraph image_transform_rs["image_transform.rs"]
-    ImageTransformTool["ImageTransformTool\nstruct"]
-  end
-
-  ImageInspectTool -->|"implements tool interface"| ToolTrait
-  ImageInspectTool -->|"PREVIEW metadata"| ToolPreview
-  ImageTransformTool -->|"implements tool interface"| ToolTrait
-  ImageTransformTool -->|"PREVIEW metadata"| ToolPreview
-  NativeToolList -->|"includes image tool previews"| ToolPreview
+  ImageInspectTool -->|"implements Tool"| ToolTrait
+  ImageTransformTool -->|"implements Tool"| ToolTrait
+  ToolTrait -->|"platform()"| PlatformAll
+  ImageInspectTool -->|"PREVIEW"| ToolPreview
+  ImageTransformTool -->|"PREVIEW"| ToolPreview
+  ToolInvocation -->|"path"| ImageInspectTool
+  ToolInvocation -->|"input_path/output_path/operation"| TransformArguments
+  ImageInspectTool -->|"open, guess format, decode"| ImageReader
+  ImageReader -->|"metadata"| ImageMetadata
+  ImageMetadata -->|"Running metadata JSON"| ToolRuntime
+  TransformArguments -->|"selects operation"| TransformOperations
+  ImageTransformTool -->|"open/decode unless copy"| ImageReader
+  TransformOperations -->|"writes"| OutputImage
+  ImageTransformTool -->|"Complete result or Cancelled"| ToolExecutionResult
+  ToolExecutionResult -->|"Complete payload"| OutputImage
+  ToolExecutionResult -->|"maps to Running/Complete or Cancelled"| ToolInvocationStatus
+  OutputImage -->|"Running transform result JSON"| ToolRuntime
+  ToolRuntime -->|"emits statuses"| ToolInvocationStatus
+  ToolRuntime -->|"cancel()"| CancelSignal
+  CancelSignal -->|"checked before decode/after decode"| ImageTransformTool
+  ToolError -->|"InvalidArguments/ExecutionFailed"| ToolInvocationStatus

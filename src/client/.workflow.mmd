@@ -1,69 +1,63 @@
 flowchart LR
   subgraph cli["cli"]
     CliMain["marix-cli main"]
-    CliRequest["CliRequest"]
     CliRun["run"]
-    CliRunResult["CliRunResult"]
   end
-
   subgraph core["core"]
     ClientSession["ClientSession"]
     ClientTask["ClientTask"]
   end
-
   subgraph executor["executor"]
     Executor["Executor"]
+    ExecutorError["ExecutorError"]
   end
-
   subgraph tool["tool"]
-    ToolRegistry["ToolRegistry"]
+    ToolRegistry["ToolRegistry\ncurrent Platform"]
     ToolTrait["Tool"]
+    Platform["Platform"]
     DefaultPreview["DefaultPreview"]
     ToolPreview["ToolPreview"]
     ToolInvocation["ToolInvocation"]
-    ToolOutcome["ToolOutcome"]
+    ToolRuntime["ToolRuntime statuses + cancel handle"]
+    ToolInvocationStatus["ToolInvocationStatus"]
+    ToolExecutionResult["ToolExecutionResult<T>\nComplete or Cancelled"]
+    NativeRuntimeImplementations["native runtime implementations"]
   end
-
   subgraph category["tool/category.rs + tool/category/"]
     ToolCategoryList["TOOL_CATEGORY_LIST"]
     ToolCategory["ToolCategory"]
     CategoryPreview["CategoryPreview"]
   end
-
-  subgraph native["tool/native"]
-    NativeToolList["NATIVE_TOOL_LIST"]
-    PrimaryNativeToolList["PRIMARY_NATIVE_TOOL_LIST"]
-    NativeToolStructs["category native tool structs"]
-  end
-
   Config["Config"]
+  ToolError["ToolError"]
   ChatRequest["ChatRequest"]
-  SessionEvent["SessionEvent"]
   ChatResponseSegment["ChatResponseSegment"]
 
-  CliMain -->|"interactive prompt line"| CliRequest
-  CliRequest -->|"sent to public runner"| CliRun
-  CliRun -->|"loads client endpoint"| Config
+  CliMain -->|"interactive prompt"| CliRun
+  CliRun -->|"loads client endpoint and platform"| Config
   CliRun -->|"opens remoc session"| ClientSession
-  ClientSession -->|"creates task route"| SessionEvent
   CliRun -->|"wraps prompt"| ChatRequest
   ChatRequest -->|"initial task payload"| ClientTask
   ClientTask -->|"receives response stream"| ChatResponseSegment
-  ChatResponseSegment -->|"printed to stdout"| CliRun
-  CliRun -->|"segment count"| CliRunResult
   Executor -->|"dispatches"| ToolInvocation
   Executor -->|"uses registry"| ToolRegistry
-  ToolRegistry -->|"stores"| ToolTrait
-  ToolRegistry -->|"default_preview()"| DefaultPreview
-  ToolRegistry -->|"tool_preview()"| ToolPreview
+  Executor -->|"returns"| ToolRuntime
+  Executor -->|"pre-runtime errors"| ExecutorError
+  Config -->|"ToolRegistry::new stores platform"| ToolRegistry
+  Config -->|"exposes"| Platform
+  ToolRegistry -->|"register()/get(name)"| ToolTrait
+  ToolRegistry -->|"rejects unsupported registration"| ToolError
+  ToolRegistry -->|"default_preview() from registered primary tools"| DefaultPreview
+  ToolRegistry -->|"tool_preview() maps registered tools"| ToolPreview
   DefaultPreview -->|"primary_tool_previews"| ToolPreview
   DefaultPreview -->|"category_previews"| CategoryPreview
-  ToolRegistry -->|"streams outcomes"| ToolOutcome
-  ToolTrait -->|"reports categories"| ToolCategory
-  ToolTrait -->|"reports preview fields"| ToolPreview
+  ToolTrait -->|"platform() returns common config value"| Platform
+  ToolTrait -->|"category() returns one"| ToolCategory
+  ToolTrait -->|"invoke returns"| ToolRuntime
+  ToolRuntime -->|"statuses"| ToolInvocationStatus
   ToolCategoryList -->|"publishes category previews"| CategoryPreview
-  NativeToolStructs -->|"implements"| ToolTrait
-  NativeToolStructs -->|"associated PREVIEW"| ToolPreview
-  NativeToolList -->|"const native previews"| ToolPreview
-  PrimaryNativeToolList -->|"primary shell/http previews"| ToolPreview
-  NativeToolList -->|"seeds native builtins"| ToolRegistry
+  NativeRuntimeImplementations -->|"implements"| ToolTrait
+  NativeRuntimeImplementations -->|"helper returns"| ToolExecutionResult
+  ToolExecutionResult -->|"Complete/Cancelled mapped to statuses"| ToolInvocationStatus
+  NativeRuntimeImplementations -->|"streams statuses and handles cancellation"| ToolRuntime
+  ToolRegistry -->|"skips unsupported built-ins"| NativeRuntimeImplementations

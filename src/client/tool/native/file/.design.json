@@ -3,144 +3,213 @@
   "module": {
     "path": "src/client/tool/native/file",
     "name": "file",
-    "purpose": "Owns file-system native Tool implementation stubs and ToolPreview metadata for reading, writing, listing, and searching local content.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns cross-platform file-system native Tool implementations for reading, writing, listing, and searching local files while streaming ToolRuntime status messages, checking cancellation around file-system traversal or writes, and using shared ToolExecutionResult helper outcomes for recursive list/search completion or cancellation.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "read_file.rs",
+    "write_file.rs",
+    "list_directory.rs",
+    "search_text.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "ReadFileTool",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/file/read_file.rs",
-          "lineStart": 7,
-          "lineEnd": 7,
+          "lineStart": 10,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/file/read_file.rs",
-          "lineStart": 9,
-          "lineEnd": 15,
+          "lineStart": 12,
+          "lineEnd": 18,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 14
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/file/read_file.rs",
-          "lineStart": 17,
-          "lineEnd": 45,
+          "lineStart": 20,
+          "lineEnd": 71,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 30,
-              "lineEnd": 40
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 17,
-              "lineEnd": 17
+              "lineStart": 25,
+              "lineEnd": 26
             }
           ]
+        },
+        {
+          "sourcePath": "src/client/tool/native/file/read_file.rs",
+          "lineStart": 75,
+          "lineEnd": 84,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
     {
       "name": "WriteFileTool",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/file/write_file.rs",
-          "lineStart": 7,
-          "lineEnd": 7,
+          "lineStart": 10,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/file/write_file.rs",
-          "lineStart": 9,
-          "lineEnd": 15,
+          "lineStart": 12,
+          "lineEnd": 18,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 14
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/file/write_file.rs",
-          "lineStart": 17,
-          "lineEnd": 45,
+          "lineStart": 20,
+          "lineEnd": 69,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 30,
-              "lineEnd": 40
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 17,
-              "lineEnd": 17
+              "lineStart": 25,
+              "lineEnd": 26
             }
           ]
+        },
+        {
+          "sourcePath": "src/client/tool/native/file/write_file.rs",
+          "lineStart": 73,
+          "lineEnd": 77,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/file/write_file.rs",
+          "lineStart": 79,
+          "lineEnd": 94,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/file/write_file.rs",
+          "lineStart": 96,
+          "lineEnd": 127,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/file/write_file.rs",
+          "lineStart": 129,
+          "lineEnd": 135,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
     {
       "name": "ListDirectoryTool",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/file/list_directory.rs",
-          "lineStart": 7,
-          "lineEnd": 7,
+          "lineStart": 10,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/file/list_directory.rs",
-          "lineStart": 9,
-          "lineEnd": 15,
+          "lineStart": 12,
+          "lineEnd": 18,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 14
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/file/list_directory.rs",
-          "lineStart": 17,
-          "lineEnd": 45,
+          "lineStart": 20,
+          "lineEnd": 73,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 30,
-              "lineEnd": 40
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 17,
-              "lineEnd": 17
+              "lineStart": 25,
+              "lineEnd": 26
+            },
+            {
+              "lineStart": 52,
+              "lineEnd": 68
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/client/tool/native/file/list_directory.rs",
+          "lineStart": 77,
+          "lineEnd": 80,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/file/list_directory.rs",
+          "lineStart": 82,
+          "lineEnd": 96,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/file/list_directory.rs",
+          "lineStart": 98,
+          "lineEnd": 147,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 98,
+              "lineEnd": 103
+            },
+            {
+              "lineStart": 104,
+              "lineEnd": 105
+            },
+            {
+              "lineStart": 108,
+              "lineEnd": 110
+            },
+            {
+              "lineStart": 113,
+              "lineEnd": 116
+            },
+            {
+              "lineStart": 139,
+              "lineEnd": 142
+            },
+            {
+              "lineStart": 146,
+              "lineEnd": 146
             }
           ]
         }
@@ -149,46 +218,126 @@
     {
       "name": "SearchTextTool",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/file/search_text.rs",
-          "lineStart": 7,
-          "lineEnd": 7,
+          "lineStart": 10,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/file/search_text.rs",
-          "lineStart": 9,
-          "lineEnd": 15,
+          "lineStart": 12,
+          "lineEnd": 18,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 14
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/file/search_text.rs",
-          "lineStart": 17,
-          "lineEnd": 45,
+          "lineStart": 20,
+          "lineEnd": 72,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 30,
-              "lineEnd": 40
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 17,
-              "lineEnd": 17
+              "lineStart": 25,
+              "lineEnd": 26
+            },
+            {
+              "lineStart": 52,
+              "lineEnd": 66
             }
           ]
+        },
+        {
+          "sourcePath": "src/client/tool/native/file/search_text.rs",
+          "lineStart": 76,
+          "lineEnd": 80,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/file/search_text.rs",
+          "lineStart": 82,
+          "lineEnd": 97,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/file/search_text.rs",
+          "lineStart": 99,
+          "lineEnd": 130,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 99,
+              "lineEnd": 104
+            },
+            {
+              "lineStart": 105,
+              "lineEnd": 106
+            },
+            {
+              "lineStart": 110,
+              "lineEnd": 112
+            },
+            {
+              "lineStart": 114,
+              "lineEnd": 117
+            },
+            {
+              "lineStart": 119,
+              "lineEnd": 119
+            },
+            {
+              "lineStart": 123,
+              "lineEnd": 126
+            },
+            {
+              "lineStart": 129,
+              "lineEnd": 129
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/client/tool/native/file/search_text.rs",
+          "lineStart": 132,
+          "lineEnd": 169,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 132,
+              "lineEnd": 137
+            },
+            {
+              "lineStart": 138,
+              "lineEnd": 140
+            },
+            {
+              "lineStart": 148,
+              "lineEnd": 149
+            },
+            {
+              "lineStart": 168,
+              "lineEnd": 168
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/client/tool/native/file/search_text.rs",
+          "lineStart": 171,
+          "lineEnd": 177,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     }

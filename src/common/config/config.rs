@@ -13,6 +13,7 @@ static CONFIG_CACHE: OnceLock<Result<Config, String>> = OnceLock::new();
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Config {
+    pub platform: Platform,
     pub runtime: RuntimeConfig,
     pub core: CoreConfig,
     pub client: ClientConfig,
@@ -28,6 +29,15 @@ impl Config {
             .get_or_init(|| load_config(&config_path()).map_err(|error| error.to_string()))
             .clone()
     }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Platform {
+    All,
+    // Minimum supported version: Windows 10 22H2.
+    Win,
+    // Minimum supported version: Ubuntu 22.04 LTS.
+    Ubuntu,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
@@ -179,6 +189,7 @@ fn config_path() -> PathBuf {
 }
 
 fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
+    let platform = detect_platform();
     let repo_root = repository_root_for_config(config_path);
     let aliases = load_aliases(&repo_root.join(".alias"))?;
     let content = std::fs::read_to_string(config_path)?;
@@ -190,6 +201,7 @@ fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
     let runtime = resolve_runtime_paths(&repo_root, raw_config.runtime);
 
     Ok(Config {
+        platform,
         runtime,
         core: raw_config.core.unwrap_or_else(default_core_config),
         client: raw_config.client,
@@ -205,6 +217,27 @@ fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
         logging: raw_config.logging,
         credential: raw_config.credential,
     })
+}
+
+fn detect_platform() -> Platform {
+    if cfg!(target_os = "windows") {
+        return Platform::Win;
+    }
+    if cfg!(target_os = "linux") && is_ubuntu_host() {
+        return Platform::Ubuntu;
+    }
+
+    panic!("unsupported platform: {}", env::consts::OS);
+}
+
+fn is_ubuntu_host() -> bool {
+    std::fs::read_to_string("/etc/os-release")
+        .map(|content| {
+            content
+                .lines()
+                .any(|line| line == "ID=ubuntu" || line == "ID=\"ubuntu\"")
+        })
+        .unwrap_or(false)
 }
 
 fn default_core_config() -> CoreConfig {

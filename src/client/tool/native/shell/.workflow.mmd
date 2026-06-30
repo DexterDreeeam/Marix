@@ -1,15 +1,31 @@
 flowchart LR
-  %% native shell tools expose one Tool-implementing struct for shell execution.
-  ToolPreview["ToolPreview\nname/description/schema"]
-  ToolTrait["Tool\ntrait"]
-  NativeToolList["NATIVE_TOOL_LIST\nconst array"]
-  PrimaryNativeToolList["PRIMARY_NATIVE_TOOL_LIST\nconst array"]
+  ToolPreview["ToolPreview"]
+  ToolTrait["Tool platform/category/invoke"]
+  PlatformAll["Platform::All"]
+  ToolInvocation["ToolInvocation command/cwd/timeout shape"]
+  ToolRuntime["ToolRuntime statuses + cancel handle"]
+  ToolInvocationStatus["ToolInvocationStatus"]
+  ToolExecutionResult["ToolExecutionResult<()>\nComplete or Cancelled"]
+  CancelSignal["cancel signal"]
+  ToolError["ToolError"]
+  ShellExecuteTool["ShellExecuteTool"]
+  ShellCommand["cmd /C or sh -c"]
+  ChildProcess["child process"]
+  StreamReaders["stdout/stderr stream readers"]
+  Timeout["timeout deadline"]
 
-  subgraph shell_execute_rs["shell_execute.rs"]
-    ShellExecuteTool["ShellExecuteTool\nstruct"]
-  end
-
-  ShellExecuteTool -->|"implements tool interface"| ToolTrait
-  ShellExecuteTool -->|"PREVIEW metadata"| ToolPreview
-  NativeToolList -->|"includes ShellExecuteTool::PREVIEW"| ToolPreview
-  PrimaryNativeToolList -->|"includes ShellExecuteTool::PREVIEW"| ToolPreview
+  ShellExecuteTool -->|"implements Tool"| ToolTrait
+  ToolTrait -->|"platform()"| PlatformAll
+  ShellExecuteTool -->|"PREVIEW"| ToolPreview
+  ToolInvocation -->|"command/cwd/timeout_ms"| ShellExecuteTool
+  ShellExecuteTool -->|"selects host shell"| ShellCommand
+  ShellCommand -->|"spawns"| ChildProcess
+  ChildProcess -->|"stdout/stderr"| StreamReaders
+  StreamReaders -->|"Running stream JSON"| ToolRuntime
+  Timeout -->|"kills on expiry and returns ToolError"| ChildProcess
+  ToolRuntime -->|"emits Started/Running/Complete/Cancelled"| ToolInvocationStatus
+  ToolRuntime -->|"cancel()"| CancelSignal
+  CancelSignal -->|"kills child while polling"| ChildProcess
+  ChildProcess -->|"poll result"| ToolExecutionResult
+  ToolExecutionResult -->|"Complete or Cancelled mapped outward"| ToolInvocationStatus
+  ToolError -->|"InvalidArguments/ExecutionFailed"| ToolInvocationStatus

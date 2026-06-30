@@ -1,6 +1,4 @@
-use std::sync::mpsc::Receiver;
-
-use crate::client::tool::{ToolInvocation, ToolOutcome, ToolRegistry};
+use crate::client::tool::{ToolInvocation, ToolRegistry, ToolRuntime};
 
 use super::error::ExecutorError;
 
@@ -14,10 +12,7 @@ impl Executor {
         panic!("not implemented")
     }
 
-    pub fn execute(
-        &self,
-        invocation: ToolInvocation,
-    ) -> Result<Receiver<ToolOutcome>, ExecutorError> {
+    pub fn execute(&self, invocation: ToolInvocation) -> Result<ToolRuntime, ExecutorError> {
         panic!("not implemented")
     }
 }

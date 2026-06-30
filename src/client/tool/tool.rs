@@ -1,7 +1,8 @@
-use std::sync::mpsc::Receiver;
+use std::sync::mpsc::{Receiver, Sender};
 
 use super::category::ToolCategory;
 use super::error::ToolError;
+use crate::common::config::Platform;
 use crate::common::external::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -12,24 +13,15 @@ pub enum ToolType {
     User,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ToolPlatform {
-    All,
-    // Minimum supported version: Windows 10 22H2.
-    Win,
-    // Minimum supported version: Ubuntu 22.04 LTS.
-    Ubuntu,
-}
-
 /// A callable client-side capability (shell, network, filesystem, ...). Both
 /// built-in and user-provided tools implement this single trait so the registry
 /// can treat them uniformly. Invocation streams output chunks over a channel.
 pub trait Tool {
     fn tool_type(&self) -> ToolType;
 
-    fn platforms(&self) -> &'static [ToolPlatform];
+    fn platform(&self) -> Platform;
 
-    fn categories(&self) -> &'static [ToolCategory];
+    fn category(&self) -> ToolCategory;
 
     fn name(&self) -> &'static str;
 
@@ -37,7 +29,7 @@ pub trait Tool {
 
     fn schema(&self) -> &'static str;
 
-    fn invoke(&self, invocation: ToolInvocation) -> Result<Receiver<ToolOutcome>, ToolError>;
+    fn invoke(&self, invocation: ToolInvocation) -> Result<ToolRuntime, ToolError>;
 }
 
 pub trait UserTool: Tool {}
@@ -58,16 +50,37 @@ pub struct ToolInvocation {
     pub arguments: String,
 }
 
-/// A single streamed chunk of a tool's output.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ToolOutput {
-    pub call_id: String,
-    pub content: String,
+pub struct ToolRuntime {
+    pub statuses: Receiver<ToolInvocationStatus>,
+    cancel_tx: Sender<()>,
 }
 
-/// One item in a tool's output stream: an output chunk or a terminal failure.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ToolOutcome {
-    Output(ToolOutput),
-    Error(ToolError),
+pub enum ToolInvocationStatus {
+    Started,
+    Running(String),
+    Cancelled,
+    Failed(ToolError),
+    Complete,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ToolExecutionResult<T> {
+    Complete(T),
+    Cancelled,
+}
+
+impl ToolRuntime {
+    pub fn new(statuses: Receiver<ToolInvocationStatus>, cancel_tx: Sender<()>) -> Self {
+        Self {
+            statuses,
+            cancel_tx,
+        }
+    }
+
+    pub fn cancel(&self) -> Result<(), ToolError> {
+        self.cancel_tx.send(()).map_err(|_| {
+            ToolError::ExecutionFailed("tool runtime is no longer running".to_string())
+        })
+    }
 }

@@ -1,23 +1,43 @@
 flowchart LR
-  %% native system tools expose one Tool-implementing struct per system capability.
-  ToolPreview["ToolPreview\nname/description/schema"]
-  ToolTrait["Tool\ntrait"]
-  NativeToolList["NATIVE_TOOL_LIST\nconst array"]
+  ToolPreview["ToolPreview"]
+  ToolTrait["Tool platform/category/invoke"]
+  PlatformAll["Platform::All"]
+  PlatformWin["Platform::Win"]
+  ToolInvocation["ToolInvocation JSON arguments"]
+  ToolRuntime["ToolRuntime status receiver + cancel handle"]
+  ToolInvocationStatus["ToolInvocationStatus"]
+  ToolExecutionResult["ToolExecutionResult<Vec<String>>\nprocess rows or Cancelled"]
+  ToolError["ToolError"]
+  CancelSignal["cancel signal"]
+  SystemInfoTool["SystemInfoTool"]
+  ProcessListTool["ProcessListTool"]
+  EnvironmentTool["EnvironmentTool"]
+  EnvVars["local environment variables"]
+  TasklistProcess["tasklist child process"]
+  ProcessRows["process JSON rows"]
 
-  subgraph system_info_rs["system_info.rs"]
-    SystemInfoTool["SystemInfoTool\nstruct"]
-  end
-  subgraph process_list_rs["process_list.rs"]
-    ProcessListTool["ProcessListTool\nstruct"]
-  end
-  subgraph environment_rs["environment.rs"]
-    EnvironmentTool["EnvironmentTool\nstruct"]
-  end
-
-  SystemInfoTool -->|"implements tool interface"| ToolTrait
-  SystemInfoTool -->|"PREVIEW metadata"| ToolPreview
-  ProcessListTool -->|"implements tool interface"| ToolTrait
-  ProcessListTool -->|"PREVIEW metadata"| ToolPreview
-  EnvironmentTool -->|"implements tool interface"| ToolTrait
-  EnvironmentTool -->|"PREVIEW metadata"| ToolPreview
-  NativeToolList -->|"includes system tool previews"| ToolPreview
+  SystemInfoTool -->|"implements Tool"| ToolTrait
+  ProcessListTool -->|"implements Tool"| ToolTrait
+  EnvironmentTool -->|"implements Tool"| ToolTrait
+  SystemInfoTool -->|"platform()"| PlatformAll
+  EnvironmentTool -->|"platform()"| PlatformAll
+  ProcessListTool -->|"platform()"| PlatformWin
+  SystemInfoTool -->|"PREVIEW"| ToolPreview
+  ProcessListTool -->|"PREVIEW"| ToolPreview
+  EnvironmentTool -->|"PREVIEW"| ToolPreview
+  ToolInvocation -->|"names array"| EnvironmentTool
+  SystemInfoTool -->|"Running OS/current-dir JSON then Complete"| ToolRuntime
+  EnvironmentTool -->|"reads requested names"| EnvVars
+  EnvVars -->|"one Running JSON per variable"| ToolRuntime
+  ProcessListTool -->|"spawns tasklist /FO CSV /NH"| TasklistProcess
+  TasklistProcess -->|"stdout CSV"| ProcessRows
+  TasklistProcess -->|"Complete rows or Cancelled"| ToolExecutionResult
+  ToolExecutionResult -->|"rows become Running process JSON"| ProcessRows
+  ToolExecutionResult -->|"Cancelled maps outward"| ToolInvocationStatus
+  ProcessRows -->|"Running process JSON messages"| ToolRuntime
+  ToolRuntime -->|"emits"| ToolInvocationStatus
+  ToolRuntime -->|"cancel()"| CancelSignal
+  CancelSignal -->|"checked before/between work"| SystemInfoTool
+  CancelSignal -->|"checked before/between variables"| EnvironmentTool
+  CancelSignal -->|"kills child while polling"| TasklistProcess
+  ToolError -->|"Denied/Failed status"| ToolInvocationStatus

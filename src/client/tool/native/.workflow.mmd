@@ -1,23 +1,28 @@
 flowchart LR
   subgraph native_tool_list_rs["native_tool_list.rs"]
-    PrimaryNativeToolList["PRIMARY_NATIVE_TOOL_LIST\nconst array"]
-    NativeToolList["NATIVE_TOOL_LIST\nconst array"]
+    PrimaryNativeToolList["PRIMARY_NATIVE_TOOL_LIST"]
+    NativeToolList["NATIVE_TOOL_LIST"]
   end
-
   subgraph categories["native category folders"]
-    FileTools["file tools\nread/write/list/search"]
-    ImageTools["image tools\ninspect/transform"]
-    NetworkTools["network tools\nHTTP/DNS"]
-    ShellTools["shell tools\nexecute"]
-    SystemTools["system tools\nsystem/process/env"]
-    PackageTools["package tools\nquery"]
+    FileTools["file tools"]
+    ImageTools["image tools"]
+    NetworkTools["network tools"]
+    ShellTools["shell tool"]
+    SystemTools["system tools"]
+    PackageTools["package tool"]
   end
-
-  ToolTrait["Tool\ntrait"]
-  ToolPreview["ToolPreview\nname/description/schema"]
-  ToolType["ToolType\nPrimary/Native"]
-  ToolPlatform["ToolPlatform\nAll/Win/Ubuntu"]
-  ToolCategory["ToolCategory\ncategory ids"]
+  ToolTrait["Tool trait"]
+  ToolPreview["ToolPreview"]
+  Platform["Platform\ncommon config"]
+  ToolCategory["ToolCategory"]
+  ToolInvocation["ToolInvocation"]
+  ToolRuntime["ToolRuntime statuses + cancel handle"]
+  ToolInvocationStatus["ToolInvocationStatus"]
+  ToolExecutionResult["ToolExecutionResult<T>\nComplete or Cancelled"]
+  ToolError["ToolError"]
+  RegistrySupportCheck["ToolRegistry platform filter"]
+  RuntimeImplementations["native runtime implementations"]
+  CancelSignal["cancel signal"]
 
   FileTools -->|"implements Tool"| ToolTrait
   ImageTools -->|"implements Tool"| ToolTrait
@@ -25,14 +30,29 @@ flowchart LR
   ShellTools -->|"implements Tool"| ToolTrait
   SystemTools -->|"implements Tool"| ToolTrait
   PackageTools -->|"implements Tool"| ToolTrait
-  ToolTrait -->|"tool_type"| ToolType
-  ToolTrait -->|"platforms"| ToolPlatform
-  ToolTrait -->|"categories"| ToolCategory
+  ToolTrait -->|"platform()"| Platform
+  Platform -->|"All allows every host"| RegistrySupportCheck
+  Platform -->|"Win gates process/package tools"| RegistrySupportCheck
+  ToolTrait -->|"category()"| ToolCategory
+  ToolTrait -->|"invoke accepts"| ToolInvocation
+  ToolTrait -->|"invoke returns"| ToolRuntime
+  ToolRuntime -->|"status receiver"| ToolInvocationStatus
+  ToolRuntime -->|"cancel failure type"| ToolError
+  ToolRuntime -->|"cancel()"| CancelSignal
+  FileTools -->|"filesystem JSON/text statuses"| RuntimeImplementations
+  ImageTools -->|"image metadata/transform JSON"| RuntimeImplementations
+  NetworkTools -->|"HTTP/DNS JSON statuses"| RuntimeImplementations
+  ShellTools -->|"stdout/stderr streaming and timeout"| RuntimeImplementations
+  SystemTools -->|"OS/env/process JSON statuses"| RuntimeImplementations
+  PackageTools -->|"PowerShell Get-Package JSON"| RuntimeImplementations
+  RuntimeImplementations -->|"helper Complete/Cancelled"| ToolExecutionResult
+  ToolExecutionResult -->|"mapped to Complete/Cancelled status"| ToolRuntime
+  RuntimeImplementations -->|"propagates failures"| ToolError
   FileTools -->|"PREVIEW"| ToolPreview
   ImageTools -->|"PREVIEW"| ToolPreview
   NetworkTools -->|"PREVIEW"| ToolPreview
   ShellTools -->|"PREVIEW"| ToolPreview
   SystemTools -->|"PREVIEW"| ToolPreview
   PackageTools -->|"PREVIEW"| ToolPreview
-  NativeToolList -->|"collects every native preview"| ToolPreview
-  PrimaryNativeToolList -->|"collects ShellExecuteTool and HttpRequestTool previews"| ToolPreview
+  NativeToolList -->|"catalogs every native preview"| ToolPreview
+  PrimaryNativeToolList -->|"legacy primary preview constants"| ToolPreview

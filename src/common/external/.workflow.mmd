@@ -1,7 +1,11 @@
 flowchart LR
   subgraph remoc_rs["remoc.rs"]
     RemocNamespace["remoc namespace wrapper"]
-    RemocConnect["connection helper"]
+    RemocConnect["connect_remoc"]
+  end
+
+  subgraph image_rs["image.rs"]
+    ImageReader["ImageReader re-export"]
   end
 
   subgraph serde_rs["serde.rs"]
@@ -29,6 +33,8 @@ flowchart LR
   CommonMessage["common/message"]
   CommonConfig["common/config"]
   AgentModel["agent/model"]
+  NativeNetwork["client/tool/native/network"]
+  NativeImage["client/tool/native/image"]
 
   RemocNamespace -->|"transport types"| ClientCore
   RemocNamespace -->|"transport types"| AgentFrontdoor
@@ -36,6 +42,9 @@ flowchart LR
   SerdeNamespace -->|"derive and serialization traits"| CommonMessage
   SerdeNamespace -->|"derive and serialization traits"| CommonConfig
   SerdeJsonNamespace -->|"JSON payload handling"| AgentModel
+  SerdeJsonNamespace -->|"tool argument/output JSON"| NativeNetwork
   TokioNamespace -->|"async runtime and channels"| AgentFrontdoor
   ReqwestNamespace -->|"HTTP streaming client"| AgentModel
+  ReqwestNamespace -->|"blocking HTTP requests"| NativeNetwork
+  ImageReader -->|"image inspect/transform IO"| NativeImage
   TomlNamespace -->|"configuration parsing"| CommonConfig

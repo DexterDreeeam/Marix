@@ -17,5 +17,6 @@ pub use native::{
 };
 pub use registry::{DefaultPreview, ToolRegistry};
 pub use tool::{
-    Tool, ToolInvocation, ToolOutcome, ToolOutput, ToolPlatform, ToolPreview, ToolType, UserTool,
+    Tool, ToolExecutionResult, ToolInvocation, ToolInvocationStatus, ToolPreview, ToolRuntime,
+    ToolType, UserTool,
 };

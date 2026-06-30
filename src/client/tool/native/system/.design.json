@@ -3,98 +3,47 @@
   "module": {
     "path": "src/client/tool/native/system",
     "name": "system",
-    "purpose": "Owns native system, process, and environment inspection Tool implementation stubs and ToolPreview metadata.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns system, process, and environment native Tool implementations that report OS details, selected environment variables, and Windows tasklist process JSON with common Platform support markers, shared ToolExecutionResult helper completion/cancellation where child polling needs it, and ToolRuntime status streaming.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "system_info.rs",
+    "environment.rs",
+    "process_list.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "SystemInfoTool",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/system/system_info.rs",
-          "lineStart": 7,
-          "lineEnd": 7,
+          "lineStart": 10,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/system/system_info.rs",
-          "lineStart": 9,
-          "lineEnd": 15,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 14
-            }
-          ],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/client/tool/native/system/system_info.rs",
-          "lineStart": 17,
-          "lineEnd": 45,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 30,
-              "lineEnd": 40
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 17
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "ProcessListTool",
-      "type": "struct",
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/client/tool/native/system/process_list.rs",
-          "lineStart": 7,
-          "lineEnd": 7,
+          "lineStart": 12,
+          "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/client/tool/native/system/process_list.rs",
-          "lineStart": 9,
-          "lineEnd": 15,
+          "sourcePath": "src/client/tool/native/system/system_info.rs",
+          "lineStart": 20,
+          "lineEnd": 76,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 14
-            }
-          ],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/client/tool/native/system/process_list.rs",
-          "lineStart": 17,
-          "lineEnd": 45,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 30,
-              "lineEnd": 40
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 17,
-              "lineEnd": 17
+              "lineStart": 25,
+              "lineEnd": 26
             }
           ]
         }
@@ -103,46 +52,133 @@
     {
       "name": "EnvironmentTool",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/system/environment.rs",
-          "lineStart": 7,
-          "lineEnd": 7,
+          "lineStart": 10,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/system/environment.rs",
-          "lineStart": 9,
-          "lineEnd": 15,
+          "lineStart": 12,
+          "lineEnd": 18,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 14
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/system/environment.rs",
-          "lineStart": 17,
-          "lineEnd": 45,
+          "lineStart": 20,
+          "lineEnd": 70,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 30,
-              "lineEnd": 40
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 17,
-              "lineEnd": 17
+              "lineStart": 25,
+              "lineEnd": 26
             }
           ]
+        },
+        {
+          "sourcePath": "src/client/tool/native/system/environment.rs",
+          "lineStart": 74,
+          "lineEnd": 90,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ProcessListTool",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/tool/native/system/process_list.rs",
+          "lineStart": 15,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/system/process_list.rs",
+          "lineStart": 17,
+          "lineEnd": 23,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/system/process_list.rs",
+          "lineStart": 25,
+          "lineEnd": 87,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 30,
+              "lineEnd": 31
+            },
+            {
+              "lineStart": 65,
+              "lineEnd": 81
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/client/tool/native/system/process_list.rs",
+          "lineStart": 91,
+          "lineEnd": 130,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 91,
+              "lineEnd": 93
+            },
+            {
+              "lineStart": 98,
+              "lineEnd": 99
+            },
+            {
+              "lineStart": 105,
+              "lineEnd": 105
+            },
+            {
+              "lineStart": 108,
+              "lineEnd": 109
+            },
+            {
+              "lineStart": 116,
+              "lineEnd": 118
+            },
+            {
+              "lineStart": 121,
+              "lineEnd": 126
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/client/tool/native/system/process_list.rs",
+          "lineStart": 132,
+          "lineEnd": 148,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/system/process_list.rs",
+          "lineStart": 150,
+          "lineEnd": 173,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     }

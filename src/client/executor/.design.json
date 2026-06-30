@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/client/executor",
+    "name": "executor",
+    "purpose": "Owns the client-side executor public dispatch API that accepts ToolInvocation, uses ToolRegistry, and now returns ToolRuntime so callers receive status streaming plus cancellation shape; behavior remains a draft panic stub.",
+    "changeStatus": "modified"
+  },
+  "modified": [
+    "executor.rs"
+  ],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "ExecutorError",
+      "type": "enum",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/executor/error.rs",
+          "lineStart": 6,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Executor",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/executor/executor.rs",
+          "lineStart": 8,
+          "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/executor/executor.rs",
+          "lineStart": 10,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 15
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

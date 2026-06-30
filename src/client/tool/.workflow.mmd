@@ -1,60 +1,64 @@
 flowchart LR
-  subgraph category_rs["category.rs"]
-    ToolCategory["ToolCategory\nenum"]
-    CategoryPreview["CategoryPreview\nname/description"]
-  end
-
   subgraph tool_rs["tool.rs"]
-    ToolType["ToolType\nPrimary/Native/Skill/User"]
-    ToolPlatform["ToolPlatform\nAll/Win/Ubuntu"]
-    ToolTrait["Tool\ntrait"]
-    UserTool["UserTool\ntrait"]
-    ToolPreview["ToolPreview\nname/description/schema"]
-    ToolInvocation["ToolInvocation\nstruct"]
-    ToolOutput["ToolOutput\nstruct"]
-    ToolOutcome["ToolOutcome\nenum"]
+    ToolType["ToolType"]
+    Platform["Platform\nfrom common config"]
+    ToolTrait["Tool trait"]
+    UserTool["UserTool trait"]
+    ToolPreview["ToolPreview"]
+    ToolInvocation["ToolInvocation"]
+    ToolRuntime["ToolRuntime statuses + cancel handle"]
+    ToolInvocationStatus["ToolInvocationStatus Started/Running/Cancelled/Failed/Complete"]
+    ToolExecutionResult["ToolExecutionResult<T>\nComplete or Cancelled"]
   end
-
-  subgraph category_folder["category/"]
-    ToolCategoryStructs["ToolCategory* structs\nPREVIEW consts"]
-    ToolCategoryList["TOOL_CATEGORY_LIST\nconst array"]
-  end
-
   subgraph registry_rs["registry.rs"]
-    DefaultPreview["DefaultPreview\nprimary + category previews"]
-    ToolRegistry["ToolRegistry\nstruct"]
+    Config["Config"]
+    DefaultPreview["DefaultPreview"]
+    ToolRegistry["ToolRegistry\nVec<Box<dyn Tool>> + current Platform"]
+    SupportCheck["supports_tool"]
   end
-
   subgraph error_rs["error.rs"]
-    ToolError["ToolError\nenum"]
+    ToolError["ToolError"]
   end
-
+  subgraph category["category.rs + category/"]
+    ToolCategory["ToolCategory"]
+    CategoryPreview["CategoryPreview"]
+    ToolCategoryList["TOOL_CATEGORY_LIST"]
+  end
   subgraph native["native/"]
-    PrimaryNativeToolList["PRIMARY_NATIVE_TOOL_LIST\nconst array"]
-    NativeToolList["NATIVE_TOOL_LIST\nconst array"]
+    NativeToolList["NATIVE_TOOL_LIST"]
     NativeToolStructs["category native tool structs"]
+    NativeRuntimeImplementations["native runtime implementations"]
   end
 
-  ToolCategoryStructs -->|"associated PREVIEW"| CategoryPreview
-  ToolCategoryList -->|"aggregates category previews"| CategoryPreview
   ToolTrait -->|"reports type"| ToolType
-  ToolTrait -->|"reports platforms"| ToolPlatform
-  ToolTrait -->|"reports categories"| ToolCategory
-  ToolTrait -->|"reports name/description/schema"| ToolPreview
+  ToolTrait -->|"platform() returns"| Platform
+  ToolTrait -->|"category() returns"| ToolCategory
+  ToolTrait -->|"reports preview fields"| ToolPreview
   ToolTrait -->|"accepts"| ToolInvocation
-  ToolTrait -->|"streams"| ToolOutcome
+  ToolTrait -->|"invoke() returns"| ToolRuntime
+  ToolRuntime -->|"statuses Receiver"| ToolInvocationStatus
+  ToolRuntime -->|"cancel() may fail with"| ToolError
+  ToolInvocationStatus -->|"Failed variant"| ToolError
   UserTool -->|"extends"| ToolTrait
-  ToolOutcome -->|"output variant"| ToolOutput
-  ToolOutcome -->|"error variant"| ToolError
-  ToolRegistry -->|"stores dyn Tool"| ToolTrait
-  ToolRegistry -->|"default_preview()"| DefaultPreview
-  ToolRegistry -->|"tool_preview()"| ToolPreview
+  Config -->|"ToolRegistry::new(&Config)"| ToolRegistry
+  Config -->|"current platform"| Platform
+  ToolRegistry -->|"stores dyn Tool boxes"| ToolTrait
+  ToolRegistry -->|"register()/get(name)"| ToolTrait
+  ToolRegistry -->|"checks platform support"| SupportCheck
+  SupportCheck -->|"allows Platform::All or exact match"| Platform
+  SupportCheck -->|"denies unsupported external/user tools"| ToolError
+  ToolRegistry -->|"skips unsupported built-ins"| NativeToolStructs
+  ToolRegistry -->|"default_preview() from registered primary tools"| DefaultPreview
+  ToolRegistry -->|"tool_preview() maps stored tools"| ToolPreview
   DefaultPreview -->|"primary_tool_previews"| ToolPreview
   DefaultPreview -->|"category_previews"| CategoryPreview
+  ToolCategoryList -->|"aggregates category previews"| CategoryPreview
   NativeToolStructs -->|"implements Tool"| ToolTrait
   NativeToolStructs -->|"associated PREVIEW"| ToolPreview
-  NativeToolList -->|"collects native previews"| ToolPreview
-  PrimaryNativeToolList -->|"collects primary native previews"| ToolPreview
-  PrimaryNativeToolList -->|"feeds default preview"| DefaultPreview
-  ToolCategoryList -->|"feeds default preview"| DefaultPreview
-  NativeToolList -->|"seeds native builtins"| ToolRegistry
+  NativeToolStructs -->|"invoke behavior"| NativeRuntimeImplementations
+  NativeRuntimeImplementations -->|"helper returns Complete or Cancelled"| ToolExecutionResult
+  ToolExecutionResult -->|"Complete maps to Complete status"| ToolInvocationStatus
+  ToolExecutionResult -->|"Cancelled maps to Cancelled status"| ToolInvocationStatus
+  NativeRuntimeImplementations -->|"propagates failures"| ToolError
+  NativeRuntimeImplementations -->|"streams ToolInvocationStatus"| ToolRuntime
+  NativeToolList -->|"catalogs every native preview"| ToolPreview

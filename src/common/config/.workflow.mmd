@@ -2,6 +2,7 @@ flowchart LR
   subgraph config_rs["config.rs"]
     CONFIG_FILE["CONFIG_FILE"]
     Config["Config\nstruct + load"]
+    Platform["Platform\nAll / Win / Ubuntu"]
     RuntimeConfig["RuntimeConfig\nruntime paths"]
     RuntimeEnvironment["RuntimeEnvironment"]
     RuntimeMode["RuntimeMode"]
@@ -14,17 +15,25 @@ flowchart LR
     RuntimePathResolver["runtime path resolver\ninternal helpers"]
   end
 
+  HostOS["host OS cfg/env"]
+  UbuntuRelease["/etc/os-release"]
   AliasFiles[".alias values"]
   CredentialFiles["credential files"]
   TomlParser["toml parser"]
   ConfigRoot["config repository/deployment root"]
+  ToolRegistry["client ToolRegistry"]
+  NativeTools["native Tool implementations"]
   AgentMain["agent main"]
   CliRun["cli run"]
   LoggingModule["common logging module"]
 
   CONFIG_FILE -->|"default source config name"| Config
+  HostOS -->|"windows maps to Win"| Platform
+  UbuntuRelease -->|"ubuntu linux maps to Ubuntu"| Platform
+  Platform -->|"unsupported OS panics before load"| Config
   TomlParser -->|"deserializes TOML"| Config
   AliasFiles -->|"substitutes placeholders"| Config
+  Config -->|"exposes current host"| Platform
   Config -->|"owns runtime section"| RuntimeConfig
   RuntimeConfig -->|"environment"| RuntimeEnvironment
   RuntimeConfig -->|"mode"| RuntimeMode
@@ -41,3 +50,5 @@ flowchart LR
   LoggingConfig -->|"info/warning/error gates"| LoggingModule
   AgentConfig -->|"listener address"| AgentMain
   ClientConfig -->|"server address"| CliRun
+  Config -->|"ToolRegistry::new(&Config)"| ToolRegistry
+  NativeTools -->|"Platform::All/Win/Ubuntu support markers"| Platform

@@ -1,8 +1,11 @@
-use std::sync::mpsc::Receiver;
+use std::{sync::mpsc, thread};
 
 use crate::client::tool::{
-    Tool, ToolCategory, ToolError, ToolInvocation, ToolOutcome, ToolPlatform, ToolPreview, ToolType,
+    Tool, ToolCategory, ToolError, ToolInvocation, ToolInvocationStatus, ToolPreview, ToolRuntime,
+    ToolType,
 };
+use crate::common::config::Platform;
+use crate::common::external::*;
 
 pub struct ImageInspectTool;
 
@@ -16,30 +19,89 @@ impl ImageInspectTool {
 
 impl Tool for ImageInspectTool {
     fn tool_type(&self) -> ToolType {
-        panic!("not implemented")
+        ToolType::Native
     }
 
-    fn platforms(&self) -> &'static [ToolPlatform] {
-        panic!("not implemented")
+    fn platform(&self) -> Platform {
+        Platform::All
     }
 
-    fn categories(&self) -> &'static [ToolCategory] {
-        panic!("not implemented")
+    fn category(&self) -> ToolCategory {
+        ToolCategory::Image
     }
 
     fn name(&self) -> &'static str {
-        panic!("not implemented")
+        Self::PREVIEW.name
     }
 
     fn description(&self) -> &'static str {
-        panic!("not implemented")
+        Self::PREVIEW.description
     }
 
     fn schema(&self) -> &'static str {
-        panic!("not implemented")
+        Self::PREVIEW.schema
     }
 
-    fn invoke(&self, _invocation: ToolInvocation) -> Result<Receiver<ToolOutcome>, ToolError> {
-        panic!("not implemented")
+    fn invoke(&self, invocation: ToolInvocation) -> Result<ToolRuntime, ToolError> {
+        let path = required_string(&invocation.arguments, "path")?;
+        let (status_tx, status_rx) = mpsc::channel();
+        let (cancel_tx, cancel_rx) = mpsc::channel();
+
+        thread::spawn(move || {
+            let _ = status_tx.send(ToolInvocationStatus::Started);
+            if cancel_rx.try_recv().is_ok() {
+                let _ = status_tx.send(ToolInvocationStatus::Cancelled);
+                return;
+            }
+            match inspect_image(&path) {
+                Ok(message) => {
+                    let _ = status_tx.send(ToolInvocationStatus::Running(message));
+                    let _ = status_tx.send(ToolInvocationStatus::Complete);
+                }
+                Err(error) => {
+                    let _ = status_tx.send(ToolInvocationStatus::Failed(error));
+                }
+            }
+        });
+
+        Ok(ToolRuntime::new(status_rx, cancel_tx))
     }
+}
+
+// -- Private -- //
+
+fn required_string(arguments: &str, field: &str) -> Result<String, ToolError> {
+    let value: serde_json::Value = serde_json::from_str(arguments)
+        .map_err(|error| ToolError::InvalidArguments(error.to_string()))?;
+
+    value
+        .get(field)
+        .and_then(serde_json::Value::as_str)
+        .map(str::to_string)
+        .ok_or_else(|| ToolError::InvalidArguments(format!("missing string field: {field}")))
+}
+
+fn inspect_image(path: &str) -> Result<String, ToolError> {
+    let reader = image::ImageReader::open(path)
+        .map_err(|error| ToolError::ExecutionFailed(format!("failed to open {path}: {error}")))?
+        .with_guessed_format()
+        .map_err(|error| {
+            ToolError::ExecutionFailed(format!("failed to inspect {path}: {error}"))
+        })?;
+    let format = reader
+        .format()
+        .map(|format| format!("{format:?}"))
+        .unwrap_or_else(|| "unknown".to_string());
+    let image = reader
+        .decode()
+        .map_err(|error| ToolError::ExecutionFailed(format!("failed to decode {path}: {error}")))?;
+
+    Ok(self::serde_json::json!({
+        "path": path,
+        "format": format,
+        "width": image.width(),
+        "height": image.height(),
+        "color": format!("{:?}", image.color())
+    })
+    .to_string())
 }
