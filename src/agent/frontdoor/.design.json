@@ -4,19 +4,14 @@
     "path": "src/agent/frontdoor",
     "name": "frontdoor",
     "purpose": "Agent frontdoor Session and Task endpoints backed by remoc/TCP, storing a shared loop engine, accepting complete request messages, and sending streamed response message segments while preserving transport task route cleanup.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "mod.rs",
-    "session.rs",
-    "task.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "Session",
       "type": "struct",
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/session.rs",
@@ -66,7 +61,7 @@
     {
       "name": "Task",
       "type": "struct",
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/task.rs",

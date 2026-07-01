@@ -4,17 +4,8 @@
     "path": "src/agent/engine",
     "name": "engine",
     "purpose": "Defines the session-scoped loop engine runtime, lifecycle errors, session and task context interfaces, TaskBrief-based session brief and task trace data shapes, runtime task events, and model streaming coordination through chat response segments.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "loop_engine.rs",
-    "mod.rs",
-    "session_context.rs",
-    "task_context.rs"
-  ],
-  "deleted": [
-    "model_context.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -35,7 +26,7 @@
     {
       "name": "LoopEngine",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/loop_engine.rs",
@@ -91,7 +82,7 @@
     {
       "name": "SessionBrief",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/session_context.rs",
@@ -209,7 +200,7 @@
     {
       "name": "TaskResult",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
@@ -229,7 +220,7 @@
     {
       "name": "TaskBrief",
       "type": "struct",
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
@@ -249,7 +240,7 @@
     {
       "name": "TaskTrace",
       "type": "struct",
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
