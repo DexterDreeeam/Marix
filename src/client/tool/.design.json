@@ -6,7 +6,10 @@
     "purpose": "Client-side tool interface layer with a unified Tool trait using common config Platform values and returning the shared common::protocol ToolSchema, a default preview() that builds ToolPreview from name/description/schema, ToolRuntime status streaming and cancellation, ToolInvocationStatus lifecycle states, the shared generic ToolExecutionResult helper outcome for complete-or-cancelled native helpers, ToolType variants, ToolPreview and DefaultPreview records, ToolInvocation carrying a shared common::protocol ToolParameter package, Config-aware ToolRegistry registration/preview/lookup behavior with unsupported-tool denial, typed ToolError failures, CategoryPreview metadata, and folder-organized native tool implementations.",
     "changeStatus": "modified"
   },
-  "modified": ["mod.rs", "tool.rs"],
+  "modified": [
+    "mod.rs",
+    "tool.rs"
+  ],
   "childModules": [
     {
       "path": "src/client/tool/category",
@@ -23,6 +26,7 @@
     {
       "name": "ToolCategory",
       "type": "enum",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -38,6 +42,7 @@
     {
       "name": "CategoryPreview",
       "type": "struct",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -53,6 +58,7 @@
     {
       "name": "ToolError",
       "type": "enum",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -68,6 +74,7 @@
     {
       "name": "DefaultPreview",
       "type": "struct",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -83,6 +90,7 @@
     {
       "name": "ToolRegistry",
       "type": "struct",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -142,6 +150,7 @@
     {
       "name": "ToolType",
       "type": "enum",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -157,6 +166,7 @@
     {
       "name": "Tool",
       "type": "trait",
+      "source_depth": 3,
       "changeStatus": "modified",
       "codeSegments": [
         {
@@ -182,6 +192,7 @@
     {
       "name": "UserTool",
       "type": "trait",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -197,6 +208,7 @@
     {
       "name": "ToolPreview",
       "type": "struct",
+      "source_depth": 3,
       "changeStatus": "modified",
       "codeSegments": [
         {
@@ -221,6 +233,7 @@
     {
       "name": "ToolInvocation",
       "type": "struct",
+      "source_depth": 3,
       "changeStatus": "modified",
       "codeSegments": [
         {
@@ -241,6 +254,7 @@
     {
       "name": "ToolRuntime",
       "type": "struct",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -264,6 +278,7 @@
     {
       "name": "ToolInvocationStatus",
       "type": "enum",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -279,6 +294,7 @@
     {
       "name": "ToolExecutionResult",
       "type": "enum",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {

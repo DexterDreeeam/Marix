@@ -6,13 +6,19 @@
     "purpose": "Defines the session-scoped loop engine runtime, lifecycle errors, session and task context interfaces, TaskBrief-based session brief and task trace data shapes, runtime task events, model-produced Plan and Job planning structures shown to the user, and model streaming coordination through chat response segments.",
     "changeStatus": "modified"
   },
-  "added": ["plan.rs"],
-  "modified": ["mod.rs", "task_context.rs"],
+  "added": [
+    "plan.rs"
+  ],
+  "modified": [
+    "mod.rs",
+    "task_context.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "LoopEngineError",
       "type": "enum",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -28,6 +34,7 @@
     {
       "name": "LoopEngine",
       "type": "struct",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -69,6 +76,7 @@
     {
       "name": "SessionStatus",
       "type": "enum",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -84,6 +92,7 @@
     {
       "name": "SessionBrief",
       "type": "struct",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -104,6 +113,7 @@
     {
       "name": "SessionContext",
       "type": "struct",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -127,6 +137,7 @@
     {
       "name": "TaskRuntimeEvent",
       "type": "enum",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -142,6 +153,7 @@
     {
       "name": "TaskStatus",
       "type": "enum",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -157,6 +169,7 @@
     {
       "name": "TaskStepKind",
       "type": "enum",
+      "source_depth": 3,
       "changeStatus": "modified",
       "codeSegments": [
         {
@@ -181,6 +194,7 @@
     {
       "name": "TaskStep",
       "type": "struct",
+      "source_depth": 3,
       "changeStatus": "modified",
       "codeSegments": [
         {
@@ -201,6 +215,7 @@
     {
       "name": "TaskResult",
       "type": "struct",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -221,6 +236,7 @@
     {
       "name": "TaskBrief",
       "type": "struct",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -241,6 +257,7 @@
     {
       "name": "TaskTrace",
       "type": "struct",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -261,6 +278,7 @@
     {
       "name": "TaskContext",
       "type": "struct",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -284,6 +302,7 @@
     {
       "name": "Plan",
       "type": "struct",
+      "source_depth": 3,
       "changeStatus": "added",
       "codeSegments": [
         {
@@ -304,6 +323,7 @@
     {
       "name": "Job",
       "type": "struct",
+      "source_depth": 3,
       "changeStatus": "added",
       "codeSegments": [
         {

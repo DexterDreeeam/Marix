@@ -6,12 +6,18 @@
     "purpose": "Owns cross-platform file-system native Tool implementations for reading, writing, listing, and searching local files while streaming ToolRuntime status messages, checking cancellation around file-system traversal or writes, and using shared ToolExecutionResult helper outcomes for recursive list/search completion or cancellation. Each tool exposes NAME/DESCRIPTION/SCHEMA consts and returns the shared common::protocol ToolSchema from Tool::schema().",
     "changeStatus": "modified"
   },
-  "modified": ["read_file.rs", "write_file.rs", "list_directory.rs", "search_text.rs"],
+  "modified": [
+    "read_file.rs",
+    "write_file.rs",
+    "list_directory.rs",
+    "search_text.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "ReadFileTool",
       "type": "struct",
+      "source_depth": 5,
       "changeStatus": "modified",
       "codeSegments": [
         {
@@ -73,6 +79,7 @@
     {
       "name": "WriteFileTool",
       "type": "struct",
+      "source_depth": 5,
       "changeStatus": "modified",
       "codeSegments": [
         {
@@ -158,6 +165,7 @@
     {
       "name": "ListDirectoryTool",
       "type": "struct",
+      "source_depth": 5,
       "changeStatus": "modified",
       "codeSegments": [
         {
@@ -235,6 +243,7 @@
     {
       "name": "SearchTextTool",
       "type": "struct",
+      "source_depth": 5,
       "changeStatus": "modified",
       "codeSegments": [
         {

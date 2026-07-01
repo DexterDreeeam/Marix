@@ -6,7 +6,10 @@
     "purpose": "Defines folder-organized native Tool implementations exposing NAME/DESCRIPTION/SCHEMA consts and returning the shared common::protocol ToolSchema, common config Platform support values, ToolRuntime status streaming, cancellation handling normalized through shared ToolExecutionResult helper results, Windows-only tools where required, and native tool list functions that map Tool::preview() for registry advertising after platform filtering.",
     "changeStatus": "modified"
   },
-  "modified": ["mod.rs", "native_tool_list.rs"],
+  "modified": [
+    "mod.rs",
+    "native_tool_list.rs"
+  ],
   "childModules": [
     {
       "path": "src/client/tool/native/file",
@@ -43,6 +46,7 @@
     {
       "name": "native_tools",
       "type": "function",
+      "source_depth": 4,
       "changeStatus": "added",
       "codeSegments": [
         {
@@ -63,6 +67,7 @@
     {
       "name": "native_tool_list",
       "type": "function",
+      "source_depth": 4,
       "changeStatus": "added",
       "codeSegments": [
         {
@@ -83,6 +88,7 @@
     {
       "name": "primary_native_tool_list",
       "type": "function",
+      "source_depth": 4,
       "changeStatus": "added",
       "codeSegments": [
         {

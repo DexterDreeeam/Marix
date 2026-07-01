@@ -6,12 +6,16 @@
     "purpose": "Owns cross-platform image native Tool implementations for inspecting local image metadata and transforming images by copy, grayscale, flip, or rotation operations while streaming JSON results through ToolRuntime, checking cancellation around expensive work, and using shared ToolExecutionResult helper outcomes for transform completion or cancellation. Each tool exposes NAME/DESCRIPTION/SCHEMA consts and returns the shared common::protocol ToolSchema from Tool::schema().",
     "changeStatus": "modified"
   },
-  "modified": ["image_inspect.rs", "image_transform.rs"],
+  "modified": [
+    "image_inspect.rs",
+    "image_transform.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "ImageInspectTool",
       "type": "struct",
+      "source_depth": 5,
       "changeStatus": "modified",
       "codeSegments": [
         {
@@ -81,6 +85,7 @@
     {
       "name": "ImageTransformTool",
       "type": "struct",
+      "source_depth": 5,
       "changeStatus": "modified",
       "codeSegments": [
         {

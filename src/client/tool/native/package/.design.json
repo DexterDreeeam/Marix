@@ -6,12 +6,15 @@
     "purpose": "Owns the Windows-only package query native Tool implementation that parses package query arguments, runs PowerShell Get-Package with cancellation-aware child-process polling, returns shared ToolExecutionResult complete-or-cancelled helper outcomes, and streams package metadata JSON or an empty array through ToolRuntime. It exposes NAME/DESCRIPTION/SCHEMA consts and returns the shared common::protocol ToolSchema from Tool::schema().",
     "changeStatus": "modified"
   },
-  "modified": ["package_query.rs"],
+  "modified": [
+    "package_query.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "PackageQueryTool",
       "type": "struct",
+      "source_depth": 5,
       "changeStatus": "modified",
       "codeSegments": [
         {

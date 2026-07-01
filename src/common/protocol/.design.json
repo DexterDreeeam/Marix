@@ -6,12 +6,15 @@
     "purpose": "Shared tool protocol types owned once and used on both sides of the session boundary: ToolSchema carries a tool's declared JSON-Schema input document that the client advertises and the agent consumes, and ToolParameter carries the schema-conformant argument payload the agent produces and the client executes, both serializable through serde.",
     "changeStatus": "added"
   },
-  "added": ["."],
+  "added": [
+    "."
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "ToolSchema",
       "type": "struct",
+      "source_depth": 3,
       "changeStatus": "added",
       "codeSegments": [
         {
@@ -45,6 +48,7 @@
     {
       "name": "ToolParameter",
       "type": "struct",
+      "source_depth": 3,
       "changeStatus": "added",
       "codeSegments": [
         {
