@@ -24,6 +24,8 @@ pub(crate) enum TaskStatus {
 pub(crate) enum TaskStepKind {
     Model,
     Tool,
+    UserDecision,
+    UserAuthorization,
 }
 
 /// One executed step in a task. Steps are the bottom-level execution unit that

@@ -23,7 +23,8 @@ flowchart LR
     SessionBrief["SessionBrief\nsession digest"]
     TaskTrace["TaskTrace\ntask trace"]
     ModelContext["ModelContext\nmodel module view"]
-    Plan["Plan\njobs over TaskSteps"]
+    Plan["Plan\njobs over typed TaskSteps"]
+    TaskStepKind["TaskStepKind\nmodel/tool/user boundaries"]
   end
 
   Config -->|"detects host before TOML load"| Platform
@@ -48,3 +49,4 @@ flowchart LR
   ToolProtocol -->|"tool schema + call parameter"| ToolTrait
   ToolProtocol -->|"tool call parameters cross boundary"| Task
   LoopEngine -->|"model-produced planning"| Plan
+  Plan -->|"step boundaries include user decisions/authorization"| TaskStepKind

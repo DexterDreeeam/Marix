@@ -3,10 +3,12 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Second-generation Rust source organized into client, agent, and common modules with typed configuration, config-gated logging, remoc-backed messaging, an interactive streaming CLI, Config-aware tool registry/runtime tooling, and agent-side frontdoor, engine, and model boundaries where the model-facing context lives in the model module, and where shared tool schema and parameter protocol types live in common::protocol and are used by both the client tool layer and the agent engine.",
+    "purpose": "Second-generation Rust source organized into client, agent, and common modules with typed configuration, config-gated logging, remoc-backed messaging, an interactive streaming CLI, Config-aware tool registry/runtime tooling, and agent-side frontdoor, engine, and model boundaries where task steps include model, tool, user decision, and user authorization interaction boundaries, where the model-facing context lives in the model module, and where shared tool schema and parameter protocol types live in common::protocol and are used by both the client tool layer and the agent engine.",
     "changeStatus": "modified"
   },
-  "modified": ["."],
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/client",
@@ -16,7 +18,7 @@
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent public surface for remoc-backed frontdoor Session/Task endpoints, a session-scoped loop engine runtime with model-produced Plan/Job planning, draft session and task context views, streamed chat response segments, model-facing context data under the model module, model backend selection, and backend implementations."
+      "purpose": "Agent public surface for remoc-backed frontdoor Session/Task endpoints, a session-scoped loop engine runtime with model-produced Plan/Job planning over model, tool, user decision, and user authorization TaskStepKind boundaries, draft session and task context views, streamed chat response segments, model-facing context data under the model module, model backend selection, and backend implementations."
     },
     {
       "path": "src/common",

@@ -3,7 +3,7 @@
   "module": {
     "path": "src/agent/engine",
     "name": "engine",
-    "purpose": "Defines the session-scoped loop engine runtime, lifecycle errors, session and task context interfaces, TaskBrief-based session brief and task trace data shapes, runtime task events, model-produced Plan and Job planning structures shown to the user, and model streaming coordination through chat response segments.",
+    "purpose": "Defines the session-scoped loop engine runtime, lifecycle errors, session and task context interfaces, TaskBrief-based session brief and task trace data shapes, runtime task events, TaskStepKind execution boundaries including model, tool, user decision, and user authorization steps, model-produced Plan and Job planning structures shown to the user, and model streaming coordination through chat response segments.",
     "changeStatus": "modified"
   },
   "added": [
@@ -175,19 +175,15 @@
         {
           "sourcePath": "src/agent/engine/task_context.rs",
           "lineStart": 23,
-          "lineEnd": 27,
+          "lineEnd": 29,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 23,
-              "lineEnd": 23
-            },
-            {
-              "lineStart": 25,
-              "lineEnd": 26
+              "lineStart": 27,
+              "lineEnd": 28
             }
-          ]
+          ],
+          "modifiedLines": []
         }
       ]
     },
@@ -195,20 +191,15 @@
       "name": "TaskStep",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 32,
-          "lineEnd": 37,
+          "lineStart": 34,
+          "lineEnd": 39,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 34,
-              "lineEnd": 36
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -220,16 +211,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 39,
-          "lineEnd": 44,
+          "lineStart": 41,
+          "lineEnd": 46,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 41,
-              "lineEnd": 41
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -241,16 +227,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 46,
-          "lineEnd": 53,
+          "lineStart": 48,
+          "lineEnd": 55,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 47,
-              "lineEnd": 47
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -262,16 +243,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 55,
-          "lineEnd": 60,
+          "lineStart": 57,
+          "lineEnd": 62,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 59,
-              "lineEnd": 59
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -283,16 +259,16 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 62,
-          "lineEnd": 69,
+          "lineStart": 64,
+          "lineEnd": 71,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 71,
-          "lineEnd": 90,
+          "lineStart": 73,
+          "lineEnd": 92,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

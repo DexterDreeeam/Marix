@@ -17,7 +17,8 @@ flowchart LR
     TaskRuntimeEvent["TaskRuntimeEvent"]
     Plan["Plan\nmodel-produced, not persisted"]
     Job["Job\nhuman-facing work unit"]
-    TaskStep["TaskStep\nModel/Tool step"]
+    TaskStep["TaskStep\nexecution boundary"]
+    TaskStepKind["TaskStepKind\nmodel/tool/user boundary"]
   end
 
   subgraph model["model"]
@@ -48,7 +49,8 @@ flowchart LR
   LoopEngine -->|"publishes progress"| TaskRuntimeEvent
   LoopEngine -->|"model plans"| Plan
   Plan -->|"jobs"| Job
-  Job -->|"steps"| TaskStep
+  Job -->|"typed steps"| TaskStep
+  TaskStep -->|"kind includes user decision/authorization"| TaskStepKind
   TaskTrace -->|"records executed steps"| TaskStep
   LoopEngine -->|"selects backend"| ModelBackendType
   ModelBackendType -->|"dispatches to implementation"| ModelBackendImpl
