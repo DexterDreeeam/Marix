@@ -3,7 +3,7 @@ use std::sync::mpsc;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
-use crate::agent::frontdoor::AgentTask;
+use crate::agent::frontdoor::Task;
 use crate::agent::model::{
     DeepseekBackend, ModelBackend, ModelBackendError, ModelBackendType, ModelRequest, ModelResponse,
 };
@@ -36,7 +36,7 @@ impl LoopEngine {
 
     pub(crate) fn create_task_context(
         &self,
-        mut task: AgentTask,
+        mut task: Task,
     ) -> Result<TaskContext, LoopEngineError> {
         let task_id = task.task_id();
         let initial_message = Arc::new(
@@ -195,7 +195,7 @@ impl LoopEngine {
         self.task(context).complete()
     }
 
-    fn task<'a>(&self, context: &'a TaskContext) -> std::sync::MutexGuard<'a, AgentTask> {
+    fn task<'a>(&self, context: &'a TaskContext) -> std::sync::MutexGuard<'a, Task> {
         context
             .task
             .lock()

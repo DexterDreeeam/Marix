@@ -4,17 +4,21 @@ flowchart LR
   end
 
   subgraph frontdoor["frontdoor"]
-    AgentSession["AgentSession"]
-    AgentTask["AgentTask"]
+    Session["Session"]
+    Task["Task"]
   end
 
   subgraph engine["engine"]
     LoopEngine["LoopEngine"]
+    SessionContext["SessionContext"]
+    SessionBrief["SessionBrief\nsession digest"]
     TaskContext["TaskContext"]
+    TaskTrace["TaskTrace\ntask steps/result/brief"]
     TaskRuntimeEvent["TaskRuntimeEvent"]
   end
 
   subgraph model["model"]
+    ModelContext["ModelContext\nmodel-facing view"]
     ModelBackendType["ModelBackendType"]
     ModelBackendImpl["ModelBackendImpl"]
     DeepseekBackend["DeepseekBackend"]
@@ -22,17 +26,25 @@ flowchart LR
 
   Config["Config"]
   SessionEvent["SessionEvent"]
+  RequestMessageEnvelope["RequestMessageEnvelope"]
   ChatResponseSegment["ChatResponseSegment"]
 
   AgentMain -->|"loads agent bind address"| Config
-  AgentMain -->|"serves accepted TCP clients"| AgentSession
-  AgentSession -->|"receives SessionEvent::TaskCreate"| SessionEvent
-  AgentSession -->|"owns task route"| AgentTask
-  AgentTask -->|"execution request"| LoopEngine
+  AgentMain -->|"serves accepted TCP clients"| Session
+  Session -->|"receives SessionEvent::TaskCreate"| SessionEvent
+  Session -->|"owns task route"| Task
+  Task -->|"execution request"| LoopEngine
   LoopEngine -->|"creates and updates"| TaskContext
-  TaskContext -->|"publishes progress"| TaskRuntimeEvent
+  LoopEngine -->|"owns"| SessionContext
+  SessionContext -->|"brief() draft accessor"| SessionBrief
+  TaskContext -->|"stores initial request"| RequestMessageEnvelope
+  TaskContext -->|"trace() draft accessor"| TaskTrace
+  SessionBrief -->|"session slice"| ModelContext
+  TaskTrace -->|"recent steps"| ModelContext
+  RequestMessageEnvelope -->|"current request"| ModelContext
+  LoopEngine -->|"publishes progress"| TaskRuntimeEvent
   LoopEngine -->|"selects backend"| ModelBackendType
   ModelBackendType -->|"dispatches to implementation"| ModelBackendImpl
   ModelBackendImpl -->|"streams model output"| DeepseekBackend
   DeepseekBackend -->|"emits response text"| ChatResponseSegment
-  ChatResponseSegment -->|"sent by task endpoint"| AgentTask
+  ChatResponseSegment -->|"sent by task endpoint"| Task

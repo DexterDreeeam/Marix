@@ -1,24 +1,24 @@
 flowchart LR
   subgraph session_rs["session.rs"]
-    AgentSession["AgentSession"]
+    Session["Session"]
   end
 
   subgraph task_rs["task.rs"]
-    AgentTask["AgentTask"]
+    Task["Task"]
   end
 
   LoopEngine["LoopEngine"]
   SessionEvent["SessionEvent"]
   RequestMessageEnvelope["RequestMessageEnvelope"]
-  ResponseMessageEnvelope["ResponseMessageEnvelope"]
+  ResponseMessage["ResponseMessage"]
   ChatResponseSegment["ChatResponseSegment"]
   RemocTransport["remoc transport"]
 
-  RemocTransport -->|"delivers session events"| AgentSession
-  AgentSession -->|"matches TaskCreate"| SessionEvent
+  RemocTransport -->|"delivers session events"| Session
+  Session -->|"matches TaskCreate"| SessionEvent
   SessionEvent -->|"contains request payload"| RequestMessageEnvelope
-  AgentSession -->|"creates task endpoint"| AgentTask
-  AgentTask -->|"runs accepted task"| LoopEngine
+  Session -->|"creates task endpoint"| Task
+  Task -->|"runs accepted task"| LoopEngine
   LoopEngine -->|"streams model segments"| ChatResponseSegment
-  ChatResponseSegment -->|"wrapped for client"| ResponseMessageEnvelope
-  AgentTask -->|"sends responses and cleans route"| RemocTransport
+  ChatResponseSegment -->|"implements response message"| ResponseMessage
+  Task -->|"sends responses and cleans route"| RemocTransport

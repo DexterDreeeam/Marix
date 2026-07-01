@@ -8,9 +8,9 @@ use crate::common::channel::{ChannelError, SessionEvent, SessionTaskId, SessionT
 use crate::common::external::*;
 use crate::common::message::RequestMessageEnvelope;
 
-use super::task::AgentTask;
+use super::task::Task;
 
-pub struct AgentSession {
+pub struct Session {
     bind_address: SocketAddr,
     runtime: Arc<tokio::Runtime>,
     to_client_tx: Option<SharedSessionSender>,
@@ -19,7 +19,7 @@ pub struct AgentSession {
     engine: Arc<LoopEngine>,
 }
 
-impl AgentSession {
+impl Session {
     pub fn new(bind_address: SocketAddr) -> Result<Self, ChannelError> {
         Ok(Self {
             bind_address,
@@ -72,7 +72,7 @@ impl AgentSession {
 type SharedSessionSender = Arc<tokio::Mutex<remoc::base::Sender<SessionEvent>>>;
 type SharedTaskRoutes = Arc<Mutex<HashMap<SessionTaskId, mpsc::Sender<SessionTaskSignal>>>>;
 
-impl AgentSession {
+impl Session {
     async fn accept_remoc(
         &self,
     ) -> Result<
@@ -195,7 +195,7 @@ impl AgentSession {
     ) -> Result<(), ChannelError> {
         let (task_tx, _task_rx) = mpsc::channel();
         Self::insert_task_route(task_routes, task_id, task_tx)?;
-        let task = AgentTask::new(
+        let task = Task::new(
             task_id,
             message,
             Arc::clone(runtime),

@@ -203,3 +203,44 @@ Risks / anti-patterns:
 - {{proj_lower}}'s current tool/category and native folder split is directionally right, but category should stay descriptive rather than policy-driving.
 - First batch should emphasize file read/list/search, patch/edit, shell execution with strict permissions, system/env inspection, web fetch/search if needed, and memory/instructions hooks.
 - Defer image transform, generic package query, broad browser automation, service APIs, and database/cloud integrations unless a concrete workflow needs them.
+
+## 2026-07-01 — Session/task context naming and memory boundaries
+
+Systems studied:
+
+- AutoGPT / Forge / Agent Protocol — https://github.com/Significant-Gravitas/AutoGPT
+- LangChain short-term memory — https://docs.langchain.com/oss/python/langchain/short-term-memory
+- LangGraph persistence and checkpointers — https://docs.langchain.com/oss/python/langgraph/persistence and https://docs.langchain.com/oss/python/langgraph/checkpointers
+- CrewAI memory and tasks — https://docs.crewai.com/v1.15.1/en/concepts/memory.md and https://docs.crewai.com/v1.15.1/en/concepts/tasks.md
+- OpenAI Agents SDK sessions, results, running agents, and tracing — https://openai.github.io/openai-agents-python/sessions/, /results/, /running_agents/, /tracing/
+- Claude Code sessions, memory, context window, and agentic loop — https://code.claude.com/docs/en/sessions, /memory, /context-window, /how-claude-code-works
+- OpenAI Codex CLI/app-server — https://github.com/openai/codex, especially thread/turn/item APIs and Codex core session/turn/task comments.
+
+Core modules observed:
+
+- Conversation-scoped containers are usually named Session or Thread and hold durable conversation state, status, settings, memory eligibility, model/provider state, and persisted transcript/history.
+- User-request execution is usually named Turn, Run, or Task depending on product shape: chat agents prefer Turn/Run; job/benchmark protocols prefer Task; graph systems use Run + node/task writes.
+- Inner loop records are consistently modeled as Step, Item, Action/Observation, RunItem, or span. They carry model calls, tool calls, tool outputs, approvals, edits, reasoning, and messages.
+- Summaries/compaction are separate artifacts from raw history: systems keep both the compacted model-visible view and audit/event records when possible.
+
+Reusable patterns:
+
+- Keep long-lived session/thread memory separate from one-request task/turn state.
+- Store raw structured data first; format model prompts on demand through a context builder.
+- Give Task/Turn context an ordered event/step log and a final summary/result field; give Session/Thread context a rolling summary over completed tasks.
+- Use explicit compaction metadata: what was summarized, source range, token budget, model/prompt used, and invalidation/rebuild information.
+- Avoid making tool-result text the only memory; keep typed tool call/result records for replay, audit, UI, retry, and summarization.
+
+Risks / anti-patterns:
+
+- Conflating SessionContext with the current user request makes resume, branching, parallel tasks, and multi-turn memory hard.
+- Naming every unit "task" hides important boundaries: task as user request vs background runtime task vs tool step.
+- Persisting only prompt strings loses provenance and makes later compaction/audit unreliable.
+- Letting message history grow without trimming/summarization causes latency, cost, context overflow, and stale-context distraction.
+
+{{proj}} implications:
+
+- Keep `SessionContext` as the conversation/thread-level container; add model-visible task summaries there, not raw step logs.
+- Keep `TaskContext` as one user request/turn/run; it should own an ordered list of execution steps/items plus result and summary.
+- Consider `TaskStep` or `TaskEvent` for inner actions; use `TaskSummary` and `SessionSummary` as explicit model-context records.
+- For the model, expose a compact `ModelContext` built from session summary + recent task summaries + current task input + selected step observations.

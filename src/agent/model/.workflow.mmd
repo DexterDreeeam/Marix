@@ -1,31 +1,33 @@
 flowchart LR
-  subgraph request_rs["request.rs"]
-    ModelRequest["ModelRequest"]
-  end
-
-  subgraph response_rs["response.rs"]
-    ModelResponse["ModelResponse"]
-  end
-
   subgraph backend_rs["backend.rs"]
     ModelBackend["ModelBackend"]
     ModelBackendImpl["ModelBackendImpl"]
     ModelBackendType["ModelBackendType"]
+    ModelRequest["ModelRequest"]
+    ModelResponse["ModelResponse"]
   end
 
-  subgraph deepseek_rs["deepseek.rs"]
+  subgraph backend_deepseek_rs["backend_deepseek.rs"]
     DeepseekBackend["DeepseekBackend"]
     DeepseekStream["Deepseek streaming helpers"]
+  end
+
+  subgraph model_context_rs["model_context.rs"]
+    ModelContext["ModelContext\nmodel-facing context"]
   end
 
   subgraph error_rs["error.rs"]
     ModelBackendError["ModelBackendError"]
   end
 
-  Config["ModelConfig"]
+  ModelConfig["ModelConfig"]
   HttpClient["reqwest client"]
+  SessionBrief["SessionBrief"]
+  TaskStep["TaskStep"]
+  RequestMessageEnvelope["RequestMessageEnvelope"]
+  SessionTaskId["SessionTaskId"]
 
-  Config -->|"selects backend type"| ModelBackendType
+  ModelConfig -->|"selects backend type"| ModelBackendType
   ModelBackendType -->|"constructs implementation"| ModelBackendImpl
   ModelBackend -->|"public request boundary"| ModelRequest
   ModelBackendImpl -->|"delegates request"| DeepseekBackend
@@ -33,3 +35,7 @@ flowchart LR
   HttpClient -->|"SSE chunks"| DeepseekStream
   DeepseekStream -->|"normalizes output"| ModelResponse
   DeepseekBackend -->|"maps provider failures"| ModelBackendError
+  SessionBrief -->|"session slice"| ModelContext
+  TaskStep -->|"recent steps"| ModelContext
+  RequestMessageEnvelope -->|"current request"| ModelContext
+  SessionTaskId -->|"task identity"| ModelContext

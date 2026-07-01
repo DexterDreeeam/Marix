@@ -7,7 +7,7 @@ use crate::common::channel::{SessionEvent, SessionTaskId, SessionTaskSignal};
 use crate::common::external::*;
 use crate::common::message::{RequestMessageEnvelope, ResponseMessage};
 
-pub struct AgentTask {
+pub struct Task {
     task_id: SessionTaskId,
     initial_message: Option<RequestMessageEnvelope>,
     runtime: Arc<tokio::Runtime>,
@@ -16,7 +16,7 @@ pub struct AgentTask {
     active: bool,
 }
 
-impl AgentTask {
+impl Task {
     pub(crate) fn new(
         task_id: SessionTaskId,
         initial_message: RequestMessageEnvelope,
@@ -57,9 +57,9 @@ impl AgentTask {
 
     pub(crate) fn take_initial_request(&mut self) -> Result<RequestMessageEnvelope, ChannelError> {
         self.ensure_active()?;
-        self.initial_message.take().ok_or_else(|| {
-            ChannelError::InvalidState("agent task initial request is missing".to_owned())
-        })
+        self.initial_message
+            .take()
+            .ok_or_else(|| ChannelError::InvalidState("task initial request is missing".to_owned()))
     }
 
     pub fn complete(&mut self) -> Result<(), ChannelError> {
@@ -80,7 +80,7 @@ impl AgentTask {
 type SharedSessionSender = Arc<tokio::Mutex<remoc::base::Sender<SessionEvent>>>;
 type SharedTaskRoutes = Arc<Mutex<HashMap<SessionTaskId, mpsc::Sender<SessionTaskSignal>>>>;
 
-impl AgentTask {
+impl Task {
     fn send_event(&self, event: SessionEvent) -> Result<(), ChannelError> {
         let send_result = self.runtime.block_on(async {
             let mut to_client_tx = self.to_client_tx.lock().await;
@@ -97,9 +97,7 @@ impl AgentTask {
         if self.active {
             Ok(())
         } else {
-            Err(ChannelError::InvalidState(
-                "agent task is closed".to_owned(),
-            ))
+            Err(ChannelError::InvalidState("task is closed".to_owned()))
         }
     }
 

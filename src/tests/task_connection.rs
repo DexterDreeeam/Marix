@@ -3,7 +3,7 @@ use std::sync::mpsc::{self, Receiver};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use marix::agent::frontdoor::AgentSession;
+use marix::agent::frontdoor::Session;
 use marix::client::core::ClientSession;
 use marix::common::channel::ChannelError;
 use marix::common::message::ChatRequest;
@@ -103,7 +103,7 @@ fn task_terminal_receive_tolerates_agent_close_after_startup_delays() {
 #[test]
 fn pending_tasks_do_not_block_repeated_client_reconnects() {
     let address = unused_loopback_address();
-    let mut agent = AgentSession::new(address).expect("agent session should be created");
+    let mut agent = Session::new(address).expect("agent session should be created");
 
     for round in 0..4 {
         let agent_rx = spawn_agent_accept(agent);
@@ -199,12 +199,12 @@ fn create_tasks(
         .collect()
 }
 
-fn spawn_new_agent_accept(address: SocketAddr) -> Receiver<Result<AgentSession, ChannelError>> {
-    let agent = AgentSession::new(address).expect("agent session should be created");
+fn spawn_new_agent_accept(address: SocketAddr) -> Receiver<Result<Session, ChannelError>> {
+    let agent = Session::new(address).expect("agent session should be created");
     spawn_agent_accept(agent)
 }
 
-fn spawn_agent_accept(agent: AgentSession) -> Receiver<Result<AgentSession, ChannelError>> {
+fn spawn_agent_accept(agent: Session) -> Receiver<Result<Session, ChannelError>> {
     let (tx, rx) = mpsc::channel();
     thread::spawn(move || {
         let result = accept_agent(agent);
@@ -213,12 +213,12 @@ fn spawn_agent_accept(agent: AgentSession) -> Receiver<Result<AgentSession, Chan
     rx
 }
 
-fn accept_agent(mut agent: AgentSession) -> Result<AgentSession, ChannelError> {
+fn accept_agent(mut agent: Session) -> Result<Session, ChannelError> {
     agent.accept()?;
     Ok(agent)
 }
 
-fn receive_agent(rx: Receiver<Result<AgentSession, ChannelError>>) -> AgentSession {
+fn receive_agent(rx: Receiver<Result<Session, ChannelError>>) -> Session {
     rx.recv_timeout(SESSION_TIMEOUT)
         .expect("agent did not accept before timeout")
         .expect("agent accept failed")

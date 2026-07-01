@@ -3,7 +3,7 @@ use std::sync::mpsc::{self, Receiver};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use marix::agent::frontdoor::AgentSession;
+use marix::agent::frontdoor::Session;
 use marix::client::core::ClientSession;
 use marix::common::channel::ChannelError;
 
@@ -43,7 +43,7 @@ fn client_connect_without_agent_fails_then_connects_after_agent_starts() {
 #[test]
 fn one_agent_rejects_second_active_client() {
     let address = unused_loopback_address();
-    let agent = AgentSession::new(address).expect("agent session should be created");
+    let agent = Session::new(address).expect("agent session should be created");
     let agent_rx = spawn_agent_accept(agent);
     let mut first_client = connect_client_with_retry(address);
     let mut agent = receive_agent(agent_rx);
@@ -63,7 +63,7 @@ fn one_agent_rejects_second_active_client() {
 #[test]
 fn one_agent_accepts_repeated_clients_after_disconnect() {
     let address = unused_loopback_address();
-    let mut agent = AgentSession::new(address).expect("agent session should be created");
+    let mut agent = Session::new(address).expect("agent session should be created");
 
     for _ in 0..6 {
         let agent_rx = spawn_agent_accept(agent);
@@ -112,12 +112,12 @@ fn client_close_succeeds_after_agent_is_dropped() {
     }
 }
 
-fn spawn_new_agent_accept(address: SocketAddr) -> Receiver<Result<AgentSession, ChannelError>> {
-    let agent = AgentSession::new(address).expect("agent session should be created");
+fn spawn_new_agent_accept(address: SocketAddr) -> Receiver<Result<Session, ChannelError>> {
+    let agent = Session::new(address).expect("agent session should be created");
     spawn_agent_accept(agent)
 }
 
-fn spawn_agent_accept(agent: AgentSession) -> Receiver<Result<AgentSession, ChannelError>> {
+fn spawn_agent_accept(agent: Session) -> Receiver<Result<Session, ChannelError>> {
     let (tx, rx) = mpsc::channel();
     thread::spawn(move || {
         let result = accept_agent(agent);
@@ -126,12 +126,12 @@ fn spawn_agent_accept(agent: AgentSession) -> Receiver<Result<AgentSession, Chan
     rx
 }
 
-fn accept_agent(mut agent: AgentSession) -> Result<AgentSession, ChannelError> {
+fn accept_agent(mut agent: Session) -> Result<Session, ChannelError> {
     agent.accept()?;
     Ok(agent)
 }
 
-fn receive_agent(rx: Receiver<Result<AgentSession, ChannelError>>) -> AgentSession {
+fn receive_agent(rx: Receiver<Result<Session, ChannelError>>) -> Session {
     rx.recv_timeout(SESSION_TIMEOUT)
         .expect("agent did not accept before timeout")
         .expect("agent accept failed")

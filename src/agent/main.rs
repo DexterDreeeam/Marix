@@ -3,7 +3,7 @@ use std::process;
 use std::thread;
 use std::time::Duration;
 
-use marix::agent::frontdoor::AgentSession;
+use marix::agent::frontdoor::Session;
 use marix::common::channel::ChannelError;
 use marix::common::config::Config;
 
@@ -23,7 +23,7 @@ fn run_agent() -> Result<(), String> {
         return Err("agent is disabled by configuration".to_owned());
     }
     let bind_address = parse_bind_address(&config.agent.bind_address)?;
-    let mut session = AgentSession::new(bind_address).map_err(format_channel_error)?;
+    let mut session = Session::new(bind_address).map_err(format_channel_error)?;
     serve_session(&mut session).map_err(format_channel_error)
 }
 
@@ -33,7 +33,7 @@ fn parse_bind_address(value: &str) -> Result<SocketAddr, String> {
         .map_err(|error| format!("invalid agent bind address '{value}': {error}"))
 }
 
-fn serve_session(session: &mut AgentSession) -> Result<(), ChannelError> {
+fn serve_session(session: &mut Session) -> Result<(), ChannelError> {
     loop {
         match session.accept() {
             Ok(()) => {}

@@ -1,36 +1,50 @@
 flowchart LR
-  subgraph context_rs["context.rs"]
-    SessionContext["SessionContext"]
-    SessionStatus["SessionStatus"]
-    TaskContext["TaskContext"]
-    TaskStatus["TaskStatus"]
+  subgraph loop_engine_rs["loop_engine.rs"]
+    LoopEngine["LoopEngine\nstruct"]
   end
 
-  subgraph event_rs["event.rs"]
-    TaskRuntimeEvent["TaskRuntimeEvent"]
+  subgraph session_context_rs["session_context.rs"]
+    SessionContext["SessionContext\nstruct"]
+    SessionStatus["SessionStatus\nenum"]
+    SessionBrief["SessionBrief\nsession digest"]
   end
 
-  subgraph engine_rs["engine.rs"]
-    LoopEngine["LoopEngine"]
+  subgraph task_context_rs["task_context.rs"]
+    TaskContext["TaskContext\nstruct"]
+    TaskStatus["TaskStatus\nenum"]
+    TaskRuntimeEvent["TaskRuntimeEvent\nenum"]
+    TaskTrace["TaskTrace\ntask trace"]
+    TaskStep["TaskStep\ntrace step"]
+    TaskResult["TaskResult\nstatus payload"]
+    TaskBrief["TaskBrief\nrecent task digest"]
   end
 
   subgraph error_rs["error.rs"]
-    LoopEngineError["LoopEngineError"]
+    LoopEngineError["LoopEngineError\nenum"]
   end
 
-  AgentTask["AgentTask"]
-  UserMessageEnvelope["UserMessageEnvelope"]
+  Task["Task"]
+  RequestMessageEnvelope["RequestMessageEnvelope"]
+  ModelBackendType["ModelBackendType"]
   ModelBackend["ModelBackend"]
   ChatResponseSegment["ChatResponseSegment"]
 
   LoopEngine -->|"owns session state"| SessionContext
-  SessionContext -->|"reports lifecycle"| SessionStatus
+  SessionContext -->|"status()"| SessionStatus
+  SessionContext -->|"brief() draft accessor"| SessionBrief
+  SessionBrief -->|"recent tasks"| TaskBrief
   LoopEngine -->|"creates from accepted task"| TaskContext
-  AgentTask -->|"provides initial request"| UserMessageEnvelope
-  UserMessageEnvelope -->|"stored as task input"| TaskContext
-  TaskContext -->|"tracks execution"| TaskStatus
-  LoopEngine -->|"publishes runtime visibility"| TaskRuntimeEvent
-  LoopEngine -->|"requests one model stream"| ModelBackend
-  ModelBackend -->|"returns streamed text"| ChatResponseSegment
-  LoopEngine -->|"forwards response segments through task"| AgentTask
-  LoopEngine -->|"surfaces lifecycle failures"| LoopEngineError
+  Task -->|"initial request"| RequestMessageEnvelope
+  RequestMessageEnvelope -->|"stored by"| TaskContext
+  TaskContext -->|"status()"| TaskStatus
+  TaskContext -->|"trace() draft accessor"| TaskTrace
+  TaskTrace -->|"ordered steps"| TaskStep
+  TaskTrace -->|"result"| TaskResult
+  TaskTrace -->|"brief"| TaskBrief
+  TaskResult -->|"uses existing status"| TaskStatus
+  LoopEngine -->|"publishes runtime progress"| TaskRuntimeEvent
+  LoopEngine -->|"selects backend"| ModelBackendType
+  ModelBackendType -->|"dispatches request"| ModelBackend
+  ModelBackend -->|"response content"| ChatResponseSegment
+  ChatResponseSegment -->|"sent through"| Task
+  LoopEngine -->|"returns failures"| LoopEngineError

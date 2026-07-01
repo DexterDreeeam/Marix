@@ -3,9 +3,18 @@
   "module": {
     "path": "src/agent/engine",
     "name": "engine",
-    "purpose": "Defines the minimal session-scoped loop engine runtime, cloneable session status context, task contexts anchored to one initial request message with direct shared task/status/runtime-event fields, client-visible runtime task events, one-shot model request execution, streamed chat response segments, LoopEngine-owned private helper methods that operate through engine state, and lifecycle/status error types.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines the session-scoped loop engine runtime, lifecycle errors, session and task context interfaces, TaskBrief-based session brief and task trace data shapes, runtime task events, and model streaming coordination through chat response segments.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "loop_engine.rs",
+    "mod.rs",
+    "session_context.rs",
+    "task_context.rs"
+  ],
+  "deleted": [
+    "model_context.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -26,19 +35,14 @@
     {
       "name": "LoopEngine",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/loop_engine.rs",
           "lineStart": 17,
           "lineEnd": 22,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 17
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -46,20 +50,11 @@
           "lineStart": 24,
           "lineEnd": 73,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 56,
-              "lineEnd": 56
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 42,
-              "lineEnd": 44
-            },
-            {
-              "lineStart": 57,
-              "lineEnd": 57
+              "lineStart": 39,
+              "lineEnd": 39
             }
           ]
         },
@@ -68,32 +63,11 @@
           "lineStart": 77,
           "lineEnd": 223,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 198,
-              "lineEnd": 218
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 183,
-              "lineEnd": 188
-            },
-            {
-              "lineStart": 83,
-              "lineEnd": 86
-            },
-            {
-              "lineStart": 91,
-              "lineEnd": 95
-            },
-            {
-              "lineStart": 163,
-              "lineEnd": 170
-            },
-            {
-              "lineStart": 183,
-              "lineEnd": 195
+              "lineStart": 198,
+              "lineEnd": 198
             }
           ]
         }
@@ -106,11 +80,31 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/session_context.rs",
-          "lineStart": 1,
-          "lineEnd": 8,
+          "lineStart": 4,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "SessionBrief",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/engine/session_context.rs",
+          "lineStart": 12,
+          "lineEnd": 17,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 16,
+              "lineEnd": 16
+            }
+          ]
         }
       ]
     },
@@ -121,21 +115,16 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/session_context.rs",
-          "lineStart": 10,
-          "lineEnd": 13,
+          "lineStart": 20,
+          "lineEnd": 22,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 10
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/engine/session_context.rs",
-          "lineStart": 15,
-          "lineEnd": 25,
+          "lineStart": 24,
+          "lineEnd": 38,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -168,10 +157,110 @@
           "lineEnd": 21,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "TaskStepKind",
+      "type": "enum",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/engine/task_context.rs",
+          "lineStart": 23,
+          "lineEnd": 31,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "TaskStepStatus",
+      "type": "enum",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/engine/task_context.rs",
+          "lineStart": 33,
+          "lineEnd": 40,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "TaskStep",
+      "type": "struct",
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/engine/task_context.rs",
+          "lineStart": 42,
+          "lineEnd": 50,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "TaskResult",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/engine/task_context.rs",
+          "lineStart": 52,
+          "lineEnd": 57,
+          "language": "rust",
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 16,
-              "lineEnd": 20
+              "lineStart": 54,
+              "lineEnd": 54
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TaskBrief",
+      "type": "struct",
+      "changeStatus": "renamed",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/engine/task_context.rs",
+          "lineStart": 59,
+          "lineEnd": 66,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 60,
+              "lineEnd": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TaskTrace",
+      "type": "struct",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/engine/task_context.rs",
+          "lineStart": 68,
+          "lineEnd": 73,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 72,
+              "lineEnd": 72
             }
           ]
         }
@@ -184,29 +273,19 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 23,
-          "lineEnd": 30,
+          "lineStart": 75,
+          "lineEnd": 82,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 26,
-              "lineEnd": 26
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 32,
-          "lineEnd": 47,
+          "lineStart": 84,
+          "lineEnd": 103,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 41,
-              "lineEnd": 45
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     }

@@ -3,24 +3,28 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent public surface for a first minimal single-request loop engine runtime with cloneable LoopEngine state, engine-owned task contexts with direct shared task/status/runtime-event fields, remoc-backed request/response message frontdoor endpoints, a minimal agent binary main entrypoint that reads its bind address from agent config without a private section marker, public model request and backend type interfaces, Deepseek backend implementation, explicit public/private Rust section markers where private implementation details exist, and future retrieval/tool interfaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent public surface for remoc-backed frontdoor Session/Task endpoints, the session-scoped loop engine runtime, draft TaskBrief-based session/task context views, model-facing context data under the model module, model backend interfaces, Deepseek backend implementation, and future retrieval/tool interfaces.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    ".",
+    "main.rs"
+  ],
   "childModules": [
     {
       "path": "src/agent/engine",
       "name": "engine",
-      "purpose": "Minimal session-scoped loop engine runtime with session status, one-initial-request task contexts, direct shared task/status/runtime-event fields, client-visible runtime task events, model streaming through chat response segments, and lifecycle error types."
+      "purpose": "Session-scoped loop engine runtime with lifecycle errors, session brief and task trace interface drafts, TaskBrief task summaries, task runtime events, and model streaming through chat response segments."
     },
     {
       "path": "src/agent/frontdoor",
       "name": "frontdoor",
-      "purpose": "Agent frontdoor session/task endpoint backed by remoc/TCP and aligned with engine-owned task execution returning runtime event receivers and streamed chat response segment payloads."
+      "purpose": "Agent frontdoor Session and Task endpoints backed by remoc/TCP, aligned with engine-owned task execution returning runtime event receivers and streamed chat response segment payloads."
     },
     {
       "path": "src/agent/model",
       "name": "model",
-      "purpose": "Public model request interface, backend type selection, crate-internal backend implementation boundary, model error definitions, and streaming Deepseek backend implementation through common external namespaces."
+      "purpose": "Public model request interface, backend type selection, crate-internal ModelContext data, backend implementation boundary, model error definitions, and streaming Deepseek backend implementation through common external namespaces."
     }
   ],
   "elements": []

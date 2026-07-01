@@ -3,9 +3,12 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Second-generation Rust source organized into client, agent, and common modules with typed configuration that detects the host Platform, config-gated logging, remoc-backed messaging, an interactive streaming CLI, a Config-aware ToolRegistry that filters unsupported tools, and native Tool implementations that share ToolExecutionResult helper completion/cancellation while streaming outward ToolInvocationStatus values.",
-    "changeStatus": "unchanged"
+    "purpose": "Second-generation Rust source organized into client, agent, and common modules with typed configuration, config-gated logging, remoc-backed messaging, an interactive streaming CLI, Config-aware tool registry/runtime tooling, and agent-side frontdoor, engine, and model boundaries where the model-facing context lives in the model module.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/client",
@@ -15,7 +18,7 @@
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent public surface for a minimal loop engine runtime with direct task-context state fields, remoc-backed frontdoor session/task endpoints, streamed chat response segments, model backend selection, model backend implementations, and a marker-free minimal agent binary main entrypoint that reads bind address from agent config and serves accepted clients."
+      "purpose": "Agent public surface for remoc-backed frontdoor Session/Task endpoints, a session-scoped loop engine runtime, draft session and task context views, streamed chat response segments, model-facing context data under the model module, model backend selection, and backend implementations."
     },
     {
       "path": "src/common",

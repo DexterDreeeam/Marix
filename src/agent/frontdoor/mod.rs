@@ -1,5 +1,5 @@
 pub mod session;
 pub mod task;
 
-pub use session::AgentSession;
-pub use task::AgentTask;
+pub use session::Session;
+pub use task::Task;

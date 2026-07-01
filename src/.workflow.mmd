@@ -16,14 +16,18 @@ flowchart LR
     NativeTools["native Tool implementations"]
   end
   subgraph agent_runtime["agent"]
-    AgentSession["AgentSession"]
+    Session["Session\nfrontdoor endpoint"]
+    Task["Task\nfrontdoor endpoint"]
     LoopEngine["LoopEngine"]
+    SessionBrief["SessionBrief\nsession digest"]
+    TaskTrace["TaskTrace\ntask trace"]
+    ModelContext["ModelContext\nmodel module view"]
   end
 
   Config -->|"detects host before TOML load"| Platform
   Config -->|"runtime/logging settings"| Logging
-  Messages -->|"transport payloads"| AgentSession
-  ExternalNamespaces -->|"remoc/tokio transport"| AgentSession
+  Messages -->|"transport payloads"| Session
+  ExternalNamespaces -->|"remoc/tokio transport"| Session
   ExternalNamespaces -->|"reqwest/image helpers"| NativeTools
   Config -->|"passed to ToolRegistry::new"| ToolRegistry
   ToolRegistry -->|"stores current Platform"| Platform
@@ -32,4 +36,10 @@ flowchart LR
   NativeTools -->|"helper complete/cancel result"| ToolExecutionResult
   ToolExecutionResult -->|"maps to Complete or Cancelled status"| ToolRuntime
   ToolRegistry -->|"registers only supported tools"| NativeTools
-  AgentSession -->|"delegates"| LoopEngine
+  Session -->|"creates accepted task endpoint"| Task
+  Task -->|"delegates task execution"| LoopEngine
+  LoopEngine -->|"maintains session digest contract"| SessionBrief
+  LoopEngine -->|"maintains task trace contract"| TaskTrace
+  SessionBrief -->|"session slice"| ModelContext
+  TaskTrace -->|"recent task steps"| ModelContext
+  Messages -->|"current request envelope"| ModelContext
