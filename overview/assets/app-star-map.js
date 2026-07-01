@@ -29,7 +29,11 @@
     renderStarMapDefs(layer);
     applyStarMapTransform();
 
-    for (const item of layout.filter(x => x.parent)) {
+    // Only draw edges between nodes that are actually in the rendered layout,
+    // so filtering elements never leaves a dangling edge to a hidden node.
+    const layoutNodeSet = new Set(layout);
+    for (const item of layout) {
+      if (!item.parent || !layoutNodeSet.has(item.parent)) continue;
       const edge = computeEdgePath(item.parent, item, SOURCE_ROOT);
       const path = document.createElementNS(SVG_NS, "path");
       path.setAttribute("class", `star-edge edge-${item.edgeKind || "child"}${item.changed ? " changed" : ""}${item.focusDimmed || (item.parent && item.parent.focusDimmed) ? " dimmed" : ""}`);

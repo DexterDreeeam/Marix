@@ -76,16 +76,42 @@ function layoutScopeStarMap(scopeNode, options) {
   return layout;
 }
 
+// Depth-limited element visibility.
+// The viewed module's depth D equals the number of path segments in its module
+// path (src = 1, src/common = 2, src/agent/engine = 3). The star map renders
+// exposed element nodes only for the current level or one level down
+// (source_depth === D or D + 1), so a top-level scope such as `src` no longer
+// renders every descendant element at once. D is derived from the module path,
+// which is robust for aggregator modules (e.g. src, src/common) that own no
+// elements themselves.
+function getModuleViewDepth(modulePath) {
+  return String(modulePath || "").split("/").filter(Boolean).length;
+}
+
+function getElementSourceDepth(element) {
+  const depth = Number(element && element.source_depth);
+  return Number.isFinite(depth) && depth > 0 ? depth : null;
+}
+
+function isElementWithinViewDepth(element, viewDepth) {
+  const depth = getElementSourceDepth(element);
+  // Elements without depth metadata are kept visible (fail-open) so stale data
+  // never blanks the map; populated elements follow the strict D / D + 1 rule.
+  if (depth === null) return true;
+  return depth === viewDepth || depth === viewDepth + 1;
+}
+
 function layoutExposedElements(scopeNode, moduleRadius, moduleObstacles, options) {
   const { collectDesignElementGroups, normalizeStatus } = options;
   const groups = collectDesignElementGroups(scopeNode.path);
+  const viewDepth = getModuleViewDepth(scopeNode.path);
   const elements = groups.flatMap((group, groupIndex) => (group.elements || []).map((element, elementIndex) => ({
     groupName: group.name,
     groupIndex,
     element,
     elementIndex,
     id: element.id || `${scopeNode.path}:${group.name}:${groupIndex}:${element.name}:${elementIndex}`
-  })));
+  }))).filter(entry => isElementWithinViewDepth(entry.element, viewDepth));
   const count = elements.length;
   if (count === 0) return [];
 
