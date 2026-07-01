@@ -3,9 +3,11 @@
   "module": {
     "path": "src/agent/engine",
     "name": "engine",
-    "purpose": "Defines the session-scoped loop engine runtime, lifecycle errors, session and task context interfaces, TaskBrief-based session brief and task trace data shapes, runtime task events, and model streaming coordination through chat response segments.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines the session-scoped loop engine runtime, lifecycle errors, session and task context interfaces, TaskBrief-based session brief and task trace data shapes, runtime task events, model-produced Plan and Job planning structures shown to the user, and model streaming coordination through chat response segments.",
+    "changeStatus": "modified"
   },
+  "added": ["plan.rs"],
+  "modified": ["mod.rs", "task_context.rs"],
   "childModules": [],
   "elements": [
     {
@@ -155,45 +157,44 @@
     {
       "name": "TaskStepKind",
       "type": "enum",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
           "lineStart": 23,
-          "lineEnd": 31,
+          "lineEnd": 27,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "TaskStepStatus",
-      "type": "enum",
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 33,
-          "lineEnd": 40,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 23
+            },
+            {
+              "lineStart": 25,
+              "lineEnd": 26
+            }
+          ]
         }
       ]
     },
     {
       "name": "TaskStep",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 42,
-          "lineEnd": 50,
+          "lineStart": 32,
+          "lineEnd": 37,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 36
+            }
+          ]
         }
       ]
     },
@@ -204,14 +205,14 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 52,
-          "lineEnd": 57,
+          "lineStart": 39,
+          "lineEnd": 44,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 54,
-              "lineEnd": 54
+              "lineStart": 41,
+              "lineEnd": 41
             }
           ]
         }
@@ -224,14 +225,14 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 59,
-          "lineEnd": 66,
+          "lineStart": 46,
+          "lineEnd": 53,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 60,
-              "lineEnd": 60
+              "lineStart": 47,
+              "lineEnd": 47
             }
           ]
         }
@@ -244,14 +245,14 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 68,
-          "lineEnd": 73,
+          "lineStart": 55,
+          "lineEnd": 60,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 72,
-              "lineEnd": 72
+              "lineStart": 59,
+              "lineEnd": 59
             }
           ]
         }
@@ -264,18 +265,58 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 75,
-          "lineEnd": 82,
+          "lineStart": 62,
+          "lineEnd": 69,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/engine/task_context.rs",
-          "lineStart": 84,
-          "lineEnd": 103,
+          "lineStart": 71,
+          "lineEnd": 90,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Plan",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/engine/plan.rs",
+          "lineStart": 8,
+          "lineEnd": 13,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 13
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Job",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/engine/plan.rs",
+          "lineStart": 18,
+          "lineEnd": 23,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 18,
+              "lineEnd": 23
+            }
+          ],
           "modifiedLines": []
         }
       ]

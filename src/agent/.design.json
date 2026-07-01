@@ -3,14 +3,15 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent public surface for remoc-backed frontdoor Session/Task endpoints, the session-scoped loop engine runtime, draft TaskBrief-based session/task context views, model-facing context data under the model module, model backend interfaces, Deepseek backend implementation, and future retrieval/tool interfaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent public surface for remoc-backed frontdoor Session/Task endpoints, the session-scoped loop engine runtime with model-produced Plan/Job planning over executable task steps, draft TaskBrief-based session/task context views, model-facing context data under the model module, model backend interfaces, Deepseek backend implementation, and future retrieval/tool interfaces, where model-driven tool calls carry the shared common::protocol ToolSchema/ToolParameter types across the session boundary.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/agent/engine",
       "name": "engine",
-      "purpose": "Session-scoped loop engine runtime with lifecycle errors, session brief and task trace interface drafts, TaskBrief task summaries, task runtime events, and model streaming through chat response segments."
+      "purpose": "Session-scoped loop engine runtime with lifecycle errors, session brief and task trace interface drafts, TaskBrief task summaries, task runtime events, model-produced Plan/Job planning structures that group executable TaskSteps, and model streaming through chat response segments."
     },
     {
       "path": "src/agent/frontdoor",

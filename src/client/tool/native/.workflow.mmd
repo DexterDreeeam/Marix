@@ -1,7 +1,8 @@
 flowchart LR
   subgraph native_tool_list_rs["native_tool_list.rs"]
-    PrimaryNativeToolList["PRIMARY_NATIVE_TOOL_LIST"]
-    NativeToolList["NATIVE_TOOL_LIST"]
+    NativeTools["native_tools()"]
+    NativeToolListFn["native_tool_list()"]
+    PrimaryNativeToolListFn["primary_native_tool_list()"]
   end
   subgraph categories["native category folders"]
     FileTools["file tools"]
@@ -13,6 +14,8 @@ flowchart LR
   end
   ToolTrait["Tool trait"]
   ToolPreview["ToolPreview"]
+  ToolSchema["ToolSchema\ncommon::protocol"]
+  ToolParameter["ToolParameter\ncommon::protocol"]
   Platform["Platform\ncommon config"]
   ToolCategory["ToolCategory"]
   ToolInvocation["ToolInvocation"]
@@ -48,11 +51,15 @@ flowchart LR
   RuntimeImplementations -->|"helper Complete/Cancelled"| ToolExecutionResult
   ToolExecutionResult -->|"mapped to Complete/Cancelled status"| ToolRuntime
   RuntimeImplementations -->|"propagates failures"| ToolError
-  FileTools -->|"PREVIEW"| ToolPreview
-  ImageTools -->|"PREVIEW"| ToolPreview
-  NetworkTools -->|"PREVIEW"| ToolPreview
-  ShellTools -->|"PREVIEW"| ToolPreview
-  SystemTools -->|"PREVIEW"| ToolPreview
-  PackageTools -->|"PREVIEW"| ToolPreview
-  NativeToolList -->|"catalogs every native preview"| ToolPreview
-  PrimaryNativeToolList -->|"legacy primary preview constants"| ToolPreview
+  FileTools -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  ImageTools -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  NetworkTools -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  ShellTools -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  SystemTools -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  PackageTools -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  ToolTrait -->|"schema() returns"| ToolSchema
+  ToolPreview -->|"schema field"| ToolSchema
+  ToolInvocation -->|"parameter package"| ToolParameter
+  NativeTools -->|"boxes every native Tool"| ToolTrait
+  NativeToolListFn -->|"maps preview()"| ToolPreview
+  PrimaryNativeToolListFn -->|"filters Primary then preview()"| ToolPreview

@@ -1,9 +1,11 @@
 flowchart LR
   ToolPreview["ToolPreview"]
+  ToolSchema["ToolSchema\ncommon::protocol"]
+  ToolParameter["ToolParameter\ncommon::protocol"]
   ToolTrait["Tool platform/category/invoke"]
   PlatformAll["Platform::All"]
   PlatformWin["Platform::Win"]
-  ToolInvocation["ToolInvocation JSON arguments"]
+  ToolInvocation["ToolInvocation parameter payload"]
   ToolRuntime["ToolRuntime status receiver + cancel handle"]
   ToolInvocationStatus["ToolInvocationStatus"]
   ToolExecutionResult["ToolExecutionResult<Vec<String>>\nprocess rows or Cancelled"]
@@ -22,9 +24,12 @@ flowchart LR
   SystemInfoTool -->|"platform()"| PlatformAll
   EnvironmentTool -->|"platform()"| PlatformAll
   ProcessListTool -->|"platform()"| PlatformWin
-  SystemInfoTool -->|"PREVIEW"| ToolPreview
-  ProcessListTool -->|"PREVIEW"| ToolPreview
-  EnvironmentTool -->|"PREVIEW"| ToolPreview
+  SystemInfoTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  ProcessListTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  EnvironmentTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  ToolTrait -->|"schema() returns"| ToolSchema
+  ToolPreview -->|"schema field"| ToolSchema
+  ToolInvocation -->|"parameter package"| ToolParameter
   ToolInvocation -->|"names array"| EnvironmentTool
   SystemInfoTool -->|"Running OS/current-dir JSON then Complete"| ToolRuntime
   EnvironmentTool -->|"reads requested names"| EnvVars

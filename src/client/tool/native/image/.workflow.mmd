@@ -1,8 +1,10 @@
 flowchart LR
   ToolPreview["ToolPreview"]
+  ToolSchema["ToolSchema\ncommon::protocol"]
+  ToolParameter["ToolParameter\ncommon::protocol"]
   ToolTrait["Tool platform/category/invoke"]
   PlatformAll["Platform::All"]
-  ToolInvocation["ToolInvocation image arguments"]
+  ToolInvocation["ToolInvocation parameter payload"]
   ToolRuntime["ToolRuntime status receiver + cancel handle"]
   ToolInvocationStatus["ToolInvocationStatus"]
   ToolExecutionResult["ToolExecutionResult<String>\ntransform result or Cancelled"]
@@ -19,8 +21,11 @@ flowchart LR
   ImageInspectTool -->|"implements Tool"| ToolTrait
   ImageTransformTool -->|"implements Tool"| ToolTrait
   ToolTrait -->|"platform()"| PlatformAll
-  ImageInspectTool -->|"PREVIEW"| ToolPreview
-  ImageTransformTool -->|"PREVIEW"| ToolPreview
+  ImageInspectTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  ImageTransformTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  ToolTrait -->|"schema() returns"| ToolSchema
+  ToolPreview -->|"schema field"| ToolSchema
+  ToolInvocation -->|"parameter package"| ToolParameter
   ToolInvocation -->|"path"| ImageInspectTool
   ToolInvocation -->|"input_path/output_path/operation"| TransformArguments
   ImageInspectTool -->|"open, guess format, decode"| ImageReader

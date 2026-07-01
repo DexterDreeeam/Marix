@@ -3,15 +3,16 @@
   "module": {
     "path": "src/client/tool/native/image",
     "name": "image",
-    "purpose": "Owns cross-platform image native Tool implementations for inspecting local image metadata and transforming images by copy, grayscale, flip, or rotation operations while streaming JSON results through ToolRuntime, checking cancellation around expensive work, and using shared ToolExecutionResult helper outcomes for transform completion or cancellation.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns cross-platform image native Tool implementations for inspecting local image metadata and transforming images by copy, grayscale, flip, or rotation operations while streaming JSON results through ToolRuntime, checking cancellation around expensive work, and using shared ToolExecutionResult helper outcomes for transform completion or cancellation. Each tool exposes NAME/DESCRIPTION/SCHEMA consts and returns the shared common::protocol ToolSchema from Tool::schema().",
+    "changeStatus": "modified"
   },
+  "modified": ["image_inspect.rs", "image_transform.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "ImageInspectTool",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/image/image_inspect.rs",
@@ -24,36 +25,53 @@
         {
           "sourcePath": "src/client/tool/native/image/image_inspect.rs",
           "lineStart": 12,
-          "lineEnd": 18,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/client/tool/native/image/image_inspect.rs",
-          "lineStart": 20,
-          "lineEnd": 69,
+          "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 25,
-              "lineEnd": 26
+              "lineStart": 13,
+              "lineEnd": 15
             }
           ]
         },
         {
           "sourcePath": "src/client/tool/native/image/image_inspect.rs",
-          "lineStart": 73,
-          "lineEnd": 82,
+          "lineStart": 18,
+          "lineEnd": 67,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 32,
+              "lineEnd": 32
+            },
+            {
+              "lineStart": 36,
+              "lineEnd": 36
+            },
+            {
+              "lineStart": 39,
+              "lineEnd": 40
+            },
+            {
+              "lineStart": 44,
+              "lineEnd": 44
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/client/tool/native/image/image_inspect.rs",
+          "lineStart": 71,
+          "lineEnd": 80,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/image/image_inspect.rs",
-          "lineStart": 84,
-          "lineEnd": 107,
+          "lineStart": 82,
+          "lineEnd": 105,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -63,7 +81,7 @@
     {
       "name": "ImageTransformTool",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/image/image_transform.rs",
@@ -76,93 +94,77 @@
         {
           "sourcePath": "src/client/tool/native/image/image_transform.rs",
           "lineStart": 12,
-          "lineEnd": 18,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/client/tool/native/image/image_transform.rs",
-          "lineStart": 20,
-          "lineEnd": 72,
+          "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 25,
-              "lineEnd": 26
-            },
-            {
-              "lineStart": 56,
-              "lineEnd": 66
+              "lineStart": 13,
+              "lineEnd": 15
             }
           ]
         },
         {
           "sourcePath": "src/client/tool/native/image/image_transform.rs",
-          "lineStart": 76,
-          "lineEnd": 80,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/client/tool/native/image/image_transform.rs",
-          "lineStart": 82,
-          "lineEnd": 91,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/client/tool/native/image/image_transform.rs",
-          "lineStart": 93,
-          "lineEnd": 143,
+          "lineStart": 18,
+          "lineEnd": 70,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 93,
-              "lineEnd": 96
+              "lineStart": 32,
+              "lineEnd": 32
             },
             {
-              "lineStart": 98,
-              "lineEnd": 104
+              "lineStart": 36,
+              "lineEnd": 36
             },
             {
-              "lineStart": 106,
-              "lineEnd": 107
+              "lineStart": 39,
+              "lineEnd": 40
             },
             {
-              "lineStart": 110,
-              "lineEnd": 120
-            },
-            {
-              "lineStart": 121,
-              "lineEnd": 122
-            },
-            {
-              "lineStart": 133,
-              "lineEnd": 135
-            },
-            {
-              "lineStart": 138,
-              "lineEnd": 142
+              "lineStart": 44,
+              "lineEnd": 44
             }
           ]
         },
         {
           "sourcePath": "src/client/tool/native/image/image_transform.rs",
-          "lineStart": 145,
-          "lineEnd": 152,
+          "lineStart": 74,
+          "lineEnd": 78,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/image/image_transform.rs",
-          "lineStart": 154,
-          "lineEnd": 160,
+          "lineStart": 80,
+          "lineEnd": 89,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/image/image_transform.rs",
+          "lineStart": 91,
+          "lineEnd": 141,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/image/image_transform.rs",
+          "lineStart": 143,
+          "lineEnd": 150,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/image/image_transform.rs",
+          "lineStart": 152,
+          "lineEnd": 158,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

@@ -1,5 +1,7 @@
 flowchart LR
   ToolPreview["ToolPreview"]
+  ToolSchema["ToolSchema\ncommon::protocol"]
+  ToolParameter["ToolParameter\ncommon::protocol"]
   ToolTrait["Tool platform/category/invoke"]
   PlatformWin["Platform::Win"]
   ToolInvocation["ToolInvocation package arguments"]
@@ -15,7 +17,10 @@ flowchart LR
 
   PackageQueryTool -->|"implements Tool"| ToolTrait
   PackageQueryTool -->|"platform()"| PlatformWin
-  PackageQueryTool -->|"PREVIEW"| ToolPreview
+  PackageQueryTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  ToolTrait -->|"schema() returns"| ToolSchema
+  ToolPreview -->|"schema field"| ToolSchema
+  ToolInvocation -->|"parameter package"| ToolParameter
   ToolInvocation -->|"name/include_versions"| PackageArguments
   PackageArguments -->|"selects fields and wildcard name"| PowerShellGetPackage
   PackageQueryTool -->|"polls Windows child process"| PowerShellGetPackage

@@ -3,9 +3,10 @@
   "module": {
     "path": "src/client/tool",
     "name": "tool",
-    "purpose": "Client-side tool interface layer with a unified Tool trait using common config Platform values, ToolRuntime status streaming and cancellation, ToolInvocationStatus lifecycle states, the shared generic ToolExecutionResult helper outcome for complete-or-cancelled native helpers, ToolType variants, ToolPreview and DefaultPreview records, Config-aware ToolRegistry registration/preview/lookup behavior with unsupported-tool denial, typed ToolError failures, CategoryPreview metadata, and folder-organized native tool implementations.",
-    "changeStatus": "unchanged"
+    "purpose": "Client-side tool interface layer with a unified Tool trait using common config Platform values and returning the shared common::protocol ToolSchema, a default preview() that builds ToolPreview from name/description/schema, ToolRuntime status streaming and cancellation, ToolInvocationStatus lifecycle states, the shared generic ToolExecutionResult helper outcome for complete-or-cancelled native helpers, ToolType variants, ToolPreview and DefaultPreview records, ToolInvocation carrying a shared common::protocol ToolParameter package, Config-aware ToolRegistry registration/preview/lookup behavior with unsupported-tool denial, typed ToolError failures, CategoryPreview metadata, and folder-organized native tool implementations.",
+    "changeStatus": "modified"
   },
+  "modified": ["mod.rs", "tool.rs"],
   "childModules": [
     {
       "path": "src/client/tool/category",
@@ -15,7 +16,7 @@
     {
       "path": "src/client/tool/native",
       "name": "native",
-      "purpose": "Folder-organized native Tool implementations with static ToolPreview metadata, common Platform support markers, runtime status streaming, cancellation handling, and aggregate native preview lists."
+      "purpose": "Folder-organized native Tool implementations exposing NAME/DESCRIPTION/SCHEMA consts and returning the shared common::protocol ToolSchema, common Platform support markers, runtime status streaming, cancellation handling, and native tool list functions."
     }
   ],
   "elements": [
@@ -145,8 +146,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 8,
-          "lineEnd": 14,
+          "lineStart": 9,
+          "lineEnd": 15,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -156,18 +157,23 @@
     {
       "name": "Tool",
       "type": "trait",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 16,
-          "lineEnd": 33,
+          "lineStart": 20,
+          "lineEnd": 42,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 33,
+              "lineEnd": 39
+            }
+          ],
           "modifiedLines": [
             {
-              "lineStart": 22,
-              "lineEnd": 22
+              "lineStart": 31,
+              "lineEnd": 31
             }
           ]
         }
@@ -180,8 +186,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 35,
-          "lineEnd": 35,
+          "lineStart": 44,
+          "lineEnd": 44,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -191,30 +197,44 @@
     {
       "name": "ToolPreview",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 37,
-          "lineEnd": 42,
+          "lineStart": 46,
+          "lineEnd": 51,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 46,
+              "lineEnd": 46
+            },
+            {
+              "lineStart": 50,
+              "lineEnd": 50
+            }
+          ]
         }
       ]
     },
     {
       "name": "ToolInvocation",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 44,
-          "lineEnd": 51,
+          "lineStart": 56,
+          "lineEnd": 61,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 60,
+              "lineEnd": 60
+            }
+          ]
         }
       ]
     },
@@ -225,16 +245,16 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 53,
-          "lineEnd": 56,
+          "lineStart": 63,
+          "lineEnd": 66,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 73,
-          "lineEnd": 86,
+          "lineStart": 83,
+          "lineEnd": 96,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -248,8 +268,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 58,
-          "lineEnd": 65,
+          "lineStart": 68,
+          "lineEnd": 75,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -263,13 +283,13 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 67,
-          "lineEnd": 71,
+          "lineStart": 77,
+          "lineEnd": 81,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 67,
-              "lineEnd": 71
+              "lineStart": 77,
+              "lineEnd": 81
             }
           ],
           "modifiedLines": []

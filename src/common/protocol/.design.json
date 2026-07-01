@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/common/protocol",
+    "name": "protocol",
+    "purpose": "Shared tool protocol types owned once and used on both sides of the session boundary: ToolSchema carries a tool's declared JSON-Schema input document that the client advertises and the agent consumes, and ToolParameter carries the schema-conformant argument payload the agent produces and the client executes, both serializable through serde.",
+    "changeStatus": "added"
+  },
+  "added": ["."],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "ToolSchema",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/tool.rs",
+          "lineStart": 6,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 9
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/protocol/tool.rs",
+          "lineStart": 19,
+          "lineEnd": 25,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 19,
+              "lineEnd": 25
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolParameter",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/tool.rs",
+          "lineStart": 14,
+          "lineEnd": 17,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 17
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/protocol/tool.rs",
+          "lineStart": 27,
+          "lineEnd": 33,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 27,
+              "lineEnd": 33
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

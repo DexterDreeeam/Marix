@@ -3,24 +3,25 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Second-generation Rust source organized into client, agent, and common modules with typed configuration, config-gated logging, remoc-backed messaging, an interactive streaming CLI, Config-aware tool registry/runtime tooling, and agent-side frontdoor, engine, and model boundaries where the model-facing context lives in the model module.",
-    "changeStatus": "unchanged"
+    "purpose": "Second-generation Rust source organized into client, agent, and common modules with typed configuration, config-gated logging, remoc-backed messaging, an interactive streaming CLI, Config-aware tool registry/runtime tooling, and agent-side frontdoor, engine, and model boundaries where the model-facing context lives in the model module, and where shared tool schema and parameter protocol types live in common::protocol and are used by both the client tool layer and the agent engine.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Client-facing modules for interactive CLI, remoc-backed core session/task endpoints, executor dispatch, and a Config-aware tool registry that filters native and external tools by common config Platform before publishing previews."
+      "purpose": "Client-facing modules for interactive CLI, remoc-backed core session/task endpoints, executor dispatch, and a Config-aware tool registry that filters native and external tools by common config Platform before publishing previews, with tool schemas and call parameters sourced from common::protocol."
     },
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent public surface for remoc-backed frontdoor Session/Task endpoints, a session-scoped loop engine runtime, draft session and task context views, streamed chat response segments, model-facing context data under the model module, model backend selection, and backend implementations."
+      "purpose": "Agent public surface for remoc-backed frontdoor Session/Task endpoints, a session-scoped loop engine runtime with model-produced Plan/Job planning, draft session and task context views, streamed chat response segments, model-facing context data under the model module, model backend selection, and backend implementations."
     },
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared interfaces including typed TOML configuration with host Platform detection, runtime Marix path resolution, config-gated logging, directional chat request/response messages, shared channel errors, remoc session protocol messages, and centralized crate-local external-library namespaces."
+      "purpose": "Shared interfaces including typed TOML configuration with host Platform detection, runtime Marix path resolution, config-gated logging, directional chat request/response messages, shared channel errors, remoc session protocol messages, shared tool schema and parameter protocol types under a new protocol module, and centralized crate-local external-library namespaces."
     }
   ],
   "elements": []

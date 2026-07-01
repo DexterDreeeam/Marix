@@ -1,8 +1,10 @@
 flowchart LR
   ToolPreview["ToolPreview"]
+  ToolSchema["ToolSchema\ncommon::protocol"]
+  ToolParameter["ToolParameter\ncommon::protocol"]
   ToolTrait["Tool platform/category/invoke"]
   PlatformAll["Platform::All"]
-  ToolInvocation["ToolInvocation JSON arguments"]
+  ToolInvocation["ToolInvocation parameter payload"]
   ToolRuntime["ToolRuntime statuses + cancel handle"]
   ToolInvocationStatus["ToolInvocationStatus"]
   CancelSignal["cancel signal"]
@@ -17,8 +19,11 @@ flowchart LR
   HttpRequestTool -->|"implements Tool"| ToolTrait
   DnsLookupTool -->|"implements Tool"| ToolTrait
   ToolTrait -->|"platform()"| PlatformAll
-  HttpRequestTool -->|"PREVIEW"| ToolPreview
-  DnsLookupTool -->|"PREVIEW"| ToolPreview
+  HttpRequestTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  DnsLookupTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  ToolTrait -->|"schema() returns"| ToolSchema
+  ToolPreview -->|"schema field"| ToolSchema
+  ToolInvocation -->|"parameter package"| ToolParameter
   ToolInvocation -->|"url/method/body"| HttpRequestTool
   ToolInvocation -->|"host"| DnsLookupTool
   HttpRequestTool -->|"sends request"| ReqwestClient

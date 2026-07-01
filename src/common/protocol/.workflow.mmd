@@ -1,0 +1,16 @@
+flowchart LR
+  subgraph tool_rs["tool.rs"]
+    ToolSchema["ToolSchema"]
+    ToolParameter["ToolParameter"]
+  end
+
+  ClientToolLayer["client/tool"]
+  AgentEngine["agent/engine"]
+  Serde["serde namespace"]
+
+  ClientToolLayer -->|"declares Tool::schema / ToolPreview.schema"| ToolSchema
+  ToolSchema -->|"advertised schema consumed by"| AgentEngine
+  AgentEngine -->|"produces conforming argument payload"| ToolParameter
+  ToolParameter -->|"carried by ToolInvocation.parameter, executed by"| ClientToolLayer
+  Serde -->|"serializes across session boundary"| ToolSchema
+  Serde -->|"serializes across session boundary"| ToolParameter

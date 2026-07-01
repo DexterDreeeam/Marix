@@ -29,8 +29,13 @@ flowchart LR
     Image["image namespace"]
     Toml["toml namespace"]
   end
+  subgraph protocol["protocol"]
+    ToolSchema["ToolSchema"]
+    ToolParameter["ToolParameter"]
+  end
   ClientToolRegistry["client ToolRegistry"]
   NativeTools["client native tools"]
+  AgentEngine["agent engine"]
 
   Toml -->|"parses config"| Config
   Config -->|"detects and exposes"| Platform
@@ -54,3 +59,9 @@ flowchart LR
   Platform -->|"Tool::platform values"| NativeTools
   Reqwest -->|"HTTP helper"| NativeTools
   Image -->|"image helper"| NativeTools
+  NativeTools -->|"declare Tool::schema"| ToolSchema
+  ToolSchema -->|"advertised to and consumed by"| AgentEngine
+  AgentEngine -->|"produces call payload"| ToolParameter
+  ToolParameter -->|"schema-conformant arguments executed by"| NativeTools
+  Serde -->|"serializes protocol types"| ToolSchema
+  Serde -->|"serializes protocol types"| ToolParameter

@@ -17,6 +17,8 @@ flowchart LR
     Platform["Platform"]
     DefaultPreview["DefaultPreview"]
     ToolPreview["ToolPreview"]
+    ToolSchema["ToolSchema\ncommon::protocol"]
+    ToolParameter["ToolParameter\ncommon::protocol"]
     ToolInvocation["ToolInvocation"]
     ToolRuntime["ToolRuntime statuses + cancel handle"]
     ToolInvocationStatus["ToolInvocationStatus"]
@@ -54,9 +56,13 @@ flowchart LR
   ToolTrait -->|"platform() returns common config value"| Platform
   ToolTrait -->|"category() returns one"| ToolCategory
   ToolTrait -->|"invoke returns"| ToolRuntime
+  ToolTrait -->|"schema() returns"| ToolSchema
+  ToolPreview -->|"schema field"| ToolSchema
+  ToolInvocation -->|"parameter package"| ToolParameter
   ToolRuntime -->|"statuses"| ToolInvocationStatus
   ToolCategoryList -->|"publishes category previews"| CategoryPreview
   NativeRuntimeImplementations -->|"implements"| ToolTrait
+  NativeRuntimeImplementations -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
   NativeRuntimeImplementations -->|"helper returns"| ToolExecutionResult
   ToolExecutionResult -->|"Complete/Cancelled mapped to statuses"| ToolInvocationStatus
   NativeRuntimeImplementations -->|"streams statuses and handles cancellation"| ToolRuntime

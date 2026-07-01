@@ -3,15 +3,16 @@
   "module": {
     "path": "src/client/tool/native/shell",
     "name": "shell",
-    "purpose": "Owns the cross-platform shell native Tool implementation that parses command/cwd/timeout arguments, selects cmd or sh by host OS, streams stdout/stderr lines, enforces timeout, and maps shared ToolExecutionResult helper completion or cancellation into ToolRuntime statuses without a cancellation payload.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the cross-platform shell native Tool implementation that parses command/cwd/timeout arguments, selects cmd or sh by host OS, streams stdout/stderr lines, enforces timeout, and maps shared ToolExecutionResult helper completion or cancellation into ToolRuntime statuses without a cancellation payload. It exposes NAME/DESCRIPTION/SCHEMA consts and returns the shared common::protocol ToolSchema from Tool::schema().",
+    "changeStatus": "modified"
   },
+  "modified": ["shell_execute.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "ShellExecuteTool",
       "type": "struct",
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/shell/shell_execute.rs",
@@ -24,89 +25,77 @@
         {
           "sourcePath": "src/client/tool/native/shell/shell_execute.rs",
           "lineStart": 18,
-          "lineEnd": 24,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/client/tool/native/shell/shell_execute.rs",
-          "lineStart": 26,
-          "lineEnd": 73,
+          "lineEnd": 23,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 31,
-              "lineEnd": 32
-            },
-            {
-              "lineStart": 58,
-              "lineEnd": 64
+              "lineStart": 19,
+              "lineEnd": 22
             }
           ]
         },
         {
           "sourcePath": "src/client/tool/native/shell/shell_execute.rs",
-          "lineStart": 77,
-          "lineEnd": 81,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/client/tool/native/shell/shell_execute.rs",
-          "lineStart": 83,
-          "lineEnd": 102,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/client/tool/native/shell/shell_execute.rs",
-          "lineStart": 104,
-          "lineEnd": 155,
+          "lineStart": 25,
+          "lineEnd": 72,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 104,
-              "lineEnd": 108
+              "lineStart": 39,
+              "lineEnd": 39
             },
             {
-              "lineStart": 115,
-              "lineEnd": 117
+              "lineStart": 43,
+              "lineEnd": 43
             },
             {
-              "lineStart": 132,
-              "lineEnd": 132
+              "lineStart": 46,
+              "lineEnd": 47
             },
             {
-              "lineStart": 135,
-              "lineEnd": 136
-            },
-            {
-              "lineStart": 141,
-              "lineEnd": 141
-            },
-            {
-              "lineStart": 147,
-              "lineEnd": 150
+              "lineStart": 51,
+              "lineEnd": 51
             }
           ]
         },
         {
           "sourcePath": "src/client/tool/native/shell/shell_execute.rs",
-          "lineStart": 157,
-          "lineEnd": 185,
+          "lineStart": 76,
+          "lineEnd": 80,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/shell/shell_execute.rs",
-          "lineStart": 187,
-          "lineEnd": 197,
+          "lineStart": 82,
+          "lineEnd": 101,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/shell/shell_execute.rs",
+          "lineStart": 103,
+          "lineEnd": 154,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/shell/shell_execute.rs",
+          "lineStart": 156,
+          "lineEnd": 184,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/tool/native/shell/shell_execute.rs",
+          "lineStart": 186,
+          "lineEnd": 196,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

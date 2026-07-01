@@ -25,16 +25,23 @@ flowchart LR
     ToolCategoryList["TOOL_CATEGORY_LIST"]
   end
   subgraph native["native/"]
-    NativeToolList["NATIVE_TOOL_LIST"]
+    NativeToolListFns["native_tool_list()\nprimary_native_tool_list()"]
     NativeToolStructs["category native tool structs"]
     NativeRuntimeImplementations["native runtime implementations"]
+  end
+  subgraph protocol["common::protocol"]
+    ToolSchema["ToolSchema"]
+    ToolParameter["ToolParameter"]
   end
 
   ToolTrait -->|"reports type"| ToolType
   ToolTrait -->|"platform() returns"| Platform
   ToolTrait -->|"category() returns"| ToolCategory
-  ToolTrait -->|"reports preview fields"| ToolPreview
+  ToolTrait -->|"schema() returns"| ToolSchema
+  ToolTrait -->|"default preview() builds"| ToolPreview
+  ToolPreview -->|"schema field"| ToolSchema
   ToolTrait -->|"accepts"| ToolInvocation
+  ToolInvocation -->|"parameter package"| ToolParameter
   ToolTrait -->|"invoke() returns"| ToolRuntime
   ToolRuntime -->|"statuses Receiver"| ToolInvocationStatus
   ToolRuntime -->|"cancel() may fail with"| ToolError
@@ -54,11 +61,12 @@ flowchart LR
   DefaultPreview -->|"category_previews"| CategoryPreview
   ToolCategoryList -->|"aggregates category previews"| CategoryPreview
   NativeToolStructs -->|"implements Tool"| ToolTrait
-  NativeToolStructs -->|"associated PREVIEW"| ToolPreview
+  NativeToolStructs -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  NativeToolStructs -->|"schema() returns"| ToolSchema
   NativeToolStructs -->|"invoke behavior"| NativeRuntimeImplementations
   NativeRuntimeImplementations -->|"helper returns Complete or Cancelled"| ToolExecutionResult
   ToolExecutionResult -->|"Complete maps to Complete status"| ToolInvocationStatus
   ToolExecutionResult -->|"Cancelled maps to Cancelled status"| ToolInvocationStatus
   NativeRuntimeImplementations -->|"propagates failures"| ToolError
   NativeRuntimeImplementations -->|"streams ToolInvocationStatus"| ToolRuntime
-  NativeToolList -->|"catalogs every native preview"| ToolPreview
+  NativeToolListFns -->|"map preview() over native tools"| ToolPreview

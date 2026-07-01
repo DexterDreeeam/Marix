@@ -3,9 +3,10 @@
   "module": {
     "path": "src/client",
     "name": "client",
-    "purpose": "Client-facing source split into an interactive streaming CLI, a remoc-backed core client session/task endpoint, executor dispatch returning ToolRuntime status streams, and a unified tool layer where ToolRegistry is constructed from Config, stores the current Platform, filters unsupported tools, publishes previews from registered tools only, and native helpers normalize complete-or-cancelled results through ToolExecutionResult.",
-    "changeStatus": "unchanged"
+    "purpose": "Client-facing source split into an interactive streaming CLI, a remoc-backed core client session/task endpoint, executor dispatch returning ToolRuntime status streams, and a unified tool layer where ToolRegistry is constructed from Config, stores the current Platform, filters unsupported tools, publishes previews from registered tools only, and native helpers normalize complete-or-cancelled results through ToolExecutionResult, with the tool layer sourcing its shared ToolSchema and ToolParameter types from common::protocol.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/client/cli",
@@ -25,7 +26,7 @@
     {
       "path": "src/client/tool",
       "name": "tool",
-      "purpose": "Client-side unified tool layer with common-config Platform support markers, ToolRuntime status/cancel contracts, platform-filtering ToolRegistry behavior, category metadata, typed errors, and folder-organized native Tool implementations."
+      "purpose": "Client-side unified tool layer with common-config Platform support markers, ToolRuntime status/cancel contracts, platform-filtering ToolRegistry behavior, category metadata, typed errors, a Tool trait returning the shared common::protocol ToolSchema, ToolInvocation carrying a common::protocol ToolParameter, and folder-organized native Tool implementations that expose NAME/DESCRIPTION/SCHEMA consts and are published through native tool list functions."
     }
   ],
   "elements": []

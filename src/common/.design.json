@@ -3,9 +3,10 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration that detects and exports the host Platform before loading the rest of config, runtime Marix path defaults and role-specific overrides, config-gated logging, directional chat request/response message envelopes, shared channel errors, remoc session/task protocol messages, and centralized crate-local external-library namespaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration that detects and exports the host Platform before loading the rest of config, runtime Marix path defaults and role-specific overrides, config-gated logging, directional chat request/response message envelopes, shared channel errors, remoc session/task protocol messages, shared tool schema and parameter protocol types used by both the client tool layer and the agent engine, and centralized crate-local external-library namespaces.",
+    "changeStatus": "modified"
   },
+  "modified": ["mod.rs"],
   "childModules": [
     {
       "path": "src/common/channel",
@@ -31,6 +32,11 @@
       "path": "src/common/message",
       "name": "message",
       "purpose": "Folder-based shared request and response message traits, serializable envelopes, complete chat request payloads, and streamed chat response segment payloads."
+    },
+    {
+      "path": "src/common/protocol",
+      "name": "protocol",
+      "purpose": "Shared tool protocol types ToolSchema and ToolParameter, singly owned here and referenced by both the client tool layer and the agent engine so a tool's declared JSON-Schema document and its schema-conformant argument payload cross the session boundary unchanged."
     }
   ],
   "elements": []

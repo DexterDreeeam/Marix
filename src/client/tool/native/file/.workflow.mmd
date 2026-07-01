@@ -1,8 +1,10 @@
 flowchart LR
   ToolPreview["ToolPreview"]
+  ToolSchema["ToolSchema\ncommon::protocol"]
+  ToolParameter["ToolParameter\ncommon::protocol"]
   ToolTrait["Tool platform/category/invoke"]
   PlatformAll["Platform::All"]
-  ToolInvocation["ToolInvocation JSON arguments"]
+  ToolInvocation["ToolInvocation parameter payload"]
   ToolRuntime["ToolRuntime statuses + cancel handle"]
   ToolInvocationStatus["ToolInvocationStatus"]
   ToolExecutionResult["ToolExecutionResult<()>\nComplete or Cancelled"]
@@ -21,10 +23,13 @@ flowchart LR
   ListDirectoryTool -->|"implements Tool"| ToolTrait
   SearchTextTool -->|"implements Tool"| ToolTrait
   ToolTrait -->|"platform()"| PlatformAll
-  ReadFileTool -->|"PREVIEW"| ToolPreview
-  WriteFileTool -->|"PREVIEW"| ToolPreview
-  ListDirectoryTool -->|"PREVIEW"| ToolPreview
-  SearchTextTool -->|"PREVIEW"| ToolPreview
+  ReadFileTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  WriteFileTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  ListDirectoryTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  SearchTextTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  ToolTrait -->|"schema() returns"| ToolSchema
+  ToolPreview -->|"schema field"| ToolSchema
+  ToolInvocation -->|"parameter package"| ToolParameter
   ToolInvocation -->|"path"| ReadFileTool
   ToolInvocation -->|"path/content/create_dirs"| WriteFileTool
   ToolInvocation -->|"path/recursive"| ListDirectoryTool

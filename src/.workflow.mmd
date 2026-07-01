@@ -7,6 +7,7 @@ flowchart LR
     Logging["config-gated logging"]
     Messages["request/response messages"]
     ExternalNamespaces["external namespaces\nserde/remoc/tokio/reqwest/image"]
+    ToolProtocol["protocol\nToolSchema + ToolParameter"]
   end
   subgraph client_tool["client/tool"]
     ToolRegistry["ToolRegistry\ncurrent platform"]
@@ -22,6 +23,7 @@ flowchart LR
     SessionBrief["SessionBrief\nsession digest"]
     TaskTrace["TaskTrace\ntask trace"]
     ModelContext["ModelContext\nmodel module view"]
+    Plan["Plan\njobs over TaskSteps"]
   end
 
   Config -->|"detects host before TOML load"| Platform
@@ -43,3 +45,6 @@ flowchart LR
   SessionBrief -->|"session slice"| ModelContext
   TaskTrace -->|"recent task steps"| ModelContext
   Messages -->|"current request envelope"| ModelContext
+  ToolProtocol -->|"tool schema + call parameter"| ToolTrait
+  ToolProtocol -->|"tool call parameters cross boundary"| Task
+  LoopEngine -->|"model-produced planning"| Plan

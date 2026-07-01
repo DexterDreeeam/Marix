@@ -1,5 +1,7 @@
 flowchart LR
   ToolPreview["ToolPreview"]
+  ToolSchema["ToolSchema\ncommon::protocol"]
+  ToolParameter["ToolParameter\ncommon::protocol"]
   ToolTrait["Tool platform/category/invoke"]
   PlatformAll["Platform::All"]
   ToolInvocation["ToolInvocation command/cwd/timeout shape"]
@@ -16,7 +18,10 @@ flowchart LR
 
   ShellExecuteTool -->|"implements Tool"| ToolTrait
   ToolTrait -->|"platform()"| PlatformAll
-  ShellExecuteTool -->|"PREVIEW"| ToolPreview
+  ShellExecuteTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
+  ToolTrait -->|"schema() returns"| ToolSchema
+  ToolPreview -->|"schema field"| ToolSchema
+  ToolInvocation -->|"parameter package"| ToolParameter
   ToolInvocation -->|"command/cwd/timeout_ms"| ShellExecuteTool
   ShellExecuteTool -->|"selects host shell"| ShellCommand
   ShellCommand -->|"spawns"| ChildProcess

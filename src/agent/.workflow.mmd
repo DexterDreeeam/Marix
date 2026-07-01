@@ -15,6 +15,9 @@ flowchart LR
     TaskContext["TaskContext"]
     TaskTrace["TaskTrace\ntask steps/result/brief"]
     TaskRuntimeEvent["TaskRuntimeEvent"]
+    Plan["Plan\nmodel-produced, not persisted"]
+    Job["Job\nhuman-facing work unit"]
+    TaskStep["TaskStep\nModel/Tool step"]
   end
 
   subgraph model["model"]
@@ -43,6 +46,10 @@ flowchart LR
   TaskTrace -->|"recent steps"| ModelContext
   RequestMessageEnvelope -->|"current request"| ModelContext
   LoopEngine -->|"publishes progress"| TaskRuntimeEvent
+  LoopEngine -->|"model plans"| Plan
+  Plan -->|"jobs"| Job
+  Job -->|"steps"| TaskStep
+  TaskTrace -->|"records executed steps"| TaskStep
   LoopEngine -->|"selects backend"| ModelBackendType
   ModelBackendType -->|"dispatches to implementation"| ModelBackendImpl
   ModelBackendImpl -->|"streams model output"| DeepseekBackend
