@@ -15,7 +15,9 @@ flowchart LR
     TaskRuntimeEvent["TaskRuntimeEvent\nenum"]
     TaskTrace["TaskTrace\ntask trace"]
     TaskStep["TaskStep\nexecution boundary"]
-    TaskStepKind["TaskStepKind\nModel/Tool/UserDecision/UserAuthorization"]
+    TaskStepKind["TaskStepKind\ntwo-level model/tool/user boundary"]
+    ModelTaskStepKind["ModelTaskStepKind\nmodel phases"]
+    UserTaskStepKind["UserTaskStepKind\nuser phases"]
     TaskResult["TaskResult\nstatus payload"]
     TaskBrief["TaskBrief\nrecent task digest"]
   end
@@ -45,7 +47,9 @@ flowchart LR
   TaskContext -->|"status()"| TaskStatus
   TaskContext -->|"trace() draft accessor"| TaskTrace
   TaskTrace -->|"ordered steps"| TaskStep
-  TaskStep -->|"classifies model/tool/user boundaries"| TaskStepKind
+  TaskStep -->|"chooses top-level execution boundary"| TaskStepKind
+  TaskStepKind -->|"Model(...) phases"| ModelTaskStepKind
+  TaskStepKind -->|"User(...) phases"| UserTaskStepKind
   TaskTrace -->|"result"| TaskResult
   TaskTrace -->|"brief"| TaskBrief
   TaskResult -->|"uses existing status"| TaskStatus
@@ -55,6 +59,6 @@ flowchart LR
   ModelBackend -->|"response content"| ChatResponseSegment
   ModelBackend -->|"produces / replans"| Plan
   Plan -->|"jobs"| Job
-  Job -->|"expands into typed steps"| TaskStep
+  Job -->|"expands into model/tool/user steps"| TaskStep
   ChatResponseSegment -->|"sent through"| Task
   LoopEngine -->|"returns failures"| LoopEngineError

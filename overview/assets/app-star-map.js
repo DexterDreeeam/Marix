@@ -80,13 +80,24 @@
       layer.appendChild(defs);
     }
 
+    // Render exposed element labels in a separate group appended last so they
+    // always paint above all node shapes, preventing symbol-on-label occlusion.
+    const exposedLabelsGroup = document.createElementNS(SVG_NS, "g");
+    exposedLabelsGroup.setAttribute("class", "exposed-labels-layer");
+
     for (const item of layout) {
       if (item.kind === "exposed") {
-        layer.appendChild(createExposedElementNode(item));
+        const labelRef = { el: null };
+        const nodeGroup = createExposedElementNode(item, labelRef);
+        const labelEl = createExposedElementLabel(item);
+        labelRef.el = labelEl;
+        layer.appendChild(nodeGroup);
+        exposedLabelsGroup.appendChild(labelEl);
       } else {
         layer.appendChild(createStarNode(item));
       }
     }
+    layer.appendChild(exposedLabelsGroup);
 
     function markFileFocus(layout) {
       const focusedFile = starMapSelection.kind === "file" ? starMapSelection.path : "";

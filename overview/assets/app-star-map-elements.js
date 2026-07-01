@@ -29,7 +29,11 @@
     return ["added", "modified", "deleted", "renamed", "unchanged"].includes(value) ? value : "unchanged";
   }
 
-  function createExposedElementNode(item) {
+  // Creates the exposed element shape group WITHOUT an inline label.
+  // Pass a labelRef object ({ el: null }); after createExposedElementLabel() fills
+  // labelRef.el, hover and focus events on this group will toggle "label-hovered"
+  // on the paired standalone label in the top-level labels layer.
+  function createExposedElementNode(item, labelRef) {
     const element = item.element || {};
     const shape = getExposedElementShape(element);
     const status = getExposedElementStatus(element);
@@ -78,13 +82,15 @@
     title.textContent = `${element.name || "exposed"} (${item.groupName || "group"})`;
     group.appendChild(title);
 
-    const label = document.createElementNS(SVG_NS, "text");
-    label.setAttribute("class", "exposed-label");
-    label.setAttribute("x", item.labelX || 0);
-    label.setAttribute("y", item.labelY || radius + 12);
-    label.setAttribute("text-anchor", item.labelAnchor || "middle");
-    label.textContent = item.label || getShortElementName(element);
-    group.appendChild(label);
+    // Wire hover/focus events to the paired standalone label (see createExposedElementLabel).
+    if (labelRef) {
+      const hoverOn = () => { if (labelRef.el) labelRef.el.classList.add("label-hovered"); };
+      const hoverOff = () => { if (labelRef.el) labelRef.el.classList.remove("label-hovered"); };
+      group.addEventListener("mouseenter", hoverOn);
+      group.addEventListener("mouseleave", hoverOff);
+      group.addEventListener("focusin", hoverOn);
+      group.addEventListener("focusout", hoverOff);
+    }
 
     group.addEventListener("click", async evt => {
       evt.stopPropagation();
@@ -92,6 +98,27 @@
     });
 
     return group;
+  }
+
+  // Creates a standalone <text> label for an exposed element node, positioned
+  // at absolute layer coordinates so it can live in a top-level labels group that
+  // renders above all node shapes (preventing symbol-on-label occlusion).
+  function createExposedElementLabel(item) {
+    const element = item.element || {};
+    const radius = getNodeRadius(item);
+    const status = getExposedElementStatus(element);
+    const classes = ["exposed-label"];
+    if (item.focusDimmed) classes.push("dimmed");
+    if (item.focusHighlighted) classes.push("focus-highlighted");
+    classes.push(`status-${status}`);
+    const label = document.createElementNS(SVG_NS, "text");
+    label.setAttribute("class", classes.join(" "));
+    // Absolute coordinates: item.x/y are in layer space; labelY is negative (above node).
+    label.setAttribute("x", item.x + (item.labelX || 0));
+    label.setAttribute("y", item.y + (item.labelY !== undefined ? item.labelY : -(radius + 10)));
+    label.setAttribute("text-anchor", item.labelAnchor || "middle");
+    label.textContent = item.label || getShortElementName(element);
+    return label;
   }
 
   function isFocusHighlightedChangedStatus(status, item) {

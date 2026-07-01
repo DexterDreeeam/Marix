@@ -357,9 +357,16 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .exposed-node.exposed-star polygon, .exposed-node.exposed-type-enum polygon, .exposed-node.exposed-type-type-alias polygon, .exposed-node.exposed-type-const polygon, .exposed-node.exposed-type-static polygon { opacity: 0.9; }
 .exposed-node:hover circle:not(.exposed-hit-target), .exposed-node:hover rect, .exposed-node:hover polygon { stroke: #ffffff; stroke-width: 2.4; }
 .exposed-label { fill: #ffffff; dominant-baseline: middle; font-size: 7.5px; font-weight: 650; pointer-events: none; user-select: none; -webkit-user-select: none; paint-order: stroke; stroke: rgba(0, 0, 0, 0.78); stroke-width: 2px; transition: font-size 0.12s, transform 0.12s; }
-.exposed-node.focus-highlighted.status-added .exposed-label { fill: var(--green); }
-.exposed-node.focus-highlighted.status-modified .exposed-label, .exposed-node.focus-highlighted.status-renamed .exposed-label { fill: var(--yellow); }
-.exposed-node:hover .exposed-label { font-size: 12px; }
+
+/* Exposed element labels live in a top-level labels layer so they always render
+   above all node shapes. Hover enlargement and focus coloring are applied via the
+   label-hovered class toggled from JS, and by status/focus classes copied to each
+   standalone label element. */
+.exposed-labels-layer .exposed-label.label-hovered { font-size: 12px; }
+.exposed-labels-layer .exposed-label.dimmed { opacity: 0.16; filter: saturate(0.35); }
+.exposed-labels-layer .exposed-label.focus-highlighted.status-added { fill: var(--green); }
+.exposed-labels-layer .exposed-label.focus-highlighted.status-modified,
+.exposed-labels-layer .exposed-label.focus-highlighted.status-renamed { fill: var(--yellow); }
 
 @keyframes scope-center-pulse {
   0%, 100% {

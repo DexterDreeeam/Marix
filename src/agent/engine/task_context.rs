@@ -22,10 +22,23 @@ pub(crate) enum TaskStatus {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum TaskStepKind {
-    Model,
+    Model(ModelTaskStepKind),
     Tool,
-    UserDecision,
-    UserAuthorization,
+    User(UserTaskStepKind),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ModelTaskStepKind {
+    UserIntentAnalysis,
+    ContentSummarization,
+    TaskPlanning,
+    ResponseComposition,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum UserTaskStepKind {
+    Decision,
+    Authorization,
 }
 
 /// One executed step in a task. Steps are the bottom-level execution unit that

@@ -3,8 +3,8 @@ pub(crate) use loop_engine::LoopEngine;
 pub(crate) use plan::{Job, Plan};
 pub(crate) use session_context::{SessionBrief, SessionContext, SessionStatus};
 pub(crate) use task_context::{
-    TaskBrief, TaskContext, TaskResult, TaskRuntimeEvent, TaskStatus, TaskStep, TaskStepKind,
-    TaskTrace,
+    ModelTaskStepKind, TaskBrief, TaskContext, TaskResult, TaskRuntimeEvent, TaskStatus, TaskStep,
+    TaskStepKind, TaskTrace, UserTaskStepKind,
 };
 
 // -- Private -- //

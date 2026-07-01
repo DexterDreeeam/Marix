@@ -251,9 +251,14 @@ function finalizeExposedLayout(items, options) {
 
 function getExposedLabelBox(item, options) {
   const label = options.getShortElementName(item.element || {});
+  const nodeR = getNodeRadius(item);
+  // Label sits above the node at y = -(nodeR + 10); combined vertical span:
+  // top = -(nodeR + 10 + ~14 for text) ≈ -(nodeR + 24), bottom = +nodeR.
+  // Use 2*nodeR + 24 so the centered AABB check reflects the actual occupied
+  // area and prevents shapes from being placed inside adjacent labels.
   return {
-    width: Math.max(32, label.length * 4.6 + 12),
-    height: 24
+    width: Math.max(32, label.length * 4.6 + 12, nodeR * 2 + 4),
+    height: nodeR * 2 + 24
   };
 }
 
