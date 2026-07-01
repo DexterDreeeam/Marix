@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::sync::{mpsc, Arc, Mutex};
 
-use crate::agent::engine::{LoopEngine, LoopEngineError, TaskContext, TaskRuntimeEvent};
 use crate::common::channel::ChannelError;
 use crate::common::channel::{SessionEvent, SessionTaskId, SessionTaskSignal};
 use crate::common::external::*;
@@ -36,15 +35,6 @@ impl Task {
 
     pub(crate) fn task_id(&self) -> SessionTaskId {
         self.task_id
-    }
-
-    pub(crate) fn run(
-        self,
-        engine: &LoopEngine,
-    ) -> Result<(TaskContext, mpsc::Receiver<TaskRuntimeEvent>), LoopEngineError> {
-        let context = engine.create_task_context(self)?;
-        let runtime_rx = engine.run_task(context.clone())?;
-        Ok((context, runtime_rx))
     }
 
     pub fn send(&mut self, message: impl ResponseMessage) -> Result<(), ChannelError> {

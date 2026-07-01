@@ -22,31 +22,15 @@ pub(crate) enum TaskStatus {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum TaskStepKind {
-    ModelRequest,
-    ModelResponse,
-    ToolInvocation,
-    ToolOutput,
-    Observation,
-    System,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum TaskStepStatus {
-    Started,
-    Running,
-    Succeeded,
-    Cancelled,
-    Failed,
+    Model,
+    Tool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct TaskStep {
     pub(crate) sequence: usize,
     pub(crate) kind: TaskStepKind,
-    pub(crate) status: TaskStepStatus,
-    pub(crate) summary: String,
-    pub(crate) content: Option<String>,
-    pub(crate) error: Option<String>,
+    pub(crate) output: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

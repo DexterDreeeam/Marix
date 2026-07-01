@@ -202,7 +202,14 @@ impl Session {
             Arc::clone(to_client_tx),
             Arc::clone(task_routes),
         );
-        if let Err(error) = task.run(engine.as_ref()) {
+        let context = match engine.create_task_context(task) {
+            Ok(context) => context,
+            Err(error) => {
+                Self::remove_task_route(task_routes, task_id);
+                return Err(ChannelError::InvalidState(format!("{error:?}")));
+            }
+        };
+        if let Err(error) = engine.run_task(context) {
             Self::remove_task_route(task_routes, task_id);
             return Err(ChannelError::InvalidState(format!("{error:?}")));
         }
