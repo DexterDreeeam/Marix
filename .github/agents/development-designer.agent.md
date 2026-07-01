@@ -30,14 +30,16 @@ At the start of each task, read `.github/experience/development-designer.md` if 
 - Do not wait for `git-sync` to refresh design documents. `git-sync` should only commit/push already-updated design metadata.
 - Do not mark items `added` just because metadata was regenerated. Use the actual changed source definitions to set `changeStatus`; leave existing unaffected definitions `unchanged`.
 - Do not propagate a changed file's status to every element in that file. Element `changeStatus` must be based on the element's own definition and related `codeSegments`; unaffected elements remain `unchanged` even when their file is listed in a top-level `modified` array.
-- Every item must include `name`, `type`, `changeStatus`, and `codeSegments`.
+- Every item must include `name`, `type`, `source_depth`, `changeStatus`, and `codeSegments`.
 - Do not store signatures or copied source code in `.design.json`.
 - `codeSegments` must list implementation file paths and line ranges. A single item can have multiple segments, such as a struct definition plus related impl blocks.
 - Each `codeSegments[]` entry should include `addedLines` and `modifiedLines` arrays with absolute source-line ranges. Use `addedLines` for inserted code and `modifiedLines` for existing changed lines so overview popups can render git-diff-style highlights.
-- `elements` must contain only concrete public definitions owned by this module layer: public traits, structs, enums, functions, type aliases, constants, statics, classes, and global values.
+- `elements` must contain only concrete outward-facing definitions owned by this module layer: traits, structs, enums, functions, type aliases, constants, statics, classes, and global values.
+- Treat restricted visibility as public interface. Any item declared with `pub`, `pub(crate)`, `pub(super)`, or `pub(in ...)` is outward-facing and MUST be listed as an `element` in `.design.json` and drawn as a node in `.workflow.mmd`. Do not exclude an item just because it is `pub(crate)` or `pub(super)` instead of fully `pub`; crate-visible and super-visible items are part of the module's public interface and appear in the overview star map. Only items with no `pub` visibility of any kind are module-private implementation details excluded from `elements`, unless they are important internal data structures that coordinate module behavior.
 - Do not include import/export wiring in `elements`. Private module declarations such as `mod design;`, public module declarations such as `pub mod agent;`, and re-exports such as `pub use ...` are wiring, not concrete definitions.
 - Do not include Cargo manifests or package metadata as `elements`; they can inform module purpose but are not source elements.
 - Elements must include `codeSegments` when code navigation is possible.
+- Every element must include a `source_depth` integer giving the folder depth of the element's owning module, counting `src` as depth 1. It equals the number of path segments in `module.path`: `src` elements are depth 1, `src/common` elements are depth 2, `src/common/protocol` elements are depth 3, and so on. All elements in one module's `.design.json` share that module's depth. The overview star map uses `source_depth` to show only the viewed module's depth and the next depth down.
 - Do not combine multiple exposed names into one element with separators such as `/` or commas. Create one exposed element per interface, data type, struct, enum, class, global value, or public function.
 - Keep design content concise and source-focused.
 - Keep source-design companion metadata valid and machine-readable. Dot-prefixed paths must not become normal source files.
@@ -53,7 +55,7 @@ At the start of each task, read `.github/experience/development-designer.md` if 
 - When an explicit git/tag comparison is available from the caller, use it as additional evidence for `changeStatus`; otherwise rely on the current task's changed source portions.
 - If item-level status is unknown but the source file is changed, prefer explicit item-level `changeStatus` when possible.
 - If only unrelated code in the same file changed, preserve existing element status as `unchanged` and do not mark the element `modified`.
-- `elements` should contain only concrete public definitions that users can inspect: public traits, structs, enums, functions, type aliases, constants, statics, classes, and global values.
+- `elements` should contain only concrete outward-facing definitions that users can inspect, where `pub`, `pub(crate)`, `pub(super)`, and `pub(in ...)` all count equally as outward-facing: traits, structs, enums, functions, type aliases, constants, statics, classes, and global values.
 - Do not include import/export wiring in `elements`, including `mod ...`, `pub mod ...`, `pub use ...`, and private helper wiring.
 - Do not include Cargo manifests or package metadata as `elements`.
 - Do not expose single-field tuple wrappers such as `pub struct ModuleId(pub String);` unless they have meaningful behavior beyond the wrapper itself.
@@ -127,6 +129,7 @@ Use JSON with this shape. The sample intentionally includes each displayed top-l
     {
       "name": "ExampleMessage",
       "type": "trait",
+      "source_depth": 2,
       "changeStatus": "modified",
       "codeSegments": [
         {
@@ -152,6 +155,7 @@ Use JSON with this shape. The sample intentionally includes each displayed top-l
     {
       "name": "ExampleRunner",
       "type": "struct",
+      "source_depth": 2,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -175,6 +179,7 @@ Use JSON with this shape. The sample intentionally includes each displayed top-l
     {
       "name": "ExampleMessageType",
       "type": "enum",
+      "source_depth": 2,
       "changeStatus": "added",
       "codeSegments": [
         {
@@ -195,6 +200,7 @@ Use JSON with this shape. The sample intentionally includes each displayed top-l
     {
       "name": "ExamplePayload",
       "type": "type-alias",
+      "source_depth": 2,
       "changeStatus": "renamed",
       "codeSegments": [
         {
@@ -215,6 +221,7 @@ Use JSON with this shape. The sample intentionally includes each displayed top-l
     {
       "name": "DEFAULT_EXAMPLE_TIMEOUT",
       "type": "const",
+      "source_depth": 2,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -230,6 +237,7 @@ Use JSON with this shape. The sample intentionally includes each displayed top-l
     {
       "name": "EXAMPLE_RUNTIME_NAME",
       "type": "static",
+      "source_depth": 2,
       "changeStatus": "modified",
       "codeSegments": [
         {
@@ -251,7 +259,7 @@ Use JSON with this shape. The sample intentionally includes each displayed top-l
 }
 ```
 
-Elements should use only `name`, `type`, `changeStatus`, and `codeSegments`.
+Elements should use only `name`, `type`, `source_depth`, `changeStatus`, and `codeSegments`.
 
 ## Rules
 
