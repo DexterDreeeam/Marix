@@ -1,10 +1,6 @@
 use super::category::{CategoryPreview, TOOL_CATEGORY_LIST};
 use super::error::ToolError;
-use super::native::{
-    DnsLookupTool, EnvironmentTool, HttpRequestTool, ImageInspectTool, ImageTransformTool,
-    ListDirectoryTool, PackageQueryTool, ProcessListTool, ReadFileTool, SearchTextTool,
-    ShellExecuteTool, SystemInfoTool, WriteFileTool,
-};
+use super::native::native_tools;
 use super::tool::{Tool, ToolPreview, ToolType};
 use crate::common::config::{Config, Platform};
 
@@ -26,7 +22,7 @@ impl ToolRegistry {
             platform: config.platform,
             tools: Vec::new(),
         };
-        for tool in Self::native_tools() {
+        for tool in native_tools() {
             if registry.supports_tool(tool.as_ref()) {
                 registry.register(tool).unwrap_or_else(|error| {
                     panic!("failed to register native tool: {error:?}");
@@ -63,14 +59,7 @@ impl ToolRegistry {
     }
 
     pub fn tool_preview(&self) -> Vec<ToolPreview> {
-        self.tools
-            .iter()
-            .map(|tool| ToolPreview {
-                name: tool.name(),
-                description: tool.description(),
-                schema: tool.schema(),
-            })
-            .collect()
+        self.tools.iter().map(|tool| tool.preview()).collect()
     }
 
     pub fn get(&self, name: &str) -> Option<&dyn Tool> {
@@ -84,33 +73,11 @@ impl ToolRegistry {
 // -- Private -- //
 
 impl ToolRegistry {
-    fn native_tools() -> Vec<Box<dyn Tool>> {
-        vec![
-            Box::new(ReadFileTool),
-            Box::new(WriteFileTool),
-            Box::new(ListDirectoryTool),
-            Box::new(SearchTextTool),
-            Box::new(ImageInspectTool),
-            Box::new(ImageTransformTool),
-            Box::new(HttpRequestTool),
-            Box::new(DnsLookupTool),
-            Box::new(ShellExecuteTool),
-            Box::new(SystemInfoTool),
-            Box::new(ProcessListTool),
-            Box::new(EnvironmentTool),
-            Box::new(PackageQueryTool),
-        ]
-    }
-
     fn preview_by_type(&self, tool_type: ToolType) -> Vec<ToolPreview> {
         self.tools
             .iter()
             .filter(|tool| tool.tool_type() == tool_type)
-            .map(|tool| ToolPreview {
-                name: tool.name(),
-                description: tool.description(),
-                schema: tool.schema(),
-            })
+            .map(|tool| tool.preview())
             .collect()
     }
 

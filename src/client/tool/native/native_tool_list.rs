@@ -3,23 +3,34 @@ use super::{
     ListDirectoryTool, PackageQueryTool, ProcessListTool, ReadFileTool, SearchTextTool,
     ShellExecuteTool, SystemInfoTool, WriteFileTool,
 };
-use crate::client::tool::ToolPreview;
+use crate::client::tool::{Tool, ToolPreview, ToolType};
 
-pub const PRIMARY_NATIVE_TOOL_LIST: &[ToolPreview] =
-    &[ShellExecuteTool::PREVIEW, HttpRequestTool::PREVIEW];
+pub fn native_tools() -> Vec<Box<dyn Tool>> {
+    vec![
+        Box::new(ReadFileTool),
+        Box::new(WriteFileTool),
+        Box::new(ListDirectoryTool),
+        Box::new(SearchTextTool),
+        Box::new(ImageInspectTool),
+        Box::new(ImageTransformTool),
+        Box::new(HttpRequestTool),
+        Box::new(DnsLookupTool),
+        Box::new(ShellExecuteTool),
+        Box::new(SystemInfoTool),
+        Box::new(ProcessListTool),
+        Box::new(EnvironmentTool),
+        Box::new(PackageQueryTool),
+    ]
+}
 
-pub const NATIVE_TOOL_LIST: &[ToolPreview] = &[
-    ReadFileTool::PREVIEW,
-    WriteFileTool::PREVIEW,
-    ListDirectoryTool::PREVIEW,
-    SearchTextTool::PREVIEW,
-    ImageInspectTool::PREVIEW,
-    ImageTransformTool::PREVIEW,
-    HttpRequestTool::PREVIEW,
-    DnsLookupTool::PREVIEW,
-    ShellExecuteTool::PREVIEW,
-    SystemInfoTool::PREVIEW,
-    ProcessListTool::PREVIEW,
-    EnvironmentTool::PREVIEW,
-    PackageQueryTool::PREVIEW,
-];
+pub fn native_tool_list() -> Vec<ToolPreview> {
+    native_tools().iter().map(|tool| tool.preview()).collect()
+}
+
+pub fn primary_native_tool_list() -> Vec<ToolPreview> {
+    native_tools()
+        .iter()
+        .filter(|tool| tool.tool_type() == ToolType::Primary)
+        .map(|tool| tool.preview())
+        .collect()
+}

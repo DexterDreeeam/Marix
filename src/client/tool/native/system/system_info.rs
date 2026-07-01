@@ -1,7 +1,7 @@
 use std::{env, sync::mpsc, thread};
 
 use crate::client::tool::{
-    Tool, ToolCategory, ToolError, ToolInvocation, ToolInvocationStatus, ToolPreview, ToolRuntime,
+    Tool, ToolCategory, ToolError, ToolInvocation, ToolInvocationStatus, ToolRuntime, ToolSchema,
     ToolType,
 };
 use crate::common::config::Platform;
@@ -10,11 +10,9 @@ use crate::common::external::*;
 pub struct SystemInfoTool;
 
 impl SystemInfoTool {
-    pub const PREVIEW: ToolPreview = ToolPreview {
-        name: "native_system_info",
-        description: "Report native operating system and machine information.",
-        schema: r#"{"type":"object","properties":{},"additionalProperties":false}"#,
-    };
+    pub const NAME: &'static str = "native_system_info";
+    pub const DESCRIPTION: &'static str = "Report native operating system and machine information.";
+    pub const SCHEMA: &'static str = r#"{"type":"object","properties":{},"additionalProperties":false}"#;
 }
 
 impl Tool for SystemInfoTool {
@@ -31,15 +29,15 @@ impl Tool for SystemInfoTool {
     }
 
     fn name(&self) -> &'static str {
-        Self::PREVIEW.name
+        Self::NAME
     }
 
     fn description(&self) -> &'static str {
-        Self::PREVIEW.description
+        Self::DESCRIPTION
     }
 
-    fn schema(&self) -> &'static str {
-        Self::PREVIEW.schema
+    fn schema(&self) -> ToolSchema {
+        ToolSchema::new(Self::SCHEMA)
     }
 
     fn invoke(&self, _invocation: ToolInvocation) -> Result<ToolRuntime, ToolError> {

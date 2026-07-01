@@ -1,7 +1,7 @@
 use std::{sync::mpsc, thread};
 
 use crate::client::tool::{
-    Tool, ToolCategory, ToolError, ToolInvocation, ToolInvocationStatus, ToolPreview, ToolRuntime,
+    Tool, ToolCategory, ToolError, ToolInvocation, ToolInvocationStatus, ToolRuntime, ToolSchema,
     ToolType,
 };
 use crate::common::config::Platform;
@@ -10,11 +10,9 @@ use crate::common::external::*;
 pub struct ImageInspectTool;
 
 impl ImageInspectTool {
-    pub const PREVIEW: ToolPreview = ToolPreview {
-        name: "native_image_inspect",
-        description: "Read image metadata from a local image file.",
-        schema: r#"{"type":"object","properties":{"path":{"type":"string"}},"required":["path"],"additionalProperties":false}"#,
-    };
+    pub const NAME: &'static str = "native_image_inspect";
+    pub const DESCRIPTION: &'static str = "Read image metadata from a local image file.";
+    pub const SCHEMA: &'static str = r#"{"type":"object","properties":{"path":{"type":"string"}},"required":["path"],"additionalProperties":false}"#;
 }
 
 impl Tool for ImageInspectTool {
@@ -31,19 +29,19 @@ impl Tool for ImageInspectTool {
     }
 
     fn name(&self) -> &'static str {
-        Self::PREVIEW.name
+        Self::NAME
     }
 
     fn description(&self) -> &'static str {
-        Self::PREVIEW.description
+        Self::DESCRIPTION
     }
 
-    fn schema(&self) -> &'static str {
-        Self::PREVIEW.schema
+    fn schema(&self) -> ToolSchema {
+        ToolSchema::new(Self::SCHEMA)
     }
 
     fn invoke(&self, invocation: ToolInvocation) -> Result<ToolRuntime, ToolError> {
-        let path = required_string(&invocation.arguments, "path")?;
+        let path = required_string(&invocation.parameter.payload, "path")?;
         let (status_tx, status_rx) = mpsc::channel();
         let (cancel_tx, cancel_rx) = mpsc::channel();
 

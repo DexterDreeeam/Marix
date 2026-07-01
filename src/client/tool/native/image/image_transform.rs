@@ -2,7 +2,7 @@ use std::{fs, sync::mpsc, thread};
 
 use crate::client::tool::{
     Tool, ToolCategory, ToolError, ToolExecutionResult, ToolInvocation, ToolInvocationStatus,
-    ToolPreview, ToolRuntime, ToolType,
+    ToolSchema, ToolRuntime, ToolType,
 };
 use crate::common::config::Platform;
 use crate::common::external::*;
@@ -10,11 +10,9 @@ use crate::common::external::*;
 pub struct ImageTransformTool;
 
 impl ImageTransformTool {
-    pub const PREVIEW: ToolPreview = ToolPreview {
-        name: "native_image_transform",
-        description: "Transform a local image file into another image output.",
-        schema: r#"{"type":"object","properties":{"input_path":{"type":"string"},"output_path":{"type":"string"},"operation":{"type":"string"}},"required":["input_path","output_path","operation"],"additionalProperties":false}"#,
-    };
+    pub const NAME: &'static str = "native_image_transform";
+    pub const DESCRIPTION: &'static str = "Transform a local image file into another image output.";
+    pub const SCHEMA: &'static str = r#"{"type":"object","properties":{"input_path":{"type":"string"},"output_path":{"type":"string"},"operation":{"type":"string"}},"required":["input_path","output_path","operation"],"additionalProperties":false}"#;
 }
 
 impl Tool for ImageTransformTool {
@@ -31,19 +29,19 @@ impl Tool for ImageTransformTool {
     }
 
     fn name(&self) -> &'static str {
-        Self::PREVIEW.name
+        Self::NAME
     }
 
     fn description(&self) -> &'static str {
-        Self::PREVIEW.description
+        Self::DESCRIPTION
     }
 
-    fn schema(&self) -> &'static str {
-        Self::PREVIEW.schema
+    fn schema(&self) -> ToolSchema {
+        ToolSchema::new(Self::SCHEMA)
     }
 
     fn invoke(&self, invocation: ToolInvocation) -> Result<ToolRuntime, ToolError> {
-        let arguments = parse_arguments(&invocation.arguments)?;
+        let arguments = parse_arguments(&invocation.parameter.payload)?;
         let (status_tx, status_rx) = mpsc::channel();
         let (cancel_tx, cancel_rx) = mpsc::channel();
 

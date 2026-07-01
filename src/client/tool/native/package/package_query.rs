@@ -7,7 +7,7 @@ use std::{
 
 use crate::client::tool::{
     Tool, ToolCategory, ToolError, ToolExecutionResult, ToolInvocation, ToolInvocationStatus,
-    ToolPreview, ToolRuntime, ToolType,
+    ToolSchema, ToolRuntime, ToolType,
 };
 use crate::common::config::Platform;
 use crate::common::external::*;
@@ -15,11 +15,10 @@ use crate::common::external::*;
 pub struct PackageQueryTool;
 
 impl PackageQueryTool {
-    pub const PREVIEW: ToolPreview = ToolPreview {
-        name: "native_package_query",
-        description: "Query native package manager metadata for the current platform.",
-        schema: r#"{"type":"object","properties":{"name":{"type":"string"},"include_versions":{"type":"boolean"}},"required":["name"],"additionalProperties":false}"#,
-    };
+    pub const NAME: &'static str = "native_package_query";
+    pub const DESCRIPTION: &'static str =
+        "Query native package manager metadata for the current platform.";
+    pub const SCHEMA: &'static str = r#"{"type":"object","properties":{"name":{"type":"string"},"include_versions":{"type":"boolean"}},"required":["name"],"additionalProperties":false}"#;
 }
 
 impl Tool for PackageQueryTool {
@@ -36,15 +35,15 @@ impl Tool for PackageQueryTool {
     }
 
     fn name(&self) -> &'static str {
-        Self::PREVIEW.name
+        Self::NAME
     }
 
     fn description(&self) -> &'static str {
-        Self::PREVIEW.description
+        Self::DESCRIPTION
     }
 
-    fn schema(&self) -> &'static str {
-        Self::PREVIEW.schema
+    fn schema(&self) -> ToolSchema {
+        ToolSchema::new(Self::SCHEMA)
     }
 
     fn invoke(&self, invocation: ToolInvocation) -> Result<ToolRuntime, ToolError> {
@@ -54,7 +53,7 @@ impl Tool for PackageQueryTool {
             ));
         }
 
-        let arguments = parse_arguments(&invocation.arguments)?;
+        let arguments = parse_arguments(&invocation.parameter.payload)?;
         let (status_tx, status_rx) = mpsc::channel();
         let (cancel_tx, cancel_rx) = mpsc::channel();
         thread::spawn(move || {

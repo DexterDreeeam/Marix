@@ -1,7 +1,7 @@
 use std::{sync::mpsc, thread};
 
 use crate::client::tool::{
-    Tool, ToolCategory, ToolError, ToolInvocation, ToolInvocationStatus, ToolPreview, ToolRuntime,
+    Tool, ToolCategory, ToolError, ToolInvocation, ToolInvocationStatus, ToolRuntime, ToolSchema,
     ToolType,
 };
 use crate::common::config::Platform;
@@ -10,11 +10,9 @@ use crate::common::external::*;
 pub struct HttpRequestTool;
 
 impl HttpRequestTool {
-    pub const PREVIEW: ToolPreview = ToolPreview {
-        name: "native_http_request",
-        description: "Send a native HTTP request.",
-        schema: r#"{"type":"object","properties":{"url":{"type":"string"},"method":{"type":"string"},"body":{"type":"string"}},"required":["url"],"additionalProperties":false}"#,
-    };
+    pub const NAME: &'static str = "native_http_request";
+    pub const DESCRIPTION: &'static str = "Send a native HTTP request.";
+    pub const SCHEMA: &'static str = r#"{"type":"object","properties":{"url":{"type":"string"},"method":{"type":"string"},"body":{"type":"string"}},"required":["url"],"additionalProperties":false}"#;
 }
 
 impl Tool for HttpRequestTool {
@@ -31,19 +29,19 @@ impl Tool for HttpRequestTool {
     }
 
     fn name(&self) -> &'static str {
-        Self::PREVIEW.name
+        Self::NAME
     }
 
     fn description(&self) -> &'static str {
-        Self::PREVIEW.description
+        Self::DESCRIPTION
     }
 
-    fn schema(&self) -> &'static str {
-        Self::PREVIEW.schema
+    fn schema(&self) -> ToolSchema {
+        ToolSchema::new(Self::SCHEMA)
     }
 
     fn invoke(&self, invocation: ToolInvocation) -> Result<ToolRuntime, ToolError> {
-        let arguments = parse_arguments(&invocation.arguments)?;
+        let arguments = parse_arguments(&invocation.parameter.payload)?;
         let (status_tx, status_rx) = mpsc::channel();
         let (cancel_tx, cancel_rx) = mpsc::channel();
 

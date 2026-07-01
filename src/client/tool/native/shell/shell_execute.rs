@@ -8,7 +8,7 @@ use std::{
 
 use crate::client::tool::{
     Tool, ToolCategory, ToolError, ToolExecutionResult, ToolInvocation, ToolInvocationStatus,
-    ToolPreview, ToolRuntime, ToolType,
+    ToolSchema, ToolRuntime, ToolType,
 };
 use crate::common::config::Platform;
 use crate::common::external::*;
@@ -16,11 +16,10 @@ use crate::common::external::*;
 pub struct ShellExecuteTool;
 
 impl ShellExecuteTool {
-    pub const PREVIEW: ToolPreview = ToolPreview {
-        name: "native_shell_execute",
-        description: "Run a native command through the current operating system shell.",
-        schema: r#"{"type":"object","properties":{"command":{"type":"string"},"cwd":{"type":"string"},"timeout_ms":{"type":"integer","minimum":1}},"required":["command"],"additionalProperties":false}"#,
-    };
+    pub const NAME: &'static str = "native_shell_execute";
+    pub const DESCRIPTION: &'static str =
+        "Run a native command through the current operating system shell.";
+    pub const SCHEMA: &'static str = r#"{"type":"object","properties":{"command":{"type":"string"},"cwd":{"type":"string"},"timeout_ms":{"type":"integer","minimum":1}},"required":["command"],"additionalProperties":false}"#;
 }
 
 impl Tool for ShellExecuteTool {
@@ -37,19 +36,19 @@ impl Tool for ShellExecuteTool {
     }
 
     fn name(&self) -> &'static str {
-        Self::PREVIEW.name
+        Self::NAME
     }
 
     fn description(&self) -> &'static str {
-        Self::PREVIEW.description
+        Self::DESCRIPTION
     }
 
-    fn schema(&self) -> &'static str {
-        Self::PREVIEW.schema
+    fn schema(&self) -> ToolSchema {
+        ToolSchema::new(Self::SCHEMA)
     }
 
     fn invoke(&self, invocation: ToolInvocation) -> Result<ToolRuntime, ToolError> {
-        let arguments = parse_arguments(&invocation.arguments)?;
+        let arguments = parse_arguments(&invocation.parameter.payload)?;
         let (status_tx, status_rx) = mpsc::channel();
         let (cancel_tx, cancel_rx) = mpsc::channel();
 

@@ -4,6 +4,7 @@ use super::category::ToolCategory;
 use super::error::ToolError;
 use crate::common::config::Platform;
 use crate::common::external::*;
+use crate::common::protocol::{ToolParameter, ToolSchema};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ToolType {
@@ -27,27 +28,36 @@ pub trait Tool {
 
     fn description(&self) -> &'static str;
 
-    fn schema(&self) -> &'static str;
+    fn schema(&self) -> ToolSchema;
+
+    fn preview(&self) -> ToolPreview {
+        ToolPreview {
+            name: self.name(),
+            description: self.description(),
+            schema: self.schema(),
+        }
+    }
 
     fn invoke(&self, invocation: ToolInvocation) -> Result<ToolRuntime, ToolError>;
 }
 
 pub trait UserTool: Tool {}
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ToolPreview {
     pub name: &'static str,
     pub description: &'static str,
-    pub schema: &'static str,
+    pub schema: ToolSchema,
 }
 
 /// One model-issued request to run a tool, correlated by id so streamed output
-/// can be routed back to the originating tool call.
+/// can be routed back to the originating tool call. Its parameter package is a
+/// schema-conformant ToolParameter, so every invocation carries valid arguments.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ToolInvocation {
     pub call_id: String,
     pub name: String,
-    pub arguments: String,
+    pub parameter: ToolParameter,
 }
 
 pub struct ToolRuntime {

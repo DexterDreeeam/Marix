@@ -26,6 +26,9 @@ pub(crate) enum TaskStepKind {
     Tool,
 }
 
+/// One executed step in a task. Steps are the bottom-level execution unit that
+/// the agent runs; the plan/job grouping that produced them lives in Plan/Job,
+/// so a step stays a flat execution record.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct TaskStep {
     pub(crate) sequence: usize,

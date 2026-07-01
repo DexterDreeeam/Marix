@@ -7,7 +7,7 @@ use std::{
 
 use crate::client::tool::{
     Tool, ToolCategory, ToolError, ToolExecutionResult, ToolInvocation, ToolInvocationStatus,
-    ToolPreview, ToolRuntime, ToolType,
+    ToolSchema, ToolRuntime, ToolType,
 };
 use crate::common::config::Platform;
 use crate::common::external::*;
@@ -15,11 +15,9 @@ use crate::common::external::*;
 pub struct ProcessListTool;
 
 impl ProcessListTool {
-    pub const PREVIEW: ToolPreview = ToolPreview {
-        name: "native_process_list",
-        description: "List currently running local processes.",
-        schema: r#"{"type":"object","properties":{},"additionalProperties":false}"#,
-    };
+    pub const NAME: &'static str = "native_process_list";
+    pub const DESCRIPTION: &'static str = "List currently running local processes.";
+    pub const SCHEMA: &'static str = r#"{"type":"object","properties":{},"additionalProperties":false}"#;
 }
 
 impl Tool for ProcessListTool {
@@ -36,15 +34,15 @@ impl Tool for ProcessListTool {
     }
 
     fn name(&self) -> &'static str {
-        Self::PREVIEW.name
+        Self::NAME
     }
 
     fn description(&self) -> &'static str {
-        Self::PREVIEW.description
+        Self::DESCRIPTION
     }
 
-    fn schema(&self) -> &'static str {
-        Self::PREVIEW.schema
+    fn schema(&self) -> ToolSchema {
+        ToolSchema::new(Self::SCHEMA)
     }
 
     fn invoke(&self, _invocation: ToolInvocation) -> Result<ToolRuntime, ToolError> {

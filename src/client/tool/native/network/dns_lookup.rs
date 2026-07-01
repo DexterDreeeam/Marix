@@ -1,7 +1,7 @@
 use std::{collections::BTreeSet, net::ToSocketAddrs, sync::mpsc, thread};
 
 use crate::client::tool::{
-    Tool, ToolCategory, ToolError, ToolInvocation, ToolInvocationStatus, ToolPreview, ToolRuntime,
+    Tool, ToolCategory, ToolError, ToolInvocation, ToolInvocationStatus, ToolRuntime, ToolSchema,
     ToolType,
 };
 use crate::common::config::Platform;
@@ -10,11 +10,9 @@ use crate::common::external::*;
 pub struct DnsLookupTool;
 
 impl DnsLookupTool {
-    pub const PREVIEW: ToolPreview = ToolPreview {
-        name: "native_dns_lookup",
-        description: "Resolve a hostname with the native DNS resolver.",
-        schema: r#"{"type":"object","properties":{"host":{"type":"string"}},"required":["host"],"additionalProperties":false}"#,
-    };
+    pub const NAME: &'static str = "native_dns_lookup";
+    pub const DESCRIPTION: &'static str = "Resolve a hostname with the native DNS resolver.";
+    pub const SCHEMA: &'static str = r#"{"type":"object","properties":{"host":{"type":"string"}},"required":["host"],"additionalProperties":false}"#;
 }
 
 impl Tool for DnsLookupTool {
@@ -31,19 +29,19 @@ impl Tool for DnsLookupTool {
     }
 
     fn name(&self) -> &'static str {
-        Self::PREVIEW.name
+        Self::NAME
     }
 
     fn description(&self) -> &'static str {
-        Self::PREVIEW.description
+        Self::DESCRIPTION
     }
 
-    fn schema(&self) -> &'static str {
-        Self::PREVIEW.schema
+    fn schema(&self) -> ToolSchema {
+        ToolSchema::new(Self::SCHEMA)
     }
 
     fn invoke(&self, invocation: ToolInvocation) -> Result<ToolRuntime, ToolError> {
-        let host = required_string(&invocation.arguments, "host")?;
+        let host = required_string(&invocation.parameter.payload, "host")?;
         let (status_tx, status_rx) = mpsc::channel();
         let (cancel_tx, cancel_rx) = mpsc::channel();
 
