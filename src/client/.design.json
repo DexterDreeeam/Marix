@@ -4,9 +4,8 @@
     "path": "src/client",
     "name": "client",
     "purpose": "Client-facing source split into an interactive streaming CLI, a remoc-backed core client session/task endpoint, executor dispatch returning ToolRuntime status streams, and a unified tool layer where ToolRegistry is constructed from Config, stores the current Platform, filters unsupported tools, publishes previews from registered tools only, and native helpers normalize complete-or-cancelled results through ToolExecutionResult, with the tool layer sourcing its shared ToolSchema and ToolParameter types from common::protocol.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["."],
   "childModules": [
     {
       "path": "src/client/cli",

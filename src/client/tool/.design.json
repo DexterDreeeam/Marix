@@ -4,12 +4,8 @@
     "path": "src/client/tool",
     "name": "tool",
     "purpose": "Client-side tool interface layer with a unified Tool trait using common config Platform values and returning the shared common::protocol ToolSchema, a default preview() that builds ToolPreview from name/description/schema, ToolRuntime status streaming and cancellation, ToolInvocationStatus lifecycle states, the shared generic ToolExecutionResult helper outcome for complete-or-cancelled native helpers, ToolType variants, ToolPreview and DefaultPreview records, ToolInvocation carrying a shared common::protocol ToolParameter package, Config-aware ToolRegistry registration/preview/lookup behavior with unsupported-tool denial, typed ToolError failures, CategoryPreview metadata, and folder-organized native tool implementations.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "mod.rs",
-    "tool.rs"
-  ],
   "childModules": [
     {
       "path": "src/client/tool/category",
@@ -167,7 +163,7 @@
       "name": "Tool",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
@@ -209,7 +205,7 @@
       "name": "ToolPreview",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
@@ -234,7 +230,7 @@
       "name": "ToolInvocation",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",

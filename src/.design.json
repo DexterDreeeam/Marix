@@ -4,11 +4,8 @@
     "path": "src",
     "name": "src",
     "purpose": "Second-generation Rust source organized into client, agent, and common modules with typed configuration, config-gated logging, remoc-backed messaging, an interactive streaming CLI, Config-aware tool registry/runtime tooling, and agent-side frontdoor, engine, and model boundaries where task steps use a nested two-level TaskStepKind model/tool/user boundary, ModelTaskStepKind phases for model work, UserTaskStepKind phases for user interaction, where the model-facing context lives in the model module, and where shared tool schema and parameter protocol types live in common::protocol and are used by both the client tool layer and the agent engine.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "."
-  ],
   "childModules": [
     {
       "path": "src/client",

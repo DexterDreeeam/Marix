@@ -4,15 +4,8 @@
     "path": "src/agent/engine",
     "name": "engine",
     "purpose": "Defines the session-scoped loop engine runtime, lifecycle errors, session and task context interfaces, TaskBrief-based session brief and task trace data shapes, runtime task events, a nested two-level TaskStepKind model/tool/user execution boundary with ModelTaskStepKind model phases and UserTaskStepKind user interaction phases, model-produced Plan and Job planning structures shown to the user, and model streaming coordination through chat response segments.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "plan.rs"
-  ],
-  "modified": [
-    "mod.rs",
-    "task_context.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -170,7 +163,7 @@
       "name": "TaskStepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
@@ -195,7 +188,7 @@
       "name": "ModelTaskStepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
@@ -216,7 +209,7 @@
       "name": "UserTaskStepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
@@ -325,7 +318,7 @@
       "name": "Plan",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/plan.rs",
@@ -346,7 +339,7 @@
       "name": "Job",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/plan.rs",

@@ -4,9 +4,8 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration that detects and exports the host Platform before loading the rest of config, runtime Marix path defaults and role-specific overrides, config-gated logging, directional chat request/response message envelopes, shared channel errors, remoc session/task protocol messages, shared tool schema and parameter protocol types used by both the client tool layer and the agent engine, and centralized crate-local external-library namespaces.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["mod.rs"],
   "childModules": [
     {
       "path": "src/common/channel",
