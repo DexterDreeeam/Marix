@@ -4,15 +4,8 @@
     "path": "src/common/channel",
     "name": "channel",
     "purpose": "Shared channel error type, narrow crate-internal SessionEvent lifecycle/task-create/task-cancel protocol, and crate-internal TaskEvent traffic for response messages, tool invocation events, TaskEvent::ToolQuery(ToolSignature) status queries, TaskEvent::ToolStatus(ToolExecutionStatus) returns, cancellation, completion, and closure.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "task.rs"
-  ],
-  "modified": [
-    "mod.rs",
-    "session.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -75,7 +68,7 @@
       "name": "SessionEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/channel/session.rs",
@@ -96,7 +89,7 @@
       "name": "TaskEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/channel/task.rs",

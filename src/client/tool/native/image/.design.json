@@ -4,19 +4,15 @@
     "path": "src/client/tool/native/image",
     "name": "image",
     "purpose": "Image native Tool implementations for inspecting metadata and transforming images while reporting ToolExecutionStatus values through ToolRuntime-owned status channels and checking cancellation around expensive work.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "image_inspect.rs",
-    "image_transform.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "ImageInspectTool",
       "type": "struct",
       "source_depth": 5,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/image/image_inspect.rs",
@@ -81,7 +77,7 @@
       "name": "ImageTransformTool",
       "type": "struct",
       "source_depth": 5,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/image/image_transform.rs",

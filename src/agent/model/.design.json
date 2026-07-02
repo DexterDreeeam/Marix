@@ -4,20 +4,15 @@
     "path": "src/agent/model",
     "name": "model",
     "purpose": "Model request interface, ModelContext data, backend implementation boundary, model errors, and Deepseek streaming backend where ModelRequest carries ModelTaskStepKind and ModelResponse yields content chunks or failures.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "backend.rs",
-    "backend_deepseek.rs",
-    "mod.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "ModelBackend",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend.rs",
@@ -46,7 +41,7 @@
       "name": "ModelBackendImpl",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend.rs",
@@ -67,7 +62,7 @@
       "name": "ModelRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend.rs",
@@ -104,7 +99,7 @@
       "name": "DeepseekBackend",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend_deepseek.rs",

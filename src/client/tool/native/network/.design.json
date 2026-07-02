@@ -4,19 +4,15 @@
     "path": "src/client/tool/native/network",
     "name": "network",
     "purpose": "Network native Tool implementations for HTTP requests and DNS lookups while reporting ToolExecutionStatus values through ToolRuntime-owned status channels with cancellation checks.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "dns_lookup.rs",
-    "http_request.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "DnsLookupTool",
       "type": "struct",
       "source_depth": 5,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/network/dns_lookup.rs",
@@ -89,7 +85,7 @@
       "name": "HttpRequestTool",
       "type": "struct",
       "source_depth": 5,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/network/http_request.rs",

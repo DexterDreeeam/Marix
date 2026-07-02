@@ -4,19 +4,15 @@
     "path": "src/agent/frontdoor",
     "name": "frontdoor",
     "purpose": "Agent frontdoor Session and Task endpoints backed by remoc/TCP, accepting client tasks into LoopEngine, keeping SessionEvent narrow, routing cancellation, and drafting TaskEvent response/complete sending.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "session.rs",
-    "task.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/session.rs",
@@ -82,7 +78,7 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/task.rs",

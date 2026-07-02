@@ -4,12 +4,8 @@
     "path": "src/common/protocol",
     "name": "protocol",
     "purpose": "Shared tool protocol types owned once for both sides of the session boundary: ToolSchema, ToolParameter, ToolInvocation with ToolSignature, ToolType, ToolPreview, ToolError, and ToolExecutionStatus variants that carry the invocation signature.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "mod.rs",
-    "tool.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -64,7 +60,7 @@
       "name": "ToolInvocation",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/tool.rs",
@@ -85,7 +81,7 @@
       "name": "ToolType",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/tool.rs",
@@ -106,7 +102,7 @@
       "name": "ToolPreview",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/tool.rs",
@@ -127,7 +123,7 @@
       "name": "ToolError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/tool.rs",
@@ -148,7 +144,7 @@
       "name": "ToolExecutionStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/tool.rs",
@@ -169,7 +165,7 @@
       "name": "ToolSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/tool.rs",

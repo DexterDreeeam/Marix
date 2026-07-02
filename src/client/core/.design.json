@@ -4,19 +4,15 @@
     "path": "src/client/core",
     "name": "core",
     "purpose": "Core client session/task endpoint where ClientSession owns a shared Executor and ClientTask handles ResponseMessage, terminal Complete/Closed, ToolInvocation dispatch, and TaskEvent::ToolQuery(ToolSignature) status dispatch before continuing to receive.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "session.rs",
-    "task.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "ClientSession",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/core/session.rs",
@@ -95,7 +91,7 @@
       "name": "ClientTask",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/core/task.rs",

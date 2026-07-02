@@ -4,21 +4,15 @@
     "path": "src/client/tool/native/file",
     "name": "file",
     "purpose": "File-system native Tool implementations for reading, writing, listing, and searching local files while reporting ToolExecutionStatus values through ToolRuntime-owned status channels and checking cancellation around file-system work.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "list_directory.rs",
-    "read_file.rs",
-    "search_text.rs",
-    "write_file.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "ListDirectoryTool",
       "type": "struct",
       "source_depth": 5,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/file/list_directory.rs",
@@ -108,7 +102,7 @@
       "name": "ReadFileTool",
       "type": "struct",
       "source_depth": 5,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/file/read_file.rs",
@@ -165,7 +159,7 @@
       "name": "SearchTextTool",
       "type": "struct",
       "source_depth": 5,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/file/search_text.rs",
@@ -292,7 +286,7 @@
       "name": "WriteFileTool",
       "type": "struct",
       "source_depth": 5,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/file/write_file.rs",

@@ -4,15 +4,8 @@
     "path": "src/client/tool",
     "name": "tool",
     "purpose": "Client-side tool interface layer with category metadata, Config-aware registry lookup, native implementations, client-only ToolRuntime status/cancel state (statuses, status_tx, cancel_rx, cancel_tx, and latest ToolExecutionStatus), and Tool trait invocations using shared common::protocol ToolInvocation values and re-exported protocol types.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    ".",
-    "error.rs",
-    "mod.rs",
-    "registry.rs",
-    "tool.rs"
-  ],
   "childModules": [
     {
       "path": "src/client/tool/category",
@@ -142,7 +135,7 @@
       "name": "ToolRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",

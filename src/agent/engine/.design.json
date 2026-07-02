@@ -4,14 +4,8 @@
     "path": "src/agent/engine",
     "name": "engine",
     "purpose": "Session-scoped loop engine interfaces: LoopEngine loads Config, owns backend state, creates/runs TaskContext values, publishes TaskRuntimeEvent notifications, exposes Plan/Job/TaskStep shapes, builds the initial model TaskStep internally, and runs private run_model_loop.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "loop_engine.rs",
-    "mod.rs",
-    "plan.rs",
-    "task_context.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -34,7 +28,7 @@
       "name": "LoopEngine",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/loop_engine.rs",
@@ -102,7 +96,7 @@
       "name": "Plan",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/plan.rs",
@@ -123,7 +117,7 @@
       "name": "Job",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/plan.rs",
@@ -232,7 +226,7 @@
       "name": "TaskStepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
@@ -253,7 +247,7 @@
       "name": "ModelTaskStepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
@@ -274,7 +268,7 @@
       "name": "UserTaskStepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",
@@ -295,7 +289,7 @@
       "name": "TaskStep",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/engine/task_context.rs",

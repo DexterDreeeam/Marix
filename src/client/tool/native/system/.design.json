@@ -4,20 +4,15 @@
     "path": "src/client/tool/native/system",
     "name": "system",
     "purpose": "System native Tool implementations for environment, process, and system information that report ToolExecutionStatus values through ToolRuntime-owned status channels and check cancellation where work can be interrupted.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "environment.rs",
-    "process_list.rs",
-    "system_info.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "EnvironmentTool",
       "type": "struct",
       "source_depth": 5,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/system/environment.rs",
@@ -74,7 +69,7 @@
       "name": "ProcessListTool",
       "type": "struct",
       "source_depth": 5,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/system/process_list.rs",
@@ -160,7 +155,7 @@
       "name": "SystemInfoTool",
       "type": "struct",
       "source_depth": 5,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/system/system_info.rs",
