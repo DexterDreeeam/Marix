@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::{mpsc, Arc, Mutex};
 
 use crate::common::channel::ChannelError;
-use crate::common::channel::{SessionEvent, SessionTaskId, SessionTaskSignal};
+use crate::common::channel::{SessionEvent, SessionTaskId, TaskEvent};
 use crate::common::external::*;
 use crate::common::message::{RequestMessageEnvelope, ResponseMessage};
 
@@ -39,10 +39,7 @@ impl Task {
 
     pub fn send(&mut self, message: impl ResponseMessage) -> Result<(), ChannelError> {
         self.ensure_active()?;
-        self.send_event(SessionEvent::TaskResponseMessage {
-            task_id: self.task_id,
-            message: message.into_envelope(),
-        })
+        self.send_event(TaskEvent::ResponseMessage(message.into_envelope()))
     }
 
     pub(crate) fn take_initial_request(&mut self) -> Result<RequestMessageEnvelope, ChannelError> {
@@ -56,9 +53,7 @@ impl Task {
         if !self.active {
             return Ok(());
         }
-        let result = self.send_event(SessionEvent::TaskComplete {
-            task_id: self.task_id,
-        });
+        let result = self.send_event(TaskEvent::Complete);
         self.active = false;
         self.remove_route()?;
         result
@@ -68,19 +63,11 @@ impl Task {
 // -- Private -- //
 
 type SharedSessionSender = Arc<tokio::Mutex<remoc::base::Sender<SessionEvent>>>;
-type SharedTaskRoutes = Arc<Mutex<HashMap<SessionTaskId, mpsc::Sender<SessionTaskSignal>>>>;
+type SharedTaskRoutes = Arc<Mutex<HashMap<SessionTaskId, mpsc::Sender<TaskEvent>>>>;
 
 impl Task {
-    fn send_event(&self, event: SessionEvent) -> Result<(), ChannelError> {
-        let send_result = self.runtime.block_on(async {
-            let mut to_client_tx = self.to_client_tx.lock().await;
-            to_client_tx.send(event).await
-        });
-        match send_result {
-            Ok(()) => Ok(()),
-            Err(error) if error.is_disconnected() => Err(ChannelError::Disconnected),
-            Err(error) => Err(ChannelError::SendFailed(error.to_string())),
-        }
+    fn send_event(&self, _event: TaskEvent) -> Result<(), ChannelError> {
+        panic!("not implemented")
     }
 
     fn ensure_active(&self) -> Result<(), ChannelError> {

@@ -1,63 +1,10 @@
 flowchart LR
-  subgraph main_rs["main.rs"]
-    AgentMain["marix-agent main"]
-  end
-
-  subgraph frontdoor["frontdoor"]
-    Session["Session"]
-    Task["Task"]
-  end
-
-  subgraph engine["engine"]
-    LoopEngine["LoopEngine"]
-    SessionContext["SessionContext"]
-    SessionBrief["SessionBrief\nsession digest"]
-    TaskContext["TaskContext"]
-    TaskTrace["TaskTrace\ntask steps/result/brief"]
-    TaskRuntimeEvent["TaskRuntimeEvent"]
-    Plan["Plan\nmodel-produced, not persisted"]
-    Job["Job\nhuman-facing work unit"]
-    TaskStep["TaskStep\nexecution boundary"]
-    TaskStepKind["TaskStepKind\ntwo-level model/tool/user boundary"]
-    ModelTaskStepKind["ModelTaskStepKind\nmodel phases"]
-    UserTaskStepKind["UserTaskStepKind\nuser phases"]
-  end
-
-  subgraph model["model"]
-    ModelContext["ModelContext\nmodel-facing view"]
-    ModelBackendType["ModelBackendType"]
-    ModelBackendImpl["ModelBackendImpl"]
-    DeepseekBackend["DeepseekBackend"]
-  end
-
-  Config["Config"]
-  SessionEvent["SessionEvent"]
-  RequestMessageEnvelope["RequestMessageEnvelope"]
-  ChatResponseSegment["ChatResponseSegment"]
-
-  AgentMain -->|"loads agent bind address"| Config
-  AgentMain -->|"serves accepted TCP clients"| Session
-  Session -->|"receives SessionEvent::TaskCreate"| SessionEvent
-  Session -->|"owns task route"| Task
-  Task -->|"execution request"| LoopEngine
-  LoopEngine -->|"creates and updates"| TaskContext
-  LoopEngine -->|"owns"| SessionContext
-  SessionContext -->|"brief() draft accessor"| SessionBrief
-  TaskContext -->|"stores initial request"| RequestMessageEnvelope
-  TaskContext -->|"trace() draft accessor"| TaskTrace
-  SessionBrief -->|"session slice"| ModelContext
-  TaskTrace -->|"recent steps"| ModelContext
-  RequestMessageEnvelope -->|"current request"| ModelContext
-  LoopEngine -->|"publishes progress"| TaskRuntimeEvent
-  LoopEngine -->|"model plans"| Plan
-  Plan -->|"jobs"| Job
-  Job -->|"typed model/tool/user steps"| TaskStep
-  TaskStep -->|"kind chooses model/tool/user boundary"| TaskStepKind
-  TaskStepKind -->|"model phase enum"| ModelTaskStepKind
-  TaskStepKind -->|"user phase enum"| UserTaskStepKind
-  TaskTrace -->|"records executed steps"| TaskStep
-  LoopEngine -->|"selects backend"| ModelBackendType
-  ModelBackendType -->|"dispatches to implementation"| ModelBackendImpl
-  ModelBackendImpl -->|"streams model output"| DeepseekBackend
-  DeepseekBackend -->|"emits response text"| ChatResponseSegment
-  ChatResponseSegment -->|"sent by task endpoint"| Task
+  frontdoor["frontdoor
+module"] -->|"accepts TaskCreate and routes TaskEvent Cancel"| engine["engine
+module"]
+  engine -->|"sends ModelRequest step/prompt"| model["model
+module"]
+  model -->|"ModelResponse content or failure"| engine
+  engine -->|"TaskRuntimeEvent status/model text"| frontdoor
+  engine -->|"ToolInvocation/ToolSignature/ToolExecutionStatus interfaces"| commonProtocol["common::protocol"]
+  frontdoor -->|"SessionEvent lifecycle + TaskEvent task routes"| commonChannel["common::channel"]

@@ -1,65 +1,14 @@
 flowchart LR
-  subgraph native_tool_list_rs["native_tool_list.rs"]
-    NativeTools["native_tools()"]
-    NativeToolListFn["native_tool_list()"]
-    PrimaryNativeToolListFn["primary_native_tool_list()"]
-  end
-  subgraph categories["native category folders"]
-    FileTools["file tools"]
-    ImageTools["image tools"]
-    NetworkTools["network tools"]
-    ShellTools["shell tool"]
-    SystemTools["system tools"]
-    PackageTools["package tool"]
-  end
-  ToolTrait["Tool trait"]
-  ToolPreview["ToolPreview"]
-  ToolSchema["ToolSchema\ncommon::protocol"]
-  ToolParameter["ToolParameter\ncommon::protocol"]
-  Platform["Platform\ncommon config"]
-  ToolCategory["ToolCategory"]
-  ToolInvocation["ToolInvocation"]
-  ToolRuntime["ToolRuntime statuses + cancel handle"]
-  ToolInvocationStatus["ToolInvocationStatus"]
-  ToolExecutionResult["ToolExecutionResult<T>\nComplete or Cancelled"]
-  ToolError["ToolError"]
-  RegistrySupportCheck["ToolRegistry platform filter"]
-  RuntimeImplementations["native runtime implementations"]
-  CancelSignal["cancel signal"]
-
-  FileTools -->|"implements Tool"| ToolTrait
-  ImageTools -->|"implements Tool"| ToolTrait
-  NetworkTools -->|"implements Tool"| ToolTrait
-  ShellTools -->|"implements Tool"| ToolTrait
-  SystemTools -->|"implements Tool"| ToolTrait
-  PackageTools -->|"implements Tool"| ToolTrait
-  ToolTrait -->|"platform()"| Platform
-  Platform -->|"All allows every host"| RegistrySupportCheck
-  Platform -->|"Win gates process/package tools"| RegistrySupportCheck
-  ToolTrait -->|"category()"| ToolCategory
-  ToolTrait -->|"invoke accepts"| ToolInvocation
-  ToolTrait -->|"invoke returns"| ToolRuntime
-  ToolRuntime -->|"status receiver"| ToolInvocationStatus
-  ToolRuntime -->|"cancel failure type"| ToolError
-  ToolRuntime -->|"cancel()"| CancelSignal
-  FileTools -->|"filesystem JSON/text statuses"| RuntimeImplementations
-  ImageTools -->|"image metadata/transform JSON"| RuntimeImplementations
-  NetworkTools -->|"HTTP/DNS JSON statuses"| RuntimeImplementations
-  ShellTools -->|"stdout/stderr streaming and timeout"| RuntimeImplementations
-  SystemTools -->|"OS/env/process JSON statuses"| RuntimeImplementations
-  PackageTools -->|"PowerShell Get-Package JSON"| RuntimeImplementations
-  RuntimeImplementations -->|"helper Complete/Cancelled"| ToolExecutionResult
-  ToolExecutionResult -->|"mapped to Complete/Cancelled status"| ToolRuntime
-  RuntimeImplementations -->|"propagates failures"| ToolError
-  FileTools -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
-  ImageTools -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
-  NetworkTools -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
-  ShellTools -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
-  SystemTools -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
-  PackageTools -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
-  ToolTrait -->|"schema() returns"| ToolSchema
-  ToolPreview -->|"schema field"| ToolSchema
-  ToolInvocation -->|"parameter package"| ToolParameter
-  NativeTools -->|"boxes every native Tool"| ToolTrait
-  NativeToolListFn -->|"maps preview()"| ToolPreview
-  PrimaryNativeToolListFn -->|"filters Primary then preview()"| ToolPreview
+  NativeTools["native_tools()"] -->|"boxes"| Tool["Tool trait"]
+  NativeToolList["native_tool_list()"] -->|"maps preview"| ToolPreview["ToolPreview"]
+  PrimaryNativeToolList["primary_native_tool_list()"] -->|"filters Primary"| ToolPreview
+  FileTools["file tools"] -->|"implement"| Tool
+  ImageTools["image tools"] -->|"implement"| Tool
+  NetworkTools["network tools"] -->|"implement"| Tool
+  ShellTools["shell tool"] -->|"implement"| Tool
+  SystemTools["system tools"] -->|"implement"| Tool
+  PackageTools["package tool"] -->|"implement"| Tool
+  Tool -->|"platform/category/schema/invoke"| Runtime["native runtime implementations"]
+  Runtime -->|"Running/Complete/Cancelled/Failed"| ToolExecutionStatus["ToolExecutionStatus"]
+  Runtime -->|"creates ToolRuntime::new()"| ToolRuntime["ToolRuntime"]
+  ToolRuntime -->|"owns status/cancel channels"| Cancel["cancel signal"]

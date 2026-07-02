@@ -1,7 +1,7 @@
 use std::{sync::mpsc, thread};
 
 use crate::client::tool::{
-    Tool, ToolCategory, ToolError, ToolInvocation, ToolInvocationStatus, ToolRuntime, ToolSchema,
+    Tool, ToolCategory, ToolError, ToolInvocation, ToolExecutionStatus, ToolRuntime, ToolSchema,
     ToolType,
 };
 use crate::common::config::Platform;
@@ -46,22 +46,22 @@ impl Tool for HttpRequestTool {
         let (cancel_tx, cancel_rx) = mpsc::channel();
 
         thread::spawn(move || {
-            let _ = status_tx.send(ToolInvocationStatus::Started);
+            let _ = status_tx.send(ToolExecutionStatus::Started);
             if cancel_rx.try_recv().is_ok() {
-                let _ = status_tx.send(ToolInvocationStatus::Cancelled);
+                let _ = status_tx.send(ToolExecutionStatus::Cancelled);
                 return;
             }
             match send_request(arguments) {
                 Ok(message) => {
                     if cancel_rx.try_recv().is_ok() {
-                        let _ = status_tx.send(ToolInvocationStatus::Cancelled);
+                        let _ = status_tx.send(ToolExecutionStatus::Cancelled);
                         return;
                     }
-                    let _ = status_tx.send(ToolInvocationStatus::Running(message));
-                    let _ = status_tx.send(ToolInvocationStatus::Complete);
+                    let _ = status_tx.send(ToolExecutionStatus::Running(message));
+                    let _ = status_tx.send(ToolExecutionStatus::Complete { output: None });
                 }
                 Err(error) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Failed(error));
+                    let _ = status_tx.send(ToolExecutionStatus::Failed(error));
                 }
             }
         });

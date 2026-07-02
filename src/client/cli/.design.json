@@ -3,9 +3,12 @@
   "module": {
     "path": "src/client/cli",
     "name": "cli",
-    "purpose": "Interactive CLI binary entry without a private section marker plus public interface for connecting to the core client endpoint, sending each typed prompt as a chat request, streaming response segments to stdout, and reporting how many segments were printed, with mod.rs limited to module wiring.",
-    "changeStatus": "unchanged"
+    "purpose": "Interactive CLI binary entry and public interface for connecting to the core client endpoint, sending typed prompts as chat requests, and streaming ChatResponseSegment task response content to stdout.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "command.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -19,12 +22,7 @@
           "lineStart": 8,
           "lineEnd": 13,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 8,
-              "lineEnd": 13
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -33,20 +31,28 @@
       "name": "run",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/command.rs",
           "lineStart": 15,
           "lineEnd": 24,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 15,
-              "lineEnd": 24
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/cli/command.rs",
+          "lineStart": 39,
+          "lineEnd": 63,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 47,
+              "lineEnd": 55
+            }
+          ]
         }
       ]
     },
@@ -61,12 +67,7 @@
           "lineStart": 26,
           "lineEnd": 30,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 26,
-              "lineEnd": 30
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -82,12 +83,7 @@
           "lineStart": 32,
           "lineEnd": 35,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 32,
-              "lineEnd": 35
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

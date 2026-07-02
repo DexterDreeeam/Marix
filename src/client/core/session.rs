@@ -2,9 +2,11 @@ use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::sync::{mpsc, Arc, Mutex};
 
-use crate::common::channel::{ChannelError, SessionEvent, SessionTaskId, SessionTaskSignal};
+use crate::common::channel::{ChannelError, SessionEvent, SessionTaskId, TaskEvent};
 use crate::common::external::*;
 use crate::common::message::RequestMessage;
+
+use crate::client::executor::Executor;
 
 use super::task::ClientTask;
 
@@ -15,6 +17,7 @@ pub struct ClientSession {
     event_loop: Option<tokio::JoinHandle<()>>,
     task_routes: SharedTaskRoutes,
     next_task_id: SessionTaskId,
+    executor: SharedExecutor,
 }
 
 impl ClientSession {
@@ -26,6 +29,7 @@ impl ClientSession {
             event_loop: None,
             task_routes: Arc::new(Mutex::new(HashMap::new())),
             next_task_id: 1,
+            executor: Arc::new(Mutex::new(Executor)),
         };
         session.connect_agent()?;
         Ok(session)
@@ -66,6 +70,7 @@ impl ClientSession {
             Arc::clone(to_agent_tx),
             task_rx,
             Arc::clone(&self.task_routes),
+            Arc::clone(&self.executor),
         ))
     }
 
@@ -82,12 +87,14 @@ impl ClientSession {
         Self::close_all_task_routes(&self.task_routes);
         Self::finish_close(send_result)
     }
+
 }
 
 // -- Private -- //
 
 type SharedSessionSender = Arc<tokio::Mutex<remoc::base::Sender<SessionEvent>>>;
-type SharedTaskRoutes = Arc<Mutex<HashMap<SessionTaskId, mpsc::Sender<SessionTaskSignal>>>>;
+type SharedTaskRoutes = Arc<Mutex<HashMap<SessionTaskId, mpsc::Sender<TaskEvent>>>>;
+type SharedExecutor = Arc<Mutex<Executor>>;
 
 impl ClientSession {
     fn connect_agent(&mut self) -> Result<(), ChannelError> {
@@ -129,27 +136,11 @@ impl ClientSession {
                         Self::close_all_task_routes(&task_routes);
                         break;
                     }
-                    SessionEvent::TaskResponseMessage { task_id, message } => {
-                        Self::route_task_signal(
-                            &task_routes,
-                            task_id,
-                            SessionTaskSignal::ResponseMessage(message),
-                            false,
-                        );
-                    }
                     SessionEvent::TaskCancel { task_id } => {
-                        Self::route_task_signal(
+                        Self::route_task_event(
                             &task_routes,
                             task_id,
-                            SessionTaskSignal::Cancel,
-                            true,
-                        );
-                    }
-                    SessionEvent::TaskComplete { task_id } => {
-                        Self::route_task_signal(
-                            &task_routes,
-                            task_id,
-                            SessionTaskSignal::Complete,
+                            TaskEvent::Closed,
                             true,
                         );
                     }
@@ -169,12 +160,7 @@ impl ClientSession {
         {
             Some(SessionEvent::Accepted) => Ok(()),
             Some(SessionEvent::Close) | None => Err(ChannelError::Disconnected),
-            Some(
-                SessionEvent::TaskCreate { .. }
-                | SessionEvent::TaskResponseMessage { .. }
-                | SessionEvent::TaskCancel { .. }
-                | SessionEvent::TaskComplete { .. },
-            ) => Err(ChannelError::InvalidState(
+            Some(SessionEvent::TaskCreate { .. } | SessionEvent::TaskCancel { .. }) => Err(ChannelError::InvalidState(
                 "client received task event before session acceptance".to_owned(),
             )),
         }
@@ -227,10 +213,10 @@ impl ClientSession {
         Ok(())
     }
 
-    fn route_task_signal(
+    fn route_task_event(
         task_routes: &SharedTaskRoutes,
         task_id: SessionTaskId,
-        signal: SessionTaskSignal,
+        event: TaskEvent,
         remove: bool,
     ) {
         let Ok(mut task_routes) = task_routes.lock() else {
@@ -242,7 +228,7 @@ impl ClientSession {
             task_routes.get(&task_id).cloned()
         };
         if let Some(task_tx) = task_tx {
-            let _ = task_tx.send(signal);
+            let _ = task_tx.send(event);
         }
     }
 
@@ -251,7 +237,7 @@ impl ClientSession {
             return;
         };
         for (_, task_tx) in task_routes.drain() {
-            let _ = task_tx.send(SessionTaskSignal::Closed);
+            let _ = task_tx.send(TaskEvent::Closed);
         }
     }
 }

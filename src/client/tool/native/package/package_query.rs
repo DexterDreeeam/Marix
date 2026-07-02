@@ -6,8 +6,8 @@ use std::{
 };
 
 use crate::client::tool::{
-    Tool, ToolCategory, ToolError, ToolExecutionResult, ToolInvocation, ToolInvocationStatus,
-    ToolSchema, ToolRuntime, ToolType,
+    Tool, ToolCategory, ToolError, ToolExecutionStatus, ToolInvocation, ToolSchema, ToolRuntime,
+    ToolType,
 };
 use crate::common::config::Platform;
 use crate::common::external::*;
@@ -57,21 +57,17 @@ impl Tool for PackageQueryTool {
         let (status_tx, status_rx) = mpsc::channel();
         let (cancel_tx, cancel_rx) = mpsc::channel();
         thread::spawn(move || {
-            let _ = status_tx.send(ToolInvocationStatus::Started);
+            let _ = status_tx.send(ToolExecutionStatus::Started);
             if cancel_rx.try_recv().is_ok() {
-                let _ = status_tx.send(ToolInvocationStatus::Cancelled);
+                let _ = status_tx.send(ToolExecutionStatus::Cancelled);
                 return;
             }
             match run_get_package(&arguments, &cancel_rx) {
-                Ok(ToolExecutionResult::Complete(message)) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Running(message));
-                    let _ = status_tx.send(ToolInvocationStatus::Complete);
-                }
-                Ok(ToolExecutionResult::Cancelled) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Cancelled);
+                Ok(status) => {
+                    let _ = status_tx.send(status);
                 }
                 Err(error) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Failed(error));
+                    let _ = status_tx.send(ToolExecutionStatus::Failed(error));
                 }
             }
         });
@@ -109,7 +105,7 @@ fn parse_arguments(arguments: &str) -> Result<PackageQueryArguments, ToolError> 
 fn run_get_package(
     arguments: &PackageQueryArguments,
     cancel_rx: &mpsc::Receiver<()>,
-) -> Result<ToolExecutionResult<String>, ToolError> {
+) -> Result<ToolExecutionStatus, ToolError> {
     let selector = if arguments.include_versions {
         "Name,Version,ProviderName,Source"
     } else {
@@ -135,7 +131,7 @@ fn run_get_package(
         if cancel_rx.try_recv().is_ok() {
             let _ = child.kill();
             let _ = child.wait();
-            return Ok(ToolExecutionResult::Cancelled);
+            return Ok(ToolExecutionStatus::Cancelled);
         }
         if child
             .try_wait()
@@ -153,9 +149,13 @@ fn run_get_package(
 
             let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
             return if stdout.is_empty() {
-                Ok(ToolExecutionResult::Complete("[]".to_string()))
+                Ok(ToolExecutionStatus::Complete {
+                    output: Some("[]".to_string()),
+                })
             } else {
-                Ok(ToolExecutionResult::Complete(stdout))
+                Ok(ToolExecutionStatus::Complete {
+                    output: Some(stdout),
+                })
             };
         }
         thread::sleep(Duration::from_millis(10));

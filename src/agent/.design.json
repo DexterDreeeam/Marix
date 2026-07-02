@@ -3,24 +3,33 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent public surface for remoc-backed frontdoor Session/Task endpoints, the session-scoped loop engine runtime with model-produced Plan/Job planning over executable task steps split by a nested two-level TaskStepKind model/tool/user boundary, ModelTaskStepKind model phases for user intent analysis, content summarization, task planning, and response composition, UserTaskStepKind user phases for decision and authorization, draft TaskBrief-based session/task context views, model-facing context data under the model module, model backend interfaces, Deepseek backend implementation, and future retrieval/tool interfaces, where model-driven tool calls carry the shared common::protocol ToolSchema/ToolParameter types across the session boundary.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent modules for remoc-backed frontdoor Session/Task endpoints, a session-scoped LoopEngine with configured model backend state, public Plan/Job/TaskStep shapes, ModelRequest step purpose, and ModelResponse content/failure results.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    ".",
+    "mod.rs"
+  ],
   "childModules": [
+    {
+      "path": "src/agent/bin",
+      "name": "bin",
+      "purpose": "Owns the bin module."
+    },
     {
       "path": "src/agent/engine",
       "name": "engine",
-      "purpose": "Session-scoped loop engine runtime with lifecycle errors, session brief and task trace interface drafts, TaskBrief task summaries, task runtime events, nested two-level TaskStepKind model/tool/user boundaries, ModelTaskStepKind model phases for user intent analysis, content summarization, task planning, and response composition, UserTaskStepKind user phases for decision and authorization, model-produced Plan/Job planning structures that group executable TaskSteps, and model streaming through chat response segments."
+      "purpose": "Session-scoped loop engine interfaces: LoopEngine loads Config, owns backend state, creates/runs TaskContext values, publishes TaskRuntimeEvent notifications, exposes Plan/Job/TaskStep shapes, builds the initial model TaskStep internally, and runs private run_model_loop."
     },
     {
       "path": "src/agent/frontdoor",
       "name": "frontdoor",
-      "purpose": "Agent frontdoor Session and Task endpoints backed by remoc/TCP, aligned with engine-owned task execution returning runtime event receivers and streamed chat response segment payloads."
+      "purpose": "Agent frontdoor Session and Task endpoints backed by remoc/TCP, accepting client tasks into LoopEngine, keeping SessionEvent narrow, routing cancellation, and drafting TaskEvent response/complete sending."
     },
     {
       "path": "src/agent/model",
       "name": "model",
-      "purpose": "Public model request interface, backend type selection, crate-internal ModelContext data, backend implementation boundary, model error definitions, and streaming Deepseek backend implementation through common external namespaces."
+      "purpose": "Model request interface, ModelContext data, backend implementation boundary, model errors, and Deepseek streaming backend where ModelRequest carries ModelTaskStepKind and ModelResponse yields content chunks or failures."
     }
   ],
   "elements": []

@@ -6,7 +6,7 @@ use super::task_context::TaskStep;
 /// the previous one. A Plan is a planning-time view shown to the user; it is not
 /// persisted in the task brief, which records only executed steps.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct Plan {
+pub struct Plan {
     pub(crate) name: String,
     pub(crate) description: String,
     pub(crate) jobs: Vec<Job>,
@@ -16,7 +16,7 @@ pub(crate) struct Plan {
 /// the executable steps it expands into; the agent executes those steps
 /// bottom-up while the plan/job grouping stays a display-time structure.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct Job {
+pub struct Job {
     pub(crate) name: String,
     pub(crate) description: String,
     pub(crate) steps: Vec<TaskStep>,

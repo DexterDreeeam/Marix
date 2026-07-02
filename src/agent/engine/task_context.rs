@@ -21,14 +21,15 @@ pub(crate) enum TaskStatus {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum TaskStepKind {
+pub enum TaskStepKind {
     Model(ModelTaskStepKind),
     Tool,
     User(UserTaskStepKind),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum ModelTaskStepKind {
+pub enum ModelTaskStepKind {
+    Initial,
     UserIntentAnalysis,
     ContentSummarization,
     TaskPlanning,
@@ -36,7 +37,7 @@ pub(crate) enum ModelTaskStepKind {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum UserTaskStepKind {
+pub enum UserTaskStepKind {
     Decision,
     Authorization,
 }
@@ -45,7 +46,7 @@ pub(crate) enum UserTaskStepKind {
 /// the agent runs; the plan/job grouping that produced them lives in Plan/Job,
 /// so a step stays a flat execution record.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct TaskStep {
+pub struct TaskStep {
     pub(crate) sequence: usize,
     pub(crate) kind: TaskStepKind,
     pub(crate) output: String,

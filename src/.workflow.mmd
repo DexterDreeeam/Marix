@@ -1,56 +1,15 @@
 flowchart LR
-  subgraph common_config["common/config"]
-    Config["Config\nhost platform + typed settings"]
-    Platform["Platform\nAll / Win / Ubuntu"]
-  end
-  subgraph common_runtime["common runtime support"]
-    Logging["config-gated logging"]
-    Messages["request/response messages"]
-    ExternalNamespaces["external namespaces\nserde/remoc/tokio/reqwest/image"]
-    ToolProtocol["protocol\nToolSchema + ToolParameter"]
-  end
-  subgraph client_tool["client/tool"]
-    ToolRegistry["ToolRegistry\ncurrent platform"]
-    ToolTrait["Tool trait"]
-    ToolRuntime["ToolRuntime\nstatus stream + cancel"]
-    ToolExecutionResult["ToolExecutionResult<T>\nComplete or Cancelled"]
-    NativeTools["native Tool implementations"]
-  end
-  subgraph agent_runtime["agent"]
-    Session["Session\nfrontdoor endpoint"]
-    Task["Task\nfrontdoor endpoint"]
-    LoopEngine["LoopEngine"]
-    SessionBrief["SessionBrief\nsession digest"]
-    TaskTrace["TaskTrace\ntask trace"]
-    ModelContext["ModelContext\nmodel module view"]
-    Plan["Plan\njobs over typed TaskSteps"]
-    TaskStepKind["TaskStepKind\ntwo-level model/tool/user boundary"]
-    ModelTaskStepKind["ModelTaskStepKind\nmodel phases"]
-    UserTaskStepKind["UserTaskStepKind\nuser phases"]
-  end
-
-  Config -->|"detects host before TOML load"| Platform
-  Config -->|"runtime/logging settings"| Logging
-  Messages -->|"transport payloads"| Session
-  ExternalNamespaces -->|"remoc/tokio transport"| Session
-  ExternalNamespaces -->|"reqwest/image helpers"| NativeTools
-  Config -->|"passed to ToolRegistry::new"| ToolRegistry
-  ToolRegistry -->|"stores current Platform"| Platform
-  ToolTrait -->|"platform() returns"| Platform
-  ToolTrait -->|"invoke returns"| ToolRuntime
-  NativeTools -->|"helper complete/cancel result"| ToolExecutionResult
-  ToolExecutionResult -->|"maps to Complete or Cancelled status"| ToolRuntime
-  ToolRegistry -->|"registers only supported tools"| NativeTools
-  Session -->|"creates accepted task endpoint"| Task
-  Task -->|"delegates task execution"| LoopEngine
-  LoopEngine -->|"maintains session digest contract"| SessionBrief
-  LoopEngine -->|"maintains task trace contract"| TaskTrace
-  SessionBrief -->|"session slice"| ModelContext
-  TaskTrace -->|"recent task steps"| ModelContext
-  Messages -->|"current request envelope"| ModelContext
-  ToolProtocol -->|"tool schema + call parameter"| ToolTrait
-  ToolProtocol -->|"tool call parameters cross boundary"| Task
-  LoopEngine -->|"model-produced planning"| Plan
-  Plan -->|"step boundaries choose model/tool/user"| TaskStepKind
-  TaskStepKind -->|"model phases"| ModelTaskStepKind
-  TaskStepKind -->|"user interaction phases"| UserTaskStepKind
+  src["src
+root"] --> client["client
+module"]
+  src --> agent["agent
+module"]
+  src --> common["common
+module"]
+  common -->|"SessionEvent lifecycle/create/cancel"| client
+  common -->|"TaskEvent agent-to-client responses/tool invocations/status queries"| client
+  common -->|"TaskEvent client-to-agent ToolExecutionStatus/cancel"| agent
+  common -->|"chat message/channel protocol"| agent
+  agent -->|"ModelRequest step purpose and streamed content become TaskEvent responses"| common
+  client -->|"Executor ToolSignature/ToolExecutionStatus including Complete output and cancellation"| common
+  client -->|"session/task transport"| agent

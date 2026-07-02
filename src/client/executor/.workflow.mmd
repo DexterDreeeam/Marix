@@ -1,16 +1,8 @@
 flowchart LR
-  subgraph executor_rs["executor.rs"]
-    Executor["Executor"]
-  end
-  subgraph error_rs["error.rs"]
-    ExecutorError["ExecutorError"]
-  end
-  ToolRegistry["ToolRegistry"]
-  ToolInvocation["ToolInvocation"]
-  ToolRuntime["ToolRuntime statuses + cancel handle"]
-  ToolInvocationStatus["ToolInvocationStatus"]
-  Executor -->|"new(registry) draft"| ToolRegistry
-  Executor -->|"execute(invocation) accepts"| ToolInvocation
-  Executor -->|"execute returns Result<ToolRuntime, ExecutorError>"| ToolRuntime
-  Executor -->|"dispatch failures"| ExecutorError
-  ToolRuntime -->|"status stream"| ToolInvocationStatus
+  Executor["Executor"] -->|"owns"| ToolRegistry["ToolRegistry"]
+  Executor -->|"invoke"| ToolInvocation["ToolInvocation"]
+  Executor -->|"stores by call_id"| ToolRuntime["ToolRuntime map"]
+  ToolSignature["ToolSignature"] -->|"selects call"| Executor
+  ToolRuntime -->|"status()/sync_status"| ToolExecutionStatus["ToolExecutionStatus"]
+  Executor -->|"cancel()"| ToolRuntime
+  Executor -->|"failures"| ExecutorError["ExecutorError"]

@@ -3,32 +3,18 @@
   "module": {
     "path": "src/common/channel",
     "name": "channel",
-    "purpose": "Shared channel error type and crate-internal remoc session/task event protocol serialized through common external namespaces, with separate request-message and response-message task event payloads.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared channel error type, narrow crate-internal SessionEvent lifecycle/task-create/task-cancel protocol, and crate-internal TaskEvent traffic for response messages, tool invocation events, TaskEvent::ToolQuery(ToolSignature) status queries, TaskEvent::ToolStatus(ToolExecutionStatus) returns, cancellation, completion, and closure.",
+    "changeStatus": "modified"
   },
+  "added": [
+    "task.rs"
+  ],
+  "modified": [
+    "mod.rs",
+    "session.rs"
+  ],
   "childModules": [],
   "elements": [
-    {
-      "name": "channel module entry",
-      "type": "module-entry",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/channel/mod.rs",
-          "lineStart": 1,
-          "lineEnd": 5,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 1,
-              "lineEnd": 5
-            }
-          ]
-        }
-      ]
-    },
     {
       "name": "ChannelError",
       "type": "enum",
@@ -37,8 +23,48 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/channel/error.rs",
-          "lineStart": 3,
+          "lineStart": 4,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/channel/error.rs",
+          "lineStart": 15,
+          "lineEnd": 19,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/channel/error.rs",
+          "lineStart": 21,
+          "lineEnd": 36,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/channel/error.rs",
+          "lineStart": 38,
           "lineEnd": 38,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "SessionTaskId",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/channel/session.rs",
+          "lineStart": 4,
+          "lineEnd": 4,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -49,37 +75,41 @@
       "name": "SessionEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/channel/session.rs",
-          "lineStart": 1,
-          "lineEnd": 31,
+          "lineStart": 7,
+          "lineEnd": 17,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 17
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TaskEvent",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/channel/task.rs",
+          "lineStart": 6,
+          "lineEnd": 14,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 14,
-              "lineEnd": 17
-            },
-            {
-              "lineStart": 27,
-              "lineEnd": 27
+              "lineStart": 6,
+              "lineEnd": 14
             }
           ],
-          "modifiedLines": [
-            {
-              "lineStart": 2,
-              "lineEnd": 2
-            },
-            {
-              "lineStart": 14,
-              "lineEnd": 17
-            },
-            {
-              "lineStart": 26,
-              "lineEnd": 27
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     }

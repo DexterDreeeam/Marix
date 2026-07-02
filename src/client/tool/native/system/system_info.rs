@@ -1,7 +1,7 @@
 use std::{env, sync::mpsc, thread};
 
 use crate::client::tool::{
-    Tool, ToolCategory, ToolError, ToolInvocation, ToolInvocationStatus, ToolRuntime, ToolSchema,
+    Tool, ToolCategory, ToolError, ToolInvocation, ToolExecutionStatus, ToolRuntime, ToolSchema,
     ToolType,
 };
 use crate::common::config::Platform;
@@ -45,9 +45,9 @@ impl Tool for SystemInfoTool {
         let (cancel_tx, cancel_rx) = mpsc::channel();
 
         thread::spawn(move || {
-            let _ = status_tx.send(ToolInvocationStatus::Started);
+            let _ = status_tx.send(ToolExecutionStatus::Started);
             if cancel_rx.try_recv().is_ok() {
-                let _ = status_tx.send(ToolInvocationStatus::Cancelled);
+                let _ = status_tx.send(ToolExecutionStatus::Cancelled);
                 return;
             }
             let current_dir = env::current_dir()
@@ -56,7 +56,7 @@ impl Tool for SystemInfoTool {
             let current_exe = env::current_exe()
                 .map(|path| path.display().to_string())
                 .unwrap_or_else(|error| format!("unavailable: {error}"));
-            let _ = status_tx.send(ToolInvocationStatus::Running(
+            let _ = status_tx.send(ToolExecutionStatus::Running(
                 self::serde_json::json!({
                     "os": env::consts::OS,
                     "family": env::consts::FAMILY,
@@ -66,7 +66,7 @@ impl Tool for SystemInfoTool {
                 })
                 .to_string(),
             ));
-            let _ = status_tx.send(ToolInvocationStatus::Complete);
+            let _ = status_tx.send(ToolExecutionStatus::Complete { output: None });
         });
 
         Ok(ToolRuntime::new(status_rx, cancel_tx))

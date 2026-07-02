@@ -3,8 +3,7 @@ use std::net::SocketAddr;
 use std::sync::{mpsc, Arc, Mutex};
 
 use crate::agent::engine::LoopEngine;
-use crate::agent::model::ModelBackendType;
-use crate::common::channel::{ChannelError, SessionEvent, SessionTaskId, SessionTaskSignal};
+use crate::common::channel::{ChannelError, SessionEvent, SessionTaskId, TaskEvent};
 use crate::common::external::*;
 use crate::common::message::RequestMessageEnvelope;
 
@@ -28,7 +27,7 @@ impl Session {
             command_loop: None,
             task_routes: Arc::new(Mutex::new(HashMap::new())),
             engine: Arc::new(
-                LoopEngine::new(ModelBackendType::Deepseek)
+                LoopEngine::new()
                     .map_err(|error| ChannelError::InvalidState(format!("{error:?}")))?,
             ),
         })
@@ -70,7 +69,7 @@ impl Session {
 // -- Private -- //
 
 type SharedSessionSender = Arc<tokio::Mutex<remoc::base::Sender<SessionEvent>>>;
-type SharedTaskRoutes = Arc<Mutex<HashMap<SessionTaskId, mpsc::Sender<SessionTaskSignal>>>>;
+type SharedTaskRoutes = Arc<Mutex<HashMap<SessionTaskId, mpsc::Sender<TaskEvent>>>>;
 
 impl Session {
     async fn accept_remoc(
@@ -140,20 +139,11 @@ impl Session {
                             break;
                         }
                     }
-                    SessionEvent::TaskResponseMessage { .. } => {}
                     SessionEvent::TaskCancel { task_id } => {
-                        Self::route_task_signal(
+                        Self::route_task_event(
                             &task_routes,
                             task_id,
-                            SessionTaskSignal::Cancel,
-                            true,
-                        );
-                    }
-                    SessionEvent::TaskComplete { task_id } => {
-                        Self::route_task_signal(
-                            &task_routes,
-                            task_id,
-                            SessionTaskSignal::Complete,
+                            TaskEvent::Cancel,
                             true,
                         );
                     }
@@ -219,7 +209,7 @@ impl Session {
     fn insert_task_route(
         task_routes: &SharedTaskRoutes,
         task_id: SessionTaskId,
-        task_tx: mpsc::Sender<SessionTaskSignal>,
+        task_tx: mpsc::Sender<TaskEvent>,
     ) -> Result<(), ChannelError> {
         task_routes
             .lock()
@@ -235,10 +225,10 @@ impl Session {
         task_routes.remove(&task_id);
     }
 
-    fn route_task_signal(
+    fn route_task_event(
         task_routes: &SharedTaskRoutes,
         task_id: SessionTaskId,
-        signal: SessionTaskSignal,
+        event: TaskEvent,
         remove: bool,
     ) {
         let Ok(mut task_routes) = task_routes.lock() else {
@@ -250,7 +240,7 @@ impl Session {
             task_routes.get(&task_id).cloned()
         };
         if let Some(task_tx) = task_tx {
-            let _ = task_tx.send(signal);
+            let _ = task_tx.send(event);
         }
     }
 
@@ -259,7 +249,7 @@ impl Session {
             return;
         };
         for (_, task_tx) in task_routes.drain() {
-            let _ = task_tx.send(SessionTaskSignal::Closed);
+            let _ = task_tx.send(TaskEvent::Closed);
         }
     }
 }

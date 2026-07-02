@@ -1,44 +1,8 @@
 flowchart LR
-  ToolPreview["ToolPreview"]
-  ToolSchema["ToolSchema\ncommon::protocol"]
-  ToolParameter["ToolParameter\ncommon::protocol"]
-  ToolTrait["Tool platform/category/invoke"]
-  PlatformAll["Platform::All"]
-  ToolInvocation["ToolInvocation parameter payload"]
-  ToolRuntime["ToolRuntime status receiver + cancel handle"]
-  ToolInvocationStatus["ToolInvocationStatus"]
-  ToolExecutionResult["ToolExecutionResult<String>\ntransform result or Cancelled"]
-  CancelSignal["cancel signal"]
-  ToolError["ToolError"]
-  ImageInspectTool["ImageInspectTool"]
-  ImageTransformTool["ImageTransformTool"]
-  ImageReader["image::ImageReader"]
-  ImageMetadata["path/format/width/height/color JSON"]
-  TransformArguments["ImageTransformArguments"]
-  TransformOperations["copy/grayscale/flip/rotate operations"]
-  OutputImage["output image file"]
-
-  ImageInspectTool -->|"implements Tool"| ToolTrait
-  ImageTransformTool -->|"implements Tool"| ToolTrait
-  ToolTrait -->|"platform()"| PlatformAll
-  ImageInspectTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
-  ImageTransformTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
-  ToolTrait -->|"schema() returns"| ToolSchema
-  ToolPreview -->|"schema field"| ToolSchema
-  ToolInvocation -->|"parameter package"| ToolParameter
-  ToolInvocation -->|"path"| ImageInspectTool
-  ToolInvocation -->|"input_path/output_path/operation"| TransformArguments
-  ImageInspectTool -->|"open, guess format, decode"| ImageReader
-  ImageReader -->|"metadata"| ImageMetadata
-  ImageMetadata -->|"Running metadata JSON"| ToolRuntime
-  TransformArguments -->|"selects operation"| TransformOperations
-  ImageTransformTool -->|"open/decode unless copy"| ImageReader
-  TransformOperations -->|"writes"| OutputImage
-  ImageTransformTool -->|"Complete result or Cancelled"| ToolExecutionResult
-  ToolExecutionResult -->|"Complete payload"| OutputImage
-  ToolExecutionResult -->|"maps to Running/Complete or Cancelled"| ToolInvocationStatus
-  OutputImage -->|"Running transform result JSON"| ToolRuntime
-  ToolRuntime -->|"emits statuses"| ToolInvocationStatus
-  ToolRuntime -->|"cancel()"| CancelSignal
-  CancelSignal -->|"checked before decode/after decode"| ImageTransformTool
-  ToolError -->|"InvalidArguments/ExecutionFailed"| ToolInvocationStatus
+  ImageInspectTool["ImageInspectTool"] -->|"metadata"| ImageReader["image reader"]
+  ImageTransformTool["ImageTransformTool"] -->|"copy/grayscale/flip/rotate"| ImageReader
+  ImageTransformTool -->|"writes"| OutputImage["output image"]
+  ImageReader -->|"JSON Running/Complete/Failed"| ToolExecutionStatus["ToolExecutionStatus"]
+  ToolRuntime["ToolRuntime"] -->|"owns cancel channel"| Cancel["cancel signal"]
+  ToolRuntime -->|"status_tx/sync_status"| ToolExecutionStatus
+  Cancel -->|"cancels work"| ToolExecutionStatus

@@ -1,7 +1,8 @@
 use super::category::{CategoryPreview, TOOL_CATEGORY_LIST};
 use super::error::ToolError;
 use super::native::native_tools;
-use super::tool::{Tool, ToolPreview, ToolType};
+use super::tool::Tool;
+use crate::common::protocol::{ToolPreview, ToolType};
 use crate::common::config::{Config, Platform};
 
 pub struct DefaultPreview {

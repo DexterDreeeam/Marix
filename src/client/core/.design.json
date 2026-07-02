@@ -3,73 +3,89 @@
   "module": {
     "path": "src/client/core",
     "name": "core",
-    "purpose": "Core client session endpoint backed by remoc/TCP with task creation, initial request submission, and streamed response segment receives.",
-    "changeStatus": "unchanged"
+    "purpose": "Core client session/task endpoint where ClientSession owns a shared Executor and ClientTask handles ResponseMessage, terminal Complete/Closed, ToolInvocation dispatch, and TaskEvent::ToolQuery(ToolSignature) status dispatch before continuing to receive.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "session.rs",
+    "task.rs"
+  ],
   "childModules": [],
   "elements": [
-    {
-      "name": "core module entry",
-      "type": "module-entry",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/client/core/mod.rs",
-          "lineStart": 1,
-          "lineEnd": 4,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 1,
-              "lineEnd": 4
-            }
-          ]
-        }
-      ]
-    },
     {
       "name": "ClientSession",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/core/session.rs",
-          "lineStart": 11,
-          "lineEnd": 85,
+          "lineStart": 13,
+          "lineEnd": 21,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 34,
-              "lineEnd": 37
+              "lineStart": 20,
+              "lineEnd": 20
             }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "client remoc session private helpers",
-      "type": "private-methods",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
+          ],
+          "modifiedLines": []
+        },
         {
           "sourcePath": "src/client/core/session.rs",
-          "lineStart": 92,
-          "lineEnd": 257,
+          "lineStart": 23,
+          "lineEnd": 91,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 132,
-              "lineEnd": 156
+              "lineStart": 32,
+              "lineEnd": 32
             },
             {
-              "lineStart": 173,
-              "lineEnd": 175
+              "lineStart": 73,
+              "lineEnd": 73
+            },
+            {
+              "lineStart": 90,
+              "lineEnd": 90
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/core/session.rs",
+          "lineStart": 99,
+          "lineEnd": 243,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 140,
+              "lineEnd": 140
+            },
+            {
+              "lineStart": 143,
+              "lineEnd": 143
+            },
+            {
+              "lineStart": 163,
+              "lineEnd": 163
+            },
+            {
+              "lineStart": 216,
+              "lineEnd": 216
+            },
+            {
+              "lineStart": 219,
+              "lineEnd": 219
+            },
+            {
+              "lineStart": 231,
+              "lineEnd": 231
+            },
+            {
+              "lineStart": 240,
+              "lineEnd": 240
             }
           ]
         }
@@ -79,20 +95,72 @@
       "name": "ClientTask",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/core/task.rs",
-          "lineStart": 9,
-          "lineEnd": 100,
+          "lineStart": 11,
+          "lineEnd": 19,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 17
+            }
+          ],
           "modifiedLines": [
             {
-              "lineStart": 36,
-              "lineEnd": 61
+              "lineStart": 15,
+              "lineEnd": 15
             }
           ]
+        },
+        {
+          "sourcePath": "src/client/core/task.rs",
+          "lineStart": 21,
+          "lineEnd": 78,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 28,
+              "lineEnd": 28
+            },
+            {
+              "lineStart": 36,
+              "lineEnd": 36
+            },
+            {
+              "lineStart": 62,
+              "lineEnd": 62
+            },
+            {
+              "lineStart": 77,
+              "lineEnd": 77
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 26,
+              "lineEnd": 26
+            },
+            {
+              "lineStart": 48,
+              "lineEnd": 57
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/client/core/task.rs",
+          "lineStart": 86,
+          "lineEnd": 134,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 99,
+              "lineEnd": 116
+            }
+          ],
+          "modifiedLines": []
         }
       ]
     }

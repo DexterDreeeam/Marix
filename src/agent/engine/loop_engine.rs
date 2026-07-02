@@ -5,27 +5,31 @@ use std::thread;
 
 use crate::agent::frontdoor::Task;
 use crate::agent::model::{
-    DeepseekBackend, ModelBackend, ModelBackendError, ModelBackendType, ModelRequest, ModelResponse,
+    DeepseekBackend, ModelBackend, ModelBackendError, ModelRequest, ModelResponse,
 };
 use crate::common::channel::SessionTaskId;
-use crate::common::config::Config;
+use crate::common::config::{Config, ModelBackend as ConfigModelBackend};
 use crate::common::message::ChatResponseSegment;
 use crate::common::message::RequestMessageEnvelope;
 
-use super::{LoopEngineError, SessionContext, TaskContext, TaskRuntimeEvent, TaskStatus};
+use super::{
+    LoopEngineError, ModelTaskStepKind, SessionContext, TaskContext, TaskRuntimeEvent, TaskStatus,
+    TaskStep, TaskStepKind,
+};
 
 #[derive(Clone)]
 pub(crate) struct LoopEngine {
     session: SessionContext,
-    backend: ModelBackendType,
+    backend: Arc<Mutex<Box<dyn ModelBackend>>>,
     task_contexts: Arc<Mutex<HashMap<SessionTaskId, TaskContext>>>,
 }
 
 impl LoopEngine {
-    pub(crate) fn new(backend: ModelBackendType) -> Result<Self, LoopEngineError> {
+    pub(crate) fn new() -> Result<Self, LoopEngineError> {
+        let config = Config::load().map_err(LoopEngineError::BackendUnavailable)?;
         Ok(Self {
             session: SessionContext::new(),
-            backend,
+            backend: Arc::new(Mutex::new(Self::build_model_backend(&config))),
             task_contexts: Arc::new(Mutex::new(HashMap::new())),
         })
     }
@@ -66,7 +70,20 @@ impl LoopEngine {
         let engine = self.clone();
         thread::Builder::new()
             .name(format!("marix-task-{}", context.task_id()))
-            .spawn(move || engine.run_task_once(context))
+            .spawn(move || {
+                engine.publish_status(&context, TaskStatus::Running);
+                let status = match engine.run_model_loop(&context) {
+                    Ok(()) => match engine.complete_client_task(&context) {
+                        Ok(()) => TaskStatus::Succeeded,
+                        Err(_) => TaskStatus::Stopped,
+                    },
+                    Err(status) => {
+                        let _ = engine.complete_client_task(&context);
+                        status
+                    }
+                };
+                engine.publish_status(&context, status);
+            })
             .map_err(|error| LoopEngineError::TaskFailed(error.to_string()))?;
         Ok(runtime_rx)
     }
@@ -96,38 +113,32 @@ impl LoopEngine {
         self.publish_runtime_event(&runtime_tx, TaskRuntimeEvent::Status(status));
     }
 
-    fn run_task_once(&self, context: TaskContext) {
-        self.publish_status(&context, TaskStatus::Running);
-        let status = match self.run_model_once(&context) {
-            Ok(()) => match self.complete_client_task(&context) {
-                Ok(()) => TaskStatus::Succeeded,
-                Err(_) => TaskStatus::Stopped,
-            },
-            Err(status) => {
-                let _ = self.complete_client_task(&context);
-                status
-            }
-        };
-        self.publish_status(&context, status);
-    }
-
-    fn run_model_once(&self, context: &TaskContext) -> Result<(), TaskStatus> {
-        let prompt = self.prompt_from_message(context.initial_message());
-        self.publish_model_request(context, prompt.clone());
-
-        match self.backend {
-            ModelBackendType::Deepseek => self.request_deepseek_model(prompt, context),
-        }
-    }
-
-    fn request_deepseek_model(
+    fn run_model_loop(
         &self,
-        prompt: String,
         context: &TaskContext,
     ) -> Result<(), TaskStatus> {
-        let config = Config::load().map_err(TaskStatus::Failed)?;
-        let mut backend = DeepseekBackend::new(&config.model.deepseek);
-        self.stream_model_response(&mut backend, ModelRequest { prompt }, context)
+        let step = self.initial_task_step(context);
+        self.publish_model_request(context, step.output.clone());
+        let TaskStepKind::Model(kind) = step.kind else {
+            return Err(TaskStatus::Failed("task step is not a model step".to_owned()));
+        };
+        let request = ModelRequest {
+            step: kind,
+            prompt: step.output.clone(),
+        };
+        let mut backend = self
+            .backend
+            .lock()
+            .map_err(|_| TaskStatus::Failed("model backend is poisoned".to_owned()))?;
+        self.stream_model_response(backend.as_mut(), request, context)
+    }
+
+    fn initial_task_step(&self, context: &TaskContext) -> TaskStep {
+        TaskStep {
+            sequence: 0,
+            kind: TaskStepKind::Model(ModelTaskStepKind::Initial),
+            output: self.prompt_from_message(context.initial_message()),
+        }
     }
 
     fn stream_model_response(
@@ -219,5 +230,13 @@ impl LoopEngine {
 
     fn task_status_from_backend_error(&self, error: ModelBackendError) -> TaskStatus {
         TaskStatus::Failed(error.to_string())
+    }
+
+    fn build_model_backend(config: &Config) -> Box<dyn ModelBackend> {
+        match config.model.backend {
+            ConfigModelBackend::Deepseek => {
+                Box::new(DeepseekBackend::new(config.model.deepseek.clone()))
+            }
+        }
     }
 }

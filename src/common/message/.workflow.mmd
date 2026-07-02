@@ -1,39 +1,24 @@
 flowchart LR
-  subgraph message_type_rs["message_type.rs"]
-    RequestMessageType["RequestMessageType"]
-    ResponseMessageType["ResponseMessageType"]
+  subgraph message_rs[message.rs]
+    RequestMessage["RequestMessage
+trait"]
+    ResponseMessage["ResponseMessage
+trait"]
+    RequestEnvelope["RequestMessageEnvelope
+enum"]
+    ResponseEnvelope["ResponseMessageEnvelope
+enum"]
+    ResponseType["ResponseMessageType
+enum"]
   end
-
-  subgraph trait_rs["trait.rs"]
-    RequestMessage["RequestMessage"]
-    ResponseMessage["ResponseMessage"]
+  subgraph chat_rs[chat.rs]
+    ChatRequest["ChatRequest
+struct"]
+    ChatResponseSegment["ChatResponseSegment
+struct"]
   end
-
-  subgraph request_rs["request.rs"]
-    ChatRequest["ChatRequest"]
-  end
-
-  subgraph response_rs["response.rs"]
-    ChatResponseSegment["ChatResponseSegment"]
-  end
-
-  subgraph envelope_rs["envelope.rs"]
-    RequestMessageEnvelope["RequestMessageEnvelope"]
-    ResponseMessageEnvelope["ResponseMessageEnvelope"]
-  end
-
-  ClientCli["client/cli"]
-  AgentEngine["agent/engine"]
-  SessionEvent["SessionEvent"]
-
-  ChatRequest -->|"implements"| RequestMessage
-  ChatRequest -->|"message kind"| RequestMessageType
-  RequestMessage -->|"wrapped into"| RequestMessageEnvelope
-  RequestMessageEnvelope -->|"task payload"| SessionEvent
-  SessionEvent -->|"initial user input"| AgentEngine
-  AgentEngine -->|"model output segment"| ChatResponseSegment
-  ChatResponseSegment -->|"implements"| ResponseMessage
-  ChatResponseSegment -->|"message kind"| ResponseMessageType
-  ResponseMessage -->|"wrapped into"| ResponseMessageEnvelope
-  ResponseMessageEnvelope -->|"streamed back"| SessionEvent
-  SessionEvent -->|"printed by"| ClientCli
+  ChatRequest -->|"into_envelope"| RequestEnvelope
+  ChatResponseSegment -->|"chat segment"| ResponseEnvelope
+  ResponseEnvelope -->|"message_type"| ResponseType
+  RequestMessage -->|"implemented by"| RequestEnvelope
+  ResponseMessage -->|"implemented by"| ResponseEnvelope

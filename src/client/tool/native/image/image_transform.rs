@@ -1,8 +1,8 @@
 use std::{fs, sync::mpsc, thread};
 
 use crate::client::tool::{
-    Tool, ToolCategory, ToolError, ToolExecutionResult, ToolInvocation, ToolInvocationStatus,
-    ToolSchema, ToolRuntime, ToolType,
+    Tool, ToolCategory, ToolError, ToolExecutionStatus, ToolInvocation, ToolSchema, ToolRuntime,
+    ToolType,
 };
 use crate::common::config::Platform;
 use crate::common::external::*;
@@ -46,21 +46,17 @@ impl Tool for ImageTransformTool {
         let (cancel_tx, cancel_rx) = mpsc::channel();
 
         thread::spawn(move || {
-            let _ = status_tx.send(ToolInvocationStatus::Started);
+            let _ = status_tx.send(ToolExecutionStatus::Started);
             if cancel_rx.try_recv().is_ok() {
-                let _ = status_tx.send(ToolInvocationStatus::Cancelled);
+                let _ = status_tx.send(ToolExecutionStatus::Cancelled);
                 return;
             }
             match transform_image(&arguments, &cancel_rx) {
-                Ok(ToolExecutionResult::Complete(message)) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Running(message));
-                    let _ = status_tx.send(ToolInvocationStatus::Complete);
-                }
-                Ok(ToolExecutionResult::Cancelled) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Cancelled);
+                Ok(status) => {
+                    let _ = status_tx.send(status);
                 }
                 Err(error) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Failed(error));
+                    let _ = status_tx.send(ToolExecutionStatus::Failed(error));
                 }
             }
         });
@@ -91,7 +87,7 @@ fn parse_arguments(arguments: &str) -> Result<ImageTransformArguments, ToolError
 fn transform_image(
     arguments: &ImageTransformArguments,
     cancel_rx: &mpsc::Receiver<()>,
-) -> Result<ToolExecutionResult<String>, ToolError> {
+) -> Result<ToolExecutionStatus, ToolError> {
     if arguments.operation == "copy" {
         fs::copy(&arguments.input_path, &arguments.output_path).map_err(|error| {
             ToolError::ExecutionFailed(format!(
@@ -99,10 +95,12 @@ fn transform_image(
                 arguments.input_path, arguments.output_path
             ))
         })?;
-        return Ok(ToolExecutionResult::Complete(transform_result(arguments)));
+        return Ok(ToolExecutionStatus::Complete {
+            output: Some(transform_result(arguments)),
+        });
     }
     if cancel_rx.try_recv().is_ok() {
-        return Ok(ToolExecutionResult::Cancelled);
+        return Ok(ToolExecutionStatus::Cancelled);
     }
 
     let image = image::ImageReader::open(&arguments.input_path)
@@ -117,7 +115,7 @@ fn transform_image(
             ))
         })?;
     if cancel_rx.try_recv().is_ok() {
-        return Ok(ToolExecutionResult::Cancelled);
+        return Ok(ToolExecutionStatus::Cancelled);
     }
 
     let transformed = match arguments.operation.as_str() {
@@ -137,7 +135,9 @@ fn transform_image(
         ToolError::ExecutionFailed(format!("failed to save {}: {error}", arguments.output_path))
     })?;
 
-    Ok(ToolExecutionResult::Complete(transform_result(arguments)))
+    Ok(ToolExecutionStatus::Complete {
+        output: Some(transform_result(arguments)),
+    })
 }
 
 fn transform_result(arguments: &ImageTransformArguments) -> String {

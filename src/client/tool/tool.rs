@@ -1,18 +1,9 @@
-use std::sync::mpsc::{Receiver, Sender};
-
 use super::category::ToolCategory;
-use super::error::ToolError;
 use crate::common::config::Platform;
-use crate::common::external::*;
-use crate::common::protocol::{ToolParameter, ToolSchema};
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ToolType {
-    Primary,
-    Native,
-    Skill,
-    User,
-}
+use crate::common::protocol::{
+    ToolError, ToolInvocation, ToolExecutionStatus, ToolPreview, ToolSchema, ToolType,
+};
+use std::sync::{mpsc, Arc, Mutex};
 
 /// A callable client-side capability (shell, network, filesystem, ...). Both
 /// built-in and user-provided tools implement this single trait so the registry
@@ -43,49 +34,33 @@ pub trait Tool {
 
 pub trait UserTool: Tool {}
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ToolPreview {
-    pub name: &'static str,
-    pub description: &'static str,
-    pub schema: ToolSchema,
-}
-
-/// One model-issued request to run a tool, correlated by id so streamed output
-/// can be routed back to the originating tool call. Its parameter package is a
-/// schema-conformant ToolParameter, so every invocation carries valid arguments.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ToolInvocation {
-    pub call_id: String,
-    pub name: String,
-    pub parameter: ToolParameter,
-}
-
 pub struct ToolRuntime {
-    pub statuses: Receiver<ToolInvocationStatus>,
-    cancel_tx: Sender<()>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ToolInvocationStatus {
-    Started,
-    Running(String),
-    Cancelled,
-    Failed(ToolError),
-    Complete,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ToolExecutionResult<T> {
-    Complete(T),
-    Cancelled,
+    pub statuses: mpsc::Receiver<ToolExecutionStatus>,
+    pub status_tx: mpsc::Sender<ToolExecutionStatus>,
+    pub cancel_rx: mpsc::Receiver<()>,
+    cancel_tx: mpsc::Sender<()>,
+    status: Arc<Mutex<ToolExecutionStatus>>,
 }
 
 impl ToolRuntime {
-    pub fn new(statuses: Receiver<ToolInvocationStatus>, cancel_tx: Sender<()>) -> Self {
+    pub fn new() -> Self {
+        let (status_tx, statuses) = mpsc::channel();
+        let (cancel_tx, cancel_rx) = mpsc::channel();
         Self {
             statuses,
+            status_tx,
+            cancel_rx,
             cancel_tx,
+            status: Arc::new(Mutex::new(ToolExecutionStatus::Pending)),
         }
+    }
+
+    pub fn status(&self) -> ToolExecutionStatus {
+        panic!("not implemented")
+    }
+
+    pub fn sync_status(&self, status: ToolExecutionStatus) {
+        panic!("not implemented")
     }
 
     pub fn cancel(&self) -> Result<(), ToolError> {

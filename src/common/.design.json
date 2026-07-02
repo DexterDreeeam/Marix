@@ -3,39 +3,42 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared interfaces used across the second-generation source tree, including typed TOML configuration that detects and exports the host Platform before loading the rest of config, runtime Marix path defaults and role-specific overrides, config-gated logging, directional chat request/response message envelopes, shared channel errors, remoc session/task protocol messages, shared tool schema and parameter protocol types used by both the client tool layer and the agent engine, and centralized crate-local external-library namespaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared configuration, logging, message envelopes, remoc SessionEvent lifecycle/create/cancel events, TaskEvent tool invocation/status query/status return signals, common ToolSchema/ToolParameter/ToolInvocation/ToolSignature/ToolExecutionStatus/ToolType/ToolPreview/ToolError protocol types, and crate-local external-library namespaces.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/common/channel",
       "name": "channel",
-      "purpose": "Shared channel error type and crate-internal remoc SessionEvent protocol with separate request-message and response-message task payloads."
+      "purpose": "Shared channel error type, narrow crate-internal SessionEvent lifecycle/task-create/task-cancel protocol, and crate-internal TaskEvent traffic for response messages, tool invocation events, TaskEvent::ToolQuery(ToolSignature) status queries, TaskEvent::ToolStatus(ToolExecutionStatus) returns, cancellation, completion, and closure."
     },
     {
       "path": "src/common/config",
       "name": "config",
-      "purpose": "Strongly typed TOML configuration loader with host Platform detection, source-tree/deployment/environment config discovery, runtime Marix path resolution, optional core settings, agent/client settings, logging flags, alias substitution, and credential resolution."
+      "purpose": "Strongly typed TOML configuration model and fallible loader that detects the supported host Platform before reading config data, exposes Platform on Config, discovers source/deployed/environment config files, resolves runtime Marix paths relative to the config root, substitutes aliases, resolves credentials, and re-exports the public config surface from mod.rs."
     },
     {
       "path": "src/common/external",
       "name": "external",
-      "purpose": "Crate-local third-party library namespace wrappers, including image ImageReader, reqwest blocking client, remoc connection helpers, serde derive traits, serde_json values/macros, tokio runtime/network types, and toml parsing."
+      "purpose": "Crate-local third-party library namespace wrappers that keep direct external crate usage visible through common::external modules, including the newly exposed image ImageReader wrapper plus remoc connection, reqwest, serde, serde_json, tokio, and toml helpers."
     },
     {
       "path": "src/common/logging",
       "name": "logging",
-      "purpose": "Config-gated logging API with tagged log messages, structured logging errors, direct log/warning/error/debug functions, runtime Marix path based log directory selection, timestamped log files, and log-file pruning."
+      "purpose": "Common logging module with tagged log messages, structured logging errors, config-gated info/warning/error writes, direct warning/error shortcut functions, debug-build logging, runtime-config-selected log directories under the process role's Marix path plus a fixed log child folder, timestamped log-file creation, and pruning to retain at most 20 log files."
     },
     {
       "path": "src/common/message",
       "name": "message",
-      "purpose": "Folder-based shared request and response message traits, serializable envelopes, complete chat request payloads, and streamed chat response segment payloads."
+      "purpose": "Folder-based shared message module with request and response traits, chat request envelopes, and ChatResponseSegment task response streaming envelopes."
     },
     {
       "path": "src/common/protocol",
       "name": "protocol",
-      "purpose": "Shared tool protocol types ToolSchema and ToolParameter, singly owned here and referenced by both the client tool layer and the agent engine so a tool's declared JSON-Schema document and its schema-conformant argument payload cross the session boundary unchanged."
+      "purpose": "Shared tool protocol types owned once for both sides of the session boundary: ToolSchema, ToolParameter, ToolInvocation with ToolSignature, ToolType, ToolPreview, ToolError, and ToolExecutionStatus variants that carry the invocation signature."
     }
   ],
   "elements": []

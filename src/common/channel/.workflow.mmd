@@ -1,22 +1,10 @@
 flowchart LR
-  subgraph error_rs["error.rs"]
-    ChannelError["ChannelError"]
-  end
-
-  subgraph session_rs["session.rs"]
-    SessionEvent["SessionEvent"]
-  end
-
-  RequestMessageEnvelope["RequestMessageEnvelope"]
-  ResponseMessageEnvelope["ResponseMessageEnvelope"]
-  RemocTransport["remoc transport"]
-  ClientSession["ClientSession"]
-  AgentSession["AgentSession"]
-
-  ClientSession -->|"sends TaskCreate"| SessionEvent
-  SessionEvent -->|"request payload"| RequestMessageEnvelope
-  SessionEvent -->|"response payload route"| ResponseMessageEnvelope
-  RemocTransport -->|"delivers events"| AgentSession
-  AgentSession -->|"streams responses"| RemocTransport
-  RemocTransport -->|"connection and send failures"| ChannelError
-  SessionEvent -->|"serialization failures"| ChannelError
+  SessionEvent["SessionEvent"] -->|"TaskCreate/TaskCancel task_id"| SessionTaskId["SessionTaskId"]
+  SessionEvent -->|"TaskCreate message"| Request["RequestMessageEnvelope"]
+  TaskRoute["task route"] -->|"delivers"| TaskEvent["TaskEvent"]
+  TaskEvent -->|"ResponseMessage"| Response["ResponseMessageEnvelope"]
+  TaskEvent -->|"ToolInvocation"| ToolInvocation["ToolInvocation"]
+  TaskEvent -->|"TaskEvent::ToolQuery(ToolSignature)"| ToolSignature["ToolSignature"]
+  TaskEvent -->|"TaskEvent::ToolStatus(ToolExecutionStatus)"| ToolExecutionStatus["ToolExecutionStatus"]
+  TaskEvent -->|"Cancel/Complete/Closed"| TaskRoute
+  ChannelError["ChannelError"] -.->|"transport/state failures"| SessionEvent

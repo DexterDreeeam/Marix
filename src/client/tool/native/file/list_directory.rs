@@ -1,8 +1,8 @@
 use std::{fs, path::Path, sync::mpsc, thread};
 
 use crate::client::tool::{
-    Tool, ToolCategory, ToolError, ToolExecutionResult, ToolInvocation, ToolInvocationStatus,
-    ToolSchema, ToolRuntime, ToolType,
+    Tool, ToolCategory, ToolError, ToolExecutionStatus, ToolInvocation, ToolSchema, ToolRuntime,
+    ToolType,
 };
 use crate::common::config::Platform;
 use crate::common::external::*;
@@ -46,7 +46,7 @@ impl Tool for ListDirectoryTool {
         let (cancel_tx, cancel_rx) = mpsc::channel();
 
         thread::spawn(move || {
-            let _ = status_tx.send(ToolInvocationStatus::Started);
+            let _ = status_tx.send(ToolExecutionStatus::Started);
             let result = collect_entries(
                 Path::new(&arguments.path),
                 arguments.recursive,
@@ -54,14 +54,11 @@ impl Tool for ListDirectoryTool {
                 &cancel_rx,
             );
             match result {
-                Ok(ToolExecutionResult::Complete(())) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Complete);
-                }
-                Ok(ToolExecutionResult::Cancelled) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Cancelled);
+                Ok(status) => {
+                    let _ = status_tx.send(status);
                 }
                 Err(error) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Failed(error));
+                    let _ = status_tx.send(ToolExecutionStatus::Failed(error));
                 }
             }
         });
@@ -96,11 +93,11 @@ fn parse_arguments(arguments: &str) -> Result<ListDirectoryArguments, ToolError>
 fn collect_entries(
     path: &Path,
     recursive: bool,
-    status_tx: &mpsc::Sender<ToolInvocationStatus>,
+    status_tx: &mpsc::Sender<ToolExecutionStatus>,
     cancel_rx: &mpsc::Receiver<()>,
-) -> Result<ToolExecutionResult<()>, ToolError> {
+) -> Result<ToolExecutionStatus, ToolError> {
     if cancel_rx.try_recv().is_ok() {
-        return Ok(ToolExecutionResult::Cancelled);
+        return Ok(ToolExecutionStatus::Cancelled);
     }
 
     let read_dir = fs::read_dir(path).map_err(|error| {
@@ -109,7 +106,7 @@ fn collect_entries(
 
     for entry in read_dir {
         if cancel_rx.try_recv().is_ok() {
-            return Ok(ToolExecutionResult::Cancelled);
+            return Ok(ToolExecutionStatus::Cancelled);
         }
         let entry = entry.map_err(|error| ToolError::ExecutionFailed(error.to_string()))?;
         let entry_path = entry.path();
@@ -125,7 +122,7 @@ fn collect_entries(
         } else {
             "other"
         };
-        let _ = status_tx.send(ToolInvocationStatus::Running(
+        let _ = status_tx.send(ToolExecutionStatus::Running(
             self::serde_json::json!({
                 "path": entry_path.display().to_string(),
                 "type": kind
@@ -135,11 +132,12 @@ fn collect_entries(
 
         if recursive && file_type.is_dir() {
             match collect_entries(&entry_path, recursive, status_tx, cancel_rx)? {
-                ToolExecutionResult::Complete(()) => {}
-                ToolExecutionResult::Cancelled => return Ok(ToolExecutionResult::Cancelled),
+                ToolExecutionStatus::Complete { .. } => {}
+                ToolExecutionStatus::Cancelled => return Ok(ToolExecutionStatus::Cancelled),
+                status => return Ok(status),
             }
         }
     }
 
-    Ok(ToolExecutionResult::Complete(()))
+    Ok(ToolExecutionStatus::Complete { output: None })
 }

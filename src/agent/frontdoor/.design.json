@@ -3,57 +3,76 @@
   "module": {
     "path": "src/agent/frontdoor",
     "name": "frontdoor",
-    "purpose": "Agent frontdoor Session and Task endpoints backed by remoc/TCP, storing a shared loop engine, accepting complete request messages, and sending streamed response message segments while preserving transport task route cleanup.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent frontdoor Session and Task endpoints backed by remoc/TCP, accepting client tasks into LoopEngine, keeping SessionEvent narrow, routing cancellation, and drafting TaskEvent response/complete sending.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "session.rs",
+    "task.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/session.rs",
-          "lineStart": 13,
-          "lineEnd": 20,
+          "lineStart": 12,
+          "lineEnd": 19,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/frontdoor/session.rs",
+          "lineStart": 21,
+          "lineEnd": 67,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 13,
-              "lineEnd": 13
+              "lineStart": 30,
+              "lineEnd": 30
             }
           ]
         },
         {
           "sourcePath": "src/agent/frontdoor/session.rs",
-          "lineStart": 22,
-          "lineEnd": 68,
+          "lineStart": 74,
+          "lineEnd": 255,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 22,
-              "lineEnd": 22
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/agent/frontdoor/session.rs",
-          "lineStart": 75,
-          "lineEnd": 258,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 75,
-              "lineEnd": 75
+              "lineStart": 143,
+              "lineEnd": 143
             },
             {
-              "lineStart": 198,
-              "lineEnd": 198
+              "lineStart": 146,
+              "lineEnd": 146
+            },
+            {
+              "lineStart": 212,
+              "lineEnd": 212
+            },
+            {
+              "lineStart": 228,
+              "lineEnd": 228
+            },
+            {
+              "lineStart": 231,
+              "lineEnd": 231
+            },
+            {
+              "lineStart": 243,
+              "lineEnd": 243
+            },
+            {
+              "lineStart": 252,
+              "lineEnd": 252
             }
           ]
         }
@@ -63,44 +82,43 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/frontdoor/task.rs",
-          "lineStart": 10,
-          "lineEnd": 17,
+          "lineStart": 9,
+          "lineEnd": 16,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/frontdoor/task.rs",
+          "lineStart": 18,
+          "lineEnd": 61,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 10,
-              "lineEnd": 10
+              "lineStart": 42,
+              "lineEnd": 42
+            },
+            {
+              "lineStart": 56,
+              "lineEnd": 56
             }
           ]
         },
         {
           "sourcePath": "src/agent/frontdoor/task.rs",
-          "lineStart": 19,
-          "lineEnd": 76,
+          "lineStart": 68,
+          "lineEnd": 88,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 19,
-              "lineEnd": 19
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/agent/frontdoor/task.rs",
-          "lineStart": 83,
-          "lineEnd": 111,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 83,
-              "lineEnd": 83
+              "lineStart": 69,
+              "lineEnd": 70
             }
           ]
         }

@@ -1,36 +1,7 @@
 flowchart LR
-  ToolPreview["ToolPreview"]
-  ToolSchema["ToolSchema\ncommon::protocol"]
-  ToolParameter["ToolParameter\ncommon::protocol"]
-  ToolTrait["Tool platform/category/invoke"]
-  PlatformAll["Platform::All"]
-  ToolInvocation["ToolInvocation command/cwd/timeout shape"]
-  ToolRuntime["ToolRuntime statuses + cancel handle"]
-  ToolInvocationStatus["ToolInvocationStatus"]
-  ToolExecutionResult["ToolExecutionResult<()>\nComplete or Cancelled"]
-  CancelSignal["cancel signal"]
-  ToolError["ToolError"]
-  ShellExecuteTool["ShellExecuteTool"]
-  ShellCommand["cmd /C or sh -c"]
-  ChildProcess["child process"]
-  StreamReaders["stdout/stderr stream readers"]
-  Timeout["timeout deadline"]
-
-  ShellExecuteTool -->|"implements Tool"| ToolTrait
-  ToolTrait -->|"platform()"| PlatformAll
-  ShellExecuteTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
-  ToolTrait -->|"schema() returns"| ToolSchema
-  ToolPreview -->|"schema field"| ToolSchema
-  ToolInvocation -->|"parameter package"| ToolParameter
-  ToolInvocation -->|"command/cwd/timeout_ms"| ShellExecuteTool
-  ShellExecuteTool -->|"selects host shell"| ShellCommand
-  ShellCommand -->|"spawns"| ChildProcess
-  ChildProcess -->|"stdout/stderr"| StreamReaders
-  StreamReaders -->|"Running stream JSON"| ToolRuntime
-  Timeout -->|"kills on expiry and returns ToolError"| ChildProcess
-  ToolRuntime -->|"emits Started/Running/Complete/Cancelled"| ToolInvocationStatus
-  ToolRuntime -->|"cancel()"| CancelSignal
-  CancelSignal -->|"kills child while polling"| ChildProcess
-  ChildProcess -->|"poll result"| ToolExecutionResult
-  ToolExecutionResult -->|"Complete or Cancelled mapped outward"| ToolInvocationStatus
-  ToolError -->|"InvalidArguments/ExecutionFailed"| ToolInvocationStatus
+  ShellExecuteTool["ShellExecuteTool"] -->|"command/cwd/timeout"| Child["cmd/sh child process"]
+  Child -->|"stdout/stderr Running"| ToolExecutionStatus["ToolExecutionStatus"]
+  Child -->|"Complete/Failed/Cancelled"| ToolExecutionStatus
+  ToolRuntime["ToolRuntime"] -->|"owns cancel channel"| Cancel["cancel signal"]
+  ToolRuntime -->|"status_tx/sync_status"| ToolExecutionStatus
+  Cancel -->|"kills child process"| ToolExecutionStatus

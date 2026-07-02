@@ -3,16 +3,19 @@
   "module": {
     "path": "src/client/tool/native/package",
     "name": "package",
-    "purpose": "Owns the Windows-only package query native Tool implementation that parses package query arguments, runs PowerShell Get-Package with cancellation-aware child-process polling, returns shared ToolExecutionResult complete-or-cancelled helper outcomes, and streams package metadata JSON or an empty array through ToolRuntime. It exposes NAME/DESCRIPTION/SCHEMA consts and returns the shared common::protocol ToolSchema from Tool::schema().",
-    "changeStatus": "unchanged"
+    "purpose": "Windows package query native Tool implementation that runs PowerShell Get-Package, checks cancellation during child-process polling, and reports ToolExecutionStatus output through ToolRuntime-owned status channels.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "package_query.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "PackageQueryTool",
       "type": "struct",
       "source_depth": 5,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/native/package/package_query.rs",
@@ -28,61 +31,65 @@
           "lineEnd": 22,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 18,
-              "lineEnd": 21
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/package/package_query.rs",
           "lineStart": 24,
-          "lineEnd": 81,
+          "lineEnd": 77,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 38,
-              "lineEnd": 38
+              "lineStart": 60,
+              "lineEnd": 60
             },
             {
-              "lineStart": 42,
-              "lineEnd": 42
+              "lineStart": 62,
+              "lineEnd": 62
             },
             {
-              "lineStart": 45,
-              "lineEnd": 46
+              "lineStart": 66,
+              "lineEnd": 67
             },
             {
-              "lineStart": 56,
-              "lineEnd": 56
+              "lineStart": 70,
+              "lineEnd": 70
             }
           ]
         },
         {
           "sourcePath": "src/client/tool/native/package/package_query.rs",
-          "lineStart": 85,
-          "lineEnd": 88,
+          "lineStart": 86,
+          "lineEnd": 103,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/native/package/package_query.rs",
-          "lineStart": 90,
-          "lineEnd": 107,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/client/tool/native/package/package_query.rs",
-          "lineStart": 109,
+          "lineStart": 105,
           "lineEnd": 163,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 108,
+              "lineEnd": 108
+            },
+            {
+              "lineStart": 134,
+              "lineEnd": 134
+            },
+            {
+              "lineStart": 152,
+              "lineEnd": 154
+            },
+            {
+              "lineStart": 156,
+              "lineEnd": 158
+            }
+          ]
         }
       ]
     }

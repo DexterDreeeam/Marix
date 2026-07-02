@@ -1,24 +1,13 @@
 flowchart LR
-  subgraph session_rs["session.rs"]
-    Session["Session"]
-  end
-
-  subgraph task_rs["task.rs"]
-    Task["Task"]
-  end
-
-  LoopEngine["LoopEngine"]
-  SessionEvent["SessionEvent"]
-  RequestMessageEnvelope["RequestMessageEnvelope"]
-  ResponseMessage["ResponseMessage"]
-  ChatResponseSegment["ChatResponseSegment"]
-  RemocTransport["remoc transport"]
-
-  RemocTransport -->|"delivers session events"| Session
-  Session -->|"matches TaskCreate"| SessionEvent
-  SessionEvent -->|"contains request payload"| RequestMessageEnvelope
-  Session -->|"creates task endpoint"| Task
-  Task -->|"runs accepted task"| LoopEngine
-  LoopEngine -->|"streams model segments"| ChatResponseSegment
-  ChatResponseSegment -->|"implements response message"| ResponseMessage
-  Task -->|"sends responses and cleans route"| RemocTransport
+  Session["Session
+struct"] -->|"accepts remoc client"| SessionEvent["SessionEvent"]
+  SessionEvent -->|"Accepted/Close"| Session
+  SessionEvent -->|"TaskCreate message"| Task["Task
+struct"]
+  Session -->|"creates task context"| LoopEngine["LoopEngine"]
+  LoopEngine -->|"runs"| Task
+  SessionEvent -->|"TaskCancel task_id"| TaskEvent["TaskEvent
+task traffic"]
+  Session -->|"routes Cancel/Closed by task_id"| TaskEvent
+  Task -->|"ResponseMessage draft"| TaskEvent
+  Task -->|"Complete draft"| TaskEvent

@@ -1,39 +1,8 @@
 flowchart LR
-  ToolPreview["ToolPreview"]
-  ToolSchema["ToolSchema\ncommon::protocol"]
-  ToolParameter["ToolParameter\ncommon::protocol"]
-  ToolTrait["Tool platform/category/invoke"]
-  PlatformAll["Platform::All"]
-  ToolInvocation["ToolInvocation parameter payload"]
-  ToolRuntime["ToolRuntime statuses + cancel handle"]
-  ToolInvocationStatus["ToolInvocationStatus"]
-  CancelSignal["cancel signal"]
-  ToolError["ToolError"]
-  HttpRequestTool["HttpRequestTool"]
-  DnsLookupTool["DnsLookupTool"]
-  ReqwestClient["reqwest blocking Client"]
-  NativeDns["ToSocketAddrs resolver"]
-  HttpResponse["status/body JSON"]
-  DnsAddresses["address JSON messages"]
-
-  HttpRequestTool -->|"implements Tool"| ToolTrait
-  DnsLookupTool -->|"implements Tool"| ToolTrait
-  ToolTrait -->|"platform()"| PlatformAll
-  HttpRequestTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
-  DnsLookupTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
-  ToolTrait -->|"schema() returns"| ToolSchema
-  ToolPreview -->|"schema field"| ToolSchema
-  ToolInvocation -->|"parameter package"| ToolParameter
-  ToolInvocation -->|"url/method/body"| HttpRequestTool
-  ToolInvocation -->|"host"| DnsLookupTool
-  HttpRequestTool -->|"sends request"| ReqwestClient
-  ReqwestClient -->|"response"| HttpResponse
-  HttpResponse -->|"Running response JSON"| ToolRuntime
-  DnsLookupTool -->|"resolves host"| NativeDns
-  NativeDns -->|"unique addresses"| DnsAddresses
-  DnsAddresses -->|"Running address JSON"| ToolRuntime
-  ToolRuntime -->|"emits Started/Running/Complete"| ToolInvocationStatus
-  ToolRuntime -->|"cancel()"| CancelSignal
-  CancelSignal -->|"checked around network work"| HttpRequestTool
-  CancelSignal -->|"checked between addresses"| DnsLookupTool
-  ToolError -->|"InvalidArguments/ExecutionFailed"| ToolInvocationStatus
+  HttpRequestTool["HttpRequestTool"] -->|"HTTP request"| Reqwest["reqwest blocking client"]
+  DnsLookupTool["DnsLookupTool"] -->|"host lookup"| Resolver["DNS resolver"]
+  Reqwest -->|"JSON status"| ToolExecutionStatus["ToolExecutionStatus"]
+  Resolver -->|"address status"| ToolExecutionStatus
+  ToolRuntime["ToolRuntime"] -->|"owns cancel channel"| Cancel["cancel signal"]
+  ToolRuntime -->|"status_tx/sync_status"| ToolExecutionStatus
+  Cancel -->|"stops delivery"| ToolExecutionStatus

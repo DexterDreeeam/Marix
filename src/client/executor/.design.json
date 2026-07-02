@@ -3,9 +3,12 @@
   "module": {
     "path": "src/client/executor",
     "name": "executor",
-    "purpose": "Owns the client-side executor public dispatch API that accepts ToolInvocation, uses ToolRegistry, and now returns ToolRuntime so callers receive status streaming plus cancellation shape; behavior remains a draft panic stub.",
-    "changeStatus": "unchanged"
+    "purpose": "Client-side Executor API that receives a ToolRegistry, invokes ToolInvocation requests, stores many ToolRuntime instances by call id, answers ToolSignature status requests with ToolExecutionStatus values, and cancels calls; behavior remains draft stubs.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "executor.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -28,26 +31,35 @@
       "name": "Executor",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/executor/executor.rs",
-          "lineStart": 8,
-          "lineEnd": 8,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/client/executor/executor.rs",
-          "lineStart": 10,
-          "lineEnd": 18,
+          "lineStart": 11,
+          "lineEnd": 14,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 15,
-              "lineEnd": 15
+              "lineStart": 11,
+              "lineEnd": 14
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/client/executor/executor.rs",
+          "lineStart": 16,
+          "lineEnd": 32,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 25
+            },
+            {
+              "lineStart": 29,
+              "lineEnd": 29
             }
           ]
         }

@@ -1,69 +1,13 @@
 flowchart LR
-  subgraph cli["cli"]
-    CliMain["marix-cli main"]
-    CliRun["run"]
-  end
-  subgraph core["core"]
-    ClientSession["ClientSession"]
-    ClientTask["ClientTask"]
-  end
-  subgraph executor["executor"]
-    Executor["Executor"]
-    ExecutorError["ExecutorError"]
-  end
-  subgraph tool["tool"]
-    ToolRegistry["ToolRegistry\ncurrent Platform"]
-    ToolTrait["Tool"]
-    Platform["Platform"]
-    DefaultPreview["DefaultPreview"]
-    ToolPreview["ToolPreview"]
-    ToolSchema["ToolSchema\ncommon::protocol"]
-    ToolParameter["ToolParameter\ncommon::protocol"]
-    ToolInvocation["ToolInvocation"]
-    ToolRuntime["ToolRuntime statuses + cancel handle"]
-    ToolInvocationStatus["ToolInvocationStatus"]
-    ToolExecutionResult["ToolExecutionResult<T>\nComplete or Cancelled"]
-    NativeRuntimeImplementations["native runtime implementations"]
-  end
-  subgraph category["tool/category.rs + tool/category/"]
-    ToolCategoryList["TOOL_CATEGORY_LIST"]
-    ToolCategory["ToolCategory"]
-    CategoryPreview["CategoryPreview"]
-  end
-  Config["Config"]
-  ToolError["ToolError"]
-  ChatRequest["ChatRequest"]
-  ChatResponseSegment["ChatResponseSegment"]
-
-  CliMain -->|"interactive prompt"| CliRun
-  CliRun -->|"loads client endpoint and platform"| Config
-  CliRun -->|"opens remoc session"| ClientSession
-  CliRun -->|"wraps prompt"| ChatRequest
-  ChatRequest -->|"initial task payload"| ClientTask
-  ClientTask -->|"receives response stream"| ChatResponseSegment
-  Executor -->|"dispatches"| ToolInvocation
-  Executor -->|"uses registry"| ToolRegistry
-  Executor -->|"returns"| ToolRuntime
-  Executor -->|"pre-runtime errors"| ExecutorError
-  Config -->|"ToolRegistry::new stores platform"| ToolRegistry
-  Config -->|"exposes"| Platform
-  ToolRegistry -->|"register()/get(name)"| ToolTrait
-  ToolRegistry -->|"rejects unsupported registration"| ToolError
-  ToolRegistry -->|"default_preview() from registered primary tools"| DefaultPreview
-  ToolRegistry -->|"tool_preview() maps registered tools"| ToolPreview
-  DefaultPreview -->|"primary_tool_previews"| ToolPreview
-  DefaultPreview -->|"category_previews"| CategoryPreview
-  ToolTrait -->|"platform() returns common config value"| Platform
-  ToolTrait -->|"category() returns one"| ToolCategory
-  ToolTrait -->|"invoke returns"| ToolRuntime
-  ToolTrait -->|"schema() returns"| ToolSchema
-  ToolPreview -->|"schema field"| ToolSchema
-  ToolInvocation -->|"parameter package"| ToolParameter
-  ToolRuntime -->|"statuses"| ToolInvocationStatus
-  ToolCategoryList -->|"publishes category previews"| CategoryPreview
-  NativeRuntimeImplementations -->|"implements"| ToolTrait
-  NativeRuntimeImplementations -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
-  NativeRuntimeImplementations -->|"helper returns"| ToolExecutionResult
-  ToolExecutionResult -->|"Complete/Cancelled mapped to statuses"| ToolInvocationStatus
-  NativeRuntimeImplementations -->|"streams statuses and handles cancellation"| ToolRuntime
-  ToolRegistry -->|"skips unsupported built-ins"| NativeRuntimeImplementations
+  cli["cli
+module"] -->|"sends chat prompts"| core["core
+module"]
+  core -->|"session-owned Executor"| executor["executor
+module"]
+  executor -->|"uses registry/tool implementations"| tool["tool
+module"]
+  tool -->|"shared invocation/protocol"| commonProtocol["common::protocol"]
+  core -->|"SessionEvent lifecycle/create/cancel"| commonChannel["common::channel"]
+  core -->|"routes TaskEvent tool invocation/status query/status return traffic"| commonChannel
+  executor -->|"ToolSignature -> ToolExecutionStatus"| commonProtocol
+  core -->|"streams ChatResponseSegment"| cli

@@ -1,41 +1,16 @@
 flowchart LR
-  subgraph backend_rs["backend.rs"]
-    ModelBackend["ModelBackend"]
-    ModelBackendImpl["ModelBackendImpl"]
-    ModelBackendType["ModelBackendType"]
-    ModelRequest["ModelRequest"]
-    ModelResponse["ModelResponse"]
-  end
-
-  subgraph backend_deepseek_rs["backend_deepseek.rs"]
-    DeepseekBackend["DeepseekBackend"]
-    DeepseekStream["Deepseek streaming helpers"]
-  end
-
-  subgraph model_context_rs["model_context.rs"]
-    ModelContext["ModelContext\nmodel-facing context"]
-  end
-
-  subgraph error_rs["error.rs"]
-    ModelBackendError["ModelBackendError"]
-  end
-
-  ModelConfig["ModelConfig"]
-  HttpClient["reqwest client"]
-  SessionBrief["SessionBrief"]
-  TaskStep["TaskStep"]
-  RequestMessageEnvelope["RequestMessageEnvelope"]
-  SessionTaskId["SessionTaskId"]
-
-  ModelConfig -->|"selects backend type"| ModelBackendType
-  ModelBackendType -->|"constructs implementation"| ModelBackendImpl
-  ModelBackend -->|"public request boundary"| ModelRequest
-  ModelBackendImpl -->|"delegates request"| DeepseekBackend
-  DeepseekBackend -->|"uses HTTP stream"| HttpClient
-  HttpClient -->|"SSE chunks"| DeepseekStream
-  DeepseekStream -->|"normalizes output"| ModelResponse
-  DeepseekBackend -->|"maps provider failures"| ModelBackendError
-  SessionBrief -->|"session slice"| ModelContext
-  TaskStep -->|"recent steps"| ModelContext
-  RequestMessageEnvelope -->|"current request"| ModelContext
-  SessionTaskId -->|"task identity"| ModelContext
+  ModelBackend["ModelBackend
+trait"] -->|"request"| ModelRequest["ModelRequest
+struct"]
+  ModelBackend -->|"streams"| ModelResponse["ModelResponse
+enum"]
+  ModelBackendImpl["ModelBackendImpl
+trait"] -->|"adapts implementors"| ModelBackend
+  ModelRequest -->|"step purpose"| ModelTaskStepKind["ModelTaskStepKind"]
+  ModelRequest -->|"prompt"| Prompt["String"]
+  ModelResponse -->|"Content(String)"| Content["content chunk"]
+  ModelResponse -->|"Failed"| ModelBackendError["ModelBackendError"]
+  DeepseekBackend["DeepseekBackend"] -->|"implements"| ModelBackendImpl
+  DeepseekBackend -->|"uses prompt"| Prompt
+  DeepseekBackend -->|"emits content/failure"| ModelResponse
+  ModelContext["ModelContext"] -.->|"future model-facing view"| ModelRequest

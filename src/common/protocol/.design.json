@@ -3,9 +3,13 @@
   "module": {
     "path": "src/common/protocol",
     "name": "protocol",
-    "purpose": "Shared tool protocol types owned once and used on both sides of the session boundary: ToolSchema carries a tool's declared JSON-Schema input document that the client advertises and the agent consumes, and ToolParameter carries the schema-conformant argument payload the agent produces and the client executes, both serializable through serde.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared tool protocol types owned once for both sides of the session boundary: ToolSchema, ToolParameter, ToolInvocation with ToolSignature, ToolType, ToolPreview, ToolError, and ToolExecutionStatus variants that carry the invocation signature.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "mod.rs",
+    "tool.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -16,28 +20,18 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/tool.rs",
-          "lineStart": 6,
+          "lineStart": 7,
           "lineEnd": 9,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 6,
-              "lineEnd": 9
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/protocol/tool.rs",
-          "lineStart": 19,
-          "lineEnd": 25,
+          "lineStart": 73,
+          "lineEnd": 79,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 19,
-              "lineEnd": 25
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -50,26 +44,142 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/tool.rs",
-          "lineStart": 14,
+          "lineStart": 15,
           "lineEnd": 17,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 17
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/protocol/tool.rs",
-          "lineStart": 27,
+          "lineStart": 81,
+          "lineEnd": 87,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolInvocation",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/tool.rs",
+          "lineStart": 22,
+          "lineEnd": 25,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 25
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolType",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/tool.rs",
+          "lineStart": 28,
           "lineEnd": 33,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 27,
+              "lineStart": 28,
               "lineEnd": 33
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolPreview",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/tool.rs",
+          "lineStart": 36,
+          "lineEnd": 40,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 36,
+              "lineEnd": 40
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolError",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/tool.rs",
+          "lineStart": 44,
+          "lineEnd": 50,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 44,
+              "lineEnd": 50
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolExecutionStatus",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "renamed",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/tool.rs",
+          "lineStart": 53,
+          "lineEnd": 64,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 53,
+              "lineEnd": 64
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolSignature",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "renamed",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/tool.rs",
+          "lineStart": 68,
+          "lineEnd": 71,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 68,
+              "lineEnd": 71
             }
           ],
           "modifiedLines": []

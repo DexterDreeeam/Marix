@@ -3,9 +3,16 @@
   "module": {
     "path": "src/common/message",
     "name": "message",
-    "purpose": "Folder-based shared message module where chat requests use complete ChatRequest payloads and streamed chat responses use ChatResponseSegment payloads with separate request and response message envelopes.",
-    "changeStatus": "unchanged"
+    "purpose": "Folder-based shared message module with request and response traits, chat request envelopes, and ChatResponseSegment task response streaming envelopes.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "mod.rs",
+    "message.rs"
+  ],
+  "deleted": [
+    "runtime.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -16,16 +23,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/message/message.rs",
-          "lineStart": 5,
+          "lineStart": 6,
           "lineEnd": 8,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 5,
-              "lineEnd": 8
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -33,20 +35,20 @@
       "name": "ResponseMessageType",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/message.rs",
-          "lineStart": 10,
+          "lineStart": 11,
           "lineEnd": 13,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 10,
+              "lineStart": 11,
               "lineEnd": 13
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -58,16 +60,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/message/message.rs",
-          "lineStart": 15,
+          "lineStart": 16,
           "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 15,
-              "lineEnd": 18
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/common/message/message.rs",
@@ -75,12 +72,7 @@
           "lineEnd": 53,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 43,
-              "lineEnd": 53
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -88,33 +80,33 @@
       "name": "ResponseMessageEnvelope",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/message/message.rs",
-          "lineStart": 20,
+          "lineStart": 21,
           "lineEnd": 23,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 20,
+              "lineStart": 21,
               "lineEnd": 23
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/common/message/message.rs",
           "lineStart": 55,
           "lineEnd": 65,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 55,
-              "lineEnd": 65
+              "lineStart": 57,
+              "lineEnd": 59
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -130,12 +122,7 @@
           "lineEnd": 31,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 25,
-              "lineEnd": 31
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -150,12 +137,7 @@
           "lineStart": 33,
           "lineEnd": 39,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 33,
-              "lineEnd": 39
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -172,12 +154,7 @@
           "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 7,
-              "lineEnd": 10
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/common/message/chat.rs",
@@ -185,12 +162,7 @@
           "lineEnd": 27,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 19,
-              "lineEnd": 27
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -205,12 +177,7 @@
           "lineStart": 12,
           "lineEnd": 15,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 12,
-              "lineEnd": 15
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -218,12 +185,7 @@
           "lineStart": 29,
           "lineEnd": 37,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 29,
-              "lineEnd": 37
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

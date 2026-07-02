@@ -1,29 +1,27 @@
 use std::fmt;
 use std::sync::mpsc::Receiver;
 
+use crate::agent::engine::ModelTaskStepKind;
+
 use super::error::ModelBackendError;
 
-pub trait ModelBackend: fmt::Debug {
+pub trait ModelBackend: fmt::Debug + Send {
     fn request(
         &mut self,
         request: ModelRequest,
     ) -> Result<Receiver<ModelResponse>, ModelBackendError>;
 }
 
-pub(super) trait ModelBackendImpl: fmt::Debug {
+pub(super) trait ModelBackendImpl: fmt::Debug + Send {
     fn ready(&self) -> Result<(), ModelBackendError>;
 
     fn send(&mut self, request: ModelRequest)
         -> Result<Receiver<ModelResponse>, ModelBackendError>;
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ModelBackendType {
-    Deepseek,
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ModelRequest {
+    pub step: ModelTaskStepKind,
     pub prompt: String,
 }
 

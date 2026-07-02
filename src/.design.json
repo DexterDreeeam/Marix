@@ -3,24 +3,32 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Second-generation Rust source organized into client, agent, and common modules with typed configuration, config-gated logging, remoc-backed messaging, an interactive streaming CLI, Config-aware tool registry/runtime tooling, and agent-side frontdoor, engine, and model boundaries where task steps use a nested two-level TaskStepKind model/tool/user boundary, ModelTaskStepKind phases for model work, UserTaskStepKind phases for user interaction, where the model-facing context lives in the model module, and where shared tool schema and parameter protocol types live in common::protocol and are used by both the client tool layer and the agent engine.",
-    "changeStatus": "unchanged"
+    "purpose": "Second-generation Rust source organized into client, agent, and common modules with remoc session transport, TaskEvent tool invocation/status query/status return traffic, session-owned client Executor placeholders, client-only ToolRuntime state, shared ToolSignature/ToolExecutionStatus protocols, and a lean agent loop where ModelRequest carries ModelTaskStepKind and ModelResponse streams content/failure results.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
-    {
-      "path": "src/client",
-      "name": "client",
-      "purpose": "Client-facing modules for interactive CLI, remoc-backed core session/task endpoints, executor dispatch, and a Config-aware tool registry that filters native and external tools by common config Platform before publishing previews, with tool schemas and call parameters sourced from common::protocol."
-    },
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent public surface for remoc-backed frontdoor Session/Task endpoints, a session-scoped loop engine runtime with model-produced Plan/Job planning over nested two-level TaskStepKind model/tool/user boundaries, ModelTaskStepKind model phases, UserTaskStepKind user-interaction phases, draft session and task context views, streamed chat response segments, model-facing context data under the model module, model backend selection, and backend implementations."
+      "purpose": "Agent modules for remoc-backed frontdoor Session/Task endpoints, a session-scoped LoopEngine with configured model backend state, public Plan/Job/TaskStep shapes, ModelRequest step purpose, and ModelResponse content/failure results."
+    },
+    {
+      "path": "src/client",
+      "name": "client",
+      "purpose": "Client modules for CLI, remoc-backed core Session/Task, a session-owned Executor managing ToolRegistry and client-only ToolRuntime instances, shared common::protocol ToolSignature/ToolExecutionStatus tool types, and Config-aware tool registry/runtime tooling."
     },
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared interfaces including typed TOML configuration with host Platform detection, runtime Marix path resolution, config-gated logging, directional chat request/response messages, shared channel errors, remoc session protocol messages, shared tool schema and parameter protocol types under a new protocol module, and centralized crate-local external-library namespaces."
+      "purpose": "Shared configuration, logging, message envelopes, remoc SessionEvent lifecycle/create/cancel events, TaskEvent tool invocation/status query/status return signals, common ToolSchema/ToolParameter/ToolInvocation/ToolSignature/ToolExecutionStatus/ToolType/ToolPreview/ToolError protocol types, and crate-local external-library namespaces."
+    },
+    {
+      "path": "src/target",
+      "name": "target",
+      "purpose": "Owns the target module."
     }
   ],
   "elements": []

@@ -10,13 +10,13 @@ use super::backend::ModelBackendImpl;
 use super::{ModelBackendError, ModelRequest, ModelResponse};
 
 #[derive(Clone)]
-pub struct DeepseekBackend<'config> {
-    config: &'config DeepseekConfig,
+pub struct DeepseekBackend {
+    config: DeepseekConfig,
     client: reqwest::blocking::Client,
 }
 
-impl<'config> DeepseekBackend<'config> {
-    pub fn new(config: &'config DeepseekConfig) -> Self {
+impl DeepseekBackend {
+    pub fn new(config: DeepseekConfig) -> Self {
         Self {
             config,
             client: reqwest::blocking::Client::new(),
@@ -26,7 +26,7 @@ impl<'config> DeepseekBackend<'config> {
 
 // -- Private -- //
 
-impl ModelBackendImpl for DeepseekBackend<'_> {
+impl ModelBackendImpl for DeepseekBackend {
     fn ready(&self) -> Result<(), ModelBackendError> {
         if self.config.api_key.trim().is_empty() {
             return Err(ModelBackendError::Unavailable(
@@ -169,7 +169,7 @@ fn handle_sse_event(
     Ok(false)
 }
 
-impl fmt::Debug for DeepseekBackend<'_> {
+impl fmt::Debug for DeepseekBackend {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         formatter
             .debug_struct("DeepseekBackend")

@@ -3,29 +3,32 @@
   "module": {
     "path": "src/client",
     "name": "client",
-    "purpose": "Client-facing source split into an interactive streaming CLI, a remoc-backed core client session/task endpoint, executor dispatch returning ToolRuntime status streams, and a unified tool layer where ToolRegistry is constructed from Config, stores the current Platform, filters unsupported tools, publishes previews from registered tools only, and native helpers normalize complete-or-cancelled results through ToolExecutionResult, with the tool layer sourcing its shared ToolSchema and ToolParameter types from common::protocol.",
-    "changeStatus": "unchanged"
+    "purpose": "Client modules for CLI, remoc-backed core Session/Task, a session-owned Executor managing ToolRegistry and client-only ToolRuntime instances, shared common::protocol ToolSignature/ToolExecutionStatus tool types, and Config-aware tool registry/runtime tooling.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/client/cli",
       "name": "cli",
-      "purpose": "Interactive CLI binary entry and public interface for connecting to the core client endpoint, sending each typed prompt as a chat request, streaming response segments to stdout, and reporting how many segments were printed, with mod.rs limited to module wiring."
+      "purpose": "Interactive CLI binary entry and public interface for connecting to the core client endpoint, sending typed prompts as chat requests, and streaming ChatResponseSegment task response content to stdout."
     },
     {
       "path": "src/client/core",
       "name": "core",
-      "purpose": "Core client session endpoint backed by remoc/TCP with task creation, initial request submission, and streamed response segment receives."
+      "purpose": "Core client session/task endpoint where ClientSession owns a shared Executor and ClientTask handles ResponseMessage, terminal Complete/Closed, ToolInvocation dispatch, and TaskEvent::ToolQuery(ToolSignature) status dispatch before continuing to receive."
     },
     {
       "path": "src/client/executor",
       "name": "executor",
-      "purpose": "Client-side executor dispatch API that accepts ToolInvocation and returns ToolRuntime for status streaming plus cancellation shape, with behavior left as a draft stub."
+      "purpose": "Client-side Executor API that receives a ToolRegistry, invokes ToolInvocation requests, stores many ToolRuntime instances by call id, answers ToolSignature status requests with ToolExecutionStatus values, and cancels calls; behavior remains draft stubs."
     },
     {
       "path": "src/client/tool",
       "name": "tool",
-      "purpose": "Client-side unified tool layer with common-config Platform support markers, ToolRuntime status/cancel contracts, platform-filtering ToolRegistry behavior, category metadata, typed errors, a Tool trait returning the shared common::protocol ToolSchema, ToolInvocation carrying a common::protocol ToolParameter, and folder-organized native Tool implementations that expose NAME/DESCRIPTION/SCHEMA consts and are published through native tool list functions."
+      "purpose": "Client-side tool interface layer with category metadata, Config-aware registry lookup, native implementations, client-only ToolRuntime status/cancel state (statuses, status_tx, cancel_rx, cancel_tx, and latest ToolExecutionStatus), and Tool trait invocations using shared common::protocol ToolInvocation values and re-exported protocol types."
     }
   ],
   "elements": []

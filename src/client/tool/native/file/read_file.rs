@@ -1,7 +1,7 @@
 use std::{fs, sync::mpsc, thread};
 
 use crate::client::tool::{
-    Tool, ToolCategory, ToolError, ToolInvocation, ToolInvocationStatus, ToolRuntime, ToolSchema,
+    Tool, ToolCategory, ToolError, ToolInvocation, ToolExecutionStatus, ToolRuntime, ToolSchema,
     ToolType,
 };
 use crate::common::config::Platform;
@@ -46,18 +46,18 @@ impl Tool for ReadFileTool {
         let (cancel_tx, cancel_rx) = mpsc::channel();
 
         thread::spawn(move || {
-            let _ = status_tx.send(ToolInvocationStatus::Started);
+            let _ = status_tx.send(ToolExecutionStatus::Started);
             if cancel_rx.try_recv().is_ok() {
-                let _ = status_tx.send(ToolInvocationStatus::Cancelled);
+                let _ = status_tx.send(ToolExecutionStatus::Cancelled);
                 return;
             }
             match fs::read_to_string(&path) {
                 Ok(content) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Running(content));
-                    let _ = status_tx.send(ToolInvocationStatus::Complete);
+                    let _ = status_tx.send(ToolExecutionStatus::Running(content));
+                    let _ = status_tx.send(ToolExecutionStatus::Complete { output: None });
                 }
                 Err(error) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Failed(
+                    let _ = status_tx.send(ToolExecutionStatus::Failed(
                         ToolError::ExecutionFailed(format!("failed to read {path}: {error}")),
                     ));
                 }

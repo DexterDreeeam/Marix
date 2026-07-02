@@ -3,5 +3,5 @@ pub mod frontdoor;
 pub mod model;
 
 pub use model::{
-    DeepseekBackend, ModelBackend, ModelBackendError, ModelBackendType, ModelRequest, ModelResponse,
+    DeepseekBackend, ModelBackend, ModelBackendError, ModelRequest, ModelResponse,
 };

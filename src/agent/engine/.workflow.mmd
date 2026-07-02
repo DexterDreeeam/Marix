@@ -1,64 +1,11 @@
 flowchart LR
-  subgraph loop_engine_rs["loop_engine.rs"]
-    LoopEngine["LoopEngine\nstruct"]
-  end
-
-  subgraph session_context_rs["session_context.rs"]
-    SessionContext["SessionContext\nstruct"]
-    SessionStatus["SessionStatus\nenum"]
-    SessionBrief["SessionBrief\nsession digest"]
-  end
-
-  subgraph task_context_rs["task_context.rs"]
-    TaskContext["TaskContext\nstruct"]
-    TaskStatus["TaskStatus\nenum"]
-    TaskRuntimeEvent["TaskRuntimeEvent\nenum"]
-    TaskTrace["TaskTrace\ntask trace"]
-    TaskStep["TaskStep\nexecution boundary"]
-    TaskStepKind["TaskStepKind\ntwo-level model/tool/user boundary"]
-    ModelTaskStepKind["ModelTaskStepKind\nmodel phases"]
-    UserTaskStepKind["UserTaskStepKind\nuser phases"]
-    TaskResult["TaskResult\nstatus payload"]
-    TaskBrief["TaskBrief\nrecent task digest"]
-  end
-
-  subgraph plan_rs["plan.rs"]
-    Plan["Plan\nmodel plan"]
-    Job["Job\nplanned unit"]
-  end
-
-  subgraph error_rs["error.rs"]
-    LoopEngineError["LoopEngineError\nenum"]
-  end
-
-  Task["Task"]
-  RequestMessageEnvelope["RequestMessageEnvelope"]
-  ModelBackendType["ModelBackendType"]
-  ModelBackend["ModelBackend"]
-  ChatResponseSegment["ChatResponseSegment"]
-
-  LoopEngine -->|"owns session state"| SessionContext
-  SessionContext -->|"status()"| SessionStatus
-  SessionContext -->|"brief() draft accessor"| SessionBrief
-  SessionBrief -->|"recent tasks"| TaskBrief
-  LoopEngine -->|"creates from accepted task"| TaskContext
-  Task -->|"initial request"| RequestMessageEnvelope
-  RequestMessageEnvelope -->|"stored by"| TaskContext
-  TaskContext -->|"status()"| TaskStatus
-  TaskContext -->|"trace() draft accessor"| TaskTrace
-  TaskTrace -->|"ordered steps"| TaskStep
-  TaskStep -->|"chooses top-level execution boundary"| TaskStepKind
-  TaskStepKind -->|"Model(...) phases"| ModelTaskStepKind
-  TaskStepKind -->|"User(...) phases"| UserTaskStepKind
-  TaskTrace -->|"result"| TaskResult
-  TaskTrace -->|"brief"| TaskBrief
-  TaskResult -->|"uses existing status"| TaskStatus
-  LoopEngine -->|"publishes runtime progress"| TaskRuntimeEvent
-  LoopEngine -->|"selects backend"| ModelBackendType
-  ModelBackendType -->|"dispatches request"| ModelBackend
-  ModelBackend -->|"response content"| ChatResponseSegment
-  ModelBackend -->|"produces / replans"| Plan
-  Plan -->|"jobs"| Job
-  Job -->|"expands into model/tool/user steps"| TaskStep
-  ChatResponseSegment -->|"sent through"| Task
-  LoopEngine -->|"returns failures"| LoopEngineError
+  LoopEngine["LoopEngine"] -->|"Config::load builds"| ModelBackend["ModelBackend trait object"]
+  LoopEngine -->|"creates/runs"| TaskContext["TaskContext"]
+  LoopEngine -->|"publishes"| TaskRuntimeEvent["TaskRuntimeEvent"]
+  LoopEngine -->|"initial_task_step"| TaskStep["TaskStep"]
+  TaskStep -->|"kind"| ModelTaskStepKind["ModelTaskStepKind"]
+  LoopEngine -->|"run_model_loop sends"| ModelRequest["ModelRequest"]
+  ModelBackend -->|"streams"| ModelResponse["ModelResponse"]
+  ModelResponse -->|"content/failure"| TaskStatus["TaskStatus"]
+  Plan["Plan"] -->|"groups"| Job["Job"]
+  Job -->|"steps"| TaskStep

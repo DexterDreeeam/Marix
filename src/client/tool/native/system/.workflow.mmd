@@ -1,48 +1,9 @@
 flowchart LR
-  ToolPreview["ToolPreview"]
-  ToolSchema["ToolSchema\ncommon::protocol"]
-  ToolParameter["ToolParameter\ncommon::protocol"]
-  ToolTrait["Tool platform/category/invoke"]
-  PlatformAll["Platform::All"]
-  PlatformWin["Platform::Win"]
-  ToolInvocation["ToolInvocation parameter payload"]
-  ToolRuntime["ToolRuntime status receiver + cancel handle"]
-  ToolInvocationStatus["ToolInvocationStatus"]
-  ToolExecutionResult["ToolExecutionResult<Vec<String>>\nprocess rows or Cancelled"]
-  ToolError["ToolError"]
-  CancelSignal["cancel signal"]
-  SystemInfoTool["SystemInfoTool"]
-  ProcessListTool["ProcessListTool"]
-  EnvironmentTool["EnvironmentTool"]
-  EnvVars["local environment variables"]
-  TasklistProcess["tasklist child process"]
-  ProcessRows["process JSON rows"]
-
-  SystemInfoTool -->|"implements Tool"| ToolTrait
-  ProcessListTool -->|"implements Tool"| ToolTrait
-  EnvironmentTool -->|"implements Tool"| ToolTrait
-  SystemInfoTool -->|"platform()"| PlatformAll
-  EnvironmentTool -->|"platform()"| PlatformAll
-  ProcessListTool -->|"platform()"| PlatformWin
-  SystemInfoTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
-  ProcessListTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
-  EnvironmentTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
-  ToolTrait -->|"schema() returns"| ToolSchema
-  ToolPreview -->|"schema field"| ToolSchema
-  ToolInvocation -->|"parameter package"| ToolParameter
-  ToolInvocation -->|"names array"| EnvironmentTool
-  SystemInfoTool -->|"Running OS/current-dir JSON then Complete"| ToolRuntime
-  EnvironmentTool -->|"reads requested names"| EnvVars
-  EnvVars -->|"one Running JSON per variable"| ToolRuntime
-  ProcessListTool -->|"spawns tasklist /FO CSV /NH"| TasklistProcess
-  TasklistProcess -->|"stdout CSV"| ProcessRows
-  TasklistProcess -->|"Complete rows or Cancelled"| ToolExecutionResult
-  ToolExecutionResult -->|"rows become Running process JSON"| ProcessRows
-  ToolExecutionResult -->|"Cancelled maps outward"| ToolInvocationStatus
-  ProcessRows -->|"Running process JSON messages"| ToolRuntime
-  ToolRuntime -->|"emits"| ToolInvocationStatus
-  ToolRuntime -->|"cancel()"| CancelSignal
-  CancelSignal -->|"checked before/between work"| SystemInfoTool
-  CancelSignal -->|"checked before/between variables"| EnvironmentTool
-  CancelSignal -->|"kills child while polling"| TasklistProcess
-  ToolError -->|"Denied/Failed status"| ToolInvocationStatus
+  SystemInfoTool["SystemInfoTool"] -->|"OS/path data"| EnvData["environment data"]
+  EnvironmentTool["EnvironmentTool"] -->|"selected variables"| EnvData
+  ProcessListTool["ProcessListTool"] -->|"spawns"| Tasklist["Windows tasklist"]
+  EnvData -->|"JSON statuses"| ToolExecutionStatus["ToolExecutionStatus"]
+  Tasklist -->|"process rows/cancel"| ToolExecutionStatus
+  ToolRuntime["ToolRuntime"] -->|"owns cancel channel"| Cancel["cancel signal"]
+  ToolRuntime -->|"status_tx/sync_status"| ToolExecutionStatus
+  Cancel -->|"stops polling"| ToolExecutionStatus

@@ -3,19 +3,26 @@
   "module": {
     "path": "src/client/tool",
     "name": "tool",
-    "purpose": "Client-side tool interface layer with a unified Tool trait using common config Platform values and returning the shared common::protocol ToolSchema, a default preview() that builds ToolPreview from name/description/schema, ToolRuntime status streaming and cancellation, ToolInvocationStatus lifecycle states, the shared generic ToolExecutionResult helper outcome for complete-or-cancelled native helpers, ToolType variants, ToolPreview and DefaultPreview records, ToolInvocation carrying a shared common::protocol ToolParameter package, Config-aware ToolRegistry registration/preview/lookup behavior with unsupported-tool denial, typed ToolError failures, CategoryPreview metadata, and folder-organized native tool implementations.",
-    "changeStatus": "unchanged"
+    "purpose": "Client-side tool interface layer with category metadata, Config-aware registry lookup, native implementations, client-only ToolRuntime status/cancel state (statuses, status_tx, cancel_rx, cancel_tx, and latest ToolExecutionStatus), and Tool trait invocations using shared common::protocol ToolInvocation values and re-exported protocol types.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    ".",
+    "error.rs",
+    "mod.rs",
+    "registry.rs",
+    "tool.rs"
+  ],
   "childModules": [
     {
       "path": "src/client/tool/category",
       "name": "category",
-      "purpose": "Contains per-category preview provider structs and the aggregate TOOL_CATEGORY_LIST consumed by the sibling category.rs module entry."
+      "purpose": "Holds per-category preview provider structs and the aggregate category preview list; the sibling src/client/tool/category.rs entry owns ToolCategory and CategoryPreview so this folder does not carry module-entry code."
     },
     {
       "path": "src/client/tool/native",
       "name": "native",
-      "purpose": "Folder-organized native Tool implementations exposing NAME/DESCRIPTION/SCHEMA consts and returning the shared common::protocol ToolSchema, common Platform support markers, runtime status streaming, cancellation handling, and native tool list functions."
+      "purpose": "Folder-organized native Tool implementations exposing NAME/DESCRIPTION/SCHEMA consts, Platform support markers, ToolRuntime-owned status/cancel channels, direct ToolExecutionStatus completion/cancellation/failure handling, and native tool list functions."
     }
   ],
   "elements": [
@@ -27,7 +34,7 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/category.rs",
-          "lineStart": 23,
+          "lineStart": 24,
           "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
@@ -43,24 +50,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/category.rs",
-          "lineStart": 36,
+          "lineStart": 37,
           "lineEnd": 40,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ToolError",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/client/tool/error.rs",
-          "lineStart": 5,
-          "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -75,8 +66,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/registry.rs",
-          "lineStart": 11,
-          "lineEnd": 14,
+          "lineStart": 8,
+          "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -91,68 +82,24 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/registry.rs",
-          "lineStart": 16,
-          "lineEnd": 21,
+          "lineStart": 15,
+          "lineEnd": 18,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 19,
-              "lineEnd": 19
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/registry.rs",
-          "lineStart": 23,
-          "lineEnd": 82,
+          "lineStart": 20,
+          "lineEnd": 72,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 29,
-              "lineEnd": 35
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 24,
-              "lineEnd": 28
-            },
-            {
-              "lineStart": 39,
-              "lineEnd": 46
-            },
-            {
-              "lineStart": 58,
-              "lineEnd": 61
-            }
-          ]
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/client/tool/registry.rs",
-          "lineStart": 86,
-          "lineEnd": 123,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 105,
-              "lineEnd": 122
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ToolType",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 9,
-          "lineEnd": 15,
+          "lineStart": 76,
+          "lineEnd": 91,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -167,21 +114,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 20,
-          "lineEnd": 42,
+          "lineStart": 11,
+          "lineEnd": 33,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 33,
-              "lineEnd": 39
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 31,
-              "lineEnd": 31
-            }
-          ]
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -193,57 +130,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 44,
-          "lineEnd": 44,
+          "lineStart": 35,
+          "lineEnd": 35,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ToolPreview",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 46,
-          "lineEnd": 51,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 46,
-              "lineEnd": 46
-            },
-            {
-              "lineStart": 50,
-              "lineEnd": 50
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "ToolInvocation",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 56,
-          "lineEnd": 61,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 60,
-              "lineEnd": 60
-            }
-          ]
         }
       ]
     },
@@ -251,60 +142,46 @@
       "name": "ToolRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 63,
-          "lineEnd": 66,
+          "lineStart": 37,
+          "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 38,
+              "lineEnd": 42
+            }
+          ]
         },
         {
           "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 83,
-          "lineEnd": 96,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ToolInvocationStatus",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 68,
-          "lineEnd": 75,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ToolExecutionResult",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/client/tool/tool.rs",
-          "lineStart": 77,
-          "lineEnd": 81,
+          "lineStart": 45,
+          "lineEnd": 71,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 77,
-              "lineEnd": 81
+              "lineStart": 51,
+              "lineEnd": 52
+            },
+            {
+              "lineStart": 54,
+              "lineEnd": 54
+            },
+            {
+              "lineStart": 58,
+              "lineEnd": 65
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 46,
+              "lineEnd": 48
+            }
+          ]
         }
       ]
     }

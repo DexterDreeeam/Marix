@@ -1,35 +1,6 @@
 flowchart LR
-  ToolPreview["ToolPreview"]
-  ToolSchema["ToolSchema\ncommon::protocol"]
-  ToolParameter["ToolParameter\ncommon::protocol"]
-  ToolTrait["Tool platform/category/invoke"]
-  PlatformWin["Platform::Win"]
-  ToolInvocation["ToolInvocation package arguments"]
-  PackageQueryTool["PackageQueryTool"]
-  PackageArguments["PackageQueryArguments"]
-  PowerShellGetPackage["PowerShell Get-Package child process"]
-  PackageJson["package metadata JSON or []"]
-  ToolRuntime["ToolRuntime status receiver + cancel handle"]
-  ToolInvocationStatus["ToolInvocationStatus"]
-  ToolExecutionResult["ToolExecutionResult<String>\nComplete JSON or Cancelled"]
-  CancelSignal["cancel signal"]
-  ToolError["ToolError"]
-
-  PackageQueryTool -->|"implements Tool"| ToolTrait
-  PackageQueryTool -->|"platform()"| PlatformWin
-  PackageQueryTool -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
-  ToolTrait -->|"schema() returns"| ToolSchema
-  ToolPreview -->|"schema field"| ToolSchema
-  ToolInvocation -->|"parameter package"| ToolParameter
-  ToolInvocation -->|"name/include_versions"| PackageArguments
-  PackageArguments -->|"selects fields and wildcard name"| PowerShellGetPackage
-  PackageQueryTool -->|"polls Windows child process"| PowerShellGetPackage
-  PowerShellGetPackage -->|"stdout JSON, empty stdout becomes []"| PackageJson
-  PowerShellGetPackage -->|"Complete or Cancelled"| ToolExecutionResult
-  ToolExecutionResult -->|"Complete payload"| PackageJson
-  ToolExecutionResult -->|"maps to Running/Complete or Cancelled"| ToolInvocationStatus
-  PackageJson -->|"Running package metadata"| ToolRuntime
-  ToolRuntime -->|"emits statuses"| ToolInvocationStatus
-  ToolRuntime -->|"cancel()"| CancelSignal
-  CancelSignal -->|"kills child while polling"| PowerShellGetPackage
-  ToolError -->|"Denied/InvalidArguments/ExecutionFailed"| ToolInvocationStatus
+  PackageQueryTool["PackageQueryTool"] -->|"query"| PowerShell["PowerShell Get-Package"]
+  PowerShell -->|"package JSON"| ToolExecutionStatus["ToolExecutionStatus"]
+  ToolRuntime["ToolRuntime"] -->|"owns cancel channel"| Cancel["cancel signal"]
+  ToolRuntime -->|"status_tx/sync_status"| ToolExecutionStatus
+  Cancel -->|"kills child process"| ToolExecutionStatus

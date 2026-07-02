@@ -1,72 +1,15 @@
 flowchart LR
-  subgraph tool_rs["tool.rs"]
-    ToolType["ToolType"]
-    Platform["Platform\nfrom common config"]
-    ToolTrait["Tool trait"]
-    UserTool["UserTool trait"]
-    ToolPreview["ToolPreview"]
-    ToolInvocation["ToolInvocation"]
-    ToolRuntime["ToolRuntime statuses + cancel handle"]
-    ToolInvocationStatus["ToolInvocationStatus Started/Running/Cancelled/Failed/Complete"]
-    ToolExecutionResult["ToolExecutionResult<T>\nComplete or Cancelled"]
-  end
-  subgraph registry_rs["registry.rs"]
-    Config["Config"]
-    DefaultPreview["DefaultPreview"]
-    ToolRegistry["ToolRegistry\nVec<Box<dyn Tool>> + current Platform"]
-    SupportCheck["supports_tool"]
-  end
-  subgraph error_rs["error.rs"]
-    ToolError["ToolError"]
-  end
-  subgraph category["category.rs + category/"]
-    ToolCategory["ToolCategory"]
-    CategoryPreview["CategoryPreview"]
-    ToolCategoryList["TOOL_CATEGORY_LIST"]
-  end
-  subgraph native["native/"]
-    NativeToolListFns["native_tool_list()\nprimary_native_tool_list()"]
-    NativeToolStructs["category native tool structs"]
-    NativeRuntimeImplementations["native runtime implementations"]
-  end
-  subgraph protocol["common::protocol"]
-    ToolSchema["ToolSchema"]
-    ToolParameter["ToolParameter"]
-  end
-
-  ToolTrait -->|"reports type"| ToolType
-  ToolTrait -->|"platform() returns"| Platform
-  ToolTrait -->|"category() returns"| ToolCategory
-  ToolTrait -->|"schema() returns"| ToolSchema
-  ToolTrait -->|"default preview() builds"| ToolPreview
-  ToolPreview -->|"schema field"| ToolSchema
-  ToolTrait -->|"accepts"| ToolInvocation
-  ToolInvocation -->|"parameter package"| ToolParameter
-  ToolTrait -->|"invoke() returns"| ToolRuntime
-  ToolRuntime -->|"statuses Receiver"| ToolInvocationStatus
-  ToolRuntime -->|"cancel() may fail with"| ToolError
-  ToolInvocationStatus -->|"Failed variant"| ToolError
-  UserTool -->|"extends"| ToolTrait
-  Config -->|"ToolRegistry::new(&Config)"| ToolRegistry
-  Config -->|"current platform"| Platform
-  ToolRegistry -->|"stores dyn Tool boxes"| ToolTrait
-  ToolRegistry -->|"register()/get(name)"| ToolTrait
-  ToolRegistry -->|"checks platform support"| SupportCheck
-  SupportCheck -->|"allows Platform::All or exact match"| Platform
-  SupportCheck -->|"denies unsupported external/user tools"| ToolError
-  ToolRegistry -->|"skips unsupported built-ins"| NativeToolStructs
-  ToolRegistry -->|"default_preview() from registered primary tools"| DefaultPreview
-  ToolRegistry -->|"tool_preview() maps stored tools"| ToolPreview
-  DefaultPreview -->|"primary_tool_previews"| ToolPreview
-  DefaultPreview -->|"category_previews"| CategoryPreview
-  ToolCategoryList -->|"aggregates category previews"| CategoryPreview
-  NativeToolStructs -->|"implements Tool"| ToolTrait
-  NativeToolStructs -->|"NAME/DESCRIPTION/SCHEMA consts"| ToolPreview
-  NativeToolStructs -->|"schema() returns"| ToolSchema
-  NativeToolStructs -->|"invoke behavior"| NativeRuntimeImplementations
-  NativeRuntimeImplementations -->|"helper returns Complete or Cancelled"| ToolExecutionResult
-  ToolExecutionResult -->|"Complete maps to Complete status"| ToolInvocationStatus
-  ToolExecutionResult -->|"Cancelled maps to Cancelled status"| ToolInvocationStatus
-  NativeRuntimeImplementations -->|"propagates failures"| ToolError
-  NativeRuntimeImplementations -->|"streams ToolInvocationStatus"| ToolRuntime
-  NativeToolListFns -->|"map preview() over native tools"| ToolPreview
+  Tool["Tool
+trait"] -->|"invoke"| ToolInvocation["ToolInvocation"]
+  Tool -->|"schema"| ToolSchema["ToolSchema"]
+  Tool -->|"tool_type"| ToolType["ToolType"]
+  Tool -->|"returns"| ToolRuntime["ToolRuntime"]
+  ToolRuntime -->|"owns statuses/status_tx"| ToolExecutionStatus["ToolExecutionStatus"]
+  ToolRuntime -->|"sync_status/status latest"| LatestStatus["latest ToolExecutionStatus"]
+  ToolRuntime -->|"cancel() via cancel_tx/cancel_rx"| CancelSignal["cancel signal"]
+  ToolRuntime -->|"cancel errors"| ToolError["ToolError"]
+  ToolRegistry["ToolRegistry"] -->|"stores"| Tool
+  ToolRegistry -->|"publishes"| ToolPreview["ToolPreview"]
+  DefaultPreview["DefaultPreview"] -->|"groups"| CategoryPreview["CategoryPreview"]
+  UserTool["UserTool"] -->|"extends"| Tool
+  ToolSignature["ToolSignature"] -.->|"executor status/cancel identity"| ToolRuntime

@@ -7,8 +7,8 @@ use std::{
 };
 
 use crate::client::tool::{
-    Tool, ToolCategory, ToolError, ToolExecutionResult, ToolInvocation, ToolInvocationStatus,
-    ToolSchema, ToolRuntime, ToolType,
+    Tool, ToolCategory, ToolError, ToolExecutionStatus, ToolInvocation, ToolSchema, ToolRuntime,
+    ToolType,
 };
 use crate::common::config::Platform;
 use crate::common::external::*;
@@ -53,16 +53,13 @@ impl Tool for ShellExecuteTool {
         let (cancel_tx, cancel_rx) = mpsc::channel();
 
         thread::spawn(move || {
-            let _ = status_tx.send(ToolInvocationStatus::Started);
+            let _ = status_tx.send(ToolExecutionStatus::Started);
             match execute_shell(arguments, &status_tx, &cancel_rx) {
-                Ok(ToolExecutionResult::Complete(())) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Complete);
-                }
-                Ok(ToolExecutionResult::Cancelled) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Cancelled);
+                Ok(status) => {
+                    let _ = status_tx.send(status);
                 }
                 Err(error) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Failed(error));
+                    let _ = status_tx.send(ToolExecutionStatus::Failed(error));
                 }
             }
         });
@@ -102,9 +99,9 @@ fn parse_arguments(arguments: &str) -> Result<ShellExecuteArguments, ToolError> 
 
 fn execute_shell(
     arguments: ShellExecuteArguments,
-    status_tx: &mpsc::Sender<ToolInvocationStatus>,
+    status_tx: &mpsc::Sender<ToolExecutionStatus>,
     cancel_rx: &mpsc::Receiver<()>,
-) -> Result<ToolExecutionResult<()>, ToolError> {
+) -> Result<ToolExecutionStatus, ToolError> {
     let mut command = shell_command(&arguments.command);
     if let Some(cwd) = arguments.cwd {
         command.current_dir(cwd);
@@ -128,16 +125,16 @@ fn execute_shell(
         if cancel_rx.try_recv().is_ok() {
             let _ = child.kill();
             let _ = child.wait();
-            return Ok(ToolExecutionResult::Cancelled);
+            return Ok(ToolExecutionStatus::Cancelled);
         }
         if let Some(status) = child
             .try_wait()
             .map_err(|error| ToolError::ExecutionFailed(error.to_string()))?
         {
-            let _ = status_tx.send(ToolInvocationStatus::Running(
+            let _ = status_tx.send(ToolExecutionStatus::Running(
                 self::serde_json::json!({ "status": status.code() }).to_string(),
             ));
-            return Ok(ToolExecutionResult::Complete(()));
+            return Ok(ToolExecutionStatus::Complete { output: None });
         }
         if let Some(deadline) = deadline {
             if Instant::now() >= deadline {
@@ -156,7 +153,7 @@ fn execute_shell(
 fn spawn_stream_reader<R>(
     stream: &'static str,
     reader: R,
-    status_tx: mpsc::Sender<ToolInvocationStatus>,
+    status_tx: mpsc::Sender<ToolExecutionStatus>,
 ) where
     R: std::io::Read + Send + 'static,
 {
@@ -164,7 +161,7 @@ fn spawn_stream_reader<R>(
         for line in BufReader::new(reader).lines() {
             match line {
                 Ok(line) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Running(
+                    let _ = status_tx.send(ToolExecutionStatus::Running(
                         self::serde_json::json!({
                             "stream": stream,
                             "content": line
@@ -173,7 +170,7 @@ fn spawn_stream_reader<R>(
                     ));
                 }
                 Err(error) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Failed(
+                    let _ = status_tx.send(ToolExecutionStatus::Failed(
                         ToolError::ExecutionFailed(error.to_string()),
                     ));
                     break;

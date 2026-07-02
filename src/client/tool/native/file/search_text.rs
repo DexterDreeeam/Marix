@@ -1,8 +1,8 @@
 use std::{fs, path::Path, sync::mpsc, thread};
 
 use crate::client::tool::{
-    Tool, ToolCategory, ToolError, ToolExecutionResult, ToolInvocation, ToolInvocationStatus,
-    ToolSchema, ToolRuntime, ToolType,
+    Tool, ToolCategory, ToolError, ToolExecutionStatus, ToolInvocation, ToolSchema, ToolRuntime,
+    ToolType,
 };
 use crate::common::config::Platform;
 use crate::common::external::*;
@@ -46,21 +46,18 @@ impl Tool for SearchTextTool {
         let (cancel_tx, cancel_rx) = mpsc::channel();
 
         thread::spawn(move || {
-            let _ = status_tx.send(ToolInvocationStatus::Started);
+            let _ = status_tx.send(ToolExecutionStatus::Started);
             match search_path(
                 Path::new(&arguments.path),
                 &arguments,
                 &status_tx,
                 &cancel_rx,
             ) {
-                Ok(ToolExecutionResult::Complete(())) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Complete);
-                }
-                Ok(ToolExecutionResult::Cancelled) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Cancelled);
+                Ok(status) => {
+                    let _ = status_tx.send(status);
                 }
                 Err(error) => {
-                    let _ = status_tx.send(ToolInvocationStatus::Failed(error));
+                    let _ = status_tx.send(ToolExecutionStatus::Failed(error));
                 }
             }
         });
@@ -97,11 +94,11 @@ fn parse_arguments(arguments: &str) -> Result<SearchTextArguments, ToolError> {
 fn search_path(
     path: &Path,
     arguments: &SearchTextArguments,
-    status_tx: &mpsc::Sender<ToolInvocationStatus>,
+    status_tx: &mpsc::Sender<ToolExecutionStatus>,
     cancel_rx: &mpsc::Receiver<()>,
-) -> Result<ToolExecutionResult<()>, ToolError> {
+) -> Result<ToolExecutionStatus, ToolError> {
     if cancel_rx.try_recv().is_ok() {
-        return Ok(ToolExecutionResult::Cancelled);
+        return Ok(ToolExecutionStatus::Cancelled);
     }
 
     if path.is_dir() {
@@ -110,29 +107,31 @@ fn search_path(
         })? {
             let entry = entry.map_err(|error| ToolError::ExecutionFailed(error.to_string()))?;
             match search_path(&entry.path(), arguments, status_tx, cancel_rx)? {
-                ToolExecutionResult::Complete(()) => {}
-                ToolExecutionResult::Cancelled => return Ok(ToolExecutionResult::Cancelled),
+                ToolExecutionStatus::Complete { .. } => {}
+                ToolExecutionStatus::Cancelled => return Ok(ToolExecutionStatus::Cancelled),
+                status => return Ok(status),
             }
         }
-        return Ok(ToolExecutionResult::Complete(()));
+        return Ok(ToolExecutionStatus::Complete { output: None });
     }
 
     if path.is_file() {
         match search_file(path, arguments, status_tx, cancel_rx)? {
-            ToolExecutionResult::Complete(()) => {}
-            ToolExecutionResult::Cancelled => return Ok(ToolExecutionResult::Cancelled),
+            ToolExecutionStatus::Complete { .. } => {}
+            ToolExecutionStatus::Cancelled => return Ok(ToolExecutionStatus::Cancelled),
+            status => return Ok(status),
         }
     }
 
-    Ok(ToolExecutionResult::Complete(()))
+    Ok(ToolExecutionStatus::Complete { output: None })
 }
 
 fn search_file(
     path: &Path,
     arguments: &SearchTextArguments,
-    status_tx: &mpsc::Sender<ToolInvocationStatus>,
+    status_tx: &mpsc::Sender<ToolExecutionStatus>,
     cancel_rx: &mpsc::Receiver<()>,
-) -> Result<ToolExecutionResult<()>, ToolError> {
+) -> Result<ToolExecutionStatus, ToolError> {
     let content = fs::read_to_string(path).map_err(|error| {
         ToolError::ExecutionFailed(format!("failed to read {}: {error}", path.display()))
     })?;
@@ -144,7 +143,7 @@ fn search_file(
 
     for (index, line) in content.lines().enumerate() {
         if cancel_rx.try_recv().is_ok() {
-            return Ok(ToolExecutionResult::Cancelled);
+            return Ok(ToolExecutionStatus::Cancelled);
         }
         let haystack = if arguments.case_sensitive {
             line.to_string()
@@ -152,7 +151,7 @@ fn search_file(
             line.to_lowercase()
         };
         if haystack.contains(&query) {
-            let _ = status_tx.send(ToolInvocationStatus::Running(
+            let _ = status_tx.send(ToolExecutionStatus::Running(
                 self::serde_json::json!({
                     "path": path.display().to_string(),
                     "line_number": index + 1,
@@ -163,7 +162,7 @@ fn search_file(
         }
     }
 
-    Ok(ToolExecutionResult::Complete(()))
+    Ok(ToolExecutionStatus::Complete { output: None })
 }
 
 fn required_string(value: &serde_json::Value, field: &str) -> Result<String, ToolError> {
