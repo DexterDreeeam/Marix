@@ -4,7 +4,7 @@
     "path": "src/common/logging",
     "name": "logging",
     "purpose": "Common logging module with tagged log messages, structured logging errors, config-gated info/warning/error writes, direct warning/error shortcut functions, debug-build logging, runtime-config-selected log directories under the process role's Marix path plus a fixed log child folder, timestamped log-file creation, and pruning to retain at most 20 log files.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -208,8 +208,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "logger.rs"
   ]
 }

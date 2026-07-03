@@ -4,18 +4,15 @@
     "path": "src/agent/task",
     "name": "task",
     "purpose": "Owns the agent task runtime data. step.rs defines the StepSequence ordering key, the Step record, and the StepKind/ToolStepKind/ModelStepKind/UserStepKind classification enums; task.rs defines Task, which owns the task signature, optional model backend, client/host senders, an internal SessionEvent channel, execution and step WorkQueues, and a worker handle; execution.rs defines the Execution record. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "."
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "StepSequence",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/step.rs",
@@ -36,7 +33,7 @@
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/step.rs",
@@ -57,7 +54,7 @@
       "name": "StepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/step.rs",
@@ -78,7 +75,7 @@
       "name": "ToolStepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/step.rs",
@@ -99,7 +96,7 @@
       "name": "ModelStepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/step.rs",
@@ -120,7 +117,7 @@
       "name": "UserStepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/step.rs",
@@ -141,7 +138,7 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
@@ -175,7 +172,7 @@
       "name": "Execution",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/execution.rs",

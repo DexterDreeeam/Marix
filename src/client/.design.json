@@ -4,18 +4,15 @@
     "path": "src/client",
     "name": "client",
     "purpose": "Client crate for the user-facing session. event.rs defines ClientEvent, the user-facing event surface; session.rs defines ClientSession, which owns the agent SessionEvent channel endpoints, a user ClientEvent channel, and an event-loop handle, and exposes connect plus task create/query/cancel and close commands. lib.rs is namespace and re-export wiring only; method bodies are panic-backed interface placeholders.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "."
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "ClientEvent",
       "type": "enum",
       "source_depth": 2,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/event.rs",
@@ -36,7 +33,7 @@
       "name": "ClientSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",

@@ -4,18 +4,15 @@
     "path": "src/host",
     "name": "host",
     "purpose": "Host crate for tool execution management. session.rs defines HostSession, which owns the agent SessionEvent channel endpoints, an Executor, and an event-loop handle and exposes connect and close; executor.rs defines Executor, which owns registered ToolProgram records keyed by tool name and active ToolExecution records keyed by ExecutionSignature and exposes preview, evoke, query, cancel, kill, and update surfaces, plus the ToolProgram and ToolExecution records. lib.rs is namespace and re-export wiring only; method bodies are panic-backed interface placeholders.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "."
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "HostSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/session.rs",
@@ -49,7 +46,7 @@
       "name": "Executor",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor.rs",
@@ -83,7 +80,7 @@
       "name": "ToolProgram",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor.rs",
@@ -104,7 +101,7 @@
       "name": "ToolExecution",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor.rs",

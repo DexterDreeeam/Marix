@@ -4,18 +4,15 @@
     "path": "src/agent/session",
     "name": "session",
     "purpose": "Owns the agent session runtime. session.rs defines Session, which spawns and holds client and host channel workers and drives task creation and SessionEvent routing; session_context.rs defines SessionContext, which owns the TaskId-keyed task WorkQueue and the shared client/host remoc channel endpoints. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "."
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
@@ -62,7 +59,7 @@
       "name": "SessionContext",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session_context.rs",

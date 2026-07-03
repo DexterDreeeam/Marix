@@ -4,18 +4,15 @@
     "path": "src/common/structure",
     "name": "structure",
     "purpose": "Owns shared structural utilities for the common crate. channel.rs defines the local mpsc Sender/Receiver aliases, the remoc NetSender/NetReceiver and shared-endpoint aliases, the ChannelError enum, and the channel/accept_channel/create_channel constructors that build local and TCP-backed remoc channels; work_queue.rs defines the generic WorkQueue that tracks working and completed entries behind Arc<Mutex<BTreeMap>>. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "."
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "Sender",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -36,7 +33,7 @@
       "name": "Receiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -57,7 +54,7 @@
       "name": "NetSender",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -78,7 +75,7 @@
       "name": "NetReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -99,7 +96,7 @@
       "name": "SharedNetSender",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -120,7 +117,7 @@
       "name": "SharedNetReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -141,7 +138,7 @@
       "name": "ChannelError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -162,7 +159,7 @@
       "name": "channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -183,7 +180,7 @@
       "name": "accept_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -204,7 +201,7 @@
       "name": "create_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -225,7 +222,7 @@
       "name": "WorkQueue",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/work_queue.rs",

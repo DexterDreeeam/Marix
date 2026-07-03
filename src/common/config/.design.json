@@ -4,7 +4,7 @@
     "path": "src/common/config",
     "name": "config",
     "purpose": "Strongly typed TOML configuration model and fallible loader that detects the supported host Platform before reading config data, exposes Platform on Config, discovers source/deployed/environment config files, resolves runtime Marix paths relative to the config root, substitutes aliases, resolves credentials, and re-exports the public config surface from mod.rs.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -288,8 +288,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "config.rs"
   ]
 }
