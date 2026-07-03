@@ -4,9 +4,8 @@
     "path": "src/common/protocol",
     "name": "protocol",
     "purpose": "Owns the shared session/task/execution protocol contracts exchanged over channels. session.rs defines the TaskId and ExeId identifiers and the top-level SessionEvent split between task and execution traffic; task.rs defines task signatures, task session events, and task status; execution.rs defines execution signatures, execution session events that carry tool previews sourced from common::tool, the ExecutionRequest and ExecutionStatus models, execution updates, and the execution parameter package. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["execution.rs", "mod.rs"],
   "childModules": [],
   "elements": [
     {
@@ -186,7 +185,7 @@
       "name": "ExecutionSessionEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/execution.rs",
@@ -207,7 +206,7 @@
       "name": "ExecutionRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/execution.rs",
@@ -228,7 +227,7 @@
       "name": "ExecutionStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/execution.rs",
@@ -249,7 +248,7 @@
       "name": "ExecutionUpdate",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/execution.rs",
@@ -270,7 +269,7 @@
       "name": "ExecutionParameterPackage",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/execution.rs",

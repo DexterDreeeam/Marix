@@ -4,16 +4,15 @@
     "path": "src/common/tool",
     "name": "tool",
     "purpose": "Owns the shared tool metadata contracts used by both agent-side executors and host-side tool programs. schema.rs defines ToolSchema, the input/output JSON schema pair with serde JSON conversions; tool.rs defines ToolPreview, the serializable name/description/schema advertisement, and Tool, the Executor-side handle to an external tool executable located by filesystem path. mod.rs is re-export wiring only.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": ["."],
   "childModules": [],
   "elements": [
     {
       "name": "ToolSchema",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/tool/schema.rs",
@@ -47,7 +46,7 @@
       "name": "ToolPreview",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/tool/tool.rs",
@@ -81,7 +80,7 @@
       "name": "Tool",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/tool/tool.rs",

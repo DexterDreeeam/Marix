@@ -4,9 +4,8 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Executor folder module for host-side tool execution. executor.rs defines Executor, which owns active ExecutionRuntime records in a WorkQueue keyed by ExeId and exposes preview, evoke, query, cancel, kill, and updates surfaces. The execution child module owns the per-execution runtime: ExecutionRuntime (the host-side remote runtime of an agent Execution holding an Arc<ExecutionContext>, its execution SessionEvent channel endpoints, and an optional worker join handle) and ExecutionContext (which mirrors the agent-side TaskContext with the ExecutionSignature and the shared agent SessionEvent sender). mod.rs is re-export wiring only; method bodies are panic-backed interface placeholders.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": ["."],
   "childModules": [
     {
       "path": "src/host/executor/execution",
@@ -19,7 +18,7 @@
       "name": "Executor",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/executor.rs",

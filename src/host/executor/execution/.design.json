@@ -4,16 +4,15 @@
     "path": "src/host/executor/execution",
     "name": "execution",
     "purpose": "Per-execution host runtime for the executor module. execution.rs defines ExecutionRuntime, the host-side remote runtime of an agent Execution that holds an Arc<ExecutionContext>, its execution SessionEvent channel endpoints, and an optional worker join handle, and exposes new, sender, and run. execution_context.rs defines ExecutionContext, mirroring the agent-side TaskContext with the ExecutionSignature and the shared agent SessionEvent sender. mod.rs is re-export wiring only; method bodies are panic-backed interface placeholders.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": ["."],
   "childModules": [],
   "elements": [
     {
       "name": "ExecutionRuntime",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
@@ -47,7 +46,7 @@
       "name": "ExecutionContext",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/execution/execution_context.rs",

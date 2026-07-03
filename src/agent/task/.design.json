@@ -4,9 +4,8 @@
     "path": "src/agent/task",
     "name": "task",
     "purpose": "Owns the agent task runtime. step.rs defines the StepSequence ordering key, the Step record, and the StepKind/ToolStepKind/ModelStepKind/UserStepKind classification enums; task_context.rs defines TaskContext, the shared runtime data holding the task signature, a mutex-guarded model backend, client/host senders, the execution and step WorkQueues, and the shared tokio runtime that all Task worker threads block_on to emit events; task.rs defines Task, which owns an Arc<TaskContext>, an internal SessionEvent channel, and a worker handle, and drives model steps, streams task status to the client, and forwards host execution events over the shared runtime; execution.rs defines the Execution record. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["task.rs"],
   "childModules": [],
   "elements": [
     {
@@ -139,7 +138,7 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
