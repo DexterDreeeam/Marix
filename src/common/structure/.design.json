@@ -4,9 +4,8 @@
     "path": "src/common/structure",
     "name": "structure",
     "purpose": "Owns shared structural utilities for the common crate. channel.rs defines the local mpsc Sender/Receiver aliases, the remoc rch::mpsc NetSender/NetReceiver endpoints and their std::sync::Mutex-guarded SharedNetSender/SharedNetReceiver wrappers, the ChannelError enum, and the build_channel/accept_channel/connect_channel constructors; build_channel builds a local mpsc pair while accept_channel/connect_channel establish a TCP-backed remoc connection whose private connect_socket bootstraps an rch::mpsc channel by exchanging receivers over a base connection handshake. work_queue.rs defines the generic WorkQueue that tracks working and completed entries behind Arc<Mutex<BTreeMap>>. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["channel.rs"],
   "childModules": [],
   "elements": [
     {
@@ -55,7 +54,7 @@
       "name": "NetSender",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -76,7 +75,7 @@
       "name": "NetReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -97,7 +96,7 @@
       "name": "SharedNetSender",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -118,7 +117,7 @@
       "name": "SharedNetReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",

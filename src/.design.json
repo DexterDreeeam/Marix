@@ -4,9 +4,8 @@
     "path": "src",
     "name": "src",
     "purpose": "Rust workspace source root for Marix crates with flat Cargo crate layout. It organizes reusable common config/external re-export/logging/protocol/structure modules (protocol now owns the ToolSchema and ToolPreview tool metadata contracts), agent model/session/task orchestration, client session/event surfaces, host-side tool execution with an implemented per-execution runtime that runs the Tool handle from the marix-host-tool crate, and the host/tool crate (marix-host-tool) that exposes the Executor-side Tool handle and the ToolProgram interface and builds one executable per native tool, while Cargo manifests define crate wiring.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["."],
   "childModules": [
     {
       "path": "src/agent",

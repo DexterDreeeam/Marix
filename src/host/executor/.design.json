@@ -4,9 +4,8 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Executor folder module for host-side tool execution. executor.rs defines Executor, which owns active ExecutionRuntime records in a WorkQueue keyed by ExeId and exposes preview, evoke, query, cancel, kill, and updates surfaces; Executor method bodies remain panic-backed interface placeholders. The execution child module now implements the per-execution runtime: ExecutionRuntime (the host-side runtime of an agent Execution holding an Arc<ExecutionContext>, its execution_tx SessionEvent sender, and a worker JoinHandle spawned in new with no separate run) runs the Tool via ExecutionContext and streams ExecutionStatus and ExecutionUpdate to the agent, while ExecutionContext holds the Tool handle from the marix-host-tool crate, the ExecutionParameterPackage (whose signature identifies the execution), and the shared agent SessionEvent sender that is locked via std::sync::Mutex and driven with try_send. mod.rs is re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["."],
   "childModules": [
     {
       "path": "src/host/executor/execution",

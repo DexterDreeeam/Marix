@@ -4,9 +4,8 @@
     "path": "src/host",
     "name": "host",
     "purpose": "Host crate for tool execution management. session.rs defines HostSession, which owns the agent SessionEvent channel endpoints, an Executor, and an event-loop handle and exposes connect and close. The executor folder module owns host-side tool execution: its Executor tracks active ExecutionRuntime records in a WorkQueue keyed by ExeId and exposes preview, evoke, query, cancel, kill, and update surfaces, and its execution child module now implements the per-execution ExecutionRuntime that runs a Tool (the executable handle imported from the marix-host-tool crate, which host/Cargo.toml now depends on) and streams ExecutionStatus/ExecutionUpdate to the agent by synchronously locking agent_tx (std::sync::Mutex) and calling try_send. The tool folder is the standalone marix-host-tool crate that exposes the Executor-side Tool handle and the ToolProgram interface and compiles one executable per native tool. lib.rs is namespace and re-export wiring only; HostSession and Executor method bodies remain panic-backed interface placeholders.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["."],
   "childModules": [
     {
       "path": "src/host/executor",

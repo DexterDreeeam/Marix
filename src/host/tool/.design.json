@@ -4,10 +4,8 @@
     "path": "src/host/tool",
     "name": "tool",
     "purpose": "Standalone marix-host-tool crate that provides both the Executor-side Tool handle and the compiled native tool executables. tool.rs defines Tool, the Executor-side handle to an external tool executable located by filesystem path, whose load/name/description/input_schema/output_schema/preview/execute surface is panic-backed. tool_program.rs defines ToolProgram, the interface each native tool program implements. native/ owns the concrete tool programs, each compiling into its own executable that shares one tool_main.rs entry and is selected at compile time through the cfg-gated SelectedTool alias behind Cargo features. tool_main.rs is the shared binary entry whose main runs the compile-selected tool through a private run<T: ToolProgram> that reads process arguments and speaks the --preview/--run JSON protocol over stdout. Both Tool::preview and ToolProgram::preview return marix_common::ToolPreview. lib.rs and the Cargo manifest are namespace/re-export wiring and package metadata only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": ["tool_program.rs"],
-  "modified": ["tool.rs", "lib.rs"],
   "childModules": [
     {
       "path": "src/host/tool/native",
@@ -20,7 +18,7 @@
       "name": "Tool",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/tool/tool.rs",
@@ -54,7 +52,7 @@
       "name": "ToolProgram",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/tool/tool_program.rs",

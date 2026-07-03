@@ -4,16 +4,15 @@
     "path": "src/host/executor/execution",
     "name": "execution",
     "purpose": "Per-execution host runtime for the executor module. execution.rs defines ExecutionRuntime, the host-side runtime of an agent Execution that holds an Arc<ExecutionContext>, its execution_tx SessionEvent sender, and a worker JoinHandle; new builds the execution channel and shared ExecutionContext and immediately spawns the worker (there is no separate run), while sender clones the execution_tx. The private impl emits ExecutionStatus::Started, spawns the tool execution, and loops execution_rx handling Cancel->Canceled and Kill->Killed; the execution reads the tool input from parameters.tool_request, runs tool.execute, emits an ExecutionUpdate plus ExecutionStatus::Succeed, and forwards SessionEvent::Execution values stamped with parameters.signature by synchronously locking agent_tx (std::sync::Mutex) and calling try_send. execution_context.rs defines ExecutionContext, holding the Tool handle from the marix-host-tool crate, the ExecutionParameterPackage (whose signature identifies the execution), and the shared agent SessionEvent sender. mod.rs is re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["execution.rs", "execution_context.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "ExecutionRuntime",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
@@ -69,7 +68,7 @@
       "name": "ExecutionContext",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/execution/execution_context.rs",

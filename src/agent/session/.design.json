@@ -4,16 +4,15 @@
     "path": "src/agent/session",
     "name": "session",
     "purpose": "Owns the agent session runtime. session.rs defines Session, whose new builds the SessionContext and immediately spawns the client and host channel workers (there is no separate run); it drives synchronous task creation (locking the shared client/host senders through std::sync::Mutex, reporting CreateFailed via try_send, and creating each Task through Task::new, which now starts its own worker) and SessionEvent routing; its client/host recv loops still run inside per-connection current-thread tokio runtimes to await remoc recv. session_context.rs defines SessionContext, which owns the TaskId-keyed task WorkQueue and the shared client/host remoc mpsc endpoints, all initialized behind std::sync::Mutex. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["session.rs", "session_context.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
@@ -109,7 +108,7 @@
       "name": "SessionContext",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session_context.rs",

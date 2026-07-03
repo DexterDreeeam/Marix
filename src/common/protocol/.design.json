@@ -4,10 +4,8 @@
     "path": "src/common/protocol",
     "name": "protocol",
     "purpose": "Owns the shared session/task/execution protocol contracts exchanged over channels, plus the tool metadata contracts. session.rs defines the TaskId and ExeId identifiers and the top-level SessionEvent split between task and execution traffic; task.rs defines task signatures, task session events, and task status; execution.rs defines execution signatures, execution session events that carry ToolPreview values from the sibling tool module, the ExecutionRequest and ExecutionStatus models, execution updates, and the execution parameter package, whose lead field is an ExecutionSignature (task_id, exe_id, name); tool.rs now owns the ToolSchema input/output schema pair and the ToolPreview advertisement record (name, description, schema) that were relocated here from the removed common::tool module. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": ["tool.rs"],
-  "modified": ["execution.rs", "mod.rs"],
   "childModules": [],
   "elements": [
     {
@@ -246,7 +244,7 @@
       "name": "ExecutionParameterPackage",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/execution.rs",
@@ -267,7 +265,7 @@
       "name": "ToolSchema",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/tool.rs",
@@ -301,7 +299,7 @@
       "name": "ToolPreview",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/tool.rs",
