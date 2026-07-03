@@ -4,13 +4,14 @@
     "path": "src",
     "name": "src",
     "purpose": "Rust workspace source root for Marix crates with flat Cargo crate layout. It organizes reusable common config/external re-export/logging/protocol/structure modules, agent model/session/task orchestration, client session/event surfaces, and host-side tool execution stubs while Cargo manifests define crate wiring.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent crate namespace for model backend abstractions, Session and SessionContext runtime orchestration, and split task folder interfaces."
+      "purpose": "Agent crate namespace for model backend abstractions, Session and SessionContext runtime orchestration, and the implemented task runtime. The model backend abstraction exposes only a send interface bridged by a blanket impl and includes an implemented Deepseek streaming backend; the task module now implements Task, which drives model steps and streams status to the client, backed by the new shared TaskContext state that now also owns the shared tokio runtime task workers block_on."
     },
     {
       "path": "src/client",
@@ -20,7 +21,7 @@
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared common crate namespace with reusable config, crate-local external re-export adapters, logging, protocol models, and structural data/channel interfaces."
+      "purpose": "Shared common crate namespace with reusable config, now-public crate-local external re-export adapters that let downstream crates route third-party access through common, logging, protocol models, and structural data/channel interfaces."
     },
     {
       "path": "src/host",

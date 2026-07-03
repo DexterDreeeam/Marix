@@ -23,7 +23,7 @@ pub enum ChannelError {
     Setup(String),
 }
 
-pub fn channel<T>() -> (Sender<T>, Receiver<T>) {
+pub fn build_channel<T>() -> (Sender<T>, Receiver<T>) {
     mpsc::channel()
 }
 
@@ -70,7 +70,7 @@ where
         .map_err(|error| ChannelError::Setup(error.to_string()))?
 }
 
-pub fn create_channel<T>(
+pub fn connect_channel<T>(
     address: SocketAddr,
 ) -> Result<(NetSender<T>, NetReceiver<T>), ChannelError>
 where

@@ -13,8 +13,6 @@ pub trait ModelBackend: fmt::Debug + Send {
 }
 
 pub(super) trait ModelBackendImpl: fmt::Debug + Send {
-    fn ready(&self) -> Result<(), ModelBackendError>;
-
     fn send(&mut self, request: ModelRequest)
     -> Result<Receiver<ModelResponse>, ModelBackendError>;
 }
@@ -41,6 +39,6 @@ where
         &mut self,
         request: ModelRequest,
     ) -> Result<Receiver<ModelResponse>, ModelBackendError> {
-        panic!("not implemented")
+        self.send(request)
     }
 }

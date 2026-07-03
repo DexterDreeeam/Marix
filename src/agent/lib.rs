@@ -5,5 +5,6 @@ pub mod task;
 pub use model::{DeepseekBackend, ModelBackend, ModelBackendError, ModelRequest, ModelResponse};
 pub use session::{Session, SessionContext};
 pub use task::{
-    Execution, ModelStepKind, Step, StepKind, StepSequence, Task, ToolStepKind, UserStepKind,
+    Execution, ModelStepKind, Step, StepKind, StepSequence, Task, TaskContext, ToolStepKind,
+    UserStepKind,
 };

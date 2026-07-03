@@ -1,2 +1,2 @@
-pub(crate) use ::toml::de;
-pub(crate) use ::toml::from_str;
+pub use ::toml::de;
+pub use ::toml::from_str;

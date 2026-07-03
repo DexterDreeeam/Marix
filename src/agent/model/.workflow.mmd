@@ -1,5 +1,5 @@
 flowchart LR
-  %% mod.rs re-exports the public model surface; backend method bodies are panic-backed placeholders.
+  %% mod.rs re-exports the public model surface; DeepseekBackend implements a streaming Deepseek chat-completions backend.
   subgraph backend_rs[backend.rs]
     ModelBackend["ModelBackend\ntrait"]
     ModelBackendImpl["ModelBackendImpl\ntrait"]
@@ -19,15 +19,24 @@ flowchart LR
     Step["Step\nstruct"]
   end
 
-  subgraph common_structure[common structure]
-    Receiver["Receiver<ModelResponse>"]
+  subgraph common_deps[common]
+    Receiver["Receiver<ModelResponse>\nchannel"]
+    DeepseekConfig["DeepseekConfig\nconfig"]
+    ReqwestClient["external::reqwest\nblocking client"]
+    SerdeJson["external::serde_json\nSSE parsing"]
   end
 
   ModelBackend -->|"request(ModelRequest)"| ModelRequest
   ModelBackend -->|"returns Receiver<ModelResponse>"| Receiver
   Receiver -->|"yields"| ModelResponse
   ModelBackend -->|"fails with"| ModelBackendError
-  ModelBackendImpl -->|"blanket impl provides ModelBackend"| ModelBackend
-  DeepseekBackend -->|"implements"| ModelBackendImpl
+  ModelBackendImpl -->|"blanket impl delegates request to send"| ModelBackend
+  DeepseekBackend -->|"implements send"| ModelBackendImpl
   ModelRequest -->|"carries step"| Step
   ModelResponse -->|"Failed variant"| ModelBackendError
+  DeepseekBackend -->|"loads Config::load().model.deepseek"| DeepseekConfig
+  DeepseekBackend -->|"blocking POST chat/completions"| ReqwestClient
+  DeepseekBackend -->|"parses SSE deltas"| SerdeJson
+  DeepseekBackend -->|"streams ModelResponse::Content via channel Sender"| Receiver
+  ReqwestClient -->|"errors convert via From"| ModelBackendError
+  SerdeJson -->|"parse errors convert via From"| ModelBackendError

@@ -1,7 +1,8 @@
 flowchart LR
-  %% Crate-local third-party namespace wrappers exposed through common::external.
-  %% reqwest, serde_json, and image wrappers are reserved for the not-yet-
-  %% implemented model/tool backends and currently have no internal consumer.
+  %% Crate-local third-party namespace wrappers, now public so downstream crates
+  %% route third-party access through common::external. reqwest and serde_json are
+  %% consumed by the implemented agent/model Deepseek backend; the image wrapper
+  %% remains reserved for not-yet-implemented tool backends.
   subgraph image_rs["image.rs"]
     ImageReader["ImageReader re-export"]
   end
@@ -35,6 +36,7 @@ flowchart LR
   CommonConfig["common/config"]
   CommonStructure["common/structure"]
   AgentSession["agent/session"]
+  AgentModel["agent/model"]
 
   SerdeNamespace -->|"Serialize / Deserialize derives"| CommonProtocol
   SerdeNamespace -->|"Deserialize derives"| CommonConfig
@@ -43,3 +45,5 @@ flowchart LR
   TokioNamespace -->|"async runtime"| AgentSession
   RemocNamespace -->|"network channel transport"| CommonStructure
   RemocConnect -->|"TCP session setup"| CommonStructure
+  ReqwestNamespace -->|"blocking HTTP client for Deepseek"| AgentModel
+  SerdeJsonNamespace -->|"SSE payload parsing"| AgentModel

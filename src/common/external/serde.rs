@@ -1,1 +1,1 @@
-pub(crate) use ::serde::{Deserialize, Serialize};
+pub use ::serde::{Deserialize, Serialize};

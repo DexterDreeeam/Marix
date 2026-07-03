@@ -1,8 +1,8 @@
 use super::tokio;
 
-pub(crate) use ::remoc::rch::base;
+pub use ::remoc::rch::base;
 
-pub(crate) async fn connect_remoc<SendMessage, ReceiveMessage>(
+pub async fn connect_remoc<SendMessage, ReceiveMessage>(
     socket_rx: tokio::OwnedReadHalf,
     socket_tx: tokio::OwnedWriteHalf,
 ) -> Result<(base::Sender<SendMessage>, base::Receiver<ReceiveMessage>), String>

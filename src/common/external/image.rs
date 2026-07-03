@@ -1,1 +1,1 @@
-pub(crate) use ::image::ImageReader;
+pub use ::image::ImageReader;

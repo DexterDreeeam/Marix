@@ -1,5 +1,5 @@
 flowchart LR
-  %% mod.rs only declares child files and re-exports task types; method bodies are interface placeholders.
+  %% mod.rs re-exports task types; Task drives model steps on worker threads and block_on the shared tokio runtime owned by TaskContext to emit events.
   subgraph step_rs[step.rs]
     StepSequence["StepSequence\nstruct"]
     Step["Step\nstruct"]
@@ -13,6 +13,11 @@ flowchart LR
     Task["Task\nstruct"]
   end
 
+  subgraph task_context_rs[task_context.rs]
+    TaskContext["TaskContext\nstruct"]
+    SharedRuntime["Runtime\nshared tokio runtime"]
+  end
+
   subgraph execution_rs[execution.rs]
     Execution["Execution\nstruct"]
   end
@@ -22,6 +27,7 @@ flowchart LR
     WorkQueue["WorkQueue"]
     ExecutionParameterPackage["ExecutionParameterPackage"]
     ExeId["ExeId"]
+    TaskSignature["TaskSignature"]
   end
 
   subgraph agent_model[agent model]
@@ -34,11 +40,21 @@ flowchart LR
   StepKind -->|"tool branch"| ToolStepKind
   StepKind -->|"model branch"| ModelStepKind
   StepKind -->|"user branch"| UserStepKind
-  Task -->|"steps: WorkQueue<StepSequence, Step>"| WorkQueue
-  Task -->|"raises Step values"| Step
-  Task -->|"executions: WorkQueue<ExeId, Execution>"| WorkQueue
-  Task -->|"execution key"| ExeId
-  Task -->|"tracks"| Execution
-  Task -->|"optional model_backend"| ModelBackend
-  Task -->|"client/host/internal channels"| SessionEvent
+
+  Task -->|"owns Arc<TaskContext>"| TaskContext
+  Task -->|"raises + executes"| Step
+  Task -->|"requests model step, streams ModelResponse"| ModelBackend
+  Task -->|"worker recv; emits Task Status, forwards host exec events"| SessionEvent
+
+  TaskContext -->|"signature"| TaskSignature
+  TaskContext -->|"model_backend (mutex)"| ModelBackend
+  TaskContext -->|"steps: WorkQueue<StepSequence, Step>"| WorkQueue
+  TaskContext -->|"executions: WorkQueue<ExeId, Execution>"| WorkQueue
+  TaskContext -->|"tracks"| Execution
+  TaskContext -->|"execution key"| ExeId
+  TaskContext -->|"client_tx / host_tx"| SessionEvent
+  TaskContext -->|"owns shared async runtime"| SharedRuntime
+
+  Task -->|"block_on shared runtime to send events"| SharedRuntime
+
   Execution -->|"latest_event"| SessionEvent

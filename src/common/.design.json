@@ -3,9 +3,10 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared common crate root that wires reusable config loading, crate-local external re-export adapters, logging, protocol models, and structure utilities; concrete selectable interfaces live in child modules while lib.rs remains namespace and re-export wiring.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared common crate root that wires reusable config loading, now-public crate-local external re-export adapters, logging, protocol models, and structure utilities; concrete selectable interfaces live in child modules while lib.rs remains namespace and re-export wiring.",
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs"],
   "childModules": [
     {
       "path": "src/common/config",
@@ -15,7 +16,7 @@
     {
       "path": "src/common/external",
       "name": "external",
-      "purpose": "Owns crate-local re-export wrappers for third-party libraries used by common modules."
+      "purpose": "Owns now-public re-export wrappers for third-party libraries so downstream crates route third-party access through common; single ownership stays in common."
     },
     {
       "path": "src/common/logging",

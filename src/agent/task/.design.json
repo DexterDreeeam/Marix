@@ -3,9 +3,11 @@
   "module": {
     "path": "src/agent/task",
     "name": "task",
-    "purpose": "Owns the agent task runtime data. step.rs defines the StepSequence ordering key, the Step record, and the StepKind/ToolStepKind/ModelStepKind/UserStepKind classification enums; task.rs defines Task, which owns the task signature, optional model backend, client/host senders, an internal SessionEvent channel, execution and step WorkQueues, and a worker handle; execution.rs defines the Execution record. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent task runtime. step.rs defines the StepSequence ordering key, the Step record, and the StepKind/ToolStepKind/ModelStepKind/UserStepKind classification enums; task_context.rs defines TaskContext, the shared runtime data holding the task signature, a mutex-guarded model backend, client/host senders, the execution and step WorkQueues, and the shared tokio runtime that all Task worker threads block_on to emit events; task.rs defines Task, which owns an Arc<TaskContext>, an internal SessionEvent channel, and a worker handle, and drives model steps, streams task status to the client, and forwards host execution events over the shared runtime; execution.rs defines the Execution record. mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "modified"
   },
+  "added": ["task_context.rs"],
+  "modified": ["task.rs", "mod.rs"],
   "childModules": [],
   "elements": [
     {
@@ -138,30 +140,77 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 11,
-          "lineEnd": 22,
+          "lineStart": 13,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 17
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/agent/task/task.rs",
+          "lineStart": 20,
+          "lineEnd": 59,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 21,
+              "lineEnd": 58
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/agent/task/task.rs",
+          "lineStart": 63,
+          "lineEnd": 176,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 11,
-              "lineEnd": 22
+              "lineStart": 63,
+              "lineEnd": 176
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "TaskContext",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/task/task_context.rs",
+          "lineStart": 8,
+          "lineEnd": 16,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 16
             }
           ],
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 24,
-          "lineEnd": 62,
+          "sourcePath": "src/agent/task/task_context.rs",
+          "lineStart": 18,
+          "lineEnd": 39,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 24,
-              "lineEnd": 62
+              "lineStart": 18,
+              "lineEnd": 39
             }
           ],
           "modifiedLines": []

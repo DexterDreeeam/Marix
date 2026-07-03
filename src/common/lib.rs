@@ -1,5 +1,5 @@
 pub mod config;
-pub(crate) mod external;
+pub mod external;
 pub mod logging;
 pub mod protocol;
 pub mod structure;
@@ -17,5 +17,5 @@ pub use protocol::{
 pub use structure::WorkQueue;
 pub use structure::{
     ChannelError, NetReceiver, NetSender, Receiver, Sender, SharedNetReceiver, SharedNetSender,
-    accept_channel, channel, create_channel,
+    accept_channel, build_channel, connect_channel,
 };

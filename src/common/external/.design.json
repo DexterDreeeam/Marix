@@ -3,16 +3,26 @@
   "module": {
     "path": "src/common/external",
     "name": "external",
-    "purpose": "Crate-local third-party library namespace wrappers that keep direct external crate usage visible through common::external modules, including image, remoc connection, reqwest, serde, serde_json, tokio, and toml helpers.",
-    "changeStatus": "unchanged"
+    "purpose": "Now-public third-party library namespace wrappers that let downstream crates route third-party access through common::external while single ownership stays in common; includes image, remoc connection, reqwest, serde, serde_json, tokio, and toml helpers.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "mod.rs",
+    "image.rs",
+    "remoc.rs",
+    "reqwest.rs",
+    "serde.rs",
+    "serde_json.rs",
+    "tokio.rs",
+    "toml.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "connect_remoc",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/external/remoc.rs",
@@ -20,7 +30,12 @@
           "lineEnd": 22,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 5
+            }
+          ]
         }
       ]
     }

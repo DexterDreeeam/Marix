@@ -1,2 +1,2 @@
-pub(crate) use ::reqwest::Error;
-pub(crate) use ::reqwest::blocking;
+pub use ::reqwest::Error;
+pub use ::reqwest::blocking;

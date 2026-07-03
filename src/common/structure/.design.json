@@ -3,9 +3,10 @@
   "module": {
     "path": "src/common/structure",
     "name": "structure",
-    "purpose": "Owns shared structural utilities for the common crate. channel.rs defines the local mpsc Sender/Receiver aliases, the remoc NetSender/NetReceiver and shared-endpoint aliases, the ChannelError enum, and the channel/accept_channel/create_channel constructors that build local and TCP-backed remoc channels; work_queue.rs defines the generic WorkQueue that tracks working and completed entries behind Arc<Mutex<BTreeMap>>. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns shared structural utilities for the common crate. channel.rs defines the local mpsc Sender/Receiver aliases, the remoc NetSender/NetReceiver and shared-endpoint aliases, the ChannelError enum, and the build_channel/accept_channel/connect_channel constructors that build local and TCP-backed remoc channels; work_queue.rs defines the generic WorkQueue that tracks working and completed entries behind Arc<Mutex<BTreeMap>>. mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "modified"
   },
+  "modified": ["channel.rs", "mod.rs"],
   "childModules": [],
   "elements": [
     {
@@ -156,23 +157,23 @@
       ]
     },
     {
-      "name": "channel",
+      "name": "build_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
           "lineStart": 26,
           "lineEnd": 28,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 26,
-              "lineEnd": 28
+              "lineEnd": 26
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -198,23 +199,23 @@
       ]
     },
     {
-      "name": "create_channel",
+      "name": "connect_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
           "lineStart": 73,
           "lineEnd": 107,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 73,
-              "lineEnd": 107
+              "lineEnd": 73
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },

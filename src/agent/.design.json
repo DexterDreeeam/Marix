@@ -3,14 +3,15 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent crate namespace for session runtime orchestration, model backend abstractions, and task execution drafts. lib.rs is re-export wiring; the session child module owns Session and SessionContext, while model and task child modules own backend, step, task, and execution interfaces.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent crate namespace for session runtime orchestration, model backend abstractions, and the implemented task execution runtime. lib.rs is re-export wiring and now also re-exports TaskContext; the session child module owns Session and SessionContext, the model child module owns the backend abstraction and Deepseek backend, and the task child module owns the Task runtime, shared TaskContext state, step, and execution types.",
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs"],
   "childModules": [
     {
       "path": "src/agent/model",
       "name": "model",
-      "purpose": "Owns agent model backend traits, request/response data, backend errors, and the Deepseek backend placeholder implementation."
+      "purpose": "Owns agent model backend traits, request/response data, backend errors, and the implemented Deepseek streaming backend. ModelBackendImpl exposes only send, bridged to ModelBackend by a blanket impl; DeepseekBackend loads its config and issues streaming Deepseek chat-completions requests, and ModelBackendError converts io, serde_json, and reqwest errors."
     },
     {
       "path": "src/agent/session",
@@ -20,7 +21,7 @@
     {
       "path": "src/agent/task",
       "name": "task",
-      "purpose": "Owns interface-only task and step types split into step.rs and task.rs; mod.rs is namespace and re-export wiring only."
+      "purpose": "Owns the implemented task runtime: Task drives model steps on a worker thread over an internal SessionEvent channel, streams task status to the client, and forwards host execution events, while the new TaskContext holds shared runtime state (signature, mutex-guarded model backend, client/host senders, execution and step WorkQueues, and the shared tokio runtime that Task worker threads block_on). step.rs and execution.rs define the step and execution records; mod.rs is namespace and re-export wiring only."
     }
   ],
   "elements": []
