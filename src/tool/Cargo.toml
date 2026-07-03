@@ -1,13 +1,13 @@
 [package]
-name = "marix-host-tool"
+name = "marix-tool"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-marix-common = { path = "../../common" }
+marix-common = { path = "../common" }
 
 [lib]
-name = "marix_host_tool"
+name = "marix_tool"
 path = "lib.rs"
 
 [features]

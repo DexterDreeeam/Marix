@@ -107,6 +107,22 @@ where
             .unwrap_or_else(|| panic!("work queue key does not exist"))
     }
 
+    pub fn with<R>(&self, key: &K, function: impl FnOnce(&V) -> R) -> Option<R> {
+        if let Some(value) = self
+            .working
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .get(key)
+        {
+            return Some(function(value));
+        }
+        self.complete
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .get(key)
+            .map(function)
+    }
+
     pub fn complete(&self, key: K) {
         let value = self
             .working

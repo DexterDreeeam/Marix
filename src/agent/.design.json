@@ -4,8 +4,9 @@
     "path": "src/agent",
     "name": "agent",
     "purpose": "Agent crate namespace for session runtime orchestration, model backend abstractions, and the implemented task execution runtime. lib.rs is re-export wiring and now also re-exports TaskContext; the session child module owns Session and SessionContext, the model child module owns the backend abstraction and Deepseek backend, and the task child module owns the Task runtime, shared TaskContext state, step, and execution types.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/agent/model",
@@ -20,7 +21,7 @@
     {
       "path": "src/agent/task",
       "name": "task",
-      "purpose": "Owns the implemented task runtime: Task drives model steps on a worker thread spawned directly in Task::new (no separate run), and streams task status to the client plus forwards host execution events by synchronously locking client_tx (std::sync::Mutex) and calling try_send, while the TaskContext holds shared runtime state (signature, std::sync::Mutex-guarded model backend, client/host senders, and execution and step WorkQueues). step.rs and execution.rs define the step and execution records; mod.rs is namespace and re-export wiring only."
+      "purpose": "Owns the implemented task runtime: Task drives model steps on a worker thread spawned directly in Task::new (no separate run), and streams task status to the client plus forwards host execution events by synchronously locking client_tx (std::sync::Mutex) and calling try_send, while the TaskContext holds shared runtime state (signature, std::sync::Mutex-guarded model backend, client/host senders, and execution and step WorkQueues). step.rs and execution.rs define the step and execution records (Step.parameters and initial_step now use the renamed ExecutionRequest parameter package); mod.rs is namespace and re-export wiring only."
     }
   ],
   "elements": []

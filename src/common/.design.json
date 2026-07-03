@@ -3,14 +3,15 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared common crate root that wires reusable config loading, now-public crate-local external re-export adapters, logging, protocol models, and structure utilities; the tool schema/preview contracts now live in the protocol module and the Tool executable handle moved to the marix-host-tool crate, so common no longer owns a tool module. Concrete selectable interfaces live in child modules while lib.rs remains namespace and re-export wiring.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared common crate root that wires reusable config loading (now including the ToolConfig tool directory setting re-exported from lib.rs), now-public crate-local external re-export adapters, logging, protocol models, and structure utilities; the tool schema/preview contracts now live in the protocol module and the Tool executable handle now lives in the host crate's executor module (host/executor/tool.rs), so common no longer owns a tool module. Concrete selectable interfaces live in child modules while lib.rs remains namespace and re-export wiring.",
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs"],
   "childModules": [
     {
       "path": "src/common/config",
       "name": "config",
-      "purpose": "Owns the common crate configuration model, config-file discovery, platform detection, alias substitution, credential resolution, and runtime path normalization."
+      "purpose": "Owns the common crate configuration model, config-file discovery, platform detection, alias substitution, credential resolution, runtime path normalization, and the new ToolConfig tool directory setting whose path load_config resolves relative to the config root."
     },
     {
       "path": "src/common/external",
@@ -25,12 +26,12 @@
     {
       "path": "src/common/protocol",
       "name": "protocol",
-      "purpose": "Owns shared session, task, and tool-execution protocol interface types: identifiers, signatures, session events, statuses, updates, the execution parameter package that carries an ExecutionSignature, and the ToolSchema/ToolPreview tool metadata contracts relocated from the removed tool module."
+      "purpose": "Owns shared session, task, and tool-execution protocol interface types: identifiers, signatures, session events, statuses, updates, the ExecutionRequest execution request that carries an ExecutionSignature plus prompt, an optional raw tool input string, and user options, and the ToolSchema/ToolPreview tool metadata contracts relocated from the removed tool module."
     },
     {
       "path": "src/common/structure",
       "name": "structure",
-      "purpose": "Owns shared structural data interfaces: the generic WorkQueue and the channel helpers, whose remote NetSender/NetReceiver endpoints are now remoc rch::mpsc channels bootstrapped over a base connection handshake and shared behind std::sync::Mutex."
+      "purpose": "Owns shared structural data interfaces: the generic WorkQueue (now offering a with(key, closure) borrowing accessor that runs a closure on a borrowed &V, checking working then complete, so callers can use a non-Clone value in place) and the channel helpers, whose remote NetSender/NetReceiver endpoints are now remoc rch::mpsc channels bootstrapped over a base connection handshake and shared behind std::sync::Mutex."
     }
   ],
   "elements": []

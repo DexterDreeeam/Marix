@@ -7,12 +7,12 @@ pub mod structure;
 pub use config::{
     AgentConfig, ClientConfig, Config, CoreConfig, CredentialConfig, DeepseekConfig, LoggingConfig,
     ModelBackend, ModelConfig, Platform, RuntimeConfig, RuntimeEnvironment, RuntimeMode,
+    ToolConfig,
 };
 pub use logging::{LogMessage, LogTag, LoggingError, debug, error, log, warning};
 pub use protocol::{
-    ExeId, ExecutionParameterPackage, ExecutionRequest, ExecutionSessionEvent, ExecutionSignature,
-    ExecutionStatus, ExecutionUpdate, SessionEvent, TaskId, TaskSessionEvent, TaskSignature,
-    TaskStatus, ToolPreview, ToolSchema,
+    ExeId, ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, ExecutionUpdate,
+    SessionEvent, TaskEvent, TaskId, TaskSignature, TaskStatus, ToolPreview, ToolSchema,
 };
 pub use structure::WorkQueue;
 pub use structure::{

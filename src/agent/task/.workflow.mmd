@@ -24,7 +24,7 @@ flowchart LR
   subgraph common_interfaces[common interfaces]
     SessionEvent["SessionEvent"]
     WorkQueue["WorkQueue"]
-    ExecutionParameterPackage["ExecutionParameterPackage"]
+    ExecutionRequest["ExecutionRequest"]
     ExecutionSignature["ExecutionSignature"]
     ExeId["ExeId"]
     TaskSignature["TaskSignature"]
@@ -36,7 +36,7 @@ flowchart LR
 
   Step -->|"ordered by"| StepSequence
   Step -->|"classifies work"| StepKind
-  Step -->|"carries parameters"| ExecutionParameterPackage
+  Step -->|"carries parameters"| ExecutionRequest
   StepKind -->|"tool branch"| ToolStepKind
   StepKind -->|"model branch"| ModelStepKind
   StepKind -->|"user branch"| UserStepKind
@@ -45,7 +45,7 @@ flowchart LR
   Task -->|"raises + executes"| Step
   Task -->|"requests model step, streams ModelResponse"| ModelBackend
   Task -->|"worker recv; emits Task Status, forwards host exec events via try_send"| SessionEvent
-  Task -->|"initial step stamps ExecutionParameterPackage.signature"| ExecutionSignature
+  Task -->|"initial step stamps ExecutionRequest.signature"| ExecutionSignature
 
   TaskContext -->|"signature"| TaskSignature
   TaskContext -->|"model_backend (mutex)"| ModelBackend

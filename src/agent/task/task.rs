@@ -2,9 +2,9 @@ use std::sync::Arc;
 use std::thread::{self, JoinHandle};
 
 use marix_common::{
-    Config, ExeId, ExecutionParameterPackage, ExecutionSessionEvent, ExecutionSignature,
-    ModelBackend as ConfigModelBackend, Receiver, Sender, SessionEvent, SharedNetSender,
-    TaskSessionEvent, TaskSignature, TaskStatus, build_channel,
+    Config, ExeId, ExecutionEvent, ExecutionRequest, ExecutionSignature,
+    ModelBackend as ConfigModelBackend, Receiver, Sender, SessionEvent, SharedNetSender, TaskEvent,
+    TaskSignature, TaskStatus, build_channel,
 };
 
 use crate::model::{DeepseekBackend, ModelBackend, ModelRequest, ModelResponse};
@@ -65,12 +65,12 @@ impl Task {
         Self::run_step(Arc::clone(&context), Self::initial_step(&context));
         while let Ok(event) = task_rx.recv() {
             match event {
-                SessionEvent::Task(_, TaskSessionEvent::Cancel) => {
+                SessionEvent::Task(_, TaskEvent::Cancel) => {
                     Self::emit_status(&context, TaskStatus::Canceled);
                     break;
                 }
-                SessionEvent::Execution(_, ExecutionSessionEvent::Update(_))
-                | SessionEvent::Execution(_, ExecutionSessionEvent::Status(_)) => {
+                SessionEvent::Execution(_, ExecutionEvent::Update(_))
+                | SessionEvent::Execution(_, ExecutionEvent::Status(_)) => {
                     Self::send_event(&context, event);
                 }
                 _ => {}
@@ -82,7 +82,7 @@ impl Task {
         Step {
             sequence: StepSequence(0),
             kind: StepKind::Model(ModelStepKind::Initial),
-            parameters: ExecutionParameterPackage {
+            parameters: ExecutionRequest {
                 signature: ExecutionSignature {
                     task_id: context.signature.id.clone(),
                     exe_id: ExeId::new(),
@@ -157,7 +157,7 @@ impl Task {
     }
 
     fn emit_status(context: &TaskContext, status: TaskStatus) {
-        let event = SessionEvent::Task(context.signature.clone(), TaskSessionEvent::Status(status));
+        let event = SessionEvent::Task(context.signature.clone(), TaskEvent::Status(status));
         Self::send_event(context, event);
     }
 

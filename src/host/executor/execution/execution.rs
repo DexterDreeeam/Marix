@@ -1,11 +1,11 @@
 use std::sync::Arc;
 use std::thread::{self, JoinHandle};
 
+use crate::executor::Tool;
 use marix_common::{
-    ExecutionParameterPackage, ExecutionSessionEvent, ExecutionStatus, ExecutionUpdate, Receiver,
-    Sender, SessionEvent, SharedNetSender, build_channel,
+    ExecutionEvent, ExecutionRequest, ExecutionStatus, ExecutionUpdate, Receiver, Sender,
+    SessionEvent, SharedNetSender, build_channel,
 };
-use marix_host_tool::Tool;
 
 use super::ExecutionContext;
 
@@ -18,7 +18,7 @@ pub struct ExecutionRuntime {
 impl ExecutionRuntime {
     pub fn new(
         tool: Tool,
-        parameters: ExecutionParameterPackage,
+        parameters: ExecutionRequest,
         agent_tx: SharedNetSender<SessionEvent>,
     ) -> Self {
         let (execution_tx, execution_rx) = build_channel();
@@ -47,11 +47,11 @@ impl ExecutionRuntime {
         Self::spawn_execution(Arc::clone(&context));
         while let Ok(event) = execution_rx.recv() {
             match event {
-                SessionEvent::Execution(_, ExecutionSessionEvent::Cancel) => {
+                SessionEvent::Execution(_, ExecutionEvent::Cancel) => {
                     Self::emit_status(&context, ExecutionStatus::Canceled);
                     break;
                 }
-                SessionEvent::Execution(_, ExecutionSessionEvent::Kill) => {
+                SessionEvent::Execution(_, ExecutionEvent::Kill) => {
                     Self::emit_status(&context, ExecutionStatus::Killed);
                     break;
                 }
@@ -62,12 +62,7 @@ impl ExecutionRuntime {
 
     fn spawn_execution(context: Arc<ExecutionContext>) {
         thread::spawn(move || {
-            let input = context
-                .parameters
-                .tool_request
-                .as_ref()
-                .map(|request| request.input.clone())
-                .unwrap_or_default();
+            let input = context.parameters.tool_request.clone().unwrap_or_default();
             let output = context.tool.execute(&input);
             Self::emit_update(&context, output);
             Self::emit_status(&context, ExecutionStatus::Succeed);
@@ -79,7 +74,7 @@ impl ExecutionRuntime {
             context,
             SessionEvent::Execution(
                 context.parameters.signature.clone(),
-                ExecutionSessionEvent::Status(status),
+                ExecutionEvent::Status(status),
             ),
         );
     }
@@ -89,7 +84,7 @@ impl ExecutionRuntime {
             context,
             SessionEvent::Execution(
                 context.parameters.signature.clone(),
-                ExecutionSessionEvent::Update(ExecutionUpdate { content }),
+                ExecutionEvent::Update(ExecutionUpdate { content }),
             ),
         );
     }

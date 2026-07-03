@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex as StdMutex};
 use std::thread::JoinHandle;
 
 use crate::task::Task;
-use marix_common::{Config, SessionEvent, TaskId, TaskSessionEvent, TaskSignature, accept_channel};
+use marix_common::{Config, SessionEvent, TaskEvent, TaskId, TaskSignature, accept_channel};
 
 use super::SessionContext;
 
@@ -53,7 +53,7 @@ impl Session {
                     .client_rx
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(rx);
-                Self::handle_client_events(Arc::clone(&context));
+                Self::run_client_worker(Arc::clone(&context));
             }
         })
     }
@@ -76,12 +76,12 @@ impl Session {
                     .host_rx
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(rx);
-                Self::handle_host_events(Arc::clone(&context));
+                Self::run_host_worker(Arc::clone(&context));
             }
         })
     }
 
-    fn handle_client_events(context: Arc<SessionContext>) {
+    fn run_client_worker(context: Arc<SessionContext>) {
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
@@ -97,7 +97,7 @@ impl Session {
             };
             while let Ok(Some(event)) = rx.recv().await {
                 match event {
-                    SessionEvent::Task(signature, TaskSessionEvent::Create { request }) => {
+                    SessionEvent::Task(signature, TaskEvent::Create { request }) => {
                         Self::create_task(&context, signature, request);
                     }
                     event => Self::route_session_event(&context, event),
@@ -106,7 +106,7 @@ impl Session {
         });
     }
 
-    fn handle_host_events(context: Arc<SessionContext>) {
+    fn run_host_worker(context: Arc<SessionContext>) {
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
@@ -136,7 +136,7 @@ impl Session {
         {
             let event = SessionEvent::Task(
                 signature,
-                TaskSessionEvent::CreateFailed {
+                TaskEvent::CreateFailed {
                     reason: "host not connected".to_string(),
                 },
             );

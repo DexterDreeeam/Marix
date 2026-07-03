@@ -1,7 +1,7 @@
 flowchart LR
   %% Common is its own crate root; lib.rs wires child-module APIs without owning concrete interfaces.
   subgraph common_crate[common crate]
-    ConfigModule["config\nConfig + runtime settings"]
+    ConfigModule["config\nConfig + runtime + tool directory settings"]
     ExternalModule["external\ncrate-local adapters"]
     LoggingModule["logging\nLogMessage + log functions"]
     ProtocolModule["protocol\nsession/task/execution + tool metadata types"]

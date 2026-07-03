@@ -1,9 +1,5 @@
 flowchart LR
-  %% marix-host-tool crate: Executor-side Tool handle plus one executable per native tool selected via Cargo features.
-  subgraph tool_rs[tool.rs]
-    Tool["Tool\nexecutable handle"]
-  end
-
+  %% marix-tool crate: ToolProgram interface plus one executable per native tool selected via Cargo features; the Executor-side Tool handle now lives in the host crate.
   subgraph tool_program_rs[tool_program.rs]
     ToolProgram["ToolProgram\ntrait"]
   end
@@ -27,5 +23,3 @@ flowchart LR
   BinEntry -->|"--preview prints preview()"| ToolProgram
   BinEntry -->|"--run <input> calls invoke()"| ToolProgram
   ToolProgram -->|"preview() returns"| ToolPreview
-  Tool -->|"load/execute runs tool executable"| BinEntry
-  Tool -->|"preview() returns"| ToolPreview

@@ -8,7 +8,7 @@ pub struct TaskSignature {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum TaskSessionEvent {
+pub enum TaskEvent {
     Create { request: String },
     CreateFailed { reason: String },
     Query,

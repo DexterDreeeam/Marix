@@ -1,4 +1,4 @@
-use crate::protocol::{ExecutionSessionEvent, ExecutionSignature, TaskSessionEvent, TaskSignature};
+use crate::protocol::{ExecutionEvent, ExecutionSignature, TaskEvent, TaskSignature};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -22,6 +22,6 @@ impl ExeId {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SessionEvent {
-    Task(TaskSignature, TaskSessionEvent),
-    Execution(ExecutionSignature, ExecutionSessionEvent),
+    Task(TaskSignature, TaskEvent),
+    Execution(ExecutionSignature, ExecutionEvent),
 }

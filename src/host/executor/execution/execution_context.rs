@@ -1,16 +1,16 @@
-use marix_common::{ExecutionParameterPackage, SessionEvent, SharedNetSender};
-use marix_host_tool::Tool;
+use crate::executor::Tool;
+use marix_common::{ExecutionRequest, SessionEvent, SharedNetSender};
 
 pub struct ExecutionContext {
     pub tool: Tool,
-    pub parameters: ExecutionParameterPackage,
+    pub parameters: ExecutionRequest,
     pub agent_tx: SharedNetSender<SessionEvent>,
 }
 
 impl ExecutionContext {
     pub fn new(
         tool: Tool,
-        parameters: ExecutionParameterPackage,
+        parameters: ExecutionRequest,
         agent_tx: SharedNetSender<SessionEvent>,
     ) -> Self {
         Self {

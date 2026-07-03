@@ -4,13 +4,16 @@ flowchart LR
     Common["common\nconfig + external + logging + protocol + structure"]
     Agent["agent\nmodel + session context + task interfaces"]
     Client["client\nClientSession + ClientEvent"]
-    Host["host\nHostSession + Executor + marix-host-tool crate"]
+    Host["host\nHostSession + Executor + ToolRegistry + Tool handle"]
+    ToolCrate["tool\nmarix-tool: ToolProgram + native tool executables"]
   end
 
   Common -->|"Config, LoggingConfig, LogMessage, protocol events, WorkQueue/channels"| Agent
   Common -->|"Config, logging APIs, SessionEvent, task/tool status payloads"| Client
-  Common -->|"tool execution protocol, channels, shared config/logging"| Host
+  Common -->|"tool execution protocol, channels, shared config (incl. tool directory)/logging"| Host
   Client -->|"client SessionEvent commands"| Agent
   Agent -->|"SessionContext-routed task/session events"| Client
   Agent -->|"Session worker host SessionEvent channels"| Host
   Host -->|"host SessionEvent traffic"| Agent
+  Common -->|"ToolPreview/ToolSchema tool contracts"| ToolCrate
+  Host -->|"Executor Tool handle spawns tool executables (--preview/--run)"| ToolCrate

@@ -1,6 +1,6 @@
 use std::env;
 
-use marix_host_tool::{SelectedTool, ToolProgram};
+use marix_tool::{SelectedTool, ToolProgram};
 
 fn main() {
     run(SelectedTool);

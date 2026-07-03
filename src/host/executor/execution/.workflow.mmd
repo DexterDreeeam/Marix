@@ -8,14 +8,14 @@ flowchart LR
     ExecutionContext["ExecutionContext\nstruct"]
   end
 
-  subgraph host_tool[host tool crate marix-host-tool]
+  subgraph executor_tool[host executor Tool handle (tool.rs)]
     Tool["Tool\nexecutable handle"]
   end
 
   subgraph common_protocol[common protocol]
     ExecutionSignature["ExecutionSignature"]
-    ExecutionParameterPackage["ExecutionParameterPackage"]
-    ExecutionSessionEvent["ExecutionSessionEvent"]
+    ExecutionRequest["ExecutionRequest"]
+    ExecutionEvent["ExecutionEvent"]
     ExecutionStatus["ExecutionStatus"]
     ExecutionUpdate["ExecutionUpdate"]
     SessionEvent["SessionEvent"]
@@ -23,12 +23,12 @@ flowchart LR
 
   ExecutionRuntime -->|"owns Arc"| ExecutionContext
   ExecutionRuntime -->|"execution_tx/rx carry"| SessionEvent
-  ExecutionRuntime -->|"event loop recv Cancel/Kill"| ExecutionSessionEvent
+  ExecutionRuntime -->|"event loop recv Cancel/Kill"| ExecutionEvent
   ExecutionRuntime -->|"runs tool.execute via context"| Tool
   ExecutionRuntime -->|"emits Started/Succeed/Canceled/Killed"| ExecutionStatus
   ExecutionRuntime -->|"emits execution output"| ExecutionUpdate
   ExecutionRuntime -->|"try_send to forward on agent_tx"| SessionEvent
   ExecutionContext -->|"holds tool handle"| Tool
-  ExecutionContext -->|"holds parameters"| ExecutionParameterPackage
-  ExecutionParameterPackage -->|"signature"| ExecutionSignature
+  ExecutionContext -->|"holds parameters"| ExecutionRequest
+  ExecutionRequest -->|"signature"| ExecutionSignature
   ExecutionContext -->|"agent_tx std::sync::Mutex sender"| SessionEvent

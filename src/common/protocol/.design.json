@@ -3,9 +3,10 @@
   "module": {
     "path": "src/common/protocol",
     "name": "protocol",
-    "purpose": "Owns the shared session/task/execution protocol contracts exchanged over channels, plus the tool metadata contracts. session.rs defines the TaskId and ExeId identifiers and the top-level SessionEvent split between task and execution traffic; task.rs defines task signatures, task session events, and task status; execution.rs defines execution signatures, execution session events that carry ToolPreview values from the sibling tool module, the ExecutionRequest and ExecutionStatus models, execution updates, and the execution parameter package, whose lead field is an ExecutionSignature (task_id, exe_id, name); tool.rs now owns the ToolSchema input/output schema pair and the ToolPreview advertisement record (name, description, schema) that were relocated here from the removed common::tool module. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the shared session/task/execution protocol contracts exchanged over channels, plus the tool metadata contracts. session.rs defines the TaskId and ExeId identifiers and the top-level SessionEvent split between task and execution traffic; task.rs defines task signatures, task events, and task status; execution.rs defines execution signatures, execution events that carry ToolPreview values from the sibling tool module, the ExecutionStatus and ExecutionUpdate models, and the ExecutionRequest execution parameter package whose lead field is an ExecutionSignature (task_id, exe_id, name) and whose tool_request now carries a raw Option<String> tool input (this is now the single execution request type, after the earlier input-only request struct was removed and the former parameter-package struct was renamed to ExecutionRequest); tool.rs now owns the ToolSchema input/output schema pair and the ToolPreview advertisement record (name, description, schema) that were relocated here from the removed common::tool module. mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "modified"
   },
+  "modified": ["execution.rs", "task.rs", "session.rs", "mod.rs"],
   "childModules": [],
   "elements": [
     {
@@ -80,20 +81,20 @@
       "name": "SessionEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/session.rs",
           "lineStart": 23,
           "lineEnd": 27,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 23,
-              "lineEnd": 27
+              "lineStart": 25,
+              "lineEnd": 26
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -119,23 +120,23 @@
       ]
     },
     {
-      "name": "TaskSessionEvent",
+      "name": "TaskEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "renamed",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/task.rs",
           "lineStart": 10,
           "lineEnd": 18,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 10,
-              "lineEnd": 18
+              "lineStart": 11,
+              "lineEnd": 11
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -177,10 +178,10 @@
       ]
     },
     {
-      "name": "ExecutionSessionEvent",
+      "name": "ExecutionEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "renamed",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/execution.rs",
@@ -188,23 +189,12 @@
           "lineEnd": 21,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ExecutionRequest",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/protocol/execution.rs",
-          "lineStart": 23,
-          "lineEnd": 26,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 12
+            }
+          ]
         }
       ]
     },
@@ -216,8 +206,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/execution.rs",
-          "lineStart": 28,
-          "lineEnd": 36,
+          "lineStart": 23,
+          "lineEnd": 31,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -232,8 +222,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/execution.rs",
-          "lineStart": 38,
-          "lineEnd": 41,
+          "lineStart": 33,
+          "lineEnd": 36,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -241,21 +231,25 @@
       ]
     },
     {
-      "name": "ExecutionParameterPackage",
+      "name": "ExecutionRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "renamed",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/execution.rs",
-          "lineStart": 43,
-          "lineEnd": 49,
+          "lineStart": 38,
+          "lineEnd": 44,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 45,
-              "lineEnd": 45
+              "lineStart": 39,
+              "lineEnd": 39
+            },
+            {
+              "lineStart": 42,
+              "lineEnd": 42
             }
           ]
         }

@@ -1,4 +1,4 @@
-use marix_common::ExecutionParameterPackage;
+use marix_common::ExecutionRequest;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct StepSequence(pub i32);
@@ -7,7 +7,7 @@ pub struct StepSequence(pub i32);
 pub struct Step {
     pub sequence: StepSequence,
     pub kind: StepKind,
-    pub parameters: ExecutionParameterPackage,
+    pub parameters: ExecutionRequest,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

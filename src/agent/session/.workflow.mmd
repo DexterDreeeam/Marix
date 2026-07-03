@@ -17,8 +17,8 @@ flowchart LR
 
   subgraph common_protocol[common protocol]
     SessionEvent["SessionEvent"]
-    TaskSessionEvent["TaskSessionEvent"]
-    ExecutionSessionEvent["ExecutionSessionEvent"]
+    TaskEvent["TaskEvent"]
+    ExecutionEvent["ExecutionEvent"]
   end
 
   Session -->|"Arc<SessionContext>"| SessionContext
@@ -28,8 +28,8 @@ flowchart LR
   HostChannel -->|"host SessionEvent stream"| SessionContext
   SessionContext -->|"creates via Task::new (auto-starts worker)"| Task
   SessionContext -->|"stores by TaskId"| Tasks
-  SessionContext -->|"routes TaskSessionEvent"| TaskSessionEvent
-  SessionContext -->|"routes ExecutionSessionEvent"| ExecutionSessionEvent
-  TaskSessionEvent -->|"wrapped by"| SessionEvent
-  ExecutionSessionEvent -->|"wrapped by"| SessionEvent
+  SessionContext -->|"routes TaskEvent"| TaskEvent
+  SessionContext -->|"routes ExecutionEvent"| ExecutionEvent
+  TaskEvent -->|"wrapped by"| SessionEvent
+  ExecutionEvent -->|"wrapped by"| SessionEvent
   SessionContext -->|"sends routed SessionEvent via task sender"| Task

@@ -570,6 +570,7 @@ version = "0.1.0"
 dependencies = [
  "marix-agent",
  "marix-common",
+ "tokio",
 ]
 
 [[package]]
@@ -592,11 +593,11 @@ version = "0.1.0"
 dependencies = [
  "marix-agent",
  "marix-common",
- "marix-host-tool",
+ "tokio",
 ]
 
 [[package]]
-name = "marix-host-tool"
+name = "marix-tool"
 version = "0.1.0"
 dependencies = [
  "marix-common",

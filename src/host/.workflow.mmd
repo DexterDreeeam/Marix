@@ -1,17 +1,18 @@
 flowchart LR
-  %% HostSession and Executor method bodies remain panic-backed stubs; the executor execution runtime is implemented.
+  %% HostSession now connects to the agent's configured host bind address (spawn_worker -> connect_channel), owns a single per-connection Executor built by Executor::new(agent_tx), and pumps inbound SessionEvents through run_worker -> Executor::route_session_event over a current-thread tokio runtime; close signals the shutdown flag and joins the worker. The executor is a single route_session_event router (intercepts Evoke into create_execution to spawn+track an ExecutionRuntime, and forwards other execution events to the target ExecutionRuntime via executions.with), while the execution runtime and ToolRegistry are implemented. Executor::new(agent_tx) stores the shared agent SessionEvent sender and builds a ToolRegistry that reads the global Config and loads Tool handles from the configured tool directory.
   subgraph session_rs[session.rs]
     HostSession["HostSession\nstruct"]
   end
 
   subgraph executor_mod[executor module]
     Executor["Executor\nstruct"]
+    ToolRegistry["ToolRegistry\nstruct"]
+    Tool["Tool\nexecutable handle"]
     ExecutionRuntime["ExecutionRuntime\nstruct"]
     ExecutionContext["ExecutionContext\nstruct"]
   end
 
-  subgraph tool_crate[tool crate marix-host-tool]
-    Tool["Tool\nexecutable handle"]
+  subgraph marix_tool_crate[marix-tool crate (top-level)]
     ToolProgram["ToolProgram\ntrait + native tool bins"]
   end
 
@@ -25,17 +26,29 @@ flowchart LR
     ToolPreview["ToolPreview"]
   end
 
-  HostSession -->|"agent_tx/agent_rx endpoints"| SessionEvent
-  HostSession -->|"owns executor"| Executor
+  subgraph common_config[common config]
+    Config["Config"]
+  end
+
+  HostSession -->|"spawn_worker connect_channel to agent"| SessionEvent
+  HostSession -->|"spawn_worker loads host_bind_address from"| Config
+  HostSession -->|"spawn_worker owns Executor::new(agent_tx)"| Executor
+  HostSession -->|"run_worker recv -> route_session_event"| Executor
+  Executor -->|"new stores agent_tx + builds/owns"| ToolRegistry
   Executor -->|"executions WorkQueue keyed by"| ExeId
-  Executor -->|"tracks"| ExecutionRuntime
+  Executor -->|"route_session_event consumes"| SessionEvent
+  Executor -->|"route_session_event intercepts Evoke -> create_execution spawns + tracks"| ExecutionRuntime
+  Executor -->|"forward_to_execution: executions.with borrows sender, forwards SessionEvent"| ExecutionRuntime
   ExecutionRuntime -->|"owns Arc"| ExecutionContext
   ExecutionContext -->|"parameters.signature"| ExecutionSignature
   ExecutionContext -->|"agent_tx forwards"| SessionEvent
-  Executor -->|"preview advertises"| ToolPreview
-  Executor -->|"evoke request"| ExecutionRequest
-  Executor -->|"evoke/query/cancel/kill return"| ExecutionStatus
-  Executor -->|"updates receiver emits"| ExecutionUpdate
-  ExecutionContext -->|"holds Tool handle from marix-host-tool"| Tool
-  Tool -->|"spawns --preview/--run binaries built by"| ToolProgram
+  ToolRegistry -->|"loads via Tool::load / holds handles"| Tool
+  ToolRegistry -->|"preview advertises"| ToolPreview
+  ToolRegistry -->|"new reads tool directory from"| Config
+  Executor -->|"create_execution consumes"| ExecutionRequest
+  Executor -->|"emit_failed reports Failed"| ExecutionStatus
+  Executor -->|"emit_failed try_send via agent_tx"| SessionEvent
+  ExecutionRuntime -->|"streams status/update payloads"| ExecutionUpdate
+  ExecutionContext -->|"holds host-local Tool handle"| Tool
+  Tool -->|"spawns --preview/--run executables built by"| ToolProgram
   ToolProgram -->|"preview() returns"| ToolPreview

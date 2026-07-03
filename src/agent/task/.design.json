@@ -3,9 +3,10 @@
   "module": {
     "path": "src/agent/task",
     "name": "task",
-    "purpose": "Owns the agent task runtime. step.rs defines the StepSequence ordering key, the Step record, and the StepKind/ToolStepKind/ModelStepKind/UserStepKind classification enums; task_context.rs defines TaskContext, the shared runtime data holding the task signature, a std::sync::Mutex-guarded model backend, client/host senders, and the execution and step WorkQueues; task.rs defines Task, which owns an Arc<TaskContext>, the task_tx SessionEvent sender, and a worker JoinHandle spawned directly in new (there is no separate run), drives model steps on worker threads, and streams task status plus forwarded host execution events to the client by synchronously locking client_tx (std::sync::Mutex) and calling try_send. initial_step stamps the ExecutionParameterPackage with an ExecutionSignature { task_id, exe_id, name }. execution.rs defines the Execution record; mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent task runtime. step.rs defines the StepSequence ordering key, the Step record (whose parameters field is now an ExecutionRequest), and the StepKind/ToolStepKind/ModelStepKind/UserStepKind classification enums; task_context.rs defines TaskContext, the shared runtime data holding the task signature, a std::sync::Mutex-guarded model backend, client/host senders, and the execution and step WorkQueues; task.rs defines Task, which owns an Arc<TaskContext>, the task_tx SessionEvent sender, and a worker JoinHandle spawned directly in new (there is no separate run), drives model steps on worker threads, and streams task status plus forwarded host execution events to the client by synchronously locking client_tx (std::sync::Mutex) and calling try_send. initial_step stamps the ExecutionRequest with an ExecutionSignature { task_id, exe_id, name }. execution.rs defines the Execution record; mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "modified"
   },
+  "modified": ["step.rs", "task.rs"],
   "childModules": [],
   "elements": [
     {
@@ -33,20 +34,20 @@
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/step.rs",
           "lineStart": 6,
           "lineEnd": 11,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 6,
-              "lineEnd": 11
+              "lineStart": 10,
+              "lineEnd": 10
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -138,7 +139,7 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
@@ -146,50 +147,26 @@
           "lineEnd": 17,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 16,
-              "lineEnd": 16
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/task/task.rs",
           "lineStart": 19,
           "lineEnd": 50,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 32,
-              "lineEnd": 35
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 39,
-              "lineEnd": 39
-            }
-          ]
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/task/task.rs",
           "lineStart": 54,
           "lineEnd": 174,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 87,
-              "lineEnd": 90
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 86,
-              "lineEnd": 86
-            },
-            {
-              "lineStart": 165,
-              "lineEnd": 172
+              "lineStart": 85,
+              "lineEnd": 85
             }
           ]
         }

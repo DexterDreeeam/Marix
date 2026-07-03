@@ -21,6 +21,7 @@ pub struct Config {
     pub model: ModelConfig,
     pub logging: LoggingConfig,
     pub credential: CredentialConfig,
+    pub tool: ToolConfig,
 }
 
 impl Config {
@@ -141,6 +142,12 @@ pub struct CredentialConfig {
     pub directory: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ToolConfig {
+    pub directory: String,
+}
+
 // -- Private -- //
 
 #[derive(Debug, Deserialize)]
@@ -153,6 +160,7 @@ struct RawConfig {
     model: RawModelConfig,
     logging: LoggingConfig,
     credential: CredentialConfig,
+    tool: ToolConfig,
 }
 
 #[derive(Debug, Deserialize)]
@@ -217,6 +225,12 @@ fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
         },
         logging: raw_config.logging,
         credential: raw_config.credential,
+        tool: ToolConfig {
+            directory: path_to_config_string(resolve_config_path(
+                &repo_root,
+                &raw_config.tool.directory,
+            )),
+        },
     })
 }
 

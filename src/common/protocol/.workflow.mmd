@@ -8,17 +8,16 @@ flowchart LR
 
   subgraph task_rs[task.rs]
     TaskSignature["TaskSignature\nstruct"]
-    TaskSessionEvent["TaskSessionEvent\nenum"]
+    TaskEvent["TaskEvent\nenum"]
     TaskStatus["TaskStatus\nenum"]
   end
 
   subgraph execution_rs[execution.rs]
     ExecutionSignature["ExecutionSignature\nstruct"]
-    ExecutionSessionEvent["ExecutionSessionEvent\nenum"]
+    ExecutionEvent["ExecutionEvent\nenum"]
     ExecutionRequest["ExecutionRequest\nstruct"]
     ExecutionStatus["ExecutionStatus\nenum"]
     ExecutionUpdate["ExecutionUpdate\nstruct"]
-    ExecutionParameterPackage["ExecutionParameterPackage\nstruct"]
   end
 
   subgraph tool_rs[tool.rs]
@@ -27,17 +26,16 @@ flowchart LR
   end
 
   SessionEvent -->|"Task(signature, event)"| TaskSignature
-  SessionEvent -->|"Task(signature, event)"| TaskSessionEvent
+  SessionEvent -->|"Task(signature, event)"| TaskEvent
   SessionEvent -->|"Execution(signature, event)"| ExecutionSignature
-  SessionEvent -->|"Execution(signature, event)"| ExecutionSessionEvent
+  SessionEvent -->|"Execution(signature, event)"| ExecutionEvent
   TaskSignature -->|"id"| TaskId
-  TaskSessionEvent -->|"Status(TaskStatus)"| TaskStatus
+  TaskEvent -->|"Status(TaskStatus)"| TaskStatus
   ExecutionSignature -->|"task_id"| TaskId
   ExecutionSignature -->|"exe_id"| ExeId
-  ExecutionSessionEvent -->|"Preview { tools }"| ToolPreview
+  ExecutionEvent -->|"Preview { tools }"| ToolPreview
   ToolPreview -->|"schema"| ToolSchema
-  ExecutionSessionEvent -->|"Evoke(ExecutionRequest)"| ExecutionRequest
-  ExecutionSessionEvent -->|"Status(ExecutionStatus)"| ExecutionStatus
-  ExecutionSessionEvent -->|"Update(ExecutionUpdate)"| ExecutionUpdate
-  ExecutionParameterPackage -->|"signature"| ExecutionSignature
-  ExecutionParameterPackage -->|"tool_request"| ExecutionRequest
+  ExecutionEvent -->|"Evoke(ExecutionRequest) parameter package"| ExecutionRequest
+  ExecutionEvent -->|"Status(ExecutionStatus)"| ExecutionStatus
+  ExecutionEvent -->|"Update(ExecutionUpdate)"| ExecutionUpdate
+  ExecutionRequest -->|"signature"| ExecutionSignature

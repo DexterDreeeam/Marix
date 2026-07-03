@@ -15,6 +15,7 @@ flowchart LR
     LoggingConfig["LoggingConfig"]
     LogLevel["LogLevel"]
     CredentialConfig["CredentialConfig"]
+    ToolConfig["ToolConfig\ntool directory"]
     RuntimePathResolver["runtime path resolver\ninternal helpers"]
   end
 
@@ -51,6 +52,8 @@ flowchart LR
   LoggingConfig -->|"level"| LogLevel
   Config -->|"credential directory"| CredentialConfig
   CredentialConfig -->|"resolves secret files"| CredentialFiles
+  Config -->|"tool directory"| ToolConfig
+  ConfigRoot -->|"load_config resolves tool directory to absolute path"| ToolConfig
   RuntimeConfig -->|"selected Marix path"| LoggingModule
   LoggingConfig -->|"info/warning/error gates"| LoggingModule
   AgentConfig -->|"client_bind_address / host_bind_address"| AgentSession

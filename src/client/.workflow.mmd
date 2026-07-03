@@ -1,19 +1,31 @@
 flowchart LR
-  %% lib.rs re-exports ClientSession and ClientEvent; method bodies are panic-backed placeholders.
+  %% lib.rs re-exports ClientSession and ClientEvent. ClientSession is implemented, a self-connecting client mirroring HostSession's worker + shutdown model: new() builds the user ClientEvent channel and an empty SharedNetSender; connect() (no params) spawns the worker via spawn_worker; the worker loads config.client.core_address, connect_channels to the agent (retrying), stores the NetSender into the shared agent_tx, and run_worker block_on's a current-thread tokio runtime that translates inbound SessionEvents into ClientEvents via to_client_event (content-bearing task events only); create_task/cancel_task send task commands through agent_tx; receiver() borrows user_rx; close() signals the shutdown flag and joins the worker.
   subgraph event_rs[event.rs]
     ClientEvent["ClientEvent\nenum"]
   end
 
   subgraph session_rs[session.rs]
     ClientSession["ClientSession\nstruct"]
+    Worker["worker\nspawn_worker/run_worker connect + event-loop thread"]
   end
 
   subgraph common_protocol[common protocol]
     SessionEvent["SessionEvent"]
+    TaskEvent["TaskEvent"]
     TaskId["TaskId"]
   end
 
-  ClientSession -->|"agent_tx/agent_rx endpoints"| SessionEvent
-  ClientSession -->|"user_tx/user_rx surface"| ClientEvent
-  ClientSession -->|"create_task sends command"| SessionEvent
-  ClientSession -->|"query_task/cancel_task keyed by"| TaskId
+  subgraph common_config[common config]
+    Config["Config"]
+  end
+
+  ClientSession -->|"connect() (no params) spawns"| Worker
+  ClientSession -->|"create_task/cancel_task send commands via agent_tx SharedNetSender<SessionEvent>"| SessionEvent
+  ClientSession -->|"create_task Create / cancel_task Cancel"| TaskEvent
+  ClientSession -->|"create_task allocates TaskId::new(); cancel_task keyed by"| TaskId
+  ClientSession -->|"receiver() borrows user_rx &Receiver<ClientEvent>"| ClientEvent
+  ClientSession -->|"close() signals shutdown flag, joins"| Worker
+  Worker -->|"spawn_worker loads core_address from"| Config
+  Worker -->|"spawn_worker connect_channel to agent; run_worker recv"| SessionEvent
+  Worker -->|"to_client_event maps content-bearing TaskEvent Status/Preview/CreateFailed"| TaskEvent
+  Worker -->|"pushes ClientEvent::Common via user_tx"| ClientEvent

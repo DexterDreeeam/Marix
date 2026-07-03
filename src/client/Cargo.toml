@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 marix-agent = { path = "../agent" }
 marix-common = { path = "../common" }
+tokio = { version = "1", features = ["net", "rt-multi-thread", "sync", "time"] }
 
 [lib]
 name = "marix_client"

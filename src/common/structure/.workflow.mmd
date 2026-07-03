@@ -1,5 +1,5 @@
 flowchart LR
-  %% mod.rs re-exports the channel helpers and WorkQueue.
+  %% mod.rs re-exports the channel helpers and WorkQueue. WorkQueue::with(key, closure) is a borrowing accessor: it locks working then complete and runs the closure on a borrowed &V, so callers can use a non-Clone value (e.g. clone an ExecutionRuntime Sender) without moving it out of the queue.
   subgraph channel_rs[channel.rs]
     ChannelFns["build_channel / accept_channel / connect_channel\nconstructors"]
     LocalAliases["Sender / Receiver\nmpsc aliases"]
@@ -21,3 +21,4 @@ flowchart LR
   WorkQueue -->|"owns in-progress entries"| WorkingMap
   WorkQueue -->|"owns completed entries"| CompleteMap
   WorkQueue -->|"complete(key) moves working entry"| CompleteMap
+  WorkQueue -->|"with(key, fn) borrows &V in place (working then complete) for non-Clone values"| WorkingMap

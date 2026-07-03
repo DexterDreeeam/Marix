@@ -9,7 +9,7 @@ pub struct ExecutionSignature {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ExecutionSessionEvent {
+pub enum ExecutionEvent {
     PreviewQuery,
     Preview { tools: Vec<ToolPreview> },
     Evoke(ExecutionRequest),
@@ -18,11 +18,6 @@ pub enum ExecutionSessionEvent {
     Kill,
     Status(ExecutionStatus),
     Update(ExecutionUpdate),
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ExecutionRequest {
-    pub input: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -41,9 +36,9 @@ pub struct ExecutionUpdate {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ExecutionParameterPackage {
+pub struct ExecutionRequest {
     pub signature: ExecutionSignature,
     pub prompt: Option<String>,
-    pub tool_request: Option<ExecutionRequest>,
+    pub tool_request: Option<String>,
     pub user_options: Vec<String>,
 }
