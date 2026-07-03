@@ -4,25 +4,15 @@
     "path": "src/common/external",
     "name": "external",
     "purpose": "Now-public third-party library namespace wrappers that let downstream crates route third-party access through common::external while single ownership stays in common; includes image, remoc connection, reqwest, serde, serde_json, tokio, and toml helpers.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "mod.rs",
-    "image.rs",
-    "remoc.rs",
-    "reqwest.rs",
-    "serde.rs",
-    "serde_json.rs",
-    "tokio.rs",
-    "toml.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "connect_remoc",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/external/remoc.rs",
