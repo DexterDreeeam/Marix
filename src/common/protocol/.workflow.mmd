@@ -1,17 +1,38 @@
 flowchart LR
-  ToolSchema["ToolSchema
-struct"] -->|"describes"| ToolParameter["ToolParameter
-struct"]
-  ToolInvocation["ToolInvocation
-struct"] -->|"carries"| ToolParameter
-  ToolInvocation -->|"identified by"| ToolSignature["ToolSignature
-struct"]
-  ToolPreview["ToolPreview
-struct"] -->|"schema"| ToolSchema
-  ToolType["ToolType
-enum"] -.->|"classifies tool implementations"| ToolPreview
-  ToolExecutionStatus["ToolExecutionStatus
-enum"] -->|"every variant carries"| ToolSignature
-  ToolExecutionStatus -->|"failed state"| ToolError["ToolError
-enum"]
-  ToolExecutionStatus -->|"running/complete output"| Output["String / Option<String>"]
+  %% mod.rs only declares child files and re-exports the protocol surface.
+  subgraph session_rs[session.rs]
+    SessionEvent["SessionEvent\nenum"]
+    TaskId["TaskId\nstruct"]
+    ExeId["ExeId\nstruct"]
+  end
+
+  subgraph task_rs[task.rs]
+    TaskSignature["TaskSignature\nstruct"]
+    TaskSessionEvent["TaskSessionEvent\nenum"]
+    TaskStatus["TaskStatus\nenum"]
+  end
+
+  subgraph execution_rs[execution.rs]
+    ExecutionSignature["ExecutionSignature\nstruct"]
+    ExecutionSessionEvent["ExecutionSessionEvent\nenum"]
+    ToolPreview["ToolPreview\nstruct"]
+    ToolExecutionRequest["ToolExecutionRequest\nstruct"]
+    ToolExecutionStatus["ToolExecutionStatus\nenum"]
+    ToolExecutionUpdate["ToolExecutionUpdate\nstruct"]
+    ExecutionParameterPackage["ExecutionParameterPackage\nstruct"]
+  end
+
+  SessionEvent -->|"Task(signature, event)"| TaskSignature
+  SessionEvent -->|"Task(signature, event)"| TaskSessionEvent
+  SessionEvent -->|"Execution(signature, event)"| ExecutionSignature
+  SessionEvent -->|"Execution(signature, event)"| ExecutionSessionEvent
+  TaskSignature -->|"id"| TaskId
+  TaskSessionEvent -->|"Status(TaskStatus)"| TaskStatus
+  ExecutionSignature -->|"task_id"| TaskId
+  ExecutionSignature -->|"exe_id"| ExeId
+  ExecutionSessionEvent -->|"Preview { tools }"| ToolPreview
+  ExecutionSessionEvent -->|"ExecutionEvoke"| ToolExecutionRequest
+  ExecutionSessionEvent -->|"ExecutionStatus"| ToolExecutionStatus
+  ExecutionSessionEvent -->|"ExecutionUpdate"| ToolExecutionUpdate
+  ExecutionParameterPackage -->|"task_id"| TaskId
+  ExecutionParameterPackage -->|"tool_request"| ToolExecutionRequest

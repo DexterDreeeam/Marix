@@ -3,29 +3,34 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent modules for remoc-backed frontdoor Session/Task endpoints, a session-scoped LoopEngine with configured model backend state, public Plan/Job/TaskStep shapes, ModelRequest step purpose, and ModelResponse content/failure results.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent crate namespace for session runtime orchestration, model backend abstractions, and task execution drafts. lib.rs is re-export wiring; the session child module owns Session and SessionContext, while model and task child modules own backend, step, task, and execution interfaces.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
+  "added": [
+    "lib.rs"
+  ],
+  "deleted": [
+    "main.rs",
+    "mod.rs"
+  ],
   "childModules": [
-    {
-      "path": "src/agent/bin",
-      "name": "bin",
-      "purpose": "Owns the bin module."
-    },
-    {
-      "path": "src/agent/engine",
-      "name": "engine",
-      "purpose": "Session-scoped loop engine interfaces: LoopEngine loads Config, owns backend state, creates/runs TaskContext values, publishes TaskRuntimeEvent notifications, exposes Plan/Job/TaskStep shapes, builds the initial model TaskStep internally, and runs private run_model_loop."
-    },
-    {
-      "path": "src/agent/frontdoor",
-      "name": "frontdoor",
-      "purpose": "Agent frontdoor Session and Task endpoints backed by remoc/TCP, accepting client tasks into LoopEngine, keeping SessionEvent narrow, routing cancellation, and drafting TaskEvent response/complete sending."
-    },
     {
       "path": "src/agent/model",
       "name": "model",
-      "purpose": "Model request interface, ModelContext data, backend implementation boundary, model errors, and Deepseek streaming backend where ModelRequest carries ModelTaskStepKind and ModelResponse yields content chunks or failures."
+      "purpose": "Owns agent model backend traits, request/response data, backend errors, and the Deepseek backend placeholder implementation."
+    },
+    {
+      "path": "src/agent/session",
+      "name": "session",
+      "purpose": "Owns Session startup and SessionContext task/event routing runtime data behind the agent session namespace."
+    },
+    {
+      "path": "src/agent/task",
+      "name": "task",
+      "purpose": "Owns interface-only task and step types split into step.rs and task.rs; mod.rs is namespace and re-export wiring only."
     }
   ],
   "elements": []

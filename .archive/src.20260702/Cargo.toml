@@ -1,0 +1,25 @@
+[package]
+name = "marix"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[lib]
+path = "mod.rs"
+
+[[bin]]
+name = "marix-cli"
+path = "client/cli/main.rs"
+
+[[bin]]
+name = "marix-agent"
+path = "agent/main.rs"
+
+[dependencies]
+image = { version = "0.25", default-features = false, features = ["bmp", "gif", "ico", "jpeg", "png", "webp"] }
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+remoc = "0.18"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["net", "rt-multi-thread", "sync", "time"] }
+toml = "0.9"

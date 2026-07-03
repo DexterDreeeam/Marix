@@ -1,15 +1,16 @@
 flowchart LR
-  src["src
-root"] --> client["client
-module"]
-  src --> agent["agent
-module"]
-  src --> common["common
-module"]
-  common -->|"SessionEvent lifecycle/create/cancel"| client
-  common -->|"TaskEvent agent-to-client responses/tool invocations/status queries"| client
-  common -->|"TaskEvent client-to-agent ToolExecutionStatus/cancel"| agent
-  common -->|"chat message/channel protocol"| agent
-  agent -->|"ModelRequest step purpose and streamed content become TaskEvent responses"| common
-  client -->|"Executor ToolSignature/ToolExecutionStatus including Complete output and cancellation"| common
-  client -->|"session/task transport"| agent
+  %% Flat Cargo crate layout; crate roots wire child modules while concrete APIs live below them.
+  subgraph workspace[src workspace]
+    Common["common\nconfig + external + logging + protocol + structure"]
+    Agent["agent\nmodel + session context + task interfaces"]
+    Client["client\nClientSession + ClientEvent"]
+    Host["host\nHostSession + Executor"]
+  end
+
+  Common -->|"Config, LoggingConfig, LogMessage, protocol events, WorkQueue/channels"| Agent
+  Common -->|"Config, logging APIs, SessionEvent, task/tool status payloads"| Client
+  Common -->|"tool execution protocol, channels, shared config/logging"| Host
+  Client -->|"client SessionEvent commands"| Agent
+  Agent -->|"SessionContext-routed task/session events"| Client
+  Agent -->|"Session worker host SessionEvent channels"| Host
+  Host -->|"host SessionEvent traffic"| Agent

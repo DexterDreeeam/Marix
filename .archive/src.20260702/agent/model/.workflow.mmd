@@ -1,0 +1,16 @@
+flowchart LR
+  ModelBackend["ModelBackend
+trait"] -->|"request"| ModelRequest["ModelRequest
+struct"]
+  ModelBackend -->|"streams"| ModelResponse["ModelResponse
+enum"]
+  ModelBackendImpl["ModelBackendImpl
+trait"] -->|"adapts implementors"| ModelBackend
+  ModelRequest -->|"step purpose"| ModelTaskStepKind["ModelTaskStepKind"]
+  ModelRequest -->|"prompt"| Prompt["String"]
+  ModelResponse -->|"Content(String)"| Content["content chunk"]
+  ModelResponse -->|"Failed"| ModelBackendError["ModelBackendError"]
+  DeepseekBackend["DeepseekBackend"] -->|"implements"| ModelBackendImpl
+  DeepseekBackend -->|"uses prompt"| Prompt
+  DeepseekBackend -->|"emits content/failure"| ModelResponse
+  ModelContext["ModelContext"] -.->|"future model-facing view"| ModelRequest

@@ -1,7 +1,7 @@
 use std::fmt;
-use std::sync::mpsc::Receiver;
 
-use crate::agent::engine::ModelTaskStepKind;
+use crate::Step;
+use marix_common::Receiver;
 
 use super::error::ModelBackendError;
 
@@ -16,12 +16,12 @@ pub(super) trait ModelBackendImpl: fmt::Debug + Send {
     fn ready(&self) -> Result<(), ModelBackendError>;
 
     fn send(&mut self, request: ModelRequest)
-        -> Result<Receiver<ModelResponse>, ModelBackendError>;
+    -> Result<Receiver<ModelResponse>, ModelBackendError>;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ModelRequest {
-    pub step: ModelTaskStepKind,
+    pub step: Step,
     pub prompt: String,
 }
 
@@ -41,7 +41,6 @@ where
         &mut self,
         request: ModelRequest,
     ) -> Result<Receiver<ModelResponse>, ModelBackendError> {
-        self.ready()?;
-        self.send(request)
+        panic!("not implemented")
     }
 }

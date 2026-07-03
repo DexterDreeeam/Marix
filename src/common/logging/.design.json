@@ -4,7 +4,7 @@
     "path": "src/common/logging",
     "name": "logging",
     "purpose": "Common logging module with tagged log messages, structured logging errors, config-gated info/warning/error writes, direct warning/error shortcut functions, debug-build logging, runtime-config-selected log directories under the process role's Marix path plus a fixed log child folder, timestamped log-file creation, and pruning to retain at most 20 log files.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -112,19 +112,6 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 11,
-          "lineEnd": 11,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 11,
-              "lineEnd": 11
-            }
-          ],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/common/logging/logger.rs",
           "lineStart": 17,
           "lineEnd": 24,
           "language": "rust",
@@ -133,15 +120,18 @@
         },
         {
           "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 60,
-          "lineEnd": 64,
+          "lineStart": 124,
+          "lineEnd": 130,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 60,
-              "lineEnd": 64
-            }
-          ],
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 132,
+          "lineEnd": 137,
+          "language": "rust",
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -150,24 +140,14 @@
           "lineEnd": 142,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 139,
-              "lineEnd": 142
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/common/logging/logger.rs",
           "lineStart": 201,
           "lineEnd": 232,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 201,
-              "lineEnd": 232
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -228,5 +208,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "logger.rs"
   ]
 }

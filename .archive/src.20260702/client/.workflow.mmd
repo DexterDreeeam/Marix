@@ -1,0 +1,13 @@
+flowchart LR
+  cli["cli
+module"] -->|"sends chat prompts"| core["core
+module"]
+  core -->|"session-owned Executor"| executor["executor
+module"]
+  executor -->|"uses registry/tool implementations"| tool["tool
+module"]
+  tool -->|"shared invocation/protocol"| commonProtocol["common::protocol"]
+  core -->|"SessionEvent lifecycle/create/cancel"| commonChannel["common::channel"]
+  core -->|"routes TaskEvent tool invocation/status query/status return traffic"| commonChannel
+  executor -->|"ToolSignature -> ToolExecutionStatus"| commonProtocol
+  core -->|"streams ChatResponseSegment"| cli

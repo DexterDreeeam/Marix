@@ -3,30 +3,68 @@
   "module": {
     "path": "src/client",
     "name": "client",
-    "purpose": "Client modules for CLI, remoc-backed core Session/Task, a session-owned Executor managing ToolRegistry and client-only ToolRuntime instances, shared common::protocol ToolSignature/ToolExecutionStatus tool types, and Config-aware tool registry/runtime tooling.",
-    "changeStatus": "unchanged"
+    "purpose": "Client crate for the user-facing session. event.rs defines ClientEvent, the user-facing event surface; session.rs defines ClientSession, which owns the agent SessionEvent channel endpoints, a user ClientEvent channel, and an event-loop handle, and exposes connect plus task create/query/cancel and close commands. lib.rs is namespace and re-export wiring only; method bodies are panic-backed interface placeholders.",
+    "changeStatus": "added"
   },
-  "childModules": [
-    {
-      "path": "src/client/cli",
-      "name": "cli",
-      "purpose": "Interactive CLI binary entry and public interface for connecting to the core client endpoint, sending typed prompts as chat requests, and streaming ChatResponseSegment task response content to stdout."
-    },
-    {
-      "path": "src/client/core",
-      "name": "core",
-      "purpose": "Core client session/task endpoint where ClientSession owns a shared Executor and ClientTask handles ResponseMessage, terminal Complete/Closed, ToolInvocation dispatch, and TaskEvent::ToolQuery(ToolSignature) status dispatch before continuing to receive."
-    },
-    {
-      "path": "src/client/executor",
-      "name": "executor",
-      "purpose": "Client-side Executor API that receives a ToolRegistry, invokes ToolInvocation requests, stores many ToolRuntime instances by call id, answers ToolSignature status requests with ToolExecutionStatus values, and cancels calls; behavior remains draft stubs."
-    },
-    {
-      "path": "src/client/tool",
-      "name": "tool",
-      "purpose": "Client-side tool interface layer with category metadata, Config-aware registry lookup, native implementations, client-only ToolRuntime status/cancel state (statuses, status_tx, cancel_rx, cancel_tx, and latest ToolExecutionStatus), and Tool trait invocations using shared common::protocol ToolInvocation values and re-exported protocol types."
-    }
+  "added": [
+    "."
   ],
-  "elements": []
+  "childModules": [],
+  "elements": [
+    {
+      "name": "ClientEvent",
+      "type": "enum",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/event.rs",
+          "lineStart": 1,
+          "lineEnd": 4,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 4
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ClientSession",
+      "type": "struct",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/session.rs",
+          "lineStart": 7,
+          "lineEnd": 13,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 13
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/session.rs",
+          "lineStart": 15,
+          "lineEnd": 35,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 35
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
 }

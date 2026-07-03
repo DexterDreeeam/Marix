@@ -1,0 +1,23 @@
+flowchart LR
+  %% mod.rs re-exports the channel helpers and WorkQueue.
+  subgraph channel_rs[channel.rs]
+    ChannelFns["channel / accept_channel / create_channel\nconstructors"]
+    LocalAliases["Sender / Receiver\nmpsc aliases"]
+    NetAliases["NetSender / NetReceiver\nremoc aliases"]
+    SharedAliases["SharedNetSender / SharedNetReceiver\nshared endpoints"]
+    ChannelError["ChannelError\nenum"]
+  end
+
+  subgraph work_queue_rs[work_queue.rs]
+    WorkQueue["WorkQueue<K, V>\nstruct"]
+    WorkingMap["working\nArc<Mutex<BTreeMap<K, V>>>"]
+    CompleteMap["complete\nArc<Mutex<BTreeMap<K, V>>>"]
+  end
+
+  ChannelFns -->|"channel() returns local pair"| LocalAliases
+  ChannelFns -->|"accept/create return remoc pair"| NetAliases
+  NetAliases -->|"wrapped for sharing as"| SharedAliases
+  ChannelFns -->|"fails with"| ChannelError
+  WorkQueue -->|"owns in-progress entries"| WorkingMap
+  WorkQueue -->|"owns completed entries"| CompleteMap
+  WorkQueue -->|"complete(key) moves working entry"| CompleteMap

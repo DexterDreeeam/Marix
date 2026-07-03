@@ -1,12 +1,14 @@
 flowchart LR
-  common["common
-module"] --> protocol["protocol
-ToolInvocation/ToolSignature/ToolExecutionStatus"]
-  common --> message["message
-chat envelopes"]
-  common --> channel["channel
-SessionEvent + TaskEvent"]
-  channel -->|"SessionEvent carries Accepted/Close/TaskCreate/TaskCancel"| message
-  channel -->|"TaskEvent carries response messages"| message
-  channel -->|"TaskEvent carries ToolInvocation and ToolSignature status queries"| protocol
-  channel -->|"TaskEvent::ToolStatus carries ToolExecutionStatus"| protocol
+  %% Common is its own crate root; lib.rs wires child-module APIs without owning concrete interfaces.
+  subgraph common_crate[common crate]
+    ConfigModule["config\nConfig + runtime settings"]
+    ExternalModule["external\ncrate-local adapters"]
+    LoggingModule["logging\nLogMessage + log functions"]
+    ProtocolModule["protocol\nsession/task/tool protocol types"]
+    StructureModule["structure\nWorkQueue + channel helpers"]
+  end
+
+  ExternalModule -->|"serde/toml/remoc/reqwest adapters"| ConfigModule
+  ConfigModule -->|"LoggingConfig + runtime paths"| LoggingModule
+  ProtocolModule -->|"shared message contracts"| StructureModule
+  ConfigModule -->|"platform/runtime settings"| ProtocolModule

@@ -1,15 +1,22 @@
 flowchart LR
+  %% Crate-local third-party namespace wrappers exposed through common::external.
+  %% reqwest, serde_json, and image wrappers are reserved for the not-yet-
+  %% implemented model/tool backends and currently have no internal consumer.
+  subgraph image_rs["image.rs"]
+    ImageReader["ImageReader re-export"]
+  end
+
   subgraph remoc_rs["remoc.rs"]
     RemocNamespace["remoc namespace wrapper"]
     RemocConnect["connect_remoc"]
   end
 
-  subgraph image_rs["image.rs"]
-    ImageReader["ImageReader re-export"]
+  subgraph reqwest_rs["reqwest.rs"]
+    ReqwestNamespace["reqwest namespace wrapper"]
   end
 
   subgraph serde_rs["serde.rs"]
-    SerdeNamespace["serde namespace wrapper"]
+    SerdeNamespace["serde namespace wrapper\nSerialize / Deserialize"]
   end
 
   subgraph serde_json_rs["serde_json.rs"]
@@ -20,31 +27,19 @@ flowchart LR
     TokioNamespace["tokio namespace wrapper"]
   end
 
-  subgraph reqwest_rs["reqwest.rs"]
-    ReqwestNamespace["reqwest namespace wrapper"]
-  end
-
   subgraph toml_rs["toml.rs"]
     TomlNamespace["toml namespace wrapper"]
   end
 
-  ClientCore["client/core"]
-  AgentFrontdoor["agent/frontdoor"]
-  CommonMessage["common/message"]
+  CommonProtocol["common/protocol"]
   CommonConfig["common/config"]
-  AgentModel["agent/model"]
-  NativeNetwork["client/tool/native/network"]
-  NativeImage["client/tool/native/image"]
+  CommonStructure["common/structure"]
+  AgentSession["agent/session"]
 
-  RemocNamespace -->|"transport types"| ClientCore
-  RemocNamespace -->|"transport types"| AgentFrontdoor
-  RemocConnect -->|"TCP session setup"| ClientCore
-  SerdeNamespace -->|"derive and serialization traits"| CommonMessage
-  SerdeNamespace -->|"derive and serialization traits"| CommonConfig
-  SerdeJsonNamespace -->|"JSON payload handling"| AgentModel
-  SerdeJsonNamespace -->|"tool argument/output JSON"| NativeNetwork
-  TokioNamespace -->|"async runtime and channels"| AgentFrontdoor
-  ReqwestNamespace -->|"HTTP streaming client"| AgentModel
-  ReqwestNamespace -->|"blocking HTTP requests"| NativeNetwork
-  ImageReader -->|"image inspect/transform IO"| NativeImage
-  TomlNamespace -->|"configuration parsing"| CommonConfig
+  SerdeNamespace -->|"Serialize / Deserialize derives"| CommonProtocol
+  SerdeNamespace -->|"Deserialize derives"| CommonConfig
+  TomlNamespace -->|"TOML config parsing"| CommonConfig
+  TokioNamespace -->|"async Mutex and channels"| CommonStructure
+  TokioNamespace -->|"async runtime"| AgentSession
+  RemocNamespace -->|"network channel transport"| CommonStructure
+  RemocConnect -->|"TCP session setup"| CommonStructure

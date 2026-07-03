@@ -4,7 +4,7 @@ use std::fmt;
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
-use crate::common::external::*;
+use crate::external::*;
 
 pub const CONFIG_FILE: &str = "src/config.toml";
 const CONFIG_ENV_VAR: &str = "MARIX_CONFIG";
@@ -88,7 +88,8 @@ pub struct ClientConfig {
 #[serde(deny_unknown_fields)]
 pub struct AgentConfig {
     pub enabled: bool,
-    pub bind_address: String,
+    pub client_bind_address: String,
+    pub host_bind_address: String,
     pub max_turns: u32,
 }
 

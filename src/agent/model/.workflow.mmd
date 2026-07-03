@@ -1,16 +1,33 @@
 flowchart LR
-  ModelBackend["ModelBackend
-trait"] -->|"request"| ModelRequest["ModelRequest
-struct"]
-  ModelBackend -->|"streams"| ModelResponse["ModelResponse
-enum"]
-  ModelBackendImpl["ModelBackendImpl
-trait"] -->|"adapts implementors"| ModelBackend
-  ModelRequest -->|"step purpose"| ModelTaskStepKind["ModelTaskStepKind"]
-  ModelRequest -->|"prompt"| Prompt["String"]
-  ModelResponse -->|"Content(String)"| Content["content chunk"]
-  ModelResponse -->|"Failed"| ModelBackendError["ModelBackendError"]
-  DeepseekBackend["DeepseekBackend"] -->|"implements"| ModelBackendImpl
-  DeepseekBackend -->|"uses prompt"| Prompt
-  DeepseekBackend -->|"emits content/failure"| ModelResponse
-  ModelContext["ModelContext"] -.->|"future model-facing view"| ModelRequest
+  %% mod.rs re-exports the public model surface; backend method bodies are panic-backed placeholders.
+  subgraph backend_rs[backend.rs]
+    ModelBackend["ModelBackend\ntrait"]
+    ModelBackendImpl["ModelBackendImpl\ntrait"]
+    ModelRequest["ModelRequest\nstruct"]
+    ModelResponse["ModelResponse\nenum"]
+  end
+
+  subgraph backend_deepseek_rs[backend_deepseek.rs]
+    DeepseekBackend["DeepseekBackend\nstruct"]
+  end
+
+  subgraph error_rs[error.rs]
+    ModelBackendError["ModelBackendError\nenum"]
+  end
+
+  subgraph agent_task[agent task]
+    Step["Step\nstruct"]
+  end
+
+  subgraph common_structure[common structure]
+    Receiver["Receiver<ModelResponse>"]
+  end
+
+  ModelBackend -->|"request(ModelRequest)"| ModelRequest
+  ModelBackend -->|"returns Receiver<ModelResponse>"| Receiver
+  Receiver -->|"yields"| ModelResponse
+  ModelBackend -->|"fails with"| ModelBackendError
+  ModelBackendImpl -->|"blanket impl provides ModelBackend"| ModelBackend
+  DeepseekBackend -->|"implements"| ModelBackendImpl
+  ModelRequest -->|"carries step"| Step
+  ModelResponse -->|"Failed variant"| ModelBackendError

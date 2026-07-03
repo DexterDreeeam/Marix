@@ -1,0 +1,31 @@
+flowchart LR
+  %% Host interfaces are draft-only; method bodies are not implemented.
+  subgraph session_rs[session.rs]
+    HostSession["HostSession\nstruct"]
+  end
+
+  subgraph executor_rs[executor.rs]
+    Executor["Executor\nstruct"]
+    ToolProgram["ToolProgram\nstruct"]
+    ToolExecution["ToolExecution\nstruct"]
+  end
+
+  subgraph common_protocol[common protocol]
+    SessionEvent["SessionEvent"]
+    ToolPreview["ToolPreview"]
+    ToolExecutionRequest["ToolExecutionRequest"]
+    ToolExecutionStatus["ToolExecutionStatus"]
+    ToolExecutionUpdate["ToolExecutionUpdate"]
+    ExecutionSignature["ExecutionSignature"]
+  end
+
+  HostSession -->|"agent_tx/agent_rx endpoints"| SessionEvent
+  HostSession -->|"owns executor"| Executor
+  Executor -->|"tools keyed by tool name"| ToolProgram
+  ToolProgram -->|"advertises"| ToolPreview
+  Executor -->|"evoke request"| ToolExecutionRequest
+  Executor -->|"executions keyed by"| ExecutionSignature
+  Executor -->|"tracks and controls"| ToolExecution
+  ToolExecution -->|"current status"| ToolExecutionStatus
+  Executor -->|"evoke/query/cancel/kill return"| ToolExecutionStatus
+  Executor -->|"updates receiver emits"| ToolExecutionUpdate

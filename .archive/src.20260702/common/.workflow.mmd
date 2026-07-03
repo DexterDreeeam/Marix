@@ -1,0 +1,12 @@
+flowchart LR
+  common["common
+module"] --> protocol["protocol
+ToolInvocation/ToolSignature/ToolExecutionStatus"]
+  common --> message["message
+chat envelopes"]
+  common --> channel["channel
+SessionEvent + TaskEvent"]
+  channel -->|"SessionEvent carries Accepted/Close/TaskCreate/TaskCancel"| message
+  channel -->|"TaskEvent carries response messages"| message
+  channel -->|"TaskEvent carries ToolInvocation and ToolSignature status queries"| protocol
+  channel -->|"TaskEvent::ToolStatus carries ToolExecutionStatus"| protocol

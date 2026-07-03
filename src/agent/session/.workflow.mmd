@@ -1,0 +1,35 @@
+flowchart LR
+  %% mod.rs only declares child files and re-exports Session and SessionContext.
+  subgraph session_rs[session.rs]
+    Session["Session\nstruct"]
+  end
+
+  subgraph session_context_rs[session_context.rs]
+    SessionContext["SessionContext\nstruct"]
+    Tasks["tasks\nWorkQueue<TaskId, Task>"]
+    ClientChannel["client_tx/client_rx\nSessionEvent channels"]
+    HostChannel["host_tx/host_rx\nSessionEvent channels"]
+  end
+
+  subgraph task_module[task module]
+    Task["Task\nstruct"]
+  end
+
+  subgraph common_protocol[common protocol]
+    SessionEvent["SessionEvent"]
+    TaskSessionEvent["TaskSessionEvent"]
+    ExecutionSessionEvent["ExecutionSessionEvent"]
+  end
+
+  Session -->|"Arc<SessionContext>"| SessionContext
+  Session -->|"accepts client remoc channel"| ClientChannel
+  Session -->|"accepts host remoc channel"| HostChannel
+  ClientChannel -->|"client SessionEvent stream"| SessionContext
+  HostChannel -->|"host SessionEvent stream"| SessionContext
+  SessionContext -->|"creates and runs"| Task
+  SessionContext -->|"stores by TaskId"| Tasks
+  SessionContext -->|"routes TaskSessionEvent"| TaskSessionEvent
+  SessionContext -->|"routes ExecutionSessionEvent"| ExecutionSessionEvent
+  TaskSessionEvent -->|"wrapped by"| SessionEvent
+  ExecutionSessionEvent -->|"wrapped by"| SessionEvent
+  SessionContext -->|"sends routed SessionEvent via task sender"| Task

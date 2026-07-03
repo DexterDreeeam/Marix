@@ -1,6 +1,6 @@
 flowchart LR
   subgraph config_rs["config.rs"]
-    CONFIG_FILE["CONFIG_FILE"]
+    CONFIG_FILE["CONFIG_FILE\ndefault name"]
     Config["Config\nstruct + load"]
     Platform["Platform\nAll / Win / Ubuntu"]
     RuntimeConfig["RuntimeConfig\nruntime paths"]
@@ -10,21 +10,23 @@ flowchart LR
     ClientConfig["ClientConfig"]
     AgentConfig["AgentConfig"]
     ModelConfig["ModelConfig"]
+    ModelBackend["ModelBackend\nenum"]
+    DeepseekConfig["DeepseekConfig"]
     LoggingConfig["LoggingConfig"]
+    LogLevel["LogLevel"]
     CredentialConfig["CredentialConfig"]
     RuntimePathResolver["runtime path resolver\ninternal helpers"]
   end
 
   HostOS["host OS cfg/env"]
   UbuntuRelease["/etc/os-release"]
-  AliasFiles[".alias values"]
+  AliasFiles["alias values"]
   CredentialFiles["credential files"]
-  TomlParser["toml parser"]
-  ConfigRoot["config repository/deployment root"]
-  ToolRegistry["client ToolRegistry"]
-  NativeTools["native Tool implementations"]
-  AgentMain["agent main"]
-  CliRun["cli run"]
+  TomlParser["external::toml parser"]
+  ConfigRoot["repository/deployment root"]
+  AgentSession["agent session"]
+  ClientSession["client session"]
+  ModelBackendRuntime["agent model backend"]
   LoggingModule["common logging module"]
 
   CONFIG_FILE -->|"default source config name"| Config
@@ -41,14 +43,16 @@ flowchart LR
   RuntimePathResolver -->|"normalizes marix_path and role overrides"| RuntimeConfig
   Config -->|"optional core endpoint"| CoreConfig
   Config -->|"client endpoint"| ClientConfig
-  Config -->|"agent bind address"| AgentConfig
+  Config -->|"agent bind addresses"| AgentConfig
   Config -->|"model settings"| ModelConfig
+  ModelConfig -->|"selected backend"| ModelBackend
+  ModelConfig -->|"deepseek endpoint/model/key"| DeepseekConfig
   Config -->|"logging switches"| LoggingConfig
+  LoggingConfig -->|"level"| LogLevel
   Config -->|"credential directory"| CredentialConfig
   CredentialConfig -->|"resolves secret files"| CredentialFiles
   RuntimeConfig -->|"selected Marix path"| LoggingModule
   LoggingConfig -->|"info/warning/error gates"| LoggingModule
-  AgentConfig -->|"listener address"| AgentMain
-  ClientConfig -->|"server address"| CliRun
-  Config -->|"ToolRegistry::new(&Config)"| ToolRegistry
-  NativeTools -->|"Platform::All/Win/Ubuntu support markers"| Platform
+  AgentConfig -->|"client_bind_address / host_bind_address"| AgentSession
+  ClientConfig -->|"server address"| ClientSession
+  DeepseekConfig -->|"backend credentials"| ModelBackendRuntime

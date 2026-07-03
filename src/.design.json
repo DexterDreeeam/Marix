@@ -3,29 +3,35 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Second-generation Rust source organized into client, agent, and common modules with remoc session transport, TaskEvent tool invocation/status query/status return traffic, session-owned client Executor placeholders, client-only ToolRuntime state, shared ToolSignature/ToolExecutionStatus protocols, and a lean agent loop where ModelRequest carries ModelTaskStepKind and ModelResponse streams content/failure results.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace source root for Marix crates with flat Cargo crate layout. It organizes reusable common config/external re-export/logging/protocol/structure modules, agent model/session/task orchestration, client session/event surfaces, and host-side tool execution stubs while Cargo manifests define crate wiring.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
+  "deleted": [
+    "mod.rs"
+  ],
   "childModules": [
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent modules for remoc-backed frontdoor Session/Task endpoints, a session-scoped LoopEngine with configured model backend state, public Plan/Job/TaskStep shapes, ModelRequest step purpose, and ModelResponse content/failure results."
+      "purpose": "Agent crate namespace for model backend abstractions, Session and SessionContext runtime orchestration, and split task folder interfaces."
     },
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Client modules for CLI, remoc-backed core Session/Task, a session-owned Executor managing ToolRegistry and client-only ToolRuntime instances, shared common::protocol ToolSignature/ToolExecutionStatus tool types, and Config-aware tool registry/runtime tooling."
+      "purpose": "Client crate namespace for user-facing session commands, client events, and channel endpoints that communicate with the agent through shared SessionEvent values."
     },
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared configuration, logging, message envelopes, remoc SessionEvent lifecycle/create/cancel events, TaskEvent tool invocation/status query/status return signals, common ToolSchema/ToolParameter/ToolInvocation/ToolSignature/ToolExecutionStatus/ToolType/ToolPreview/ToolError protocol types, and crate-local external-library namespaces."
+      "purpose": "Shared common crate namespace with reusable config, crate-local external re-export adapters, logging, protocol models, and structural data/channel interfaces."
     },
     {
-      "path": "src/target",
-      "name": "target",
-      "purpose": "Owns the target module."
+      "path": "src/host",
+      "name": "host",
+      "purpose": "Host crate namespace for agent channel connection stubs and an Executor-owned tool preview, execution, status-query, cancel, kill, and update interface."
     }
   ],
   "elements": []

@@ -1,0 +1,10 @@
+flowchart LR
+  frontdoor["frontdoor
+module"] -->|"accepts TaskCreate and routes TaskEvent Cancel"| engine["engine
+module"]
+  engine -->|"sends ModelRequest step/prompt"| model["model
+module"]
+  model -->|"ModelResponse content or failure"| engine
+  engine -->|"TaskRuntimeEvent status/model text"| frontdoor
+  engine -->|"ToolInvocation/ToolSignature/ToolExecutionStatus interfaces"| commonProtocol["common::protocol"]
+  frontdoor -->|"SessionEvent lifecycle + TaskEvent task routes"| commonChannel["common::channel"]

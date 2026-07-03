@@ -555,7 +555,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "112b39cec0b298b6c1999fee3e31427f74f676e4cb9879ed1a121b43661a4154"
 
 [[package]]
-name = "marix"
+name = "marix-agent"
+version = "0.1.0"
+dependencies = [
+ "marix-common",
+ "remoc",
+ "tokio",
+ "uuid",
+]
+
+[[package]]
+name = "marix-client"
+version = "0.1.0"
+dependencies = [
+ "marix-agent",
+ "marix-common",
+]
+
+[[package]]
+name = "marix-common"
 version = "0.1.0"
 dependencies = [
  "image",
@@ -565,6 +583,15 @@ dependencies = [
  "serde_json",
  "tokio",
  "toml",
+ "uuid",
+]
+
+[[package]]
+name = "marix-host"
+version = "0.1.0"
+dependencies = [
+ "marix-agent",
+ "marix-common",
 ]
 
 [[package]]
@@ -903,9 +930,9 @@ dependencies = [
 
 [[package]]
 name = "rustls-pki-types"
-version = "1.14.1"
+version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30a7197ae7eb376e574fe940d068c30fe0462554a3ddbe4eca7838e049c937a9"
+checksum = "764899a24af3980067ee14bc143654f297b22eaebfe3c7b6b211920a5a59b046"
 dependencies = [
  "web-time",
  "zeroize",

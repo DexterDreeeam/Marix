@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/agent/session",
+    "name": "session",
+    "purpose": "Owns the agent session runtime. session.rs defines Session, which spawns and holds client and host channel workers and drives task creation and SessionEvent routing; session_context.rs defines SessionContext, which owns the TaskId-keyed task WorkQueue and the shared client/host remoc channel endpoints. mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "added"
+  },
+  "added": [
+    "."
+  ],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "Session",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/session/session.rs",
+          "lineStart": 10,
+          "lineEnd": 14,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 14
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/session/session.rs",
+          "lineStart": 16,
+          "lineEnd": 33,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 16,
+              "lineEnd": 33
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/session/session.rs",
+          "lineStart": 37,
+          "lineEnd": 156,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 37,
+              "lineEnd": 156
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "SessionContext",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/session/session_context.rs",
+          "lineStart": 6,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/session/session_context.rs",
+          "lineStart": 14,
+          "lineEnd": 24,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 24
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

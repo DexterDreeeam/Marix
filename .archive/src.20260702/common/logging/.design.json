@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/common/logging",
+    "name": "logging",
+    "purpose": "Common logging module with tagged log messages, structured logging errors, config-gated info/warning/error writes, direct warning/error shortcut functions, debug-build logging, runtime-config-selected log directories under the process role's Marix path plus a fixed log child folder, timestamped log-file creation, and pruning to retain at most 20 log files.",
+    "changeStatus": "unchanged"
+  },
+  "childModules": [],
+  "elements": [
+    {
+      "name": "LogTag",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/entry.rs",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "LogMessage",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/entry.rs",
+          "lineStart": 8,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/logging/entry.rs",
+          "lineStart": 14,
+          "lineEnd": 35,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/logging/entry.rs",
+          "lineStart": 37,
+          "lineEnd": 41,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/logging/entry.rs",
+          "lineStart": 43,
+          "lineEnd": 47,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "LoggingError",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/error.rs",
+          "lineStart": 3,
+          "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/logging/error.rs",
+          "lineStart": 12,
+          "lineEnd": 16,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/logging/error.rs",
+          "lineStart": 18,
+          "lineEnd": 22,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/logging/error.rs",
+          "lineStart": 24,
+          "lineEnd": 34,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "log",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 11,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 11
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 17,
+          "lineEnd": 24,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 60,
+          "lineEnd": 64,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 60,
+              "lineEnd": 64
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 139,
+          "lineEnd": 142,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 139,
+              "lineEnd": 142
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 201,
+          "lineEnd": 232,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 201,
+              "lineEnd": 232
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "warning",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 27,
+          "lineEnd": 29,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "error",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 32,
+          "lineEnd": 34,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "debug",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 37,
+          "lineEnd": 43,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 46,
+          "lineEnd": 52,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

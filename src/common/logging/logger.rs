@@ -5,8 +5,8 @@ use std::path::{Path, PathBuf};
 use std::sync::{Mutex, OnceLock};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use crate::common::config::{Config, LoggingConfig};
-use crate::common::logging::{LogMessage, LogTag, LoggingError};
+use crate::config::{Config, LoggingConfig};
+use crate::logging::{LogMessage, LogTag, LoggingError};
 
 const LOG_DIRECTORY_NAME: &str = "log";
 const MAX_LOG_FILE_COUNT: usize = 20;

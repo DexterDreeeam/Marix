@@ -1,0 +1,44 @@
+flowchart LR
+  %% mod.rs only declares child files and re-exports task types; method bodies are interface placeholders.
+  subgraph step_rs[step.rs]
+    StepSequence["StepSequence\nstruct"]
+    Step["Step\nstruct"]
+    StepKind["StepKind\nenum"]
+    ToolStepKind["ToolStepKind\nenum"]
+    ModelStepKind["ModelStepKind\nenum"]
+    UserStepKind["UserStepKind\nenum"]
+  end
+
+  subgraph task_rs[task.rs]
+    Task["Task\nstruct"]
+  end
+
+  subgraph execution_rs[execution.rs]
+    Execution["Execution\nstruct"]
+  end
+
+  subgraph common_interfaces[common interfaces]
+    SessionEvent["SessionEvent"]
+    WorkQueue["WorkQueue"]
+    ExecutionParameterPackage["ExecutionParameterPackage"]
+    ExeId["ExeId"]
+  end
+
+  subgraph agent_model[agent model]
+    ModelBackend["ModelBackend\ntrait"]
+  end
+
+  Step -->|"ordered by"| StepSequence
+  Step -->|"classifies work"| StepKind
+  Step -->|"carries parameters"| ExecutionParameterPackage
+  StepKind -->|"tool branch"| ToolStepKind
+  StepKind -->|"model branch"| ModelStepKind
+  StepKind -->|"user branch"| UserStepKind
+  Task -->|"steps: WorkQueue<StepSequence, Step>"| WorkQueue
+  Task -->|"raises Step values"| Step
+  Task -->|"executions: WorkQueue<ExeId, Execution>"| WorkQueue
+  Task -->|"execution key"| ExeId
+  Task -->|"tracks"| Execution
+  Task -->|"optional model_backend"| ModelBackend
+  Task -->|"client/host/internal channels"| SessionEvent
+  Execution -->|"latest_event"| SessionEvent

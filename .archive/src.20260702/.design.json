@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src",
+    "name": "src",
+    "purpose": "Second-generation Rust source organized into client, agent, and common modules with remoc session transport, TaskEvent tool invocation/status query/status return traffic, session-owned client Executor placeholders, client-only ToolRuntime state, shared ToolSignature/ToolExecutionStatus protocols, and a lean agent loop where ModelRequest carries ModelTaskStepKind and ModelResponse streams content/failure results.",
+    "changeStatus": "unchanged"
+  },
+  "childModules": [
+    {
+      "path": "src/agent",
+      "name": "agent",
+      "purpose": "Agent modules for remoc-backed frontdoor Session/Task endpoints, a session-scoped LoopEngine with configured model backend state, public Plan/Job/TaskStep shapes, ModelRequest step purpose, and ModelResponse content/failure results."
+    },
+    {
+      "path": "src/client",
+      "name": "client",
+      "purpose": "Client modules for CLI, remoc-backed core Session/Task, a session-owned Executor managing ToolRegistry and client-only ToolRuntime instances, shared common::protocol ToolSignature/ToolExecutionStatus tool types, and Config-aware tool registry/runtime tooling."
+    },
+    {
+      "path": "src/common",
+      "name": "common",
+      "purpose": "Shared configuration, logging, message envelopes, remoc SessionEvent lifecycle/create/cancel events, TaskEvent tool invocation/status query/status return signals, common ToolSchema/ToolParameter/ToolInvocation/ToolSignature/ToolExecutionStatus/ToolType/ToolPreview/ToolError protocol types, and crate-local external-library namespaces."
+    },
+    {
+      "path": "src/target",
+      "name": "target",
+      "purpose": "Owns the target module."
+    }
+  ],
+  "elements": []
+}

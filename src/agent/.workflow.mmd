@@ -1,10 +1,39 @@
 flowchart LR
-  frontdoor["frontdoor
-module"] -->|"accepts TaskCreate and routes TaskEvent Cancel"| engine["engine
-module"]
-  engine -->|"sends ModelRequest step/prompt"| model["model
-module"]
-  model -->|"ModelResponse content or failure"| engine
-  engine -->|"TaskRuntimeEvent status/model text"| frontdoor
-  engine -->|"ToolInvocation/ToolSignature/ToolExecutionStatus interfaces"| commonProtocol["common::protocol"]
-  frontdoor -->|"SessionEvent lifecycle + TaskEvent task routes"| commonChannel["common::channel"]
+  %% lib.rs only wires child modules and re-exports public agent interfaces.
+  subgraph session_module[session module]
+    Session["Session\nstruct"]
+    SessionContext["SessionContext\nstruct"]
+  end
+
+  subgraph task_module[task module]
+    Task["Task\nstruct"]
+    Step["Step\nstruct"]
+    Execution["Execution\nstruct"]
+  end
+
+  subgraph model_module[model module]
+    ModelBackend["ModelBackend\ntrait"]
+    DeepseekBackend["DeepseekBackend\nstruct"]
+    ModelRequest["ModelRequest\nstruct"]
+    ModelResponse["ModelResponse\nenum"]
+    ModelBackendError["ModelBackendError\nenum"]
+  end
+
+  subgraph common_interfaces[common interfaces]
+    SessionEvent["SessionEvent"]
+    TaskId["TaskId"]
+    WorkQueue["WorkQueue"]
+  end
+
+  Session -->|"owns Arc context and workers"| SessionContext
+  SessionContext -->|"client/host channel endpoints"| SessionEvent
+  SessionContext -->|"tasks: WorkQueue<TaskId, Task>"| WorkQueue
+  SessionContext -->|"task key"| TaskId
+  SessionContext -->|"creates and routes events to"| Task
+  Task -->|"raises Step values"| Step
+  Task -->|"optional model_backend"| ModelBackend
+  Task -->|"execution queue entries"| Execution
+  ModelBackend -->|"request payload"| ModelRequest
+  ModelBackend -->|"response channel yields"| ModelResponse
+  DeepseekBackend -->|"implements via private backend impl"| ModelBackend
+  ModelBackend -->|"fails with"| ModelBackendError

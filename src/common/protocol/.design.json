@@ -3,74 +3,42 @@
   "module": {
     "path": "src/common/protocol",
     "name": "protocol",
-    "purpose": "Shared tool protocol types owned once for both sides of the session boundary: ToolSchema, ToolParameter, ToolInvocation with ToolSignature, ToolType, ToolPreview, ToolError, and ToolExecutionStatus variants that carry the invocation signature.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the shared session/task/execution protocol contracts exchanged over channels. session.rs defines the TaskId and ExeId identifiers and the top-level SessionEvent split between task and execution traffic; task.rs defines task signatures, task session events, and task status; execution.rs defines execution signatures, tool previews, execution session events, tool execution requests/status/updates, and the execution parameter package. mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "added"
   },
+  "added": [
+    "."
+  ],
   "childModules": [],
   "elements": [
     {
-      "name": "ToolSchema",
+      "name": "TaskId",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/common/protocol/tool.rs",
-          "lineStart": 7,
-          "lineEnd": 9,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/common/protocol/tool.rs",
-          "lineStart": 73,
-          "lineEnd": 79,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ToolParameter",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/protocol/tool.rs",
-          "lineStart": 15,
-          "lineEnd": 17,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/common/protocol/tool.rs",
-          "lineStart": 81,
-          "lineEnd": 87,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ToolInvocation",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/protocol/tool.rs",
-          "lineStart": 22,
-          "lineEnd": 25,
+          "sourcePath": "src/common/protocol/session.rs",
+          "lineStart": 5,
+          "lineEnd": 6,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 22,
-              "lineEnd": 25
+              "lineStart": 5,
+              "lineEnd": 6
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/protocol/session.rs",
+          "lineStart": 8,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 12
             }
           ],
           "modifiedLines": []
@@ -78,20 +46,138 @@
       ]
     },
     {
-      "name": "ToolType",
-      "type": "enum",
+      "name": "ExeId",
+      "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/common/protocol/tool.rs",
-          "lineStart": 28,
-          "lineEnd": 33,
+          "sourcePath": "src/common/protocol/session.rs",
+          "lineStart": 14,
+          "lineEnd": 15,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 28,
-              "lineEnd": 33
+              "lineStart": 14,
+              "lineEnd": 15
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/protocol/session.rs",
+          "lineStart": 17,
+          "lineEnd": 21,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 21
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "SessionEvent",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/session.rs",
+          "lineStart": 23,
+          "lineEnd": 27,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 27
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "TaskSignature",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/task.rs",
+          "lineStart": 4,
+          "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 4,
+              "lineEnd": 8
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "TaskSessionEvent",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/task.rs",
+          "lineStart": 10,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 18
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "TaskStatus",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/task.rs",
+          "lineStart": 20,
+          "lineEnd": 27,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 27
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ExecutionSignature",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/execution.rs",
+          "lineStart": 4,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 4,
+              "lineEnd": 9
             }
           ],
           "modifiedLines": []
@@ -102,17 +188,17 @@
       "name": "ToolPreview",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/common/protocol/tool.rs",
-          "lineStart": 36,
-          "lineEnd": 40,
+          "sourcePath": "src/common/protocol/execution.rs",
+          "lineStart": 11,
+          "lineEnd": 16,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 36,
-              "lineEnd": 40
+              "lineStart": 11,
+              "lineEnd": 16
             }
           ],
           "modifiedLines": []
@@ -120,20 +206,41 @@
       ]
     },
     {
-      "name": "ToolError",
+      "name": "ExecutionSessionEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/common/protocol/tool.rs",
-          "lineStart": 44,
-          "lineEnd": 50,
+          "sourcePath": "src/common/protocol/execution.rs",
+          "lineStart": 18,
+          "lineEnd": 28,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 44,
-              "lineEnd": 50
+              "lineStart": 18,
+              "lineEnd": 28
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolExecutionRequest",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/execution.rs",
+          "lineStart": 30,
+          "lineEnd": 33,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 30,
+              "lineEnd": 33
             }
           ],
           "modifiedLines": []
@@ -144,17 +251,17 @@
       "name": "ToolExecutionStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/common/protocol/tool.rs",
-          "lineStart": 53,
-          "lineEnd": 64,
+          "sourcePath": "src/common/protocol/execution.rs",
+          "lineStart": 35,
+          "lineEnd": 43,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 53,
-              "lineEnd": 64
+              "lineStart": 35,
+              "lineEnd": 43
             }
           ],
           "modifiedLines": []
@@ -162,20 +269,41 @@
       ]
     },
     {
-      "name": "ToolSignature",
+      "name": "ToolExecutionUpdate",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/common/protocol/tool.rs",
-          "lineStart": 68,
-          "lineEnd": 71,
+          "sourcePath": "src/common/protocol/execution.rs",
+          "lineStart": 45,
+          "lineEnd": 48,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 68,
-              "lineEnd": 71
+              "lineStart": 45,
+              "lineEnd": 48
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ExecutionParameterPackage",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/execution.rs",
+          "lineStart": 50,
+          "lineEnd": 56,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 50,
+              "lineEnd": 56
             }
           ],
           "modifiedLines": []

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/common/external",
+    "name": "external",
+    "purpose": "Crate-local third-party library namespace wrappers that keep direct external crate usage visible through common::external modules, including the newly exposed image ImageReader wrapper plus remoc connection, reqwest, serde, serde_json, tokio, and toml helpers.",
+    "changeStatus": "unchanged"
+  },
+  "childModules": [],
+  "elements": [
+    {
+      "name": "connect_remoc",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/external/remoc.rs",
+          "lineStart": 5,
+          "lineEnd": 22,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

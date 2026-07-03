@@ -1,6 +1,10 @@
-pub mod tool;
+pub mod execution;
+pub mod session;
+pub mod task;
 
-pub use tool::{
-    ToolError, ToolInvocation, ToolExecutionStatus, ToolParameter, ToolPreview, ToolSignature,
-    ToolSchema, ToolType,
+pub use execution::{
+    ExecutionParameterPackage, ExecutionSessionEvent, ExecutionSignature, ToolExecutionRequest,
+    ToolExecutionStatus, ToolExecutionUpdate, ToolPreview,
 };
+pub use session::{ExeId, SessionEvent, TaskId};
+pub use task::{TaskSessionEvent, TaskSignature, TaskStatus};

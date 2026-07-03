@@ -1,0 +1,15 @@
+flowchart LR
+  src["src
+root"] --> client["client
+module"]
+  src --> agent["agent
+module"]
+  src --> common["common
+module"]
+  common -->|"SessionEvent lifecycle/create/cancel"| client
+  common -->|"TaskEvent agent-to-client responses/tool invocations/status queries"| client
+  common -->|"TaskEvent client-to-agent ToolExecutionStatus/cancel"| agent
+  common -->|"chat message/channel protocol"| agent
+  agent -->|"ModelRequest step purpose and streamed content become TaskEvent responses"| common
+  client -->|"Executor ToolSignature/ToolExecutionStatus including Complete output and cancellation"| common
+  client -->|"session/task transport"| agent

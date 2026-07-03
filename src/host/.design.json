@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/host",
+    "name": "host",
+    "purpose": "Host crate for tool execution management. session.rs defines HostSession, which owns the agent SessionEvent channel endpoints, an Executor, and an event-loop handle and exposes connect and close; executor.rs defines Executor, which owns registered ToolProgram records keyed by tool name and active ToolExecution records keyed by ExecutionSignature and exposes preview, evoke, query, cancel, kill, and update surfaces, plus the ToolProgram and ToolExecution records. lib.rs is namespace and re-export wiring only; method bodies are panic-backed interface placeholders.",
+    "changeStatus": "added"
+  },
+  "added": [
+    "."
+  ],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "HostSession",
+      "type": "struct",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/session.rs",
+          "lineStart": 7,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/host/session.rs",
+          "lineStart": 14,
+          "lineEnd": 22,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 22
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Executor",
+      "type": "struct",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/executor.rs",
+          "lineStart": 8,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 11
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/host/executor.rs",
+          "lineStart": 13,
+          "lineEnd": 41,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 13,
+              "lineEnd": 41
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolProgram",
+      "type": "struct",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/executor.rs",
+          "lineStart": 43,
+          "lineEnd": 47,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 43,
+              "lineEnd": 47
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolExecution",
+      "type": "struct",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/executor.rs",
+          "lineStart": 49,
+          "lineEnd": 53,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 49,
+              "lineEnd": 53
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

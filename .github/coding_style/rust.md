@@ -82,24 +82,28 @@ Prefer structured diagnostics or existing logging paths over raw print macros.
 - Put private helper types, private helper functions, private inherent impl
   blocks, and other module-internal implementation details below that marker.
   If a file has no private section, omit the marker.
-- Place file-level `const` and `static` items immediately after imports and
-  module declarations, before other top-level items. Keep them above the private
-  section marker even when their visibility is private.
+- Place file-level `type` aliases, `const` items, and `static` items immediately
+  after imports and module declarations, before other top-level items. Keep them
+  above the private section marker even when their visibility is private.
 - Omit the marker in binary `main.rs` entry files that have no primary module
   struct/API type, even when the file contains private constants or helper
   functions.
 - Do not apply the public/private section marker rule to integration tests under
   `src/tests/`; tests should not contain a private section marker.
-- Keep `mod.rs` files limited to module declarations and re-exports. Do not put
-  concrete types, constants, functions, trait definitions, impl blocks, behavior,
-  or helper code in `mod.rs`; move those items into focused sibling module files
-  and wire them from `mod.rs`.
+- Keep each package manifest at the package root, and place that package's Rust
+  module files at the same root level. Do not add a nested `src/` directory under
+  a package folder; set `[lib].path = "lib.rs"` when the package is a library.
+- Keep `lib.rs` and `mod.rs` files limited to module declarations and re-exports.
+  Do not put concrete types, constants, functions, trait definitions, impl
+  blocks, behavior, or helper code in `lib.rs` or `mod.rs`; move those items into
+  focused sibling module files and wire them from `lib.rs` or `mod.rs`.
 - After imports and module declarations, place top-level declarations in this
   general order:
-  1. enums,
-  2. traits,
-  3. free functions that are truly module-level and cannot belong to a type,
-  4. structs.
+  1. type aliases, consts, and statics,
+  2. enums,
+  3. traits,
+  4. free functions that are truly module-level and cannot belong to a type,
+  5. structs.
 - For each struct, place that struct's inherent `impl` blocks immediately after
   the struct definition before declaring the next struct.
 - When a struct has both public and private inherent methods, split them into

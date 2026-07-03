@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/agent/task",
+    "name": "task",
+    "purpose": "Owns the agent task runtime data. step.rs defines the StepSequence ordering key, the Step record, and the StepKind/ToolStepKind/ModelStepKind/UserStepKind classification enums; task.rs defines Task, which owns the task signature, optional model backend, client/host senders, an internal SessionEvent channel, execution and step WorkQueues, and a worker handle; execution.rs defines the Execution record. mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "added"
+  },
+  "added": [
+    "."
+  ],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "StepSequence",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/task/step.rs",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 4
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Step",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/task/step.rs",
+          "lineStart": 6,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 11
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "StepKind",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/task/step.rs",
+          "lineStart": 13,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 13,
+              "lineEnd": 18
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolStepKind",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/task/step.rs",
+          "lineStart": 20,
+          "lineEnd": 25,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 25
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ModelStepKind",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/task/step.rs",
+          "lineStart": 27,
+          "lineEnd": 34,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 27,
+              "lineEnd": 34
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "UserStepKind",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/task/step.rs",
+          "lineStart": 36,
+          "lineEnd": 40,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 36,
+              "lineEnd": 40
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Task",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/task/task.rs",
+          "lineStart": 11,
+          "lineEnd": 22,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 22
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/task/task.rs",
+          "lineStart": 24,
+          "lineEnd": 62,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 24,
+              "lineEnd": 62
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Execution",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/task/execution.rs",
+          "lineStart": 3,
+          "lineEnd": 7,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 7
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

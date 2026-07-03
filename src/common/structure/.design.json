@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/common/structure",
+    "name": "structure",
+    "purpose": "Owns shared structural utilities for the common crate. channel.rs defines the local mpsc Sender/Receiver aliases, the remoc NetSender/NetReceiver and shared-endpoint aliases, the ChannelError enum, and the channel/accept_channel/create_channel constructors that build local and TCP-backed remoc channels; work_queue.rs defines the generic WorkQueue that tracks working and completed entries behind Arc<Mutex<BTreeMap>>. mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "added"
+  },
+  "added": [
+    "."
+  ],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "Sender",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 9,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 9
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Receiver",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 10,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "NetSender",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 11,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 11
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "NetReceiver",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 12,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "SharedNetSender",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 13,
+          "lineEnd": 13,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 13,
+              "lineEnd": 13
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "SharedNetReceiver",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 14,
+          "lineEnd": 14,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 14
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ChannelError",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 16,
+          "lineEnd": 24,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 16,
+              "lineEnd": 24
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "channel",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 26,
+          "lineEnd": 28,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 26,
+              "lineEnd": 28
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "accept_channel",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 30,
+          "lineEnd": 71,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 30,
+              "lineEnd": 71
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "create_channel",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 73,
+          "lineEnd": 107,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 73,
+              "lineEnd": 107
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "WorkQueue",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/work_queue.rs",
+          "lineStart": 4,
+          "lineEnd": 7,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 4,
+              "lineEnd": 7
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/structure/work_queue.rs",
+          "lineStart": 9,
+          "lineEnd": 122,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 122
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

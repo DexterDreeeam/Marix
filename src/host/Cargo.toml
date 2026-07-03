@@ -1,0 +1,12 @@
+[package]
+name = "marix-host"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+marix-agent = { path = "../agent" }
+marix-common = { path = "../common" }
+
+[lib]
+name = "marix_host"
+path = "lib.rs"
