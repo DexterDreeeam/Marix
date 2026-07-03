@@ -1,4 +1,5 @@
 use crate::protocol::{ExeId, TaskId};
+use crate::tool::ToolPreview;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -9,31 +10,24 @@ pub struct ExecutionSignature {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ToolPreview {
-    pub name: String,
-    pub description: String,
-    pub schema: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ExecutionSessionEvent {
     PreviewQuery,
     Preview { tools: Vec<ToolPreview> },
-    ExecutionEvoke(ToolExecutionRequest),
-    ExecutionQuery,
-    ExecutionCancel,
-    ExecutionKill,
-    ExecutionStatus(ToolExecutionStatus),
-    ExecutionUpdate(ToolExecutionUpdate),
+    Evoke(ExecutionRequest),
+    Query,
+    Cancel,
+    Kill,
+    Status(ExecutionStatus),
+    Update(ExecutionUpdate),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ToolExecutionRequest {
+pub struct ExecutionRequest {
     pub input: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ToolExecutionStatus {
+pub enum ExecutionStatus {
     Started,
     Running,
     Canceled,
@@ -43,7 +37,7 @@ pub enum ToolExecutionStatus {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ToolExecutionUpdate {
+pub struct ExecutionUpdate {
     pub content: String,
 }
 
@@ -51,6 +45,6 @@ pub struct ToolExecutionUpdate {
 pub struct ExecutionParameterPackage {
     pub task_id: TaskId,
     pub prompt: Option<String>,
-    pub tool_request: Option<ToolExecutionRequest>,
+    pub tool_request: Option<ExecutionRequest>,
     pub user_options: Vec<String>,
 }

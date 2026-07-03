@@ -1,0 +1,18 @@
+flowchart LR
+  %% Shell command execution tool program; invoke() body is a panic-backed placeholder.
+  subgraph shell_execute_rs[shell_execute.rs]
+    ShellExecute["ShellExecute\nstruct"]
+  end
+
+  subgraph host_tool[host tool crate]
+    ToolProgram["ToolProgram\ntrait"]
+  end
+
+  subgraph common_tool[common tool]
+    ToolPreview["ToolPreview"]
+    ToolSchema["ToolSchema"]
+  end
+
+  ShellExecute -->|"impl ToolProgram"| ToolProgram
+  ToolProgram -->|"preview() builds"| ToolPreview
+  ToolPreview -->|"schema"| ToolSchema

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/host/executor",
+    "name": "executor",
+    "purpose": "Executor folder module for host-side tool execution. executor.rs defines Executor, which owns active ExecutionRuntime records in a WorkQueue keyed by ExeId and exposes preview, evoke, query, cancel, kill, and updates surfaces. The execution child module owns the per-execution runtime: ExecutionRuntime (the host-side remote runtime of an agent Execution holding an Arc<ExecutionContext>, its execution SessionEvent channel endpoints, and an optional worker join handle) and ExecutionContext (which mirrors the agent-side TaskContext with the ExecutionSignature and the shared agent SessionEvent sender). mod.rs is re-export wiring only; method bodies are panic-backed interface placeholders.",
+    "changeStatus": "added"
+  },
+  "added": ["."],
+  "childModules": [
+    {
+      "path": "src/host/executor/execution",
+      "name": "execution",
+      "purpose": "Per-execution host runtime split out of executor.rs: ExecutionRuntime drives one agent Execution over its SessionEvent channel, and ExecutionContext holds the shared ExecutionSignature and agent SessionEvent sender."
+    }
+  ],
+  "elements": [
+    {
+      "name": "Executor",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/executor/executor.rs",
+          "lineStart": 8,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/host/executor/executor.rs",
+          "lineStart": 12,
+          "lineEnd": 40,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 40
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

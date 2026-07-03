@@ -1,0 +1,43 @@
+[package]
+name = "marix-host-tool"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+marix-common = { path = "../../common" }
+
+[lib]
+name = "marix_host_tool"
+path = "lib.rs"
+
+[features]
+read_file = []
+write_file = []
+list_directory = []
+search_text = []
+shell_execute = []
+
+[[bin]]
+name = "marix_tool_read_file"
+path = "tool_main.rs"
+required-features = ["read_file"]
+
+[[bin]]
+name = "marix_tool_write_file"
+path = "tool_main.rs"
+required-features = ["write_file"]
+
+[[bin]]
+name = "marix_tool_list_directory"
+path = "tool_main.rs"
+required-features = ["list_directory"]
+
+[[bin]]
+name = "marix_tool_search_text"
+path = "tool_main.rs"
+required-features = ["search_text"]
+
+[[bin]]
+name = "marix_tool_shell_execute"
+path = "tool_main.rs"
+required-features = ["shell_execute"]

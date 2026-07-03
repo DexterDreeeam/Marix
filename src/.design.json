@@ -3,9 +3,10 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with flat Cargo crate layout. It organizes reusable common config/external re-export/logging/protocol/structure modules, agent model/session/task orchestration, client session/event surfaces, and host-side tool execution stubs while Cargo manifests define crate wiring.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace source root for Marix crates with flat Cargo crate layout. It organizes reusable common config/external re-export/logging/protocol/structure/tool modules, agent model/session/task orchestration, client session/event surfaces, host-side tool execution stubs, and the host/tool bin crate that builds one executable per native tool, while Cargo manifests define crate wiring.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/agent",
@@ -25,7 +26,7 @@
     {
       "path": "src/host",
       "name": "host",
-      "purpose": "Host crate namespace for agent channel connection stubs and an Executor-owned tool preview, execution, status-query, cancel, kill, and update interface."
+      "purpose": "Host crate namespace for agent channel connection stubs and host-side tool execution. The executor folder module's Executor tracks ExecutionRuntime records in a WorkQueue keyed by ExeId, each backed by a shared ExecutionContext, and exposes preview, evoke, query, cancel, kill, and update interfaces; the new host/tool folder is the standalone marix-host-tool bin crate that compiles one executable per native tool (read, write, list, search, shell) sharing a ToolProgram interface."
     }
   ],
   "elements": []

@@ -3,9 +3,10 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared common crate root that wires reusable config loading, now-public crate-local external re-export adapters, logging, protocol models, and structure utilities; concrete selectable interfaces live in child modules while lib.rs remains namespace and re-export wiring.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared common crate root that wires reusable config loading, now-public crate-local external re-export adapters, logging, protocol models, structure utilities, and the shared tool schema/preview/handle types; concrete selectable interfaces live in child modules while lib.rs remains namespace and re-export wiring.",
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs"],
   "childModules": [
     {
       "path": "src/common/config",
@@ -25,12 +26,17 @@
     {
       "path": "src/common/protocol",
       "name": "protocol",
-      "purpose": "Owns shared session, task, tool execution, identifier, preview, status, update, signature, and parameter-package protocol interface types."
+      "purpose": "Owns shared session, task, and tool-execution protocol interface types: identifiers, signatures, session events, statuses, updates, and the execution parameter package."
     },
     {
       "path": "src/common/structure",
       "name": "structure",
       "purpose": "Owns shared structural data interfaces, currently the interface-only generic WorkQueue draft and channel helpers."
+    },
+    {
+      "path": "src/common/tool",
+      "name": "tool",
+      "purpose": "Owns the shared ToolSchema input/output schema pair, the ToolPreview advertisement record, and Tool, the Executor-side handle to an external tool executable."
     }
   ],
   "elements": []

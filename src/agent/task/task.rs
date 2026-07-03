@@ -78,8 +78,8 @@ impl Task {
                     Self::emit_status(&context, TaskStatus::Canceled);
                     break;
                 }
-                SessionEvent::Execution(_, ExecutionSessionEvent::ExecutionUpdate(_))
-                | SessionEvent::Execution(_, ExecutionSessionEvent::ExecutionStatus(_)) => {
+                SessionEvent::Execution(_, ExecutionSessionEvent::Update(_))
+                | SessionEvent::Execution(_, ExecutionSessionEvent::Status(_)) => {
                     Self::send_event(&context, event);
                 }
                 _ => {}

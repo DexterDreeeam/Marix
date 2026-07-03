@@ -1,0 +1,25 @@
+flowchart LR
+  %% marix-host-tool bin crate; one executable per native tool selected via Cargo features.
+  subgraph tool_rs[tool.rs]
+    ToolProgram["ToolProgram\ntrait"]
+  end
+
+  subgraph tool_main_rs[tool_main.rs bin entry]
+    BinEntry["main -> run<T: ToolProgram>\n--preview/--run JSON driver"]
+  end
+
+  subgraph native_mod[native module]
+    NativeTools["native tool programs\nReadFile/WriteFile/ListDirectory/SearchText/ShellExecute"]
+    SelectedTool["SelectedTool\ncfg-selected active tool"]
+  end
+
+  subgraph common_tool[common tool]
+    ToolPreview["ToolPreview"]
+  end
+
+  NativeTools -->|"implement"| ToolProgram
+  NativeTools -->|"cfg feature re-exports as"| SelectedTool
+  BinEntry -->|"run(SelectedTool)"| SelectedTool
+  BinEntry -->|"--preview prints preview()"| ToolProgram
+  BinEntry -->|"--run <input> calls invoke()"| ToolProgram
+  ToolProgram -->|"preview() returns"| ToolPreview

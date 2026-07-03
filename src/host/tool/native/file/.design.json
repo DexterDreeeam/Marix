@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/host/tool/native/file",
+    "name": "file",
+    "purpose": "Filesystem native tool programs. Each file defines one unit-struct tool that carries NAME/DESCRIPTION/INPUT_SCHEMA/OUTPUT_SCHEMA constants and implements ToolProgram: read_file.rs (ReadFile), write_file.rs (WriteFile), list_directory.rs (ListDirectory), and search_text.rs (SearchText). preview() builds a ToolPreview from the constants; invoke() is a panic-backed placeholder. mod.rs is re-export wiring only.",
+    "changeStatus": "added"
+  },
+  "added": ["."],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "ReadFile",
+      "type": "struct",
+      "source_depth": 5,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/tool/native/file/read_file.rs",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 5
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/host/tool/native/file/read_file.rs",
+          "lineStart": 7,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/host/tool/native/file/read_file.rs",
+          "lineStart": 14,
+          "lineEnd": 29,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 29
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "WriteFile",
+      "type": "struct",
+      "source_depth": 5,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/tool/native/file/write_file.rs",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 5
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/host/tool/native/file/write_file.rs",
+          "lineStart": 7,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/host/tool/native/file/write_file.rs",
+          "lineStart": 14,
+          "lineEnd": 29,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 29
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ListDirectory",
+      "type": "struct",
+      "source_depth": 5,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/tool/native/file/list_directory.rs",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 5
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/host/tool/native/file/list_directory.rs",
+          "lineStart": 7,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/host/tool/native/file/list_directory.rs",
+          "lineStart": 14,
+          "lineEnd": 29,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 29
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "SearchText",
+      "type": "struct",
+      "source_depth": 5,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/tool/native/file/search_text.rs",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 5
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/host/tool/native/file/search_text.rs",
+          "lineStart": 7,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/host/tool/native/file/search_text.rs",
+          "lineStart": 14,
+          "lineEnd": 29,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 29
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

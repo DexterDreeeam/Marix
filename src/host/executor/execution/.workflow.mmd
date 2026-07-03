@@ -1,0 +1,19 @@
+flowchart LR
+  %% Per-execution host runtime; method bodies are panic-backed placeholders.
+  subgraph execution_rs[execution.rs]
+    ExecutionRuntime["ExecutionRuntime\nstruct"]
+  end
+
+  subgraph execution_context_rs[execution_context.rs]
+    ExecutionContext["ExecutionContext\nstruct"]
+  end
+
+  subgraph common_protocol[common protocol]
+    ExecutionSignature["ExecutionSignature"]
+    SessionEvent["SessionEvent"]
+  end
+
+  ExecutionRuntime -->|"owns Arc"| ExecutionContext
+  ExecutionRuntime -->|"execution_tx/rx carry"| SessionEvent
+  ExecutionContext -->|"signature"| ExecutionSignature
+  ExecutionContext -->|"agent_tx forwards"| SessionEvent

@@ -1,0 +1,33 @@
+flowchart LR
+  %% Filesystem tool programs; invoke() bodies are panic-backed placeholders.
+  subgraph read_file_rs[read_file.rs]
+    ReadFile["ReadFile\nstruct"]
+  end
+
+  subgraph write_file_rs[write_file.rs]
+    WriteFile["WriteFile\nstruct"]
+  end
+
+  subgraph list_directory_rs[list_directory.rs]
+    ListDirectory["ListDirectory\nstruct"]
+  end
+
+  subgraph search_text_rs[search_text.rs]
+    SearchText["SearchText\nstruct"]
+  end
+
+  subgraph host_tool[host tool crate]
+    ToolProgram["ToolProgram\ntrait"]
+  end
+
+  subgraph common_tool[common tool]
+    ToolPreview["ToolPreview"]
+    ToolSchema["ToolSchema"]
+  end
+
+  ReadFile -->|"impl ToolProgram"| ToolProgram
+  WriteFile -->|"impl ToolProgram"| ToolProgram
+  ListDirectory -->|"impl ToolProgram"| ToolProgram
+  SearchText -->|"impl ToolProgram"| ToolProgram
+  ToolProgram -->|"preview() builds"| ToolPreview
+  ToolPreview -->|"schema"| ToolSchema

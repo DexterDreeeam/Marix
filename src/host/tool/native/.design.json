@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/host/tool/native",
+    "name": "native",
+    "purpose": "Groups the concrete native tool programs by category. file/ owns filesystem tools (read, write, list, search); shell/ owns native shell command execution. mod.rs is re-export wiring only.",
+    "changeStatus": "added"
+  },
+  "added": ["."],
+  "childModules": [
+    {
+      "path": "src/host/tool/native/file",
+      "name": "file",
+      "purpose": "Filesystem native tool programs: ReadFile, WriteFile, ListDirectory, and SearchText."
+    },
+    {
+      "path": "src/host/tool/native/shell",
+      "name": "shell",
+      "purpose": "Native shell command execution tool program: ShellExecute."
+    }
+  ],
+  "elements": []
+}

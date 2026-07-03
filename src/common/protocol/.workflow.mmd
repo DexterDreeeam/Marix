@@ -15,11 +15,14 @@ flowchart LR
   subgraph execution_rs[execution.rs]
     ExecutionSignature["ExecutionSignature\nstruct"]
     ExecutionSessionEvent["ExecutionSessionEvent\nenum"]
-    ToolPreview["ToolPreview\nstruct"]
-    ToolExecutionRequest["ToolExecutionRequest\nstruct"]
-    ToolExecutionStatus["ToolExecutionStatus\nenum"]
-    ToolExecutionUpdate["ToolExecutionUpdate\nstruct"]
+    ExecutionRequest["ExecutionRequest\nstruct"]
+    ExecutionStatus["ExecutionStatus\nenum"]
+    ExecutionUpdate["ExecutionUpdate\nstruct"]
     ExecutionParameterPackage["ExecutionParameterPackage\nstruct"]
+  end
+
+  subgraph common_tool[common tool]
+    ToolPreview["ToolPreview\nstruct"]
   end
 
   SessionEvent -->|"Task(signature, event)"| TaskSignature
@@ -31,8 +34,8 @@ flowchart LR
   ExecutionSignature -->|"task_id"| TaskId
   ExecutionSignature -->|"exe_id"| ExeId
   ExecutionSessionEvent -->|"Preview { tools }"| ToolPreview
-  ExecutionSessionEvent -->|"ExecutionEvoke"| ToolExecutionRequest
-  ExecutionSessionEvent -->|"ExecutionStatus"| ToolExecutionStatus
-  ExecutionSessionEvent -->|"ExecutionUpdate"| ToolExecutionUpdate
+  ExecutionSessionEvent -->|"Evoke(ExecutionRequest)"| ExecutionRequest
+  ExecutionSessionEvent -->|"Status(ExecutionStatus)"| ExecutionStatus
+  ExecutionSessionEvent -->|"Update(ExecutionUpdate)"| ExecutionUpdate
   ExecutionParameterPackage -->|"task_id"| TaskId
-  ExecutionParameterPackage -->|"tool_request"| ToolExecutionRequest
+  ExecutionParameterPackage -->|"tool_request"| ExecutionRequest

@@ -1,0 +1,16 @@
+flowchart LR
+  %% mod.rs only declares category child modules and re-exports their tool programs.
+  subgraph file_mod[file module]
+    FileTools["ReadFile / WriteFile\nListDirectory / SearchText"]
+  end
+
+  subgraph shell_mod[shell module]
+    ShellTools["ShellExecute"]
+  end
+
+  subgraph host_tool[host tool crate]
+    ToolProgram["ToolProgram\ntrait"]
+  end
+
+  FileTools -->|"implement"| ToolProgram
+  ShellTools -->|"implement"| ToolProgram

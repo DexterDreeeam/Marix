@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/host/tool",
+    "name": "tool",
+    "purpose": "Standalone marix-host-tool bin crate. Every native tool compiles into its own executable that shares one tool_main.rs entry and is selected at compile time through the cfg-gated SelectedTool alias behind Cargo features. tool.rs defines ToolProgram, the interface each tool program implements; native/ owns the concrete tool programs. tool_main.rs is the shared binary entry whose main runs the compile-selected tool through a private run<T: ToolProgram> that reads process arguments and speaks the --preview/--run JSON protocol over stdout. lib.rs and the Cargo manifest are namespace/re-export wiring and package metadata only.",
+    "changeStatus": "added"
+  },
+  "added": ["."],
+  "childModules": [
+    {
+      "path": "src/host/tool/native",
+      "name": "native",
+      "purpose": "Concrete native tool programs grouped by category: filesystem tools under file/ and shell command execution under shell/."
+    }
+  ],
+  "elements": [
+    {
+      "name": "ToolProgram",
+      "type": "trait",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/tool/tool.rs",
+          "lineStart": 3,
+          "lineEnd": 7,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 7
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}
