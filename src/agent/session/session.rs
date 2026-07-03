@@ -9,25 +9,19 @@ use super::SessionContext;
 
 pub struct Session {
     pub context: Arc<SessionContext>,
-    client_worker: Option<JoinHandle<()>>,
-    host_worker: Option<JoinHandle<()>>,
+    client_worker: JoinHandle<()>,
+    host_worker: JoinHandle<()>,
 }
 
 impl Session {
     pub fn new() -> Self {
+        let context = Arc::new(SessionContext::new());
+        let client_worker = Self::spawn_client_worker(&context);
+        let host_worker = Self::spawn_host_worker(&context);
         Self {
-            context: Arc::new(SessionContext::new()),
-            client_worker: None,
-            host_worker: None,
-        }
-    }
-
-    pub fn run(&mut self) {
-        if self.client_worker.is_none() {
-            self.client_worker = Some(self.spawn_client_worker());
-        }
-        if self.host_worker.is_none() {
-            self.host_worker = Some(self.spawn_host_worker());
+            context,
+            client_worker,
+            host_worker,
         }
     }
 }
@@ -41,8 +35,8 @@ impl Session {
             .unwrap_or_else(|error| panic!("invalid {label} bind address: {error}"))
     }
 
-    fn spawn_client_worker(&self) -> JoinHandle<()> {
-        let context = Arc::clone(&self.context);
+    fn spawn_client_worker(context: &Arc<SessionContext>) -> JoinHandle<()> {
+        let context = Arc::clone(context);
         std::thread::spawn(move || {
             let config =
                 Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
@@ -51,15 +45,21 @@ impl Session {
                 let Ok((tx, rx)) = accept_channel::<SessionEvent>(address) else {
                     continue;
                 };
-                *context.client_tx.blocking_lock() = Some(tx);
-                *context.client_rx.blocking_lock() = Some(rx);
+                *context
+                    .client_tx
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner()) = Some(tx);
+                *context
+                    .client_rx
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner()) = Some(rx);
                 Self::handle_client_events(Arc::clone(&context));
             }
         })
     }
 
-    fn spawn_host_worker(&self) -> JoinHandle<()> {
-        let context = Arc::clone(&self.context);
+    fn spawn_host_worker(context: &Arc<SessionContext>) -> JoinHandle<()> {
+        let context = Arc::clone(context);
         std::thread::spawn(move || {
             let config =
                 Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
@@ -68,8 +68,14 @@ impl Session {
                 let Ok((tx, rx)) = accept_channel::<SessionEvent>(address) else {
                     continue;
                 };
-                *context.host_tx.blocking_lock() = Some(tx);
-                *context.host_rx.blocking_lock() = Some(rx);
+                *context
+                    .host_tx
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner()) = Some(tx);
+                *context
+                    .host_rx
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner()) = Some(rx);
                 Self::handle_host_events(Arc::clone(&context));
             }
         })
@@ -81,13 +87,18 @@ impl Session {
             .build()
             .unwrap_or_else(|error| panic!("failed to build client event runtime: {error}"));
         runtime.block_on(async move {
-            let Some(mut rx) = context.client_rx.lock().await.take() else {
+            let Some(mut rx) = context
+                .client_rx
+                .lock()
+                .unwrap_or_else(|error| error.into_inner())
+                .take()
+            else {
                 return;
             };
             while let Ok(Some(event)) = rx.recv().await {
                 match event {
                     SessionEvent::Task(signature, TaskSessionEvent::Create { request }) => {
-                        Self::create_task(&context, signature, request).await;
+                        Self::create_task(&context, signature, request);
                     }
                     event => Self::route_session_event(&context, event),
                 }
@@ -101,7 +112,12 @@ impl Session {
             .build()
             .unwrap_or_else(|error| panic!("failed to build host event runtime: {error}"));
         runtime.block_on(async move {
-            let Some(mut rx) = context.host_rx.lock().await.take() else {
+            let Some(mut rx) = context
+                .host_rx
+                .lock()
+                .unwrap_or_else(|error| error.into_inner())
+                .take()
+            else {
                 return;
             };
             while let Ok(Some(event)) = rx.recv().await {
@@ -110,27 +126,36 @@ impl Session {
         });
     }
 
-    async fn create_task(context: &SessionContext, mut signature: TaskSignature, request: String) {
+    fn create_task(context: &SessionContext, mut signature: TaskSignature, request: String) {
         signature.name = request;
-        if context.host_tx.lock().await.is_none() {
+        if context
+            .host_tx
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .is_none()
+        {
             let event = SessionEvent::Task(
                 signature,
                 TaskSessionEvent::CreateFailed {
                     reason: "host not connected".to_string(),
                 },
             );
-            if let Some(sender) = context.client_tx.lock().await.as_mut() {
-                let _ = sender.send(event).await;
+            if let Some(sender) = context
+                .client_tx
+                .lock()
+                .unwrap_or_else(|error| error.into_inner())
+                .as_mut()
+            {
+                let _ = sender.try_send(event);
             }
             return;
         }
         let task_id = signature.id.clone();
-        let mut task = Task::new(
+        let task = Task::new(
             signature,
             Arc::clone(&context.client_tx),
             Arc::clone(&context.host_tx),
         );
-        task.run();
         context.tasks.insert(task_id, Arc::new(StdMutex::new(task)));
     }
 

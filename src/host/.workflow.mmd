@@ -1,5 +1,5 @@
 flowchart LR
-  %% Host interfaces are draft-only; method bodies are not implemented.
+  %% HostSession and Executor method bodies remain panic-backed stubs; the executor execution runtime is implemented.
   subgraph session_rs[session.rs]
     HostSession["HostSession\nstruct"]
   end
@@ -11,6 +11,7 @@ flowchart LR
   end
 
   subgraph tool_crate[tool crate marix-host-tool]
+    Tool["Tool\nexecutable handle"]
     ToolProgram["ToolProgram\ntrait + native tool bins"]
   end
 
@@ -21,11 +22,7 @@ flowchart LR
     ExecutionStatus["ExecutionStatus"]
     ExecutionUpdate["ExecutionUpdate"]
     ExecutionSignature["ExecutionSignature"]
-  end
-
-  subgraph common_tool[common tool]
     ToolPreview["ToolPreview"]
-    Tool["Tool handle"]
   end
 
   HostSession -->|"agent_tx/agent_rx endpoints"| SessionEvent
@@ -33,12 +30,12 @@ flowchart LR
   Executor -->|"executions WorkQueue keyed by"| ExeId
   Executor -->|"tracks"| ExecutionRuntime
   ExecutionRuntime -->|"owns Arc"| ExecutionContext
-  ExecutionContext -->|"signature"| ExecutionSignature
+  ExecutionContext -->|"parameters.signature"| ExecutionSignature
   ExecutionContext -->|"agent_tx forwards"| SessionEvent
   Executor -->|"preview advertises"| ToolPreview
   Executor -->|"evoke request"| ExecutionRequest
   Executor -->|"evoke/query/cancel/kill return"| ExecutionStatus
   Executor -->|"updates receiver emits"| ExecutionUpdate
-  Executor -->|"drives external tool via"| Tool
+  ExecutionContext -->|"holds Tool handle from marix-host-tool"| Tool
   Tool -->|"spawns --preview/--run binaries built by"| ToolProgram
   ToolProgram -->|"preview() returns"| ToolPreview

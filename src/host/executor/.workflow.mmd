@@ -1,5 +1,5 @@
 flowchart LR
-  %% Executor tool-execution interfaces are draft-only; method bodies are panic-backed placeholders.
+  %% Executor preview/evoke/query/cancel/kill/updates bodies remain panic-backed stubs; the execution child module runtime is implemented.
   subgraph executor_rs[executor.rs]
     Executor["Executor\nstruct"]
   end
@@ -16,17 +16,19 @@ flowchart LR
     ExecutionStatus["ExecutionStatus"]
     ExecutionUpdate["ExecutionUpdate"]
     SessionEvent["SessionEvent"]
+    ToolPreview["ToolPreview"]
   end
 
-  subgraph common_tool[common tool]
-    ToolPreview["ToolPreview"]
+  subgraph host_tool[host tool crate marix-host-tool]
+    Tool["Tool\nexecutable handle"]
   end
 
   Executor -->|"executions WorkQueue keyed by"| ExeId
   Executor -->|"tracks"| ExecutionRuntime
   ExecutionRuntime -->|"owns Arc"| ExecutionContext
-  ExecutionContext -->|"signature"| ExecutionSignature
+  ExecutionContext -->|"parameters.signature"| ExecutionSignature
   ExecutionContext -->|"agent_tx forwards"| SessionEvent
+  ExecutionContext -->|"holds Tool handle"| Tool
   ExecutionRuntime -->|"execution_tx/rx carry"| SessionEvent
   Executor -->|"preview advertises"| ToolPreview
   Executor -->|"evoke request"| ExecutionRequest

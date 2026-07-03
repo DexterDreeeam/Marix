@@ -1,5 +1,5 @@
 flowchart LR
-  %% Per-execution host runtime; method bodies are panic-backed placeholders.
+  %% Per-execution host runtime: ExecutionRuntime runs a Tool via ExecutionContext and streams status/updates to the agent by synchronously locking agent_tx (std::sync::Mutex) and calling try_send.
   subgraph execution_rs[execution.rs]
     ExecutionRuntime["ExecutionRuntime\nstruct"]
   end
@@ -8,12 +8,27 @@ flowchart LR
     ExecutionContext["ExecutionContext\nstruct"]
   end
 
+  subgraph host_tool[host tool crate marix-host-tool]
+    Tool["Tool\nexecutable handle"]
+  end
+
   subgraph common_protocol[common protocol]
     ExecutionSignature["ExecutionSignature"]
+    ExecutionParameterPackage["ExecutionParameterPackage"]
+    ExecutionSessionEvent["ExecutionSessionEvent"]
+    ExecutionStatus["ExecutionStatus"]
+    ExecutionUpdate["ExecutionUpdate"]
     SessionEvent["SessionEvent"]
   end
 
   ExecutionRuntime -->|"owns Arc"| ExecutionContext
   ExecutionRuntime -->|"execution_tx/rx carry"| SessionEvent
-  ExecutionContext -->|"signature"| ExecutionSignature
-  ExecutionContext -->|"agent_tx forwards"| SessionEvent
+  ExecutionRuntime -->|"event loop recv Cancel/Kill"| ExecutionSessionEvent
+  ExecutionRuntime -->|"runs tool.execute via context"| Tool
+  ExecutionRuntime -->|"emits Started/Succeed/Canceled/Killed"| ExecutionStatus
+  ExecutionRuntime -->|"emits execution output"| ExecutionUpdate
+  ExecutionRuntime -->|"try_send to forward on agent_tx"| SessionEvent
+  ExecutionContext -->|"holds tool handle"| Tool
+  ExecutionContext -->|"holds parameters"| ExecutionParameterPackage
+  ExecutionParameterPackage -->|"signature"| ExecutionSignature
+  ExecutionContext -->|"agent_tx std::sync::Mutex sender"| SessionEvent

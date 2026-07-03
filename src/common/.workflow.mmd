@@ -4,14 +4,12 @@ flowchart LR
     ConfigModule["config\nConfig + runtime settings"]
     ExternalModule["external\ncrate-local adapters"]
     LoggingModule["logging\nLogMessage + log functions"]
-    ProtocolModule["protocol\nsession/task/execution protocol types"]
+    ProtocolModule["protocol\nsession/task/execution + tool metadata types"]
     StructureModule["structure\nWorkQueue + channel helpers"]
-    ToolModule["tool\nToolSchema + ToolPreview + Tool handle"]
   end
 
   ExternalModule -->|"serde/toml/remoc/reqwest adapters"| ConfigModule
   ConfigModule -->|"LoggingConfig + runtime paths"| LoggingModule
   ProtocolModule -->|"shared message contracts"| StructureModule
   ConfigModule -->|"platform/runtime settings"| ProtocolModule
-  ToolModule -->|"ToolPreview in execution events"| ProtocolModule
-  ExternalModule -->|"serde_json for schema/preview JSON"| ToolModule
+  ExternalModule -->|"serde_json for tool schema/preview JSON"| ProtocolModule

@@ -3,19 +3,20 @@
   "module": {
     "path": "src/host",
     "name": "host",
-    "purpose": "Host crate for tool execution management. session.rs defines HostSession, which owns the agent SessionEvent channel endpoints, an Executor, and an event-loop handle and exposes connect and close. The executor folder module owns host-side tool execution: its Executor tracks active ExecutionRuntime records in a WorkQueue keyed by ExeId and exposes preview, evoke, query, cancel, kill, and update surfaces. The tool folder is the standalone marix-host-tool bin crate that compiles one executable per native tool. lib.rs is namespace and re-export wiring only; method bodies are panic-backed interface placeholders.",
-    "changeStatus": "unchanged"
+    "purpose": "Host crate for tool execution management. session.rs defines HostSession, which owns the agent SessionEvent channel endpoints, an Executor, and an event-loop handle and exposes connect and close. The executor folder module owns host-side tool execution: its Executor tracks active ExecutionRuntime records in a WorkQueue keyed by ExeId and exposes preview, evoke, query, cancel, kill, and update surfaces, and its execution child module now implements the per-execution ExecutionRuntime that runs a Tool (the executable handle imported from the marix-host-tool crate, which host/Cargo.toml now depends on) and streams ExecutionStatus/ExecutionUpdate to the agent by synchronously locking agent_tx (std::sync::Mutex) and calling try_send. The tool folder is the standalone marix-host-tool crate that exposes the Executor-side Tool handle and the ToolProgram interface and compiles one executable per native tool. lib.rs is namespace and re-export wiring only; HostSession and Executor method bodies remain panic-backed interface placeholders.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/host/executor",
       "name": "executor",
-      "purpose": "Executor folder module owning tool preview, execution, status-query, cancel, kill, and update interfaces. Executor tracks ExecutionRuntime records in a WorkQueue keyed by ExeId, while the execution child module owns each ExecutionRuntime and its shared ExecutionContext holding the agent SessionEvent sender."
+      "purpose": "Executor folder module owning tool preview, execution, status-query, cancel, kill, and update interfaces. Executor tracks ExecutionRuntime records in a WorkQueue keyed by ExeId, while the execution child module owns each ExecutionRuntime and its shared ExecutionContext; the execution runtime is now implemented and runs the Tool, emitting ExecutionStatus/ExecutionUpdate to the agent SessionEvent sender by synchronously locking it (std::sync::Mutex) and calling try_send."
     },
     {
       "path": "src/host/tool",
       "name": "tool",
-      "purpose": "Standalone marix-host-tool bin crate. Each native tool compiles into its own executable sharing tool_main.rs and selected via the cfg-gated SelectedTool alias behind Cargo features; ToolProgram is the per-tool interface and the tool_main.rs bin entry drives the --preview/--run JSON protocol over stdout."
+      "purpose": "Standalone marix-host-tool crate. tool.rs exposes the Executor-side Tool handle used by the executor, and tool_program.rs defines the ToolProgram per-tool interface. Each native tool compiles into its own executable sharing tool_main.rs and selected via the cfg-gated SelectedTool alias behind Cargo features; the tool_main.rs bin entry drives the --preview/--run JSON protocol over stdout."
     }
   ],
   "elements": [

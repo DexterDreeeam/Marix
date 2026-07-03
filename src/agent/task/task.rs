@@ -2,9 +2,9 @@ use std::sync::Arc;
 use std::thread::{self, JoinHandle};
 
 use marix_common::{
-    Config, ExecutionParameterPackage, ExecutionSessionEvent, ModelBackend as ConfigModelBackend,
-    Receiver, Sender, SessionEvent, SharedNetSender, TaskSessionEvent, TaskSignature, TaskStatus,
-    build_channel,
+    Config, ExeId, ExecutionParameterPackage, ExecutionSessionEvent, ExecutionSignature,
+    ModelBackend as ConfigModelBackend, Receiver, Sender, SessionEvent, SharedNetSender,
+    TaskSessionEvent, TaskSignature, TaskStatus, build_channel,
 };
 
 use crate::model::{DeepseekBackend, ModelBackend, ModelRequest, ModelResponse};
@@ -13,8 +13,7 @@ use crate::task::{ModelStepKind, Step, StepKind, StepSequence, TaskContext};
 pub struct Task {
     context: Arc<TaskContext>,
     task_tx: Sender<SessionEvent>,
-    task_rx: Option<Receiver<SessionEvent>>,
-    worker: Option<JoinHandle<()>>,
+    worker: JoinHandle<()>,
 }
 
 impl Task {
@@ -30,27 +29,19 @@ impl Task {
             client_tx,
             host_tx,
         ));
+        let worker = thread::spawn({
+            let context = Arc::clone(&context);
+            move || Self::event_loop(context, task_rx)
+        });
         Self {
             context,
             task_tx,
-            task_rx: Some(task_rx),
-            worker: None,
+            worker,
         }
     }
 
     pub fn sender(&self) -> Sender<SessionEvent> {
         self.task_tx.clone()
-    }
-
-    pub fn run(&mut self) {
-        if self.worker.is_some() {
-            return;
-        }
-        let Some(task_rx) = self.task_rx.take() else {
-            panic!("task receiver is missing")
-        };
-        let context = Arc::clone(&self.context);
-        self.worker = Some(thread::spawn(move || Self::event_loop(context, task_rx)));
     }
 
     pub fn raise(&self, step: Step) {
@@ -92,7 +83,11 @@ impl Task {
             sequence: StepSequence(0),
             kind: StepKind::Model(ModelStepKind::Initial),
             parameters: ExecutionParameterPackage {
-                task_id: context.signature.id.clone(),
+                signature: ExecutionSignature {
+                    task_id: context.signature.id.clone(),
+                    exe_id: ExeId::new(),
+                    name: context.signature.name.clone(),
+                },
                 prompt: Some(context.signature.name.clone()),
                 tool_request: None,
                 user_options: Vec::new(),
@@ -167,10 +162,13 @@ impl Task {
     }
 
     fn send_event(context: &TaskContext, event: SessionEvent) {
-        context.runtime.block_on(async {
-            if let Some(net_sender) = context.client_tx.lock().await.as_mut() {
-                let _ = net_sender.send(event).await;
-            }
-        });
+        if let Some(sender) = context
+            .client_tx
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .as_mut()
+        {
+            let _ = sender.try_send(event);
+        }
     }
 }

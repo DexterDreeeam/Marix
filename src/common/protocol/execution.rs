@@ -1,5 +1,4 @@
-use crate::protocol::{ExeId, TaskId};
-use crate::tool::ToolPreview;
+use crate::protocol::{ExeId, TaskId, ToolPreview};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -43,7 +42,7 @@ pub struct ExecutionUpdate {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ExecutionParameterPackage {
-    pub task_id: TaskId,
+    pub signature: ExecutionSignature,
     pub prompt: Option<String>,
     pub tool_request: Option<ExecutionRequest>,
     pub user_options: Vec<String>,

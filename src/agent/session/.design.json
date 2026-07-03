@@ -3,55 +3,105 @@
   "module": {
     "path": "src/agent/session",
     "name": "session",
-    "purpose": "Owns the agent session runtime. session.rs defines Session, which spawns and holds client and host channel workers and drives task creation and SessionEvent routing; session_context.rs defines SessionContext, which owns the TaskId-keyed task WorkQueue and the shared client/host remoc channel endpoints. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent session runtime. session.rs defines Session, whose new builds the SessionContext and immediately spawns the client and host channel workers (there is no separate run); it drives synchronous task creation (locking the shared client/host senders through std::sync::Mutex, reporting CreateFailed via try_send, and creating each Task through Task::new, which now starts its own worker) and SessionEvent routing; its client/host recv loops still run inside per-connection current-thread tokio runtimes to await remoc recv. session_context.rs defines SessionContext, which owns the TaskId-keyed task WorkQueue and the shared client/host remoc mpsc endpoints, all initialized behind std::sync::Mutex. mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "modified"
   },
+  "modified": ["session.rs", "session_context.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
           "lineStart": 10,
           "lineEnd": 14,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 10,
-              "lineEnd": 14
+              "lineStart": 12,
+              "lineEnd": 13
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/agent/session/session.rs",
           "lineStart": 16,
-          "lineEnd": 33,
+          "lineEnd": 27,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 16,
-              "lineEnd": 33
+              "lineStart": 18,
+              "lineEnd": 20
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 24
+            }
+          ]
         },
         {
           "sourcePath": "src/agent/session/session.rs",
-          "lineStart": 37,
-          "lineEnd": 156,
+          "lineStart": 31,
+          "lineEnd": 181,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 37,
-              "lineEnd": 156
+              "lineStart": 38,
+              "lineEnd": 39
+            },
+            {
+              "lineStart": 48,
+              "lineEnd": 55
+            },
+            {
+              "lineStart": 61,
+              "lineEnd": 62
+            },
+            {
+              "lineStart": 71,
+              "lineEnd": 78
+            },
+            {
+              "lineStart": 90,
+              "lineEnd": 95
+            },
+            {
+              "lineStart": 101,
+              "lineEnd": 101
+            },
+            {
+              "lineStart": 115,
+              "lineEnd": 120
+            },
+            {
+              "lineStart": 129,
+              "lineEnd": 129
+            },
+            {
+              "lineStart": 131,
+              "lineEnd": 135
+            },
+            {
+              "lineStart": 143,
+              "lineEnd": 147
+            },
+            {
+              "lineStart": 149,
+              "lineEnd": 149
+            },
+            {
+              "lineStart": 154,
+              "lineEnd": 154
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -59,19 +109,14 @@
       "name": "SessionContext",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session_context.rs",
           "lineStart": 6,
           "lineEnd": 12,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 6,
-              "lineEnd": 12
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -79,13 +124,13 @@
           "lineStart": 14,
           "lineEnd": 24,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 14,
-              "lineEnd": 24
+              "lineStart": 18,
+              "lineEnd": 21
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     }

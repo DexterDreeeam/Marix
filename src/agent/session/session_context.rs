@@ -15,10 +15,10 @@ impl SessionContext {
     pub fn new() -> Self {
         Self {
             tasks: WorkQueue::new(),
-            client_tx: SharedNetSender::new(tokio::sync::Mutex::new(None)),
-            client_rx: SharedNetReceiver::new(tokio::sync::Mutex::new(None)),
-            host_tx: SharedNetSender::new(tokio::sync::Mutex::new(None)),
-            host_rx: SharedNetReceiver::new(tokio::sync::Mutex::new(None)),
+            client_tx: SharedNetSender::new(std::sync::Mutex::new(None)),
+            client_rx: SharedNetReceiver::new(std::sync::Mutex::new(None)),
+            host_tx: SharedNetSender::new(std::sync::Mutex::new(None)),
+            host_rx: SharedNetReceiver::new(std::sync::Mutex::new(None)),
         }
     }
 }

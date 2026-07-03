@@ -1,5 +1,5 @@
 flowchart LR
-  %% mod.rs only declares child files and re-exports Session and SessionContext.
+  %% mod.rs only declares child files and re-exports Session and SessionContext; Session::new spawns the client and host workers directly (no separate run).
   subgraph session_rs[session.rs]
     Session["Session\nstruct"]
   end
@@ -26,7 +26,7 @@ flowchart LR
   Session -->|"accepts host remoc channel"| HostChannel
   ClientChannel -->|"client SessionEvent stream"| SessionContext
   HostChannel -->|"host SessionEvent stream"| SessionContext
-  SessionContext -->|"creates and runs"| Task
+  SessionContext -->|"creates via Task::new (auto-starts worker)"| Task
   SessionContext -->|"stores by TaskId"| Tasks
   SessionContext -->|"routes TaskSessionEvent"| TaskSessionEvent
   SessionContext -->|"routes ExecutionSessionEvent"| ExecutionSessionEvent

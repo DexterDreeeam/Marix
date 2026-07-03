@@ -12,7 +12,6 @@ pub struct TaskContext {
     pub host_tx: SharedNetSender<SessionEvent>,
     pub executions: WorkQueue<ExeId, Execution>,
     pub steps: WorkQueue<StepSequence, Step>,
-    pub runtime: tokio::runtime::Runtime,
 }
 
 impl TaskContext {
@@ -29,11 +28,6 @@ impl TaskContext {
             host_tx,
             executions: WorkQueue::new(),
             steps: WorkQueue::new(),
-            runtime: tokio::runtime::Builder::new_multi_thread()
-                .worker_threads(1)
-                .enable_all()
-                .build()
-                .unwrap_or_else(|error| panic!("failed to build task runtime: {error}")),
         }
     }
 }

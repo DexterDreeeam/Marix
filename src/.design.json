@@ -3,14 +3,15 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with flat Cargo crate layout. It organizes reusable common config/external re-export/logging/protocol/structure/tool modules, agent model/session/task orchestration, client session/event surfaces, host-side tool execution stubs, and the host/tool bin crate that builds one executable per native tool, while Cargo manifests define crate wiring.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace source root for Marix crates with flat Cargo crate layout. It organizes reusable common config/external re-export/logging/protocol/structure modules (protocol now owns the ToolSchema and ToolPreview tool metadata contracts), agent model/session/task orchestration, client session/event surfaces, host-side tool execution with an implemented per-execution runtime that runs the Tool handle from the marix-host-tool crate, and the host/tool crate (marix-host-tool) that exposes the Executor-side Tool handle and the ToolProgram interface and builds one executable per native tool, while Cargo manifests define crate wiring.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent crate namespace for model backend abstractions, Session and SessionContext runtime orchestration, and the implemented task runtime. The model backend abstraction exposes only a send interface bridged by a blanket impl and includes an implemented Deepseek streaming backend; the task module now implements Task, which drives model steps and streams status to the client, backed by the new shared TaskContext state that now also owns the shared tokio runtime task workers block_on."
+      "purpose": "Agent crate namespace for model backend abstractions, Session and SessionContext runtime orchestration, and the implemented task runtime. The model backend abstraction exposes only a send interface bridged by a blanket impl and includes an implemented Deepseek streaming backend; the task module implements Task, which drives model steps and streams status to the client via synchronous try_send, backed by the shared TaskContext state that holds the std::sync::Mutex-guarded model backend and client/host senders."
     },
     {
       "path": "src/client",
@@ -20,12 +21,12 @@
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared common crate namespace with reusable config, now-public crate-local external re-export adapters that let downstream crates route third-party access through common, logging, protocol models, and structural data/channel interfaces."
+      "purpose": "Shared common crate namespace with reusable config, now-public crate-local external re-export adapters that let downstream crates route third-party access through common, logging, protocol models including the ToolSchema and ToolPreview tool metadata contracts, and structural data/channel interfaces."
     },
     {
       "path": "src/host",
       "name": "host",
-      "purpose": "Host crate namespace for agent channel connection stubs and host-side tool execution. The executor folder module's Executor tracks ExecutionRuntime records in a WorkQueue keyed by ExeId, each backed by a shared ExecutionContext, and exposes preview, evoke, query, cancel, kill, and update interfaces; the new host/tool folder is the standalone marix-host-tool bin crate that compiles one executable per native tool (read, write, list, search, shell) sharing a ToolProgram interface."
+      "purpose": "Host crate namespace for agent channel connection stubs and host-side tool execution. The executor folder module's Executor tracks ExecutionRuntime records in a WorkQueue keyed by ExeId, each backed by a shared ExecutionContext, and exposes preview, evoke, query, cancel, kill, and update interfaces; the execution child module now implements ExecutionRuntime, which runs a Tool (imported from the marix-host-tool crate that host/Cargo.toml now depends on) via ExecutionContext and streams ExecutionStatus/ExecutionUpdate to the agent by synchronously locking agent_tx (std::sync::Mutex) and calling try_send. The host/tool folder is the standalone marix-host-tool crate that exposes the Executor-side Tool handle and the ToolProgram interface and compiles one executable per native tool (read, write, list, search, shell)."
     }
   ],
   "elements": []

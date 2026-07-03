@@ -3,14 +3,15 @@
   "module": {
     "path": "src/host/executor",
     "name": "executor",
-    "purpose": "Executor folder module for host-side tool execution. executor.rs defines Executor, which owns active ExecutionRuntime records in a WorkQueue keyed by ExeId and exposes preview, evoke, query, cancel, kill, and updates surfaces. The execution child module owns the per-execution runtime: ExecutionRuntime (the host-side remote runtime of an agent Execution holding an Arc<ExecutionContext>, its execution SessionEvent channel endpoints, and an optional worker join handle) and ExecutionContext (which mirrors the agent-side TaskContext with the ExecutionSignature and the shared agent SessionEvent sender). mod.rs is re-export wiring only; method bodies are panic-backed interface placeholders.",
-    "changeStatus": "unchanged"
+    "purpose": "Executor folder module for host-side tool execution. executor.rs defines Executor, which owns active ExecutionRuntime records in a WorkQueue keyed by ExeId and exposes preview, evoke, query, cancel, kill, and updates surfaces; Executor method bodies remain panic-backed interface placeholders. The execution child module now implements the per-execution runtime: ExecutionRuntime (the host-side runtime of an agent Execution holding an Arc<ExecutionContext>, its execution_tx SessionEvent sender, and a worker JoinHandle spawned in new with no separate run) runs the Tool via ExecutionContext and streams ExecutionStatus and ExecutionUpdate to the agent, while ExecutionContext holds the Tool handle from the marix-host-tool crate, the ExecutionParameterPackage (whose signature identifies the execution), and the shared agent SessionEvent sender that is locked via std::sync::Mutex and driven with try_send. mod.rs is re-export wiring only.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/host/executor/execution",
       "name": "execution",
-      "purpose": "Per-execution host runtime split out of executor.rs: ExecutionRuntime drives one agent Execution over its SessionEvent channel, and ExecutionContext holds the shared ExecutionSignature and agent SessionEvent sender."
+      "purpose": "Per-execution host runtime split out of executor.rs: ExecutionRuntime drives one agent Execution, spawning a worker in new (no separate run) that reads the tool input from parameters.tool_request, runs tool.execute, and emits ExecutionUpdate plus terminal ExecutionStatus while handling Cancel/Kill control events; ExecutionContext holds the Tool handle from the marix-host-tool crate, the ExecutionParameterPackage (whose signature identifies the execution), and agent SessionEvent sender, which is locked via std::sync::Mutex and driven with try_send."
     }
   ],
   "elements": [

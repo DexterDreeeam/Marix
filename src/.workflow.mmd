@@ -1,10 +1,10 @@
 flowchart LR
   %% Flat Cargo crate layout; crate roots wire child modules while concrete APIs live below them.
   subgraph workspace[src workspace]
-    Common["common\nconfig + external + logging + protocol + structure + tool"]
+    Common["common\nconfig + external + logging + protocol + structure"]
     Agent["agent\nmodel + session context + task interfaces"]
     Client["client\nClientSession + ClientEvent"]
-    Host["host\nHostSession + Executor + tool bin crate"]
+    Host["host\nHostSession + Executor + marix-host-tool crate"]
   end
 
   Common -->|"Config, LoggingConfig, LogMessage, protocol events, WorkQueue/channels"| Agent

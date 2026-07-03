@@ -3,9 +3,10 @@
   "module": {
     "path": "src/common/structure",
     "name": "structure",
-    "purpose": "Owns shared structural utilities for the common crate. channel.rs defines the local mpsc Sender/Receiver aliases, the remoc NetSender/NetReceiver and shared-endpoint aliases, the ChannelError enum, and the build_channel/accept_channel/connect_channel constructors that build local and TCP-backed remoc channels; work_queue.rs defines the generic WorkQueue that tracks working and completed entries behind Arc<Mutex<BTreeMap>>. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns shared structural utilities for the common crate. channel.rs defines the local mpsc Sender/Receiver aliases, the remoc rch::mpsc NetSender/NetReceiver endpoints and their std::sync::Mutex-guarded SharedNetSender/SharedNetReceiver wrappers, the ChannelError enum, and the build_channel/accept_channel/connect_channel constructors; build_channel builds a local mpsc pair while accept_channel/connect_channel establish a TCP-backed remoc connection whose private connect_socket bootstraps an rch::mpsc channel by exchanging receivers over a base connection handshake. work_queue.rs defines the generic WorkQueue that tracks working and completed entries behind Arc<Mutex<BTreeMap>>. mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "modified"
   },
+  "modified": ["channel.rs"],
   "childModules": [],
   "elements": [
     {
@@ -16,13 +17,13 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 9,
-          "lineEnd": 9,
+          "lineStart": 7,
+          "lineEnd": 7,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 9,
-              "lineEnd": 9
+              "lineStart": 7,
+              "lineEnd": 7
             }
           ],
           "modifiedLines": []
@@ -37,13 +38,13 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 10,
-          "lineEnd": 10,
+          "lineStart": 8,
+          "lineEnd": 8,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 10,
-              "lineEnd": 10
+              "lineStart": 8,
+              "lineEnd": 8
             }
           ],
           "modifiedLines": []
@@ -54,20 +55,20 @@
       "name": "NetSender",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 11,
-          "lineEnd": 11,
+          "lineStart": 9,
+          "lineEnd": 9,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 11,
-              "lineEnd": 11
+              "lineStart": 9,
+              "lineEnd": 9
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -75,20 +76,20 @@
       "name": "NetReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 12,
-          "lineEnd": 12,
+          "lineStart": 10,
+          "lineEnd": 10,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 12
+              "lineStart": 10,
+              "lineEnd": 10
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -96,20 +97,20 @@
       "name": "SharedNetSender",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 13,
-          "lineEnd": 13,
+          "lineStart": 11,
+          "lineEnd": 11,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 13,
-              "lineEnd": 13
+              "lineStart": 11,
+              "lineEnd": 11
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -117,20 +118,20 @@
       "name": "SharedNetReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 14,
-          "lineEnd": 14,
+          "lineStart": 12,
+          "lineEnd": 12,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 14,
-              "lineEnd": 14
+              "lineStart": 12,
+              "lineEnd": 12
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },

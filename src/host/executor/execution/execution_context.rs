@@ -1,12 +1,22 @@
-use marix_common::{ExecutionSignature, SessionEvent, SharedNetSender};
+use marix_common::{ExecutionParameterPackage, SessionEvent, SharedNetSender};
+use marix_host_tool::Tool;
 
 pub struct ExecutionContext {
-    pub signature: ExecutionSignature,
+    pub tool: Tool,
+    pub parameters: ExecutionParameterPackage,
     pub agent_tx: SharedNetSender<SessionEvent>,
 }
 
 impl ExecutionContext {
-    pub fn new(signature: ExecutionSignature, agent_tx: SharedNetSender<SessionEvent>) -> Self {
-        panic!("not implemented")
+    pub fn new(
+        tool: Tool,
+        parameters: ExecutionParameterPackage,
+        agent_tx: SharedNetSender<SessionEvent>,
+    ) -> Self {
+        Self {
+            tool,
+            parameters,
+            agent_tx,
+        }
     }
 }

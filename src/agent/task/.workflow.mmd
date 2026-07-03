@@ -1,5 +1,5 @@
 flowchart LR
-  %% mod.rs re-exports task types; Task drives model steps on worker threads and block_on the shared tokio runtime owned by TaskContext to emit events.
+  %% mod.rs re-exports task types; Task::new spawns the event-loop worker directly (no separate run); Task drives model steps on worker threads and emits events by synchronously locking client_tx (std::sync::Mutex) and calling try_send.
   subgraph step_rs[step.rs]
     StepSequence["StepSequence\nstruct"]
     Step["Step\nstruct"]
@@ -15,7 +15,6 @@ flowchart LR
 
   subgraph task_context_rs[task_context.rs]
     TaskContext["TaskContext\nstruct"]
-    SharedRuntime["Runtime\nshared tokio runtime"]
   end
 
   subgraph execution_rs[execution.rs]
@@ -26,6 +25,7 @@ flowchart LR
     SessionEvent["SessionEvent"]
     WorkQueue["WorkQueue"]
     ExecutionParameterPackage["ExecutionParameterPackage"]
+    ExecutionSignature["ExecutionSignature"]
     ExeId["ExeId"]
     TaskSignature["TaskSignature"]
   end
@@ -44,7 +44,8 @@ flowchart LR
   Task -->|"owns Arc<TaskContext>"| TaskContext
   Task -->|"raises + executes"| Step
   Task -->|"requests model step, streams ModelResponse"| ModelBackend
-  Task -->|"worker recv; emits Task Status, forwards host exec events"| SessionEvent
+  Task -->|"worker recv; emits Task Status, forwards host exec events via try_send"| SessionEvent
+  Task -->|"initial step stamps ExecutionParameterPackage.signature"| ExecutionSignature
 
   TaskContext -->|"signature"| TaskSignature
   TaskContext -->|"model_backend (mutex)"| ModelBackend
@@ -53,8 +54,5 @@ flowchart LR
   TaskContext -->|"tracks"| Execution
   TaskContext -->|"execution key"| ExeId
   TaskContext -->|"client_tx / host_tx"| SessionEvent
-  TaskContext -->|"owns shared async runtime"| SharedRuntime
-
-  Task -->|"block_on shared runtime to send events"| SharedRuntime
 
   Execution -->|"latest_event"| SessionEvent
