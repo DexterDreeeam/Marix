@@ -4,9 +4,8 @@
     "path": "src/agent/task",
     "name": "task",
     "purpose": "Owns the agent task runtime. step.rs defines the StepSequence ordering key, the Step record (whose parameters field is now an ExecutionRequest), and the StepKind/ToolStepKind/ModelStepKind/UserStepKind classification enums; task_context.rs defines TaskContext, the shared runtime data holding the task signature, a std::sync::Mutex-guarded model backend, client/host senders, and the execution and step WorkQueues; task.rs defines Task, which owns an Arc<TaskContext>, the task_tx SessionEvent sender, and a worker JoinHandle spawned directly in new (there is no separate run), drives model steps on worker threads, and streams task status plus forwarded host execution events to the client by synchronously locking client_tx (std::sync::Mutex) and calling try_send. initial_step stamps the ExecutionRequest with an ExecutionSignature { task_id, exe_id, name }. execution.rs defines the Execution record; mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["step.rs", "task.rs"],
   "childModules": [],
   "elements": [
     {
@@ -34,7 +33,7 @@
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/step.rs",
@@ -139,7 +138,7 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",

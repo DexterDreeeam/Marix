@@ -4,9 +4,8 @@
     "path": "src",
     "name": "src",
     "purpose": "Rust workspace source root for Marix crates with flat Cargo crate layout. It organizes reusable common config/external re-export/logging/protocol/structure modules (config now includes a ToolConfig tool directory setting; protocol now owns the ToolSchema and ToolPreview tool metadata contracts), agent model/session/task orchestration, client session/event surfaces, host-side tool execution whose Executor::new(agent_tx) stores the shared agent SessionEvent sender and builds an implemented ToolRegistry that loads Tool handles from the configured tool directory (advertising ToolPreviews), and whose single route_session_event router intercepts Evoke to create and track a per-execution runtime running the host-local Tool handle (host/executor/tool.rs) and forwards other execution events to the target runtime, while the top-level tool crate (marix-tool) provides the ToolProgram interface and compiles one executable per native tool that the host's Tool handle spawns by filesystem path; the Executor-side Tool handle now lives in host/executor and host no longer depends on the tool crate. The Cargo workspace members are common, agent, client, host, and tool, and the Cargo manifests define crate wiring.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["."],
   "childModules": [
     {
       "path": "src/agent",
@@ -16,7 +15,8 @@
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Client crate namespace for the user-facing ClientSession and ClientEvent surface. ClientSession is now implemented as a self-connecting client that mirrors HostSession: new() constructs it and a parameterless connect() spawns a worker that loads config.client.core_address, connect_channels to the agent (retrying), stores the NetSender into the shared agent_tx, and runs a current-thread tokio runtime translating inbound agent SessionEvents into user-facing ClientEvents (content-bearing task events only, via to_client_event); create_task and cancel_task send task commands to the agent through the shared agent_tx (SharedNetSender<SessionEvent>), receiver() borrows the ClientEvent stream (&Receiver<ClientEvent> over user_rx) for the caller to consume, and close() signals the shutdown flag and stops the worker. query_task was removed and the previously public user_rx field is now private; marix-client now depends on tokio (net, rt-multi-thread, sync, time) for the recv runtime."    },
+      "purpose": "Client crate namespace for the user-facing ClientSession and ClientEvent surface. ClientSession is now implemented as a self-connecting client that mirrors HostSession: new() constructs it and a parameterless connect() spawns a worker that loads config.client.core_address, connect_channels to the agent (retrying), stores the NetSender into the shared agent_tx, and runs a current-thread tokio runtime translating inbound agent SessionEvents into user-facing ClientEvents (content-bearing task events only, via to_client_event); create_task and cancel_task send task commands to the agent through the shared agent_tx (SharedNetSender<SessionEvent>), receiver() borrows the ClientEvent stream (&Receiver<ClientEvent> over user_rx) for the caller to consume, and close() signals the shutdown flag and stops the worker. query_task was removed and the previously public user_rx field is now private; marix-client now depends on tokio (net, rt-multi-thread, sync, time) for the recv runtime."
+    },
     {
       "path": "src/common",
       "name": "common",

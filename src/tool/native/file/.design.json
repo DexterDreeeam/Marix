@@ -4,16 +4,15 @@
     "path": "src/tool/native/file",
     "name": "file",
     "purpose": "Filesystem native tool programs. Each file defines one unit-struct tool that carries NAME/DESCRIPTION/INPUT_SCHEMA/OUTPUT_SCHEMA constants and implements ToolProgram: read_file.rs (ReadFile), write_file.rs (WriteFile), list_directory.rs (ListDirectory), and search_text.rs (SearchText). preview() builds a ToolPreview from the constants; invoke() is a panic-backed placeholder. mod.rs is re-export wiring only.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": ["."],
   "childModules": [],
   "elements": [
     {
       "name": "ReadFile",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/file/read_file.rs",
@@ -60,7 +59,7 @@
       "name": "WriteFile",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/file/write_file.rs",
@@ -107,7 +106,7 @@
       "name": "ListDirectory",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/file/list_directory.rs",
@@ -154,7 +153,7 @@
       "name": "SearchText",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/file/search_text.rs",

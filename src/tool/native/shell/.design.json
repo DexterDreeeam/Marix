@@ -4,16 +4,15 @@
     "path": "src/tool/native/shell",
     "name": "shell",
     "purpose": "Native shell command execution tool program. shell_execute.rs defines ShellExecute, a unit-struct tool that carries NAME/DESCRIPTION/INPUT_SCHEMA/OUTPUT_SCHEMA constants and implements ToolProgram; preview() builds a ToolPreview from the constants while invoke() is a panic-backed placeholder. mod.rs is re-export wiring only.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": ["."],
   "childModules": [],
   "elements": [
     {
       "name": "ShellExecute",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/shell_execute.rs",

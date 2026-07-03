@@ -4,9 +4,8 @@
     "path": "src/common/protocol",
     "name": "protocol",
     "purpose": "Owns the shared session/task/execution protocol contracts exchanged over channels, plus the tool metadata contracts. session.rs defines the TaskId and ExeId identifiers and the top-level SessionEvent split between task and execution traffic; task.rs defines task signatures, task events, and task status; execution.rs defines execution signatures, execution events that carry ToolPreview values from the sibling tool module, the ExecutionStatus and ExecutionUpdate models, and the ExecutionRequest execution parameter package whose lead field is an ExecutionSignature (task_id, exe_id, name) and whose tool_request now carries a raw Option<String> tool input (this is now the single execution request type, after the earlier input-only request struct was removed and the former parameter-package struct was renamed to ExecutionRequest); tool.rs now owns the ToolSchema input/output schema pair and the ToolPreview advertisement record (name, description, schema) that were relocated here from the removed common::tool module. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["execution.rs", "task.rs", "session.rs", "mod.rs"],
   "childModules": [],
   "elements": [
     {
@@ -81,7 +80,7 @@
       "name": "SessionEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/session.rs",
@@ -123,7 +122,7 @@
       "name": "TaskEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/task.rs",
@@ -181,7 +180,7 @@
       "name": "ExecutionEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/execution.rs",
@@ -234,7 +233,7 @@
       "name": "ExecutionRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/execution.rs",

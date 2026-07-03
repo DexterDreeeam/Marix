@@ -4,9 +4,8 @@
     "path": "src/common/config",
     "name": "config",
     "purpose": "Strongly typed TOML configuration model and fallible loader that detects the supported host Platform before reading config data, exposes Platform on Config, discovers source/deployed/environment config files, resolves runtime Marix paths and the tool directory relative to the config root, substitutes aliases, resolves credentials, and re-exports the public config surface (including ToolConfig) from mod.rs.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["config.rs", "mod.rs"],
   "childModules": [],
   "elements": [
     {
@@ -29,7 +28,7 @@
       "name": "Config",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
@@ -303,7 +302,7 @@
       "name": "ToolConfig",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
