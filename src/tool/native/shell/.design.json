@@ -4,7 +4,7 @@
     "path": "src/tool/native/shell",
     "name": "shell",
     "purpose": "Native shell command execution tool program. shell_execute.rs defines ShellExecute implementing ToolProgram; preview() builds marix-protocol ToolPreview/ToolSchema values with ToolInputSchema and ToolOutputSchema content wrappers, while invoke() still uses marix_common::external::serde_json and runs the command through the operating system shell.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -40,8 +40,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "shell_execute.rs"
   ]
 }

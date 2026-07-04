@@ -4,7 +4,7 @@
     "path": "src/host/executor/execution",
     "name": "execution",
     "purpose": "Owns execution runtime state and per-request context. Execution/session protocol contracts now come from marix-protocol while common provides channels and shared senders.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -64,9 +64,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "execution.rs",
-    "execution_context.rs"
   ]
 }

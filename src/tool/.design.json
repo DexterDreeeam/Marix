@@ -4,7 +4,7 @@
     "path": "src/tool",
     "name": "tool",
     "purpose": "Top-level marix-tool crate (lib marix_tool) that defines the per-tool ToolProgram interface and compiles one executable per native tool program. Cargo.toml now depends on marix-protocol, and ToolProgram uses marix_protocol::ToolPreview.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -30,9 +30,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "Cargo.toml",
-    "tool_program.rs"
   ]
 }

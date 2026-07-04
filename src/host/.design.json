@@ -4,7 +4,7 @@
     "path": "src/host",
     "name": "host",
     "purpose": "Host crate namespace for HostSession and host-side tool execution. Cargo.toml now depends on marix-protocol, and HostSession imports session protocol contracts from marix-protocol while common provides config/channel helpers.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -62,9 +62,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "Cargo.toml",
-    "session.rs"
   ]
 }

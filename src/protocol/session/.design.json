@@ -4,21 +4,15 @@
     "path": "src/protocol/session",
     "name": "session",
     "purpose": "Owns the SessionEvent protocol enum that carries task, step, and execution events; mod.rs is namespace/re-export wiring only.",
-    "changeStatus": "renamed"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "event.rs"
-  ],
-  "renamed": [
-    "."
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "SessionEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/session/event.rs",

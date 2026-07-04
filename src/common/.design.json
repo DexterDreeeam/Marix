@@ -4,7 +4,7 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Shared common crate root for reusable config loading, external re-export adapters, logging, and structure utilities. lib.rs no longer declares or re-exports protocol contracts; session/task/step/execution/tool protocol models are owned by the top-level marix-protocol crate.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -28,8 +28,5 @@
       "purpose": "Owns shared structural data interfaces such as WorkQueue and channel helpers."
     }
   ],
-  "elements": [],
-  "modified": [
-    "lib.rs"
-  ]
+  "elements": []
 }

@@ -4,19 +4,8 @@
     "path": "src/protocol",
     "name": "protocol",
     "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, step, execution, and tool protocol contracts. message.rs defines the SessionMessage network envelope. lib.rs and mod.rs are namespace/re-export wiring, and external/ locally re-exports serde, serde_json, and uuid for protocol internals.",
-    "changeStatus": "renamed"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "Cargo.toml",
-    "lib.rs"
-  ],
-  "modified": [
-    "message.rs",
-    "mod.rs"
-  ],
-  "renamed": [
-    "."
-  ],
   "childModules": [
     {
       "path": "src/protocol/task",
@@ -54,7 +43,7 @@
       "name": "SessionMessage",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/message.rs",

@@ -4,7 +4,7 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Owns host-side tool registry, tool process launching, and execution orchestration. Tool preview and session protocol models now come from marix-protocol while common provides config, queues, and shared senders.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -110,10 +110,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "executor.rs",
-    "registry.rs",
-    "tool.rs"
   ]
 }

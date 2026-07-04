@@ -4,7 +4,7 @@
     "path": "src/agent/task",
     "name": "task",
     "purpose": "Owns agent task and step runtime state. Protocol step/task/session/execution types now come from marix-protocol while common continues to provide configuration, channel, sender, receiver, and queue helpers.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -80,10 +80,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "step.rs",
-    "task.rs",
-    "task_state.rs"
   ]
 }

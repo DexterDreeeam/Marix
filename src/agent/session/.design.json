@@ -4,7 +4,7 @@
     "path": "src/agent/session",
     "name": "session",
     "purpose": "Owns the agent session runtime and session preview context. Protocol events, messages, signatures, task ids, task previews, and tool previews now come from marix-protocol; common remains the source for configuration and channel helpers.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -96,10 +96,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "session.rs",
-    "session_context.rs",
-    "session_state.rs"
   ]
 }

@@ -4,7 +4,7 @@
     "path": "src/client",
     "name": "client",
     "purpose": "Client crate namespace for ClientSession and ClientEvent. Cargo.toml now depends on marix-protocol, and session.rs imports session/task protocol contracts from marix-protocol while using common for config and channel helpers.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -80,9 +80,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "Cargo.toml",
-    "session.rs"
   ]
 }

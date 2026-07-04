@@ -4,7 +4,7 @@
     "path": "src",
     "name": "src",
     "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout. It organizes the agent, client, common, host, first-class marix-protocol, and tool crates. Common now owns config, external adapters, logging, and structure helpers, while marix-protocol owns reusable session/task/step/execution/tool protocol contracts imported by the agent, client, host, and tool crates.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -38,10 +38,5 @@
       "purpose": "Top-level marix-tool crate that defines ToolProgram and native tool executables; it now depends on marix-protocol for tool preview/schema protocol types."
     }
   ],
-  "elements": [],
-  "modified": [
-    ".",
-    "Cargo.toml",
-    "Cargo.lock"
-  ]
+  "elements": []
 }

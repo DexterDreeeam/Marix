@@ -4,7 +4,7 @@
     "path": "src/tool/native/file",
     "name": "file",
     "purpose": "Filesystem native tool programs. Each file defines one unit-struct tool implementing ToolProgram; preview() builds marix-protocol ToolPreview/ToolSchema values with ToolInputSchema and ToolOutputSchema content wrappers, while invoke() still uses marix_common::external::serde_json for JSON parsing/serialization and performs the filesystem work.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -136,11 +136,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "list_directory.rs",
-    "read_file.rs",
-    "search_text.rs",
-    "write_file.rs"
   ]
 }
