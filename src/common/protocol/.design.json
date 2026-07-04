@@ -4,9 +4,8 @@
     "path": "src/common/protocol",
     "name": "protocol",
     "purpose": "Owns the shared session/task/execution protocol contracts exchanged over channels, plus the tool metadata contracts. session.rs defines the TaskId and ExeId identifiers and the top-level SessionEvent split between task and execution traffic; task.rs defines task signatures, task events (now including a Step(StepSignature, StepEvent) variant that splits a task into ordered steps), and task status; the step protocol now lives in the step child module (kind/signature/event/result/status/preview): StepKind with Model/Execution/User sub-kinds, StepSignature, the StepEvent stream, and the new StepResult, StepStatus, and StepPreview contracts; the execution protocol now lives in the execution child module (event/signature/status): the ExecutionEvent stream that carries ToolPreview values from the sibling tool module, the ExecutionUpdate content model, the ExecutionRequest whose lead field is an ExecutionSignature (task_id, exe_id, name) and whose tool_request carries a raw Option<String> tool input, the ExecutionSignature record, and the ExecutionStatus lifecycle enum; tool.rs now owns the ToolSchema input/output schema pair and the ToolPreview advertisement record (name, description, schema) that were relocated here from the removed common::tool module. message.rs defines SessionMessage, the between-session network envelope that wraps a SessionEvent together with a millisecond timestamp and the sending session's source_name; SessionMessage::new stamps the timestamp inline. mod.rs now also re-exports SessionMessage and the step protocol types (StepKind, ModelStepKind, ExecutionStepKind, UserStepKind, StepSignature, StepEvent, StepResult, StepStatus, StepPreview) and is otherwise namespace and re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "deleted": ["execution.rs"],
   "childModules": [
     {
       "path": "src/common/protocol/step",
