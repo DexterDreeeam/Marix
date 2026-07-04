@@ -4,9 +4,8 @@
     "path": "src/tool/native",
     "name": "native",
     "purpose": "Groups the concrete native tool programs by category. file/ owns filesystem tools (read, write, list, search); shell/ owns native shell command execution. Every native tool's invoke() is now implemented (no longer a panic stub): each parses the JSON call via marix_common::external::serde_json, performs the real filesystem or shell work, and returns a JSON result string (or a {\"error\":..} JSON on failure). mod.rs is re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["."],
   "childModules": [
     {
       "path": "src/tool/native/file",
