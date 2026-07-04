@@ -3,16 +3,19 @@
   "module": {
     "path": "src/agent/session",
     "name": "session",
-    "purpose": "Owns the agent session runtime. session.rs defines Session { state: Arc<SessionState>, client_worker, host_worker }, whose new(name) stores the session name in a module-level SOURCE_NAME OnceLock, builds the Arc<SessionState>, and spawns the client and host workers via Arc::clone(&state).spawn_client_worker()/spawn_host_worker(); it also exposes the static package_message(SessionEvent) -> SessionMessage that stamps the stored source name. Below a // -- Private -- // marker, session.rs also holds the private behavior impl SessionState block whose methods all take self/Arc<Self> (never a separately passed state): parse_address, spawn_client_worker/spawn_host_worker (returning JoinHandles), run_client_worker/run_host_worker (per-connection current-thread tokio runtimes awaiting remoc recv and unwrapping message.event), create_task (packaging the CreateFailed event via Session::package_message and creating each Task via Task::new), and route_session_event/route_task_event. session_state.rs (renamed from session_context.rs) is the plain SessionState data struct: it holds the TaskId-keyed task WorkQueue plus the shared client/host remoc mpsc endpoints now typed as SessionMessage behind std::sync::Mutex, and defines only pub fn new() with no behavior methods. The local per-Task control channels stay SessionEvent. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent session runtime. session.rs defines Session { state: Arc<SessionState>, client_worker, host_worker }, whose new(name) stores the session name in a module-level SOURCE_NAME OnceLock, builds the Arc<SessionState>, and spawns the client and host workers via Self::spawn_client_worker(Arc::clone(&state)) and Self::spawn_host_worker(Arc::clone(&state)); it also exposes the static package_message(SessionEvent) -> SessionMessage that stamps the stored source name. Below a // -- Private -- // marker, session.rs now holds the private behavior impl Session block: parse_address, spawn_client_worker/spawn_host_worker, run_client_worker/run_host_worker, create_task, route_session_event, and route_task_event all operate on an explicit Arc<SessionState> or &SessionState. session_state.rs (renamed from session_context.rs) is the plain SessionState data struct: it holds the TaskId-keyed task WorkQueue plus the shared client/host remoc mpsc endpoints typed as SessionMessage behind std::sync::Mutex, and defines only pub fn new() with no behavior methods. The local per-Task control channels stay SessionEvent. mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "session.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
@@ -20,12 +23,7 @@
           "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 15,
-              "lineEnd": 15
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/session/session.rs",
@@ -35,12 +33,109 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 23,
+              "lineStart": 24,
               "lineEnd": 25
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/agent/session/session.rs",
+          "lineStart": 40,
+          "lineEnd": 188,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 40,
+              "lineEnd": 40
             },
             {
-              "lineStart": 27,
-              "lineEnd": 27
+              "lineStart": 47,
+              "lineEnd": 47
+            },
+            {
+              "lineStart": 56,
+              "lineEnd": 56
+            },
+            {
+              "lineStart": 60,
+              "lineEnd": 60
+            },
+            {
+              "lineStart": 64,
+              "lineEnd": 64
+            },
+            {
+              "lineStart": 69,
+              "lineEnd": 69
+            },
+            {
+              "lineStart": 78,
+              "lineEnd": 78
+            },
+            {
+              "lineStart": 82,
+              "lineEnd": 82
+            },
+            {
+              "lineStart": 86,
+              "lineEnd": 86
+            },
+            {
+              "lineStart": 91,
+              "lineEnd": 91
+            },
+            {
+              "lineStart": 108,
+              "lineEnd": 108
+            },
+            {
+              "lineStart": 110,
+              "lineEnd": 110
+            },
+            {
+              "lineStart": 116,
+              "lineEnd": 116
+            },
+            {
+              "lineStart": 131,
+              "lineEnd": 131
+            },
+            {
+              "lineStart": 136,
+              "lineEnd": 136
+            },
+            {
+              "lineStart": 138,
+              "lineEnd": 138
+            },
+            {
+              "lineStart": 150,
+              "lineEnd": 150
+            },
+            {
+              "lineStart": 163,
+              "lineEnd": 164
+            },
+            {
+              "lineStart": 166,
+              "lineEnd": 166
+            },
+            {
+              "lineStart": 169,
+              "lineEnd": 169
+            },
+            {
+              "lineStart": 172,
+              "lineEnd": 172
+            },
+            {
+              "lineStart": 175,
+              "lineEnd": 175
+            },
+            {
+              "lineStart": 180,
+              "lineEnd": 181
             }
           ]
         }
@@ -57,12 +152,7 @@
           "lineStart": 33,
           "lineEnd": 35,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 33,
-              "lineEnd": 35
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -71,7 +161,7 @@
       "name": "SessionState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session_state.rs",
@@ -88,43 +178,6 @@
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/agent/session/session.rs",
-          "lineStart": 40,
-          "lineEnd": 188,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 91,
-              "lineEnd": 91
-            },
-            {
-              "lineStart": 97,
-              "lineEnd": 97
-            },
-            {
-              "lineStart": 108,
-              "lineEnd": 108
-            },
-            {
-              "lineStart": 110,
-              "lineEnd": 110
-            },
-            {
-              "lineStart": 116,
-              "lineEnd": 116
-            },
-            {
-              "lineStart": 122,
-              "lineEnd": 122
-            },
-            {
-              "lineStart": 131,
-              "lineEnd": 131
-            }
-          ]
         }
       ]
     }

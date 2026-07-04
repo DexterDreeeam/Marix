@@ -21,8 +21,8 @@ impl Session {
     pub fn new(name: String) -> Self {
         let _ = SOURCE_NAME.set(name);
         let state = Arc::new(SessionState::new());
-        let client_worker = Arc::clone(&state).spawn_client_worker();
-        let host_worker = Arc::clone(&state).spawn_host_worker();
+        let client_worker = Self::spawn_client_worker(Arc::clone(&state));
+        let host_worker = Self::spawn_host_worker(Arc::clone(&state));
         Self {
             state,
             client_worker,
@@ -37,14 +37,14 @@ impl Session {
 
 // -- Private -- //
 
-impl SessionState {
+impl Session {
     fn parse_address(address: &str, label: &str) -> SocketAddr {
         address
             .parse()
             .unwrap_or_else(|error| panic!("invalid {label} bind address: {error}"))
     }
 
-    fn spawn_client_worker(self: Arc<Self>) -> JoinHandle<()> {
+    fn spawn_client_worker(state: Arc<SessionState>) -> JoinHandle<()> {
         thread::spawn(move || {
             let config =
                 Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
@@ -53,20 +53,20 @@ impl SessionState {
                 let Ok((tx, rx)) = accept_channel::<SessionMessage>(address) else {
                     continue;
                 };
-                *self
+                *state
                     .client_tx
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(tx);
-                *self
+                *state
                     .client_rx
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(rx);
-                Self::run_client_worker(Arc::clone(&self));
+                Self::run_client_worker(Arc::clone(&state));
             }
         })
     }
 
-    fn spawn_host_worker(self: Arc<Self>) -> JoinHandle<()> {
+    fn spawn_host_worker(state: Arc<SessionState>) -> JoinHandle<()> {
         thread::spawn(move || {
             let config =
                 Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
@@ -75,20 +75,20 @@ impl SessionState {
                 let Ok((tx, rx)) = accept_channel::<SessionMessage>(address) else {
                     continue;
                 };
-                *self
+                *state
                     .host_tx
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(tx);
-                *self
+                *state
                     .host_rx
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(rx);
-                Self::run_host_worker(Arc::clone(&self));
+                Self::run_host_worker(Arc::clone(&state));
             }
         })
     }
 
-    fn run_client_worker(state: Arc<Self>) {
+    fn run_client_worker(state: Arc<SessionState>) {
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
@@ -105,15 +105,15 @@ impl SessionState {
             while let Ok(Some(message)) = rx.recv().await {
                 match message.event {
                     SessionEvent::Task(signature, TaskEvent::Create { request }) => {
-                        state.create_task(signature, request);
+                        Self::create_task(&state, signature, request);
                     }
-                    event => state.route_session_event(event),
+                    event => Self::route_session_event(&state, event),
                 }
             }
         });
     }
 
-    fn run_host_worker(state: Arc<Self>) {
+    fn run_host_worker(state: Arc<SessionState>) {
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
@@ -128,14 +128,14 @@ impl SessionState {
                 return;
             };
             while let Ok(Some(message)) = rx.recv().await {
-                state.route_session_event(message.event);
+                Self::route_session_event(&state, message.event);
             }
         });
     }
 
-    fn create_task(&self, mut signature: TaskSignature, request: String) {
+    fn create_task(state: &SessionState, mut signature: TaskSignature, request: String) {
         signature.name = request;
-        if self
+        if state
             .host_tx
             .lock()
             .unwrap_or_else(|error| error.into_inner())
@@ -147,7 +147,7 @@ impl SessionState {
                     reason: "host not connected".to_string(),
                 },
             );
-            if let Some(sender) = self
+            if let Some(sender) = state
                 .client_tx
                 .lock()
                 .unwrap_or_else(|error| error.into_inner())
@@ -160,25 +160,25 @@ impl SessionState {
         let task_id = signature.id.clone();
         let task = Task::new(
             signature,
-            Arc::clone(&self.client_tx),
-            Arc::clone(&self.host_tx),
+            Arc::clone(&state.client_tx),
+            Arc::clone(&state.host_tx),
         );
-        self.tasks.insert(task_id, Arc::new(StdMutex::new(task)));
+        state.tasks.insert(task_id, Arc::new(StdMutex::new(task)));
     }
 
-    fn route_session_event(&self, event: SessionEvent) {
+    fn route_session_event(state: &SessionState, event: SessionEvent) {
         match &event {
             SessionEvent::Task(signature, _) => {
-                self.route_task_event(&signature.id, event.clone());
+                Self::route_task_event(state, &signature.id, event.clone());
             }
             SessionEvent::Execution(signature, _) => {
-                self.route_task_event(&signature.task_id, event.clone());
+                Self::route_task_event(state, &signature.task_id, event.clone());
             }
         }
     }
 
-    fn route_task_event(&self, task_id: &TaskId, event: SessionEvent) {
-        let task = self.tasks.get(task_id.clone());
+    fn route_task_event(state: &SessionState, task_id: &TaskId, event: SessionEvent) {
+        let task = state.tasks.get(task_id.clone());
         let sender = task
             .lock()
             .unwrap_or_else(|error| error.into_inner())

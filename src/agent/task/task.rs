@@ -33,7 +33,7 @@ impl Task {
         ));
         let worker = thread::spawn({
             let state = Arc::clone(&state);
-            move || TaskState::event_loop(state, task_rx)
+            move || Self::event_loop(state, task_rx)
         });
         Self {
             state,
@@ -47,7 +47,7 @@ impl Task {
     }
 
     pub fn raise(&self, step: Step) {
-        Arc::clone(&self.state).run_step(step);
+        Self::run_step(Arc::clone(&self.state), step);
     }
 }
 
@@ -61,46 +61,48 @@ impl Task {
             ConfigModelBackend::Deepseek => Box::new(DeepseekBackend::new()),
         }
     }
-}
 
-impl TaskState {
-    fn event_loop(state: Arc<Self>, task_rx: Receiver<SessionEvent>) {
-        state.emit_status(TaskStatus::Started);
-        Arc::clone(&state).run_step(state.initial_step());
+    fn event_loop(state: Arc<TaskState>, task_rx: Receiver<SessionEvent>) {
+        Self::emit_status(&state, TaskStatus::Started);
+        Self::run_step(Arc::clone(&state), Self::initial_step(&state));
         while let Ok(event) = task_rx.recv() {
             match event {
                 SessionEvent::Task(_, TaskEvent::Cancel) => {
-                    state.emit_status(TaskStatus::Canceled);
+                    Self::emit_status(&state, TaskStatus::Canceled);
                     break;
                 }
                 SessionEvent::Execution(_, ExecutionEvent::Update(_))
                 | SessionEvent::Execution(_, ExecutionEvent::Status(_)) => {
-                    state.send_event(event);
+                    Self::send_event(&state, event);
                 }
                 _ => {}
             }
         }
     }
 
-    fn run_step(self: Arc<Self>, step: Step) {
-        self.steps
+    fn run_step(state: Arc<TaskState>, step: Step) {
+        state
+            .steps
             .insert_or_update(step.signature.step_no, step.clone());
         thread::spawn(move || {
             if matches!(step.signature.kind, StepKind::Model(_)) {
-                self.execute_model_step(step);
+                Self::execute_model_step(&state, step);
             } else {
-                self.emit_status(TaskStatus::Failed {
-                    reason: "task step kind is not supported yet".to_owned(),
-                });
+                Self::emit_status(
+                    &state,
+                    TaskStatus::Failed {
+                        reason: "task step kind is not supported yet".to_owned(),
+                    },
+                );
             }
         });
     }
 
-    fn initial_step(&self) -> Step {
+    fn initial_step(state: &TaskState) -> Step {
         Step {
             signature: StepSignature {
                 step_no: 0,
-                name: self.signature.name.clone(),
+                name: state.signature.name.clone(),
                 kind: StepKind::Model(ModelStepKind::Initial),
             },
             status: StepStatus::Prepare,
@@ -108,11 +110,11 @@ impl TaskState {
         }
     }
 
-    fn execute_model_step(&self, step: Step) {
-        let prompt = self.signature.name.clone();
+    fn execute_model_step(state: &TaskState, step: Step) {
+        let prompt = state.signature.name.clone();
         let request = ModelRequest { step, prompt };
         let responses = {
-            let mut backend = self
+            let mut backend = state
                 .model_backend
                 .lock()
                 .unwrap_or_else(|error| error.into_inner());
@@ -121,35 +123,41 @@ impl TaskState {
         let responses = match responses {
             Ok(responses) => responses,
             Err(error) => {
-                self.emit_status(TaskStatus::Failed {
-                    reason: error.to_string(),
-                });
+                Self::emit_status(
+                    state,
+                    TaskStatus::Failed {
+                        reason: error.to_string(),
+                    },
+                );
                 return;
             }
         };
         for response in responses {
             match response {
                 ModelResponse::Content(content) => {
-                    self.emit_status(TaskStatus::Update { content });
+                    Self::emit_status(state, TaskStatus::Update { content });
                 }
                 ModelResponse::Failed(error) => {
-                    self.emit_status(TaskStatus::Failed {
-                        reason: error.to_string(),
-                    });
+                    Self::emit_status(
+                        state,
+                        TaskStatus::Failed {
+                            reason: error.to_string(),
+                        },
+                    );
                     return;
                 }
             }
         }
-        self.emit_status(TaskStatus::Succeed);
+        Self::emit_status(state, TaskStatus::Succeed);
     }
 
-    fn emit_status(&self, status: TaskStatus) {
-        let event = SessionEvent::Task(self.signature.clone(), TaskEvent::Status(status));
-        self.send_event(event);
+    fn emit_status(state: &TaskState, status: TaskStatus) {
+        let event = SessionEvent::Task(state.signature.clone(), TaskEvent::Status(status));
+        Self::send_event(state, event);
     }
 
-    fn send_event(&self, event: SessionEvent) {
-        if let Some(sender) = self
+    fn send_event(state: &TaskState, event: SessionEvent) {
+        if let Some(sender) = state
             .client_tx
             .lock()
             .unwrap_or_else(|error| error.into_inner())
