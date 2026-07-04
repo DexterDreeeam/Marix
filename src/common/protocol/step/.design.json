@@ -4,7 +4,7 @@
     "path": "src/common/protocol/step",
     "name": "step",
     "purpose": "Owns the step protocol split into per-type files: StepKind with Model(ModelStepKind)/Execution(ExecutionStepKind)/User(UserStepKind) sub-kinds where ExecutionStepKind::Invocation carries an ExecutionRequest (kind.rs), the StepSignature record carrying task/step_no/name/kind with StepSignature::new(task, step_no, name, kind) preserving the caller-supplied TaskSignature, the StepEvent stream enum with Started/Update/Complete/Fail where Complete and Fail carry a StepResult (event.rs), the StepResult content payload (result.rs), the StepStatus lifecycle enum Prepare/Process/Complete/Fail (status.rs), and the StepPreview signature+result record (preview.rs); mod.rs is re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -96,7 +96,7 @@
       "name": "StepSignature",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/step/signature.rs",
@@ -210,8 +210,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "signature.rs"
   ]
 }

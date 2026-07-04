@@ -4,7 +4,7 @@
     "path": "src/tool/native/shell",
     "name": "shell",
     "purpose": "Native shell command execution tool program. shell_execute.rs defines ShellExecute, a unit-struct tool that carries NAME/DESCRIPTION/INPUT_SCHEMA/OUTPUT_SCHEMA constants and implements ToolProgram; preview() builds a ToolPreview whose ToolSchema wraps schema strings in ToolInputSchema { content } and ToolOutputSchema { content }, and invoke() parses the JSON call via marix_common::external::serde_json, runs {command, cwd?} through the current operating system shell, and returns {exit_code, stdout, stderr} JSON or a {\"error\":..} JSON on failure. timeout_ms is accepted in the input schema but not currently enforced. mod.rs is re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "ShellExecute",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/shell_execute.rs",
@@ -58,8 +58,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "shell_execute.rs"
   ]
 }

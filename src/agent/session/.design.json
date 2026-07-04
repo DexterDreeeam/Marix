@@ -4,7 +4,7 @@
     "path": "src/agent/session",
     "name": "session",
     "purpose": "Owns the agent session runtime and session preview context. session.rs defines Session startup, worker routing, package_message(SessionEvent) -> SessionMessage, and route_session_event; after a host channel connects, spawn_host_worker resets SessionState.context and query_host_preview sends an ExecutionEvent::PreviewQuery using ExecutionSignature::new(TaskId::new(), \"preview\".to_string()), so the preview query keeps a caller-supplied TaskId and lets ExecutionSignature allocate the ExeId without importing ExeId in session.rs. route_session_event stores ExecutionEvent::Preview tools while safely ignoring signed standalone step notifications via SessionEvent::Step(_, _). session_state.rs defines SessionState storage for task queues, shared client/host endpoints, and a StdMutex<SessionContext> initialized with empty task and tool lists. session_context.rs defines SessionContext, which holds task previews and tool previews only. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
@@ -115,8 +115,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "session.rs"
   ]
 }

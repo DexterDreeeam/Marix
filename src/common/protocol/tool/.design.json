@@ -4,7 +4,7 @@
     "path": "src/common/protocol/tool",
     "name": "tool",
     "purpose": "Owns tool protocol metadata contracts split into ToolSchema, typed ToolInputSchema/ToolOutputSchema content wrappers, and ToolPreview models with JSON conversion helpers; mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "ToolSchema",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/tool/schema.rs",
@@ -41,7 +41,7 @@
       "name": "ToolInputSchema",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/tool/schema.rs",
@@ -62,7 +62,7 @@
       "name": "ToolOutputSchema",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/tool/schema.rs",
@@ -113,9 +113,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "schema.rs",
-    "mod.rs"
   ]
 }

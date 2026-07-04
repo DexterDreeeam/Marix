@@ -4,7 +4,7 @@
     "path": "src/tool",
     "name": "tool",
     "purpose": "Top-level marix-tool crate (lib marix_tool) that defines the per-tool ToolProgram interface and compiles one executable per native tool program. tool_program.rs defines ToolProgram, the interface each native tool program implements (preview returns marix_common::ToolPreview with typed ToolInputSchema/ToolOutputSchema schema content, invoke runs the tool for a JSON call). native/ owns concrete tool programs (file/ and shell/), each implementing ToolProgram and exposing a cfg-gated SelectedTool alias behind a Cargo feature so exactly one tool is active per build. tool_main.rs is the shared binary entry whose main runs the compile-selected SelectedTool through a private run<T: ToolProgram> that reads process arguments and speaks the --preview/--run JSON protocol over stdout.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -35,8 +35,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "."
   ]
 }

@@ -4,7 +4,7 @@
     "path": "src",
     "name": "src",
     "purpose": "Rust workspace source root for Marix crates with flat Cargo crate layout. It organizes reusable common config/external/logging/protocol/structure modules, agent model/session/task orchestration, client session/event surfaces, host-side typed tool execution, and the top-level tool crate. The common protocol namespace includes TaskSignature::new, ExecutionSignature::new, and StepSignature::new constructors, SessionEvent with Step(StepSignature, StepEvent), TaskEvent without a Step variant, TaskPreview, TaskRequestBrief, ToolSchema with typed ToolInputSchema/ToolOutputSchema content wrappers, and ExecutionRequest with signature plus typed input. Client task creation uses TaskSignature::new for fresh task ids while cancellation preserves existing ids, agent task initialization uses StepSignature::new, and agent preview queries use ExecutionSignature::new.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -33,8 +33,5 @@
       "purpose": "Top-level marix-tool crate (lib marix_tool) that defines ToolProgram and native tool executables; native previews wrap schema constants in ToolInputSchema/ToolOutputSchema content before returning ToolPreview."
     }
   ],
-  "elements": [],
-  "modified": [
-    "."
-  ]
+  "elements": []
 }

@@ -4,7 +4,7 @@
     "path": "src/tool/native",
     "name": "native",
     "purpose": "Groups the concrete native tool programs by category. file/ owns filesystem tools (read, write, list, search); shell/ owns native shell command execution. Native previews now wrap schema constants in typed ToolInputSchema/ToolOutputSchema content wrappers before returning ToolPreview, and invoke() implementations perform real filesystem/shell IO and return JSON results.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -18,8 +18,5 @@
       "purpose": "Native shell command execution tool program: ShellExecute, wrapping preview schema constants in ToolInputSchema/ToolOutputSchema content and running commands through std::process::Command."
     }
   ],
-  "elements": [],
-  "modified": [
-    "."
-  ]
+  "elements": []
 }

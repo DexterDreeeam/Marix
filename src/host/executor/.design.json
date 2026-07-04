@@ -4,7 +4,7 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Executor folder module for host-side tool execution. executor.rs defines Executor, whose new(agent_tx) stores the shared agent SessionMessage sender alongside a ToolRegistry and an empty WorkQueue of active ExecutionRuntime records keyed by ExeId, and exposes route_session_event and preview. create_execution resolves the requested tool via registry.get by request.signature.name and builds ExecutionRuntime::new(tool, request, agent_tx.clone()). tool.rs defines the Executor-side Tool handle to an external tool executable; input_schema() and output_schema() keep returning String by cloning the typed preview schema content fields. The execution child module implements the per-execution runtime that reads ExecutionRequest.input.content.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -100,7 +100,7 @@
       "name": "Tool",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/tool.rs",
@@ -129,8 +129,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "tool.rs"
   ]
 }

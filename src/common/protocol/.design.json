@@ -4,7 +4,7 @@
     "path": "src/common/protocol",
     "name": "protocol",
     "purpose": "Owns shared protocol contracts and namespace re-exports. Direct files define the SessionMessage network envelope and re-export typed tool schemas (ToolSchema, ToolInputSchema, ToolOutputSchema), while tool protocol models live in the tool child module; task IDs/events live in task child modules, ExeId and ExecutionRequest live in execution child files, and SessionEvent lives in session/event.rs with Task, Step(StepSignature, StepEvent), and Execution variants. TaskSignature::new allocates fresh TaskIds, ExecutionSignature::new preserves caller TaskIds while allocating ExeIds, and StepSignature::new preserves caller TaskSignatures for step creation.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -68,8 +68,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "mod.rs"
   ]
 }

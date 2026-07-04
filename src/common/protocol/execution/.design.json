@@ -4,7 +4,7 @@
     "path": "src/common/protocol/execution",
     "name": "execution",
     "purpose": "Owns execution protocol contracts split by concern: ExeId identity in id.rs, ExecutionEvent and ExecutionUpdate in event.rs, ExecutionRequest in request.rs with an ExecutionSignature plus typed ToolInputSchema input, ExecutionSignature in signature.rs with ExecutionSignature::new(task_id, name) preserving the caller-supplied TaskId and generating a fresh ExeId, and ExecutionStatus in status.rs. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -46,7 +46,7 @@
       "name": "ExecutionEvent",
       "type": "enum",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/execution/event.rs",
@@ -91,7 +91,7 @@
       "name": "ExecutionRequest",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/execution/request.rs",
@@ -112,7 +112,7 @@
       "name": "ExecutionSignature",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/execution/signature.rs",
@@ -158,13 +158,5 @@
         }
       ]
     }
-  ],
-  "added": [
-    "request.rs"
-  ],
-  "modified": [
-    "event.rs",
-    "mod.rs",
-    "signature.rs"
   ]
 }

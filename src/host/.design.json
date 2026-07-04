@@ -4,7 +4,7 @@
     "path": "src/host",
     "name": "host",
     "purpose": "Host crate for tool execution management. session.rs implements HostSession, which connects to the agent host bind address, owns the per-connection Executor, and pumps inbound agent SessionMessage envelopes into Executor::route_session_event. HostSession exposes package_message(SessionEvent) -> SessionMessage, which the executor and execution runtimes use to wrap outbound events. The executor folder module owns host-side tool execution: Executor owns the tool registry and active execution runtimes; Tool exposes typed ToolSchema content as String via input_schema/output_schema; ExecutionRuntime runs typed ExecutionRequest input.content through the selected tool.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -62,8 +62,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "."
   ]
 }
