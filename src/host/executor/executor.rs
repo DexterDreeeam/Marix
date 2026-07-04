@@ -30,6 +30,7 @@ impl Executor {
             return;
         };
         match execution_event {
+            ExecutionEvent::PreviewQuery => self.emit_preview(signature),
             ExecutionEvent::Evoke(request) => self.create_execution(request),
             execution_event => self.forward_to_execution(signature, execution_event),
         }
@@ -72,6 +73,22 @@ impl Executor {
             let _ = sender.try_send(HostSession::package_message(SessionEvent::Execution(
                 signature.clone(),
                 ExecutionEvent::Status(ExecutionStatus::Failed { reason }),
+            )));
+        }
+    }
+
+    fn emit_preview(&self, signature: ExecutionSignature) {
+        if let Some(sender) = self
+            .agent_tx
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .as_mut()
+        {
+            let _ = sender.try_send(HostSession::package_message(SessionEvent::Execution(
+                signature,
+                ExecutionEvent::Preview {
+                    tools: self.preview(),
+                },
             )));
         }
     }

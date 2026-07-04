@@ -3,14 +3,14 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with flat Cargo crate layout. It organizes reusable common config/external/logging/protocol/structure modules, agent model/session/task orchestration, client session/event surfaces, host-side tool execution, and the top-level tool crate. The common protocol namespace includes SessionEvent variants for Task, Step, and Execution, and the agent session router safely ignores standalone Step events while the session namespace re-exports SessionContext for task/tool previews.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace source root for Marix crates with flat Cargo crate layout. It organizes reusable common config/external/logging/protocol/structure modules, agent model/session/task orchestration, client session/event surfaces, host-side tool execution, and the top-level tool crate. The agent session runtime keeps SessionContext in SessionState, resets it when a host connects, queries host tool previews with ExecutionEvent::PreviewQuery, and stores returned Preview tools; the host executor answers PreviewQuery by emitting ExecutionEvent::Preview with registry previews. The common protocol namespace includes SessionEvent variants for Task, Step, and Execution, TaskPreview, TaskRequestBrief, ToolSchema, and ToolPreview.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent crate namespace for model backend abstractions, Session and Task runtime orchestration, plain state storage, SessionContext task/tool preview summaries, and safe ignored routing for standalone Step events."
+      "purpose": "Agent crate namespace for model backend abstractions, Session and Task runtime orchestration, plain state storage with SessionContext, host-preview bootstrap/query handling, Preview tool storage, and safe ignored routing for standalone Step events."
     },
     {
       "path": "src/client",
@@ -20,12 +20,12 @@
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared common crate namespace with reusable config, external re-export, logging, protocol, and structure modules. Its protocol module groups TaskId, ExeId, SessionEvent (Task, Step, Execution), TaskPreview, and TaskRequestBrief in dedicated child-module files alongside step and execution contracts."
+      "purpose": "Shared common crate namespace with reusable config, external re-export, logging, protocol, and structure modules. Its protocol module groups TaskId, ExeId, SessionEvent (Task, Step, Execution), TaskPreview, TaskRequestBrief, ToolSchema, and ToolPreview in dedicated child-module files alongside step and execution contracts."
     },
     {
       "path": "src/host",
       "name": "host",
-      "purpose": "Host crate namespace for HostSession and host-side tool execution. HostSession is now implemented: it connects to the agent's configured host bind address (spawn_worker -> connect_channel::<SessionMessage>), owns a single per-connection Executor built by Executor::new(agent_tx), spawns a worker thread that pumps inbound agent SessionMessage envelopes into Executor::route_session_event (after unwrapping message.event) over a current-thread tokio runtime, and closes by signaling an Arc<AtomicBool> shutdown flag and joining the worker; new(name) stores the session name in a SOURCE_NAME static and HostSession exposes a static package_message(SessionEvent) -> SessionMessage that the executor and execution runtimes use to wrap outbound events; host/Cargo.toml now depends on tokio (net, rt-multi-thread, sync, time) for that runtime. The executor folder module's Executor::new(agent_tx) stores the shared agent SessionMessage sender and builds a ToolRegistry (a name-keyed collection of host Tool handles whose new() reads the global Config and loads every tool from the configured tool directory, with RegistryError reporting duplicate registrations) plus ExecutionRuntime records in a WorkQueue keyed by ExeId, each backed by a shared ExecutionContext, and exposes preview (delegating to the registry) alongside a single route_session_event router that intercepts ExecutionEvent::Evoke into the private create_execution (resolving a tool via the registry, spawning an ExecutionRuntime tracked by ExeId, and reporting unknown tools back to the agent as ExecutionStatus::Failed via the private emit_failed helper, which packages the event via HostSession::package_message) and forwards every other execution event through the private forward_to_execution, which borrows the target ExecutionRuntime's control Sender via executions.with and sends it the reconstructed SessionEvent (the local per-execution control channel stays SessionEvent); the execution child module implements ExecutionRuntime, which runs a Tool (the host-local handle defined in host/executor/tool.rs) via ExecutionContext and streams ExecutionStatus/ExecutionUpdate to the agent by synchronously locking agent_tx (std::sync::Mutex), packaging each SessionEvent via HostSession::package_message, and calling try_send. The Executor-side Tool handle now lives in host/executor/tool.rs, so host owns it internally and no longer depends on a tool crate; the ToolProgram interface and the native tool executables it spawns are built by the separate top-level marix-tool crate. The crate now also ships the marix-host binary entry (main.rs) that loads Config and runs HostSession::new(config.name) to serve host-side tool execution."
+      "purpose": "Host crate namespace for HostSession and host-side tool execution. HostSession connects to the agent and routes inbound execution events through Executor; Executor owns the tool registry, active execution runtimes, preview delegation, PreviewQuery response emission, Evoke creation, and forwarding for other execution events."
     },
     {
       "path": "src/tool",
@@ -33,5 +33,8 @@
       "purpose": "Top-level marix-tool crate (lib marix_tool) that defines the per-tool ToolProgram interface and compiles one executable per native tool program (read_file, write_file, list_directory, search_text, shell_execute), each selected at build time via a Cargo feature and sharing the tool_main.rs --preview/--run entry. The Executor-side Tool handle that launches these executables lives in the host crate (host/executor), not in this crate. Every native tool program's invoke() is now implemented, parsing the JSON call and performing real filesystem/shell IO to return JSON results (no longer panic stubs)."
     }
   ],
-  "elements": []
+  "elements": [],
+  "modified": [
+    "."
+  ]
 }

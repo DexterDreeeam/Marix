@@ -3,8 +3,8 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent crate namespace for session runtime orchestration, model backend abstractions, and the implemented task execution runtime. lib.rs is re-export wiring and now re-exports SessionContext beside Session and SessionState; the session child module owns Session, SessionState, SessionContext, and route_session_event handling that ignores standalone Step events safely, the model child module owns backend contracts, and the task child module owns Task, TaskState, and Step.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent crate namespace for session runtime orchestration, model backend abstractions, and the implemented task execution runtime. lib.rs is re-export wiring and re-exports SessionContext beside Session and SessionState; the session child module owns Session, SessionState, SessionContext, host-preview bootstrap/query handling, and route_session_event handling that stores Preview tools while ignoring standalone Step events safely, the model child module owns backend contracts, and the task child module owns Task, TaskState, and Step.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
@@ -15,7 +15,7 @@
     {
       "path": "src/agent/session",
       "name": "session",
-      "purpose": "Owns Session startup/routing behavior, SessionState storage, SessionContext, and standalone Step-event routing that is safely ignored because StepEvent has no task identity."
+      "purpose": "Owns Session startup/routing behavior, SessionState storage with SessionContext, host-preview bootstrap via PreviewQuery, Preview tool storage, and standalone Step-event routing that is safely ignored because StepEvent has no task identity."
     },
     {
       "path": "src/agent/task",
@@ -36,14 +36,12 @@
           "lineEnd": 20,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 16,
-              "lineEnd": 16
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     }
+  ],
+  "modified": [
+    "."
   ]
 }

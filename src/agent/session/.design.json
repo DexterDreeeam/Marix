@@ -3,8 +3,8 @@
   "module": {
     "path": "src/agent/session",
     "name": "session",
-    "purpose": "Owns the agent session runtime and session preview context. session.rs defines Session startup, worker routing, package_message(SessionEvent) -> SessionMessage, and route_session_event, which safely ignores standalone Step events because StepEvent carries no TaskSignature or TaskId. session_state.rs defines SessionState storage for task queues and shared client/host endpoints; session_context.rs defines SessionContext, which holds task previews and tool previews only. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent session runtime and session preview context. session.rs defines Session startup, worker routing, package_message(SessionEvent) -> SessionMessage, and route_session_event; after a host channel connects, spawn_host_worker resets SessionState.context and sends an ExecutionEvent::PreviewQuery so the host can return tool previews, and route_session_event stores ExecutionEvent::Preview tools into SessionState.context while still safely ignoring standalone Step events because StepEvent carries no TaskSignature or TaskId. session_state.rs defines SessionState storage for task queues, shared client/host endpoints, and a StdMutex<SessionContext> initialized with empty task and tool lists. session_context.rs defines SessionContext, which holds task previews and tool previews only. mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -12,19 +12,19 @@
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
-          "lineStart": 14,
-          "lineEnd": 18,
+          "lineStart": 15,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/session/session.rs",
-          "lineStart": 20,
+          "lineStart": 21,
           "lineEnd": 36,
           "language": "rust",
           "addedLines": [],
@@ -32,13 +32,21 @@
         },
         {
           "sourcePath": "src/agent/session/session.rs",
-          "lineStart": 40,
-          "lineEnd": 189,
+          "lineStart": 41,
+          "lineEnd": 228,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 174,
-              "lineEnd": 174
+              "lineStart": 87,
+              "lineEnd": 88
+            },
+            {
+              "lineStart": 178,
+              "lineEnd": 184
+            },
+            {
+              "lineStart": 200,
+              "lineEnd": 227
             }
           ],
           "modifiedLines": []
@@ -53,8 +61,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
-          "lineStart": 33,
-          "lineEnd": 35,
+          "lineStart": 34,
+          "lineEnd": 36,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -65,22 +73,32 @@
       "name": "SessionState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session_state.rs",
-          "lineStart": 7,
-          "lineEnd": 13,
+          "lineStart": 8,
+          "lineEnd": 15,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 9
+            }
+          ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/session/session_state.rs",
-          "lineStart": 15,
-          "lineEnd": 25,
+          "lineStart": 17,
+          "lineEnd": 31,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 23
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -96,15 +114,14 @@
           "lineStart": 3,
           "lineEnd": 6,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 3,
-              "lineEnd": 6
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
     }
+  ],
+  "modified": [
+    "session_state.rs",
+    "session.rs"
   ]
 }

@@ -3,10 +3,11 @@ use std::sync::{Arc, Mutex as StdMutex, OnceLock};
 use std::thread::{self, JoinHandle};
 
 use marix_common::{
-    Config, SessionEvent, SessionMessage, TaskEvent, TaskId, TaskSignature, accept_channel,
+    Config, ExeId, ExecutionEvent, ExecutionSignature, SessionEvent, SessionMessage, TaskEvent,
+    TaskId, TaskSignature, accept_channel,
 };
 
-use super::SessionState;
+use super::{SessionContext, SessionState};
 use crate::task::Task;
 
 static SOURCE_NAME: OnceLock<String> = OnceLock::new();
@@ -83,6 +84,8 @@ impl Session {
                     .host_rx
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(rx);
+                Self::reset_session_context(&state);
+                Self::query_host_preview(&state);
                 Self::run_host_worker(Arc::clone(&state));
             }
         })
@@ -172,6 +175,13 @@ impl Session {
                 Self::route_task_event(state, &signature.id, event.clone());
             }
             SessionEvent::Step(_) => {}
+            SessionEvent::Execution(_, ExecutionEvent::Preview { tools }) => {
+                state
+                    .context
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner())
+                    .tools = tools.clone();
+            }
             SessionEvent::Execution(signature, _) => {
                 Self::route_task_event(state, &signature.task_id, event.clone());
             }
@@ -185,5 +195,34 @@ impl Session {
             .unwrap_or_else(|error| error.into_inner())
             .sender();
         let _ = sender.send(event);
+    }
+
+    fn reset_session_context(state: &SessionState) {
+        *state
+            .context
+            .lock()
+            .unwrap_or_else(|error| error.into_inner()) = SessionContext {
+            tasks: Vec::new(),
+            tools: Vec::new(),
+        };
+    }
+
+    fn query_host_preview(state: &SessionState) {
+        if let Some(sender) = state
+            .host_tx
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .as_mut()
+        {
+            let signature = ExecutionSignature {
+                task_id: TaskId::new(),
+                exe_id: ExeId::new(),
+                name: "preview".to_string(),
+            };
+            let _ = sender.try_send(Self::package_message(SessionEvent::Execution(
+                signature,
+                ExecutionEvent::PreviewQuery,
+            )));
+        }
     }
 }

@@ -4,7 +4,7 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Shared common crate root that wires reusable config loading, external re-export adapters, logging, protocol models, and structure utilities. lib.rs re-exports split protocol contracts including TaskId, ExeId, SessionEvent, TaskPreview, and TaskRequestBrief from their child modules. Concrete selectable interfaces live in child modules; the protocol child module owns session events with Task, Step, and Execution variants plus task, step, execution, and tool protocol contracts.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
   "childModules": [
     {
@@ -25,7 +25,7 @@
     {
       "path": "src/common/protocol",
       "name": "protocol",
-      "purpose": "Owns shared protocol models, including SessionEvent with Task, Step, and Execution variants, message contracts, tool metadata contracts, and child modules for task (TaskId, TaskPreview, TaskRequestBrief, TaskResult), step, execution (ExeId), and session protocol contracts."
+      "purpose": "Owns shared protocol models, including SessionEvent with Task, Step, and Execution variants, message contracts, and child modules for task (TaskId, TaskPreview, TaskRequestBrief, TaskResult), step, execution (ExeId), session, and tool (ToolSchema, ToolPreview) protocol contracts."
     },
     {
       "path": "src/common/structure",

@@ -2,9 +2,11 @@ use std::sync::{Arc, Mutex as StdMutex};
 
 use marix_common::{SessionMessage, SharedNetReceiver, SharedNetSender, TaskId, WorkQueue};
 
+use crate::session::SessionContext;
 use crate::task::Task;
 
 pub struct SessionState {
+    pub context: StdMutex<SessionContext>,
     pub tasks: WorkQueue<TaskId, Arc<StdMutex<Task>>>,
     pub client_tx: SharedNetSender<SessionMessage>,
     pub client_rx: SharedNetReceiver<SessionMessage>,
@@ -15,6 +17,10 @@ pub struct SessionState {
 impl SessionState {
     pub fn new() -> Self {
         Self {
+            context: StdMutex::new(SessionContext {
+                tasks: Vec::new(),
+                tools: Vec::new(),
+            }),
             tasks: WorkQueue::new(),
             client_tx: SharedNetSender::new(std::sync::Mutex::new(None)),
             client_rx: SharedNetReceiver::new(std::sync::Mutex::new(None)),
