@@ -4,7 +4,7 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Executor folder module for host-side tool execution. executor.rs defines Executor, whose new(agent_tx) stores the shared agent SessionMessage sender alongside a ToolRegistry and an empty WorkQueue of active ExecutionRuntime records keyed by ExeId, and exposes route_session_event and preview. route_session_event destructures SessionEvent::Execution, answers ExecutionEvent::PreviewQuery with the private emit_preview helper that packages ExecutionEvent::Preview { tools: self.preview() } through HostSession::package_message, intercepts ExecutionEvent::Evoke(request) into private create_execution, and forwards other execution events through private forward_to_execution. preview delegates to the registry. create_execution resolves the requested tool via registry.get by request.signature.name, clones the Tool, builds ExecutionRuntime::new(tool, request, agent_tx.clone()) tracked in the WorkQueue by request.signature.exe_id, and on an unknown tool reports ExecutionStatus::Failed back to the agent through private emit_failed. forward_to_execution obtains the target ExecutionRuntime local control Sender via executions.with and sends the reconstructed SessionEvent::Execution into that runtime. registry.rs implements ToolRegistry and RegistryError; tool.rs defines the Executor-side Tool handle to an external tool executable; the execution child module implements the per-execution runtime.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -18,7 +18,7 @@
       "name": "Executor",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/executor.rs",
@@ -120,8 +120,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "executor.rs"
   ]
 }

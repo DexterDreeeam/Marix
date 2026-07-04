@@ -4,7 +4,7 @@
     "path": "src",
     "name": "src",
     "purpose": "Rust workspace source root for Marix crates with flat Cargo crate layout. It organizes reusable common config/external/logging/protocol/structure modules, agent model/session/task orchestration, client session/event surfaces, host-side tool execution, and the top-level tool crate. The agent session runtime keeps SessionContext in SessionState, resets it when a host connects, queries host tool previews with ExecutionEvent::PreviewQuery, and stores returned Preview tools; the host executor answers PreviewQuery by emitting ExecutionEvent::Preview with registry previews. The common protocol namespace includes SessionEvent variants for Task, Step, and Execution, TaskPreview, TaskRequestBrief, ToolSchema, and ToolPreview.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -33,8 +33,5 @@
       "purpose": "Top-level marix-tool crate (lib marix_tool) that defines the per-tool ToolProgram interface and compiles one executable per native tool program (read_file, write_file, list_directory, search_text, shell_execute), each selected at build time via a Cargo feature and sharing the tool_main.rs --preview/--run entry. The Executor-side Tool handle that launches these executables lives in the host crate (host/executor), not in this crate. Every native tool program's invoke() is now implemented, parsing the JSON call and performing real filesystem/shell IO to return JSON results (no longer panic stubs)."
     }
   ],
-  "elements": [],
-  "modified": [
-    "."
-  ]
+  "elements": []
 }

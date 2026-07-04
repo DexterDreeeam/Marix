@@ -4,7 +4,7 @@
     "path": "src/agent",
     "name": "agent",
     "purpose": "Agent crate namespace for session runtime orchestration, model backend abstractions, and the implemented task execution runtime. lib.rs is re-export wiring and re-exports SessionContext beside Session and SessionState; the session child module owns Session, SessionState, SessionContext, host-preview bootstrap/query handling, and route_session_event handling that stores Preview tools while ignoring standalone Step events safely, the model child module owns backend contracts, and the task child module owns Task, TaskState, and Step.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -40,8 +40,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "."
   ]
 }
