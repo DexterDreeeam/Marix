@@ -4,9 +4,8 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Shared common crate root that wires reusable config loading (now including the ToolConfig tool directory setting re-exported from lib.rs), now-public crate-local external re-export adapters, logging, protocol models (whose SessionMessage between-session envelope and the step protocol types StepKind/ModelStepKind/ExecutionStepKind/UserStepKind/StepSignature/StepEvent/StepResult/StepStatus/StepPreview are now re-exported from lib.rs alongside SessionEvent), and structure utilities; the tool schema/preview contracts now live in the protocol module and the Tool executable handle now lives in the host crate's executor module (host/executor/tool.rs), so common no longer owns a tool module. Concrete selectable interfaces live in child modules while lib.rs remains namespace and re-export wiring.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["lib.rs"],
   "childModules": [
     {
       "path": "src/common/config",

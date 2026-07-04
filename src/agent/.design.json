@@ -4,9 +4,8 @@
     "path": "src/agent",
     "name": "agent",
     "purpose": "Agent crate namespace for session runtime orchestration, model backend abstractions, and the implemented task execution runtime. lib.rs is re-export wiring that re-exports SessionState and TaskState; the session child module owns Session and SessionState, the model child module owns the backend abstraction and Deepseek backend, and the task child module owns the Task runtime, shared TaskState state, step, and execution types. The session/task runtimes were refactored so worker, routing, and step logic now hangs off the shared state and takes self: Session and Task are thin (Session::new spawns Arc::clone(&context).spawn_client_worker()/spawn_host_worker(), Task::new spawns TaskState::event_loop and raise() calls Arc::clone(&self.context).run_step(step)), while the worker/routing/step behavior is implemented as private impl SessionState and impl TaskState blocks in session.rs and task.rs (spawn/run/create/route on SessionState; event_loop/run_step plus the model-step methods on TaskState); the session_state.rs and task_state.rs files hold only the plain SessionState and TaskState data structs. The agent's between-session network channels carry the SessionMessage envelope (timestamp + source_name + wrapped SessionEvent): Session::new(name) stores the session name in a module static and exposes a static package_message(SessionEvent) -> SessionMessage that the session and its tasks use to stamp outbound events at the network boundary, while internal per-task control channels stay SessionEvent. The crate also ships an executable entry point: main.rs is the marix-agent binary that loads the global Config (exiting on error), exits when config.agent.enabled is false, constructs marix_agent::Session::new(config.name) (which spawns the client and host accept workers), and parks the main thread forever; agent/Cargo.toml declares the marix-agent [[bin]] target alongside the existing [lib].",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["lib.rs"],
   "childModules": [
     {
       "path": "src/agent/model",

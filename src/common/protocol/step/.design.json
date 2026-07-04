@@ -4,16 +4,15 @@
     "path": "src/common/protocol/step",
     "name": "step",
     "purpose": "Owns the step protocol split out from the former step.rs into per-type files: StepKind with Model(ModelStepKind)/Execution(ExecutionStepKind)/User(UserStepKind) sub-kinds where ExecutionStepKind::Invocation carries an ExecutionRequest (kind.rs), the StepSignature record carrying step_no/name/kind (signature.rs), the StepEvent stream enum with Started/Update/Complete/Fail where Complete and Fail now carry a StepResult (event.rs), the StepResult content payload (result.rs), the StepStatus lifecycle enum Prepare/Process/Complete/Fail (status.rs), and the StepPreview signature+result record (preview.rs); mod.rs is re-export wiring only.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": ["."],
   "childModules": [],
   "elements": [
     {
       "name": "StepKind",
       "type": "enum",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/step/kind.rs",
@@ -34,7 +33,7 @@
       "name": "ModelStepKind",
       "type": "enum",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/step/kind.rs",
@@ -55,7 +54,7 @@
       "name": "ExecutionStepKind",
       "type": "enum",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/step/kind.rs",
@@ -76,7 +75,7 @@
       "name": "UserStepKind",
       "type": "enum",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/step/kind.rs",
@@ -97,7 +96,7 @@
       "name": "StepSignature",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/step/signature.rs",
@@ -118,7 +117,7 @@
       "name": "StepEvent",
       "type": "enum",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/step/event.rs",
@@ -139,7 +138,7 @@
       "name": "StepResult",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/step/result.rs",
@@ -160,7 +159,7 @@
       "name": "StepStatus",
       "type": "enum",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/step/status.rs",
@@ -181,7 +180,7 @@
       "name": "StepPreview",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/step/preview.rs",

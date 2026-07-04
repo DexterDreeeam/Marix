@@ -4,16 +4,15 @@
     "path": "src/agent/task",
     "name": "task",
     "purpose": "Owns the agent task runtime. task.rs defines Task { context: Arc<TaskState>, task_tx, worker }, whose new builds the Arc<TaskState> and spawns TaskState::event_loop, and exposes sender() and raise(step) (Arc::clone(&self.context).run_step(step)); below a // -- Private -- // marker task.rs keeps the private impl Task { build_model_backend } helper plus the private behavior impl TaskState block whose methods all take self/&self: event_loop(context, task_rx), run_step(self: Arc<Self>, step) (keying the step WorkQueue by step.signature.step_no, matching step.signature.kind, and spawning the step worker thread), initial_step (building a Step whose StepSignature is { step_no: 0, name: the task name, kind: StepKind::Model(ModelStepKind::Initial) } with StepStatus::Prepare and a fresh Arc<AtomicUsize> update_count), execute_model_step (whose prompt is the task name), emit_status, and send_event (packaging each SessionEvent into a SessionMessage via Session::package_message before try_send). task_state.rs (renamed from task_context.rs) is the plain TaskState data struct: it holds the task signature, a std::sync::Mutex-guarded model backend, the client/host SharedNetSender<SessionMessage> network senders, the execution WorkQueue<ExeId, Execution>, and the step WorkQueue<usize, Step>, and defines only pub fn new() with no behavior methods. step.rs defines only the Step record (signature: StepSignature, status: StepStatus, update_count: Arc<AtomicUsize>) built on the protocol StepSignature/StepStatus contracts and deriving Debug, Clone; execution.rs defines the Execution record; the local task_tx/task_rx control channel stays SessionEvent; mod.rs is namespace and re-export wiring only, now re-exporting only Step.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["step.rs", "task.rs", "task_state.rs", "mod.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/step.rs",
@@ -70,7 +69,7 @@
       "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task_state.rs",
