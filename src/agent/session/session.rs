@@ -1,87 +1,94 @@
 use std::net::SocketAddr;
-use std::sync::{Arc, Mutex as StdMutex};
-use std::thread::JoinHandle;
+use std::sync::{Arc, Mutex as StdMutex, OnceLock};
+use std::thread::{self, JoinHandle};
 
+use marix_common::{
+    Config, SessionEvent, SessionMessage, TaskEvent, TaskId, TaskSignature, accept_channel,
+};
+
+use super::SessionState;
 use crate::task::Task;
-use marix_common::{Config, SessionEvent, TaskEvent, TaskId, TaskSignature, accept_channel};
 
-use super::SessionContext;
+static SOURCE_NAME: OnceLock<String> = OnceLock::new();
 
 pub struct Session {
-    pub context: Arc<SessionContext>,
+    pub context: Arc<SessionState>,
     client_worker: JoinHandle<()>,
     host_worker: JoinHandle<()>,
 }
 
 impl Session {
-    pub fn new() -> Self {
-        let context = Arc::new(SessionContext::new());
-        let client_worker = Self::spawn_client_worker(&context);
-        let host_worker = Self::spawn_host_worker(&context);
+    pub fn new(name: String) -> Self {
+        let _ = SOURCE_NAME.set(name);
+        let context = Arc::new(SessionState::new());
+        let client_worker = Arc::clone(&context).spawn_client_worker();
+        let host_worker = Arc::clone(&context).spawn_host_worker();
         Self {
             context,
             client_worker,
             host_worker,
         }
     }
+
+    pub fn package_message(event: SessionEvent) -> SessionMessage {
+        SessionMessage::new(SOURCE_NAME.get().cloned().unwrap_or_default(), event)
+    }
 }
 
 // -- Private -- //
 
-impl Session {
+impl SessionState {
     fn parse_address(address: &str, label: &str) -> SocketAddr {
         address
             .parse()
             .unwrap_or_else(|error| panic!("invalid {label} bind address: {error}"))
     }
 
-    fn spawn_client_worker(context: &Arc<SessionContext>) -> JoinHandle<()> {
-        let context = Arc::clone(context);
-        std::thread::spawn(move || {
+    fn spawn_client_worker(self: Arc<Self>) -> JoinHandle<()> {
+        thread::spawn(move || {
             let config =
                 Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
             let address = Self::parse_address(&config.agent.client_bind_address, "client");
             loop {
-                let Ok((tx, rx)) = accept_channel::<SessionEvent>(address) else {
+                let Ok((tx, rx)) = accept_channel::<SessionMessage>(address) else {
                     continue;
                 };
-                *context
+                *self
                     .client_tx
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(tx);
-                *context
+                *self
                     .client_rx
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(rx);
-                Self::run_client_worker(Arc::clone(&context));
+                Self::run_client_worker(Arc::clone(&self));
             }
         })
     }
 
-    fn spawn_host_worker(context: &Arc<SessionContext>) -> JoinHandle<()> {
-        let context = Arc::clone(context);
-        std::thread::spawn(move || {
+    fn spawn_host_worker(self: Arc<Self>) -> JoinHandle<()> {
+        thread::spawn(move || {
             let config =
                 Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
             let address = Self::parse_address(&config.agent.host_bind_address, "host");
             loop {
-                let Ok((tx, rx)) = accept_channel::<SessionEvent>(address) else {
+                let Ok((tx, rx)) = accept_channel::<SessionMessage>(address) else {
                     continue;
                 };
-                *context
+                *self
                     .host_tx
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(tx);
-                *context
+                *self
                     .host_rx
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(rx);
-                Self::run_host_worker(Arc::clone(&context));
+                Self::run_host_worker(Arc::clone(&self));
             }
         })
     }
 
-    fn run_client_worker(context: Arc<SessionContext>) {
+    fn run_client_worker(context: Arc<Self>) {
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
@@ -95,18 +102,18 @@ impl Session {
             else {
                 return;
             };
-            while let Ok(Some(event)) = rx.recv().await {
-                match event {
+            while let Ok(Some(message)) = rx.recv().await {
+                match message.event {
                     SessionEvent::Task(signature, TaskEvent::Create { request }) => {
-                        Self::create_task(&context, signature, request);
+                        context.create_task(signature, request);
                     }
-                    event => Self::route_session_event(&context, event),
+                    event => context.route_session_event(event),
                 }
             }
         });
     }
 
-    fn run_host_worker(context: Arc<SessionContext>) {
+    fn run_host_worker(context: Arc<Self>) {
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
@@ -120,15 +127,15 @@ impl Session {
             else {
                 return;
             };
-            while let Ok(Some(event)) = rx.recv().await {
-                Self::route_session_event(&context, event);
+            while let Ok(Some(message)) = rx.recv().await {
+                context.route_session_event(message.event);
             }
         });
     }
 
-    fn create_task(context: &SessionContext, mut signature: TaskSignature, request: String) {
+    fn create_task(&self, mut signature: TaskSignature, request: String) {
         signature.name = request;
-        if context
+        if self
             .host_tx
             .lock()
             .unwrap_or_else(|error| error.into_inner())
@@ -140,38 +147,38 @@ impl Session {
                     reason: "host not connected".to_string(),
                 },
             );
-            if let Some(sender) = context
+            if let Some(sender) = self
                 .client_tx
                 .lock()
                 .unwrap_or_else(|error| error.into_inner())
                 .as_mut()
             {
-                let _ = sender.try_send(event);
+                let _ = sender.try_send(Session::package_message(event));
             }
             return;
         }
         let task_id = signature.id.clone();
         let task = Task::new(
             signature,
-            Arc::clone(&context.client_tx),
-            Arc::clone(&context.host_tx),
+            Arc::clone(&self.client_tx),
+            Arc::clone(&self.host_tx),
         );
-        context.tasks.insert(task_id, Arc::new(StdMutex::new(task)));
+        self.tasks.insert(task_id, Arc::new(StdMutex::new(task)));
     }
 
-    fn route_session_event(context: &SessionContext, event: SessionEvent) {
+    fn route_session_event(&self, event: SessionEvent) {
         match &event {
             SessionEvent::Task(signature, _) => {
-                Self::route_task_event(context, &signature.id, event.clone());
+                self.route_task_event(&signature.id, event.clone());
             }
             SessionEvent::Execution(signature, _) => {
-                Self::route_task_event(context, &signature.task_id, event.clone());
+                self.route_task_event(&signature.task_id, event.clone());
             }
         }
     }
 
-    fn route_task_event(context: &SessionContext, task_id: &TaskId, event: SessionEvent) {
-        let task = context.tasks.get(task_id.clone());
+    fn route_task_event(&self, task_id: &TaskId, event: SessionEvent) {
+        let task = self.tasks.get(task_id.clone());
         let sender = task
             .lock()
             .unwrap_or_else(|error| error.into_inner())

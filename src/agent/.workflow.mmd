@@ -1,5 +1,5 @@
 flowchart LR
-  %% lib.rs only wires child modules and re-exports public agent interfaces. main.rs is the marix-agent binary entry that loads the global Config and, unless config.agent.enabled is false, runs Session::new() and parks the process.
+  %% lib.rs only wires child modules and re-exports public agent interfaces. main.rs is the marix-agent binary entry that loads the global Config and, unless config.agent.enabled is false, runs Session::new(config.name) and parks the process.
   subgraph main_rs[main.rs marix-agent bin]
     MarixAgentBin["marix-agent\nbin entry: Config + Session"]
   end
@@ -28,15 +28,17 @@ flowchart LR
   end
 
   subgraph common_interfaces[common interfaces]
+    SessionMessage["SessionMessage\n(between-session envelope)"]
     SessionEvent["SessionEvent"]
     TaskId["TaskId"]
     WorkQueue["WorkQueue"]
   end
 
   MarixAgentBin -->|"loads / exits on error"| Config
-  MarixAgentBin -->|"if config.agent.enabled runs Session::new()"| Session
+  MarixAgentBin -->|"if config.agent.enabled runs Session::new(config.name)"| Session
   Session -->|"owns Arc context and workers"| SessionContext
-  SessionContext -->|"client/host channel endpoints"| SessionEvent
+  SessionContext -->|"client/host channel endpoints carry"| SessionMessage
+  SessionMessage -->|"wraps event"| SessionEvent
   SessionContext -->|"tasks: WorkQueue<TaskId, Task>"| WorkQueue
   SessionContext -->|"task key"| TaskId
   SessionContext -->|"creates and routes events to"| Task

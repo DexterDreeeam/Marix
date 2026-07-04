@@ -3,133 +3,129 @@
   "module": {
     "path": "src/agent/session",
     "name": "session",
-    "purpose": "Owns the agent session runtime. session.rs defines Session, whose new builds the SessionContext and immediately spawns the client and host channel workers (there is no separate run); it drives synchronous task creation (locking the shared client/host senders through std::sync::Mutex, reporting CreateFailed via try_send, and creating each Task through Task::new, which now starts its own worker) and SessionEvent routing; its client/host recv loops still run inside per-connection current-thread tokio runtimes to await remoc recv. session_context.rs defines SessionContext, which owns the TaskId-keyed task WorkQueue and the shared client/host remoc mpsc endpoints, all initialized behind std::sync::Mutex. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent session runtime. session.rs defines Session { context: Arc<SessionState>, client_worker, host_worker }, whose new(name) stores the session name in a module-level SOURCE_NAME OnceLock, builds the Arc<SessionState>, and spawns the client and host workers via Arc::clone(&context).spawn_client_worker()/spawn_host_worker(); it also exposes the static package_message(SessionEvent) -> SessionMessage that stamps the stored source name. Below a // -- Private -- // marker, session.rs also holds the private behavior impl SessionState block whose methods all take self/Arc<Self> (never a passed context): parse_address, spawn_client_worker/spawn_host_worker (returning JoinHandles), run_client_worker/run_host_worker (per-connection current-thread tokio runtimes awaiting remoc recv and unwrapping message.event), create_task (packaging the CreateFailed event via Session::package_message and creating each Task via Task::new), and route_session_event/route_task_event. session_state.rs (renamed from session_context.rs) is the plain SessionState data struct: it holds the TaskId-keyed task WorkQueue plus the shared client/host remoc mpsc endpoints now typed as SessionMessage behind std::sync::Mutex, and defines only pub fn new() with no behavior methods. The local per-Task control channels stay SessionEvent. mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "modified"
   },
+  "renamed": ["session_state.rs"],
+  "modified": ["session.rs", "mod.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
-          "lineStart": 10,
-          "lineEnd": 14,
+          "lineStart": 14,
+          "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 13
+              "lineStart": 15,
+              "lineEnd": 15
             }
           ]
         },
         {
           "sourcePath": "src/agent/session/session.rs",
-          "lineStart": 16,
-          "lineEnd": 27,
+          "lineStart": 20,
+          "lineEnd": 36,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 18,
-              "lineEnd": 20
+              "lineStart": 22,
+              "lineEnd": 22
+            },
+            {
+              "lineStart": 32,
+              "lineEnd": 35
             }
           ],
           "modifiedLines": [
             {
-              "lineStart": 22,
-              "lineEnd": 24
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/agent/session/session.rs",
-          "lineStart": 31,
-          "lineEnd": 181,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 38,
-              "lineEnd": 39
+              "lineStart": 21,
+              "lineEnd": 21
             },
             {
-              "lineStart": 48,
-              "lineEnd": 55
-            },
-            {
-              "lineStart": 61,
-              "lineEnd": 62
-            },
-            {
-              "lineStart": 71,
-              "lineEnd": 78
-            },
-            {
-              "lineStart": 90,
-              "lineEnd": 95
-            },
-            {
-              "lineStart": 101,
-              "lineEnd": 101
-            },
-            {
-              "lineStart": 115,
-              "lineEnd": 120
-            },
-            {
-              "lineStart": 129,
-              "lineEnd": 129
-            },
-            {
-              "lineStart": 131,
-              "lineEnd": 135
-            },
-            {
-              "lineStart": 143,
-              "lineEnd": 147
-            },
-            {
-              "lineStart": 149,
-              "lineEnd": 149
-            },
-            {
-              "lineStart": 154,
-              "lineEnd": 154
+              "lineStart": 23,
+              "lineEnd": 25
             }
           ]
         }
       ]
     },
     {
-      "name": "SessionContext",
-      "type": "struct",
+      "name": "package_message",
+      "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/agent/session/session_context.rs",
-          "lineStart": 6,
-          "lineEnd": 12,
+          "sourcePath": "src/agent/session/session.rs",
+          "lineStart": 33,
+          "lineEnd": 35,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 33,
+              "lineEnd": 35
+            }
+          ],
           "modifiedLines": []
-        },
+        }
+      ]
+    },
+    {
+      "name": "SessionState",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "renamed",
+      "codeSegments": [
         {
-          "sourcePath": "src/agent/session/session_context.rs",
-          "lineStart": 14,
-          "lineEnd": 24,
+          "sourcePath": "src/agent/session/session_state.rs",
+          "lineStart": 7,
+          "lineEnd": 13,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 18,
-              "lineEnd": 21
+              "lineStart": 7,
+              "lineEnd": 7
+            },
+            {
+              "lineStart": 9,
+              "lineEnd": 12
             }
           ]
+        },
+        {
+          "sourcePath": "src/agent/session/session_state.rs",
+          "lineStart": 15,
+          "lineEnd": 25,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 15
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/agent/session/session.rs",
+          "lineStart": 40,
+          "lineEnd": 188,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 40,
+              "lineEnd": 188
+            }
+          ],
+          "modifiedLines": []
         }
       ]
     }

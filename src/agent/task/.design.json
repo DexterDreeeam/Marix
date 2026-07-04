@@ -3,9 +3,11 @@
   "module": {
     "path": "src/agent/task",
     "name": "task",
-    "purpose": "Owns the agent task runtime. step.rs defines the StepSequence ordering key, the Step record (whose parameters field is now an ExecutionRequest), and the StepKind/ToolStepKind/ModelStepKind/UserStepKind classification enums; task_context.rs defines TaskContext, the shared runtime data holding the task signature, a std::sync::Mutex-guarded model backend, client/host senders, and the execution and step WorkQueues; task.rs defines Task, which owns an Arc<TaskContext>, the task_tx SessionEvent sender, and a worker JoinHandle spawned directly in new (there is no separate run), drives model steps on worker threads, and streams task status plus forwarded host execution events to the client by synchronously locking client_tx (std::sync::Mutex) and calling try_send. initial_step stamps the ExecutionRequest with an ExecutionSignature { task_id, exe_id, name }. execution.rs defines the Execution record; mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent task runtime. task.rs defines Task { context: Arc<TaskState>, task_tx, worker }, whose new builds the Arc<TaskState> and spawns TaskState::event_loop, and exposes sender() and raise(step) (Arc::clone(&self.context).run_step(step)); below a // -- Private -- // marker task.rs keeps the private impl Task { build_model_backend } helper plus the private behavior impl TaskState block whose methods all take self/&self (never a passed context): event_loop(context, task_rx), run_step(self: Arc<Self>, step) (spawning the step worker thread), initial_step (stamping the ExecutionRequest with an ExecutionSignature { task_id, exe_id, name }), execute_model_step, emit_status, and send_event (packaging each SessionEvent into a SessionMessage via Session::package_message before try_send). task_state.rs (renamed from task_context.rs) is the plain TaskState data struct: it holds the task signature, a std::sync::Mutex-guarded model backend, the client/host SharedNetSender<SessionMessage> network senders, and the execution and step WorkQueues, and defines only pub fn new() with no behavior methods. step.rs defines the StepSequence ordering key, the Step record (whose parameters field is an ExecutionRequest), and the StepKind/ToolStepKind/ModelStepKind/UserStepKind classification enums; execution.rs defines the Execution record; the local task_tx/task_rx control channel stays SessionEvent; mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "modified"
   },
+  "renamed": ["task_state.rs"],
+  "modified": ["task.rs", "mod.rs"],
   "childModules": [],
   "elements": [
     {
@@ -138,59 +140,107 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 13,
-          "lineEnd": 17,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 19,
-          "lineEnd": 50,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 54,
-          "lineEnd": 174,
+          "lineStart": 14,
+          "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 85,
-              "lineEnd": 85
+              "lineStart": 15,
+              "lineEnd": 15
             }
           ]
+        },
+        {
+          "sourcePath": "src/agent/task/task.rs",
+          "lineStart": 20,
+          "lineEnd": 51,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 24
+            },
+            {
+              "lineStart": 27,
+              "lineEnd": 27
+            },
+            {
+              "lineStart": 35,
+              "lineEnd": 35
+            },
+            {
+              "lineStart": 49,
+              "lineEnd": 49
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/agent/task/task.rs",
+          "lineStart": 55,
+          "lineEnd": 63,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
     {
-      "name": "TaskContext",
+      "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "renamed",
       "codeSegments": [
         {
-          "sourcePath": "src/agent/task/task_context.rs",
+          "sourcePath": "src/agent/task/task_state.rs",
           "lineStart": 8,
           "lineEnd": 15,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 8
+            },
+            {
+              "lineStart": 11,
+              "lineEnd": 12
+            }
+          ]
         },
         {
-          "sourcePath": "src/agent/task/task_context.rs",
+          "sourcePath": "src/agent/task/task_state.rs",
           "lineStart": 17,
           "lineEnd": 33,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 17
+            },
+            {
+              "lineStart": 21,
+              "lineEnd": 22
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/agent/task/task.rs",
+          "lineStart": 65,
+          "lineEnd": 168,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 65,
+              "lineEnd": 168
+            }
+          ],
           "modifiedLines": []
         }
       ]

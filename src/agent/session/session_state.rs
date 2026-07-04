@@ -1,17 +1,18 @@
 use std::sync::{Arc, Mutex as StdMutex};
 
-use crate::task::Task;
-use marix_common::{SessionEvent, SharedNetReceiver, SharedNetSender, TaskId, WorkQueue};
+use marix_common::{SessionMessage, SharedNetReceiver, SharedNetSender, TaskId, WorkQueue};
 
-pub struct SessionContext {
+use crate::task::Task;
+
+pub struct SessionState {
     pub tasks: WorkQueue<TaskId, Arc<StdMutex<Task>>>,
-    pub client_tx: SharedNetSender<SessionEvent>,
-    pub client_rx: SharedNetReceiver<SessionEvent>,
-    pub host_tx: SharedNetSender<SessionEvent>,
-    pub host_rx: SharedNetReceiver<SessionEvent>,
+    pub client_tx: SharedNetSender<SessionMessage>,
+    pub client_rx: SharedNetReceiver<SessionMessage>,
+    pub host_tx: SharedNetSender<SessionMessage>,
+    pub host_rx: SharedNetReceiver<SessionMessage>,
 }
 
-impl SessionContext {
+impl SessionState {
     pub fn new() -> Self {
         Self {
             tasks: WorkQueue::new(),

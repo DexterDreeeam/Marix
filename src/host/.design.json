@@ -3,14 +3,15 @@
   "module": {
     "path": "src/host",
     "name": "host",
-    "purpose": "Host crate for tool execution management. session.rs implements HostSession, which connects to the agent's configured host bind address, owns the per-connection Executor, and pumps inbound agent SessionEvents into Executor::route_session_event. new() creates an Arc<AtomicBool> shutdown flag and spawns a worker thread (spawn_worker) that loads the global Config, parses config.agent.host_bind_address into a SocketAddr, creates a persistent SharedNetSender<SessionEvent> (initially None) and a single Executor::new(agent_tx), then loops while not shut down: it connect_channel::<SessionEvent>(address) to the agent (retrying on connect error), stores the returned NetSender into the shared agent_tx so each ExecutionRuntime streams status/updates back over the current connection, and runs run_worker on the returned NetReceiver; run_worker builds a current-thread tokio runtime and block_on's an async loop that recv()s each SessionEvent and routes it through Executor::route_session_event, breaking when shutdown is set. close() stores the shutdown flag (Ordering::Relaxed) and, if present, takes and joins the worker JoinHandle, so a blocked recv means close completes once the next event arrives or the connection drops; the struct now holds only the private worker: Option<JoinHandle<()>> and shutdown: Arc<AtomicBool> fields. The executor folder module owns host-side tool execution: its Executor::new(agent_tx) stores the shared agent SessionEvent sender and builds a ToolRegistry via ToolRegistry::new() plus an empty WorkQueue of active ExecutionRuntime records keyed by ExeId, and now exposes a single public router entry point route_session_event alongside preview; route_session_event destructures SessionEvent::Execution, intercepts ExecutionEvent::Evoke into the private create_execution (resolving the requested tool via the registry, spawning an ExecutionRuntime tracked by ExeId, and reporting unknown tools back to the agent as ExecutionStatus::Failed via the private emit_failed helper) and forwards every other execution event through the private forward_to_execution, which borrows the target ExecutionRuntime's control Sender via executions.with and sends the reconstructed SessionEvent into that runtime's event loop; the Executor exposes no per-operation methods and holds no local updates channel, since per-execution status and updates stream to the agent from each ExecutionRuntime via agent_tx. registry.rs implements ToolRegistry, a collection of host Tool handles whose new() reads the global Config and registers every tool that loads successfully from the configured tool directory (skipping duplicate names), with register/get/preview implemented and RegistryError reporting registration failures such as DuplicateName. The execution child module implements the per-execution ExecutionRuntime that runs a Tool (the host-local executable handle defined in host/executor/tool.rs) and streams ExecutionStatus/ExecutionUpdate to the agent by synchronously locking agent_tx (std::sync::Mutex) and calling try_send. The Executor-side Tool handle now lives in host/executor/tool.rs (host/executor/mod.rs re-exports it), so host owns the handle internally and no longer contains or depends on a tool crate; the ToolProgram interface and the one-executable-per-native-tool programs it spawns are built by the separate top-level marix-tool crate, which the Tool handle launches by filesystem path (--preview/--run). host/Cargo.toml now depends on tokio (net, rt-multi-thread, sync, time)     to drive the HostSession current-thread recv loop and no longer depends on the tool crate; lib.rs is namespace and re-export wiring only. The crate now also ships an executable entry point: main.rs is the marix-host binary that loads the global Config (exiting on error), constructs marix_host::HostSession::new() (which spawns the connect worker), and parks the main thread forever; host/Cargo.toml now declares the marix-host [[bin]] target alongside the existing [lib].",
-    "changeStatus": "unchanged"
+    "purpose": "Host crate for tool execution management. session.rs implements HostSession, which connects to the agent's configured host bind address, owns the per-connection Executor, and pumps inbound agent SessionMessage envelopes into Executor::route_session_event after unwrapping message.event. new(name) stores the session name in a module-level SOURCE_NAME OnceLock, creates an Arc<AtomicBool> shutdown flag and spawns a worker thread (spawn_worker) that loads the global Config, parses config.agent.host_bind_address into a SocketAddr, creates a persistent SharedNetSender<SessionMessage> (initially None) and a single Executor::new(agent_tx), then loops while not shut down: it connect_channel::<SessionMessage>(address) to the agent (retrying on connect error), stores the returned NetSender into the shared agent_tx so each ExecutionRuntime streams status/updates back over the current connection, and runs run_worker on the returned NetReceiver; run_worker builds a current-thread tokio runtime and block_on's an async loop that recv()s each SessionMessage, unwraps message.event, and routes it through Executor::route_session_event, breaking when shutdown is set. close() stores the shutdown flag (Ordering::Relaxed) and, if present, takes and joins the worker JoinHandle, so a blocked recv means close completes once the next event arrives or the connection drops; the struct now holds only the private worker: Option<JoinHandle<()>> and shutdown: Arc<AtomicBool> fields. HostSession also exposes a static package_message(SessionEvent) -> SessionMessage that stamps the stored SOURCE_NAME, which the executor and execution runtimes use to wrap outbound events into SessionMessage at the network boundary. The executor folder module owns host-side tool execution: its Executor::new(agent_tx) stores the shared agent SessionMessage sender and builds a ToolRegistry via ToolRegistry::new() plus an empty WorkQueue of active ExecutionRuntime records keyed by ExeId, and now exposes a single public router entry point route_session_event alongside preview; route_session_event destructures SessionEvent::Execution, intercepts ExecutionEvent::Evoke into the private create_execution (resolving the requested tool via the registry, spawning an ExecutionRuntime tracked by ExeId, and reporting unknown tools back to the agent as ExecutionStatus::Failed via the private emit_failed helper, which packages the event into a SessionMessage via HostSession::package_message before try_send) and forwards every other execution event through the private forward_to_execution, which borrows the target ExecutionRuntime's control Sender via executions.with and sends the reconstructed SessionEvent into that runtime's event loop (the local per-execution control channel stays SessionEvent); the Executor exposes no per-operation methods and holds no local updates channel, since per-execution status and updates stream to the agent from each ExecutionRuntime via agent_tx as SessionMessage. registry.rs implements ToolRegistry, a collection of host Tool handles whose new() reads the global Config and registers every tool that loads successfully from the configured tool directory (skipping duplicate names), with register/get/preview implemented and RegistryError reporting registration failures such as DuplicateName. The execution child module implements the per-execution ExecutionRuntime that runs a Tool (the host-local executable handle defined in host/executor/tool.rs) and streams ExecutionStatus/ExecutionUpdate to the agent by synchronously locking agent_tx (std::sync::Mutex), packaging each SessionEvent into a SessionMessage via HostSession::package_message, and calling try_send; the local per-execution control channel stays SessionEvent. The Executor-side Tool handle now lives in host/executor/tool.rs (host/executor/mod.rs re-exports it), so host owns the handle internally and no longer contains or depends on a tool crate; the ToolProgram interface and the one-executable-per-native-tool programs it spawns are built by the separate top-level marix-tool crate, which the Tool handle launches by filesystem path (--preview/--run). host/Cargo.toml now depends on tokio (net, rt-multi-thread, sync, time)     to drive the HostSession current-thread recv loop and no longer depends on the tool crate; lib.rs is namespace and re-export wiring only. The crate now also ships an executable entry point: main.rs is the marix-host binary that loads the global Config (exiting on error), constructs marix_host::HostSession::new(config.name) (which spawns the connect worker), and parks the main thread forever; host/Cargo.toml now declares the marix-host [[bin]] target alongside the existing [lib].",
+    "changeStatus": "modified"
   },
+  "modified": ["session.rs", "main.rs"],
   "childModules": [
     {
       "path": "src/host/executor",
       "name": "executor",
-      "purpose": "Executor folder module owning tool preview and a single route_session_event router over host-side tool execution. Executor::new(agent_tx) stores the shared agent SessionEvent sender and builds a ToolRegistry (a name-keyed collection of host Tool handles whose new() reads the global Config and loads every tool that loads successfully from the configured tool directory, with RegistryError reporting duplicate registrations) plus ExecutionRuntime records in a WorkQueue keyed by ExeId; preview delegates to the registry and route_session_event intercepts ExecutionEvent::Evoke into the private create_execution (resolving a tool via the registry, spawning an ExecutionRuntime, and reporting unknown tools back to the agent as ExecutionStatus::Failed via the private emit_failed helper) while forwarding every other execution event through the private forward_to_execution, which borrows the target ExecutionRuntime's control Sender via executions.with and sends it the reconstructed SessionEvent. The execution child module owns each ExecutionRuntime and its shared ExecutionContext; the execution runtime runs the Tool, emitting ExecutionStatus/ExecutionUpdate to the agent SessionEvent sender by synchronously locking it (std::sync::Mutex) and calling try_send. The executor module also owns the Tool handle (tool.rs), the Executor-side handle to an external tool executable located by filesystem path that load caches (via --preview) and execute runs (via --run), which the ToolRegistry stores and clones to each execution."
+      "purpose": "Executor folder module owning tool preview and a single route_session_event router over host-side tool execution. Executor::new(agent_tx) stores the shared agent SessionMessage sender and builds a ToolRegistry (a name-keyed collection of host Tool handles whose new() reads the global Config and loads every tool that loads successfully from the configured tool directory, with RegistryError reporting duplicate registrations) plus ExecutionRuntime records in a WorkQueue keyed by ExeId; preview delegates to the registry and route_session_event intercepts ExecutionEvent::Evoke into the private create_execution (resolving a tool via the registry, spawning an ExecutionRuntime, and reporting unknown tools back to the agent as ExecutionStatus::Failed via the private emit_failed helper, which packages the event into a SessionMessage via HostSession::package_message before try_send) while forwarding every other execution event through the private forward_to_execution, which borrows the target ExecutionRuntime's control Sender via executions.with and sends it the reconstructed SessionEvent (the local per-execution control channel stays SessionEvent). The execution child module owns each ExecutionRuntime and its shared ExecutionContext; the execution runtime runs the Tool, emitting ExecutionStatus/ExecutionUpdate to the agent by synchronously locking the shared agent_tx SharedNetSender<SessionMessage> (std::sync::Mutex), packaging each SessionEvent via HostSession::package_message, and calling try_send. The executor module also owns the Tool handle (tool.rs), the Executor-side handle to an external tool executable located by filesystem path that load caches (via --preview) and execute runs (via --run), which the ToolRegistry stores and clones to each execution."
     }
   ],
   "elements": [
@@ -18,46 +19,62 @@
       "name": "HostSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/session.rs",
-          "lineStart": 10,
-          "lineEnd": 13,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 11,
-              "lineEnd": 12
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/host/session.rs",
           "lineStart": 15,
-          "lineEnd": 31,
+          "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 16,
-              "lineEnd": 30
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/session.rs",
-          "lineStart": 33,
-          "lineEnd": 76,
+          "lineStart": 20,
+          "lineEnd": 41,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 33,
-              "lineEnd": 76
+              "lineStart": 22,
+              "lineEnd": 22
+            },
+            {
+              "lineStart": 31,
+              "lineEnd": 34
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 21,
+              "lineEnd": 21
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/session.rs",
+          "lineStart": 43,
+          "lineEnd": 86,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 55,
+              "lineEnd": 55
+            },
+            {
+              "lineStart": 59,
+              "lineEnd": 59
+            },
+            {
+              "lineStart": 69,
+              "lineEnd": 69
+            },
+            {
+              "lineStart": 78,
+              "lineEnd": 79
+            }
+          ]
         }
       ]
     },
@@ -65,20 +82,20 @@
       "name": "marix-host",
       "type": "bin",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/main.rs",
           "lineStart": 4,
-          "lineEnd": 13,
+          "lineEnd": 16,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 4,
-              "lineEnd": 13
+              "lineStart": 5,
+              "lineEnd": 12
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     }

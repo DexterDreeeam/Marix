@@ -1,4 +1,4 @@
-use crate::protocol::TaskId;
+use crate::protocol::{StepEvent, StepSignature, TaskId};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -15,6 +15,7 @@ pub enum TaskEvent {
     Preview { content: String },
     Cancel,
     Status(TaskStatus),
+    Step(StepSignature, StepEvent),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

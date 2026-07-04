@@ -1,26 +1,30 @@
 use std::net::SocketAddr;
 use std::sync::Arc;
+use std::sync::OnceLock;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
 
 use marix_common::{
-    Config, NetReceiver, Receiver, Sender, SessionEvent, SharedNetSender, TaskEvent, TaskId,
-    TaskSignature, TaskStatus, build_channel, connect_channel,
+    Config, NetReceiver, Receiver, Sender, SessionEvent, SessionMessage, SharedNetSender,
+    TaskEvent, TaskId, TaskSignature, TaskStatus, build_channel, connect_channel,
 };
 
 use crate::ClientEvent;
 
+static SOURCE_NAME: OnceLock<String> = OnceLock::new();
+
 pub struct ClientSession {
-    agent_tx: SharedNetSender<SessionEvent>,
+    agent_tx: SharedNetSender<SessionMessage>,
     user_rx: Receiver<ClientEvent>,
     worker: Option<JoinHandle<()>>,
     shutdown: Arc<AtomicBool>,
 }
 
 impl ClientSession {
-    pub fn new() -> Self {
+    pub fn new(name: String) -> Self {
+        let _ = SOURCE_NAME.set(name);
         let (user_tx, user_rx) = build_channel();
-        let agent_tx: SharedNetSender<SessionEvent> =
+        let agent_tx: SharedNetSender<SessionMessage> =
             SharedNetSender::new(std::sync::Mutex::new(None));
         let shutdown = Arc::new(AtomicBool::new(false));
         let worker = Self::spawn_worker(Arc::clone(&agent_tx), user_tx, Arc::clone(&shutdown));
@@ -30,6 +34,10 @@ impl ClientSession {
             worker: Some(worker),
             shutdown,
         }
+    }
+
+    pub fn package_message(event: SessionEvent) -> SessionMessage {
+        SessionMessage::new(SOURCE_NAME.get().cloned().unwrap_or_default(), event)
     }
 
     pub fn is_connected(&self) -> bool {
@@ -71,7 +79,7 @@ impl ClientSession {
 
 impl ClientSession {
     fn spawn_worker(
-        agent_tx: SharedNetSender<SessionEvent>,
+        agent_tx: SharedNetSender<SessionMessage>,
         user_tx: Sender<ClientEvent>,
         shutdown: Arc<AtomicBool>,
     ) -> JoinHandle<()> {
@@ -84,7 +92,7 @@ impl ClientSession {
                 .parse()
                 .unwrap_or_else(|error| panic!("invalid core address: {error}"));
             while !shutdown.load(Ordering::Relaxed) {
-                let Ok((net_tx, net_rx)) = connect_channel::<SessionEvent>(address) else {
+                let Ok((net_tx, net_rx)) = connect_channel::<SessionMessage>(address) else {
                     continue;
                 };
                 *agent_tx.lock().unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
@@ -94,7 +102,7 @@ impl ClientSession {
     }
 
     fn run_worker(
-        mut agent_rx: NetReceiver<SessionEvent>,
+        mut agent_rx: NetReceiver<SessionMessage>,
         user_tx: &Sender<ClientEvent>,
         shutdown: &AtomicBool,
     ) {
@@ -103,8 +111,8 @@ impl ClientSession {
             .build()
             .unwrap_or_else(|error| panic!("failed to build client event runtime: {error}"));
         runtime.block_on(async move {
-            while let Ok(Some(event)) = agent_rx.recv().await {
-                if let Some(client_event) = Self::to_client_event(event) {
+            while let Ok(Some(message)) = agent_rx.recv().await {
+                if let Some(client_event) = Self::to_client_event(message.event) {
                     let _ = user_tx.send(client_event);
                 }
                 if shutdown.load(Ordering::Relaxed) {
@@ -121,7 +129,7 @@ impl ClientSession {
             .unwrap_or_else(|error| error.into_inner())
             .as_mut()
         {
-            let _ = sender.try_send(event);
+            let _ = sender.try_send(Self::package_message(event));
         }
     }
 

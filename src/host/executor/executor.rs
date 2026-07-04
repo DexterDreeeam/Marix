@@ -1,18 +1,19 @@
 use marix_common::{
     ExeId, ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, SessionEvent,
-    SharedNetSender, ToolPreview, WorkQueue,
+    SessionMessage, SharedNetSender, ToolPreview, WorkQueue,
 };
 
 use crate::executor::{ExecutionRuntime, ToolRegistry};
+use crate::session::HostSession;
 
 pub struct Executor {
     registry: ToolRegistry,
     executions: WorkQueue<ExeId, ExecutionRuntime>,
-    agent_tx: SharedNetSender<SessionEvent>,
+    agent_tx: SharedNetSender<SessionMessage>,
 }
 
 impl Executor {
-    pub fn new(agent_tx: SharedNetSender<SessionEvent>) -> Self {
+    pub fn new(agent_tx: SharedNetSender<SessionMessage>) -> Self {
         Self {
             registry: ToolRegistry::new(),
             executions: WorkQueue::new(),
@@ -68,10 +69,10 @@ impl Executor {
             .unwrap_or_else(|error| error.into_inner())
             .as_mut()
         {
-            let _ = sender.try_send(SessionEvent::Execution(
+            let _ = sender.try_send(HostSession::package_message(SessionEvent::Execution(
                 signature.clone(),
                 ExecutionEvent::Status(ExecutionStatus::Failed { reason }),
-            ));
+            )));
         }
     }
 }

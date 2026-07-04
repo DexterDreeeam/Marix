@@ -25,6 +25,10 @@ flowchart LR
     ToolSchema["ToolSchema\nstruct"]
   end
 
+  subgraph message_rs[message.rs]
+    SessionMessage["SessionMessage\nstruct (between-session envelope)"]
+  end
+
   SessionEvent -->|"Task(signature, event)"| TaskSignature
   SessionEvent -->|"Task(signature, event)"| TaskEvent
   SessionEvent -->|"Execution(signature, event)"| ExecutionSignature
@@ -39,3 +43,4 @@ flowchart LR
   ExecutionEvent -->|"Status(ExecutionStatus)"| ExecutionStatus
   ExecutionEvent -->|"Update(ExecutionUpdate)"| ExecutionUpdate
   ExecutionRequest -->|"signature"| ExecutionSignature
+  SessionMessage -->|"wraps event (+ timestamp / source_name)"| SessionEvent

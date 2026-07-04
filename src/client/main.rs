@@ -7,11 +7,14 @@ use marix_common::Config;
 const IDLE_TIMEOUT: Duration = Duration::from_secs(30);
 
 fn main() {
-    if let Err(error) = Config::load() {
-        eprintln!("failed to load config: {error}");
-        std::process::exit(1);
-    }
-    let mut session = ClientSession::new();
+    let config = match Config::load() {
+        Ok(config) => config,
+        Err(error) => {
+            eprintln!("failed to load config: {error}");
+            std::process::exit(1);
+        }
+    };
+    let mut session = ClientSession::new(config.name);
     for _ in 0..100 {
         if session.is_connected() {
             break;

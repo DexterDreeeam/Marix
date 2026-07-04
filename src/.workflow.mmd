@@ -1,5 +1,5 @@
 flowchart LR
-  %% Flat Cargo crate layout; crate roots wire child modules while concrete APIs live below them. The agent, host, and client crates each ship a binary entry (marix-agent/marix-host/marix-client) alongside their [lib]; every native tool in marix-tool now has an implemented invoke().
+  %% Flat Cargo crate layout; crate roots wire child modules while concrete APIs live below them. The agent, host, and client crates each ship a binary entry (marix-agent/marix-host/marix-client) alongside their [lib]; every native tool in marix-tool now has an implemented invoke(). Between-session (network) channels now carry a SessionMessage envelope (timestamp + source_name + wrapped SessionEvent): each session takes a Config.name, stores it in a SOURCE_NAME static, and exposes a static package_message(SessionEvent) -> SessionMessage; senders package at the network boundary and receivers unwrap message.event, while internal per-Task/per-Execution control channels remain SessionEvent.
   subgraph workspace[src workspace]
     Common["common\nconfig + external + logging + protocol + structure"]
     Agent["agent\nmodel + session context + task interfaces\nbin: marix-agent"]
@@ -11,9 +11,9 @@ flowchart LR
   Common -->|"Config, LoggingConfig, LogMessage, protocol events, WorkQueue/channels"| Agent
   Common -->|"Config, logging APIs, SessionEvent, task/tool status payloads"| Client
   Common -->|"tool execution protocol, channels, shared config (incl. tool directory)/logging"| Host
-  Client -->|"client SessionEvent commands"| Agent
-  Agent -->|"SessionContext-routed task/session events"| Client
-  Agent -->|"Session worker host SessionEvent channels"| Host
-  Host -->|"host SessionEvent traffic"| Agent
+  Client -->|"client task commands packaged as SessionMessage (wraps SessionEvent)"| Agent
+  Agent -->|"SessionContext-routed task/session events as SessionMessage"| Client
+  Agent -->|"Session worker host SessionMessage channels"| Host
+  Host -->|"host SessionMessage traffic (wraps SessionEvent)"| Agent
   Common -->|"ToolPreview/ToolSchema tool contracts"| ToolCrate
   Host -->|"Executor Tool handle spawns tool executables (--preview/--run)"| ToolCrate

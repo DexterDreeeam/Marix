@@ -12,7 +12,8 @@ pub use config::{
 pub use logging::{LogMessage, LogTag, LoggingError, debug, error, log, warning};
 pub use protocol::{
     ExeId, ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, ExecutionUpdate,
-    SessionEvent, TaskEvent, TaskId, TaskSignature, TaskStatus, ToolPreview, ToolSchema,
+    SessionEvent, SessionMessage, TaskEvent, TaskId, TaskSignature, TaskStatus, ToolPreview,
+    ToolSchema,
 };
 pub use structure::WorkQueue;
 pub use structure::{

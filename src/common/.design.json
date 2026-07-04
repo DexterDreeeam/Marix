@@ -3,9 +3,10 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared common crate root that wires reusable config loading (now including the ToolConfig tool directory setting re-exported from lib.rs), now-public crate-local external re-export adapters, logging, protocol models, and structure utilities; the tool schema/preview contracts now live in the protocol module and the Tool executable handle now lives in the host crate's executor module (host/executor/tool.rs), so common no longer owns a tool module. Concrete selectable interfaces live in child modules while lib.rs remains namespace and re-export wiring.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared common crate root that wires reusable config loading (now including the ToolConfig tool directory setting re-exported from lib.rs), now-public crate-local external re-export adapters, logging, protocol models (whose SessionMessage between-session envelope is now re-exported from lib.rs alongside SessionEvent), and structure utilities; the tool schema/preview contracts now live in the protocol module and the Tool executable handle now lives in the host crate's executor module (host/executor/tool.rs), so common no longer owns a tool module. Concrete selectable interfaces live in child modules while lib.rs remains namespace and re-export wiring.",
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs"],
   "childModules": [
     {
       "path": "src/common/config",
@@ -25,7 +26,7 @@
     {
       "path": "src/common/protocol",
       "name": "protocol",
-      "purpose": "Owns shared session, task, and tool-execution protocol interface types: identifiers, signatures, session events, statuses, updates, the ExecutionRequest execution request that carries an ExecutionSignature plus prompt, an optional raw tool input string, and user options, and the ToolSchema/ToolPreview tool metadata contracts relocated from the removed tool module."
+      "purpose": "Owns shared session, task, and tool-execution protocol interface types: identifiers, signatures, session events, statuses, updates, the SessionMessage between-session network envelope that wraps a SessionEvent with a timestamp and source_name, the ExecutionRequest execution request that carries an ExecutionSignature plus prompt, an optional raw tool input string, and user options, and the ToolSchema/ToolPreview tool metadata contracts relocated from the removed tool module."
     },
     {
       "path": "src/common/structure",

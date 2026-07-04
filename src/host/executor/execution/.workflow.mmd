@@ -1,5 +1,5 @@
 flowchart LR
-  %% Per-execution host runtime: ExecutionRuntime runs a Tool via ExecutionContext and streams status/updates to the agent by synchronously locking agent_tx (std::sync::Mutex) and calling try_send.
+  %% Per-execution host runtime: ExecutionRuntime runs a Tool via ExecutionContext and streams status/updates to the agent by synchronously locking agent_tx (std::sync::Mutex), packaging each SessionEvent into a SessionMessage via HostSession::package_message (send_event), and calling try_send; the local execution_tx/execution_rx control channel stays Sender/Receiver<SessionEvent>.
   subgraph execution_rs[execution.rs]
     ExecutionRuntime["ExecutionRuntime\nstruct"]
   end
@@ -18,17 +18,19 @@ flowchart LR
     ExecutionEvent["ExecutionEvent"]
     ExecutionStatus["ExecutionStatus"]
     ExecutionUpdate["ExecutionUpdate"]
+    SessionMessage["SessionMessage\n(between-session envelope)"]
     SessionEvent["SessionEvent"]
   end
 
   ExecutionRuntime -->|"owns Arc"| ExecutionContext
   ExecutionRuntime -->|"execution_tx/rx carry"| SessionEvent
+  SessionMessage -->|"wraps event"| SessionEvent
   ExecutionRuntime -->|"event loop recv Cancel/Kill"| ExecutionEvent
   ExecutionRuntime -->|"runs tool.execute via context"| Tool
   ExecutionRuntime -->|"emits Started/Succeed/Canceled/Killed"| ExecutionStatus
   ExecutionRuntime -->|"emits execution output"| ExecutionUpdate
-  ExecutionRuntime -->|"try_send to forward on agent_tx"| SessionEvent
+  ExecutionRuntime -->|"send_event packages via HostSession::package_message, try_send agent_tx SharedNetSender<SessionMessage>"| SessionMessage
   ExecutionContext -->|"holds tool handle"| Tool
   ExecutionContext -->|"holds parameters"| ExecutionRequest
   ExecutionRequest -->|"signature"| ExecutionSignature
-  ExecutionContext -->|"agent_tx std::sync::Mutex sender"| SessionEvent
+  ExecutionContext -->|"agent_tx std::sync::Mutex SharedNetSender<SessionMessage>"| SessionMessage

@@ -1,14 +1,15 @@
 flowchart LR
-  %% mod.rs only declares child files and re-exports Session and SessionContext; Session::new spawns the client and host workers directly (no separate run).
+  %% mod.rs only declares child files and re-exports Session and SessionContext; Session::new(name) stores the session name in SOURCE_NAME, spawns the client and host workers directly (no separate run), and exposes the static package_message.
   subgraph session_rs[session.rs]
     Session["Session\nstruct"]
+    SourceName["SOURCE_NAME\nstatic session name"]
   end
 
   subgraph session_context_rs[session_context.rs]
     SessionContext["SessionContext\nstruct"]
     Tasks["tasks\nWorkQueue<TaskId, Task>"]
-    ClientChannel["client_tx/client_rx\nSessionEvent channels"]
-    HostChannel["host_tx/host_rx\nSessionEvent channels"]
+    ClientChannel["client_tx/client_rx\nSessionMessage channels"]
+    HostChannel["host_tx/host_rx\nSessionMessage channels"]
   end
 
   subgraph task_module[task module]
@@ -16,20 +17,25 @@ flowchart LR
   end
 
   subgraph common_protocol[common protocol]
+    SessionMessage["SessionMessage\n(between-session envelope)"]
     SessionEvent["SessionEvent"]
     TaskEvent["TaskEvent"]
     ExecutionEvent["ExecutionEvent"]
   end
 
   Session -->|"Arc<SessionContext>"| SessionContext
-  Session -->|"accepts client remoc channel"| ClientChannel
-  Session -->|"accepts host remoc channel"| HostChannel
-  ClientChannel -->|"client SessionEvent stream"| SessionContext
-  HostChannel -->|"host SessionEvent stream"| SessionContext
+  Session -->|"new(name) stores"| SourceName
+  Session -->|"accept_channel::<SessionMessage>"| ClientChannel
+  Session -->|"accept_channel::<SessionMessage>"| HostChannel
+  Session -->|"package_message(event) stamps SOURCE_NAME"| SessionMessage
+  SessionMessage -->|"wraps event"| SessionEvent
+  ClientChannel -->|"recv SessionMessage; unwrap message.event"| SessionContext
+  HostChannel -->|"recv SessionMessage; unwrap message.event"| SessionContext
   SessionContext -->|"creates via Task::new (auto-starts worker)"| Task
   SessionContext -->|"stores by TaskId"| Tasks
   SessionContext -->|"routes TaskEvent"| TaskEvent
   SessionContext -->|"routes ExecutionEvent"| ExecutionEvent
   TaskEvent -->|"wrapped by"| SessionEvent
   ExecutionEvent -->|"wrapped by"| SessionEvent
+  SessionContext -->|"packages CreateFailed via package_message then try_send"| ClientChannel
   SessionContext -->|"sends routed SessionEvent via task sender"| Task

@@ -13,6 +13,7 @@ static CONFIG_CACHE: OnceLock<Result<Config, String>> = OnceLock::new();
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Config {
+    pub name: String,
     pub platform: Platform,
     pub runtime: RuntimeConfig,
     pub core: CoreConfig,
@@ -153,6 +154,7 @@ pub struct ToolConfig {
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct RawConfig {
+    name: String,
     runtime: RuntimeConfig,
     core: Option<CoreConfig>,
     client: ClientConfig,
@@ -210,6 +212,7 @@ fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
     let runtime = resolve_runtime_paths(&repo_root, raw_config.runtime);
 
     Ok(Config {
+        name: raw_config.name,
         platform,
         runtime,
         core: raw_config.core.unwrap_or_else(default_core_config),

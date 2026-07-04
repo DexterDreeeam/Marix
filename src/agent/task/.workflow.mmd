@@ -1,5 +1,5 @@
 flowchart LR
-  %% mod.rs re-exports task types; Task::new spawns the event-loop worker directly (no separate run); Task drives model steps on worker threads and emits events by synchronously locking client_tx (std::sync::Mutex) and calling try_send.
+  %% mod.rs re-exports task types; Task::new spawns the event-loop worker directly (no separate run); Task drives model steps on worker threads and emits events by synchronously locking client_tx (std::sync::Mutex), packaging each SessionEvent into a SessionMessage via Session::package_message, and calling try_send. The local task_tx/task_rx control channel stays Sender/Receiver<SessionEvent>.
   subgraph step_rs[step.rs]
     StepSequence["StepSequence\nstruct"]
     Step["Step\nstruct"]
@@ -22,6 +22,7 @@ flowchart LR
   end
 
   subgraph common_interfaces[common interfaces]
+    SessionMessage["SessionMessage\n(between-session envelope)"]
     SessionEvent["SessionEvent"]
     WorkQueue["WorkQueue"]
     ExecutionRequest["ExecutionRequest"]
@@ -44,7 +45,9 @@ flowchart LR
   Task -->|"owns Arc<TaskContext>"| TaskContext
   Task -->|"raises + executes"| Step
   Task -->|"requests model step, streams ModelResponse"| ModelBackend
-  Task -->|"worker recv; emits Task Status, forwards host exec events via try_send"| SessionEvent
+  Task -->|"worker recv on local task_tx Sender<SessionEvent>"| SessionEvent
+  Task -->|"packages Task Status + forwarded host exec events via Session::package_message, try_send to client"| SessionMessage
+  SessionMessage -->|"wraps event"| SessionEvent
   Task -->|"initial step stamps ExecutionRequest.signature"| ExecutionSignature
 
   TaskContext -->|"signature"| TaskSignature
@@ -53,6 +56,6 @@ flowchart LR
   TaskContext -->|"executions: WorkQueue<ExeId, Execution>"| WorkQueue
   TaskContext -->|"tracks"| Execution
   TaskContext -->|"execution key"| ExeId
-  TaskContext -->|"client_tx / host_tx"| SessionEvent
+  TaskContext -->|"client_tx / host_tx SharedNetSender<SessionMessage>"| SessionMessage
 
   Execution -->|"latest_event"| SessionEvent

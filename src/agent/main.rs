@@ -13,7 +13,7 @@ fn main() {
         eprintln!("agent is disabled by configuration");
         std::process::exit(1);
     }
-    let _session = Session::new();
+    let _session = Session::new(config.name);
     loop {
         std::thread::park();
     }

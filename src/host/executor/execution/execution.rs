@@ -2,9 +2,10 @@ use std::sync::Arc;
 use std::thread::{self, JoinHandle};
 
 use crate::executor::Tool;
+use crate::session::HostSession;
 use marix_common::{
     ExecutionEvent, ExecutionRequest, ExecutionStatus, ExecutionUpdate, Receiver, Sender,
-    SessionEvent, SharedNetSender, build_channel,
+    SessionEvent, SessionMessage, SharedNetSender, build_channel,
 };
 
 use super::ExecutionContext;
@@ -19,7 +20,7 @@ impl ExecutionRuntime {
     pub fn new(
         tool: Tool,
         parameters: ExecutionRequest,
-        agent_tx: SharedNetSender<SessionEvent>,
+        agent_tx: SharedNetSender<SessionMessage>,
     ) -> Self {
         let (execution_tx, execution_rx) = build_channel();
         let context = Arc::new(ExecutionContext::new(tool, parameters, agent_tx));
@@ -96,7 +97,7 @@ impl ExecutionRuntime {
             .unwrap_or_else(|error| error.into_inner())
             .as_mut()
         {
-            let _ = sender.try_send(event);
+            let _ = sender.try_send(HostSession::package_message(event));
         }
     }
 }

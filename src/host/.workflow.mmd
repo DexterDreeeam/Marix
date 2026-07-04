@@ -1,6 +1,6 @@
 flowchart LR
-  %% HostSession now connects to the agent's configured host bind address (spawn_worker -> connect_channel), owns a single per-connection Executor built by Executor::new(agent_tx), and pumps inbound SessionEvents through run_worker -> Executor::route_session_event over a current-thread tokio runtime; close signals the shutdown flag and joins the worker. The executor is a single route_session_event router (intercepts Evoke into create_execution to spawn+track an ExecutionRuntime, and forwards other execution events to the target ExecutionRuntime via executions.with), while the execution runtime and ToolRegistry are implemented. Executor::new(agent_tx) stores the shared agent SessionEvent sender and builds a ToolRegistry that reads the global Config and loads Tool handles from the configured tool directory.
-  %% main.rs is the marix-host binary entry that loads the global Config and runs HostSession::new().
+  %% HostSession now connects to the agent's configured host bind address (spawn_worker -> connect_channel::<SessionMessage>), owns a single per-connection Executor built by Executor::new(agent_tx), and pumps inbound SessionMessage envelopes through run_worker -> unwrap message.event -> Executor::route_session_event over a current-thread tokio runtime; new(name) stores the session name in SOURCE_NAME and HostSession exposes a static package_message(SessionEvent) -> SessionMessage; close signals the shutdown flag and joins the worker. The executor is a single route_session_event router (intercepts Evoke into create_execution to spawn+track an ExecutionRuntime, and forwards other execution events to the target ExecutionRuntime via executions.with), while the execution runtime and ToolRegistry are implemented. Executor::new(agent_tx) stores the shared agent SessionMessage sender and builds a ToolRegistry that reads the global Config and loads Tool handles from the configured tool directory.
+  %% main.rs is the marix-host binary entry that loads the global Config and runs HostSession::new(config.name).
   subgraph main_rs[main.rs marix-host bin]
     MarixHostBin["marix-host\nbin entry: Config + HostSession"]
   end
@@ -22,6 +22,7 @@ flowchart LR
   end
 
   subgraph common_protocol[common protocol]
+    SessionMessage["SessionMessage\n(between-session envelope)"]
     SessionEvent["SessionEvent"]
     ExeId["ExeId"]
     ExecutionRequest["ExecutionRequest"]
@@ -36,11 +37,12 @@ flowchart LR
   end
 
   MarixHostBin -->|"loads / exits on error"| Config
-  MarixHostBin -->|"runs HostSession::new()"| HostSession
-  HostSession -->|"spawn_worker connect_channel to agent"| SessionEvent
+  MarixHostBin -->|"runs HostSession::new(config.name)"| HostSession
+  HostSession -->|"spawn_worker connect_channel::<SessionMessage>; run_worker recv SessionMessage, unwraps message.event"| SessionMessage
+  SessionMessage -->|"wraps event"| SessionEvent
   HostSession -->|"spawn_worker loads host_bind_address from"| Config
   HostSession -->|"spawn_worker owns Executor::new(agent_tx)"| Executor
-  HostSession -->|"run_worker recv -> route_session_event"| Executor
+  HostSession -->|"run_worker unwraps message.event -> route_session_event"| Executor
   Executor -->|"new stores agent_tx + builds/owns"| ToolRegistry
   Executor -->|"executions WorkQueue keyed by"| ExeId
   Executor -->|"route_session_event consumes"| SessionEvent
@@ -48,13 +50,13 @@ flowchart LR
   Executor -->|"forward_to_execution: executions.with borrows sender, forwards SessionEvent"| ExecutionRuntime
   ExecutionRuntime -->|"owns Arc"| ExecutionContext
   ExecutionContext -->|"parameters.signature"| ExecutionSignature
-  ExecutionContext -->|"agent_tx forwards"| SessionEvent
+  ExecutionContext -->|"send_event packages via HostSession::package_message, try_send agent_tx SharedNetSender<SessionMessage>"| SessionMessage
   ToolRegistry -->|"loads via Tool::load / holds handles"| Tool
   ToolRegistry -->|"preview advertises"| ToolPreview
   ToolRegistry -->|"new reads tool directory from"| Config
   Executor -->|"create_execution consumes"| ExecutionRequest
   Executor -->|"emit_failed reports Failed"| ExecutionStatus
-  Executor -->|"emit_failed try_send via agent_tx"| SessionEvent
+  Executor -->|"emit_failed packages via HostSession::package_message, try_send agent_tx SharedNetSender<SessionMessage>"| SessionMessage
   ExecutionRuntime -->|"streams status/update payloads"| ExecutionUpdate
   ExecutionContext -->|"holds host-local Tool handle"| Tool
   Tool -->|"spawns --preview/--run executables built by"| ToolProgram
