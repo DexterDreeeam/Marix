@@ -3,14 +3,14 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout. It organizes the agent, client, common, host, first-class marix-protocol, and tool crates. Common now owns config, external adapters, logging, and structure helpers, while marix-protocol owns reusable session/task/step/execution/tool protocol contracts imported by the agent, client, host, and tool crates.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes the agent, client, common, prompt, host, first-class marix-protocol, and tool crates/modules; implemented agent task previews expose task signature request names with empty result placeholders while tool previews remain separately rendered.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent crate namespace for model/session/task orchestration; it now imports shared protocol contracts from marix-protocol."
+      "purpose": "Agent crate namespace for model/session/task/prompt orchestration; it exposes implemented Task::preview metadata and renders initial prompt context from prior task previews while tools remain separately rendered."
     },
     {
       "path": "src/client",
@@ -23,9 +23,14 @@
       "purpose": "Shared common crate namespace for config loading, external adapters, logging, and structure utilities; protocol contracts have moved to the marix-protocol workspace crate."
     },
     {
+      "path": "src/prompt",
+      "name": "prompt",
+      "purpose": "Owns prompt templates used by model-facing steps, including schema-guided execution invocation examples for step planning and composition."
+    },
+    {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "First-class marix-protocol workspace crate for reusable session, task, step, execution, and tool protocol definitions."
+      "purpose": "First-class marix-protocol workspace crate for reusable session, task, step, execution, and tool protocol definitions; TaskPreview now contains request/result only."
     },
     {
       "path": "src/host",
@@ -38,5 +43,8 @@
       "purpose": "Top-level marix-tool crate that defines ToolProgram and native tool executables; it now depends on marix-protocol for tool preview/schema protocol types."
     }
   ],
-  "elements": []
+  "elements": [],
+  "modified": [
+    "."
+  ]
 }

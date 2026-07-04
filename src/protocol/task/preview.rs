@@ -1,9 +1,8 @@
 use crate::external::*;
-use crate::{TaskRequestBrief, TaskResult, TaskSignature};
+use crate::{TaskRequestBrief, TaskResult};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TaskPreview {
-    pub signature: TaskSignature,
     pub request: TaskRequestBrief,
     pub result: TaskResult,
 }

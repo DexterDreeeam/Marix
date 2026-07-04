@@ -3,8 +3,8 @@
   "module": {
     "path": "src/agent/task",
     "name": "task",
-    "purpose": "Owns agent task and step runtime state. Protocol step/task/session/execution types now come from marix-protocol while common continues to provide configuration, channel, sender, receiver, and queue helpers.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns agent task and step runtime state. Task exposes sender, raise, and an implemented public preview interface that returns a TaskPreview with the task signature name as the request content and an empty result placeholder while Task::new wires shared SessionContext into TaskState.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -28,28 +28,41 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 17,
-          "lineEnd": 21,
+          "lineStart": 20,
+          "lineEnd": 24,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 23,
-          "lineEnd": 54,
+          "lineStart": 26,
+          "lineEnd": 70,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 28,
+              "lineEnd": 28
+            },
+            {
+              "lineStart": 35,
+              "lineEnd": 35
+            },
+            {
+              "lineStart": 60,
+              "lineEnd": 69
+            }
+          ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 58,
-          "lineEnd": 211,
+          "lineStart": 74,
+          "lineEnd": 227,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -60,25 +73,43 @@
       "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task_state.rs",
-          "lineStart": 9,
-          "lineEnd": 15,
+          "lineStart": 11,
+          "lineEnd": 18,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 12
+            }
+          ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/task/task_state.rs",
-          "lineStart": 17,
-          "lineEnd": 32,
+          "lineStart": 20,
+          "lineEnd": 37,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 22
+            },
+            {
+              "lineStart": 29,
+              "lineEnd": 29
+            }
+          ],
           "modifiedLines": []
         }
       ]
     }
+  ],
+  "modified": [
+    "task.rs",
+    "task_state.rs"
   ]
 }

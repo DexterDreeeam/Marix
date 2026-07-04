@@ -3,8 +3,8 @@
   "module": {
     "path": "src/agent/session",
     "name": "session",
-    "purpose": "Owns the agent session runtime and session preview context. Protocol events, messages, signatures, task ids, task previews, and tool previews now come from marix-protocol; common remains the source for configuration and channel helpers.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent session runtime and shared session preview context. SessionState stores SessionContext behind Arc<StdMutex<_>> so created tasks can receive shared task/tool preview context while current host-preview reset/query behavior is preserved.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
@@ -33,9 +33,14 @@
         {
           "sourcePath": "src/agent/session/session.rs",
           "lineStart": 42,
-          "lineEnd": 225,
+          "lineEnd": 226,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 166,
+              "lineEnd": 166
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -60,7 +65,7 @@
       "name": "SessionState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session_state.rs",
@@ -68,7 +73,12 @@
           "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 10
+            }
+          ]
         },
         {
           "sourcePath": "src/agent/session/session_state.rs",
@@ -76,7 +86,12 @@
           "lineEnd": 32,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 21,
+              "lineEnd": 24
+            }
+          ]
         }
       ]
     },
@@ -96,5 +111,9 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "session.rs",
+    "session_state.rs"
   ]
 }

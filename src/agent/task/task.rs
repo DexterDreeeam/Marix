@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use std::sync::Mutex as StdMutex;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::thread::{self, JoinHandle};
 
@@ -7,11 +8,13 @@ use marix_common::{
 };
 use marix_protocol::{
     ExecutionEvent, ModelStepKind, SessionEvent, SessionMessage, StepEvent, StepKind, StepResult,
-    StepSignature, StepStatus, TaskEvent, TaskSignature, TaskStatus,
+    StepSignature, StepStatus, TaskEvent, TaskPreview, TaskRequestBrief, TaskResult, TaskSignature,
+    TaskStatus,
 };
 
 use crate::model::{DeepseekBackend, ModelBackend, ModelRequest, ModelResponse};
 use crate::session::Session;
+use crate::session::SessionContext;
 use crate::task::{Step, TaskState};
 
 pub struct Task {
@@ -22,12 +25,14 @@ pub struct Task {
 
 impl Task {
     pub fn new(
+        session_context: Arc<StdMutex<SessionContext>>,
         signature: TaskSignature,
         client_tx: SharedNetSender<SessionMessage>,
         host_tx: SharedNetSender<SessionMessage>,
     ) -> Self {
         let (task_tx, task_rx) = build_channel();
         let state = Arc::new(TaskState::new(
+            session_context,
             signature,
             Self::build_model_backend(),
             client_tx,
@@ -50,6 +55,17 @@ impl Task {
 
     pub fn raise(&self, step: Step) {
         Self::run_step(Arc::clone(&self.state), step);
+    }
+
+    pub fn preview(&self) -> TaskPreview {
+        TaskPreview {
+            request: TaskRequestBrief {
+                content: self.state.signature.name.clone(),
+            },
+            result: TaskResult {
+                content: String::new(),
+            },
+        }
     }
 }
 

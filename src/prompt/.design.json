@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/prompt",
+    "name": "prompt",
+    "purpose": "Owns prompt templates used by model-facing steps, including schema-guided execution invocation examples for step planning and composition.",
+    "changeStatus": "modified"
+  },
+  "modified": [
+    "."
+  ],
+  "childModules": [
+    {
+      "path": "src/prompt/step",
+      "name": "step",
+      "purpose": "Owns step model prompt templates for Initial, Plan, ExecutionAnalysis, and Composition, including schema-guided execution invocation examples and StepDraft payload-shape guidance."
+    }
+  ],
+  "elements": []
+}

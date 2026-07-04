@@ -3,8 +3,8 @@
   "module": {
     "path": "src/protocol/task",
     "name": "task",
-    "purpose": "Owns task protocol contracts: TaskId allocation, TaskEvent notifications, TaskRequestBrief input, TaskPreview snapshots, TaskResult output, TaskSignature construction, and TaskStatus lifecycle states.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns task protocol contracts: TaskId allocation, TaskEvent notifications, TaskRequestBrief input, TaskPreview request/result snapshots without embedded signatures, TaskResult output, TaskSignature construction, and TaskStatus lifecycle states.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -73,18 +73,18 @@
       "name": "TaskPreview",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/preview.rs",
           "lineStart": 5,
-          "lineEnd": 9,
+          "lineEnd": 8,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 5,
-              "lineEnd": 8
+              "lineEnd": 7
             }
           ]
         }
@@ -151,5 +151,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "preview.rs"
   ]
 }

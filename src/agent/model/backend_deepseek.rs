@@ -38,7 +38,7 @@ impl ModelBackendImpl for DeepseekBackend {
             "model": self.config.model.trim(),
             "messages": [
                 {
-                    "role": "user",
+                    "role": "agent",
                     "content": request.prompt
                 }
             ],

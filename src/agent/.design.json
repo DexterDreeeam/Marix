@@ -3,24 +3,29 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent crate namespace for model/session/task orchestration. Cargo.toml now depends on marix-protocol, and session/task internals import shared protocol contracts from that crate.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent crate namespace for model/session/task/prompt orchestration. It re-exports Prompt and InitialPrompt, provides task runtime APIs including the implemented Task::preview TaskPreview interface, and renders initial prompt context from previous task previews while tools stay in {{#Tools}}.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/agent/model",
       "name": "model",
-      "purpose": "Owns agent model backend traits, request/response data, backend errors, and the implemented Deepseek streaming backend. ModelRequest carries the model-facing task Step and derives only Debug/Clone now that Step is no longer Eq. ModelBackendImpl exposes only send, bridged to ModelBackend by a blanket impl; DeepseekBackend loads its config and issues streaming Deepseek chat-completions requests, and ModelBackendError converts io, serde_json, and reqwest errors."
+      "purpose": "Owns agent model backend traits, request/response data, backend errors, and the implemented Deepseek streaming backend. ModelRequest carries the model-facing task Step and derives only Debug/Clone now that Step is no longer Eq. ModelBackendImpl exposes only send, bridged to ModelBackend by a blanket impl; DeepseekBackend loads its config and issues streaming Deepseek chat-completions requests with an agent-role single-message payload, and ModelBackendError converts io, serde_json, and reqwest errors."
+    },
+    {
+      "path": "src/agent/prompt",
+      "name": "prompt",
+      "purpose": "Defines the agent prompt interface and InitialPrompt template renderer; Context is built from previous task previews as request/result lines while tool previews are rendered separately through {{#Tools}}."
     },
     {
       "path": "src/agent/session",
       "name": "session",
-      "purpose": "Owns Session startup/routing behavior, SessionState storage with SessionContext, host-preview bootstrap via ExecutionSignature::new preview queries, Preview tool storage, and signed Step-event routing that is safely ignored as SessionEvent::Step(_, _)."
+      "purpose": "Owns Session startup/routing behavior, SessionState storage with shared Arc<StdMutex<SessionContext>>, host-preview bootstrap via ExecutionSignature::new preview queries, Preview tool storage, and task creation that passes the shared session context into Task::new."
     },
     {
       "path": "src/agent/task",
       "name": "task",
-      "purpose": "Owns the implemented task runtime, including StepSignature::new initial-step construction that preserves the task signature and passes the task name as the initial step description for model steps."
+      "purpose": "Owns the implemented task runtime, including Task::preview producing a TaskPreview request from the task signature name with an empty result placeholder, plus Task/TaskState wiring that receives shared session context."
     }
   ],
   "elements": [
@@ -40,5 +45,9 @@
         }
       ]
     }
+  ],
+  "modified": [
+    ".",
+    "lib.rs"
   ]
 }

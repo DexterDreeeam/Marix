@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/agent/prompt",
+    "name": "prompt",
+    "purpose": "Defines the agent prompt interface and the initial prompt renderer. InitialPrompt loads configured templates, renders Context from previous task previews as request/result lines only, and renders tools separately through the {{#Tools}} placeholder.",
+    "changeStatus": "modified"
+  },
+  "modified": [
+    "initial.rs"
+  ],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "Prompt",
+      "type": "trait",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/prompt/prompt.rs",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "InitialPrompt",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/prompt/initial.rs",
+          "lineStart": 9,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/prompt/initial.rs",
+          "lineStart": 14,
+          "lineEnd": 21,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/prompt/initial.rs",
+          "lineStart": 23,
+          "lineEnd": 42,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 24,
+              "lineEnd": 40
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/agent/prompt/initial.rs",
+          "lineStart": 46,
+          "lineEnd": 77,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 46,
+              "lineEnd": 77
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

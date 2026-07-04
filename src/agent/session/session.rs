@@ -163,6 +163,7 @@ impl Session {
         }
         let task_id = signature.id.clone();
         let task = Task::new(
+            Arc::clone(&state.context),
             signature,
             Arc::clone(&state.client_tx),
             Arc::clone(&state.host_tx),
