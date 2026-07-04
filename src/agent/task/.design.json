@@ -3,37 +3,17 @@
   "module": {
     "path": "src/agent/task",
     "name": "task",
-    "purpose": "Owns the agent task runtime. task.rs defines Task { context: Arc<TaskState>, task_tx, worker }, whose new builds the Arc<TaskState> and spawns TaskState::event_loop, and exposes sender() and raise(step) (Arc::clone(&self.context).run_step(step)); below a // -- Private -- // marker task.rs keeps the private impl Task { build_model_backend } helper plus the private behavior impl TaskState block whose methods all take self/&self (never a passed context): event_loop(context, task_rx), run_step(self: Arc<Self>, step) (spawning the step worker thread), initial_step (stamping the ExecutionRequest with an ExecutionSignature { task_id, exe_id, name }), execute_model_step, emit_status, and send_event (packaging each SessionEvent into a SessionMessage via Session::package_message before try_send). task_state.rs (renamed from task_context.rs) is the plain TaskState data struct: it holds the task signature, a std::sync::Mutex-guarded model backend, the client/host SharedNetSender<SessionMessage> network senders, and the execution and step WorkQueues, and defines only pub fn new() with no behavior methods. step.rs defines the StepSequence ordering key, the Step record (whose parameters field is an ExecutionRequest), and the StepKind/ToolStepKind/ModelStepKind/UserStepKind classification enums; execution.rs defines the Execution record; the local task_tx/task_rx control channel stays SessionEvent; mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent task runtime. task.rs defines Task { context: Arc<TaskState>, task_tx, worker }, whose new builds the Arc<TaskState> and spawns TaskState::event_loop, and exposes sender() and raise(step) (Arc::clone(&self.context).run_step(step)); below a // -- Private -- // marker task.rs keeps the private impl Task { build_model_backend } helper plus the private behavior impl TaskState block whose methods all take self/&self: event_loop(context, task_rx), run_step(self: Arc<Self>, step) (keying the step WorkQueue by step.signature.step_no, matching step.signature.kind, and spawning the step worker thread), initial_step (building a Step whose StepSignature is { step_no: 0, name: the task name, kind: StepKind::Model(ModelStepKind::Initial) } with StepStatus::Prepare and a fresh Arc<AtomicUsize> update_count), execute_model_step (whose prompt is the task name), emit_status, and send_event (packaging each SessionEvent into a SessionMessage via Session::package_message before try_send). task_state.rs (renamed from task_context.rs) is the plain TaskState data struct: it holds the task signature, a std::sync::Mutex-guarded model backend, the client/host SharedNetSender<SessionMessage> network senders, the execution WorkQueue<ExeId, Execution>, and the step WorkQueue<usize, Step>, and defines only pub fn new() with no behavior methods. step.rs defines only the Step record (signature: StepSignature, status: StepStatus, update_count: Arc<AtomicUsize>) built on the protocol StepSignature/StepStatus contracts and deriving Debug, Clone; execution.rs defines the Execution record; the local task_tx/task_rx control channel stays SessionEvent; mod.rs is namespace and re-export wiring only, now re-exporting only Step.",
+    "changeStatus": "modified"
   },
+  "modified": ["step.rs", "task.rs", "task_state.rs", "mod.rs"],
   "childModules": [],
   "elements": [
-    {
-      "name": "StepSequence",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/agent/task/step.rs",
-          "lineStart": 3,
-          "lineEnd": 4,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 3,
-              "lineEnd": 4
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
     {
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/step.rs",
@@ -43,94 +23,14 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 10,
+              "lineStart": 6,
+              "lineEnd": 6
+            },
+            {
+              "lineStart": 8,
               "lineEnd": 10
             }
           ]
-        }
-      ]
-    },
-    {
-      "name": "StepKind",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/agent/task/step.rs",
-          "lineStart": 13,
-          "lineEnd": 18,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 13,
-              "lineEnd": 18
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ToolStepKind",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/agent/task/step.rs",
-          "lineStart": 20,
-          "lineEnd": 25,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 20,
-              "lineEnd": 25
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ModelStepKind",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/agent/task/step.rs",
-          "lineStart": 27,
-          "lineEnd": 34,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 27,
-              "lineEnd": 34
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "UserStepKind",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/agent/task/step.rs",
-          "lineStart": 36,
-          "lineEnd": 40,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 36,
-              "lineEnd": 40
-            }
-          ],
-          "modifiedLines": []
         }
       ]
     },
@@ -142,46 +42,24 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 14,
-          "lineEnd": 18,
+          "lineStart": 15,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 15,
-              "lineEnd": 15
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 20,
-          "lineEnd": 51,
+          "lineStart": 21,
+          "lineEnd": 52,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 23,
-              "lineEnd": 24
-            },
-            {
-              "lineStart": 27,
-              "lineEnd": 27
-            },
-            {
-              "lineStart": 35,
-              "lineEnd": 35
-            },
-            {
-              "lineStart": 49,
-              "lineEnd": 49
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 55,
-          "lineEnd": 63,
+          "lineStart": 56,
+          "lineEnd": 64,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -192,7 +70,7 @@
       "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task_state.rs",
@@ -202,12 +80,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 8,
-              "lineEnd": 8
-            },
-            {
-              "lineStart": 11,
-              "lineEnd": 12
+              "lineStart": 14,
+              "lineEnd": 14
             }
           ]
         },
@@ -217,29 +91,37 @@
           "lineEnd": 33,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 17
-            },
-            {
-              "lineStart": 21,
-              "lineEnd": 22
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 65,
-          "lineEnd": 168,
+          "lineStart": 66,
+          "lineEnd": 161,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 65,
-              "lineEnd": 168
+              "lineStart": 106,
+              "lineEnd": 107
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 86,
+              "lineEnd": 87
+            },
+            {
+              "lineStart": 89,
+              "lineEnd": 89
+            },
+            {
+              "lineStart": 101,
+              "lineEnd": 104
+            },
+            {
+              "lineStart": 112,
+              "lineEnd": 112
+            }
+          ]
         }
       ]
     },

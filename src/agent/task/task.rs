@@ -1,15 +1,16 @@
 use std::sync::Arc;
+use std::sync::atomic::AtomicUsize;
 use std::thread::{self, JoinHandle};
 
 use marix_common::{
-    Config, ExeId, ExecutionEvent, ExecutionRequest, ExecutionSignature,
-    ModelBackend as ConfigModelBackend, Receiver, Sender, SessionEvent, SessionMessage,
-    SharedNetSender, TaskEvent, TaskSignature, TaskStatus, build_channel,
+    Config, ExecutionEvent, ModelBackend as ConfigModelBackend, ModelStepKind, Receiver, Sender,
+    SessionEvent, SessionMessage, SharedNetSender, StepKind, StepSignature, StepStatus, TaskEvent,
+    TaskSignature, TaskStatus, build_channel,
 };
 
 use crate::model::{DeepseekBackend, ModelBackend, ModelRequest, ModelResponse};
 use crate::session::Session;
-use crate::task::{ModelStepKind, Step, StepKind, StepSequence, TaskState};
+use crate::task::{Step, TaskState};
 
 pub struct Task {
     context: Arc<TaskState>,
@@ -82,9 +83,10 @@ impl TaskState {
     }
 
     fn run_step(self: Arc<Self>, step: Step) {
-        self.steps.insert_or_update(step.sequence, step.clone());
+        self.steps
+            .insert_or_update(step.signature.step_no, step.clone());
         thread::spawn(move || {
-            if matches!(step.kind, StepKind::Model(_)) {
+            if matches!(step.signature.kind, StepKind::Model(_)) {
                 self.execute_model_step(step);
             } else {
                 self.emit_status(TaskStatus::Failed {
@@ -96,27 +98,18 @@ impl TaskState {
 
     fn initial_step(&self) -> Step {
         Step {
-            sequence: StepSequence(0),
-            kind: StepKind::Model(ModelStepKind::Initial),
-            parameters: ExecutionRequest {
-                signature: ExecutionSignature {
-                    task_id: self.signature.id.clone(),
-                    exe_id: ExeId::new(),
-                    name: self.signature.name.clone(),
-                },
-                prompt: Some(self.signature.name.clone()),
-                tool_request: None,
-                user_options: Vec::new(),
+            signature: StepSignature {
+                step_no: 0,
+                name: self.signature.name.clone(),
+                kind: StepKind::Model(ModelStepKind::Initial),
             },
+            status: StepStatus::Prepare,
+            update_count: Arc::new(AtomicUsize::new(0)),
         }
     }
 
     fn execute_model_step(&self, step: Step) {
-        let prompt = step
-            .parameters
-            .prompt
-            .clone()
-            .unwrap_or_else(|| self.signature.name.clone());
+        let prompt = self.signature.name.clone();
         let request = ModelRequest { step, prompt };
         let responses = {
             let mut backend = self

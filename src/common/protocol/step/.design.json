@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/common/protocol/step",
+    "name": "step",
+    "purpose": "Owns the step protocol split out from the former step.rs into per-type files: StepKind with Model(ModelStepKind)/Execution(ExecutionStepKind)/User(UserStepKind) sub-kinds where ExecutionStepKind::Invocation carries an ExecutionRequest (kind.rs), the StepSignature record carrying step_no/name/kind (signature.rs), the StepEvent stream enum with Started/Update/Complete/Fail where Complete and Fail now carry a StepResult (event.rs), the StepResult content payload (result.rs), the StepStatus lifecycle enum Prepare/Process/Complete/Fail (status.rs), and the StepPreview signature+result record (preview.rs); mod.rs is re-export wiring only.",
+    "changeStatus": "added"
+  },
+  "added": ["."],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "StepKind",
+      "type": "enum",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/step/kind.rs",
+          "lineStart": 5,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ModelStepKind",
+      "type": "enum",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/step/kind.rs",
+          "lineStart": 12,
+          "lineEnd": 16,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 16
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ExecutionStepKind",
+      "type": "enum",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/step/kind.rs",
+          "lineStart": 18,
+          "lineEnd": 23,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 18,
+              "lineEnd": 23
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "UserStepKind",
+      "type": "enum",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/step/kind.rs",
+          "lineStart": 25,
+          "lineEnd": 29,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 29
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "StepSignature",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/step/signature.rs",
+          "lineStart": 5,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "StepEvent",
+      "type": "enum",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/step/event.rs",
+          "lineStart": 5,
+          "lineEnd": 19,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 19
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "StepResult",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/step/result.rs",
+          "lineStart": 3,
+          "lineEnd": 6,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 6
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "StepStatus",
+      "type": "enum",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/step/status.rs",
+          "lineStart": 5,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 11
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "StepPreview",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/step/preview.rs",
+          "lineStart": 5,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 9
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

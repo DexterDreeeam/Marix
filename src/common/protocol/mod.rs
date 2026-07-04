@@ -11,7 +11,8 @@ pub use execution::{
 pub use message::SessionMessage;
 pub use session::{ExeId, SessionEvent, TaskId};
 pub use step::{
-    ExecutionStepKind, ModelStepKind, StepEvent, StepKind, StepSignature, UserStepKind,
+    ExecutionStepKind, ModelStepKind, StepEvent, StepKind, StepPreview, StepResult, StepSignature,
+    StepStatus, UserStepKind,
 };
 pub use task::{TaskEvent, TaskSignature, TaskStatus};
 pub use tool::{ToolPreview, ToolSchema};

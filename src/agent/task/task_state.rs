@@ -3,7 +3,7 @@ use std::sync::Mutex as StdMutex;
 use marix_common::{ExeId, SessionMessage, SharedNetSender, TaskSignature, WorkQueue};
 
 use crate::model::ModelBackend;
-use crate::task::{Execution, Step, StepSequence};
+use crate::task::{Execution, Step};
 
 pub struct TaskState {
     pub signature: TaskSignature,
@@ -11,7 +11,7 @@ pub struct TaskState {
     pub client_tx: SharedNetSender<SessionMessage>,
     pub host_tx: SharedNetSender<SessionMessage>,
     pub executions: WorkQueue<ExeId, Execution>,
-    pub steps: WorkQueue<StepSequence, Step>,
+    pub steps: WorkQueue<usize, Step>,
 }
 
 impl TaskState {

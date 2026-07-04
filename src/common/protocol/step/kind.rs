@@ -1,5 +1,7 @@
 use crate::external::*;
 
+use crate::protocol::ExecutionRequest;
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum StepKind {
     Model(ModelStepKind),
@@ -15,7 +17,7 @@ pub enum ModelStepKind {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ExecutionStepKind {
-    Invocation,
+    Invocation(ExecutionRequest),
     Cancel,
     Kill,
 }
@@ -24,19 +26,4 @@ pub enum ExecutionStepKind {
 pub enum UserStepKind {
     Verdict,
     Warrant,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum StepEvent {
-    Started,
-    Update { seq: usize, content: String },
-    Complete { seq_count: usize },
-    Fail,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct StepSignature {
-    pub step_no: usize,
-    pub name: String,
-    pub kind: StepKind,
 }

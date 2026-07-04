@@ -3,10 +3,18 @@
   "module": {
     "path": "src/common/protocol",
     "name": "protocol",
-    "purpose": "Owns the shared session/task/execution protocol contracts exchanged over channels, plus the tool metadata contracts. session.rs defines the TaskId and ExeId identifiers and the top-level SessionEvent split between task and execution traffic; task.rs defines task signatures, task events (now including a Step(StepSignature, StepEvent) variant that splits a task into ordered steps), and task status; step.rs defines the step protocol: the StepKind enum with Model(ModelStepKind), Execution(ExecutionStepKind), and User(UserStepKind) sub-kinds (ModelStepKind Initial/JobPlan, ExecutionStepKind Invocation/Cancel/Kill, UserStepKind Verdict/Warrant), the StepEvent enum (Started, Update {seq, content}, Complete {seq_count}, Fail), and the StepSignature record (step_no, name, kind); execution.rs defines execution signatures, execution events that carry ToolPreview values from the sibling tool module, the ExecutionStatus and ExecutionUpdate models, and the ExecutionRequest execution parameter package whose lead field is an ExecutionSignature (task_id, exe_id, name) and whose tool_request now carries a raw Option<String> tool input (this is now the single execution request type, after the earlier input-only request struct was removed and the former parameter-package struct was renamed to ExecutionRequest); tool.rs now owns the ToolSchema input/output schema pair and the ToolPreview advertisement record (name, description, schema)     that were relocated here from the removed common::tool module. message.rs defines SessionMessage, the between-session network envelope that wraps a SessionEvent together with a millisecond timestamp and the sending session's source_name; SessionMessage::new stamps the timestamp inline. mod.rs now also re-exports SessionMessage and the step protocol types and is otherwise namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the shared session/task/execution protocol contracts exchanged over channels, plus the tool metadata contracts. session.rs defines the TaskId and ExeId identifiers and the top-level SessionEvent split between task and execution traffic; task.rs defines task signatures, task events (now including a Step(StepSignature, StepEvent) variant that splits a task into ordered steps), and task status; the step protocol now lives in the step child module (kind/signature/event/result/status/preview): StepKind with Model/Execution/User sub-kinds, StepSignature, the StepEvent stream, and the new StepResult, StepStatus, and StepPreview contracts; execution.rs defines execution signatures, execution events that carry ToolPreview values from the sibling tool module, the ExecutionStatus and ExecutionUpdate models, and the ExecutionRequest execution parameter package whose lead field is an ExecutionSignature (task_id, exe_id, name) and whose tool_request now carries a raw Option<String> tool input (this is now the single execution request type, after the earlier input-only request struct was removed and the former parameter-package struct was renamed to ExecutionRequest); tool.rs now owns the ToolSchema input/output schema pair and the ToolPreview advertisement record (name, description, schema) that were relocated here from the removed common::tool module. message.rs defines SessionMessage, the between-session network envelope that wraps a SessionEvent together with a millisecond timestamp and the sending session's source_name; SessionMessage::new stamps the timestamp inline. mod.rs now also re-exports SessionMessage and the step protocol types (StepKind, ModelStepKind, ExecutionStepKind, UserStepKind, StepSignature, StepEvent, StepResult, StepStatus, StepPreview) and is otherwise namespace and re-export wiring only.",
+    "changeStatus": "modified"
   },
-  "childModules": [],
+  "modified": ["mod.rs"],
+  "deleted": ["step.rs"],
+  "childModules": [
+    {
+      "path": "src/common/protocol/step",
+      "name": "step",
+      "purpose": "Owns the step protocol: StepKind with Model(ModelStepKind)/Execution(ExecutionStepKind)/User(UserStepKind) sub-kinds (kind.rs), the StepSignature record carrying step_no/name/kind (signature.rs), the StepEvent stream enum whose Complete/Fail variants now carry a StepResult (event.rs), the StepResult content payload (result.rs), the StepStatus lifecycle enum Prepare/Process/Complete/Fail (status.rs), and the StepPreview signature+result record (preview.rs)."
+    }
+  ],
   "elements": [
     {
       "name": "TaskId",
@@ -185,132 +193,6 @@
           "lineEnd": 28,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "StepKind",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/protocol/step.rs",
-          "lineStart": 3,
-          "lineEnd": 8,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 3,
-              "lineEnd": 8
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ModelStepKind",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/protocol/step.rs",
-          "lineStart": 10,
-          "lineEnd": 14,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 14
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ExecutionStepKind",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/protocol/step.rs",
-          "lineStart": 16,
-          "lineEnd": 21,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 16,
-              "lineEnd": 21
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "UserStepKind",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/protocol/step.rs",
-          "lineStart": 23,
-          "lineEnd": 27,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 23,
-              "lineEnd": 27
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "StepEvent",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/protocol/step.rs",
-          "lineStart": 29,
-          "lineEnd": 35,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 29,
-              "lineEnd": 35
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "StepSignature",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/protocol/step.rs",
-          "lineStart": 37,
-          "lineEnd": 42,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 37,
-              "lineEnd": 42
-            }
-          ],
           "modifiedLines": []
         }
       ]

@@ -17,7 +17,7 @@ pub(super) trait ModelBackendImpl: fmt::Debug + Send {
     -> Result<Receiver<ModelResponse>, ModelBackendError>;
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 pub struct ModelRequest {
     pub step: Step,
     pub prompt: String,
