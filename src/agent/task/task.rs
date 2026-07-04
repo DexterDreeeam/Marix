@@ -5,7 +5,7 @@ use std::thread::{self, JoinHandle};
 use marix_common::{
     Config, ExecutionEvent, ModelBackend as ConfigModelBackend, ModelStepKind, Receiver, Sender,
     SessionEvent, SessionMessage, SharedNetSender, StepKind, StepSignature, StepStatus, TaskEvent,
-    TaskSignature, TaskStatus, build_channel,
+    TaskResult, TaskSignature, TaskStatus, build_channel,
 };
 
 use crate::model::{DeepseekBackend, ModelBackend, ModelRequest, ModelResponse};
@@ -148,7 +148,12 @@ impl Task {
                 }
             }
         }
-        Self::emit_status(state, TaskStatus::Succeed);
+        Self::emit_status(
+            state,
+            TaskStatus::Succeed(TaskResult {
+                content: String::new(),
+            }),
+        );
     }
 
     fn emit_status(state: &TaskState, status: TaskStatus) {

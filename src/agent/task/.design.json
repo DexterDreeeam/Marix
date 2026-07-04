@@ -3,8 +3,8 @@
   "module": {
     "path": "src/agent/task",
     "name": "task",
-    "purpose": "Owns the agent task runtime. task.rs defines Task { state: Arc<TaskState>, task_tx, worker }, whose new builds the Arc<TaskState> and spawns Self::event_loop(state, task_rx), and exposes sender() and raise(step), with raise calling Self::run_step(Arc::clone(&self.state), step). Below a // -- Private -- // marker, task.rs now holds the private behavior impl Task: build_model_backend, event_loop(state, task_rx), run_step(state, step), initial_step(state), execute_model_step(state, step), emit_status(state, status), and send_event(state, event). These helpers operate on an explicit Arc<TaskState> or &TaskState while packaging each SessionEvent into a SessionMessage via Session::package_message before try_send. task_state.rs (renamed from task_context.rs) is the plain TaskState data struct: it holds the task signature, a std::sync::Mutex-guarded model backend, the client/host SharedNetSender<SessionMessage> network senders, and the step WorkQueue<usize, Step>, and defines only pub fn new() with no behavior methods. step.rs defines only the Step record (signature: StepSignature, status: StepStatus, update_count: Arc<AtomicUsize>) built on the protocol StepSignature/StepStatus contracts and deriving Debug, Clone; the local task_tx/task_rx control channel stays SessionEvent. mod.rs is namespace and re-export wiring only, re-exporting Step, Task, and TaskState.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent task runtime. task.rs defines Task { state: Arc<TaskState>, task_tx, worker }, spawns Self::event_loop(state, task_rx), exposes sender() and raise(step), and privately builds model steps, emits statuses, and sends packaged SessionEvent values. Successful model completion now emits TaskStatus::Succeed(TaskResult { content: String::new() }) after importing TaskResult. task_state.rs is the plain TaskState data struct, step.rs defines the Step record, and mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -28,8 +28,21 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
+        {
+          "sourcePath": "src/agent/task/task.rs",
+          "lineStart": 5,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 8
+            }
+          ]
+        },
         {
           "sourcePath": "src/agent/task/task.rs",
           "lineStart": 15,
@@ -44,83 +57,23 @@
           "lineEnd": 52,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 36,
-              "lineEnd": 36
-            },
-            {
-              "lineStart": 50,
-              "lineEnd": 50
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/task/task.rs",
           "lineStart": 56,
-          "lineEnd": 169,
+          "lineEnd": 174,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 152,
+              "lineEnd": 156
+            }
+          ],
           "modifiedLines": [
-            {
-              "lineStart": 65,
-              "lineEnd": 67
-            },
-            {
-              "lineStart": 71,
-              "lineEnd": 71
-            },
-            {
-              "lineStart": 76,
-              "lineEnd": 76
-            },
-            {
-              "lineStart": 83,
-              "lineEnd": 89
-            },
-            {
-              "lineStart": 91,
-              "lineEnd": 96
-            },
-            {
-              "lineStart": 101,
-              "lineEnd": 101
-            },
-            {
-              "lineStart": 105,
-              "lineEnd": 105
-            },
-            {
-              "lineStart": 113,
-              "lineEnd": 114
-            },
-            {
-              "lineStart": 117,
-              "lineEnd": 117
-            },
-            {
-              "lineStart": 126,
-              "lineEnd": 131
-            },
-            {
-              "lineStart": 138,
-              "lineEnd": 138
-            },
-            {
-              "lineStart": 141,
-              "lineEnd": 146
-            },
             {
               "lineStart": 151,
               "lineEnd": 151
-            },
-            {
-              "lineStart": 154,
-              "lineEnd": 156
-            },
-            {
-              "lineStart": 159,
-              "lineEnd": 160
             }
           ]
         }
@@ -150,5 +103,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "task.rs"
   ]
 }

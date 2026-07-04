@@ -3,11 +3,45 @@
   "module": {
     "path": "src/common/protocol/execution",
     "name": "execution",
-    "purpose": "Owns the execution protocol relocated from the former execution.rs flat file into per-concern files. event.rs defines the ExecutionEvent stream enum (PreviewQuery/Preview/Evoke/Query/Cancel/Kill/Status/Update) that carries ToolPreview values, an ExecutionRequest, an ExecutionStatus, or an ExecutionUpdate, plus the ExecutionUpdate content payload and the ExecutionRequest carrying an ExecutionSignature with prompt, an optional raw tool_request string, and user_options; signature.rs defines the ExecutionSignature record of task_id/exe_id/name; status.rs defines the ExecutionStatus lifecycle enum Started/Running/Canceled/Killed/Succeed/Failed. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns execution protocol contracts split by concern: ExeId identity in id.rs, ExecutionEvent, ExecutionRequest, and ExecutionUpdate in event.rs, ExecutionSignature in signature.rs, and ExecutionStatus in status.rs. mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
+    {
+      "name": "ExeId",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/execution/id.rs",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 4
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/protocol/execution/id.rs",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
     {
       "name": "ExecutionEvent",
       "type": "enum",
@@ -113,5 +147,11 @@
         }
       ]
     }
+  ],
+  "added": [
+    "id.rs"
+  ],
+  "modified": [
+    "mod.rs"
   ]
 }

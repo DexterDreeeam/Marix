@@ -6,13 +6,15 @@ pub mod task;
 pub mod tool;
 
 pub use execution::{
-    ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, ExecutionUpdate,
+    ExeId, ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, ExecutionUpdate,
 };
 pub use message::SessionMessage;
-pub use session::{ExeId, SessionEvent, TaskId};
+pub use session::SessionEvent;
 pub use step::{
     ExecutionStepKind, ModelStepKind, StepEvent, StepKind, StepPreview, StepResult, StepSignature,
     StepStatus, UserStepKind,
 };
-pub use task::{TaskEvent, TaskSignature, TaskStatus};
+pub use task::{
+    TaskEvent, TaskId, TaskPreview, TaskRequestBrief, TaskResult, TaskSignature, TaskStatus,
+};
 pub use tool::{ToolPreview, ToolSchema};

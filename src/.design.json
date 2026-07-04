@@ -3,14 +3,14 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with flat Cargo crate layout. It organizes reusable common config/external re-export/logging/protocol/structure modules (config now includes a ToolConfig tool directory setting; protocol now owns the ToolSchema and ToolPreview tool metadata contracts), agent model/session/task orchestration, client session/event surfaces, host-side tool execution whose Executor::new(agent_tx) stores the shared agent SessionMessage sender and builds an implemented ToolRegistry that loads Tool handles from the configured tool directory (advertising ToolPreviews), and whose single route_session_event router intercepts Evoke to create and track a per-execution runtime running the host-local Tool handle (host/executor/tool.rs) and forwards other execution events to the target runtime, while the top-level tool crate (marix-tool) provides the ToolProgram interface and compiles one executable per native tool that the host's Tool handle spawns by filesystem path; the Executor-side Tool handle now lives in host/executor and host no longer depends on the tool crate.     The Cargo workspace members are common, agent, client, host, and tool, and the Cargo manifests define crate wiring. The agent, host, and client crates now each ship an executable entry point in addition to their [lib]: the marix-agent binary loads Config and runs Session::new(config.name) when config.agent.enabled, the marix-host binary runs HostSession::new(config.name), and the marix-client binary connects a ClientSession::new(config.name) and runs one-shot or interactive prompts; between-session (network) channels now carry a SessionMessage envelope (timestamp + source_name + wrapped SessionEvent): each session stores its Config.name in a module-level SOURCE_NAME static and exposes a static package_message(SessionEvent) -> SessionMessage so senders package events at the network boundary and receivers unwrap message.event, while internal per-Task and per-Execution control channels remain SessionEvent; every native tool program in the marix-tool crate now has an implemented invoke() that performs real filesystem/shell IO and returns JSON results (no longer panic stubs).",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace source root for Marix crates with flat Cargo crate layout. It organizes reusable common config/external/logging/protocol/structure modules, agent model/session/task orchestration, client session/event surfaces, host-side tool execution, and the top-level tool crate. The common protocol namespace includes SessionEvent variants for Task, Step, and Execution, and the agent session router safely ignores standalone Step events while the session namespace re-exports SessionContext for task/tool previews.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent crate namespace for model backend abstractions, Session and Task runtime orchestration, and plain SessionState/TaskState storage. The model backend abstraction exposes only a send interface bridged by a blanket impl and includes an implemented Deepseek streaming backend; the session and task runtimes were refactored so worker/routing/step logic lives in private impl Session and private impl Task blocks in session.rs and task.rs. Session::new(name) stores the session name in a SOURCE_NAME static, spawns Self::spawn_client_worker(Arc::clone(&state)) and Self::spawn_host_worker(Arc::clone(&state)), exposes package_message(SessionEvent) -> SessionMessage, and its accept workers accept_channel::<SessionMessage> and unwrap message.event. Task::new spawns Self::event_loop(state, task_rx), raise() calls Self::run_step(Arc::clone(&self.state), step), and send_event packages each SessionEvent via Session::package_message before try_send to the client; the local task_tx/task_rx stay Sender/Receiver<SessionEvent>. session_state.rs and task_state.rs hold only their data structs plus new(). The crate now also ships the marix-agent binary entry (main.rs) that loads the global Config and, unless config.agent.enabled is false, runs Session::new(config.name) and parks the process."
+      "purpose": "Agent crate namespace for model backend abstractions, Session and Task runtime orchestration, plain state storage, SessionContext task/tool preview summaries, and safe ignored routing for standalone Step events."
     },
     {
       "path": "src/client",
@@ -20,7 +20,7 @@
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared common crate namespace with reusable config (now including a ToolConfig tool directory setting resolved to an absolute path at load time and a top-level name field identifying each session), now-public crate-local external re-export adapters that let downstream crates route third-party access through common, logging, protocol models including the ToolSchema and ToolPreview tool metadata contracts and the SessionMessage between-session envelope (timestamp + source_name + wrapped SessionEvent), and structural data/channel interfaces. Its protocol module now groups the step contracts (StepKind, StepSignature, StepEvent, StepResult, StepStatus, StepPreview) in a dedicated step child module, and the execution contracts (ExecutionEvent, ExecutionRequest, ExecutionUpdate, ExecutionSignature, ExecutionStatus) in a dedicated execution child module."
+      "purpose": "Shared common crate namespace with reusable config, external re-export, logging, protocol, and structure modules. Its protocol module groups TaskId, ExeId, SessionEvent (Task, Step, Execution), TaskPreview, and TaskRequestBrief in dedicated child-module files alongside step and execution contracts."
     },
     {
       "path": "src/host",
@@ -33,5 +33,8 @@
       "purpose": "Top-level marix-tool crate (lib marix_tool) that defines the per-tool ToolProgram interface and compiles one executable per native tool program (read_file, write_file, list_directory, search_text, shell_execute), each selected at build time via a Cargo feature and sharing the tool_main.rs --preview/--run entry. The Executor-side Tool handle that launches these executables lives in the host crate (host/executor), not in this crate. Every native tool program's invoke() is now implemented, parsing the JSON call and performing real filesystem/shell IO to return JSON results (no longer panic stubs)."
     }
   ],
-  "elements": []
+  "elements": [],
+  "modified": [
+    "."
+  ]
 }

@@ -3,10 +3,15 @@
   "module": {
     "path": "src/common/protocol",
     "name": "protocol",
-    "purpose": "Owns the shared session/task/execution protocol contracts exchanged over channels, plus the tool metadata contracts. session.rs defines the TaskId and ExeId identifiers and the top-level SessionEvent split between task and execution traffic; task.rs defines task signatures, task events (now including a Step(StepSignature, StepEvent) variant that splits a task into ordered steps), and task status; the step protocol now lives in the step child module (kind/signature/event/result/status/preview): StepKind with Model/Execution/User sub-kinds, StepSignature, the StepEvent stream, and the new StepResult, StepStatus, and StepPreview contracts; the execution protocol now lives in the execution child module (event/signature/status): the ExecutionEvent stream that carries ToolPreview values from the sibling tool module, the ExecutionUpdate content model, the ExecutionRequest whose lead field is an ExecutionSignature (task_id, exe_id, name) and whose tool_request carries a raw Option<String> tool input, the ExecutionSignature record, and the ExecutionStatus lifecycle enum; tool.rs now owns the ToolSchema input/output schema pair and the ToolPreview advertisement record (name, description, schema) that were relocated here from the removed common::tool module. message.rs defines SessionMessage, the between-session network envelope that wraps a SessionEvent together with a millisecond timestamp and the sending session's source_name; SessionMessage::new stamps the timestamp inline. mod.rs now also re-exports SessionMessage and the step protocol types (StepKind, ModelStepKind, ExecutionStepKind, UserStepKind, StepSignature, StepEvent, StepResult, StepStatus, StepPreview) and is otherwise namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns shared protocol contracts and namespace re-exports. Direct files define the SessionMessage network envelope and tool metadata models; task IDs/events live in task child modules, ExeId in execution/id.rs, and SessionEvent in session/event.rs with Task, Step, and Execution variants. The task, step, execution, and session child modules own their concrete protocol definitions, while mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "modified"
   },
   "childModules": [
+    {
+      "path": "src/common/protocol/task",
+      "name": "task",
+      "purpose": "Owns task protocol contracts split by concern: TaskId identity, TaskEvent stream variants, TaskRequestBrief, TaskPreview, TaskResult, TaskSignature, and TaskStatus."
+    },
     {
       "path": "src/common/protocol/step",
       "name": "step",
@@ -15,99 +20,15 @@
     {
       "path": "src/common/protocol/execution",
       "name": "execution",
-      "purpose": "Owns the execution protocol split into per-concern files: the ExecutionEvent stream enum with PreviewQuery/Preview/Evoke/Query/Cancel/Kill/Status/Update variants (carrying ToolPreview values, an ExecutionRequest, an ExecutionStatus, or an ExecutionUpdate), the ExecutionUpdate content payload, and the ExecutionRequest carrying an ExecutionSignature plus prompt, an optional raw tool_request string, and user_options (event.rs); the ExecutionSignature record of task_id/exe_id/name (signature.rs); and the ExecutionStatus lifecycle enum Started/Running/Canceled/Killed/Succeed/Failed (status.rs)."
+      "purpose": "Owns execution protocol contracts split by concern: ExeId identity, ExecutionEvent, ExecutionRequest, ExecutionUpdate, ExecutionSignature, and ExecutionStatus."
+    },
+    {
+      "path": "src/common/protocol/session",
+      "name": "session",
+      "purpose": "Owns the SessionEvent protocol enum in event.rs with Task, Step, and Execution variants; mod.rs is namespace and re-export wiring only."
     }
   ],
   "elements": [
-    {
-      "name": "TaskId",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/protocol/session.rs",
-          "lineStart": 5,
-          "lineEnd": 6,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 5,
-              "lineEnd": 6
-            }
-          ],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/common/protocol/session.rs",
-          "lineStart": 8,
-          "lineEnd": 12,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 8,
-              "lineEnd": 12
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ExeId",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/protocol/session.rs",
-          "lineStart": 14,
-          "lineEnd": 15,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 15
-            }
-          ],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/common/protocol/session.rs",
-          "lineStart": 17,
-          "lineEnd": 21,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 21
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "SessionEvent",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/protocol/session.rs",
-          "lineStart": 23,
-          "lineEnd": 27,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 25,
-              "lineEnd": 26
-            }
-          ]
-        }
-      ]
-    },
     {
       "name": "SessionMessage",
       "type": "struct",
@@ -138,64 +59,6 @@
               "lineEnd": 25
             }
           ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "TaskSignature",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/protocol/task.rs",
-          "lineStart": 4,
-          "lineEnd": 8,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 4,
-              "lineEnd": 8
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "TaskEvent",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/protocol/task.rs",
-          "lineStart": 10,
-          "lineEnd": 19,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 18,
-              "lineEnd": 18
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "TaskStatus",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/protocol/task.rs",
-          "lineStart": 21,
-          "lineEnd": 28,
-          "language": "rust",
-          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -268,5 +131,13 @@
         }
       ]
     }
+  ],
+  "deleted": [
+    "session.rs",
+    "task.rs"
+  ],
+  "modified": [
+    "mod.rs",
+    "."
   ]
 }

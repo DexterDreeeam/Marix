@@ -171,6 +171,7 @@ impl Session {
             SessionEvent::Task(signature, _) => {
                 Self::route_task_event(state, &signature.id, event.clone());
             }
+            SessionEvent::Step(_) => {}
             SessionEvent::Execution(signature, _) => {
                 Self::route_task_event(state, &signature.task_id, event.clone());
             }
