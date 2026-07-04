@@ -4,18 +4,15 @@
     "path": "src/agent/session",
     "name": "session",
     "purpose": "Owns the agent session runtime. session.rs defines Session { state: Arc<SessionState>, client_worker, host_worker }, whose new(name) stores the session name in a module-level SOURCE_NAME OnceLock, builds the Arc<SessionState>, and spawns the client and host workers via Self::spawn_client_worker(Arc::clone(&state)) and Self::spawn_host_worker(Arc::clone(&state)); it also exposes the static package_message(SessionEvent) -> SessionMessage that stamps the stored source name. Below a // -- Private -- // marker, session.rs now holds the private behavior impl Session block: parse_address, spawn_client_worker/spawn_host_worker, run_client_worker/run_host_worker, create_task, route_session_event, and route_task_event all operate on an explicit Arc<SessionState> or &SessionState. session_state.rs (renamed from session_context.rs) is the plain SessionState data struct: it holds the TaskId-keyed task WorkQueue plus the shared client/host remoc mpsc endpoints typed as SessionMessage behind std::sync::Mutex, and defines only pub fn new() with no behavior methods. The local per-Task control channels stay SessionEvent. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "session.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
@@ -161,7 +158,7 @@
       "name": "SessionState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session_state.rs",

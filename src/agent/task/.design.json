@@ -4,11 +4,8 @@
     "path": "src/agent/task",
     "name": "task",
     "purpose": "Owns the agent task runtime. task.rs defines Task { state: Arc<TaskState>, task_tx, worker }, whose new builds the Arc<TaskState> and spawns Self::event_loop(state, task_rx), and exposes sender() and raise(step), with raise calling Self::run_step(Arc::clone(&self.state), step). Below a // -- Private -- // marker, task.rs now holds the private behavior impl Task: build_model_backend, event_loop(state, task_rx), run_step(state, step), initial_step(state), execute_model_step(state, step), emit_status(state, status), and send_event(state, event). These helpers operate on an explicit Arc<TaskState> or &TaskState while packaging each SessionEvent into a SessionMessage via Session::package_message before try_send. task_state.rs (renamed from task_context.rs) is the plain TaskState data struct: it holds the task signature, a std::sync::Mutex-guarded model backend, the client/host SharedNetSender<SessionMessage> network senders, and the step WorkQueue<usize, Step>, and defines only pub fn new() with no behavior methods. step.rs defines only the Step record (signature: StepSignature, status: StepStatus, update_count: Arc<AtomicUsize>) built on the protocol StepSignature/StepStatus contracts and deriving Debug, Clone; the local task_tx/task_rx control channel stays SessionEvent. mod.rs is namespace and re-export wiring only, re-exporting Step, Task, and TaskState.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "task.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -31,7 +28,7 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
@@ -133,7 +130,7 @@
       "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task_state.rs",
