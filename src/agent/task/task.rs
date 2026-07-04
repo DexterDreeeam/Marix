@@ -13,7 +13,7 @@ use crate::session::Session;
 use crate::task::{Step, TaskState};
 
 pub struct Task {
-    context: Arc<TaskState>,
+    state: Arc<TaskState>,
     task_tx: Sender<SessionEvent>,
     worker: JoinHandle<()>,
 }
@@ -25,18 +25,18 @@ impl Task {
         host_tx: SharedNetSender<SessionMessage>,
     ) -> Self {
         let (task_tx, task_rx) = build_channel();
-        let context = Arc::new(TaskState::new(
+        let state = Arc::new(TaskState::new(
             signature,
             Self::build_model_backend(),
             client_tx,
             host_tx,
         ));
         let worker = thread::spawn({
-            let context = Arc::clone(&context);
-            move || TaskState::event_loop(context, task_rx)
+            let state = Arc::clone(&state);
+            move || TaskState::event_loop(state, task_rx)
         });
         Self {
-            context,
+            state,
             task_tx,
             worker,
         }
@@ -47,7 +47,7 @@ impl Task {
     }
 
     pub fn raise(&self, step: Step) {
-        Arc::clone(&self.context).run_step(step);
+        Arc::clone(&self.state).run_step(step);
     }
 }
 
@@ -64,18 +64,18 @@ impl Task {
 }
 
 impl TaskState {
-    fn event_loop(context: Arc<Self>, task_rx: Receiver<SessionEvent>) {
-        context.emit_status(TaskStatus::Started);
-        Arc::clone(&context).run_step(context.initial_step());
+    fn event_loop(state: Arc<Self>, task_rx: Receiver<SessionEvent>) {
+        state.emit_status(TaskStatus::Started);
+        Arc::clone(&state).run_step(state.initial_step());
         while let Ok(event) = task_rx.recv() {
             match event {
                 SessionEvent::Task(_, TaskEvent::Cancel) => {
-                    context.emit_status(TaskStatus::Canceled);
+                    state.emit_status(TaskStatus::Canceled);
                     break;
                 }
                 SessionEvent::Execution(_, ExecutionEvent::Update(_))
                 | SessionEvent::Execution(_, ExecutionEvent::Status(_)) => {
-                    context.send_event(event);
+                    state.send_event(event);
                 }
                 _ => {}
             }

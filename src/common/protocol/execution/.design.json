@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/common/protocol/execution",
+    "name": "execution",
+    "purpose": "Owns the execution protocol relocated from the former execution.rs flat file into per-concern files. event.rs defines the ExecutionEvent stream enum (PreviewQuery/Preview/Evoke/Query/Cancel/Kill/Status/Update) that carries ToolPreview values, an ExecutionRequest, an ExecutionStatus, or an ExecutionUpdate, plus the ExecutionUpdate content payload and the ExecutionRequest carrying an ExecutionSignature with prompt, an optional raw tool_request string, and user_options; signature.rs defines the ExecutionSignature record of task_id/exe_id/name; status.rs defines the ExecutionStatus lifecycle enum Started/Running/Canceled/Killed/Succeed/Failed. mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "added"
+  },
+  "added": ["."],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "ExecutionEvent",
+      "type": "enum",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/execution/event.rs",
+          "lineStart": 5,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 15
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ExecutionUpdate",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/execution/event.rs",
+          "lineStart": 17,
+          "lineEnd": 20,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 20
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ExecutionRequest",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/execution/event.rs",
+          "lineStart": 22,
+          "lineEnd": 28,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 28
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ExecutionSignature",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/execution/signature.rs",
+          "lineStart": 5,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ExecutionStatus",
+      "type": "enum",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/execution/status.rs",
+          "lineStart": 3,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 11
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

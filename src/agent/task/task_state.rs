@@ -1,16 +1,15 @@
 use std::sync::Mutex as StdMutex;
 
-use marix_common::{ExeId, SessionMessage, SharedNetSender, TaskSignature, WorkQueue};
+use marix_common::{SessionMessage, SharedNetSender, TaskSignature, WorkQueue};
 
 use crate::model::ModelBackend;
-use crate::task::{Execution, Step};
+use crate::task::Step;
 
 pub struct TaskState {
     pub signature: TaskSignature,
     pub model_backend: StdMutex<Box<dyn ModelBackend>>,
     pub client_tx: SharedNetSender<SessionMessage>,
     pub host_tx: SharedNetSender<SessionMessage>,
-    pub executions: WorkQueue<ExeId, Execution>,
     pub steps: WorkQueue<usize, Step>,
 }
 
@@ -26,7 +25,6 @@ impl TaskState {
             model_backend: StdMutex::new(model_backend),
             client_tx,
             host_tx,
-            executions: WorkQueue::new(),
             steps: WorkQueue::new(),
         }
     }

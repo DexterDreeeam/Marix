@@ -12,7 +12,7 @@ use crate::task::Task;
 static SOURCE_NAME: OnceLock<String> = OnceLock::new();
 
 pub struct Session {
-    pub context: Arc<SessionState>,
+    pub state: Arc<SessionState>,
     client_worker: JoinHandle<()>,
     host_worker: JoinHandle<()>,
 }
@@ -20,11 +20,11 @@ pub struct Session {
 impl Session {
     pub fn new(name: String) -> Self {
         let _ = SOURCE_NAME.set(name);
-        let context = Arc::new(SessionState::new());
-        let client_worker = Arc::clone(&context).spawn_client_worker();
-        let host_worker = Arc::clone(&context).spawn_host_worker();
+        let state = Arc::new(SessionState::new());
+        let client_worker = Arc::clone(&state).spawn_client_worker();
+        let host_worker = Arc::clone(&state).spawn_host_worker();
         Self {
-            context,
+            state,
             client_worker,
             host_worker,
         }
@@ -88,13 +88,13 @@ impl SessionState {
         })
     }
 
-    fn run_client_worker(context: Arc<Self>) {
+    fn run_client_worker(state: Arc<Self>) {
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
             .unwrap_or_else(|error| panic!("failed to build client event runtime: {error}"));
         runtime.block_on(async move {
-            let Some(mut rx) = context
+            let Some(mut rx) = state
                 .client_rx
                 .lock()
                 .unwrap_or_else(|error| error.into_inner())
@@ -105,21 +105,21 @@ impl SessionState {
             while let Ok(Some(message)) = rx.recv().await {
                 match message.event {
                     SessionEvent::Task(signature, TaskEvent::Create { request }) => {
-                        context.create_task(signature, request);
+                        state.create_task(signature, request);
                     }
-                    event => context.route_session_event(event),
+                    event => state.route_session_event(event),
                 }
             }
         });
     }
 
-    fn run_host_worker(context: Arc<Self>) {
+    fn run_host_worker(state: Arc<Self>) {
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
             .unwrap_or_else(|error| panic!("failed to build host event runtime: {error}"));
         runtime.block_on(async move {
-            let Some(mut rx) = context
+            let Some(mut rx) = state
                 .host_rx
                 .lock()
                 .unwrap_or_else(|error| error.into_inner())
@@ -128,7 +128,7 @@ impl SessionState {
                 return;
             };
             while let Ok(Some(message)) = rx.recv().await {
-                context.route_session_event(message.event);
+                state.route_session_event(message.event);
             }
         });
     }

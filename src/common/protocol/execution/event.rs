@@ -1,12 +1,6 @@
-use crate::protocol::{ExeId, TaskId, ToolPreview};
-use serde::{Deserialize, Serialize};
+use crate::external::*;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ExecutionSignature {
-    pub task_id: TaskId,
-    pub exe_id: ExeId,
-    pub name: String,
-}
+use crate::protocol::{ExecutionSignature, ExecutionStatus, ToolPreview};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ExecutionEvent {
@@ -18,16 +12,6 @@ pub enum ExecutionEvent {
     Kill,
     Status(ExecutionStatus),
     Update(ExecutionUpdate),
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ExecutionStatus {
-    Started,
-    Running,
-    Canceled,
-    Killed,
-    Succeed,
-    Failed { reason: String },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
