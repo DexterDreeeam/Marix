@@ -1,7 +1,7 @@
 use std::fs;
 
 use marix_common::external::serde_json::{Value, from_str, json, to_string};
-use marix_common::{ToolInputSchema, ToolOutputSchema, ToolPreview, ToolSchema};
+use marix_protocol::{ToolInputSchema, ToolOutputSchema, ToolPreview, ToolSchema};
 
 use crate::ToolProgram;
 

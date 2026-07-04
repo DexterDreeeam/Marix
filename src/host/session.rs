@@ -4,9 +4,8 @@ use std::sync::OnceLock;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
 
-use marix_common::{
-    Config, NetReceiver, SessionEvent, SessionMessage, SharedNetSender, connect_channel,
-};
+use marix_common::{Config, NetReceiver, SharedNetSender, connect_channel};
+use marix_protocol::{SessionEvent, SessionMessage};
 
 use crate::executor::Executor;
 

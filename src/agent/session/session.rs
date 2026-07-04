@@ -2,9 +2,10 @@ use std::net::SocketAddr;
 use std::sync::{Arc, Mutex as StdMutex, OnceLock};
 use std::thread::{self, JoinHandle};
 
-use marix_common::{
-    Config, ExecutionEvent, ExecutionSignature, SessionEvent, SessionMessage, TaskEvent, TaskId,
-    TaskSignature, accept_channel,
+use marix_common::{Config, accept_channel};
+use marix_protocol::{
+    ExecutionEvent, ExecutionSignature, SessionEvent, SessionMessage, TaskEvent, TaskId,
+    TaskSignature,
 };
 
 use super::{SessionContext, SessionState};

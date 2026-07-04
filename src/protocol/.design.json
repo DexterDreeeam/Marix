@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/protocol",
+    "name": "protocol",
+    "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, step, execution, and tool protocol contracts. message.rs defines the SessionMessage network envelope. lib.rs and mod.rs are namespace/re-export wiring, and external/ locally re-exports serde, serde_json, and uuid for protocol internals.",
+    "changeStatus": "renamed"
+  },
+  "added": [
+    "Cargo.toml",
+    "lib.rs"
+  ],
+  "modified": [
+    "message.rs",
+    "mod.rs"
+  ],
+  "renamed": [
+    "."
+  ],
+  "childModules": [
+    {
+      "path": "src/protocol/task",
+      "name": "task",
+      "purpose": "Owns task protocol contracts including task identifiers, events, request previews, signatures, results, and statuses."
+    },
+    {
+      "path": "src/protocol/step",
+      "name": "step",
+      "purpose": "Owns step protocol contracts including executable drafts, planning output, kinds, signatures with descriptions, events, results, statuses, and previews."
+    },
+    {
+      "path": "src/protocol/execution",
+      "name": "execution",
+      "purpose": "Owns execution protocol contracts including execution ids, events, requests, signatures, updates, and statuses."
+    },
+    {
+      "path": "src/protocol/session",
+      "name": "session",
+      "purpose": "Owns the SessionEvent protocol enum."
+    },
+    {
+      "path": "src/protocol/tool",
+      "name": "tool",
+      "purpose": "Owns tool schema and preview protocol contracts."
+    },
+    {
+      "path": "src/protocol/external",
+      "name": "external",
+      "purpose": "Local third-party re-export wiring for protocol internals."
+    }
+  ],
+  "elements": [
+    {
+      "name": "SessionMessage",
+      "type": "struct",
+      "source_depth": 2,
+      "changeStatus": "renamed",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/message.rs",
+          "lineStart": 7,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/message.rs",
+          "lineStart": 13,
+          "lineEnd": 25,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

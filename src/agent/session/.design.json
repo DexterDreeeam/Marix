@@ -3,8 +3,8 @@
   "module": {
     "path": "src/agent/session",
     "name": "session",
-    "purpose": "Owns the agent session runtime and session preview context. session.rs defines Session startup, worker routing, package_message(SessionEvent) -> SessionMessage, and route_session_event; after a host channel connects, spawn_host_worker resets SessionState.context and query_host_preview sends an ExecutionEvent::PreviewQuery using ExecutionSignature::new(TaskId::new(), \"preview\".to_string()), so the preview query keeps a caller-supplied TaskId and lets ExecutionSignature allocate the ExeId without importing ExeId in session.rs. route_session_event stores ExecutionEvent::Preview tools while safely ignoring signed standalone step notifications via SessionEvent::Step(_, _). session_state.rs defines SessionState storage for task queues, shared client/host endpoints, and a StdMutex<SessionContext> initialized with empty task and tool lists. session_context.rs defines SessionContext, which holds task previews and tool previews only. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent session runtime and session preview context. Protocol events, messages, signatures, task ids, task previews, and tool previews now come from marix-protocol; common remains the source for configuration and channel helpers.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -16,36 +16,27 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
-          "lineStart": 15,
-          "lineEnd": 19,
+          "lineStart": 16,
+          "lineEnd": 20,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/session/session.rs",
-          "lineStart": 21,
-          "lineEnd": 36,
+          "lineStart": 22,
+          "lineEnd": 38,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/session/session.rs",
-          "lineStart": 41,
-          "lineEnd": 224,
+          "lineStart": 42,
+          "lineEnd": 225,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 177,
-              "lineEnd": 177
-            },
-            {
-              "lineStart": 217,
-              "lineEnd": 217
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -57,8 +48,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
-          "lineStart": 34,
-          "lineEnd": 36,
+          "lineStart": 35,
+          "lineEnd": 37,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -73,28 +64,18 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session_state.rs",
-          "lineStart": 8,
-          "lineEnd": 15,
+          "lineStart": 9,
+          "lineEnd": 16,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 9
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/session/session_state.rs",
-          "lineStart": 17,
-          "lineEnd": 31,
+          "lineStart": 18,
+          "lineEnd": 32,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 20,
-              "lineEnd": 23
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -115,5 +96,10 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "session.rs",
+    "session_context.rs",
+    "session_state.rs"
   ]
 }

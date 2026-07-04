@@ -3,8 +3,8 @@
   "module": {
     "path": "src/host/executor/execution",
     "name": "execution",
-    "purpose": "Per-execution host runtime for the executor module. execution.rs defines ExecutionRuntime, the host-side runtime of an agent Execution that holds an Arc<ExecutionContext>, its execution_tx SessionEvent sender, and a worker JoinHandle; new builds the execution channel and shared ExecutionContext and immediately spawns the worker (there is no separate run), while sender clones the execution_tx. The private impl emits ExecutionStatus::Started, spawns the tool execution, and loops execution_rx handling Cancel->Canceled and Kill->Killed; the execution reads raw tool input from parameters.input.content on the typed ExecutionRequest, runs tool.execute, emits an ExecutionUpdate plus ExecutionStatus::Succeed, and forwards SessionEvent::Execution values stamped with parameters.signature by synchronously locking agent_tx, packaging each event into a SessionMessage via HostSession::package_message (send_event), and calling try_send. execution_context.rs defines ExecutionContext, holding the host-local Tool handle, the ExecutionRequest (signature plus typed input), and the shared agent SessionMessage sender. mod.rs is re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns execution runtime state and per-request context. Execution/session protocol contracts now come from marix-protocol while common provides channels and shared senders.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -16,32 +16,27 @@
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
-          "lineStart": 13,
-          "lineEnd": 17,
+          "lineStart": 14,
+          "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
-          "lineStart": 19,
-          "lineEnd": 41,
+          "lineStart": 20,
+          "lineEnd": 42,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
-          "lineStart": 45,
-          "lineEnd": 103,
+          "lineStart": 46,
+          "lineEnd": 104,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 66,
-              "lineEnd": 66
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -53,31 +48,25 @@
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/execution/execution_context.rs",
-          "lineStart": 4,
-          "lineEnd": 8,
+          "lineStart": 5,
+          "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 7,
-              "lineEnd": 7
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/execution/execution_context.rs",
-          "lineStart": 10,
-          "lineEnd": 22,
+          "lineStart": 11,
+          "lineEnd": 23,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 14
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     }
+  ],
+  "modified": [
+    "execution.rs",
+    "execution_context.rs"
   ]
 }

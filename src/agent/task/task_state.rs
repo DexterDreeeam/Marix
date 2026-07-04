@@ -1,6 +1,7 @@
 use std::sync::Mutex as StdMutex;
 
-use marix_common::{SessionMessage, SharedNetSender, TaskSignature, WorkQueue};
+use marix_common::{SharedNetSender, WorkQueue};
+use marix_protocol::{SessionMessage, TaskSignature};
 
 use crate::model::ModelBackend;
 use crate::task::Step;

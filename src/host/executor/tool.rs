@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use marix_common::ToolPreview;
+use marix_protocol::ToolPreview;
 
 #[derive(Clone)]
 pub struct Tool {

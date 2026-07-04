@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use std::sync::atomic::AtomicUsize;
 
-use marix_common::{StepSignature, StepStatus};
+use marix_protocol::{StepSignature, StepStatus};
 
 #[derive(Debug, Clone)]
 pub struct Step {

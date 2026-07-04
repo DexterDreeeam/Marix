@@ -3,19 +3,19 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared common crate root that wires reusable config loading, external re-export adapters, logging, protocol models, and structure utilities. lib.rs re-exports split protocol contracts including TaskId, ExeId, SessionEvent, TaskPreview, TaskRequestBrief, ToolSchema, ToolInputSchema, and ToolOutputSchema from their child modules. Concrete selectable interfaces live in child modules; the protocol child module owns constructors for TaskSignature, ExecutionSignature, and StepSignature so callers can allocate fresh task/execution ids while preserving caller-supplied parent ids/signatures.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared common crate root for reusable config loading, external re-export adapters, logging, and structure utilities. lib.rs no longer declares or re-exports protocol contracts; session/task/step/execution/tool protocol models are owned by the top-level marix-protocol crate.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/common/config",
       "name": "config",
-      "purpose": "Owns the common crate configuration model, config-file discovery, platform detection, alias substitution, credential resolution, runtime path normalization, and the new ToolConfig tool directory setting whose path load_config resolves relative to the config root."
+      "purpose": "Owns the common crate configuration model, config-file discovery, platform detection, alias substitution, credential resolution, runtime path normalization, and tool directory settings."
     },
     {
       "path": "src/common/external",
       "name": "external",
-      "purpose": "Owns now-public re-export wrappers for third-party libraries so downstream crates route third-party access through common; single ownership stays in common."
+      "purpose": "Owns public re-export wrappers for third-party libraries so downstream crates can route third-party access through common where appropriate."
     },
     {
       "path": "src/common/logging",
@@ -23,15 +23,13 @@
       "purpose": "Owns tagged log messages, logging errors, config-gated log writes, process-role path selection, log-file creation, and pruning."
     },
     {
-      "path": "src/common/protocol",
-      "name": "protocol",
-      "purpose": "Owns shared protocol models, including signature constructors for TaskSignature, ExecutionSignature, and StepSignature, plus session, task, step, execution, and typed tool protocol contracts."
-    },
-    {
       "path": "src/common/structure",
       "name": "structure",
-      "purpose": "Owns shared structural data interfaces: the generic WorkQueue (now offering a with(key, closure) borrowing accessor that runs a closure on a borrowed &V, checking working then complete, so callers can use a non-Clone value in place) and the channel helpers, whose remote NetSender/NetReceiver endpoints are now remoc rch::mpsc channels bootstrapped over a base connection handshake and shared behind std::sync::Mutex."
+      "purpose": "Owns shared structural data interfaces such as WorkQueue and channel helpers."
     }
   ],
-  "elements": []
+  "elements": [],
+  "modified": [
+    "lib.rs"
+  ]
 }

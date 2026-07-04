@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/protocol/task",
+    "name": "task",
+    "purpose": "Owns task protocol contracts: TaskId allocation, TaskEvent notifications, TaskRequestBrief input, TaskPreview snapshots, TaskResult output, TaskSignature construction, and TaskStatus lifecycle states.",
+    "changeStatus": "renamed"
+  },
+  "modified": [
+    "event.rs",
+    "preview.rs",
+    "signature.rs",
+    "status.rs"
+  ],
+  "renamed": [
+    "."
+  ],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "TaskId",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "renamed",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/task/id.rs",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/task/id.rs",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "TaskEvent",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/task/event.rs",
+          "lineStart": 5,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TaskRequestBrief",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "renamed",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/task/request_brief.rs",
+          "lineStart": 4,
+          "lineEnd": 6,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "TaskPreview",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/task/preview.rs",
+          "lineStart": 5,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TaskResult",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "renamed",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/task/result.rs",
+          "lineStart": 4,
+          "lineEnd": 6,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "TaskSignature",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "renamed",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/task/signature.rs",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/task/signature.rs",
+          "lineStart": 10,
+          "lineEnd": 17,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "TaskStatus",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/task/status.rs",
+          "lineStart": 5,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 9
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,261 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/protocol/step",
+    "name": "step",
+    "purpose": "Owns step protocol contracts: StepDraft executable drafts, StepPlan planning output, StepKind including Intent(String), ModelStepKind phases Initial, Plan, ExecutionAnalysis, and Composition, ExecutionStepKind, UserStepKind, StepSignature with description, StepEvent, StepResult, StepStatus, and StepPreview.",
+    "changeStatus": "renamed"
+  },
+  "added": [
+    "draft.rs",
+    "plan.rs"
+  ],
+  "modified": [
+    "event.rs",
+    "kind.rs",
+    "mod.rs",
+    "preview.rs",
+    "signature.rs",
+    "status.rs"
+  ],
+  "renamed": [
+    "."
+  ],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "StepDraft",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/step/draft.rs",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 8
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "StepPlan",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/step/plan.rs",
+          "lineStart": 5,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "StepKind",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/step/kind.rs",
+          "lineStart": 6,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 7
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ModelStepKind",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/step/kind.rs",
+          "lineStart": 14,
+          "lineEnd": 19,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 18
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 18
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ExecutionStepKind",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "renamed",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/step/kind.rs",
+          "lineStart": 22,
+          "lineEnd": 26,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "UserStepKind",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "renamed",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/step/kind.rs",
+          "lineStart": 29,
+          "lineEnd": 32,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "StepSignature",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/step/signature.rs",
+          "lineStart": 6,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 11
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/protocol/step/signature.rs",
+          "lineStart": 13,
+          "lineEnd": 22,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "StepEvent",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/step/event.rs",
+          "lineStart": 6,
+          "lineEnd": 19,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 11
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "StepResult",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "renamed",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/step/result.rs",
+          "lineStart": 4,
+          "lineEnd": 6,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "StepStatus",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/step/status.rs",
+          "lineStart": 6,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "StepPreview",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/step/preview.rs",
+          "lineStart": 6,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 8
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

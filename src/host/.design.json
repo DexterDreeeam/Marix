@@ -3,8 +3,8 @@
   "module": {
     "path": "src/host",
     "name": "host",
-    "purpose": "Host crate for tool execution management. session.rs implements HostSession, which connects to the agent host bind address, owns the per-connection Executor, and pumps inbound agent SessionMessage envelopes into Executor::route_session_event. HostSession exposes package_message(SessionEvent) -> SessionMessage, which the executor and execution runtimes use to wrap outbound events. The executor folder module owns host-side tool execution: Executor owns the tool registry and active execution runtimes; Tool exposes typed ToolSchema content as String via input_schema/output_schema; ExecutionRuntime runs typed ExecutionRequest input.content through the selected tool.",
-    "changeStatus": "unchanged"
+    "purpose": "Host crate namespace for HostSession and host-side tool execution. Cargo.toml now depends on marix-protocol, and HostSession imports session protocol contracts from marix-protocol while common provides config/channel helpers.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
@@ -22,24 +22,24 @@
       "codeSegments": [
         {
           "sourcePath": "src/host/session.rs",
-          "lineStart": 15,
-          "lineEnd": 18,
+          "lineStart": 14,
+          "lineEnd": 17,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/session.rs",
-          "lineStart": 20,
-          "lineEnd": 41,
+          "lineStart": 19,
+          "lineEnd": 40,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/session.rs",
-          "lineStart": 43,
-          "lineEnd": 86,
+          "lineStart": 44,
+          "lineEnd": 85,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -62,5 +62,9 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "Cargo.toml",
+    "session.rs"
   ]
 }

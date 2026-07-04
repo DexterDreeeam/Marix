@@ -3,9 +3,10 @@ use std::thread::{self, JoinHandle};
 
 use crate::executor::Tool;
 use crate::session::HostSession;
-use marix_common::{
-    ExecutionEvent, ExecutionRequest, ExecutionStatus, ExecutionUpdate, Receiver, Sender,
-    SessionEvent, SessionMessage, SharedNetSender, build_channel,
+use marix_common::{Receiver, Sender, SharedNetSender, build_channel};
+use marix_protocol::{
+    ExecutionEvent, ExecutionRequest, ExecutionStatus, ExecutionUpdate, SessionEvent,
+    SessionMessage,
 };
 
 use super::ExecutionContext;

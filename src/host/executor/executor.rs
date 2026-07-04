@@ -1,6 +1,7 @@
-use marix_common::{
+use marix_common::{SharedNetSender, WorkQueue};
+use marix_protocol::{
     ExeId, ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, SessionEvent,
-    SessionMessage, SharedNetSender, ToolPreview, WorkQueue,
+    SessionMessage, ToolPreview,
 };
 
 use crate::executor::{ExecutionRuntime, ToolRegistry};

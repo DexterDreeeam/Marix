@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/protocol/execution",
+    "name": "execution",
+    "purpose": "Owns execution protocol contracts: ExeId allocation, ExecutionEvent notifications, ExecutionUpdate payloads, ExecutionRequest with signature and typed input, ExecutionSignature construction, and ExecutionStatus lifecycle states.",
+    "changeStatus": "renamed"
+  },
+  "modified": [
+    "event.rs",
+    "request.rs",
+    "signature.rs"
+  ],
+  "renamed": [
+    "."
+  ],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "ExeId",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "renamed",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/execution/id.rs",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/execution/id.rs",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ExecutionEvent",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/execution/event.rs",
+          "lineStart": 6,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 16
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ExecutionUpdate",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/execution/event.rs",
+          "lineStart": 18,
+          "lineEnd": 20,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 18,
+              "lineEnd": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ExecutionRequest",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "renamed",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/execution/request.rs",
+          "lineStart": 5,
+          "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ExecutionSignature",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/execution/signature.rs",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 10
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/protocol/execution/signature.rs",
+          "lineStart": 12,
+          "lineEnd": 20,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ExecutionStatus",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "renamed",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/execution/status.rs",
+          "lineStart": 4,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

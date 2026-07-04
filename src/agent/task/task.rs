@@ -3,9 +3,11 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::thread::{self, JoinHandle};
 
 use marix_common::{
-    Config, ExecutionEvent, ModelBackend as ConfigModelBackend, ModelStepKind, Receiver, Sender,
-    SessionEvent, SessionMessage, SharedNetSender, StepEvent, StepKind, StepResult, StepSignature,
-    StepStatus, TaskEvent, TaskSignature, TaskStatus, build_channel,
+    Config, ModelBackend as ConfigModelBackend, Receiver, Sender, SharedNetSender, build_channel,
+};
+use marix_protocol::{
+    ExecutionEvent, ModelStepKind, SessionEvent, SessionMessage, StepEvent, StepKind, StepResult,
+    StepSignature, StepStatus, TaskEvent, TaskSignature, TaskStatus,
 };
 
 use crate::model::{DeepseekBackend, ModelBackend, ModelRequest, ModelResponse};

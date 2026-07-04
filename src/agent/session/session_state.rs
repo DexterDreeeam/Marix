@@ -1,6 +1,7 @@
 use std::sync::{Arc, Mutex as StdMutex};
 
-use marix_common::{SessionMessage, SharedNetReceiver, SharedNetSender, TaskId, WorkQueue};
+use marix_common::{SharedNetReceiver, SharedNetSender, WorkQueue};
+use marix_protocol::{SessionMessage, TaskId};
 
 use crate::session::SessionContext;
 use crate::task::Task;

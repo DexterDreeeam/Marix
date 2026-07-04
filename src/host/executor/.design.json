@@ -3,8 +3,8 @@
   "module": {
     "path": "src/host/executor",
     "name": "executor",
-    "purpose": "Executor folder module for host-side tool execution. executor.rs defines Executor, whose new(agent_tx) stores the shared agent SessionMessage sender alongside a ToolRegistry and an empty WorkQueue of active ExecutionRuntime records keyed by ExeId, and exposes route_session_event and preview. create_execution resolves the requested tool via registry.get by request.signature.name and builds ExecutionRuntime::new(tool, request, agent_tx.clone()). tool.rs defines the Executor-side Tool handle to an external tool executable; input_schema() and output_schema() keep returning String by cloning the typed preview schema content fields. The execution child module implements the per-execution runtime that reads ExecutionRequest.input.content.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns host-side tool registry, tool process launching, and execution orchestration. Tool preview and session protocol models now come from marix-protocol while common provides config, queues, and shared senders.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
@@ -22,36 +22,26 @@
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/executor.rs",
-          "lineStart": 9,
-          "lineEnd": 13,
+          "lineStart": 10,
+          "lineEnd": 14,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/executor.rs",
-          "lineStart": 15,
-          "lineEnd": 38,
+          "lineStart": 16,
+          "lineEnd": 39,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 33,
-              "lineEnd": 33
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/executor.rs",
-          "lineStart": 42,
-          "lineEnd": 95,
+          "lineStart": 43,
+          "lineEnd": 96,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 80,
-              "lineEnd": 94
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -64,8 +54,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/registry.rs",
-          "lineStart": 5,
-          "lineEnd": 8,
+          "lineStart": 6,
+          "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -80,16 +70,16 @@
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/registry.rs",
-          "lineStart": 15,
-          "lineEnd": 17,
+          "lineStart": 16,
+          "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/registry.rs",
-          "lineStart": 19,
-          "lineEnd": 65,
+          "lineStart": 20,
+          "lineEnd": 66,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -104,7 +94,7 @@
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/tool.rs",
-          "lineStart": 6,
+          "lineStart": 7,
           "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
@@ -116,18 +106,14 @@
           "lineEnd": 54,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 35,
-              "lineEnd": 35
-            },
-            {
-              "lineStart": 39,
-              "lineEnd": 39
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     }
+  ],
+  "modified": [
+    "executor.rs",
+    "registry.rs",
+    "tool.rs"
   ]
 }

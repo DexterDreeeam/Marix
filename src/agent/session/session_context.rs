@@ -1,4 +1,4 @@
-use marix_common::{TaskPreview, ToolPreview};
+use marix_protocol::{TaskPreview, ToolPreview};
 
 pub struct SessionContext {
     pub tasks: Vec<TaskPreview>,

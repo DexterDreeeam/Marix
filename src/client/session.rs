@@ -5,9 +5,9 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
 
 use marix_common::{
-    Config, NetReceiver, Receiver, Sender, SessionEvent, SessionMessage, SharedNetSender,
-    TaskEvent, TaskId, TaskSignature, TaskStatus, build_channel, connect_channel,
+    Config, NetReceiver, Receiver, Sender, SharedNetSender, build_channel, connect_channel,
 };
+use marix_protocol::{SessionEvent, SessionMessage, TaskEvent, TaskId, TaskSignature, TaskStatus};
 
 use crate::ClientEvent;
 

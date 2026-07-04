@@ -3,35 +3,45 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with flat Cargo crate layout. It organizes reusable common config/external/logging/protocol/structure modules, agent model/session/task orchestration, client session/event surfaces, host-side typed tool execution, and the top-level tool crate. The common protocol namespace includes TaskSignature::new, ExecutionSignature::new, and StepSignature::new constructors, SessionEvent with Step(StepSignature, StepEvent), TaskEvent without a Step variant, TaskPreview, TaskRequestBrief, ToolSchema with typed ToolInputSchema/ToolOutputSchema content wrappers, and ExecutionRequest with signature plus typed input. Client task creation uses TaskSignature::new for fresh task ids while cancellation preserves existing ids, agent task initialization uses StepSignature::new, and agent preview queries use ExecutionSignature::new.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout. It organizes the agent, client, common, host, first-class marix-protocol, and tool crates. Common now owns config, external adapters, logging, and structure helpers, while marix-protocol owns reusable session/task/step/execution/tool protocol contracts imported by the agent, client, host, and tool crates.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent crate namespace for model/session/task orchestration, including StepSignature::new initial model-step construction and ExecutionSignature::new host-preview queries."
+      "purpose": "Agent crate namespace for model/session/task orchestration; it now imports shared protocol contracts from marix-protocol."
     },
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Client crate namespace for ClientSession and ClientEvent. create_task uses TaskSignature::new for fresh task ids, while cancel_task preserves the caller-provided TaskId via a struct literal."
+      "purpose": "Client crate namespace for ClientSession and ClientEvent; it now imports session/task protocol contracts from marix-protocol."
     },
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared common crate namespace with protocol constructors for TaskSignature, ExecutionSignature, and StepSignature plus reusable config, external, logging, protocol, and structure modules."
+      "purpose": "Shared common crate namespace for config loading, external adapters, logging, and structure utilities; protocol contracts have moved to the marix-protocol workspace crate."
+    },
+    {
+      "path": "src/protocol",
+      "name": "protocol",
+      "purpose": "First-class marix-protocol workspace crate for reusable session, task, step, execution, and tool protocol definitions."
     },
     {
       "path": "src/host",
       "name": "host",
-      "purpose": "Host crate namespace for HostSession and host-side tool execution. Host execution routes ExecutionRequest.input.content through selected tools and exposes typed schema content through Tool input_schema/output_schema helpers."
+      "purpose": "Host crate namespace for HostSession and host-side tool execution; it now imports shared protocol contracts from marix-protocol."
     },
     {
       "path": "src/tool",
       "name": "tool",
-      "purpose": "Top-level marix-tool crate (lib marix_tool) that defines ToolProgram and native tool executables; native previews wrap schema constants in ToolInputSchema/ToolOutputSchema content before returning ToolPreview."
+      "purpose": "Top-level marix-tool crate that defines ToolProgram and native tool executables; it now depends on marix-protocol for tool preview/schema protocol types."
     }
   ],
-  "elements": []
+  "elements": [],
+  "modified": [
+    ".",
+    "Cargo.toml",
+    "Cargo.lock"
+  ]
 }

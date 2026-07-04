@@ -3,8 +3,8 @@
   "module": {
     "path": "src/tool/native/file",
     "name": "file",
-    "purpose": "Filesystem native tool programs. Each file defines one unit-struct tool that carries NAME/DESCRIPTION/INPUT_SCHEMA/OUTPUT_SCHEMA constants and implements ToolProgram: read_file.rs (ReadFile), write_file.rs (WriteFile), list_directory.rs (ListDirectory), and search_text.rs (SearchText). preview() builds a ToolPreview whose ToolSchema wraps schema strings in ToolInputSchema { content } and ToolOutputSchema { content }, and invoke() parses the JSON call via marix_common::external::serde_json, performs the filesystem work, and returns a JSON result string or a {\"error\":..} JSON on failure. mod.rs is re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Filesystem native tool programs. Each file defines one unit-struct tool implementing ToolProgram; preview() builds marix-protocol ToolPreview/ToolSchema values with ToolInputSchema and ToolOutputSchema content wrappers, while invoke() still uses marix_common::external::serde_json for JSON parsing/serialization and performs the filesystem work.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -14,19 +14,6 @@
       "source_depth": 4,
       "changeStatus": "unchanged",
       "codeSegments": [
-        {
-          "sourcePath": "src/tool/native/file/read_file.rs",
-          "lineStart": 4,
-          "lineEnd": 4,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 4,
-              "lineEnd": 4
-            }
-          ]
-        },
         {
           "sourcePath": "src/tool/native/file/read_file.rs",
           "lineStart": 8,
@@ -48,12 +35,7 @@
           "lineStart": 17,
           "lineEnd": 46,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 23,
-              "lineEnd": 29
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -64,19 +46,6 @@
       "source_depth": 4,
       "changeStatus": "unchanged",
       "codeSegments": [
-        {
-          "sourcePath": "src/tool/native/file/write_file.rs",
-          "lineStart": 5,
-          "lineEnd": 5,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 5,
-              "lineEnd": 5
-            }
-          ]
-        },
         {
           "sourcePath": "src/tool/native/file/write_file.rs",
           "lineStart": 9,
@@ -98,12 +67,7 @@
           "lineStart": 18,
           "lineEnd": 63,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 24,
-              "lineEnd": 30
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -114,19 +78,6 @@
       "source_depth": 4,
       "changeStatus": "unchanged",
       "codeSegments": [
-        {
-          "sourcePath": "src/tool/native/file/list_directory.rs",
-          "lineStart": 5,
-          "lineEnd": 5,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 5,
-              "lineEnd": 5
-            }
-          ]
-        },
         {
           "sourcePath": "src/tool/native/file/list_directory.rs",
           "lineStart": 9,
@@ -148,12 +99,7 @@
           "lineStart": 18,
           "lineEnd": 52,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 24,
-              "lineEnd": 30
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -164,19 +110,6 @@
       "source_depth": 4,
       "changeStatus": "unchanged",
       "codeSegments": [
-        {
-          "sourcePath": "src/tool/native/file/search_text.rs",
-          "lineStart": 5,
-          "lineEnd": 5,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 5,
-              "lineEnd": 5
-            }
-          ]
-        },
         {
           "sourcePath": "src/tool/native/file/search_text.rs",
           "lineStart": 9,
@@ -198,15 +131,16 @@
           "lineStart": 18,
           "lineEnd": 55,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 24,
-              "lineEnd": 30
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
     }
+  ],
+  "modified": [
+    "list_directory.rs",
+    "read_file.rs",
+    "search_text.rs",
+    "write_file.rs"
   ]
 }

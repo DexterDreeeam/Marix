@@ -1,5 +1,6 @@
 use crate::executor::Tool;
-use marix_common::{ExecutionRequest, SessionMessage, SharedNetSender};
+use marix_common::SharedNetSender;
+use marix_protocol::{ExecutionRequest, SessionMessage};
 
 pub struct ExecutionContext {
     pub tool: Tool,

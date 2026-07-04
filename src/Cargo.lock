@@ -559,6 +559,7 @@ name = "marix-agent"
 version = "0.1.0"
 dependencies = [
  "marix-common",
+ "marix-protocol",
  "remoc",
  "tokio",
  "uuid",
@@ -570,6 +571,7 @@ version = "0.1.0"
 dependencies = [
  "marix-agent",
  "marix-common",
+ "marix-protocol",
  "tokio",
 ]
 
@@ -593,7 +595,17 @@ version = "0.1.0"
 dependencies = [
  "marix-agent",
  "marix-common",
+ "marix-protocol",
  "tokio",
+]
+
+[[package]]
+name = "marix-protocol"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "uuid",
 ]
 
 [[package]]
@@ -601,6 +613,7 @@ name = "marix-tool"
 version = "0.1.0"
 dependencies = [
  "marix-common",
+ "marix-protocol",
 ]
 
 [[package]]

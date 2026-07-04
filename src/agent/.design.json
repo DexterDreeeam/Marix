@@ -3,8 +3,8 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent crate namespace for session runtime orchestration, model backend abstractions, and the implemented task execution runtime. lib.rs is re-export wiring and re-exports SessionContext beside Session and SessionState; the session child module owns Session, SessionState, SessionContext, host-preview bootstrap/query handling using ExecutionSignature::new for preview queries, Preview tool storage, and signed Step-event routing that is safely ignored as SessionEvent::Step(_, _); the model child module owns backend contracts, and the task child module owns Task, TaskState, Step, worker-level task/step/execution routing split across route_task_event, route_step_event, and route_execution_event, and StepSignature::new initial-step construction for SessionEvent::Step(signature, StepEvent) lifecycle/update/result messages from model steps.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent crate namespace for model/session/task orchestration. Cargo.toml now depends on marix-protocol, and session/task internals import shared protocol contracts from that crate.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
@@ -20,7 +20,7 @@
     {
       "path": "src/agent/task",
       "name": "task",
-      "purpose": "Owns the implemented task runtime, including StepSignature::new initial-step construction that preserves the task signature for model steps."
+      "purpose": "Owns the implemented task runtime, including StepSignature::new initial-step construction that preserves the task signature and passes the task name as the initial step description for model steps."
     }
   ],
   "elements": [
@@ -40,5 +40,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "Cargo.toml"
   ]
 }

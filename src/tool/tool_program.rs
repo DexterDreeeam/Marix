@@ -1,4 +1,4 @@
-use marix_common::ToolPreview;
+use marix_protocol::ToolPreview;
 
 pub trait ToolProgram {
     fn preview(&self) -> ToolPreview;

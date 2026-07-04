@@ -1,5 +1,6 @@
 use crate::executor::Tool;
-use marix_common::{Config, ToolPreview};
+use marix_common::Config;
+use marix_protocol::ToolPreview;
 
 /// Error produced while registering a tool into a [`ToolRegistry`].
 pub enum RegistryError {

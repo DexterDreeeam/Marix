@@ -3,8 +3,8 @@
   "module": {
     "path": "src/tool/native",
     "name": "native",
-    "purpose": "Groups the concrete native tool programs by category. file/ owns filesystem tools (read, write, list, search); shell/ owns native shell command execution. Native previews now wrap schema constants in typed ToolInputSchema/ToolOutputSchema content wrappers before returning ToolPreview, and invoke() implementations perform real filesystem/shell IO and return JSON results.",
-    "changeStatus": "unchanged"
+    "purpose": "Namespace for built-in native tool programs. File and shell child modules now import tool preview/schema protocol contracts from marix-protocol through their concrete tool implementations.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {

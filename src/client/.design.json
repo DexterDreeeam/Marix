@@ -3,8 +3,8 @@
   "module": {
     "path": "src/client",
     "name": "client",
-    "purpose": "Client crate for the user-facing session. event.rs defines ClientEvent, the user-facing event surface; session.rs implements ClientSession, a self-connecting client that mirrors HostSession's worker + shutdown model. new(name) stores the session name in a module-level SOURCE_NAME OnceLock, builds the user ClientEvent channel via build_channel(), initializes agent_tx as an empty SharedNetSender<SessionMessage> (Arc<Mutex<None>>), creates a fresh shutdown Arc<AtomicBool>, and starts the worker via spawn_worker. is_connected() reports whether the NetSender to the agent has been established. create_task now builds its task command with TaskSignature::new(request.clone()), so a fresh TaskId is allocated for new tasks, and sends SessionEvent::Task(signature, TaskEvent::Create { request }) through send_to_agent. cancel_task intentionally keeps a TaskSignature struct literal so it preserves the existing TaskId supplied by the caller instead of generating a new one. package_message stamps SOURCE_NAME, send_to_agent forwards through the shared agent_tx when connected, to_client_event maps content-bearing inbound task events to ClientEvent::Common(String), receiver() borrows the user event receiver, and close() signals shutdown and joins the worker. main.rs is the marix-client binary that loads Config, waits for connection readiness, sends one-shot or interactive prompts, drains events, and closes on exit.",
-    "changeStatus": "unchanged"
+    "purpose": "Client crate namespace for ClientSession and ClientEvent. Cargo.toml now depends on marix-protocol, and session.rs imports session/task protocol contracts from marix-protocol while using common for config and channel helpers.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -16,15 +16,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/event.rs",
-          "lineStart": 1,
+          "lineStart": 2,
           "lineEnd": 4,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 1,
-              "lineEnd": 4
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -46,15 +41,10 @@
         {
           "sourcePath": "src/client/session.rs",
           "lineStart": 23,
-          "lineEnd": 72,
+          "lineEnd": 73,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 51,
-              "lineEnd": 51
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/client/session.rs",
@@ -78,12 +68,7 @@
           "lineEnd": 50,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 17
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/client/main.rs",
@@ -95,5 +80,9 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "Cargo.toml",
+    "session.rs"
   ]
 }
