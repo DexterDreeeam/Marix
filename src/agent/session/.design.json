@@ -4,7 +4,7 @@
     "path": "src/agent/session",
     "name": "session",
     "purpose": "Owns the agent session runtime and session preview context. session.rs defines Session startup, worker routing, package_message(SessionEvent) -> SessionMessage, and route_session_event, which safely ignores standalone Step events because StepEvent carries no TaskSignature or TaskId. session_state.rs defines SessionState storage for task queues and shared client/host endpoints; session_context.rs defines SessionContext, which holds task previews and tool previews only. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
@@ -89,7 +89,7 @@
       "name": "SessionContext",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session_context.rs",
@@ -106,12 +106,5 @@
         }
       ]
     }
-  ],
-  "added": [
-    "session_context.rs"
-  ],
-  "modified": [
-    "mod.rs",
-    "session.rs"
   ]
 }

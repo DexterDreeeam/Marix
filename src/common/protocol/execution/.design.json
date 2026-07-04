@@ -4,7 +4,7 @@
     "path": "src/common/protocol/execution",
     "name": "execution",
     "purpose": "Owns execution protocol contracts split by concern: ExeId identity in id.rs, ExecutionEvent, ExecutionRequest, and ExecutionUpdate in event.rs, ExecutionSignature in signature.rs, and ExecutionStatus in status.rs. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "ExeId",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/execution/id.rs",
@@ -147,11 +147,5 @@
         }
       ]
     }
-  ],
-  "added": [
-    "id.rs"
-  ],
-  "modified": [
-    "mod.rs"
   ]
 }

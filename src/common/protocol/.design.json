@@ -4,7 +4,7 @@
     "path": "src/common/protocol",
     "name": "protocol",
     "purpose": "Owns shared protocol contracts and namespace re-exports. Direct files define the SessionMessage network envelope and tool metadata models; task IDs/events live in task child modules, ExeId in execution/id.rs, and SessionEvent in session/event.rs with Task, Step, and Execution variants. The task, step, execution, and session child modules own their concrete protocol definitions, while mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -131,13 +131,5 @@
         }
       ]
     }
-  ],
-  "deleted": [
-    "session.rs",
-    "task.rs"
-  ],
-  "modified": [
-    "mod.rs",
-    "."
   ]
 }

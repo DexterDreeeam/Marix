@@ -4,7 +4,7 @@
     "path": "src/agent/task",
     "name": "task",
     "purpose": "Owns the agent task runtime. task.rs defines Task { state: Arc<TaskState>, task_tx, worker }, spawns Self::event_loop(state, task_rx), exposes sender() and raise(step), and privately builds model steps, emits statuses, and sends packaged SessionEvent values. Successful model completion now emits TaskStatus::Succeed(TaskResult { content: String::new() }) after importing TaskResult. task_state.rs is the plain TaskState data struct, step.rs defines the Step record, and mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -28,7 +28,7 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
@@ -103,8 +103,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "task.rs"
   ]
 }

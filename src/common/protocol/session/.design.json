@@ -4,7 +4,7 @@
     "path": "src/common/protocol/session",
     "name": "session",
     "purpose": "Owns session-level protocol events. event.rs defines SessionEvent with Task, Step, and Execution variants; Step wraps StepEvent for standalone step notifications that do not carry task or execution signatures. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "SessionEvent",
       "type": "enum",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/session/event.rs",
@@ -42,8 +42,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "event.rs"
   ]
 }

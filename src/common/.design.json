@@ -4,7 +4,7 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Shared common crate root that wires reusable config loading, external re-export adapters, logging, protocol models, and structure utilities. lib.rs re-exports split protocol contracts including TaskId, ExeId, SessionEvent, TaskPreview, and TaskRequestBrief from their child modules. Concrete selectable interfaces live in child modules; the protocol child module owns session events with Task, Step, and Execution variants plus task, step, execution, and tool protocol contracts.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -33,9 +33,5 @@
       "purpose": "Owns shared structural data interfaces: the generic WorkQueue (now offering a with(key, closure) borrowing accessor that runs a closure on a borrowed &V, checking working then complete, so callers can use a non-Clone value in place) and the channel helpers, whose remote NetSender/NetReceiver endpoints are now remoc rch::mpsc channels bootstrapped over a base connection handshake and shared behind std::sync::Mutex."
     }
   ],
-  "elements": [],
-  "modified": [
-    ".",
-    "lib.rs"
-  ]
+  "elements": []
 }
