@@ -4,7 +4,7 @@
     "path": "src/protocol/task",
     "name": "task",
     "purpose": "Owns task protocol contracts: TaskId allocation, TaskEvent notifications, TaskRequestBrief input, TaskPreview request/result snapshots without embedded signatures, TaskResult output, TaskSignature construction, and TaskStatus lifecycle states.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -73,7 +73,7 @@
       "name": "TaskPreview",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/preview.rs",
@@ -151,8 +151,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "preview.rs"
   ]
 }

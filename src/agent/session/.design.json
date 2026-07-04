@@ -4,7 +4,7 @@
     "path": "src/agent/session",
     "name": "session",
     "purpose": "Owns the agent session runtime and shared session preview context. SessionState stores SessionContext behind Arc<StdMutex<_>> so created tasks can receive shared task/tool preview context while current host-preview reset/query behavior is preserved.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
@@ -65,7 +65,7 @@
       "name": "SessionState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session_state.rs",
@@ -111,9 +111,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "session.rs",
-    "session_state.rs"
   ]
 }

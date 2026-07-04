@@ -4,11 +4,8 @@
     "path": "src/agent/prompt",
     "name": "prompt",
     "purpose": "Defines the agent prompt interface and the initial prompt renderer. InitialPrompt loads configured templates, renders Context from previous task previews as request/result lines only, and renders tools separately through the {{#Tools}} placeholder.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "initial.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -31,7 +28,7 @@
       "name": "InitialPrompt",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/prompt/initial.rs",

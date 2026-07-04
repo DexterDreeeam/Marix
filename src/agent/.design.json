@@ -4,7 +4,7 @@
     "path": "src/agent",
     "name": "agent",
     "purpose": "Agent crate namespace for model/session/task/prompt orchestration. It re-exports Prompt and InitialPrompt, provides task runtime APIs including the implemented Task::preview TaskPreview interface, and renders initial prompt context from previous task previews while tools stay in {{#Tools}}.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -45,9 +45,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    ".",
-    "lib.rs"
   ]
 }
