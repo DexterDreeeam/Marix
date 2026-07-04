@@ -4,10 +4,8 @@
     "path": "src/agent/task",
     "name": "task",
     "purpose": "Owns the agent task runtime. task.rs defines Task { context: Arc<TaskState>, task_tx, worker }, whose new builds the Arc<TaskState> and spawns TaskState::event_loop, and exposes sender() and raise(step) (Arc::clone(&self.context).run_step(step)); below a // -- Private -- // marker task.rs keeps the private impl Task { build_model_backend } helper plus the private behavior impl TaskState block whose methods all take self/&self (never a passed context): event_loop(context, task_rx), run_step(self: Arc<Self>, step) (spawning the step worker thread), initial_step (stamping the ExecutionRequest with an ExecutionSignature { task_id, exe_id, name }), execute_model_step, emit_status, and send_event (packaging each SessionEvent into a SessionMessage via Session::package_message before try_send). task_state.rs (renamed from task_context.rs) is the plain TaskState data struct: it holds the task signature, a std::sync::Mutex-guarded model backend, the client/host SharedNetSender<SessionMessage> network senders, and the execution and step WorkQueues, and defines only pub fn new() with no behavior methods. step.rs defines the StepSequence ordering key, the Step record (whose parameters field is an ExecutionRequest), and the StepKind/ToolStepKind/ModelStepKind/UserStepKind classification enums; execution.rs defines the Execution record; the local task_tx/task_rx control channel stays SessionEvent; mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "renamed": ["task_state.rs"],
-  "modified": ["task.rs", "mod.rs"],
   "childModules": [],
   "elements": [
     {
@@ -140,7 +138,7 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
@@ -194,7 +192,7 @@
       "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task_state.rs",

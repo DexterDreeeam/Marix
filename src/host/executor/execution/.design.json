@@ -4,16 +4,15 @@
     "path": "src/host/executor/execution",
     "name": "execution",
     "purpose": "Per-execution host runtime for the executor module. execution.rs defines ExecutionRuntime, the host-side runtime of an agent Execution that holds an Arc<ExecutionContext>, its execution_tx SessionEvent sender, and a worker JoinHandle; new builds the execution channel and shared ExecutionContext and immediately spawns the worker (there is no separate run), while sender clones the execution_tx. The private impl emits ExecutionStatus::Started, spawns the tool execution, and loops execution_rx handling Cancel->Canceled and Kill->Killed; the execution reads the raw tool input from parameters.tool_request (now Option<String>), runs tool.execute, emits an ExecutionUpdate plus ExecutionStatus::Succeed, and forwards SessionEvent::Execution values stamped with parameters.signature by synchronously locking agent_tx (std::sync::Mutex), packaging each event into a SessionMessage via HostSession::package_message (send_event), and calling try_send; the local execution_tx/execution_rx control channel stays Sender/Receiver<SessionEvent>. execution_context.rs defines ExecutionContext, holding the host-local Tool handle (crate::executor::Tool, defined in host/executor/tool.rs), the ExecutionRequest (whose signature identifies the execution), and the shared agent SessionMessage sender (SharedNetSender<SessionMessage>). mod.rs is re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["execution.rs", "execution_context.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "ExecutionRuntime",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
@@ -55,7 +54,7 @@
       "name": "ExecutionContext",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/execution/execution_context.rs",

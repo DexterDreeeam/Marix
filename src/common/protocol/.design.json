@@ -4,11 +4,9 @@
     "path": "src/common/protocol",
     "name": "protocol",
     "purpose": "Owns the shared session/task/execution protocol contracts exchanged over channels, plus the tool metadata contracts. session.rs defines the TaskId and ExeId identifiers and the top-level SessionEvent split between task and execution traffic; task.rs defines task signatures, task events (now including a Step(StepSignature, StepEvent) variant that splits a task into ordered steps), and task status; step.rs defines the step protocol: the StepKind enum with Model(ModelStepKind), Execution(ExecutionStepKind), and User(UserStepKind) sub-kinds (ModelStepKind Initial/JobPlan, ExecutionStepKind Invocation/Cancel/Kill, UserStepKind Verdict/Warrant), the StepEvent enum (Started, Update {seq, content}, Complete {seq_count}, Fail), and the StepSignature record (step_no, name, kind); execution.rs defines execution signatures, execution events that carry ToolPreview values from the sibling tool module, the ExecutionStatus and ExecutionUpdate models, and the ExecutionRequest execution parameter package whose lead field is an ExecutionSignature (task_id, exe_id, name) and whose tool_request now carries a raw Option<String> tool input (this is now the single execution request type, after the earlier input-only request struct was removed and the former parameter-package struct was renamed to ExecutionRequest); tool.rs now owns the ToolSchema input/output schema pair and the ToolPreview advertisement record (name, description, schema)     that were relocated here from the removed common::tool module. message.rs defines SessionMessage, the between-session network envelope that wraps a SessionEvent together with a millisecond timestamp and the sending session's source_name; SessionMessage::new stamps the timestamp inline. mod.rs now also re-exports SessionMessage and the step protocol types and is otherwise namespace and re-export wiring only.",
-        "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-      "added": ["message.rs", "step.rs"],
-      "modified": ["mod.rs", "task.rs"],
-      "childModules": [],
+  "childModules": [],
   "elements": [
     {
       "name": "TaskId",
@@ -103,7 +101,7 @@
       "name": "SessionMessage",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/message.rs",
@@ -158,7 +156,7 @@
       "name": "TaskEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/task.rs",
@@ -195,7 +193,7 @@
       "name": "StepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/step.rs",
@@ -216,7 +214,7 @@
       "name": "ModelStepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/step.rs",
@@ -237,7 +235,7 @@
       "name": "ExecutionStepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/step.rs",
@@ -258,7 +256,7 @@
       "name": "UserStepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/step.rs",
@@ -279,7 +277,7 @@
       "name": "StepEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/step.rs",
@@ -300,7 +298,7 @@
       "name": "StepSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/step.rs",
