@@ -3,14 +3,15 @@
   "module": {
     "path": "src/tool",
     "name": "tool",
-    "purpose": "Top-level marix-tool crate (lib marix_tool) that defines the per-tool ToolProgram interface and compiles one executable per native tool program. tool_program.rs defines ToolProgram, the interface each native tool program implements (preview returns marix_common::ToolPreview, invoke runs the tool for a JSON call). native/ owns the concrete tool programs (file/ and shell/), each implementing ToolProgram and exposing a cfg-gated SelectedTool alias behind a Cargo feature so exactly one tool is active per build. tool_main.rs is the shared binary entry whose main runs the compile-selected SelectedTool through a private run<T: ToolProgram> that reads process arguments and speaks the --preview/--run JSON protocol over stdout. This crate no longer contains the Executor-side Tool handle; that handle now lives in the host crate (host/executor/tool.rs). lib.rs and the Cargo manifest are namespace/re-export wiring and package metadata only.",
-    "changeStatus": "unchanged"
+    "purpose": "Top-level marix-tool crate (lib marix_tool) that defines the per-tool ToolProgram interface and compiles one executable per native tool program. tool_program.rs defines ToolProgram, the interface each native tool program implements (preview returns marix_common::ToolPreview, invoke runs the tool for a JSON call). native/ owns the concrete tool programs (file/ and shell/), each implementing ToolProgram and exposing a cfg-gated SelectedTool alias behind a Cargo feature so exactly one tool is active per build; every native tool invoke() is now implemented (no longer a panic stub), parsing the JSON call via marix_common::external::serde_json, performing real filesystem or shell IO, and returning a JSON result string (or a {\"error\":..} JSON on failure). tool_main.rs is the shared binary entry whose main runs the compile-selected SelectedTool through a private run<T: ToolProgram> that reads process arguments and speaks the --preview/--run JSON protocol over stdout. This crate no longer contains the Executor-side Tool handle; that handle now lives in the host crate (host/executor/tool.rs). lib.rs and the Cargo manifest are namespace/re-export wiring and package metadata only.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/tool/native",
       "name": "native",
-      "purpose": "Concrete native tool programs grouped by category: filesystem tools under file/ and shell command execution under shell/."
+      "purpose": "Concrete native tool programs grouped by category: filesystem tools under file/ and shell command execution under shell/. Every native tool invoke() is now implemented, performing real filesystem/shell IO and returning JSON results."
     }
   ],
   "elements": [

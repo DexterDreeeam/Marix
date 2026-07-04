@@ -12,7 +12,6 @@ use crate::ClientEvent;
 
 pub struct ClientSession {
     agent_tx: SharedNetSender<SessionEvent>,
-    user_tx: Sender<ClientEvent>,
     user_rx: Receiver<ClientEvent>,
     worker: Option<JoinHandle<()>>,
     shutdown: Arc<AtomicBool>,
@@ -21,22 +20,23 @@ pub struct ClientSession {
 impl ClientSession {
     pub fn new() -> Self {
         let (user_tx, user_rx) = build_channel();
+        let agent_tx: SharedNetSender<SessionEvent> =
+            SharedNetSender::new(std::sync::Mutex::new(None));
+        let shutdown = Arc::new(AtomicBool::new(false));
+        let worker = Self::spawn_worker(Arc::clone(&agent_tx), user_tx, Arc::clone(&shutdown));
         Self {
-            agent_tx: SharedNetSender::new(std::sync::Mutex::new(None)),
-            user_tx,
+            agent_tx,
             user_rx,
-            worker: None,
-            shutdown: Arc::new(AtomicBool::new(false)),
+            worker: Some(worker),
+            shutdown,
         }
     }
 
-    pub fn connect(&mut self) {
-        let worker = Self::spawn_worker(
-            Arc::clone(&self.agent_tx),
-            self.user_tx.clone(),
-            Arc::clone(&self.shutdown),
-        );
-        self.worker = Some(worker);
+    pub fn is_connected(&self) -> bool {
+        self.agent_tx
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .is_some()
     }
 
     pub fn create_task(&self, request: String) {

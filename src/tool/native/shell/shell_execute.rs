@@ -1,3 +1,6 @@
+use std::process::Command;
+
+use marix_common::external::serde_json::{Value, from_str, json, to_string};
 use marix_common::{ToolPreview, ToolSchema};
 
 use crate::ToolProgram;
@@ -25,8 +28,39 @@ impl ToolProgram for ShellExecute {
     }
 
     fn invoke(&self, call: &str) -> String {
-        panic!("not implemented")
+        let input: Value = match from_str(call) {
+            Ok(value) => value,
+            Err(error) => return failure(format!("invalid input: {error}")),
+        };
+        let Some(command) = input.get("command").and_then(Value::as_str) else {
+            return failure("missing required field: command".to_owned());
+        };
+        let cwd = input.get("cwd").and_then(Value::as_str);
+
+        #[cfg(target_os = "windows")]
+        let (program, flag) = ("cmd", "/C");
+        #[cfg(not(target_os = "windows"))]
+        let (program, flag) = ("sh", "-c");
+
+        let mut process = Command::new(program);
+        process.arg(flag).arg(command);
+        if let Some(cwd) = cwd {
+            process.current_dir(cwd);
+        }
+        match process.output() {
+            Ok(output) => to_string(&json!({
+                "exit_code": output.status.code().unwrap_or(-1),
+                "stdout": String::from_utf8_lossy(&output.stdout).into_owned(),
+                "stderr": String::from_utf8_lossy(&output.stderr).into_owned(),
+            }))
+            .unwrap_or_default(),
+            Err(error) => failure(format!("failed to run command: {error}")),
+        }
     }
+}
+
+fn failure(message: String) -> String {
+    to_string(&json!({ "error": message })).unwrap_or_default()
 }
 
 #[cfg(feature = "shell_execute")]

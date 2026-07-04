@@ -3,52 +3,43 @@
   "module": {
     "path": "src/tool/native/shell",
     "name": "shell",
-    "purpose": "Native shell command execution tool program. shell_execute.rs defines ShellExecute, a unit-struct tool that carries NAME/DESCRIPTION/INPUT_SCHEMA/OUTPUT_SCHEMA constants and implements ToolProgram; preview() builds a ToolPreview from the constants while invoke() is a panic-backed placeholder. mod.rs is re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Native shell command execution tool program. shell_execute.rs defines ShellExecute, a unit-struct tool that carries NAME/DESCRIPTION/INPUT_SCHEMA/OUTPUT_SCHEMA constants and implements ToolProgram; preview() still builds a ToolPreview from the constants, and invoke() is now implemented (no longer a panic stub): it parses the JSON call via marix_common::external::serde_json (Value/from_str/json/to_string), runs {command, cwd?} through the current operating system shell (cmd /C on Windows, sh -c otherwise) via std::process::Command, and returns {exit_code, stdout, stderr} JSON, falling back to a {\"error\":..} JSON built by a file-local private failure helper on failure. timeout_ms is accepted in the input schema but not currently enforced. mod.rs is re-export wiring only.",
+    "changeStatus": "modified"
   },
+  "modified": ["shell_execute.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "ShellExecute",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/shell_execute.rs",
-          "lineStart": 5,
-          "lineEnd": 5,
+          "lineStart": 8,
+          "lineEnd": 8,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 5,
-              "lineEnd": 5
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/tool/native/shell/shell_execute.rs",
-          "lineStart": 7,
-          "lineEnd": 13,
+          "lineStart": 10,
+          "lineEnd": 16,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 7,
-              "lineEnd": 13
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/tool/native/shell/shell_execute.rs",
-          "lineStart": 15,
-          "lineEnd": 30,
+          "lineStart": 18,
+          "lineEnd": 60,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 15,
-              "lineEnd": 30
+              "lineStart": 31,
+              "lineEnd": 58
             }
           ],
           "modifiedLines": []

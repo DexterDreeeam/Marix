@@ -1,5 +1,10 @@
 flowchart LR
   %% HostSession now connects to the agent's configured host bind address (spawn_worker -> connect_channel), owns a single per-connection Executor built by Executor::new(agent_tx), and pumps inbound SessionEvents through run_worker -> Executor::route_session_event over a current-thread tokio runtime; close signals the shutdown flag and joins the worker. The executor is a single route_session_event router (intercepts Evoke into create_execution to spawn+track an ExecutionRuntime, and forwards other execution events to the target ExecutionRuntime via executions.with), while the execution runtime and ToolRegistry are implemented. Executor::new(agent_tx) stores the shared agent SessionEvent sender and builds a ToolRegistry that reads the global Config and loads Tool handles from the configured tool directory.
+  %% main.rs is the marix-host binary entry that loads the global Config and runs HostSession::new().
+  subgraph main_rs[main.rs marix-host bin]
+    MarixHostBin["marix-host\nbin entry: Config + HostSession"]
+  end
+
   subgraph session_rs[session.rs]
     HostSession["HostSession\nstruct"]
   end
@@ -30,6 +35,8 @@ flowchart LR
     Config["Config"]
   end
 
+  MarixHostBin -->|"loads / exits on error"| Config
+  MarixHostBin -->|"runs HostSession::new()"| HostSession
   HostSession -->|"spawn_worker connect_channel to agent"| SessionEvent
   HostSession -->|"spawn_worker loads host_bind_address from"| Config
   HostSession -->|"spawn_worker owns Executor::new(agent_tx)"| Executor

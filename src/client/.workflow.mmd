@@ -1,5 +1,11 @@
 flowchart LR
-  %% lib.rs re-exports ClientSession and ClientEvent. ClientSession is implemented, a self-connecting client mirroring HostSession's worker + shutdown model: new() builds the user ClientEvent channel and an empty SharedNetSender; connect() (no params) spawns the worker via spawn_worker; the worker loads config.client.core_address, connect_channels to the agent (retrying), stores the NetSender into the shared agent_tx, and run_worker block_on's a current-thread tokio runtime that translates inbound SessionEvents into ClientEvents via to_client_event (content-bearing task events only); create_task/cancel_task send task commands through agent_tx; receiver() borrows user_rx; close() signals the shutdown flag and joins the worker.
+  %% lib.rs re-exports ClientSession and ClientEvent. ClientSession is implemented, a self-connecting client mirroring HostSession's worker + shutdown model: new() builds the user ClientEvent channel and an empty SharedNetSender, then spawns the worker (moving user_tx into it) and begins connecting immediately; is_connected() reports whether the worker has stored the shared agent_tx NetSender yet; the worker loads config.client.core_address, connect_channels to the agent (retrying), stores the NetSender into the shared agent_tx, and run_worker block_on's a current-thread tokio runtime that translates inbound SessionEvents into ClientEvents via to_client_event (content-bearing task events only); create_task/cancel_task send task commands through agent_tx; receiver() borrows user_rx; close() signals the shutdown flag and joins the worker.
+  %% main.rs is the marix-client binary entry that loads Config, constructs a ClientSession and waits via is_connected() (bounded loop) until it is ready, runs one-shot or interactive prompts, and drains ClientEvent::Common messages until idle.
+  subgraph main_rs[main.rs marix-client bin]
+    MarixClientBin["marix-client\nbin entry: Config + ClientSession"]
+    DrainEvents["drain_events\nrecv_timeout prints Common"]
+  end
+
   subgraph event_rs[event.rs]
     ClientEvent["ClientEvent\nenum"]
   end
@@ -19,7 +25,13 @@ flowchart LR
     Config["Config"]
   end
 
-  ClientSession -->|"connect() (no params) spawns"| Worker
+  MarixClientBin -->|"loads / exits on error"| Config
+  MarixClientBin -->|"new(); polls is_connected() until ready; close() on exit"| ClientSession
+  MarixClientBin -->|"create_task(prompt) per prompt"| ClientSession
+  MarixClientBin -->|"drains user events via"| DrainEvents
+  DrainEvents -->|"receiver().recv_timeout prints Common"| ClientEvent
+  ClientSession -->|"new() spawns worker + begins connecting"| Worker
+  ClientSession -->|"is_connected() reports agent_tx status set by worker"| Worker
   ClientSession -->|"create_task/cancel_task send commands via agent_tx SharedNetSender<SessionEvent>"| SessionEvent
   ClientSession -->|"create_task Create / cancel_task Cancel"| TaskEvent
   ClientSession -->|"create_task allocates TaskId::new(); cancel_task keyed by"| TaskId
@@ -28,4 +40,4 @@ flowchart LR
   Worker -->|"spawn_worker loads core_address from"| Config
   Worker -->|"spawn_worker connect_channel to agent; run_worker recv"| SessionEvent
   Worker -->|"to_client_event maps content-bearing TaskEvent Status/Preview/CreateFailed"| TaskEvent
-  Worker -->|"pushes ClientEvent::Common via user_tx"| ClientEvent
+  Worker -->|"sends ClientEvent::Common via the user_tx it owns"| ClientEvent

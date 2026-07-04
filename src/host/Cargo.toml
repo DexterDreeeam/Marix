@@ -11,3 +11,7 @@ tokio = { version = "1", features = ["net", "rt-multi-thread", "sync", "time"] }
 [lib]
 name = "marix_host"
 path = "lib.rs"
+
+[[bin]]
+name = "marix-host"
+path = "main.rs"

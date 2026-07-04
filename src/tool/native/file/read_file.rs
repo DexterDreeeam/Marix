@@ -1,3 +1,6 @@
+use std::fs;
+
+use marix_common::external::serde_json::{Value, from_str, json, to_string};
 use marix_common::{ToolPreview, ToolSchema};
 
 use crate::ToolProgram;
@@ -24,8 +27,22 @@ impl ToolProgram for ReadFile {
     }
 
     fn invoke(&self, call: &str) -> String {
-        panic!("not implemented")
+        let input: Value = match from_str(call) {
+            Ok(value) => value,
+            Err(error) => return failure(format!("invalid input: {error}")),
+        };
+        let Some(path) = input.get("path").and_then(Value::as_str) else {
+            return failure("missing required field: path".to_owned());
+        };
+        match fs::read_to_string(path) {
+            Ok(content) => to_string(&json!({ "content": content })).unwrap_or_default(),
+            Err(error) => failure(format!("failed to read '{path}': {error}")),
+        }
     }
+}
+
+fn failure(message: String) -> String {
+    to_string(&json!({ "error": message })).unwrap_or_default()
 }
 
 #[cfg(feature = "read_file")]

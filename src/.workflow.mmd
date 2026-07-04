@@ -1,11 +1,11 @@
 flowchart LR
-  %% Flat Cargo crate layout; crate roots wire child modules while concrete APIs live below them.
+  %% Flat Cargo crate layout; crate roots wire child modules while concrete APIs live below them. The agent, host, and client crates each ship a binary entry (marix-agent/marix-host/marix-client) alongside their [lib]; every native tool in marix-tool now has an implemented invoke().
   subgraph workspace[src workspace]
     Common["common\nconfig + external + logging + protocol + structure"]
-    Agent["agent\nmodel + session context + task interfaces"]
-    Client["client\nClientSession + ClientEvent"]
-    Host["host\nHostSession + Executor + ToolRegistry + Tool handle"]
-    ToolCrate["tool\nmarix-tool: ToolProgram + native tool executables"]
+    Agent["agent\nmodel + session context + task interfaces\nbin: marix-agent"]
+    Client["client\nClientSession + ClientEvent\nbin: marix-client"]
+    Host["host\nHostSession + Executor + ToolRegistry + Tool handle\nbin: marix-host"]
+    ToolCrate["tool\nmarix-tool: ToolProgram + implemented native tool executables"]
   end
 
   Common -->|"Config, LoggingConfig, LogMessage, protocol events, WorkQueue/channels"| Agent

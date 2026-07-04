@@ -3,19 +3,20 @@
   "module": {
     "path": "src/tool/native",
     "name": "native",
-    "purpose": "Groups the concrete native tool programs by category. file/ owns filesystem tools (read, write, list, search); shell/ owns native shell command execution. mod.rs is re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Groups the concrete native tool programs by category. file/ owns filesystem tools (read, write, list, search); shell/ owns native shell command execution. Every native tool's invoke() is now implemented (no longer a panic stub): each parses the JSON call via marix_common::external::serde_json, performs the real filesystem or shell work, and returns a JSON result string (or a {\"error\":..} JSON on failure). mod.rs is re-export wiring only.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/tool/native/file",
       "name": "file",
-      "purpose": "Filesystem native tool programs: ReadFile, WriteFile, ListDirectory, and SearchText."
+      "purpose": "Filesystem native tool programs: ReadFile, WriteFile, ListDirectory, and SearchText, each with an implemented invoke() that parses the JSON call and performs std::fs work."
     },
     {
       "path": "src/tool/native/shell",
       "name": "shell",
-      "purpose": "Native shell command execution tool program: ShellExecute."
+      "purpose": "Native shell command execution tool program: ShellExecute, with an implemented invoke() that runs the command through the OS shell via std::process::Command."
     }
   ],
   "elements": []

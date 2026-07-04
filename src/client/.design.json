@@ -3,10 +3,12 @@
   "module": {
     "path": "src/client",
     "name": "client",
-    "purpose": "Client crate for the user-facing session. event.rs defines ClientEvent, the user-facing event surface; session.rs implements ClientSession, a self-connecting client that mirrors HostSession's worker + shutdown model. new() builds the user ClientEvent channel via build_channel(), initializes agent_tx as an empty SharedNetSender<SessionEvent> (Arc<Mutex<None>>), leaves worker None, and creates a fresh shutdown Arc<AtomicBool>. connect() takes no parameters and spawns the worker via the private spawn_worker (cloning the shared agent_tx, the user_tx, and the shutdown flag), storing the returned JoinHandle in worker. spawn_worker loads the global Config, parses config.client.core_address into a SocketAddr, and loops while not shut down: it connect_channel::<SessionEvent>(address) to the agent (retrying on connect error), stores the returned NetSender into the shared agent_tx, and runs run_worker on the returned NetReceiver; run_worker builds a current-thread tokio runtime and block_on's an async loop that recv()s each inbound SessionEvent, translates it via the private to_client_event, and sends any resulting ClientEvent through user_tx, breaking when shutdown is set. create_task builds a TaskSignature { name: request, id: TaskId::new() } (the client allocates the task id) and sends SessionEvent::Task(signature, TaskEvent::Create { request }) to the agent via the private send_to_agent, while cancel_task builds a TaskSignature keyed by the given TaskId and sends SessionEvent::Task(signature, TaskEvent::Cancel); send_to_agent locks the shared agent_tx (std::sync::Mutex, poison-tolerant) and try_sends the event when a connection is present. to_client_event maps only content-bearing inbound task events to ClientEvent::Common(String) - TaskEvent::Status(TaskStatus::Update { content }), TaskEvent::Status(TaskStatus::Failed { reason }), TaskEvent::Preview { content }, and TaskEvent::CreateFailed { reason } - and returns None for lifecycle-only task statuses (Started/Canceled/Succeed) and all execution events, so they are not surfaced. receiver() borrows the user ClientEvent receiver end (&Receiver<ClientEvent>) so the caller (for example the CLI) can consume it with recv(), and close() sets the shutdown Arc<AtomicBool> flag (Ordering::Relaxed) and, if present, takes and joins the worker JoinHandle. All struct fields are private (agent_tx, user_tx, user_rx, worker, shutdown). client/Cargo.toml now depends on tokio (net, rt-multi-thread, sync, time) to drive the current-thread recv runtime; lib.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Client crate for the user-facing session. event.rs defines ClientEvent, the user-facing event surface; session.rs implements ClientSession, a self-connecting client that mirrors HostSession's worker + shutdown model. new() builds the user ClientEvent channel via build_channel(), initializes agent_tx as an empty SharedNetSender<SessionEvent> (Arc<Mutex<None>>), creates a fresh shutdown Arc<AtomicBool>, and then starts the worker itself by calling the private spawn_worker(agent_tx, user_tx, shutdown) - moving the user_tx sender half of the channel directly into the worker - and stores the returned JoinHandle in worker, so the session begins connecting to the agent as soon as it is constructed. is_connected() is a &self status query that locks the shared agent_tx (std::sync::Mutex, poison-tolerant) and returns whether the NetSender to the agent has been established (.is_some()), so callers poll it to learn when the connection is ready; the bounded wait that the session previously performed internally now lives in the marix-client binary. spawn_worker loads the global Config, parses config.client.core_address into a SocketAddr, and loops while not shut down: it connect_channel::<SessionEvent>(address) to the agent (retrying on connect error), stores the returned NetSender into the shared agent_tx, and runs run_worker on the returned NetReceiver; run_worker builds a current-thread tokio runtime and block_on's an async loop that recv()s each inbound SessionEvent, translates it via the private to_client_event, and sends any resulting ClientEvent through user_tx, breaking when shutdown is set. create_task builds a TaskSignature { name: request, id: TaskId::new() } (the client allocates the task id) and sends SessionEvent::Task(signature, TaskEvent::Create { request }) to the agent via the private send_to_agent, while cancel_task builds a TaskSignature keyed by the given TaskId and sends SessionEvent::Task(signature, TaskEvent::Cancel); send_to_agent locks the shared agent_tx (std::sync::Mutex, poison-tolerant) and try_sends the event when a connection is present. to_client_event maps only content-bearing inbound task events to ClientEvent::Common(String) - TaskEvent::Status(TaskStatus::Update { content }), TaskEvent::Status(TaskStatus::Failed { reason }), TaskEvent::Preview { content }, and TaskEvent::CreateFailed { reason } - and returns None for lifecycle-only task statuses (Started/Canceled/Succeed) and all execution events, so they are not surfaced. receiver() borrows the user ClientEvent receiver end (&Receiver<ClientEvent>) so the caller (for example the CLI) can consume it with recv(), and close() sets the shutdown Arc<AtomicBool> flag (Ordering::Relaxed) and, if present, takes and joins the worker JoinHandle. All struct fields are private (agent_tx, user_rx, worker, shutdown); the user_tx sender half is no longer a struct field, since new() moves it into the worker.     client/Cargo.toml now depends on tokio (net, rt-multi-thread, sync, time) to drive the current-thread recv runtime; lib.rs is namespace and re-export wiring only. The crate now also ships an executable entry point: main.rs is the marix-client binary that loads the global Config (exiting on error), constructs marix_client::ClientSession::new() (which immediately starts the worker and begins connecting), then polls session.is_connected() in a bounded wait loop (up to ~5 seconds: 100 iterations of a 50ms sleep) until the connection is ready before proceeding, then either runs a one-shot prompt from CLI args or an interactive stdin loop, creating a task per prompt via create_task and draining user events through the file-local private drain_events helper (session.receiver().recv_timeout(30s)) that prints each ClientEvent::Common(message) until idle or disconnect, and calls close() on exit; client/Cargo.toml now declares the marix-client [[bin]] target alongside the existing [lib].",
+       "changeStatus": "modified"
   },
-  "childModules": [],
+     "added": ["main.rs"],
+     "modified": ["Cargo.toml", "session.rs"],
+     "childModules": [],
   "elements": [
     {
       "name": "ClientEvent",
@@ -33,65 +35,43 @@
       "name": "ClientSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
           "lineStart": 13,
-          "lineEnd": 19,
+          "lineEnd": 18,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 18,
-              "lineEnd": 18
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 14
-            },
-            {
-              "lineStart": 16,
-              "lineEnd": 17
-            }
-          ]
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 21,
+          "lineStart": 20,
           "lineEnd": 68,
           "language": "rust",
           "addedLines": [
             {
               "lineStart": 23,
-              "lineEnd": 31
+              "lineEnd": 26
             },
             {
-              "lineStart": 33,
-              "lineEnd": 40
-            },
-            {
-              "lineStart": 43,
-              "lineEnd": 47
-            },
-            {
-              "lineStart": 51,
-              "lineEnd": 55
-            },
-            {
-              "lineStart": 58,
-              "lineEnd": 60
-            },
-            {
-              "lineStart": 63,
-              "lineEnd": 66
+              "lineStart": 36,
+              "lineEnd": 39
             }
           ],
           "modifiedLines": [
             {
-              "lineStart": 22,
-              "lineEnd": 22
+              "lineStart": 28,
+              "lineEnd": 28
+            },
+            {
+              "lineStart": 30,
+              "lineEnd": 31
+            },
+            {
+              "lineStart": 35,
+              "lineEnd": 35
             }
           ]
         },
@@ -100,10 +80,39 @@
           "lineStart": 70,
           "lineEnd": 145,
           "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "marix-client",
+      "type": "bin",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/main.rs",
+          "lineStart": 9,
+          "lineEnd": 47,
+          "language": "rust",
           "addedLines": [
             {
-              "lineStart": 70,
-              "lineEnd": 145
+              "lineStart": 9,
+              "lineEnd": 47
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/client/main.rs",
+          "lineStart": 49,
+          "lineEnd": 55,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 49,
+              "lineEnd": 55
             }
           ],
           "modifiedLines": []

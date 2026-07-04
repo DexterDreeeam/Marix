@@ -1,5 +1,5 @@
 flowchart LR
-  %% marix-tool crate: ToolProgram interface plus one executable per native tool selected via Cargo features; the Executor-side Tool handle now lives in the host crate.
+  %% marix-tool crate: ToolProgram interface plus one executable per native tool selected via Cargo features; the Executor-side Tool handle now lives in the host crate. Each native tool's invoke() is now implemented, parsing the JSON call and performing real filesystem/shell IO to return JSON results.
   subgraph tool_program_rs[tool_program.rs]
     ToolProgram["ToolProgram\ntrait"]
   end

@@ -1,3 +1,7 @@
+use std::fs;
+use std::path::Path;
+
+use marix_common::external::serde_json::{Value, from_str, json, to_string};
 use marix_common::{ToolPreview, ToolSchema};
 
 use crate::ToolProgram;
@@ -24,8 +28,43 @@ impl ToolProgram for ListDirectory {
     }
 
     fn invoke(&self, call: &str) -> String {
-        panic!("not implemented")
+        let input: Value = match from_str(call) {
+            Ok(value) => value,
+            Err(error) => return failure(format!("invalid input: {error}")),
+        };
+        let Some(path) = input.get("path").and_then(Value::as_str) else {
+            return failure("missing required field: path".to_owned());
+        };
+        let recursive = input
+            .get("recursive")
+            .and_then(Value::as_bool)
+            .unwrap_or(false);
+        let mut entries = Vec::new();
+        if let Err(error) = collect_entries(Path::new(path), recursive, &mut entries) {
+            return failure(format!("failed to list '{path}': {error}"));
+        }
+        to_string(&json!({ "entries": entries })).unwrap_or_default()
     }
+}
+
+fn collect_entries(
+    directory: &Path,
+    recursive: bool,
+    entries: &mut Vec<String>,
+) -> std::io::Result<()> {
+    for entry in fs::read_dir(directory)? {
+        let entry = entry?;
+        let path = entry.path();
+        entries.push(path.to_string_lossy().into_owned());
+        if recursive && entry.file_type()?.is_dir() {
+            collect_entries(&path, true, entries)?;
+        }
+    }
+    Ok(())
+}
+
+fn failure(message: String) -> String {
+    to_string(&json!({ "error": message })).unwrap_or_default()
 }
 
 #[cfg(feature = "list_directory")]
