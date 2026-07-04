@@ -8,3 +8,13 @@ pub struct ExecutionSignature {
     pub exe_id: ExeId,
     pub name: String,
 }
+
+impl ExecutionSignature {
+    pub fn new(task_id: TaskId, name: String) -> Self {
+        Self {
+            task_id,
+            exe_id: ExeId::new(),
+            name,
+        }
+    }
+}

@@ -3,14 +3,14 @@
   "module": {
     "path": "src/host",
     "name": "host",
-    "purpose": "Host crate for tool execution management. session.rs implements HostSession, which connects to the agent host bind address, owns the per-connection Executor, and pumps inbound agent SessionMessage envelopes into Executor::route_session_event. HostSession exposes package_message(SessionEvent) -> SessionMessage, which the executor and execution runtimes use to wrap outbound events. The executor folder module owns host-side tool execution: Executor::new(agent_tx) stores the shared agent sender, builds a ToolRegistry and WorkQueue of ExecutionRuntime records, exposes preview, answers ExecutionEvent::PreviewQuery by emitting ExecutionEvent::Preview with current tool previews via HostSession::package_message, intercepts ExecutionEvent::Evoke into create_execution, and forwards other execution events to the tracked runtime. registry.rs implements ToolRegistry, the execution child module implements ExecutionRuntime/ExecutionContext, and tool.rs owns the host-local executable Tool handle.",
-    "changeStatus": "unchanged"
+    "purpose": "Host crate for tool execution management. session.rs implements HostSession, which connects to the agent host bind address, owns the per-connection Executor, and pumps inbound agent SessionMessage envelopes into Executor::route_session_event. HostSession exposes package_message(SessionEvent) -> SessionMessage, which the executor and execution runtimes use to wrap outbound events. The executor folder module owns host-side tool execution: Executor owns the tool registry and active execution runtimes; Tool exposes typed ToolSchema content as String via input_schema/output_schema; ExecutionRuntime runs typed ExecutionRequest input.content through the selected tool.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/host/executor",
       "name": "executor",
-      "purpose": "Executor folder module owning tool preview and a single route_session_event router over host-side tool execution. Executor::new(agent_tx) stores the shared agent SessionMessage sender, builds a ToolRegistry and active ExecutionRuntime WorkQueue, preview delegates to the registry, route_session_event answers ExecutionEvent::PreviewQuery by packaging Preview tools through HostSession::package_message, intercepts ExecutionEvent::Evoke into create_execution, and forwards other execution events through forward_to_execution."
+      "purpose": "Executor folder module owning tool preview and host-side tool execution. Tool exposes typed preview schema content as String, and the execution child runtime reads ExecutionRequest.input.content for tool execution."
     }
   ],
   "elements": [
@@ -62,5 +62,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "."
   ]
 }

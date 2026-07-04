@@ -3,34 +3,34 @@
   "module": {
     "path": "src/common/protocol",
     "name": "protocol",
-    "purpose": "Owns shared protocol contracts and namespace re-exports. Direct files define the SessionMessage network envelope while tool protocol models now live in the tool child module; task IDs/events live in task child modules, ExeId in execution/id.rs, and SessionEvent in session/event.rs with Task, Step, and Execution variants. The task, step, execution, session, and tool child modules own their concrete protocol definitions, while mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns shared protocol contracts and namespace re-exports. Direct files define the SessionMessage network envelope and re-export typed tool schemas (ToolSchema, ToolInputSchema, ToolOutputSchema), while tool protocol models live in the tool child module; task IDs/events live in task child modules, ExeId and ExecutionRequest live in execution child files, and SessionEvent lives in session/event.rs with Task, Step(StepSignature, StepEvent), and Execution variants. TaskSignature::new allocates fresh TaskIds, ExecutionSignature::new preserves caller TaskIds while allocating ExeIds, and StepSignature::new preserves caller TaskSignatures for step creation.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/common/protocol/task",
       "name": "task",
-      "purpose": "Owns task protocol contracts split by concern: TaskId identity, TaskEvent stream variants, TaskRequestBrief, TaskPreview, TaskResult, TaskSignature, and TaskStatus."
+      "purpose": "Owns task protocol contracts including TaskSignature::new(name), which allocates a fresh TaskId for new tasks."
     },
     {
       "path": "src/common/protocol/step",
       "name": "step",
-      "purpose": "Owns the step protocol: StepKind with Model(ModelStepKind)/Execution(ExecutionStepKind)/User(UserStepKind) sub-kinds (kind.rs), the StepSignature record carrying step_no/name/kind (signature.rs), the StepEvent stream enum whose Complete/Fail variants now carry a StepResult (event.rs), the StepResult content payload (result.rs), the StepStatus lifecycle enum Prepare/Process/Complete/Fail (status.rs), and the StepPreview signature+result record (preview.rs)."
+      "purpose": "Owns step protocol contracts including StepSignature::new(task, step_no, name, kind), which preserves the provided TaskSignature."
     },
     {
       "path": "src/common/protocol/execution",
       "name": "execution",
-      "purpose": "Owns execution protocol contracts split by concern: ExeId identity, ExecutionEvent, ExecutionRequest, ExecutionUpdate, ExecutionSignature, and ExecutionStatus."
+      "purpose": "Owns execution protocol contracts including ExecutionSignature::new(task_id, name), which preserves the provided TaskId and allocates a fresh ExeId."
     },
     {
       "path": "src/common/protocol/session",
       "name": "session",
-      "purpose": "Owns the SessionEvent protocol enum in event.rs with Task, Step, and Execution variants; mod.rs is namespace and re-export wiring only."
+      "purpose": "Owns the SessionEvent protocol enum in event.rs with Task, Step(StepSignature, StepEvent), and Execution variants; mod.rs is namespace and re-export wiring only."
     },
     {
       "path": "src/common/protocol/tool",
       "name": "tool",
-      "purpose": "Owns tool protocol metadata contracts split into ToolSchema and ToolPreview models with JSON conversion helpers."
+      "purpose": "Owns tool protocol metadata contracts split into ToolSchema, ToolInputSchema, ToolOutputSchema, and ToolPreview models with JSON conversion helpers."
     }
   ],
   "elements": [
@@ -68,5 +68,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "mod.rs"
   ]
 }

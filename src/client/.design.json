@@ -3,8 +3,8 @@
   "module": {
     "path": "src/client",
     "name": "client",
-    "purpose": "Client crate for the user-facing session. event.rs defines ClientEvent, the user-facing event surface; session.rs implements ClientSession, a self-connecting client that mirrors HostSession's worker + shutdown model. new(name) stores the session name in a module-level SOURCE_NAME OnceLock, builds the user ClientEvent channel via build_channel(), initializes agent_tx as an empty SharedNetSender<SessionMessage> (Arc<Mutex<None>>), creates a fresh shutdown Arc<AtomicBool>, and then starts the worker itself by calling the private spawn_worker(agent_tx, user_tx, shutdown) - moving the user_tx sender half of the channel directly into the worker - and stores the returned JoinHandle in worker, so the session begins connecting to the agent as soon as it is constructed. is_connected() is a &self status query that locks the shared agent_tx (std::sync::Mutex, poison-tolerant) and returns whether the NetSender to the agent has been established (.is_some()), so callers poll it to learn when the connection is ready; the bounded wait that the session previously performed internally now lives in the marix-client binary. spawn_worker loads the global Config, parses config.client.core_address into a SocketAddr, and loops while not shut down: it connect_channel::<SessionMessage>(address) to the agent (retrying on connect error), stores the returned NetSender into the shared agent_tx, and runs run_worker on the returned NetReceiver; run_worker builds a current-thread tokio runtime and block_on's an async loop that recv()s each inbound SessionMessage, unwraps message.event and translates it via the private to_client_event, and sends any resulting ClientEvent through user_tx, breaking when shutdown is set. create_task builds a TaskSignature { name: request, id: TaskId::new() } (the client allocates the task id) and sends SessionEvent::Task(signature, TaskEvent::Create { request }) to the agent via the private send_to_agent, while cancel_task builds a TaskSignature keyed by the given TaskId and sends SessionEvent::Task(signature, TaskEvent::Cancel); send_to_agent locks the shared agent_tx (std::sync::Mutex, poison-tolerant) and, when a connection is present, packages the SessionEvent into a SessionMessage via the static package_message(SessionEvent) -> SessionMessage (which stamps the SOURCE_NAME) before try_send. to_client_event maps only content-bearing inbound task events to ClientEvent::Common(String) - TaskEvent::Status(TaskStatus::Update { content }), TaskEvent::Status(TaskStatus::Failed { reason }), TaskEvent::Preview { content }, and TaskEvent::CreateFailed { reason } - and returns None for lifecycle-only task statuses (Started/Canceled/Succeed) and all execution events, so they are not surfaced. receiver() borrows the user ClientEvent receiver end (&Receiver<ClientEvent>) so the caller (for example the CLI) can consume it with recv(), and close() sets the shutdown Arc<AtomicBool> flag (Ordering::Relaxed) and, if present, takes and joins the worker JoinHandle. All struct fields are private (agent_tx, user_rx, worker, shutdown); the user_tx sender half is no longer a struct field, since new() moves it into the worker.     client/Cargo.toml now depends on tokio (net, rt-multi-thread, sync, time) to drive the current-thread recv runtime; lib.rs is namespace and re-export wiring only. The crate now also ships an executable entry point: main.rs is the marix-client binary that loads the global Config (exiting on error), constructs marix_client::ClientSession::new(config.name) (which immediately starts the worker and begins connecting), then polls session.is_connected() in a bounded wait loop (up to ~5 seconds: 100 iterations of a 50ms sleep) until the connection is ready before proceeding, then either runs a one-shot prompt from CLI args or an interactive stdin loop, creating a task per prompt via create_task and draining user events through the file-local private drain_events helper (session.receiver().recv_timeout(30s)) that prints each ClientEvent::Common(message) until idle or disconnect, and calls close() on exit; client/Cargo.toml now declares the marix-client [[bin]] target alongside the existing [lib].",
-    "changeStatus": "unchanged"
+    "purpose": "Client crate for the user-facing session. event.rs defines ClientEvent, the user-facing event surface; session.rs implements ClientSession, a self-connecting client that mirrors HostSession's worker + shutdown model. new(name) stores the session name in a module-level SOURCE_NAME OnceLock, builds the user ClientEvent channel via build_channel(), initializes agent_tx as an empty SharedNetSender<SessionMessage> (Arc<Mutex<None>>), creates a fresh shutdown Arc<AtomicBool>, and starts the worker via spawn_worker. is_connected() reports whether the NetSender to the agent has been established. create_task now builds its task command with TaskSignature::new(request.clone()), so a fresh TaskId is allocated for new tasks, and sends SessionEvent::Task(signature, TaskEvent::Create { request }) through send_to_agent. cancel_task intentionally keeps a TaskSignature struct literal so it preserves the existing TaskId supplied by the caller instead of generating a new one. package_message stamps SOURCE_NAME, send_to_agent forwards through the shared agent_tx when connected, to_client_event maps content-bearing inbound task events to ClientEvent::Common(String), receiver() borrows the user event receiver, and close() signals shutdown and joins the worker. main.rs is the marix-client binary that loads Config, waits for connection readiness, sends one-shot or interactive prompts, drains events, and closes on exit.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -33,7 +33,7 @@
       "name": "ClientSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
@@ -41,67 +41,28 @@
           "lineEnd": 21,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 17
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/client/session.rs",
           "lineStart": 23,
-          "lineEnd": 76,
+          "lineEnd": 72,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 25,
-              "lineEnd": 25
-            },
-            {
-              "lineStart": 39,
-              "lineEnd": 42
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 24,
-              "lineEnd": 24
-            },
-            {
-              "lineStart": 27,
-              "lineEnd": 27
+              "lineStart": 51,
+              "lineEnd": 51
             }
           ]
         },
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 78,
-          "lineEnd": 153,
+          "lineStart": 77,
+          "lineEnd": 150,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 82,
-              "lineEnd": 82
-            },
-            {
-              "lineStart": 95,
-              "lineEnd": 95
-            },
-            {
-              "lineStart": 105,
-              "lineEnd": 105
-            },
-            {
-              "lineStart": 114,
-              "lineEnd": 115
-            },
-            {
-              "lineStart": 132,
-              "lineEnd": 132
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -134,5 +95,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "session.rs"
   ]
 }

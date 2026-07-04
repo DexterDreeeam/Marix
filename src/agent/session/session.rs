@@ -3,8 +3,8 @@ use std::sync::{Arc, Mutex as StdMutex, OnceLock};
 use std::thread::{self, JoinHandle};
 
 use marix_common::{
-    Config, ExeId, ExecutionEvent, ExecutionSignature, SessionEvent, SessionMessage, TaskEvent,
-    TaskId, TaskSignature, accept_channel,
+    Config, ExecutionEvent, ExecutionSignature, SessionEvent, SessionMessage, TaskEvent, TaskId,
+    TaskSignature, accept_channel,
 };
 
 use super::{SessionContext, SessionState};
@@ -174,7 +174,7 @@ impl Session {
             SessionEvent::Task(signature, _) => {
                 Self::route_task_event(state, &signature.id, event.clone());
             }
-            SessionEvent::Step(_) => {}
+            SessionEvent::Step(_, _) => {}
             SessionEvent::Execution(_, ExecutionEvent::Preview { tools }) => {
                 state
                     .context
@@ -214,11 +214,7 @@ impl Session {
             .unwrap_or_else(|error| error.into_inner())
             .as_mut()
         {
-            let signature = ExecutionSignature {
-                task_id: TaskId::new(),
-                exe_id: ExeId::new(),
-                name: "preview".to_string(),
-            };
+            let signature = ExecutionSignature::new(TaskId::new(), "preview".to_string());
             let _ = sender.try_send(Self::package_message(SessionEvent::Execution(
                 signature,
                 ExecutionEvent::PreviewQuery,

@@ -3,8 +3,8 @@
   "module": {
     "path": "src/common/protocol/task",
     "name": "task",
-    "purpose": "Owns task protocol contracts split by concern: TaskId identity in id.rs, TaskEvent stream variants in event.rs, TaskRequestBrief in request_brief.rs, TaskPreview in preview.rs, TaskResult in result.rs, TaskSignature in signature.rs, and TaskStatus in status.rs. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns task protocol contracts split by concern: TaskId identity in id.rs, TaskEvent stream variants in event.rs (Create/CreateFailed/Query/Preview/Cancel/Status only; no Step variant and step events are no longer embedded in TaskEvent), TaskRequestBrief in request_brief.rs, TaskPreview in preview.rs, TaskResult in result.rs, TaskSignature in signature.rs with TaskSignature::new(name) generating a fresh TaskId, and TaskStatus in status.rs. mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -46,20 +46,20 @@
       "name": "TaskEvent",
       "type": "enum",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/task/event.rs",
           "lineStart": 4,
-          "lineEnd": 13,
+          "lineEnd": 12,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 4,
-              "lineEnd": 13
+              "lineStart": 5,
+              "lineEnd": 12
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -130,17 +130,25 @@
       "name": "TaskSignature",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/task/signature.rs",
-          "lineStart": 4,
+          "lineStart": 5,
           "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/protocol/task/signature.rs",
+          "lineStart": 10,
+          "lineEnd": 17,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 4,
-              "lineEnd": 8
+              "lineStart": 10,
+              "lineEnd": 17
             }
           ],
           "modifiedLines": []
@@ -168,5 +176,9 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "event.rs",
+    "signature.rs"
   ]
 }

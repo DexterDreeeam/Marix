@@ -1,6 +1,6 @@
 use crate::external::*;
 
-use crate::protocol::{ExecutionSignature, ExecutionStatus, ToolPreview};
+use crate::protocol::{ExecutionRequest, ExecutionStatus, ToolPreview};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ExecutionEvent {
@@ -17,12 +17,4 @@ pub enum ExecutionEvent {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ExecutionUpdate {
     pub content: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ExecutionRequest {
-    pub signature: ExecutionSignature,
-    pub prompt: Option<String>,
-    pub tool_request: Option<String>,
-    pub user_options: Vec<String>,
 }

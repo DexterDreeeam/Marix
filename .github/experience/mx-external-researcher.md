@@ -469,3 +469,51 @@ Result returned as `EXECUTION RESULT of [read_file]:\n<contents>`.
 
 - DeepSeek native: render each `ToolPreview` -> `{"type":"function","function":{"name","description","parameters":<schema.input parsed as JSON>}}`; add `additionalProperties:false` (+ `strict:true` if honored). `schema.input` is ALREADY a JSON Schema doc — parse, don't double-encode. Do NOT send `schema.output` (no native API consumes it); keep it host-side (MCP-style) for result validation/UI/step typing. Preserve returned `tool_calls[i].id` (Marix has no field for it — add to `ExecutionSignature`/`ExecutionRequest`) to correlate the `{role:"tool",tool_call_id,content}` reply. `arguments` (JSON string) maps cleanly to `ExecutionRequest.tool_request`.
 - Prompt-text fallback (non-tool-calling model): BEST fit for `ToolPreview{name,description,schema{input,output}}` (input already JSON Schema) is the **OpenHands `convert_tools_to_description`** style — deterministic walk of `properties`/`required` into `(n) name (type, required|optional): desc` blocks + `<function=..><parameter=..>`/JSON-blob invocation. Most token-efficient faithful option is **AutoGPT's TypeScript namespace**. Avoid ReAct `name - description` (drops arg schema) and smolagents Python-signature (assumes a Python exec runtime Marix lacks). Fold `schema.output` into text only for code-writing models (smolagents `Returns:` style).
+
+## 2026-07-04 — Planning Output Formats for Agent Task Plans
+
+Systems studied:
+
+- OpenAI Structured Outputs / Agents SDK — https://developers.openai.com/api/docs/guides/structured-outputs, https://openai.github.io/openai-agents-python/agents/
+- Anthropic Claude / Claude Code — https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices, https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview, https://code.claude.com/docs/en/common-workflows
+- LangGraph Plan-and-Execute — `LangChain-OpenTutorial/LangChain-OpenTutorial/docs/17-LangGraph/03-Use-Cases/05-LangGraph-Plan-and-Execute.md`
+- LlamaIndex SubQuestion planning — `run-llama/llama_index/llama-index-core/llama_index/core/question_gen/{types.py,prompts.py}`
+- AutoGPT classic — `Significant-Gravitas/AutoGPT/classic/original_autogpt/autogpt/agents/prompt_strategies/one_shot.py`
+- BabyAGI archive — `yoheinakajima/babyagi_archive/babyagi.py`
+- SWE-agent 0.7 — `SWE-agent/SWE-agent/config/sweagent_0_7/07_thought_action_xml.yaml`
+- smolagents — `huggingface/smolagents/src/smolagents/prompts/code_agent.yaml`
+- Aider modes — https://aider.chat/docs/usage/modes.html
+
+Core modules observed:
+
+- Planning is usually either (a) strict typed output (`Plan.steps`, `SubQuestionList.items`, JSON Schema/Pydantic), (b) free-text plan in a delimited section (`## 2. Plan`, `<end_plan>`), or (c) short-horizon ReAct/action formats where each turn includes a discussion/thought and one command.
+- LangGraph's canonical pattern keeps `Plan.steps: list[str]`, state fields `input/plan/past_steps/response`, and a replanner returning either `Response` or `Plan`.
+- smolagents separates a facts survey from the high-level plan and explicitly says not to detail individual tool calls, ending with `<end_plan>`.
+- AutoGPT embeds plan as part of every action proposal (`thoughts.plan: list[str]`) rather than a standalone executable DAG.
+- BabyAGI uses numbered-line task lists and reparses by splitting on periods; simple but brittle.
+- LlamaIndex sub-question planning assigns each sub-question to a `tool_name`, a useful pattern for Marix execution steps.
+- Claude/Anthropic guidance favors XML tags for complex prompts and native `tool_use` blocks with `strict:true` for schema-conformant tool calls; Claude Code plan mode is an approval-gated UX rather than a published machine-readable plan schema.
+- SWE-agent constrains each turn to one `DISCUSSION` plus one XML `<command>...</command>`, prioritizing reliable stepwise execution over global plans.
+
+Reusable architecture patterns:
+
+- Use strict JSON Schema / Pydantic for plans that need host-side validation, UI rendering, resumption, and conversion to protocol events.
+- Keep model-facing planner fields semantically small: step number, name, kind, brief, optional tool request, expected result, dependencies, and user gate semantics.
+- Prefer a separate `TaskPlan` type over overloading `TaskResult.content`; keep an opaque `content` summary for human display but store typed steps for execution.
+- For user approval, model explicit steps with `kind: "user"` and a small enum (`verdict`, `warrant`) rather than burying approval language inside a free-text execution step.
+- For tool execution, follow LlamaIndex's `tool_name` assignment and OpenAI/Anthropic's schema-driven argument objects; do not ask the model to write shell text if a typed `ExecutionRequest` exists.
+- Add repair loop: if strict parse fails, pass validation errors back to a "repair to schema only" model call. With strict structured outputs this should be rare, but non-OpenAI/local models still need it.
+
+Risks / anti-patterns:
+
+- Markdown checklists and BabyAGI numbered lists are cheap and readable but fragile under nested steps, missing numbers, translated punctuation, and mixed prose.
+- AutoGPT-style `thoughts/reasoning/criticism/plan/speak` is verbose and may leak unnecessary reasoning; the `plan` field is not directly executable.
+- XML tags are readable and Claude-friendly but require robust escaping and do not guarantee enum/schema validity.
+- ReAct `Thought/Action` and SWE-agent command formats are good for incremental execution but weak as a previewable, approvable full task plan.
+- Embedding full `ExecutionRequest` inside `StepKind` can make plan diffs and UI summaries awkward; consider a separate `planned_action` payload beside a compact signature.
+
+Marix implications:
+
+- Recommended planning response: strict JSON object `{task, steps, final_expected_result}` where `steps[]` has `signature:{step_no,name,kind}`, `brief`, `expected_result`, optional `tool`, optional `tool_request`, optional `requires_user`, optional `depends_on`, and optional `risk`.
+- Map `kind.model.initial/job_plan` to Marix `StepKind::Model(ModelStepKind::{Initial,JobPlan})`; `kind.execution.invocation` + `tool_request` to `ExecutionStepKind::Invocation(ExecutionRequest)`; `kind.user.verdict/warrant` to `UserStepKind::{Verdict,Warrant}`.
+- Current protocol likely needs a first-class `TaskPlan` / `PlannedStep` / `UserGate` type. `TaskPreview { result }` and `TaskResult { content }` are too opaque for validation, partial execution, and UI approval. `StepSignature` may also need task identity or plan identity for stable cross-task references.

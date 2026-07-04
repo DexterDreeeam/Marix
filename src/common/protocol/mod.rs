@@ -17,4 +17,4 @@ pub use step::{
 pub use task::{
     TaskEvent, TaskId, TaskPreview, TaskRequestBrief, TaskResult, TaskSignature, TaskStatus,
 };
-pub use tool::{ToolPreview, ToolSchema};
+pub use tool::{ToolInputSchema, ToolOutputSchema, ToolPreview, ToolSchema};

@@ -14,7 +14,8 @@ pub use protocol::{
     ExeId, ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus,
     ExecutionStepKind, ExecutionUpdate, ModelStepKind, SessionEvent, SessionMessage, StepEvent,
     StepKind, StepPreview, StepResult, StepSignature, StepStatus, TaskEvent, TaskId, TaskPreview,
-    TaskRequestBrief, TaskResult, TaskSignature, TaskStatus, ToolPreview, ToolSchema, UserStepKind,
+    TaskRequestBrief, TaskResult, TaskSignature, TaskStatus, ToolInputSchema, ToolOutputSchema,
+    ToolPreview, ToolSchema, UserStepKind,
 };
 pub use structure::WorkQueue;
 pub use structure::{

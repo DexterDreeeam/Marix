@@ -3,8 +3,8 @@
   "module": {
     "path": "src/tool/native/file",
     "name": "file",
-    "purpose": "Filesystem native tool programs. Each file defines one unit-struct tool that carries NAME/DESCRIPTION/INPUT_SCHEMA/OUTPUT_SCHEMA constants and implements ToolProgram: read_file.rs (ReadFile), write_file.rs (WriteFile), list_directory.rs (ListDirectory), and search_text.rs (SearchText). preview() still builds a ToolPreview from the constants, and invoke() is now implemented (no longer a panic stub): it parses the JSON call via marix_common::external::serde_json (Value/from_str/json/to_string), performs the filesystem work, and returns a JSON result string, falling back to a {\"error\":..} JSON built by a file-local private failure helper on any failure. ReadFile reads {path} into {content} via std::fs::read_to_string; WriteFile writes {path, content, create_dirs?} (optionally std::fs::create_dir_all the parent) via std::fs::write and returns {bytes_written}; ListDirectory reads {path, recursive?} and returns {entries:[paths]} using a private recursive collect_entries helper; SearchText reads {path, query, case_sensitive?} and returns {matches:[{path,line,text}]} using a private recursive search_path helper that skips unreadable files. mod.rs is re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Filesystem native tool programs. Each file defines one unit-struct tool that carries NAME/DESCRIPTION/INPUT_SCHEMA/OUTPUT_SCHEMA constants and implements ToolProgram: read_file.rs (ReadFile), write_file.rs (WriteFile), list_directory.rs (ListDirectory), and search_text.rs (SearchText). preview() builds a ToolPreview whose ToolSchema wraps schema strings in ToolInputSchema { content } and ToolOutputSchema { content }, and invoke() parses the JSON call via marix_common::external::serde_json, performs the filesystem work, and returns a JSON result string or a {\"error\":..} JSON on failure. mod.rs is re-export wiring only.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -12,8 +12,21 @@
       "name": "ReadFile",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
+        {
+          "sourcePath": "src/tool/native/file/read_file.rs",
+          "lineStart": 4,
+          "lineEnd": 4,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 4,
+              "lineEnd": 4
+            }
+          ]
+        },
         {
           "sourcePath": "src/tool/native/file/read_file.rs",
           "lineStart": 8,
@@ -33,12 +46,12 @@
         {
           "sourcePath": "src/tool/native/file/read_file.rs",
           "lineStart": 17,
-          "lineEnd": 42,
+          "lineEnd": 46,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 30,
-              "lineEnd": 40
+              "lineStart": 23,
+              "lineEnd": 29
             }
           ],
           "modifiedLines": []
@@ -49,8 +62,21 @@
       "name": "WriteFile",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
+        {
+          "sourcePath": "src/tool/native/file/write_file.rs",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 5
+            }
+          ]
+        },
         {
           "sourcePath": "src/tool/native/file/write_file.rs",
           "lineStart": 9,
@@ -70,12 +96,12 @@
         {
           "sourcePath": "src/tool/native/file/write_file.rs",
           "lineStart": 18,
-          "lineEnd": 59,
+          "lineEnd": 63,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 31,
-              "lineEnd": 57
+              "lineStart": 24,
+              "lineEnd": 30
             }
           ],
           "modifiedLines": []
@@ -86,8 +112,21 @@
       "name": "ListDirectory",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
+        {
+          "sourcePath": "src/tool/native/file/list_directory.rs",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 5
+            }
+          ]
+        },
         {
           "sourcePath": "src/tool/native/file/list_directory.rs",
           "lineStart": 9,
@@ -107,12 +146,12 @@
         {
           "sourcePath": "src/tool/native/file/list_directory.rs",
           "lineStart": 18,
-          "lineEnd": 48,
+          "lineEnd": 52,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 31,
-              "lineEnd": 46
+              "lineStart": 24,
+              "lineEnd": 30
             }
           ],
           "modifiedLines": []
@@ -123,8 +162,21 @@
       "name": "SearchText",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
+        {
+          "sourcePath": "src/tool/native/file/search_text.rs",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 5
+            }
+          ]
+        },
         {
           "sourcePath": "src/tool/native/file/search_text.rs",
           "lineStart": 9,
@@ -144,17 +196,23 @@
         {
           "sourcePath": "src/tool/native/file/search_text.rs",
           "lineStart": 18,
-          "lineEnd": 51,
+          "lineEnd": 55,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 31,
-              "lineEnd": 49
+              "lineStart": 24,
+              "lineEnd": 30
             }
           ],
           "modifiedLines": []
         }
       ]
     }
+  ],
+  "modified": [
+    "read_file.rs",
+    "write_file.rs",
+    "list_directory.rs",
+    "search_text.rs"
   ]
 }

@@ -1,5 +1,5 @@
 use crate::external::*;
-use crate::protocol::{StepEvent, StepSignature, TaskStatus};
+use crate::protocol::TaskStatus;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TaskEvent {
@@ -9,5 +9,4 @@ pub enum TaskEvent {
     Preview { content: String },
     Cancel,
     Status(TaskStatus),
-    Step(StepSignature, StepEvent),
 }

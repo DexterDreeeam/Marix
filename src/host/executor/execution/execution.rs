@@ -63,7 +63,7 @@ impl ExecutionRuntime {
 
     fn spawn_execution(context: Arc<ExecutionContext>) {
         thread::spawn(move || {
-            let input = context.parameters.tool_request.clone().unwrap_or_default();
+            let input = context.parameters.input.content.clone();
             let output = context.tool.execute(&input);
             Self::emit_update(&context, output);
             Self::emit_status(&context, ExecutionStatus::Succeed);

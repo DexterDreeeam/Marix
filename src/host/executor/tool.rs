@@ -32,11 +32,11 @@ impl Tool {
     }
 
     pub fn input_schema(&self) -> String {
-        self.preview.schema.input.clone()
+        self.preview.schema.input.content.clone()
     }
 
     pub fn output_schema(&self) -> String {
-        self.preview.schema.output.clone()
+        self.preview.schema.output.content.clone()
     }
 
     pub fn preview(&self) -> ToolPreview {

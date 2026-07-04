@@ -2,7 +2,7 @@ use std::fs;
 use std::path::Path;
 
 use marix_common::external::serde_json::{Value, from_str, json, to_string};
-use marix_common::{ToolPreview, ToolSchema};
+use marix_common::{ToolInputSchema, ToolOutputSchema, ToolPreview, ToolSchema};
 
 use crate::ToolProgram;
 
@@ -21,8 +21,12 @@ impl ToolProgram for SearchText {
             name: Self::NAME.to_owned(),
             description: Self::DESCRIPTION.to_owned(),
             schema: ToolSchema {
-                input: Self::INPUT_SCHEMA.to_owned(),
-                output: Self::OUTPUT_SCHEMA.to_owned(),
+                input: ToolInputSchema {
+                    content: Self::INPUT_SCHEMA.to_owned(),
+                },
+                output: ToolOutputSchema {
+                    content: Self::OUTPUT_SCHEMA.to_owned(),
+                },
             },
         }
     }

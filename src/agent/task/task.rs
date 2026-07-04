@@ -1,11 +1,11 @@
 use std::sync::Arc;
-use std::sync::atomic::AtomicUsize;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::thread::{self, JoinHandle};
 
 use marix_common::{
     Config, ExecutionEvent, ModelBackend as ConfigModelBackend, ModelStepKind, Receiver, Sender,
-    SessionEvent, SessionMessage, SharedNetSender, StepKind, StepSignature, StepStatus, TaskEvent,
-    TaskResult, TaskSignature, TaskStatus, build_channel,
+    SessionEvent, SessionMessage, SharedNetSender, StepEvent, StepKind, StepResult, StepSignature,
+    StepStatus, TaskEvent, TaskSignature, TaskStatus, build_channel,
 };
 
 use crate::model::{DeepseekBackend, ModelBackend, ModelRequest, ModelResponse};
@@ -33,7 +33,7 @@ impl Task {
         ));
         let worker = thread::spawn({
             let state = Arc::clone(&state);
-            move || Self::event_loop(state, task_rx)
+            move || Self::run_worker(state, task_rx)
         });
         Self {
             state,
@@ -62,23 +62,35 @@ impl Task {
         }
     }
 
-    fn event_loop(state: Arc<TaskState>, task_rx: Receiver<SessionEvent>) {
+    fn run_worker(state: Arc<TaskState>, task_rx: Receiver<SessionEvent>) {
         Self::emit_status(&state, TaskStatus::Started);
         Self::run_step(Arc::clone(&state), Self::initial_step(&state));
         while let Ok(event) = task_rx.recv() {
             match event {
-                SessionEvent::Task(_, TaskEvent::Cancel) => {
-                    Self::emit_status(&state, TaskStatus::Canceled);
-                    break;
+                SessionEvent::Task(_, _) => {
+                    if !Self::route_task_event(&state, event) {
+                        break;
+                    }
                 }
-                SessionEvent::Execution(_, ExecutionEvent::Update(_))
-                | SessionEvent::Execution(_, ExecutionEvent::Status(_)) => {
-                    Self::send_event(&state, event);
-                }
-                _ => {}
+                SessionEvent::Step(_, event) => Self::route_step_event(&state, event),
+                SessionEvent::Execution(_, event) => Self::route_execution_event(&state, event),
             }
         }
     }
+
+    fn route_task_event(state: &TaskState, event: SessionEvent) -> bool {
+        match event {
+            SessionEvent::Task(_, TaskEvent::Cancel) => {
+                Self::emit_status(state, TaskStatus::Canceled);
+                false
+            }
+            _ => true,
+        }
+    }
+
+    fn route_step_event(_state: &TaskState, _event: StepEvent) {}
+
+    fn route_execution_event(_state: &TaskState, _event: ExecutionEvent) {}
 
     fn run_step(state: Arc<TaskState>, step: Step) {
         state
@@ -88,10 +100,13 @@ impl Task {
             if matches!(step.signature.kind, StepKind::Model(_)) {
                 Self::execute_model_step(&state, step);
             } else {
-                Self::emit_status(
+                Self::emit_step_event(
                     &state,
-                    TaskStatus::Failed {
-                        reason: "task step kind is not supported yet".to_owned(),
+                    &step.signature,
+                    StepEvent::Fail {
+                        result: StepResult {
+                            content: "task step kind is not supported yet".to_owned(),
+                        },
                     },
                 );
             }
@@ -100,18 +115,23 @@ impl Task {
 
     fn initial_step(state: &TaskState) -> Step {
         Step {
-            signature: StepSignature {
-                step_no: 0,
-                name: state.signature.name.clone(),
-                kind: StepKind::Model(ModelStepKind::Initial),
-            },
+            signature: StepSignature::new(
+                state.signature.clone(),
+                0,
+                state.signature.name.clone(),
+                StepKind::Model(ModelStepKind::Initial),
+            ),
             status: StepStatus::Prepare,
             update_count: Arc::new(AtomicUsize::new(0)),
         }
     }
 
     fn execute_model_step(state: &TaskState, step: Step) {
+        Self::emit_step_event(state, &step.signature, StepEvent::Started);
         let prompt = state.signature.name.clone();
+        let update_count = Arc::clone(&step.update_count);
+        let signature = step.signature.clone();
+        let mut result = String::new();
         let request = ModelRequest { step, prompt };
         let responses = {
             let mut backend = state
@@ -123,10 +143,13 @@ impl Task {
         let responses = match responses {
             Ok(responses) => responses,
             Err(error) => {
-                Self::emit_status(
+                Self::emit_step_event(
                     state,
-                    TaskStatus::Failed {
-                        reason: error.to_string(),
+                    &signature,
+                    StepEvent::Fail {
+                        result: StepResult {
+                            content: error.to_string(),
+                        },
                     },
                 );
                 return;
@@ -135,30 +158,42 @@ impl Task {
         for response in responses {
             match response {
                 ModelResponse::Content(content) => {
-                    Self::emit_status(state, TaskStatus::Update { content });
+                    let seq = update_count.fetch_add(1, Ordering::Relaxed);
+                    result.push_str(&content);
+                    Self::emit_step_event(state, &signature, StepEvent::Update { seq, content });
                 }
                 ModelResponse::Failed(error) => {
-                    Self::emit_status(
+                    Self::emit_step_event(
                         state,
-                        TaskStatus::Failed {
-                            reason: error.to_string(),
+                        &signature,
+                        StepEvent::Fail {
+                            result: StepResult {
+                                content: error.to_string(),
+                            },
                         },
                     );
                     return;
                 }
             }
         }
-        Self::emit_status(
+        let seq_count = update_count.load(Ordering::Relaxed);
+        Self::emit_step_event(
             state,
-            TaskStatus::Succeed(TaskResult {
-                content: String::new(),
-            }),
+            &signature,
+            StepEvent::Complete {
+                seq_count,
+                result: StepResult { content: result },
+            },
         );
     }
 
     fn emit_status(state: &TaskState, status: TaskStatus) {
         let event = SessionEvent::Task(state.signature.clone(), TaskEvent::Status(status));
         Self::send_event(state, event);
+    }
+
+    fn emit_step_event(state: &TaskState, signature: &StepSignature, event: StepEvent) {
+        Self::send_event(state, SessionEvent::Step(signature.clone(), event));
     }
 
     fn send_event(state: &TaskState, event: SessionEvent) {

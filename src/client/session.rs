@@ -48,10 +48,7 @@ impl ClientSession {
     }
 
     pub fn create_task(&self, request: String) {
-        let signature = TaskSignature {
-            name: request.clone(),
-            id: TaskId::new(),
-        };
+        let signature = TaskSignature::new(request.clone());
         self.send_to_agent(SessionEvent::Task(signature, TaskEvent::Create { request }));
     }
 

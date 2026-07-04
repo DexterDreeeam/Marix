@@ -3,20 +3,23 @@
   "module": {
     "path": "src/tool/native",
     "name": "native",
-    "purpose": "Groups the concrete native tool programs by category. file/ owns filesystem tools (read, write, list, search); shell/ owns native shell command execution. Every native tool's invoke() is now implemented (no longer a panic stub): each parses the JSON call via marix_common::external::serde_json, performs the real filesystem or shell work, and returns a JSON result string (or a {\"error\":..} JSON on failure). mod.rs is re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Groups the concrete native tool programs by category. file/ owns filesystem tools (read, write, list, search); shell/ owns native shell command execution. Native previews now wrap schema constants in typed ToolInputSchema/ToolOutputSchema content wrappers before returning ToolPreview, and invoke() implementations perform real filesystem/shell IO and return JSON results.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/tool/native/file",
       "name": "file",
-      "purpose": "Filesystem native tool programs: ReadFile, WriteFile, ListDirectory, and SearchText, each with an implemented invoke() that parses the JSON call and performs std::fs work."
+      "purpose": "Filesystem native tool programs: ReadFile, WriteFile, ListDirectory, and SearchText, each wrapping preview schema constants in ToolInputSchema/ToolOutputSchema content and implementing invoke() with std::fs work."
     },
     {
       "path": "src/tool/native/shell",
       "name": "shell",
-      "purpose": "Native shell command execution tool program: ShellExecute, with an implemented invoke() that runs the command through the OS shell via std::process::Command."
+      "purpose": "Native shell command execution tool program: ShellExecute, wrapping preview schema constants in ToolInputSchema/ToolOutputSchema content and running commands through std::process::Command."
     }
   ],
-  "elements": []
+  "elements": [],
+  "modified": [
+    "."
+  ]
 }

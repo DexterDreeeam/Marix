@@ -3,8 +3,8 @@
   "module": {
     "path": "src/agent/session",
     "name": "session",
-    "purpose": "Owns the agent session runtime and session preview context. session.rs defines Session startup, worker routing, package_message(SessionEvent) -> SessionMessage, and route_session_event; after a host channel connects, spawn_host_worker resets SessionState.context and sends an ExecutionEvent::PreviewQuery so the host can return tool previews, and route_session_event stores ExecutionEvent::Preview tools into SessionState.context while still safely ignoring standalone Step events because StepEvent carries no TaskSignature or TaskId. session_state.rs defines SessionState storage for task queues, shared client/host endpoints, and a StdMutex<SessionContext> initialized with empty task and tool lists. session_context.rs defines SessionContext, which holds task previews and tool previews only. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent session runtime and session preview context. session.rs defines Session startup, worker routing, package_message(SessionEvent) -> SessionMessage, and route_session_event; after a host channel connects, spawn_host_worker resets SessionState.context and query_host_preview sends an ExecutionEvent::PreviewQuery using ExecutionSignature::new(TaskId::new(), \"preview\".to_string()), so the preview query keeps a caller-supplied TaskId and lets ExecutionSignature allocate the ExeId without importing ExeId in session.rs. route_session_event stores ExecutionEvent::Preview tools while safely ignoring signed standalone step notifications via SessionEvent::Step(_, _). session_state.rs defines SessionState storage for task queues, shared client/host endpoints, and a StdMutex<SessionContext> initialized with empty task and tool lists. session_context.rs defines SessionContext, which holds task previews and tool previews only. mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
@@ -33,23 +33,19 @@
         {
           "sourcePath": "src/agent/session/session.rs",
           "lineStart": 41,
-          "lineEnd": 228,
+          "lineEnd": 224,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 87,
-              "lineEnd": 88
+              "lineStart": 177,
+              "lineEnd": 177
             },
             {
-              "lineStart": 178,
-              "lineEnd": 184
-            },
-            {
-              "lineStart": 200,
-              "lineEnd": 227
+              "lineStart": 217,
+              "lineEnd": 217
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -119,5 +115,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "session.rs"
   ]
 }

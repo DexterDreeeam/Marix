@@ -2,8 +2,18 @@ use crate::external::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ToolSchema {
-    pub input: String,
-    pub output: String,
+    pub input: ToolInputSchema,
+    pub output: ToolOutputSchema,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ToolInputSchema {
+    pub content: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ToolOutputSchema {
+    pub content: String,
 }
 
 impl ToolSchema {

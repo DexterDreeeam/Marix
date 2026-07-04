@@ -3,35 +3,38 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with flat Cargo crate layout. It organizes reusable common config/external/logging/protocol/structure modules, agent model/session/task orchestration, client session/event surfaces, host-side tool execution, and the top-level tool crate. The agent session runtime keeps SessionContext in SessionState, resets it when a host connects, queries host tool previews with ExecutionEvent::PreviewQuery, and stores returned Preview tools; the host executor answers PreviewQuery by emitting ExecutionEvent::Preview with registry previews. The common protocol namespace includes SessionEvent variants for Task, Step, and Execution, TaskPreview, TaskRequestBrief, ToolSchema, and ToolPreview.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace source root for Marix crates with flat Cargo crate layout. It organizes reusable common config/external/logging/protocol/structure modules, agent model/session/task orchestration, client session/event surfaces, host-side typed tool execution, and the top-level tool crate. The common protocol namespace includes TaskSignature::new, ExecutionSignature::new, and StepSignature::new constructors, SessionEvent with Step(StepSignature, StepEvent), TaskEvent without a Step variant, TaskPreview, TaskRequestBrief, ToolSchema with typed ToolInputSchema/ToolOutputSchema content wrappers, and ExecutionRequest with signature plus typed input. Client task creation uses TaskSignature::new for fresh task ids while cancellation preserves existing ids, agent task initialization uses StepSignature::new, and agent preview queries use ExecutionSignature::new.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent crate namespace for model backend abstractions, Session and Task runtime orchestration, plain state storage with SessionContext, host-preview bootstrap/query handling, Preview tool storage, and safe ignored routing for standalone Step events."
+      "purpose": "Agent crate namespace for model/session/task orchestration, including StepSignature::new initial model-step construction and ExecutionSignature::new host-preview queries."
     },
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Client crate namespace for the user-facing ClientSession and ClientEvent surface. ClientSession is now implemented as a self-connecting client that mirrors HostSession: new(name) stores the session name in a SOURCE_NAME static, constructs it and immediately spawns a worker (moving the user_tx channel half into it) that loads config.client.core_address, connect_channel::<SessionMessage> to the agent (retrying), stores the NetSender into the shared agent_tx, and runs a current-thread tokio runtime that unwraps each inbound agent SessionMessage and translates message.event into user-facing ClientEvents (content-bearing task events only, via to_client_event); is_connected() reports whether the worker has established the shared agent_tx NetSender, and the marix-client binary polls it in a bounded wait after new() so a create_task/cancel_task is not issued before that sender exists; create_task and cancel_task package task commands via the static package_message(SessionEvent) -> SessionMessage and send them to the agent through the shared agent_tx (SharedNetSender<SessionMessage>), receiver() borrows the ClientEvent stream (&Receiver<ClientEvent> over user_rx) for the caller to consume, and close() signals the shutdown flag and stops the worker. query_task was removed, the previously public user_rx field is now private, and the user_tx sender half is no longer a struct field (new() moves it into the worker); marix-client now depends on tokio (net, rt-multi-thread, sync, time) for the recv runtime. The crate now also ships the marix-client binary entry (main.rs) that loads Config, constructs a ClientSession::new(config.name) and waits via is_connected() until it is ready, and runs one-shot or interactive prompts, draining ClientEvent::Common messages until idle."
+      "purpose": "Client crate namespace for ClientSession and ClientEvent. create_task uses TaskSignature::new for fresh task ids, while cancel_task preserves the caller-provided TaskId via a struct literal."
     },
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared common crate namespace with reusable config, external re-export, logging, protocol, and structure modules. Its protocol module groups TaskId, ExeId, SessionEvent (Task, Step, Execution), TaskPreview, TaskRequestBrief, ToolSchema, and ToolPreview in dedicated child-module files alongside step and execution contracts."
+      "purpose": "Shared common crate namespace with protocol constructors for TaskSignature, ExecutionSignature, and StepSignature plus reusable config, external, logging, protocol, and structure modules."
     },
     {
       "path": "src/host",
       "name": "host",
-      "purpose": "Host crate namespace for HostSession and host-side tool execution. HostSession connects to the agent and routes inbound execution events through Executor; Executor owns the tool registry, active execution runtimes, preview delegation, PreviewQuery response emission, Evoke creation, and forwarding for other execution events."
+      "purpose": "Host crate namespace for HostSession and host-side tool execution. Host execution routes ExecutionRequest.input.content through selected tools and exposes typed schema content through Tool input_schema/output_schema helpers."
     },
     {
       "path": "src/tool",
       "name": "tool",
-      "purpose": "Top-level marix-tool crate (lib marix_tool) that defines the per-tool ToolProgram interface and compiles one executable per native tool program (read_file, write_file, list_directory, search_text, shell_execute), each selected at build time via a Cargo feature and sharing the tool_main.rs --preview/--run entry. The Executor-side Tool handle that launches these executables lives in the host crate (host/executor), not in this crate. Every native tool program's invoke() is now implemented, parsing the JSON call and performing real filesystem/shell IO to return JSON results (no longer panic stubs)."
+      "purpose": "Top-level marix-tool crate (lib marix_tool) that defines ToolProgram and native tool executables; native previews wrap schema constants in ToolInputSchema/ToolOutputSchema content before returning ToolPreview."
     }
   ],
-  "elements": []
+  "elements": [],
+  "modified": [
+    "."
+  ]
 }

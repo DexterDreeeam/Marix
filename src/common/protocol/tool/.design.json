@@ -3,8 +3,8 @@
   "module": {
     "path": "src/common/protocol/tool",
     "name": "tool",
-    "purpose": "Owns tool protocol metadata contracts split into ToolSchema and ToolPreview models with JSON conversion helpers; mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns tool protocol metadata contracts split into ToolSchema, typed ToolInputSchema/ToolOutputSchema content wrappers, and ToolPreview models with JSON conversion helpers; mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -12,29 +12,66 @@
       "name": "ToolSchema",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/protocol/tool/schema.rs",
           "lineStart": 3,
           "lineEnd": 7,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 3,
-              "lineEnd": 7
+              "lineStart": 5,
+              "lineEnd": 6
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/common/protocol/tool/schema.rs",
+          "lineStart": 19,
+          "lineEnd": 27,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolInputSchema",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/tool/schema.rs",
           "lineStart": 9,
-          "lineEnd": 17,
+          "lineEnd": 12,
           "language": "rust",
           "addedLines": [
             {
               "lineStart": 9,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolOutputSchema",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/protocol/tool/schema.rs",
+          "lineStart": 14,
+          "lineEnd": 17,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
               "lineEnd": 17
             }
           ],
@@ -76,5 +113,9 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "schema.rs",
+    "mod.rs"
   ]
 }
