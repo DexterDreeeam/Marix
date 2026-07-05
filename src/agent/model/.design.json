@@ -3,8 +3,8 @@
   "module": {
     "path": "src/agent/model",
     "name": "model",
-    "purpose": "Owns the agent model backend abstraction. backend.rs defines the public ModelBackend trait, the crate-internal ModelBackendImpl trait bridged to ModelBackend by a blanket impl that delegates request to send, and the ModelRequest/ModelResponse request and response shapes; backend_deepseek.rs implements DeepseekBackend as a config-driven streaming Deepseek chat-completions backend over reqwest with SSE parsing and an agent-role single-message payload; error.rs defines ModelBackendError with From conversions for io, serde_json, and reqwest errors plus a Display impl. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent model backend abstraction. backend.rs defines the public ModelBackend trait, the crate-internal ModelBackendImpl trait bridged to ModelBackend by a blanket impl that delegates request to send, and the ModelRequest/ModelResponse request and response shapes; backend_deepseek.rs implements DeepseekBackend as a config-driven streaming Deepseek chat-completions backend over reqwest with SSE parsing and a user-role single-message payload that preserves request.prompt as content; error.rs defines ModelBackendError with From conversions for io, serde_json, and reqwest errors plus a Display impl. mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -84,7 +84,7 @@
       "name": "DeepseekBackend",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend_deepseek.rs",
@@ -189,5 +189,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "backend_deepseek.rs"
   ]
 }

@@ -7,7 +7,9 @@ use std::thread::JoinHandle;
 use marix_common::{
     Config, NetReceiver, Receiver, Sender, SharedNetSender, build_channel, connect_channel,
 };
-use marix_protocol::{SessionEvent, SessionMessage, TaskEvent, TaskId, TaskSignature, TaskStatus};
+use marix_protocol::{
+    SessionEvent, SessionMessage, StepEvent, TaskEvent, TaskId, TaskSignature, TaskStatus,
+};
 
 use crate::ClientEvent;
 
@@ -66,9 +68,7 @@ impl ClientSession {
 
     pub fn close(&mut self) {
         self.shutdown.store(true, Ordering::Relaxed);
-        if let Some(worker) = self.worker.take() {
-            let _ = worker.join();
-        }
+        let _ = self.worker.take();
     }
 }
 
@@ -143,6 +143,15 @@ impl ClientSession {
             }
             SessionEvent::Task(_, TaskEvent::CreateFailed { reason }) => {
                 Some(ClientEvent::Common(reason))
+            }
+            SessionEvent::Step(_, StepEvent::Update { content, .. }) => {
+                Some(ClientEvent::Common(content))
+            }
+            SessionEvent::Step(_, StepEvent::Complete { seq_count, result }) => {
+                (seq_count == 0).then_some(ClientEvent::Common(result.content))
+            }
+            SessionEvent::Step(_, StepEvent::Fail { result }) => {
+                Some(ClientEvent::Common(result.content))
             }
             _ => None,
         }

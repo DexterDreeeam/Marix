@@ -3,14 +3,17 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent crate namespace for model/session/task/prompt orchestration. It re-exports Prompt and InitialPrompt, provides task runtime APIs including the implemented Task::preview TaskPreview interface, and renders initial prompt context from previous task previews while tools stay in {{#Tools}}.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent crate namespace for model/session/task/prompt orchestration. It re-exports Prompt and InitialPrompt, provides task runtime APIs including the implemented Task::preview TaskPreview interface, routes initial model steps through InitialPrompt with cloned task/tool session context while non-initial model steps keep the task name prompt fallback, and sends DeepSeek chat prompts using the provider-supported user role.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/agent/model",
       "name": "model",
-      "purpose": "Owns agent model backend traits, request/response data, backend errors, and the implemented Deepseek streaming backend. ModelRequest carries the model-facing task Step and derives only Debug/Clone now that Step is no longer Eq. ModelBackendImpl exposes only send, bridged to ModelBackend by a blanket impl; DeepseekBackend loads its config and issues streaming Deepseek chat-completions requests with an agent-role single-message payload, and ModelBackendError converts io, serde_json, and reqwest errors."
+      "purpose": "Owns agent model backend traits, request/response data, backend errors, and the implemented Deepseek streaming backend. DeepseekBackend loads its config and issues streaming Deepseek chat-completions requests with a provider-supported user-role single-message payload preserving request.prompt as content."
     },
     {
       "path": "src/agent/prompt",
@@ -25,7 +28,7 @@
     {
       "path": "src/agent/task",
       "name": "task",
-      "purpose": "Owns the implemented task runtime, including Task::preview producing a TaskPreview request from the task signature name with an empty result placeholder, plus Task/TaskState wiring that receives shared session context."
+      "purpose": "Owns the implemented task runtime, including Task::preview producing a TaskPreview request from the task signature name with an empty result placeholder and initial model-step prompt rendering through InitialPrompt from cloned task/tool session context."
     }
   ],
   "elements": [

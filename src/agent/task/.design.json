@@ -3,9 +3,12 @@
   "module": {
     "path": "src/agent/task",
     "name": "task",
-    "purpose": "Owns agent task and step runtime state. Task exposes sender, raise, and an implemented public preview interface that returns a TaskPreview with the task signature name as the request content and an empty result placeholder while Task::new wires shared SessionContext into TaskState.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns agent task and step runtime state. Task exposes sender, raise, and an implemented public preview interface that returns a TaskPreview with the task signature name as the request content and an empty result placeholder while Task::new wires shared SessionContext into TaskState; initial model steps now render InitialPrompt from a cloned SessionContext of tasks and tools, while later model steps fall back to the task name.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "task.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -28,44 +31,41 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 20,
-          "lineEnd": 24,
+          "lineStart": 21,
+          "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 26,
-          "lineEnd": 70,
+          "lineStart": 27,
+          "lineEnd": 71,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/task/task.rs",
+          "lineStart": 75,
+          "lineEnd": 247,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 28,
-              "lineEnd": 28
-            },
-            {
-              "lineStart": 35,
-              "lineEnd": 35
-            },
-            {
-              "lineStart": 60,
-              "lineEnd": 69
+              "lineStart": 214,
+              "lineEnd": 231
             }
           ],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 74,
-          "lineEnd": 227,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 150,
+              "lineEnd": 150
+            }
+          ]
         }
       ]
     },
@@ -80,12 +80,7 @@
           "lineStart": 11,
           "lineEnd": 18,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 12,
-              "lineEnd": 12
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -93,16 +88,7 @@
           "lineStart": 20,
           "lineEnd": 37,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 22,
-              "lineEnd": 22
-            },
-            {
-              "lineStart": 29,
-              "lineEnd": 29
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

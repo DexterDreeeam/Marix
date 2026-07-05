@@ -3,8 +3,8 @@
   "module": {
     "path": "src/client",
     "name": "client",
-    "purpose": "Client crate namespace for ClientSession and ClientEvent. Cargo.toml now depends on marix-protocol, and session.rs imports session/task protocol contracts from marix-protocol while using common for config and channel helpers.",
-    "changeStatus": "unchanged"
+    "purpose": "Client crate namespace for ClientSession and ClientEvent. ClientSession renders task status/preview/create-failure output plus StepEvent updates, failures, and non-streamed completions into ClientEvent::Common; close() now sets shutdown and drops the worker JoinHandle without joining so a remoc receive cannot block shutdown forever.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -28,7 +28,7 @@
       "name": "ClientSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
@@ -41,17 +41,27 @@
         {
           "sourcePath": "src/client/session.rs",
           "lineStart": 23,
-          "lineEnd": 73,
+          "lineEnd": 72,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 69,
+              "lineEnd": 71
+            }
+          ]
         },
         {
           "sourcePath": "src/client/session.rs",
           "lineStart": 77,
-          "lineEnd": 150,
+          "lineEnd": 159,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 147,
+              "lineEnd": 155
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -80,5 +90,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "session.rs"
   ]
 }

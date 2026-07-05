@@ -3,19 +3,22 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes the agent, client, common, prompt, host, first-class marix-protocol, and tool crates/modules; implemented agent task previews expose task signature request names with empty result placeholders while tool previews remain separately rendered.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes the agent, client, common, prompt, host, first-class marix-protocol, and tool crates/modules; agent initial model steps render InitialPrompt from cloned task/tool session context, DeepSeek chat requests use the provider-supported user role, client sessions surface streamed StepEvent output and close nonblockingly, and prompt templates require raw strict JSON with single-string execution invocation inputs.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent crate namespace for model/session/task/prompt orchestration; it exposes implemented Task::preview metadata and renders initial prompt context from prior task previews while tools remain separately rendered."
+      "purpose": "Agent crate namespace for model/session/task/prompt orchestration; it renders initial model-step prompts through InitialPrompt using cloned tasks/tools session context and sends DeepSeek chat payloads with a user-role prompt message."
     },
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Client crate namespace for ClientSession and ClientEvent; it now imports session/task protocol contracts from marix-protocol."
+      "purpose": "Client crate namespace for ClientSession and ClientEvent; it surfaces StepEvent updates/failures/non-streamed completions as client output and closes by dropping the worker handle without joining."
     },
     {
       "path": "src/common",
@@ -25,7 +28,7 @@
     {
       "path": "src/prompt",
       "name": "prompt",
-      "purpose": "Owns prompt templates used by model-facing steps, including schema-guided execution invocation examples for step planning and composition."
+      "purpose": "Owns prompt templates used by model-facing steps, including raw strict JSON no-fence requirements and single-string execution invocation input guidance."
     },
     {
       "path": "src/protocol",

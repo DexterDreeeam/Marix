@@ -3,8 +3,8 @@
   "module": {
     "path": "src/prompt/step",
     "name": "step",
-    "purpose": "Owns step model prompt templates for Initial, Plan, ExecutionAnalysis, and Composition, including schema-guided execution invocation examples and StepDraft payload-shape guidance.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns step model prompt templates for Initial, Plan, ExecutionAnalysis, and Composition, requiring raw strict JSON without Markdown fences and requiring execution invocation input to be a single string, with structured tool parameters encoded as compact JSON text inside that string.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "InitialPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Initial.prompt",
@@ -22,8 +22,12 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 5,
-              "lineEnd": 8
+              "lineStart": 13,
+              "lineEnd": 13
+            },
+            {
+              "lineStart": 23,
+              "lineEnd": 23
             }
           ]
         }
@@ -33,7 +37,7 @@
       "name": "PlanPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Plan.prompt",
@@ -45,6 +49,10 @@
             {
               "lineStart": 17,
               "lineEnd": 17
+            },
+            {
+              "lineStart": 28,
+              "lineEnd": 28
             }
           ]
         }
@@ -54,7 +62,7 @@
       "name": "ExecutionAnalysisPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/ExecutionAnalysis.prompt",
@@ -66,6 +74,10 @@
             {
               "lineStart": 15,
               "lineEnd": 15
+            },
+            {
+              "lineStart": 25,
+              "lineEnd": 25
             }
           ]
         }
@@ -75,7 +87,7 @@
       "name": "CompositionPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Composition.prompt",
@@ -83,9 +95,20 @@
           "lineEnd": 27,
           "language": "prompt",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 24,
+              "lineEnd": 24
+            }
+          ]
         }
       ]
     }
+  ],
+  "modified": [
+    "Composition.prompt",
+    "ExecutionAnalysis.prompt",
+    "Initial.prompt",
+    "Plan.prompt"
   ]
 }

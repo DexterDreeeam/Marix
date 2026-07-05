@@ -21,7 +21,7 @@ Composition rules:
 4. Mention important failures or limitations plainly.
 5. Do not invent files, tool outputs, approvals, or execution results that are not present in the inputs.
 
-Return only strict JSON:
+Return only raw strict JSON. Do not wrap it in Markdown fences and do not add any text before or after the JSON:
 {
   "content": "Final concise result for the user."
 }

@@ -10,7 +10,7 @@ Input variables:
 StepDraft kind format:
 - Intent: use { "Intent": "short fuzzy description" } when the step is only a future intention and cannot be made concrete yet.
 - Model: use { "Model": "Initial" | "Plan" | "ExecutionAnalysis" | "Composition" } for reasoning or text-generation steps.
-- Execution: use { "Execution": { "Invocation": { "tool": "tool_name", "input": "parameter" } } } when a concrete tool call is known. Use only tools listed in {{#Tools}} and fill the single input parameter according to that tool's input schema. The conversion layer will create the execution signature.
+- Execution: use { "Execution": { "Invocation": { "tool": "tool_name", "input": "parameter" } } } when a concrete tool call is known. Use only tools listed in {{#Tools}}. The `input` value must be a single string, never an object or array. If a tool needs structured JSON input, put compact JSON text inside that single string parameter. The conversion layer will create the execution signature.
 - User: use { "User": "Verdict" | "Warrant" } when the next action requires the user's decision or authorization.
 
 Requirements:
@@ -20,7 +20,7 @@ Requirements:
 4. If a step may modify or delete files, include a user approval step before the destructive action.
 5. Keep descriptions short and operational.
 
-Return a strict JSON object matching this shape:
+Return a raw strict JSON object matching this shape. Do not wrap it in Markdown fences and do not add any text before or after the JSON:
 {
   "description": "Short description of the whole plan.",
   "ready_steps": [

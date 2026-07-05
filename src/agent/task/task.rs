@@ -13,6 +13,7 @@ use marix_protocol::{
 };
 
 use crate::model::{DeepseekBackend, ModelBackend, ModelRequest, ModelResponse};
+use crate::prompt::{InitialPrompt, Prompt};
 use crate::session::Session;
 use crate::session::SessionContext;
 use crate::task::{Step, TaskState};
@@ -146,7 +147,7 @@ impl Task {
 
     fn execute_model_step(state: &TaskState, step: Step) {
         Self::emit_step_event(state, &step.signature, StepEvent::Started);
-        let prompt = state.signature.name.clone();
+        let prompt = Self::model_step_prompt(state, &step);
         let update_count = Arc::clone(&step.update_count);
         let signature = step.signature.clone();
         let mut result = String::new();
@@ -208,6 +209,25 @@ impl Task {
     fn emit_status(state: &TaskState, status: TaskStatus) {
         let event = SessionEvent::Task(state.signature.clone(), TaskEvent::Status(status));
         Self::send_event(state, event);
+    }
+
+    fn model_step_prompt(state: &TaskState, step: &Step) -> String {
+        match step.signature.kind {
+            StepKind::Model(ModelStepKind::Initial) => {
+                let session_context = {
+                    let context = state
+                        .session_context
+                        .lock()
+                        .unwrap_or_else(|error| error.into_inner());
+                    SessionContext {
+                        tasks: context.tasks.clone(),
+                        tools: context.tools.clone(),
+                    }
+                };
+                InitialPrompt::new(state.signature.name.clone(), session_context).prompt()
+            }
+            _ => state.signature.name.clone(),
+        }
     }
 
     fn emit_step_event(state: &TaskState, signature: &StepSignature, event: StepEvent) {

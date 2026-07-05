@@ -12,7 +12,7 @@ Input variables:
 StepDraft kind format:
 - Intent: { "Intent": "still vague future action" } when the next action depends on more information.
 - Model: { "Model": "Plan" | "ExecutionAnalysis" | "Composition" } for follow-up reasoning.
-- Execution: { "Execution": { "Invocation": { "tool": "tool_name", "input": "parameter" } } } when the execution output makes the next tool call concrete. The single input parameter must follow the selected tool's input schema. The conversion layer will create the execution signature.
+- Execution: { "Execution": { "Invocation": { "tool": "tool_name", "input": "parameter" } } } when the execution output makes the next tool call concrete. The `input` value must be a single string, never an object or array. If a tool needs structured JSON input, put compact JSON text inside that single string parameter. The conversion layer will create the execution signature.
 - User: { "User": "Verdict" | "Warrant" } when the execution output requires user approval or authorization.
 
 Analysis rules:
@@ -22,7 +22,7 @@ Analysis rules:
 4. Preserve destructive-action gates: deletion, overwrite, kill, or cancel actions require User approval.
 5. Keep tool input assumptions explicit in the step description.
 
-Return only strict JSON:
+Return only raw strict JSON. Do not wrap it in Markdown fences and do not add any text before or after the JSON:
 {
   "description": "What the execution output means.",
   "ready_steps": [
