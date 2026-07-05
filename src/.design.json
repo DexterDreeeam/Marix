@@ -3,9 +3,12 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; the client crate now emits signature-aware common events so CLI output can group contiguous task/step chunks by signature id.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; the client library now emits Common output and Done completion events with optional final messages so the CLI owns exit behavior.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/agent",
@@ -15,7 +18,7 @@
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Client crate namespace for the marix_client library, ClientSession and signature-aware ClientEvent source, and the marix-client-cli and marix-client-app binary modules."
+      "purpose": "Client crate namespace for the marix_client library, ClientSession and signature-aware ClientEvent source, and client binaries including a CLI whose oneshot mode exits on Done completion events."
     },
     {
       "path": "src/common",

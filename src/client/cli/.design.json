@@ -3,52 +3,64 @@
   "module": {
     "path": "src/client/cli",
     "name": "cli",
-    "purpose": "Contains the marix-client-cli command-line binary entrypoint. The CLI drains signature-aware ClientEvent output, prints chunks from the same signature continuously, inserts a newline before a different signature id, and emits a final newline after any output.",
-    "changeStatus": "unchanged"
+    "purpose": "Contains the marix-client-cli command-line binary entrypoint. The CLI accepts exactly --interactive or --oneshot \"request\", drains signature-aware ClientEvent output, prints Common messages and optional Done messages through print_event to keep same-signature output contiguous, and exits oneshot on Done completion for the active signature.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    ".",
+    "main.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "marix-client-cli",
       "type": "bin",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/main.rs",
           "lineStart": 1,
-          "lineEnd": 73,
+          "lineEnd": 118,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 54,
-              "lineEnd": 54
+              "lineStart": 9,
+              "lineEnd": 13
             },
             {
-              "lineStart": 60,
-              "lineEnd": 65
+              "lineStart": 15,
+              "lineEnd": 24
             },
             {
-              "lineStart": 67,
-              "lineEnd": 67
+              "lineStart": 44,
+              "lineEnd": 45
             },
             {
-              "lineStart": 70,
-              "lineEnd": 72
+              "lineStart": 47,
+              "lineEnd": 52
+            },
+            {
+              "lineStart": 68,
+              "lineEnd": 74
+            },
+            {
+              "lineStart": 107,
+              "lineEnd": 117
             }
           ],
           "modifiedLines": [
             {
-              "lineStart": 55,
-              "lineEnd": 59
+              "lineStart": 40,
+              "lineEnd": 42
             },
             {
               "lineStart": 66,
               "lineEnd": 66
             },
             {
-              "lineStart": 68,
-              "lineEnd": 68
+              "lineStart": 79,
+              "lineEnd": 100
             }
           ]
         }

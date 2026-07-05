@@ -4,4 +4,8 @@ pub enum ClientEvent {
         signature_id: String,
         message: String,
     },
+    Done {
+        signature_id: String,
+        message: Option<String>,
+    },
 }

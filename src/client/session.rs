@@ -148,11 +148,11 @@ impl ClientSession {
             SessionEvent::Step(signature, StepEvent::Update { content, .. }) => {
                 Some(Self::common_event(&signature, content))
             }
-            SessionEvent::Step(signature, StepEvent::Complete { seq_count, result }) => {
-                (seq_count == 0).then_some(Self::common_event(&signature, result.content))
-            }
+            SessionEvent::Step(signature, StepEvent::Complete { seq_count, result }) => Some(
+                Self::done_event(&signature, (seq_count == 0).then_some(result.content)),
+            ),
             SessionEvent::Step(signature, StepEvent::Fail { result }) => {
-                Some(Self::common_event(&signature, result.content))
+                Some(Self::done_event(&signature, Some(result.content)))
             }
             _ => None,
         }
@@ -160,6 +160,13 @@ impl ClientSession {
 
     fn common_event(signature: &impl Signature, message: String) -> ClientEvent {
         ClientEvent::Common {
+            signature_id: signature.id().to_string(),
+            message,
+        }
+    }
+
+    fn done_event(signature: &impl Signature, message: Option<String>) -> ClientEvent {
+        ClientEvent::Done {
             signature_id: signature.id().to_string(),
             message,
         }
