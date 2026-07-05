@@ -11,26 +11,24 @@ Input variables:
 - Existing pending steps: {{#PendingSteps}}
 - Available tools: {{#Tools}}
 
-StepDraft kind format:
-- Intent: "Intent". Use only in pending_steps; put the future step description in StepDraft.description.
-- Model: { "Model": "Initial" | "Plan" | "ExecutionAnalysis" | "Composition" }.
+Step kind format:
+- Intent: "Intent". Use only in pending_steps; put the future step description in the surrounding step description.
 - Execution: { "Execution": { "Invocation": { "tool": "tool_name", "input": "parameter" } } }. The invocation must be concrete enough to run. The `input` value must be a single string, never an object or array. If a tool needs structured JSON input, put compact JSON text inside that single string parameter. The conversion layer will create the execution signature.
 - User: { "User": "Verdict" | "Warrant" }.
 
 Planning rules:
-1. ready_steps must contain only concrete steps. Do not use StepKind::Intent in ready_steps.
+1. run_steps must contain only concrete steps. Do not use StepKind::Intent in run_steps.
 2. pending_steps may contain Intent steps when later details depend on ready step output.
-3. If pending_steps is not empty, the last ready_steps item should be a Model Plan / ExecutionAnalysis / Composition step that can convert prior output into the next concrete step.
+3. If pending_steps is not empty, run_steps should produce enough output for a later model step to convert pending intents into concrete steps.
 4. Use Execution steps when a specific tool and input are already known.
 5. Use User steps for approval, verdict, or warrant gates.
-6. Use Model steps for reasoning, planning, analysis, or final composition.
 
 Return only raw strict JSON. Do not wrap it in Markdown fences and do not add any text before or after the JSON:
 {
   "description": "Plan summary.",
-  "ready_steps": [
+  "run_steps": [
     {
-      "kind": { "Model": "Plan" },
+      "kind": { "Execution": { "Invocation": { "tool": "tool_name", "input": "parameter" } } },
       "description": "Concrete executable step."
     }
   ],

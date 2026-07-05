@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/agent/plan",
+    "name": "plan",
+    "purpose": "Owns the agent-side plan queue module: PlanRecord stores a PlanSignature, Plan, run StepSignatures, and remaining-step counter; PlanQueue keeps PlanRecords in insertion order behind a mutex for insertion, lookup, listing, and completion tracking; PlanError reports duplicate plans, missing plans, and missing steps.",
+    "changeStatus": "added"
+  },
+  "added": [
+    "."
+  ],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "PlanQueue",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/plan/queue.rs",
+          "lineStart": 7,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 9
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/plan/queue.rs",
+          "lineStart": 11,
+          "lineEnd": 79,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 79
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "PlanRecord",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/plan/record.rs",
+          "lineStart": 5,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/plan/record.rs",
+          "lineStart": 12,
+          "lineEnd": 37,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 37
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "PlanError",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/plan/error.rs",
+          "lineStart": 1,
+          "lineEnd": 6,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 6
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

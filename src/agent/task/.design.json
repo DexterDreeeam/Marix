@@ -3,16 +3,21 @@
   "module": {
     "path": "src/agent/task",
     "name": "task",
-    "purpose": "Owns agent task runtime state. Task keeps public construction, preview, worker routing, and direct session_tx event sending in task.rs via send_status_event and in task_step.rs via send_step_event, imports Step from the top-level step module, tracks inserted steps with TaskState::step_count, stores parsed Plan records with their StepSignature list in TaskState::plan_list, keeps private step behavior in task_step.rs, and keeps execution routing in task_execution.rs. route_step_event parses Plan output with Plan::parse, runs ready steps, and records (plan, signatures); run_step rejects unit Intent steps before insertion, enforces the ten-step limit, and assigns authoritative step numbers.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns agent task runtime state. Task keeps public construction, preview, worker routing, and direct session_tx event sending in task.rs; TaskState stores the original user request, step_count, steps, and a PlanQueue-backed plan_queue. task_step.rs creates the initial Plan from user_request, inserts plans into PlanQueue with generated StepSignatures, runs plans from queued signatures, records completed steps through PlanQueue::complete_step, and only parses/starts a follow-up Plan after every stored step in the completed plan has finished.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "task.rs",
+    "task_state.rs",
+    "task_step.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
@@ -25,55 +30,77 @@
         {
           "sourcePath": "src/agent/task/task.rs",
           "lineStart": 20,
-          "lineEnd": 58,
+          "lineEnd": 61,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "addedLines": [
+            {
+              "lineStart": 24,
+              "lineEnd": 24
+            },
+            {
+              "lineStart": 31,
+              "lineEnd": 31
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 53,
+              "lineEnd": 53
+            }
+          ]
         },
         {
           "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 62,
-          "lineEnd": 103,
+          "lineStart": 64,
+          "lineEnd": 105,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 99,
-              "lineEnd": 101
+              "lineStart": 75,
+              "lineEnd": 75
             }
           ]
         },
         {
           "sourcePath": "src/agent/task/task_step.rs",
-          "lineStart": 15,
-          "lineEnd": 182,
+          "lineStart": 16,
+          "lineEnd": 215,
           "language": "rust",
           "addedLines": [
             {
               "lineStart": 24,
-              "lineEnd": 39
+              "lineEnd": 28
             },
             {
-              "lineStart": 57,
-              "lineEnd": 71
+              "lineStart": 60,
+              "lineEnd": 60
             },
             {
-              "lineStart": 160,
-              "lineEnd": 162
+              "lineStart": 77,
+              "lineEnd": 92
+            },
+            {
+              "lineStart": 95,
+              "lineEnd": 127
             }
           ],
           "modifiedLines": [
             {
-              "lineStart": 23,
-              "lineEnd": 23
+              "lineStart": 33,
+              "lineEnd": 33
             },
             {
               "lineStart": 44,
-              "lineEnd": 45
+              "lineEnd": 44
             },
             {
-              "lineStart": 73,
-              "lineEnd": 73
+              "lineStart": 56,
+              "lineEnd": 56
+            },
+            {
+              "lineStart": 210,
+              "lineEnd": 212
             }
           ]
         },
@@ -91,33 +118,47 @@
       "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task_state.rs",
-          "lineStart": 12,
-          "lineEnd": 20,
+          "lineStart": 13,
+          "lineEnd": 22,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 17,
-              "lineEnd": 18
+              "lineStart": 16,
+              "lineEnd": 16
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 20
+            }
+          ]
         },
         {
           "sourcePath": "src/agent/task/task_state.rs",
-          "lineStart": 22,
-          "lineEnd": 39,
+          "lineStart": 24,
+          "lineEnd": 43,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 34,
+              "lineStart": 28,
+              "lineEnd": 28
+            },
+            {
+              "lineStart": 35,
               "lineEnd": 35
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 39,
+              "lineEnd": 39
+            }
+          ]
         }
       ]
     }

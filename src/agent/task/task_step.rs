@@ -3,7 +3,8 @@ use std::sync::atomic::Ordering;
 use std::thread;
 
 use marix_protocol::{
-    ModelStepKind, Plan, SessionEvent, StepEvent, StepKind, StepResult, StepSignature,
+    ModelStepKind, Plan, PlanSignature, SessionEvent, StepDraft, StepEvent, StepKind, StepResult,
+    StepSignature,
 };
 
 use crate::model::{ModelRequest, ModelResponse};
@@ -20,28 +21,16 @@ impl Task {
     ) {
         if let StepEvent::Complete { result, .. } = event {
             state.steps.complete(signature.step_no);
-            if let Ok(plan) = Plan::parse(&result.content) {
-                let mut signatures = Vec::new();
-                for (index, draft) in plan.ready_steps.iter().cloned().enumerate() {
-                    let step = Step::new(StepSignature::new(
-                        state.signature.clone(),
-                        index,
-                        draft.description,
-                        draft.kind,
-                    ));
-                    signatures.push(step.signature.clone());
-                    Self::run_step(Arc::clone(&state), step);
+            if state.plan_queue.complete_step(&signature).is_some() {
+                if let Ok(plan) = Plan::parse(&result.content) {
+                    let plan_signature = Self::add_plan(&state, plan);
+                    Self::run_plan(state, &plan_signature);
                 }
-                state
-                    .plan_list
-                    .lock()
-                    .unwrap_or_else(|error| error.into_inner())
-                    .push((plan, signatures));
             }
         }
     }
 
-    pub(super) fn run_step(state: Arc<TaskState>, mut step: Step) {
+    pub(super) fn run_step(state: Arc<TaskState>, mut step: Step) -> Option<StepSignature> {
         if matches!(step.signature.kind, StepKind::Intent) {
             Self::send_step_event(
                 &state,
@@ -52,7 +41,7 @@ impl Task {
                     },
                 },
             );
-            return;
+            return None;
         }
         if state.step_count.load(Ordering::Relaxed) >= 10 {
             Self::send_step_event(
@@ -64,10 +53,11 @@ impl Task {
                     },
                 },
             );
-            return;
+            return None;
         }
         let step_no = state.step_count.fetch_add(1, Ordering::Relaxed);
         step.signature.step_no = step_no;
+        let signature = step.signature.clone();
         state.steps.insert_or_update(step_no, step.clone());
         thread::spawn(move || {
             if matches!(step.signature.kind, StepKind::Model(_)) {
@@ -84,15 +74,56 @@ impl Task {
                 );
             }
         });
+        Some(signature)
     }
 
-    pub(super) fn initial_step(state: &TaskState) -> Step {
-        Step::new(StepSignature::new(
-            state.signature.clone(),
-            0,
-            state.signature.name.clone(),
-            StepKind::Model(ModelStepKind::Initial),
-        ))
+    pub(super) fn generate_initial_plan(state: Arc<TaskState>) -> PlanSignature {
+        let plan = Plan {
+            description: state.user_request.clone(),
+            run_steps: vec![StepDraft {
+                kind: StepKind::Model(ModelStepKind::Initial),
+                description: state.user_request.clone(),
+            }],
+            pending_steps: Vec::new(),
+            expected_result: String::new(),
+        };
+        let plan_signature = Self::add_plan(&state, plan);
+        Self::run_plan(state, &plan_signature);
+        plan_signature
+    }
+
+    fn add_plan(state: &TaskState, plan: Plan) -> PlanSignature {
+        let plan_signature = PlanSignature::new();
+        let signatures = plan
+            .run_steps
+            .iter()
+            .cloned()
+            .enumerate()
+            .map(|(step_no, draft)| {
+                StepSignature::new(
+                    state.signature.clone(),
+                    step_no,
+                    draft.description,
+                    draft.kind,
+                )
+            })
+            .collect();
+        state
+            .plan_queue
+            .insert(plan_signature.clone(), plan, signatures)
+            .unwrap_or_else(|error| panic!("failed to insert task plan: {error:?}"));
+        plan_signature
+    }
+
+    fn run_plan(state: Arc<TaskState>, plan_signature: &PlanSignature) {
+        let steps = match state.plan_queue.step_signatures(plan_signature) {
+            Ok(steps) => steps,
+            Err(_) => return,
+        };
+        for signature in steps {
+            let step = Step::new(signature);
+            Self::run_step(Arc::clone(&state), step);
+        }
     }
 
     pub(super) fn execute_model_step(state: &TaskState, step: Step) {
@@ -176,9 +207,9 @@ impl Task {
                         tools: context.tools.clone(),
                     }
                 };
-                InitialPrompt::new(state.signature.name.clone(), session_context).prompt()
+                InitialPrompt::new(state.user_request.clone(), session_context).prompt()
             }
-            _ => state.signature.name.clone(),
+            _ => state.user_request.clone(),
         }
     }
 }

@@ -21,12 +21,14 @@ impl Task {
     pub fn new(
         session_context: Arc<StdMutex<SessionContext>>,
         signature: TaskSignature,
+        user_request: String,
         session_tx: Sender<SessionEvent>,
     ) -> Self {
         let (task_tx, task_rx) = build_channel();
         let state = Arc::new(TaskState::new(
             session_context,
             signature,
+            user_request,
             Self::build_model_backend(),
             session_tx,
         ));
@@ -48,7 +50,7 @@ impl Task {
     pub fn preview(&self) -> TaskPreview {
         TaskPreview {
             request: TaskRequestBrief {
-                content: self.state.signature.name.clone(),
+                content: self.state.user_request.clone(),
             },
             result: TaskResult {
                 content: String::new(),
@@ -70,7 +72,7 @@ impl Task {
 
     fn run_worker(state: Arc<TaskState>, task_rx: Receiver<SessionEvent>) {
         Self::send_status_event(&state, TaskStatus::Started);
-        Self::run_step(Arc::clone(&state), Self::initial_step(&state));
+        Self::generate_initial_plan(Arc::clone(&state));
         while let Ok(event) = task_rx.recv() {
             match event {
                 SessionEvent::Task(_, _) => {

@@ -9,25 +9,24 @@ Input variables:
 - Pending intentions: {{#PendingIntentions}}
 - Available tools: {{#Tools}}
 
-StepDraft kind format:
-- Intent: "Intent" when the next action depends on more information; put the vague future action in StepDraft.description.
-- Model: { "Model": "Plan" | "ExecutionAnalysis" | "Composition" } for follow-up reasoning.
+Step kind format:
+- Intent: "Intent" when the next action depends on more information; put the vague future action in the surrounding step description.
 - Execution: { "Execution": { "Invocation": { "tool": "tool_name", "input": "parameter" } } } when the execution output makes the next tool call concrete. The `input` value must be a single string, never an object or array. If a tool needs structured JSON input, put compact JSON text inside that single string parameter. The conversion layer will create the execution signature.
 - User: { "User": "Verdict" | "Warrant" } when the execution output requires user approval or authorization.
 
 Analysis rules:
 1. Summarize only facts supported by execution results.
-2. If the next step can now be made concrete, convert an Intent into a concrete Model, Execution, or User step.
-3. If output shows failure or ambiguity, produce a Model Plan or User Verdict step rather than guessing.
+2. If the next step can now be made concrete, convert an Intent into a concrete Execution or User step.
+3. If output shows failure or ambiguity, produce a User Verdict step rather than guessing.
 4. Preserve destructive-action gates: deletion, overwrite, kill, or cancel actions require User approval.
 5. Keep tool input assumptions explicit in the step description.
 
 Return only raw strict JSON. Do not wrap it in Markdown fences and do not add any text before or after the JSON:
 {
   "description": "What the execution output means.",
-  "ready_steps": [
+  "run_steps": [
     {
-      "kind": { "Model": "ExecutionAnalysis" },
+      "kind": { "Execution": { "Invocation": { "tool": "tool_name", "input": "parameter" } } },
       "description": "Next concrete step derived from execution output."
     }
   ],

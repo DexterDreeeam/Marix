@@ -3,19 +3,22 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; protocol now owns a dedicated plan module exporting Plan and PlanSignature, step intent kinds are unit variants whose wording lives in StepDraft.description, Plan prompt wording names the protocol Plan directly, prompt templates emit \"Intent\" unit strings, and agent task runtime records parsed Plan values with generated StepSignature lists in TaskState::plan_list.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; the agent crate now includes an agent-side plan queue module and TaskState integration that stores PlanQueue-backed plan records so follow-up plans begin only after all stored steps for a plan complete.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent crate namespace for model/session/task/prompt/step orchestration; task runtime parses Plan output, stores plan_list entries, rejects unit Intent steps before insertion, tracks step_count, and imports the top-level step::Step runtime type."
+      "purpose": "Agent crate namespace for model/session/task/prompt/step/plan orchestration; lib.rs exposes the plan queue module, and task runtime uses PlanQueue/PlanRecord/PlanError for plan storage and complete-step gating."
     },
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Client crate namespace for the marix_client library, ClientSession and signature-aware ClientEvent source, and client binaries including a CLI whose oneshot mode exits on Done completion events."
+      "purpose": "Client crate namespace for the marix_client library, ClientSession and signature-aware ClientEvent source, and client binaries including a CLI whose oneshot mode exits on Done completion events; ClientSession creates task signatures with empty names and leaves request text in TaskEvent::Create."
     },
     {
       "path": "src/common",
@@ -25,12 +28,12 @@
     {
       "path": "src/prompt",
       "name": "prompt",
-      "purpose": "Owns prompt templates used by model-facing steps, including Plan prompt wording that names the protocol Plan directly and unit-string Intent examples whose pending text belongs in StepDraft.description."
+      "purpose": "Owns prompt templates used by model-facing steps, including no-Model Step kind formats, run_steps Plan output examples, answer-only Initial JSON for no-step requests, and Intent text in the surrounding step description."
     },
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "First-class marix-protocol workspace crate for reusable session, task, plan, step, execution, tool, and shared Signature trait definitions; Plan includes serde_json parsing for completed model-step output, PlanSignature implements Signature, and StepKind::Intent has no string payload."
+      "purpose": "First-class marix-protocol workspace crate for reusable session, task, plan, step, execution, tool, and shared Signature trait definitions; Plan includes run_steps, pending_steps, serde_json parsing for completed model-step output, and PlanSignature implements Signature."
     },
     {
       "path": "src/host",

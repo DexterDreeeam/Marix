@@ -3,8 +3,8 @@
   "module": {
     "path": "src/protocol/plan",
     "name": "plan",
-    "purpose": "Owns task plan extraction protocol contracts. Plan is the dedicated planning output type, parses model output JSON with Plan::parse, and pairs with PlanSignature UUID identities for persisted or tracked plan records.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns task plan extraction protocol contracts. Plan is the dedicated planning output type with description, run_steps, pending_steps, and expected_result fields; Plan::parse parses model output JSON unchanged, and PlanSignature UUID identities support persisted or tracked plan records.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "Plan",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/plan.rs",
@@ -22,8 +22,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 5,
-              "lineEnd": 5
+              "lineStart": 7,
+              "lineEnd": 7
             }
           ]
         },
@@ -33,12 +33,7 @@
           "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 12,
-              "lineEnd": 12
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -53,12 +48,7 @@
           "lineStart": 4,
           "lineEnd": 7,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 4,
-              "lineEnd": 7
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -66,12 +56,7 @@
           "lineStart": 9,
           "lineEnd": 15,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 15
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -79,15 +64,13 @@
           "lineStart": 17,
           "lineEnd": 21,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 21
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
     }
+  ],
+  "modified": [
+    "plan.rs"
   ]
 }

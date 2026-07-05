@@ -3,8 +3,8 @@
   "module": {
     "path": "src/prompt/step",
     "name": "step",
-    "purpose": "Owns step model prompt templates for Initial, Plan, ExecutionAnalysis, and Composition. The Plan prompt job wording now names the protocol Plan directly, and Initial, Plan, and ExecutionAnalysis show Intent as the unit JSON string \"Intent\" with future or vague action text in StepDraft.description.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns step model prompt templates for Initial, Plan, ExecutionAnalysis, and Composition. The model-facing step format is now named Step kind format/reminder, no longer exposes Model step kinds, Plan-shaped output uses run_steps, Initial can return an answer-only JSON object when no step is needed, and examples use concrete Execution or User step kinds.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -12,18 +12,31 @@
       "name": "InitialPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Initial.prompt",
           "lineStart": 1,
-          "lineEnd": 40,
+          "lineEnd": 47,
           "language": "prompt",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 30
+            }
+          ],
           "modifiedLines": [
             {
-              "lineStart": 12,
+              "lineStart": 11,
               "lineEnd": 12
+            },
+            {
+              "lineStart": 23,
+              "lineEnd": 23
+            },
+            {
+              "lineStart": 33,
+              "lineEnd": 33
             },
             {
               "lineStart": 35,
@@ -37,26 +50,30 @@
       "name": "PlanPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Plan.prompt",
           "lineStart": 1,
-          "lineEnd": 44,
+          "lineEnd": 43,
           "language": "prompt",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 3,
-              "lineEnd": 3
-            },
-            {
-              "lineStart": 15,
+              "lineStart": 14,
               "lineEnd": 15
             },
             {
-              "lineStart": 39,
-              "lineEnd": 39
+              "lineStart": 20,
+              "lineEnd": 20
+            },
+            {
+              "lineStart": 22,
+              "lineEnd": 22
+            },
+            {
+              "lineStart": 31,
+              "lineEnd": 31
             }
           ]
         }
@@ -66,22 +83,30 @@
       "name": "ExecutionAnalysisPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/ExecutionAnalysis.prompt",
           "lineStart": 1,
-          "lineEnd": 41,
+          "lineEnd": 40,
           "language": "prompt",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 13,
+              "lineStart": 12,
               "lineEnd": 13
             },
             {
-              "lineStart": 36,
-              "lineEnd": 36
+              "lineStart": 19,
+              "lineEnd": 20
+            },
+            {
+              "lineStart": 27,
+              "lineEnd": 27
+            },
+            {
+              "lineStart": 29,
+              "lineEnd": 29
             }
           ]
         }
@@ -91,7 +116,7 @@
       "name": "CompositionPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Composition.prompt",
@@ -99,9 +124,20 @@
           "lineEnd": 27,
           "language": "prompt",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 13,
+              "lineEnd": 13
+            }
+          ]
         }
       ]
     }
+  ],
+  "modified": [
+    "Composition.prompt",
+    "ExecutionAnalysis.prompt",
+    "Initial.prompt",
+    "Plan.prompt"
   ]
 }

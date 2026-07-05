@@ -8,9 +8,8 @@ Input variables:
 - Context: {{#IF {{#NoPreviewTask}} | This is the first task in the session. | Previous task previews: {{#Context}}}}
 - Available tools: {{#Tools}}
 
-StepDraft kind format:
-- Intent: use "Intent" when the step is only a future intention and cannot be made concrete yet; put the fuzzy explanation in StepDraft.description.
-- Model: use { "Model": "Initial" | "Plan" | "ExecutionAnalysis" | "Composition" } for reasoning or text-generation steps.
+Step kind format:
+- Intent: use "Intent" when the step is only a future intention and cannot be made concrete yet; put the fuzzy explanation in the surrounding step description.
 - Execution: use { "Execution": { "Invocation": { "tool": "tool_name", "input": "parameter" } } } when a concrete tool call is known. Use only tools listed in {{#Tools}}. The `input` value must be a single string, never an object or array. If a tool needs structured JSON input, put compact JSON text inside that single string parameter. The conversion layer will create the execution signature.
 - User: use { "User": "Verdict" | "Warrant" } when the next action requires the user's decision or authorization.
 
@@ -21,12 +20,19 @@ Requirements:
 4. If a step may modify or delete files, include a user approval step before the destructive action.
 5. Keep descriptions short and operational.
 
-Return a raw strict JSON object matching this shape. Do not wrap it in Markdown fences and do not add any text before or after the JSON:
+Return raw strict JSON. Do not wrap it in Markdown fences and do not add any text before or after the JSON.
+
+If the request can be answered without running any step, return this shape:
+{
+  "answer": "response of request"
+}
+
+Otherwise return this Plan shape:
 {
   "description": "Short description of the whole plan.",
-  "ready_steps": [
+  "run_steps": [
     {
-      "kind": { "Model": "Plan" },
+      "kind": { "Execution": { "Invocation": { "tool": "tool_name", "input": "parameter" } } },
       "description": "Concrete step description."
     }
   ],

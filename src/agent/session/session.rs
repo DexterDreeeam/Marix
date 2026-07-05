@@ -152,8 +152,7 @@ impl Session {
         });
     }
 
-    fn create_task(state: &SessionState, mut signature: TaskSignature, request: String) {
-        signature.name = request;
+    fn create_task(state: &SessionState, signature: TaskSignature, request: String) {
         if state
             .host_tx
             .lock()
@@ -177,7 +176,12 @@ impl Session {
             return;
         }
         let task_id = signature.id.clone();
-        let task = Task::new(Arc::clone(&state.context), signature, state.task_tx.clone());
+        let task = Task::new(
+            Arc::clone(&state.context),
+            signature,
+            request,
+            state.task_tx.clone(),
+        );
         state.tasks.insert(task_id, Arc::new(StdMutex::new(task)));
     }
 
