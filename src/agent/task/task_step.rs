@@ -3,8 +3,8 @@ use std::sync::atomic::Ordering;
 use std::thread;
 
 use marix_protocol::{
-    ModelStepKind, Plan, PlanSignature, SessionEvent, StepDraft, StepEvent, StepKind, StepResult,
-    StepSignature,
+    Answer, ModelStepKind, Plan, PlanSignature, SessionEvent, StepDraft, StepEvent, StepKind,
+    StepResult, StepSignature, TaskEvent, TaskResult, TaskStatus,
 };
 
 use crate::model::{ModelRequest, ModelResponse};
@@ -18,19 +18,37 @@ impl Task {
         state: Arc<TaskState>,
         signature: StepSignature,
         event: StepEvent,
-    ) {
-        if let StepEvent::Complete { result, .. } = event {
+    ) -> bool {
+        if let StepEvent::Complete { result, .. } = event.clone() {
             state.steps.complete(signature.step_no);
-            if state.plan_queue.complete_step(&signature).is_some() {
-                if let Ok(plan) = Plan::parse(&result.content) {
-                    let plan_signature = Self::add_plan(&state, plan);
-                    Self::run_plan(state, &plan_signature);
-                }
+            let _ = state.plan_queue.complete_step(&signature);
+            match &signature.kind {
+                StepKind::Model(_) => return Self::route_model_event(state, &result.content),
+                StepKind::Execution(_) => Self::route_execution_event(&state, &signature, event),
+                StepKind::Intent | StepKind::User(_) => {}
             }
         }
+        true
     }
 
-    pub(super) fn run_step(state: Arc<TaskState>, mut step: Step) -> Option<StepSignature> {
+    fn route_model_event(state: Arc<TaskState>, content: &str) -> bool {
+        if let Ok(answer) = Answer::parse(content) {
+            let event = SessionEvent::Task(
+                state.signature.clone(),
+                TaskEvent::Status(TaskStatus::Succeed(TaskResult {
+                    content: answer.answer,
+                })),
+            );
+            let _ = state.session_tx.send(event);
+            return false;
+        }
+        if let Ok(plan) = Plan::parse(content) {
+            Self::run_plan(state, plan);
+        }
+        true
+    }
+
+    pub(super) fn run_step(state: Arc<TaskState>, step: Step) -> Option<StepSignature> {
         if matches!(step.signature.kind, StepKind::Intent) {
             Self::send_step_event(
                 &state,
@@ -43,7 +61,7 @@ impl Task {
             );
             return None;
         }
-        if state.step_count.load(Ordering::Relaxed) >= 10 {
+        if step.signature.step_no >= 10 {
             Self::send_step_event(
                 &state,
                 &step.signature,
@@ -55,8 +73,7 @@ impl Task {
             );
             return None;
         }
-        let step_no = state.step_count.fetch_add(1, Ordering::Relaxed);
-        step.signature.step_no = step_no;
+        let step_no = step.signature.step_no;
         let signature = step.signature.clone();
         state.steps.insert_or_update(step_no, step.clone());
         thread::spawn(move || {
@@ -77,7 +94,7 @@ impl Task {
         Some(signature)
     }
 
-    pub(super) fn generate_initial_plan(state: Arc<TaskState>) -> PlanSignature {
+    pub(super) fn trigger_initial_plan(state: Arc<TaskState>) {
         let plan = Plan {
             description: state.user_request.clone(),
             run_steps: vec![StepDraft {
@@ -87,9 +104,7 @@ impl Task {
             pending_steps: Vec::new(),
             expected_result: String::new(),
         };
-        let plan_signature = Self::add_plan(&state, plan);
-        Self::run_plan(state, &plan_signature);
-        plan_signature
+        Self::run_plan(state, plan);
     }
 
     fn add_plan(state: &TaskState, plan: Plan) -> PlanSignature {
@@ -98,8 +113,8 @@ impl Task {
             .run_steps
             .iter()
             .cloned()
-            .enumerate()
-            .map(|(step_no, draft)| {
+            .map(|draft| {
+                let step_no = state.step_count.fetch_add(1, Ordering::Relaxed);
                 StepSignature::new(
                     state.signature.clone(),
                     step_no,
@@ -115,8 +130,9 @@ impl Task {
         plan_signature
     }
 
-    fn run_plan(state: Arc<TaskState>, plan_signature: &PlanSignature) {
-        let steps = match state.plan_queue.step_signatures(plan_signature) {
+    fn run_plan(state: Arc<TaskState>, plan: Plan) {
+        let plan_signature = Self::add_plan(&state, plan);
+        let steps = match state.plan_queue.step_signatures(&plan_signature) {
             Ok(steps) => steps,
             Err(_) => return,
         };

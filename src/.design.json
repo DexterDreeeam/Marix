@@ -3,14 +3,14 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; the agent crate now includes an agent-side plan queue module and TaskState integration that stores PlanQueue-backed plan records so follow-up plans begin only after all stored steps for a plan complete.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; protocol now includes Answer parsing beside Plan parsing, while agent task runtime turns Answer model output into task success and uses run_plan as the only plan insertion path.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent crate namespace for model/session/task/prompt/step/plan orchestration; lib.rs exposes the plan queue module, and task runtime uses PlanQueue/PlanRecord/PlanError for plan storage and complete-step gating."
+      "purpose": "Agent crate namespace for model/session/task/prompt/step/plan orchestration; model backends request directly, and task runtime uses PlanQueue-backed plan records plus Answer-to-success routing."
     },
     {
       "path": "src/client",
@@ -30,7 +30,7 @@
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "First-class marix-protocol workspace crate for reusable session, task, plan, step, execution, tool, and shared Signature trait definitions; Plan includes run_steps, pending_steps, serde_json parsing for completed model-step output, and PlanSignature implements Signature."
+      "purpose": "First-class marix-protocol workspace crate for reusable session, task, answer, plan, step, execution, tool, and shared Signature trait definitions; Answer and Plan expose parse helpers for model completion routing."
     },
     {
       "path": "src/host",

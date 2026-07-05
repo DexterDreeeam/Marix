@@ -72,7 +72,7 @@ impl Task {
 
     fn run_worker(state: Arc<TaskState>, task_rx: Receiver<SessionEvent>) {
         Self::send_status_event(&state, TaskStatus::Started);
-        Self::generate_initial_plan(Arc::clone(&state));
+        Self::trigger_initial_plan(Arc::clone(&state));
         while let Ok(event) = task_rx.recv() {
             match event {
                 SessionEvent::Task(_, _) => {
@@ -81,9 +81,13 @@ impl Task {
                     }
                 }
                 SessionEvent::Step(signature, event) => {
-                    Self::route_step_event(Arc::clone(&state), signature, event)
+                    if !Self::route_step_event(Arc::clone(&state), signature, event) {
+                        break;
+                    }
                 }
-                SessionEvent::Execution(_, event) => Self::route_execution_event(&state, event),
+                SessionEvent::Execution(_, event) => {
+                    Self::route_execution_session_event(&state, event)
+                }
             }
         }
     }
@@ -94,6 +98,7 @@ impl Task {
                 Self::send_status_event(state, TaskStatus::Canceled);
                 false
             }
+            SessionEvent::Task(_, TaskEvent::Status(TaskStatus::Succeed(_))) => false,
             _ => true,
         }
     }

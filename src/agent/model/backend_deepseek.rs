@@ -30,7 +30,7 @@ impl DeepseekBackend {
 // -- Private -- //
 
 impl ModelBackendImpl for DeepseekBackend {
-    fn send(
+    fn request(
         &mut self,
         request: ModelRequest,
     ) -> Result<Receiver<ModelResponse>, ModelBackendError> {

@@ -13,8 +13,10 @@ pub trait ModelBackend: fmt::Debug + Send {
 }
 
 pub(super) trait ModelBackendImpl: fmt::Debug + Send {
-    fn send(&mut self, request: ModelRequest)
-    -> Result<Receiver<ModelResponse>, ModelBackendError>;
+    fn request(
+        &mut self,
+        request: ModelRequest,
+    ) -> Result<Receiver<ModelResponse>, ModelBackendError>;
 }
 
 #[derive(Debug, Clone)]
@@ -39,6 +41,6 @@ where
         &mut self,
         request: ModelRequest,
     ) -> Result<Receiver<ModelResponse>, ModelBackendError> {
-        self.send(request)
+        <T as ModelBackendImpl>::request(self, request)
     }
 }

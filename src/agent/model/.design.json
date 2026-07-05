@@ -3,8 +3,8 @@
   "module": {
     "path": "src/agent/model",
     "name": "model",
-    "purpose": "Owns the agent model backend abstraction. backend.rs defines the public ModelBackend trait, the crate-internal ModelBackendImpl trait bridged to ModelBackend by a blanket impl that delegates request to send, and the ModelRequest/ModelResponse request and response shapes; backend_deepseek.rs implements DeepseekBackend as a config-driven streaming Deepseek chat-completions backend over reqwest with SSE parsing and a user-role single-message payload that preserves request.prompt as content; error.rs defines ModelBackendError with From conversions for io, serde_json, and reqwest errors plus a Display impl. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent model backend abstraction. backend.rs defines the public ModelBackend trait, the crate-internal ModelBackendImpl trait, and a blanket impl that delegates request directly to ModelBackendImpl::request; backend_deepseek.rs implements DeepseekBackend as a config-driven streaming Deepseek chat-completions backend over reqwest with SSE parsing and a user-role single-message payload that preserves request.prompt as content; error.rs defines ModelBackendError with From conversions for io, serde_json, and reqwest errors plus a Display impl. mod.rs is namespace and re-export wiring only.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "ModelBackend",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend.rs",
@@ -24,11 +24,16 @@
         },
         {
           "sourcePath": "src/agent/model/backend.rs",
-          "lineStart": 34,
-          "lineEnd": 44,
+          "lineStart": 36,
+          "lineEnd": 46,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 44,
+              "lineEnd": 44
+            }
+          ]
         }
       ]
     },
@@ -36,15 +41,20 @@
       "name": "ModelBackendImpl",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend.rs",
           "lineStart": 15,
-          "lineEnd": 18,
+          "lineEnd": 20,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 16,
+              "lineEnd": 19
+            }
+          ]
         }
       ]
     },
@@ -56,8 +66,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend.rs",
-          "lineStart": 20,
-          "lineEnd": 24,
+          "lineStart": 22,
+          "lineEnd": 26,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -72,8 +82,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend.rs",
-          "lineStart": 26,
-          "lineEnd": 30,
+          "lineStart": 28,
+          "lineEnd": 32,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -84,7 +94,7 @@
       "name": "DeepseekBackend",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend_deepseek.rs",
@@ -110,8 +120,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 41,
-              "lineEnd": 41
+              "lineStart": 33,
+              "lineEnd": 33
             }
           ]
         },
@@ -189,5 +199,9 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "backend.rs",
+    "backend_deepseek.rs"
   ]
 }

@@ -3,11 +3,44 @@
   "module": {
     "path": "src/protocol/plan",
     "name": "plan",
-    "purpose": "Owns task plan extraction protocol contracts. Plan is the dedicated planning output type with description, run_steps, pending_steps, and expected_result fields; Plan::parse parses model output JSON unchanged, and PlanSignature UUID identities support persisted or tracked plan records.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns task plan and answer extraction protocol contracts. Answer is the dedicated answer-only model output type with Answer::parse, Plan is the planning output type with description, run_steps, pending_steps, and expected_result fields plus Plan::parse, and PlanSignature UUID identities support persisted or tracked plan records.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
+    {
+      "name": "Answer",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/plan/answer.rs",
+          "lineStart": 3,
+          "lineEnd": 6,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 6
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/plan/answer.rs",
+          "lineStart": 8,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
     {
       "name": "Plan",
       "type": "struct",
@@ -69,5 +102,11 @@
         }
       ]
     }
+  ],
+  "added": [
+    "answer.rs"
+  ],
+  "modified": [
+    "mod.rs"
   ]
 }

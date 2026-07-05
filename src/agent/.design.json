@@ -3,14 +3,14 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent crate namespace for model/session/task/prompt/step orchestration and the new plan queue module. lib.rs exposes plan and re-exports PlanError, PlanQueue, and PlanRecord; task runtime state uses PlanQueue for plan storage so follow-up plans are gated until every stored step signature for a plan completes.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent crate namespace for model/session/task/prompt/step orchestration and the plan queue module. The model backend implementation path now uses request naming end-to-end, and task runtime triggers initial plans through run_plan, stores PlanQueue records, routes model Answer output to task success, and keeps execution-step routing separate from session execution events.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/agent/model",
       "name": "model",
-      "purpose": "Owns agent model backend traits, request/response data, backend errors, and the implemented Deepseek streaming backend. DeepseekBackend loads its config and issues streaming Deepseek chat-completions requests with a provider-supported user-role single-message payload preserving request.prompt as content."
+      "purpose": "Owns agent model backend traits, request/response data, backend errors, and the implemented Deepseek streaming backend. Internal backend implementations expose request directly instead of a send adapter."
     },
     {
       "path": "src/agent/plan",
@@ -35,7 +35,7 @@
     {
       "path": "src/agent/task",
       "name": "task",
-      "purpose": "Owns task runtime state and step routing. TaskState stores PlanQueue-backed plan_queue, add_plan inserts generated StepSignatures into the queue, run_plan reads queued signatures, and route_step_event only parses/starts a follow-up Plan after PlanQueue reports the completed plan has no remaining steps."
+      "purpose": "Owns task runtime state and step routing. Task runtime triggers initial plans through run_plan, keeps add_plan inside run_plan, allocates global step signatures for PlanQueue records, and sends task success when model output parses as Answer."
     }
   ],
   "elements": [
