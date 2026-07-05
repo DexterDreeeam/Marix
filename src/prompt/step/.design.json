@@ -4,7 +4,7 @@
     "path": "src/prompt/step",
     "name": "step",
     "purpose": "Owns step model prompt templates for Initial, Plan, ExecutionAnalysis, and Composition. Initial declares System on its own input line and keeps Context as prompt-template prose that either states this is the first task or renders previous task previews.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "InitialPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Initial.prompt",
@@ -82,8 +82,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "Initial.prompt"
   ]
 }

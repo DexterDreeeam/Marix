@@ -4,7 +4,7 @@
     "path": "src",
     "name": "src",
     "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; the client crate exposes the marix_client library from src/client/lib.rs plus marix-client-cli and marix-client-app binary modules.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -43,8 +43,5 @@
       "purpose": "Top-level marix-tool crate that defines ToolProgram and native tool executables; it now depends on marix-protocol for tool preview/schema protocol types."
     }
   ],
-  "elements": [],
-  "modified": [
-    "."
-  ]
+  "elements": []
 }

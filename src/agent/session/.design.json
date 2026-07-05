@@ -4,7 +4,7 @@
     "path": "src/agent/session",
     "name": "session",
     "purpose": "Owns the agent session runtime and shared session preview context. SessionContext now carries host System metadata alongside task and tool previews; Session preview routing stores the preview System into both host_sys and SessionContext, and context resets initialize system to None.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
@@ -74,7 +74,7 @@
       "name": "SessionState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session_state.rs",
@@ -103,7 +103,7 @@
       "name": "SessionContext",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session_context.rs",
@@ -120,10 +120,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "session.rs",
-    "session_context.rs",
-    "session_state.rs"
   ]
 }

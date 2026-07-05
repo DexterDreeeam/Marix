@@ -4,14 +4,8 @@
     "path": "src/client",
     "name": "client",
     "purpose": "Client crate namespace for the restored marix_client library and client binaries. lib.rs declares event/session modules and re-exports ClientEvent and ClientSession, while Cargo.toml declares the marix_client lib target plus marix-client-cli (cli/main.rs) and marix-client-app (app/main.rs) bin targets.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "Cargo.toml"
-  ],
-  "deleted": [
-    "main.rs"
-  ],
   "childModules": [
     {
       "path": "src/client/app",
