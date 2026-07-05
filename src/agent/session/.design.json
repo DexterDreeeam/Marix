@@ -3,16 +3,20 @@
   "module": {
     "path": "src/agent/session",
     "name": "session",
-    "purpose": "Owns the agent session runtime and shared session preview context. SessionState stores SessionContext behind Arc<StdMutex<_>> so created tasks can receive shared task/tool preview context while current host-preview reset/query behavior is preserved.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent session runtime and shared session preview context. Session host startup stores a newly accepted host channel, resets context, queries preview, runs the host worker, and then calls host_disconnect to clear client/host handles, queued tasks, host System metadata, and SessionContext at the end of the host connection lifecycle; Preview routing stores host System metadata and tool previews.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "session.rs",
+    "session_state.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
@@ -33,15 +37,28 @@
         {
           "sourcePath": "src/agent/session/session.rs",
           "lineStart": 42,
-          "lineEnd": 226,
+          "lineEnd": 256,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 166,
-              "lineEnd": 166
+              "lineStart": 91,
+              "lineEnd": 91
+            },
+            {
+              "lineStart": 182,
+              "lineEnd": 185
+            },
+            {
+              "lineStart": 207,
+              "lineEnd": 230
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 181,
+              "lineEnd": 181
+            }
+          ]
         }
       ]
     },
@@ -65,33 +82,33 @@
       "name": "SessionState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session_state.rs",
           "lineStart": 9,
-          "lineEnd": 16,
+          "lineEnd": 17,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 10,
-              "lineEnd": 10
+              "lineStart": 11,
+              "lineEnd": 11
             }
-          ]
+          ],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/session/session_state.rs",
-          "lineStart": 18,
-          "lineEnd": 32,
+          "lineStart": 19,
+          "lineEnd": 34,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 21,
-              "lineEnd": 24
+              "lineStart": 26,
+              "lineEnd": 26
             }
-          ]
+          ],
+          "modifiedLines": []
         }
       ]
     },

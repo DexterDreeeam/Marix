@@ -3,14 +3,14 @@
   "module": {
     "path": "src/host",
     "name": "host",
-    "purpose": "Host crate namespace for HostSession and host-side tool execution. Cargo.toml now depends on marix-protocol, and HostSession imports session protocol contracts from marix-protocol while common provides config/channel helpers.",
-    "changeStatus": "unchanged"
+    "purpose": "Host crate namespace for HostSession and host-side tool execution. The executor answers preview queries with host System metadata and tool previews while HostSession imports reusable protocol contracts from marix-protocol and common provides config/channel helpers.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/host/executor",
       "name": "executor",
-      "purpose": "Executor folder module owning tool preview and host-side tool execution. Tool exposes typed preview schema content as String, and the execution child runtime reads ExecutionRequest.input.content for tool execution."
+      "purpose": "Executor folder module owning tool preview and host-side tool execution; preview replies now include System::new host metadata plus tool preview schema content."
     }
   ],
   "elements": [

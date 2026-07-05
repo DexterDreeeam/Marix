@@ -3,14 +3,17 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared common crate root for reusable config loading, external re-export adapters, logging, and structure utilities. lib.rs no longer declares or re-exports protocol contracts; session/task/step/execution/tool protocol models are owned by the top-level marix-protocol crate.",
-    "changeStatus": "unchanged"
+    "purpose": "Shared common crate root for reusable config loading, external re-export adapters, logging, and structure utilities. It exposes WorkQueue cleanup support used by agent host-disconnect session reset, and lib.rs re-exports serializable config system types Arch, Platform, and System alongside Config and related models.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "lib.rs"
+  ],
   "childModules": [
     {
       "path": "src/common/config",
       "name": "config",
-      "purpose": "Owns the common crate configuration model, config-file discovery, platform detection, alias substitution, credential resolution, runtime path normalization, and tool directory settings."
+      "purpose": "Owns the common crate configuration model, config-file discovery, serializable OS/architecture System detection, alias substitution, credential resolution, runtime path normalization, and tool directory settings."
     },
     {
       "path": "src/common/external",
@@ -25,7 +28,7 @@
     {
       "path": "src/common/structure",
       "name": "structure",
-      "purpose": "Owns shared structural data interfaces such as WorkQueue and channel helpers."
+      "purpose": "Owns shared structural data interfaces such as WorkQueue, whose clear() method empties working and completed entries for session cleanup, plus channel helpers."
     }
   ],
   "elements": []

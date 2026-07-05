@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex as StdMutex};
 
-use marix_common::{SharedNetReceiver, SharedNetSender, WorkQueue};
+use marix_common::{SharedNetReceiver, SharedNetSender, System, WorkQueue};
 use marix_protocol::{SessionMessage, TaskId};
 
 use crate::session::SessionContext;
@@ -8,6 +8,7 @@ use crate::task::Task;
 
 pub struct SessionState {
     pub context: Arc<StdMutex<SessionContext>>,
+    pub host_sys: StdMutex<Option<System>>,
     pub tasks: WorkQueue<TaskId, Arc<StdMutex<Task>>>,
     pub client_tx: SharedNetSender<SessionMessage>,
     pub client_rx: SharedNetReceiver<SessionMessage>,
@@ -22,6 +23,7 @@ impl SessionState {
                 tasks: Vec::new(),
                 tools: Vec::new(),
             })),
+            host_sys: StdMutex::new(None),
             tasks: WorkQueue::new(),
             client_tx: SharedNetSender::new(std::sync::Mutex::new(None)),
             client_rx: SharedNetReceiver::new(std::sync::Mutex::new(None)),

@@ -59,6 +59,17 @@ where
         self.working_size() + self.complete_size()
     }
 
+    pub fn clear(&self) {
+        self.working
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clear();
+        self.complete
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clear();
+    }
+
     pub fn insert(&self, key: K, value: V) {
         let mut working = self
             .working

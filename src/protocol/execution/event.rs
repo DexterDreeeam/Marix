@@ -1,11 +1,16 @@
 use crate::external::*;
 
+use marix_common::System;
+
 use crate::{ExecutionRequest, ExecutionStatus, ToolPreview};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ExecutionEvent {
     PreviewQuery,
-    Preview { tools: Vec<ToolPreview> },
+    Preview {
+        system: System,
+        tools: Vec<ToolPreview>,
+    },
     Evoke(ExecutionRequest),
     Query,
     Cancel,

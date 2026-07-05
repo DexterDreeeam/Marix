@@ -1,4 +1,4 @@
-use marix_common::{SharedNetSender, WorkQueue};
+use marix_common::{SharedNetSender, System, WorkQueue};
 use marix_protocol::{
     ExeId, ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, SessionEvent,
     SessionMessage, ToolPreview,
@@ -88,6 +88,7 @@ impl Executor {
             let _ = sender.try_send(HostSession::package_message(SessionEvent::Execution(
                 signature,
                 ExecutionEvent::Preview {
+                    system: System::new(),
                     tools: self.preview(),
                 },
             )));

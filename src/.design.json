@@ -3,14 +3,14 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes the agent, client, common, prompt, host, first-class marix-protocol, and tool crates/modules; agent initial model steps render InitialPrompt from cloned task/tool session context, DeepSeek chat requests use the provider-supported user role, client sessions surface streamed StepEvent output and close nonblockingly, and prompt templates require raw strict JSON with single-string execution invocation inputs.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; agent sessions now run host_disconnect after run_host_worker returns so host/client state, queued tasks, host System metadata, and SessionContext are cleaned up at the end of a host connection lifecycle, while common exposes the cleanup-capable WorkQueue and serializable System, Platform, and Arch configuration types.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent crate namespace for model/session/task/prompt orchestration; it renders initial model-step prompts through InitialPrompt using cloned tasks/tools session context and sends DeepSeek chat payloads with a user-role prompt message."
+      "purpose": "Agent crate namespace for model/session/task/prompt orchestration; it performs host_disconnect cleanup after run_host_worker returns at the end of a host connection lifecycle and stores host System metadata from execution Preview events."
     },
     {
       "path": "src/client",
@@ -20,7 +20,7 @@
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared common crate namespace for config loading, external adapters, logging, and structure utilities; protocol contracts have moved to the marix-protocol workspace crate."
+      "purpose": "Shared common crate namespace for config loading with serializable System/Platform/Arch re-exports, external adapters, logging, and structure utilities including WorkQueue::clear for session cleanup."
     },
     {
       "path": "src/prompt",
@@ -30,12 +30,12 @@
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "First-class marix-protocol workspace crate for reusable session, task, step, execution, and tool protocol definitions; TaskPreview now contains request/result only."
+      "purpose": "First-class marix-protocol workspace crate for reusable session, task, step, execution, and tool protocol definitions; execution Preview events now carry host System and ToolPreview values via a marix-common dependency."
     },
     {
       "path": "src/host",
       "name": "host",
-      "purpose": "Host crate namespace for HostSession and host-side tool execution; it now imports shared protocol contracts from marix-protocol."
+      "purpose": "Host crate namespace for HostSession and host-side tool execution; executor preview replies now include System::new host metadata and tool previews."
     },
     {
       "path": "src/tool",

@@ -88,6 +88,7 @@ impl Session {
                 Self::reset_session_context(&state);
                 Self::query_host_preview(&state);
                 Self::run_host_worker(Arc::clone(&state));
+                Self::host_disconnect(&state);
             }
         })
     }
@@ -177,7 +178,11 @@ impl Session {
                 Self::route_task_event(state, &signature.id, event.clone());
             }
             SessionEvent::Step(_, _) => {}
-            SessionEvent::Execution(_, ExecutionEvent::Preview { tools }) => {
+            SessionEvent::Execution(_, ExecutionEvent::Preview { system, tools }) => {
+                *state
+                    .host_sys
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner()) = Some(*system);
                 state
                     .context
                     .lock()
@@ -197,6 +202,31 @@ impl Session {
             .unwrap_or_else(|error| error.into_inner())
             .sender();
         let _ = sender.send(event);
+    }
+
+    fn host_disconnect(state: &SessionState) {
+        *state
+            .client_tx
+            .lock()
+            .unwrap_or_else(|error| error.into_inner()) = None;
+        *state
+            .client_rx
+            .lock()
+            .unwrap_or_else(|error| error.into_inner()) = None;
+        *state
+            .host_tx
+            .lock()
+            .unwrap_or_else(|error| error.into_inner()) = None;
+        *state
+            .host_rx
+            .lock()
+            .unwrap_or_else(|error| error.into_inner()) = None;
+        state.tasks.clear();
+        *state
+            .host_sys
+            .lock()
+            .unwrap_or_else(|error| error.into_inner()) = None;
+        Self::reset_session_context(state);
     }
 
     fn reset_session_context(state: &SessionState) {

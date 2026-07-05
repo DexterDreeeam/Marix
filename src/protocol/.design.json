@@ -3,9 +3,12 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, step, execution, and tool protocol contracts. TaskPreview now carries only request/result snapshots without an embedded TaskSignature; message.rs defines the SessionMessage network envelope.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, step, execution, and tool protocol contracts. The crate now depends on marix-common so execution Preview events can include host System alongside tool previews.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "Cargo.toml"
+  ],
   "childModules": [
     {
       "path": "src/protocol/task",
@@ -20,7 +23,7 @@
     {
       "path": "src/protocol/execution",
       "name": "execution",
-      "purpose": "Owns execution protocol contracts including execution ids, events, requests, signatures, updates, and statuses."
+      "purpose": "Owns execution protocol contracts including execution ids, events whose Preview carries System and ToolPreview values, requests, signatures, updates, and statuses."
     },
     {
       "path": "src/protocol/session",

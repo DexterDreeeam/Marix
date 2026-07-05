@@ -3,9 +3,12 @@
   "module": {
     "path": "src/host/executor",
     "name": "executor",
-    "purpose": "Owns host-side tool registry, tool process launching, and execution orchestration. Tool preview and session protocol models now come from marix-protocol while common provides config, queues, and shared senders.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns host-side tool registry, tool process launching, and execution orchestration. Executor preview responses now include System::new host metadata together with current ToolPreview entries for the agent session.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "executor.rs"
+  ],
   "childModules": [
     {
       "path": "src/host/executor/execution",
@@ -18,7 +21,7 @@
       "name": "Executor",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/executor.rs",
@@ -39,9 +42,14 @@
         {
           "sourcePath": "src/host/executor/executor.rs",
           "lineStart": 43,
-          "lineEnd": 96,
+          "lineEnd": 97,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 91,
+              "lineEnd": 91
+            }
+          ],
           "modifiedLines": []
         }
       ]

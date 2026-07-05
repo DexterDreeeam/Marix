@@ -3,9 +3,12 @@
   "module": {
     "path": "src/protocol/execution",
     "name": "execution",
-    "purpose": "Owns execution protocol contracts: ExeId allocation, ExecutionEvent notifications, ExecutionUpdate payloads, ExecutionRequest with signature and typed input, ExecutionSignature construction, and ExecutionStatus lifecycle states.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns execution protocol contracts: ExeId allocation, ExecutionEvent notifications whose Preview carries host System plus ToolPreview entries, ExecutionUpdate payloads, ExecutionRequest with signature and typed input, ExecutionSignature construction, and ExecutionStatus lifecycle states.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "event.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -36,20 +39,20 @@
       "name": "ExecutionEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/event.rs",
-          "lineStart": 6,
-          "lineEnd": 15,
+          "lineStart": 7,
+          "lineEnd": 20,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 6,
-              "lineEnd": 16
+              "lineStart": 10,
+              "lineEnd": 13
             }
-          ]
+          ],
+          "modifiedLines": []
         }
       ]
     },
@@ -61,16 +64,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/event.rs",
-          "lineStart": 18,
-          "lineEnd": 20,
+          "lineStart": 22,
+          "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 18,
-              "lineEnd": 20
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -102,12 +100,7 @@
           "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 6,
-              "lineEnd": 10
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/execution/signature.rs",
