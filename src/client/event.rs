@@ -1,4 +1,7 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ClientEvent {
-    Common(String),
+    Common {
+        signature_id: String,
+        message: String,
+    },
 }

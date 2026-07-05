@@ -3,9 +3,12 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; the client crate exposes the marix_client library from src/client/lib.rs plus marix-client-cli and marix-client-app binary modules.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; the client crate now emits signature-aware common events so CLI output can group contiguous task/step chunks by signature id.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/agent",
@@ -15,7 +18,7 @@
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Client crate namespace for the marix_client library, ClientSession and ClientEvent source, and the marix-client-cli and marix-client-app binary modules."
+      "purpose": "Client crate namespace for the marix_client library, ClientSession and signature-aware ClientEvent source, and the marix-client-cli and marix-client-app binary modules."
     },
     {
       "path": "src/common",
@@ -30,7 +33,7 @@
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "First-class marix-protocol workspace crate for reusable session, task, step, execution, and tool protocol definitions; execution Preview events now carry host System and ToolPreview values via a marix-common dependency."
+      "purpose": "First-class marix-protocol workspace crate for reusable session, task, step, execution, tool, and shared Signature trait definitions; task/execution/step signatures implement Signature, with step ids derived deterministically via uuid v5."
     },
     {
       "path": "src/host",

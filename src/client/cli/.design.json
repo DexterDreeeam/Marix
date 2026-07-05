@@ -3,8 +3,8 @@
   "module": {
     "path": "src/client/cli",
     "name": "cli",
-    "purpose": "Contains the marix-client-cli command-line binary entrypoint. The CLI imports ClientEvent and ClientSession from the marix_client library and drives task submission plus event draining.",
-    "changeStatus": "unchanged"
+    "purpose": "Contains the marix-client-cli command-line binary entrypoint. The CLI drains signature-aware ClientEvent output, prints chunks from the same signature continuously, inserts a newline before a different signature id, and emits a final newline after any output.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -12,22 +12,50 @@
       "name": "marix-client-cli",
       "type": "bin",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/main.rs",
           "lineStart": 1,
-          "lineEnd": 58,
+          "lineEnd": 73,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 1,
-              "lineEnd": 58
+              "lineStart": 54,
+              "lineEnd": 54
+            },
+            {
+              "lineStart": 60,
+              "lineEnd": 65
+            },
+            {
+              "lineStart": 67,
+              "lineEnd": 67
+            },
+            {
+              "lineStart": 70,
+              "lineEnd": 72
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 55,
+              "lineEnd": 59
+            },
+            {
+              "lineStart": 66,
+              "lineEnd": 66
+            },
+            {
+              "lineStart": 68,
+              "lineEnd": 68
+            }
+          ]
         }
       ]
     }
+  ],
+  "modified": [
+    "main.rs"
   ]
 }

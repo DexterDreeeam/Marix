@@ -1,5 +1,5 @@
-use crate::TaskId;
 use crate::external::*;
+use crate::{Signature, TaskId};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TaskSignature {
@@ -13,5 +13,11 @@ impl TaskSignature {
             name,
             id: TaskId::new(),
         }
+    }
+}
+
+impl Signature for TaskSignature {
+    fn id(&self) -> uuid::Uuid {
+        self.id.0
     }
 }

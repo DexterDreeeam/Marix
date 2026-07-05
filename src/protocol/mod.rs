@@ -1,6 +1,7 @@
 pub mod execution;
 pub mod message;
 pub mod session;
+pub mod signature;
 pub mod step;
 pub mod task;
 pub mod tool;
@@ -10,6 +11,7 @@ pub use execution::{
 };
 pub use message::SessionMessage;
 pub use session::SessionEvent;
+pub use signature::Signature;
 pub use step::{
     ExecutionStepKind, ModelStepKind, StepDraft, StepEvent, StepKind, StepPlan, StepPreview,
     StepResult, StepSignature, StepStatus, UserStepKind,

@@ -3,9 +3,12 @@
   "module": {
     "path": "src/protocol/execution",
     "name": "execution",
-    "purpose": "Owns execution protocol contracts: ExeId allocation, ExecutionEvent notifications whose Preview carries host System plus ToolPreview entries, ExecutionUpdate payloads, ExecutionRequest with signature and typed input, ExecutionSignature construction, and ExecutionStatus lifecycle states.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns execution protocol contracts: ExeId allocation, ExecutionEvent notifications whose Preview carries host System plus ToolPreview entries, ExecutionUpdate payloads, ExecutionRequest with signature and typed input, ExecutionSignature construction that implements the shared Signature trait by exposing its execution UUID, and ExecutionStatus lifecycle states.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "signature.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -89,7 +92,7 @@
       "name": "ExecutionSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/signature.rs",
@@ -105,6 +108,19 @@
           "lineEnd": 20,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/execution/signature.rs",
+          "lineStart": 22,
+          "lineEnd": 26,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 26
+            }
+          ],
           "modifiedLines": []
         }
       ]

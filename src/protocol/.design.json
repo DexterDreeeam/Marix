@@ -3,24 +3,32 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, step, execution, and tool protocol contracts. The crate now depends on marix-common so execution Preview events can include host System alongside tool previews.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, step, execution, tool, and shared signature protocol contracts. The crate depends on marix-common so execution Preview events can include host System alongside tool previews, and enables uuid v5 so StepSignature can derive deterministic Signature ids from task signatures and step numbers.",
+    "changeStatus": "modified"
   },
+  "added": [
+    "signature.rs"
+  ],
+  "modified": [
+    "lib.rs",
+    "mod.rs",
+    "Cargo.toml"
+  ],
   "childModules": [
     {
       "path": "src/protocol/task",
       "name": "task",
-      "purpose": "Owns task protocol contracts including task identifiers, events, request previews, signature-free TaskPreview request/result snapshots, signatures, results, and statuses."
+      "purpose": "Owns task protocol contracts including task identifiers, events, request previews, signature-free TaskPreview request/result snapshots, TaskSignature values that implement Signature via their TaskId UUID, results, and statuses."
     },
     {
       "path": "src/protocol/step",
       "name": "step",
-      "purpose": "Owns step protocol contracts including executable drafts, planning output, kinds, signatures with descriptions, events, results, statuses, and previews."
+      "purpose": "Owns step protocol contracts including executable drafts, planning output, kinds, StepSignature values that implement Signature with deterministic uuid v5 ids derived from task id plus step_no, events, results, statuses, and previews."
     },
     {
       "path": "src/protocol/execution",
       "name": "execution",
-      "purpose": "Owns execution protocol contracts including execution ids, events whose Preview carries System and ToolPreview values, requests, signatures, updates, and statuses."
+      "purpose": "Owns execution protocol contracts including execution ids, events whose Preview carries System and ToolPreview values, requests, ExecutionSignature values that implement Signature via ExeId UUIDs, updates, and statuses."
     },
     {
       "path": "src/protocol/session",
@@ -59,6 +67,27 @@
           "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Signature",
+      "type": "trait",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/signature.rs",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 3
+            }
+          ],
           "modifiedLines": []
         }
       ]

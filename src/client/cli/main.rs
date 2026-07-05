@@ -51,8 +51,23 @@ fn main() {
 
 fn drain_events(session: &ClientSession) {
     let receiver = session.receiver();
-    while let Ok(ClientEvent::Common(message)) = receiver.recv_timeout(IDLE_TIMEOUT) {
-        println!("{message}");
+    let mut last_signature_id = None;
+    while let Ok(ClientEvent::Common {
+        signature_id,
+        message,
+    }) = receiver.recv_timeout(IDLE_TIMEOUT)
+    {
+        if last_signature_id
+            .as_ref()
+            .is_some_and(|previous| previous != &signature_id)
+        {
+            println!();
+        }
+        print!("{message}");
+        last_signature_id = Some(signature_id);
         let _ = io::stdout().flush();
+    }
+    if last_signature_id.is_some() {
+        println!();
     }
 }

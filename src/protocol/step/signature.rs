@@ -1,6 +1,6 @@
 use crate::external::*;
 
-use crate::{StepKind, TaskSignature};
+use crate::{Signature, StepKind, TaskSignature};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct StepSignature {
@@ -18,5 +18,12 @@ impl StepSignature {
             description,
             kind,
         }
+    }
+}
+
+impl Signature for StepSignature {
+    fn id(&self) -> uuid::Uuid {
+        let key = format!("{}:{}", self.task.id(), self.step_no);
+        uuid::Uuid::new_v5(&uuid::Uuid::NAMESPACE_OID, key.as_bytes())
     }
 }
