@@ -4,21 +4,15 @@
     "path": "src/agent/task",
     "name": "task",
     "purpose": "Owns agent task and step runtime state. Task keeps public construction, preview, worker routing, and session_tx event sending in task.rs via send_status_event/send_event, while private step behavior lives in task_step.rs and execution routing lives in task_execution.rs. Completed steps parse StepPlan output to run concrete ready steps, and Intent steps fail inside run_step as non-executable.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
-  "modified": [
-    "mod.rs",
-    "step.rs",
-    "task.rs",
-    "task_state.rs"
-  ],
   "elements": [
     {
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/step.rs",
@@ -47,7 +41,7 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
@@ -131,7 +125,7 @@
       "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task_state.rs",
@@ -165,9 +159,5 @@
         }
       ]
     }
-  ],
-  "added": [
-    "task_execution.rs",
-    "task_step.rs"
   ]
 }

@@ -4,7 +4,7 @@
     "path": "src/host/executor/execution",
     "name": "execution",
     "purpose": "Owns execution runtime state and per-request context. ExecutionRuntime sends execution status and update events through send_status_event/send_update_event helpers while Execution/session protocol contracts come from marix-protocol and common provides channels and shared senders.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "ExecutionRuntime",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
@@ -89,8 +89,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "execution.rs"
   ]
 }

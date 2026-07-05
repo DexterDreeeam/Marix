@@ -4,11 +4,8 @@
     "path": "src/agent",
     "name": "agent",
     "purpose": "Agent crate namespace for model/session/task/prompt orchestration. It carries host System metadata through SessionContext from preview handling into initial prompt rendering, routes all SessionEvent traffic through Session before client/host/task dispatch, and lets Task send task/step events through the local session channel while step and execution helpers are split into private task module files.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "."
-  ],
   "childModules": [
     {
       "path": "src/agent/model",

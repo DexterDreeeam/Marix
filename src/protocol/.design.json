@@ -4,7 +4,7 @@
     "path": "src/protocol",
     "name": "protocol",
     "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, step, execution, tool, and shared signature protocol contracts. StepPlan now includes a serde_json parse helper so agent task routing can continue ready steps from completed model-step output.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -84,8 +84,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "."
   ]
 }
