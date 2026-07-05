@@ -4,7 +4,7 @@
     "path": "src/client/cli",
     "name": "cli",
     "purpose": "Contains the marix-client-cli command-line binary entrypoint. The CLI drains signature-aware ClientEvent output, prints chunks from the same signature continuously, inserts a newline before a different signature id, and emits a final newline after any output.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "marix-client-cli",
       "type": "bin",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/main.rs",
@@ -54,8 +54,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "main.rs"
   ]
 }

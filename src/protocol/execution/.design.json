@@ -4,11 +4,8 @@
     "path": "src/protocol/execution",
     "name": "execution",
     "purpose": "Owns execution protocol contracts: ExeId allocation, ExecutionEvent notifications whose Preview carries host System plus ToolPreview entries, ExecutionUpdate payloads, ExecutionRequest with signature and typed input, ExecutionSignature construction that implements the shared Signature trait by exposing its execution UUID, and ExecutionStatus lifecycle states.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "signature.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -92,7 +89,7 @@
       "name": "ExecutionSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/signature.rs",

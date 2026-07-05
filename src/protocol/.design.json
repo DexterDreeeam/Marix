@@ -4,16 +4,8 @@
     "path": "src/protocol",
     "name": "protocol",
     "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, step, execution, tool, and shared signature protocol contracts. The crate depends on marix-common so execution Preview events can include host System alongside tool previews, and enables uuid v5 so StepSignature can derive deterministic Signature ids from task signatures and step numbers.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "signature.rs"
-  ],
-  "modified": [
-    "lib.rs",
-    "mod.rs",
-    "Cargo.toml"
-  ],
   "childModules": [
     {
       "path": "src/protocol/task",
@@ -75,7 +67,7 @@
       "name": "Signature",
       "type": "trait",
       "source_depth": 2,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/signature.rs",

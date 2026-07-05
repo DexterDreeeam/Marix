@@ -4,11 +4,8 @@
     "path": "src/protocol/step",
     "name": "step",
     "purpose": "Owns step protocol contracts: StepDraft executable drafts, StepPlan planning output, StepKind including Intent(String), ModelStepKind phases Initial, Plan, ExecutionAnalysis, and Composition, ExecutionStepKind, UserStepKind, StepSignature with description and a shared Signature implementation that derives a deterministic UUID v5 from the task signature id plus step_no, StepEvent, StepResult, StepStatus, and StepPreview.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "signature.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -141,7 +138,7 @@
       "name": "StepSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/signature.rs",
