@@ -4,11 +4,8 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Owns host-side tool registry, tool process launching, and execution orchestration. Executor preview responses now include System::new host metadata together with current ToolPreview entries for the agent session.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "executor.rs"
-  ],
   "childModules": [
     {
       "path": "src/host/executor/execution",
@@ -21,7 +18,7 @@
       "name": "Executor",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/executor.rs",

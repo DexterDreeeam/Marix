@@ -4,7 +4,7 @@
     "path": "src/agent",
     "name": "agent",
     "purpose": "Agent crate namespace for model/session/task/prompt orchestration. It now lets a host connection run through preview bootstrap and run_host_worker, then calls host_disconnect after the worker returns to clear old client/host handles, queued tasks, host System metadata, and SessionContext, while preserving shared task/tool preview context and DeepSeek user-role prompt dispatch.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {

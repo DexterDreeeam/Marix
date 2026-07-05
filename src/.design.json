@@ -4,7 +4,7 @@
     "path": "src",
     "name": "src",
     "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; agent sessions now run host_disconnect after run_host_worker returns so host/client state, queued tasks, host System metadata, and SessionContext are cleaned up at the end of a host connection lifecycle, while common exposes the cleanup-capable WorkQueue and serializable System, Platform, and Arch configuration types.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {

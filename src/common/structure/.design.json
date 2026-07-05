@@ -4,11 +4,8 @@
     "path": "src/common/structure",
     "name": "structure",
     "purpose": "Owns shared structural utilities for the common crate. channel.rs defines local and TCP-backed remoc channel helpers and shared net endpoint wrappers. work_queue.rs defines the generic WorkQueue over working and completed maps, including borrowed access through with and clear() cleanup that empties both maps for host-disconnect session reset. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "work_queue.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -225,7 +222,7 @@
       "name": "WorkQueue",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/work_queue.rs",

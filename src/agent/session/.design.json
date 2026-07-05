@@ -4,19 +4,15 @@
     "path": "src/agent/session",
     "name": "session",
     "purpose": "Owns the agent session runtime and shared session preview context. Session host startup stores a newly accepted host channel, resets context, queries preview, runs the host worker, and then calls host_disconnect to clear client/host handles, queued tasks, host System metadata, and SessionContext at the end of the host connection lifecycle; Preview routing stores host System metadata and tool previews.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "session.rs",
-    "session_state.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
@@ -82,7 +78,7 @@
       "name": "SessionState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session_state.rs",

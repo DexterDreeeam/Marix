@@ -4,11 +4,8 @@
     "path": "src/protocol/execution",
     "name": "execution",
     "purpose": "Owns execution protocol contracts: ExeId allocation, ExecutionEvent notifications whose Preview carries host System plus ToolPreview entries, ExecutionUpdate payloads, ExecutionRequest with signature and typed input, ExecutionSignature construction, and ExecutionStatus lifecycle states.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "event.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -39,7 +36,7 @@
       "name": "ExecutionEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/event.rs",

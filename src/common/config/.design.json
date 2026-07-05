@@ -4,15 +4,8 @@
     "path": "src/common/config",
     "name": "config",
     "purpose": "Strongly typed TOML configuration model and fallible loader. config.rs owns config-file discovery, alias substitution, credential resolution, runtime path normalization, and tool directory settings; sys.rs owns supported OS/architecture detection through serializable System, Platform, and Arch types with System::new and the private Ubuntu detector; mod.rs re-exports the public config surface including ToolConfig and system types.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "sys.rs"
-  ],
-  "modified": [
-    "config.rs",
-    "mod.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -35,7 +28,7 @@
       "name": "Config",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
@@ -81,7 +74,7 @@
       "name": "Platform",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/sys.rs",
@@ -102,7 +95,7 @@
       "name": "Arch",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/sys.rs",
@@ -123,7 +116,7 @@
       "name": "System",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/sys.rs",
