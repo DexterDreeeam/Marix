@@ -4,7 +4,7 @@
     "path": "src/agent/session",
     "name": "session",
     "purpose": "Owns the agent session runtime, total SessionEvent routing entrypoint, local task-originated event channel, shared session preview context, and task creation. Step events are forwarded to the client and also routed back to the owning Task by task id so task workers handle completion state transitions.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
@@ -101,8 +101,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "session.rs"
   ]
 }

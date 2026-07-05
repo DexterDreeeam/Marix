@@ -4,7 +4,7 @@
     "path": "src/agent/task",
     "name": "task",
     "purpose": "Owns agent task runtime state. TaskState stores execution_map from ExecutionSignature to StepSignature. task_step.rs routes only complete step events into on_step_complete, waits for PlanQueue::complete_step to report plan completion before running model/execution completion handlers, and renders ExecutionAnalysisPrompt for execution-analysis model steps. task_execution.rs starts execution steps, records execution_map entries, maps succeeding execution status back into StepEvent::Complete, and starts execution-analysis plans from completed execution output.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
@@ -112,7 +112,7 @@
       "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task_state.rs",
@@ -142,11 +142,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "task.rs",
-    "task_state.rs",
-    "task_step.rs",
-    "task_execution.rs"
   ]
 }

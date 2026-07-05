@@ -4,7 +4,7 @@
     "path": "src/agent/prompt",
     "name": "prompt",
     "purpose": "Defines the agent prompt interface, render_template conditional/variable rendering, InitialPrompt for initial planning, and ExecutionAnalysisPrompt for model analysis of completed execution output using RequestBrief, ExecutionOutput, CurrentPlan, PendingIntentions, and Tools variables.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -111,7 +111,7 @@
     {
       "name": "ExecutionAnalysisPrompt",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/prompt/execution_analysis.rs",
@@ -167,11 +167,5 @@
         }
       ]
     }
-  ],
-  "added": [
-    "execution_analysis.rs"
-  ],
-  "modified": [
-    "mod.rs"
   ]
 }
