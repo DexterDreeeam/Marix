@@ -3,7 +3,7 @@ use std::path::Path;
 
 use marix_common::Config;
 
-use crate::prompt::Prompt;
+use crate::prompt::{Prompt, render_template};
 use crate::session::SessionContext;
 
 pub struct InitialPrompt {
@@ -34,16 +34,33 @@ impl Prompt for InitialPrompt {
     }
 
     fn prompt(&self) -> String {
-        Self::load("Initial")
-            .replace("{{#Request}}", &self.request)
-            .replace("{{#Context}}", &self.session_context_text())
-            .replace("{{#Tools}}", &self.tools_text())
+        let no_preview_task = self.session_context.tasks.is_empty().to_string();
+        render_template(
+            &Self::load("Initial"),
+            &[
+                ("Request", self.request.clone()),
+                ("System", self.system_text()),
+                ("Context", self.session_context_text()),
+                ("NoPreviewTask", no_preview_task),
+                ("Tools", self.tools_text()),
+            ],
+        )
     }
 }
 
 // -- Private -- //
 
 impl InitialPrompt {
+    fn system_text(&self) -> String {
+        match self.session_context.system {
+            Some(system) => format!(
+                "Platform: {:?}\nArchitecture: {:?}",
+                system.platform, system.arch
+            ),
+            None => "Platform: unknown\nArchitecture: unknown".to_owned(),
+        }
+    }
+
     fn session_context_text(&self) -> String {
         self.session_context
             .tasks

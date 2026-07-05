@@ -31,6 +31,14 @@ Project-specific Rust style below must not override those naming rules.
 - The Rust workspace root is `src/`.
 - Run Cargo commands from `src/` or pass `--manifest-path src/Cargo.toml`.
 - Cargo build output belongs under `src/.target/`.
+- For Rust source (`.rs`) only, prefer keeping lines around **70 characters**.
+  This is a readability target, not a hard formatter rule: allow slightly longer
+  lines when splitting would make the code less clear, but do not leave avoidably
+  long expressions on one line.
+- Do not apply the Rust line-length target to prompt templates (`.prompt`).
+  Prompt prose should follow its own natural structure and may keep full
+  instruction sentences, examples, and template expressions on one line when that
+  is clearer for the model.
 - Prefer `cargo fmt` when Rust formatting is needed.
 - Prefer `cargo clippy --all-targets --all-features` when linting is needed and available.
 - If the repository cannot run a command, report that limitation instead of adding new tools.

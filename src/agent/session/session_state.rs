@@ -20,6 +20,7 @@ impl SessionState {
     pub fn new() -> Self {
         Self {
             context: Arc::new(StdMutex::new(SessionContext {
+                system: None,
                 tasks: Vec::new(),
                 tools: Vec::new(),
             })),

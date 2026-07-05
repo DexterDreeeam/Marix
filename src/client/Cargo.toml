@@ -14,5 +14,9 @@ name = "marix_client"
 path = "lib.rs"
 
 [[bin]]
-name = "marix-client"
-path = "main.rs"
+name = "marix-client-cli"
+path = "cli/main.rs"
+
+[[bin]]
+name = "marix-client-app"
+path = "app/main.rs"

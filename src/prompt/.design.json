@@ -3,14 +3,14 @@
   "module": {
     "path": "src/prompt",
     "name": "prompt",
-    "purpose": "Owns prompt templates used by model-facing steps, including raw strict JSON response requirements, no-Markdown-fence output constraints, and single-string execution invocation input guidance for step planning and composition.",
+    "purpose": "Owns prompt templates used by model-facing steps, including raw strict JSON response requirements, no-Markdown-fence output constraints, single-string execution invocation input guidance, and Initial input rendering that keeps System separate from previous-task Context.",
     "changeStatus": "unchanged"
   },
   "childModules": [
     {
       "path": "src/prompt/step",
       "name": "step",
-      "purpose": "Owns step model prompt templates for Initial, Plan, ExecutionAnalysis, and Composition, requiring raw strict JSON without Markdown fences and single-string execution invocation inputs."
+      "purpose": "Owns step model prompt templates; Initial declares System on its own input line and uses {{#IF condition | accepted | rejected}} only for previous-task Context."
     }
   ],
   "elements": []

@@ -3,8 +3,8 @@
   "module": {
     "path": "src/prompt/step",
     "name": "step",
-    "purpose": "Owns step model prompt templates for Initial, Plan, ExecutionAnalysis, and Composition, requiring raw strict JSON without Markdown fences and requiring execution invocation input to be a single string, with structured tool parameters encoded as compact JSON text inside that string.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns step model prompt templates for Initial, Plan, ExecutionAnalysis, and Composition. Initial declares System on its own input line and keeps Context as prompt-template prose that either states this is the first task or renders previous task previews.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -12,22 +12,23 @@
       "name": "InitialPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Initial.prompt",
           "lineStart": 1,
-          "lineEnd": 40,
+          "lineEnd": 41,
           "language": "prompt",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 7
+            }
+          ],
           "modifiedLines": [
             {
-              "lineStart": 13,
-              "lineEnd": 13
-            },
-            {
-              "lineStart": 23,
-              "lineEnd": 23
+              "lineStart": 8,
+              "lineEnd": 8
             }
           ]
         }
@@ -45,16 +46,7 @@
           "lineEnd": 44,
           "language": "prompt",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 17
-            },
-            {
-              "lineStart": 28,
-              "lineEnd": 28
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -70,16 +62,7 @@
           "lineEnd": 41,
           "language": "prompt",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 15,
-              "lineEnd": 15
-            },
-            {
-              "lineStart": 25,
-              "lineEnd": 25
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -95,14 +78,12 @@
           "lineEnd": 27,
           "language": "prompt",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 24,
-              "lineEnd": 24
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     }
+  ],
+  "modified": [
+    "Initial.prompt"
   ]
 }

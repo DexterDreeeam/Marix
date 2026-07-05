@@ -3,19 +3,19 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; agent sessions now run host_disconnect after run_host_worker returns so host/client state, queued tasks, host System metadata, and SessionContext are cleaned up at the end of a host connection lifecycle, while common exposes the cleanup-capable WorkQueue and serializable System, Platform, and Arch configuration types.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; the client crate exposes the marix_client library from src/client/lib.rs plus marix-client-cli and marix-client-app binary modules.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent crate namespace for model/session/task/prompt orchestration; it performs host_disconnect cleanup after run_host_worker returns at the end of a host connection lifecycle and stores host System metadata from execution Preview events."
+      "purpose": "Agent crate namespace for model/session/task/prompt orchestration; it carries host System metadata through SessionContext into initial prompt rendering and supports conditional prompt templates."
     },
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Client crate namespace for ClientSession and ClientEvent; it surfaces StepEvent updates/failures/non-streamed completions as client output and closes by dropping the worker handle without joining."
+      "purpose": "Client crate namespace for the marix_client library, ClientSession and ClientEvent source, and the marix-client-cli and marix-client-app binary modules."
     },
     {
       "path": "src/common",
@@ -25,7 +25,7 @@
     {
       "path": "src/prompt",
       "name": "prompt",
-      "purpose": "Owns prompt templates used by model-facing steps, including raw strict JSON no-fence requirements and single-string execution invocation input guidance."
+      "purpose": "Owns prompt templates used by model-facing steps, including an Initial prompt that declares System separately from conditional previous-task Context rendering."
     },
     {
       "path": "src/protocol",
@@ -43,5 +43,8 @@
       "purpose": "Top-level marix-tool crate that defines ToolProgram and native tool executables; it now depends on marix-protocol for tool preview/schema protocol types."
     }
   ],
-  "elements": []
+  "elements": [],
+  "modified": [
+    "."
+  ]
 }

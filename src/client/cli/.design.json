@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/client/cli",
+    "name": "cli",
+    "purpose": "Contains the marix-client-cli command-line binary entrypoint. The CLI imports ClientEvent and ClientSession from the marix_client library and drives task submission plus event draining.",
+    "changeStatus": "added"
+  },
+  "added": [
+    "."
+  ],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "marix-client-cli",
+      "type": "bin",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/cli/main.rs",
+          "lineStart": 1,
+          "lineEnd": 58,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 58
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

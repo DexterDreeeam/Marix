@@ -3,8 +3,8 @@
   "module": {
     "path": "src/agent/prompt",
     "name": "prompt",
-    "purpose": "Defines the agent prompt interface and the initial prompt renderer. InitialPrompt loads configured templates, renders Context from previous task previews as request/result lines only, and renders tools separately through the {{#Tools}} placeholder.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines the agent prompt interface, a render_template helper with {{#IF condition | accepted | rejected}} conditional parsing and variable replacement, and the InitialPrompt renderer. InitialPrompt supplies Request, System, Context, NoPreviewTask, and Tools variables so templates can place system metadata before previous task previews.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -25,10 +25,44 @@
       ]
     },
     {
+      "name": "render_template",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/prompt/prompt.rs",
+          "lineStart": 7,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 9
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/prompt/prompt.rs",
+          "lineStart": 11,
+          "lineEnd": 102,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 102
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
       "name": "InitialPrompt",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/prompt/initial.rs",
@@ -49,30 +83,35 @@
         {
           "sourcePath": "src/agent/prompt/initial.rs",
           "lineStart": 23,
-          "lineEnd": 42,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 24,
-              "lineEnd": 40
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/agent/prompt/initial.rs",
-          "lineStart": 46,
-          "lineEnd": 77,
+          "lineEnd": 49,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 46,
-              "lineEnd": 77
+              "lineStart": 37,
+              "lineEnd": 47
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/prompt/initial.rs",
+          "lineStart": 53,
+          "lineEnd": 94,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 54,
+              "lineEnd": 63
             }
           ],
           "modifiedLines": []
         }
       ]
     }
+  ],
+  "modified": [
+    "initial.rs",
+    "mod.rs",
+    "prompt.rs"
   ]
 }

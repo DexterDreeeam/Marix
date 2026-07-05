@@ -3,7 +3,7 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent crate namespace for model/session/task/prompt orchestration. It now lets a host connection run through preview bootstrap and run_host_worker, then calls host_disconnect after the worker returns to clear old client/host handles, queued tasks, host System metadata, and SessionContext, while preserving shared task/tool preview context and DeepSeek user-role prompt dispatch.",
+    "purpose": "Agent crate namespace for model/session/task/prompt orchestration. It carries host System metadata through SessionContext from preview handling into initial prompt rendering, alongside task previews and tool previews, while prompt rendering supports conditional template branches.",
     "changeStatus": "unchanged"
   },
   "childModules": [
@@ -15,17 +15,17 @@
     {
       "path": "src/agent/prompt",
       "name": "prompt",
-      "purpose": "Defines the agent prompt interface and InitialPrompt template renderer; Context is built from previous task previews as request/result lines while tool previews are rendered separately through {{#Tools}}."
+      "purpose": "Defines the agent prompt interface, render_template conditional/variable rendering, and InitialPrompt variables for System, Context, NoPreviewTask, and Tools."
     },
     {
       "path": "src/agent/session",
       "name": "session",
-      "purpose": "Owns Session startup/routing behavior, SessionState storage, host-preview bootstrap via ExecutionSignature::new preview queries, Preview System/tool storage, task creation with shared session context, and host_disconnect cleanup after run_host_worker returns at host connection shutdown."
+      "purpose": "Owns Session startup/routing behavior and SessionContext storage for host System metadata, task previews, and tool previews gathered from execution Preview events."
     },
     {
       "path": "src/agent/task",
       "name": "task",
-      "purpose": "Owns the implemented task runtime, including Task::preview producing a TaskPreview request from the task signature name with an empty result placeholder and initial model-step prompt rendering through InitialPrompt from cloned task/tool session context."
+      "purpose": "Owns the task runtime and initial model-step prompt rendering from a cloned SessionContext that preserves system, task, and tool preview data."
     }
   ],
   "elements": [

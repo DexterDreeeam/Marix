@@ -3,10 +3,27 @@
   "module": {
     "path": "src/client",
     "name": "client",
-    "purpose": "Client crate namespace for ClientSession and ClientEvent. ClientSession renders task status/preview/create-failure output plus StepEvent updates, failures, and non-streamed completions into ClientEvent::Common; close() now sets shutdown and drops the worker JoinHandle without joining so a remoc receive cannot block shutdown forever.",
-    "changeStatus": "unchanged"
+    "purpose": "Client crate namespace for the restored marix_client library and client binaries. lib.rs declares event/session modules and re-exports ClientEvent and ClientSession, while Cargo.toml declares the marix_client lib target plus marix-client-cli (cli/main.rs) and marix-client-app (app/main.rs) bin targets.",
+    "changeStatus": "modified"
   },
-  "childModules": [],
+  "modified": [
+    "Cargo.toml"
+  ],
+  "deleted": [
+    "main.rs"
+  ],
+  "childModules": [
+    {
+      "path": "src/client/app",
+      "name": "app",
+      "purpose": "Contains the placeholder marix-client-app binary entrypoint."
+    },
+    {
+      "path": "src/client/cli",
+      "name": "cli",
+      "purpose": "Contains the marix-client-cli command-line binary entrypoint, which imports ClientEvent and ClientSession from the marix_client library and drives task submission plus event draining."
+    }
+  ],
   "elements": [
     {
       "name": "ClientEvent",
@@ -32,58 +49,24 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 16,
-          "lineEnd": 21,
+          "lineStart": 18,
+          "lineEnd": 23,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 23,
-          "lineEnd": 72,
+          "lineStart": 25,
+          "lineEnd": 73,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 69,
-              "lineEnd": 71
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/client/session.rs",
           "lineStart": 77,
           "lineEnd": 159,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 147,
-              "lineEnd": 155
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "marix-client",
-      "type": "bin",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/client/main.rs",
-          "lineStart": 9,
-          "lineEnd": 50,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/client/main.rs",
-          "lineStart": 52,
-          "lineEnd": 58,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

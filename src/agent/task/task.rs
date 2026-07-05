@@ -220,6 +220,7 @@ impl Task {
                         .lock()
                         .unwrap_or_else(|error| error.into_inner());
                     SessionContext {
+                        system: context.system,
                         tasks: context.tasks.clone(),
                         tools: context.tools.clone(),
                     }

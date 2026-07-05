@@ -4,7 +4,8 @@ Your job is to turn the user's raw request into a concise task brief and an init
 
 Input variables:
 - User request: {{#Request}}
-- Relevant project context: {{#Context}}
+- System: {{#System}}
+- Context: {{#IF {{#NoPreviewTask}} | This is the first task in the session. | Previous task previews: {{#Context}}}}
 - Available tools: {{#Tools}}
 
 StepDraft kind format:

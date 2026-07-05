@@ -183,11 +183,12 @@ impl Session {
                     .host_sys
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(*system);
-                state
+                let mut context = state
                     .context
                     .lock()
-                    .unwrap_or_else(|error| error.into_inner())
-                    .tools = tools.clone();
+                    .unwrap_or_else(|error| error.into_inner());
+                context.system = Some(*system);
+                context.tools = tools.clone();
             }
             SessionEvent::Execution(signature, _) => {
                 Self::route_task_event(state, &signature.task_id, event.clone());
@@ -234,6 +235,7 @@ impl Session {
             .context
             .lock()
             .unwrap_or_else(|error| error.into_inner()) = SessionContext {
+            system: None,
             tasks: Vec::new(),
             tools: Vec::new(),
         };
