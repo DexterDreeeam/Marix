@@ -4,19 +4,15 @@
     "path": "src/client/cli",
     "name": "cli",
     "purpose": "Contains the marix-client-cli command-line binary entrypoint. The CLI accepts exactly --interactive or --oneshot \"request\", drains signature-aware ClientEvent output, prints Common messages and optional Done messages through print_event to keep same-signature output contiguous, and exits oneshot on Done completion for the active signature.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    ".",
-    "main.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "marix-client-cli",
       "type": "bin",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/main.rs",
