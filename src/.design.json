@@ -4,11 +4,8 @@
     "path": "src",
     "name": "src",
     "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes the agent, client, common, prompt, host, first-class marix-protocol, and tool crates/modules; agent initial model steps render InitialPrompt from cloned task/tool session context, DeepSeek chat requests use the provider-supported user role, client sessions surface streamed StepEvent output and close nonblockingly, and prompt templates require raw strict JSON with single-string execution invocation inputs.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "."
-  ],
   "childModules": [
     {
       "path": "src/agent",

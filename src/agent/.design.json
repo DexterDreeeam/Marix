@@ -4,11 +4,8 @@
     "path": "src/agent",
     "name": "agent",
     "purpose": "Agent crate namespace for model/session/task/prompt orchestration. It re-exports Prompt and InitialPrompt, provides task runtime APIs including the implemented Task::preview TaskPreview interface, routes initial model steps through InitialPrompt with cloned task/tool session context while non-initial model steps keep the task name prompt fallback, and sends DeepSeek chat prompts using the provider-supported user role.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "."
-  ],
   "childModules": [
     {
       "path": "src/agent/model",

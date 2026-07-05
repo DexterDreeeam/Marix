@@ -4,11 +4,8 @@
     "path": "src/agent/task",
     "name": "task",
     "purpose": "Owns agent task and step runtime state. Task exposes sender, raise, and an implemented public preview interface that returns a TaskPreview with the task signature name as the request content and an empty result placeholder while Task::new wires shared SessionContext into TaskState; initial model steps now render InitialPrompt from a cloned SessionContext of tasks and tools, while later model steps fall back to the task name.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "task.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -31,7 +28,7 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
