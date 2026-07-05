@@ -198,7 +198,10 @@ impl Session {
             SessionEvent::Task(signature, _) => {
                 Self::route_task_event(state, &signature.id, event.clone());
             }
-            SessionEvent::Step(_, _) => Self::send_client_event(state, event.clone()),
+            SessionEvent::Step(signature, _) => {
+                Self::send_client_event(state, event.clone());
+                Self::route_task_event(state, &signature.task.id, event.clone());
+            }
             SessionEvent::Execution(_, ExecutionEvent::Preview { system, tools }) => {
                 *state
                     .host_sys

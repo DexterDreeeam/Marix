@@ -3,8 +3,8 @@
   "module": {
     "path": "src/agent/prompt",
     "name": "prompt",
-    "purpose": "Defines the agent prompt interface, a render_template helper with {{#IF condition | accepted | rejected}} conditional parsing and variable replacement, and the InitialPrompt renderer. InitialPrompt supplies Request, System, Context, NoPreviewTask, and Tools variables so templates can place system metadata before previous task previews.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines the agent prompt interface, render_template conditional/variable rendering, InitialPrompt for initial planning, and ExecutionAnalysisPrompt for model analysis of completed execution output using RequestBrief, ExecutionOutput, CurrentPlan, PendingIntentions, and Tools variables.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -107,6 +107,71 @@
           "modifiedLines": []
         }
       ]
+    },
+    {
+      "name": "ExecutionAnalysisPrompt",
+      "type": "struct",
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/prompt/execution_analysis.rs",
+          "lineStart": 9,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 15
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/prompt/execution_analysis.rs",
+          "lineStart": 17,
+          "lineEnd": 33,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 33
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/prompt/execution_analysis.rs",
+          "lineStart": 35,
+          "lineEnd": 60,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 35,
+              "lineEnd": 60
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/prompt/execution_analysis.rs",
+          "lineStart": 64,
+          "lineEnd": 81,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 64,
+              "lineEnd": 81
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
     }
+  ],
+  "added": [
+    "execution_analysis.rs"
+  ],
+  "modified": [
+    "mod.rs"
   ]
 }

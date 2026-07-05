@@ -3,14 +3,14 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; protocol now includes Answer parsing beside Plan parsing, while agent task runtime turns Answer model output into task success and uses run_plan as the only plan insertion path.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; agent task runtime now maps execution success back to step completion and triggers ExecutionAnalysis model plans through the prompt layer.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent crate namespace for model/session/task/prompt/step/plan orchestration; model backends request directly, and task runtime uses PlanQueue-backed plan records plus Answer-to-success routing."
+      "purpose": "Agent crate namespace for model/session/task/prompt/step/plan orchestration; task runtime maps execution signatures to steps and prompts execution analysis after completed execution plans."
     },
     {
       "path": "src/client",
@@ -30,7 +30,7 @@
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "First-class marix-protocol workspace crate for reusable session, task, answer, plan, step, execution, tool, and shared Signature trait definitions; Answer and Plan expose parse helpers for model completion routing."
+      "purpose": "First-class marix-protocol workspace crate for reusable session, task, answer, plan, step, execution, tool, and shared Signature definitions; ExecutionSignature supports runtime mapping keys."
     },
     {
       "path": "src/host",

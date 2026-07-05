@@ -3,8 +3,8 @@
   "module": {
     "path": "src/agent/session",
     "name": "session",
-    "purpose": "Owns the agent session runtime, total SessionEvent routing entrypoint, local task-originated event channel, shared session preview context, and task creation. SessionState bridges network client/host channels with a task event channel; Session routes client, host, and task-worker events through route_session_event while preserving host System/tool previews in SessionContext, and create_task receives an already-empty TaskSignature.name while passing the separate original request string into Task::new.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent session runtime, total SessionEvent routing entrypoint, local task-originated event channel, shared session preview context, and task creation. Step events are forwarded to the client and also routed back to the owning Task by task id so task workers handle completion state transitions.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
@@ -35,16 +35,11 @@
           "lineStart": 45,
           "lineEnd": 309,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 179,
-              "lineEnd": 184
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 155,
-              "lineEnd": 155
+              "lineStart": 201,
+              "lineEnd": 204
             }
           ]
         }
@@ -106,5 +101,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "session.rs"
   ]
 }

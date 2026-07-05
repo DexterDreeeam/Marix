@@ -3,8 +3,8 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent crate namespace for model/session/task/prompt/step orchestration and the plan queue module. The model backend implementation path now uses request naming end-to-end, and task runtime triggers initial plans through run_plan, stores PlanQueue records, routes model Answer output to task success, and keeps execution-step routing separate from session execution events.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent crate namespace for model/session/task/prompt/step orchestration and the plan queue module. Prompt rendering includes ExecutionAnalysisPrompt, session step events route back to tasks, and task runtime maps execution signatures to step signatures so execution success can complete steps and trigger follow-up execution-analysis model plans.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
@@ -20,12 +20,12 @@
     {
       "path": "src/agent/prompt",
       "name": "prompt",
-      "purpose": "Defines the agent prompt interface, render_template conditional/variable rendering, and InitialPrompt variables for System, Context, NoPreviewTask, and Tools."
+      "purpose": "Defines the agent prompt interface, render_template rendering, InitialPrompt, and ExecutionAnalysisPrompt for execution-output analysis."
     },
     {
       "path": "src/agent/session",
       "name": "session",
-      "purpose": "Owns Session startup/routing behavior, the local task event worker/channel, total route_session_event dispatch policy, SessionContext storage for host System metadata, task previews, and tool previews, and task creation that forwards an already-empty TaskSignature plus the separate original request string into Task."
+      "purpose": "Owns Session startup/routing behavior, including forwarding Step events to clients and routing them back to the owning Task worker."
     },
     {
       "path": "src/agent/step",
@@ -35,7 +35,7 @@
     {
       "path": "src/agent/task",
       "name": "task",
-      "purpose": "Owns task runtime state and step routing. Task runtime triggers initial plans through run_plan, keeps add_plan inside run_plan, allocates global step signatures for PlanQueue records, and sends task success when model output parses as Answer."
+      "purpose": "Owns task runtime state and step routing, including execution_map, plan-completion-gated complete handling, and execution-analysis follow-up plans."
     }
   ],
   "elements": [

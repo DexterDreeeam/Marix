@@ -1,9 +1,10 @@
+use std::collections::HashMap;
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 use std::sync::atomic::AtomicUsize;
 
 use marix_common::{Sender, WorkQueue};
-use marix_protocol::{SessionEvent, TaskSignature};
+use marix_protocol::{ExecutionSignature, SessionEvent, StepSignature, TaskSignature};
 
 use crate::model::ModelBackend;
 use crate::plan::PlanQueue;
@@ -18,6 +19,7 @@ pub struct TaskState {
     pub session_tx: Sender<SessionEvent>,
     pub step_count: AtomicUsize,
     pub plan_queue: PlanQueue,
+    pub execution_map: StdMutex<HashMap<ExecutionSignature, StepSignature>>,
     pub steps: WorkQueue<usize, Step>,
 }
 
@@ -37,6 +39,7 @@ impl TaskState {
             session_tx,
             step_count: AtomicUsize::new(0),
             plan_queue: PlanQueue::new(),
+            execution_map: StdMutex::new(HashMap::new()),
             steps: WorkQueue::new(),
         }
     }

@@ -85,8 +85,10 @@ impl Task {
                         break;
                     }
                 }
-                SessionEvent::Execution(_, event) => {
-                    Self::route_execution_session_event(&state, event)
+                SessionEvent::Execution(signature, event) => {
+                    if !Self::route_execution_event(Arc::clone(&state), signature, event) {
+                        break;
+                    }
                 }
             }
         }
