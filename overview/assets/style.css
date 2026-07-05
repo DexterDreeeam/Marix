@@ -405,9 +405,18 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .code-popover-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--bg-tertiary); }
 .code-popover-header strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .code-popover-header-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
-.code-popover-content { flex: 1; overflow: auto; overscroll-behavior: contain; background: var(--bg-primary); }
-.code-popover-code { padding: 14px; white-space: pre; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 13px; line-height: 1.5; }
+.code-popover-content { flex: 1; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; background: var(--bg-primary); }
+.code-popover-code { padding: 14px; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 13px; line-height: 1.5; }
 .code-popover-file { padding: 14px; }
+.code-popover .diff-panel-lines,
+.code-popover .full-file-lines,
+.code-popover .private-plain-code { overflow-x: hidden; }
+.code-popover .diff-line { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
+.code-popover .diff-line-content { min-width: 0; }
+.code-popover .full-file-line { white-space: normal; align-items: start; }
+.code-popover .full-line-content { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
+.code-popover .full-line-number { align-self: stretch; }
+.code-popover .private-plain-code { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
 .code-popover-workflow { display: flex; padding: 0; }
 .workflow-viewer { position: relative; flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; background: radial-gradient(circle at 50% 40%, rgba(88, 166, 255, 0.08), transparent 38%), var(--bg-primary); }
 .workflow-reset-toolset { position: absolute; right: 12px; bottom: 12px; z-index: 2; display: flex; gap: 8px; }
