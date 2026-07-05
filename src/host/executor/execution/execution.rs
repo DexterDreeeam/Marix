@@ -45,16 +45,16 @@ impl ExecutionRuntime {
 
 impl ExecutionRuntime {
     fn event_loop(context: Arc<ExecutionContext>, execution_rx: Receiver<SessionEvent>) {
-        Self::emit_status(&context, ExecutionStatus::Started);
+        Self::send_status_event(&context, ExecutionStatus::Started);
         Self::spawn_execution(Arc::clone(&context));
         while let Ok(event) = execution_rx.recv() {
             match event {
                 SessionEvent::Execution(_, ExecutionEvent::Cancel) => {
-                    Self::emit_status(&context, ExecutionStatus::Canceled);
+                    Self::send_status_event(&context, ExecutionStatus::Canceled);
                     break;
                 }
                 SessionEvent::Execution(_, ExecutionEvent::Kill) => {
-                    Self::emit_status(&context, ExecutionStatus::Killed);
+                    Self::send_status_event(&context, ExecutionStatus::Killed);
                     break;
                 }
                 _ => {}
@@ -66,12 +66,12 @@ impl ExecutionRuntime {
         thread::spawn(move || {
             let input = context.parameters.input.content.clone();
             let output = context.tool.execute(&input);
-            Self::emit_update(&context, output);
-            Self::emit_status(&context, ExecutionStatus::Succeed);
+            Self::send_update_event(&context, output);
+            Self::send_status_event(&context, ExecutionStatus::Succeed);
         });
     }
 
-    fn emit_status(context: &ExecutionContext, status: ExecutionStatus) {
+    fn send_status_event(context: &ExecutionContext, status: ExecutionStatus) {
         Self::send_event(
             context,
             SessionEvent::Execution(
@@ -81,7 +81,7 @@ impl ExecutionRuntime {
         );
     }
 
-    fn emit_update(context: &ExecutionContext, content: String) {
+    fn send_update_event(context: &ExecutionContext, content: String) {
         Self::send_event(
             context,
             SessionEvent::Execution(

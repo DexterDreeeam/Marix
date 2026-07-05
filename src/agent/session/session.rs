@@ -17,6 +17,7 @@ pub struct Session {
     pub state: Arc<SessionState>,
     client_worker: JoinHandle<()>,
     host_worker: JoinHandle<()>,
+    task_worker: JoinHandle<()>,
 }
 
 impl Session {
@@ -25,10 +26,12 @@ impl Session {
         let state = Arc::new(SessionState::new());
         let client_worker = Self::spawn_client_worker(Arc::clone(&state));
         let host_worker = Self::spawn_host_worker(Arc::clone(&state));
+        let task_worker = Self::spawn_task_worker(Arc::clone(&state));
         Self {
             state,
             client_worker,
             host_worker,
+            task_worker,
         }
     }
 
@@ -93,6 +96,22 @@ impl Session {
         })
     }
 
+    fn spawn_task_worker(state: Arc<SessionState>) -> JoinHandle<()> {
+        thread::spawn(move || {
+            loop {
+                let event = state
+                    .task_rx
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner())
+                    .recv();
+                let Ok(event) = event else {
+                    break;
+                };
+                Self::route_session_event(&state, event);
+            }
+        })
+    }
+
     fn run_client_worker(state: Arc<SessionState>) {
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
@@ -108,12 +127,7 @@ impl Session {
                 return;
             };
             while let Ok(Some(message)) = rx.recv().await {
-                match message.event {
-                    SessionEvent::Task(signature, TaskEvent::Create { request }) => {
-                        Self::create_task(&state, signature, request);
-                    }
-                    event => Self::route_session_event(&state, event),
-                }
+                Self::route_session_event(&state, message.event);
             }
         });
     }
@@ -163,21 +177,24 @@ impl Session {
             return;
         }
         let task_id = signature.id.clone();
-        let task = Task::new(
-            Arc::clone(&state.context),
-            signature,
-            Arc::clone(&state.client_tx),
-            Arc::clone(&state.host_tx),
-        );
+        let task = Task::new(Arc::clone(&state.context), signature, state.task_tx.clone());
         state.tasks.insert(task_id, Arc::new(StdMutex::new(task)));
     }
 
     fn route_session_event(state: &SessionState, event: SessionEvent) {
         match &event {
+            SessionEvent::Task(signature, TaskEvent::Create { request }) => {
+                Self::create_task(state, signature.clone(), request.clone());
+            }
+            SessionEvent::Task(_, TaskEvent::Status(_))
+            | SessionEvent::Task(_, TaskEvent::Preview { .. })
+            | SessionEvent::Task(_, TaskEvent::CreateFailed { .. }) => {
+                Self::send_client_event(state, event.clone());
+            }
             SessionEvent::Task(signature, _) => {
                 Self::route_task_event(state, &signature.id, event.clone());
             }
-            SessionEvent::Step(_, _) => {}
+            SessionEvent::Step(_, _) => Self::send_client_event(state, event.clone()),
             SessionEvent::Execution(_, ExecutionEvent::Preview { system, tools }) => {
                 *state
                     .host_sys
@@ -189,6 +206,13 @@ impl Session {
                     .unwrap_or_else(|error| error.into_inner());
                 context.system = Some(*system);
                 context.tools = tools.clone();
+            }
+            SessionEvent::Execution(_, ExecutionEvent::Evoke(_))
+            | SessionEvent::Execution(_, ExecutionEvent::PreviewQuery)
+            | SessionEvent::Execution(_, ExecutionEvent::Query)
+            | SessionEvent::Execution(_, ExecutionEvent::Cancel)
+            | SessionEvent::Execution(_, ExecutionEvent::Kill) => {
+                Self::send_host_event(state, event.clone());
             }
             SessionEvent::Execution(signature, _) => {
                 Self::route_task_event(state, &signature.task_id, event.clone());
@@ -203,6 +227,28 @@ impl Session {
             .unwrap_or_else(|error| error.into_inner())
             .sender();
         let _ = sender.send(event);
+    }
+
+    fn send_client_event(state: &SessionState, event: SessionEvent) {
+        if let Some(sender) = state
+            .client_tx
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .as_mut()
+        {
+            let _ = sender.try_send(Session::package_message(event));
+        }
+    }
+
+    fn send_host_event(state: &SessionState, event: SessionEvent) {
+        if let Some(sender) = state
+            .host_tx
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .as_mut()
+        {
+            let _ = sender.try_send(Session::package_message(event));
+        }
     }
 
     fn host_disconnect(state: &SessionState) {

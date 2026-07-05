@@ -9,3 +9,13 @@ pub struct Step {
     pub status: StepStatus,
     pub update_count: Arc<AtomicUsize>,
 }
+
+impl Step {
+    pub fn new(signature: StepSignature) -> Self {
+        Self {
+            signature,
+            status: StepStatus::Prepare,
+            update_count: Arc::new(AtomicUsize::new(0)),
+        }
+    }
+}

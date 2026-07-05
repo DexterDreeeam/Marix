@@ -214,3 +214,6 @@ ew impl grew (builder block, 17-33->18-39); both segments stay fully-dded. Left
 ## 2026-07-05 (config system refactor metadata)
 - When a public type is moved between direct source files inside the same module folder (for example `Platform` from `config.rs` to `sys.rs`), keep one module-level element, update its `codeSegments` to the new file, and mark the element `modified` rather than duplicating a deleted/added pair. New public definitions introduced by the new file (`System`, `Arch`) are `added`, while the new direct file appears in the module top-level `added` array.
 - Private helpers that implement a public type's behavior (for example `is_ubuntu_host()` backing `System::new()`) should not be standalone elements; include them as supporting `codeSegments` on the owning public element when useful for navigation.
+
+## 2026-07-05 (ancestor-only task metadata follow-up)
+- When a hook reports that the direct module .design.json is already refreshed but ancestors are still blocking for a descendant source edit, update only ancestor .design.json files: set module.changeStatus to modified, use top-level modified:["."] rather than child-folder names, and adjust child purpose text without adding childModules.changeStatus. Source: src/agent/task/task.rs Task::raise removal follow-up.

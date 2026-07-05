@@ -1,8 +1,8 @@
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
-use marix_common::{SharedNetSender, WorkQueue};
-use marix_protocol::{SessionMessage, TaskSignature};
+use marix_common::{Sender, WorkQueue};
+use marix_protocol::{SessionEvent, TaskSignature};
 
 use crate::model::ModelBackend;
 use crate::session::SessionContext;
@@ -12,8 +12,7 @@ pub struct TaskState {
     pub session_context: Arc<StdMutex<SessionContext>>,
     pub signature: TaskSignature,
     pub model_backend: StdMutex<Box<dyn ModelBackend>>,
-    pub client_tx: SharedNetSender<SessionMessage>,
-    pub host_tx: SharedNetSender<SessionMessage>,
+    pub session_tx: Sender<SessionEvent>,
     pub steps: WorkQueue<usize, Step>,
 }
 
@@ -22,15 +21,13 @@ impl TaskState {
         session_context: Arc<StdMutex<SessionContext>>,
         signature: TaskSignature,
         model_backend: Box<dyn ModelBackend>,
-        client_tx: SharedNetSender<SessionMessage>,
-        host_tx: SharedNetSender<SessionMessage>,
+        session_tx: Sender<SessionEvent>,
     ) -> Self {
         Self {
             session_context,
             signature,
             model_backend: StdMutex::new(model_backend),
-            client_tx,
-            host_tx,
+            session_tx,
             steps: WorkQueue::new(),
         }
     }

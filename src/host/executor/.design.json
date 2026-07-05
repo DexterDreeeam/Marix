@@ -3,14 +3,14 @@
   "module": {
     "path": "src/host/executor",
     "name": "executor",
-    "purpose": "Owns host-side tool registry, tool process launching, and execution orchestration. Executor preview responses now include System::new host metadata together with current ToolPreview entries for the agent session.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns host-side tool registry, tool process launching, and execution orchestration. Executor sends preview responses through send_preview_event, reports unknown-tool failures through send_failed_event, and includes System::new host metadata with current ToolPreview entries for the agent session.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
       "path": "src/host/executor/execution",
       "name": "execution",
-      "purpose": "Per-execution host runtime split out of executor.rs: ExecutionRuntime drives one agent Execution, spawning a worker in new that reads raw tool input from parameters.input.content on the typed ExecutionRequest, runs tool.execute, and emits ExecutionUpdate plus terminal ExecutionStatus while handling Cancel/Kill control events; ExecutionContext holds the host-local Tool handle, ExecutionRequest, and agent SessionMessage sender."
+      "purpose": "Per-execution host runtime split out of executor.rs: ExecutionRuntime drives one agent Execution, spawning a worker in new that reads raw tool input from parameters.input.content on the typed ExecutionRequest, runs tool.execute, and sends ExecutionUpdate plus terminal ExecutionStatus while handling Cancel/Kill control events; ExecutionContext holds the host-local Tool handle, ExecutionRequest, and agent SessionMessage sender."
     }
   ],
   "elements": [
@@ -18,7 +18,7 @@
       "name": "Executor",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/executor.rs",
@@ -34,7 +34,12 @@
           "lineEnd": 39,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 34
+            }
+          ]
         },
         {
           "sourcePath": "src/host/executor/executor.rs",
@@ -47,7 +52,20 @@
               "lineEnd": 91
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 49,
+              "lineEnd": 49
+            },
+            {
+              "lineStart": 67,
+              "lineEnd": 67
+            },
+            {
+              "lineStart": 81,
+              "lineEnd": 81
+            }
+          ]
         }
       ]
     },
@@ -115,5 +133,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "executor.rs"
   ]
 }

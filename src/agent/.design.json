@@ -3,9 +3,12 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent crate namespace for model/session/task/prompt orchestration. It carries host System metadata through SessionContext from preview handling into initial prompt rendering, alongside task previews and tool previews, while prompt rendering supports conditional template branches.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent crate namespace for model/session/task/prompt orchestration. It carries host System metadata through SessionContext from preview handling into initial prompt rendering, routes all SessionEvent traffic through Session before client/host/task dispatch, and lets Task send task/step events through the local session channel while step and execution helpers are split into private task module files.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/agent/model",
@@ -20,12 +23,12 @@
     {
       "path": "src/agent/session",
       "name": "session",
-      "purpose": "Owns Session startup/routing behavior and SessionContext storage for host System metadata, task previews, and tool previews gathered from execution Preview events."
+      "purpose": "Owns Session startup/routing behavior, the local task event worker/channel, total route_session_event dispatch policy, and SessionContext storage for host System metadata, task previews, and tool previews."
     },
     {
       "path": "src/agent/task",
       "name": "task",
-      "purpose": "Owns the task runtime and initial model-step prompt rendering from a cloned SessionContext that preserves system, task, and tool preview data."
+      "purpose": "Owns task runtime state that sends SessionEvents through session_tx, exposes sender/preview interfaces, and splits private step/execution routing into task_step.rs and task_execution.rs while continuing concrete ready steps parsed from StepPlan completions."
     }
   ],
   "elements": [

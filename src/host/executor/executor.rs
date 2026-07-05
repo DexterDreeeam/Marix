@@ -31,7 +31,7 @@ impl Executor {
             return;
         };
         match execution_event {
-            ExecutionEvent::PreviewQuery => self.emit_preview(signature),
+            ExecutionEvent::PreviewQuery => self.send_preview_event(signature),
             ExecutionEvent::Evoke(request) => self.create_execution(request),
             execution_event => self.forward_to_execution(signature, execution_event),
         }
@@ -46,7 +46,7 @@ impl Executor {
             Some(tool) => tool.clone(),
             None => {
                 let reason = format!("unknown tool: {}", request.signature.name);
-                self.emit_failed(&request.signature, reason);
+                self.send_failed_event(&request.signature, reason);
                 return;
             }
         };
@@ -64,7 +64,7 @@ impl Executor {
         }
     }
 
-    fn emit_failed(&self, signature: &ExecutionSignature, reason: String) {
+    fn send_failed_event(&self, signature: &ExecutionSignature, reason: String) {
         if let Some(sender) = self
             .agent_tx
             .lock()
@@ -78,7 +78,7 @@ impl Executor {
         }
     }
 
-    fn emit_preview(&self, signature: ExecutionSignature) {
+    fn send_preview_event(&self, signature: ExecutionSignature) {
         if let Some(sender) = self
             .agent_tx
             .lock()

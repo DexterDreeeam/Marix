@@ -3,8 +3,8 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, step, execution, tool, and shared signature protocol contracts. The crate depends on marix-common so execution Preview events can include host System alongside tool previews, and enables uuid v5 so StepSignature can derive deterministic Signature ids from task signatures and step numbers.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, step, execution, tool, and shared signature protocol contracts. StepPlan now includes a serde_json parse helper so agent task routing can continue ready steps from completed model-step output.",
+    "changeStatus": "modified"
   },
   "childModules": [
     {
@@ -15,7 +15,7 @@
     {
       "path": "src/protocol/step",
       "name": "step",
-      "purpose": "Owns step protocol contracts including executable drafts, planning output, kinds, StepSignature values that implement Signature with deterministic uuid v5 ids derived from task id plus step_no, events, results, statuses, and previews."
+      "purpose": "Owns step protocol contracts including executable drafts, planning output with StepPlan::parse, kinds, StepSignature values that implement Signature with deterministic uuid v5 ids derived from task id plus step_no, events, results, statuses, and previews."
     },
     {
       "path": "src/protocol/execution",
@@ -84,5 +84,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "."
   ]
 }

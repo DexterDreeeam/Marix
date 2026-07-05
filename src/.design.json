@@ -3,14 +3,17 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; the client library now emits Common output and Done completion events with optional final messages so the CLI owns exit behavior.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; agent tasks split private step/execution helpers into dedicated files, send events through session_tx, and use StepPlan::parse to continue ready steps from completed model-step output.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent crate namespace for model/session/task/prompt orchestration; it carries host System metadata through SessionContext into initial prompt rendering and supports conditional prompt templates."
+      "purpose": "Agent crate namespace for model/session/task/prompt orchestration; Session owns total event routing for client, host, and task-originated events, while Task sends through session_tx and splits private step/execution helpers before continuing StepPlan ready steps."
     },
     {
       "path": "src/client",
@@ -30,12 +33,12 @@
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "First-class marix-protocol workspace crate for reusable session, task, step, execution, tool, and shared Signature trait definitions; task/execution/step signatures implement Signature, with step ids derived deterministically via uuid v5."
+      "purpose": "First-class marix-protocol workspace crate for reusable session, task, step, execution, tool, and shared Signature trait definitions; StepPlan includes serde_json parsing for completed step output, and task/execution/step signatures implement Signature."
     },
     {
       "path": "src/host",
       "name": "host",
-      "purpose": "Host crate namespace for HostSession and host-side tool execution; executor preview replies now include System::new host metadata and tool previews."
+      "purpose": "Host crate namespace for HostSession and host-side tool execution; executor preview replies send System::new host metadata and tool previews, and unknown-tool failures send ExecutionStatus failure events."
     },
     {
       "path": "src/tool",

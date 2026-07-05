@@ -3,8 +3,8 @@
   "module": {
     "path": "src/agent/session",
     "name": "session",
-    "purpose": "Owns the agent session runtime and shared session preview context. SessionContext now carries host System metadata alongside task and tool previews; Session preview routing stores the preview System into both host_sys and SessionContext, and context resets initialize system to None.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent session runtime, total SessionEvent routing entrypoint, local task-originated event channel, and shared session preview context. SessionState bridges network client/host channels with a task event channel; Session routes client, host, and task-worker events through route_session_event while preserving host System/tool previews in SessionContext.",
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -12,43 +12,73 @@
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
           "lineStart": 16,
-          "lineEnd": 20,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/agent/session/session.rs",
-          "lineStart": 22,
-          "lineEnd": 38,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/agent/session/session.rs",
-          "lineStart": 42,
-          "lineEnd": 258,
+          "lineEnd": 21,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 186,
-              "lineEnd": 190
+              "lineStart": 20,
+              "lineEnd": 20
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/session/session.rs",
+          "lineStart": 23,
+          "lineEnd": 40,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 29,
+              "lineEnd": 29
             },
             {
-              "lineStart": 238,
-              "lineEnd": 238
+              "lineStart": 34,
+              "lineEnd": 34
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/session/session.rs",
+          "lineStart": 45,
+          "lineEnd": 304,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 99,
+              "lineEnd": 113
+            },
+            {
+              "lineStart": 186,
+              "lineEnd": 193
+            },
+            {
+              "lineStart": 210,
+              "lineEnd": 216
+            },
+            {
+              "lineStart": 232,
+              "lineEnd": 252
             }
           ],
           "modifiedLines": [
             {
-              "lineStart": 191,
-              "lineEnd": 191
+              "lineStart": 130,
+              "lineEnd": 130
+            },
+            {
+              "lineStart": 180,
+              "lineEnd": 180
+            },
+            {
+              "lineStart": 184,
+              "lineEnd": 220
             }
           ]
         }
@@ -62,8 +92,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
-          "lineStart": 35,
-          "lineEnd": 37,
+          "lineStart": 38,
+          "lineEnd": 40,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -74,25 +104,34 @@
       "name": "SessionState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session_state.rs",
-          "lineStart": 9,
-          "lineEnd": 17,
+          "lineStart": 11,
+          "lineEnd": 21,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 19,
+              "lineEnd": 20
+            }
+          ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/session/session_state.rs",
-          "lineStart": 19,
-          "lineEnd": 35,
+          "lineStart": 23,
+          "lineEnd": 42,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 23,
-              "lineEnd": 23
+              "lineStart": 25,
+              "lineEnd": 25
+            },
+            {
+              "lineStart": 38,
+              "lineEnd": 39
             }
           ],
           "modifiedLines": []
@@ -110,15 +149,14 @@
           "lineStart": 4,
           "lineEnd": 8,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 5,
-              "lineEnd": 5
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
     }
+  ],
+  "modified": [
+    "session.rs",
+    "session_state.rs"
   ]
 }

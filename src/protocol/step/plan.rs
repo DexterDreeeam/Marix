@@ -8,3 +8,9 @@ pub struct StepPlan {
     pub pending_steps: Vec<StepDraft>,
     pub expected_result: String,
 }
+
+impl StepPlan {
+    pub fn parse(content: &str) -> Result<Self, serde_json::Error> {
+        serde_json::from_str(content)
+    }
+}
