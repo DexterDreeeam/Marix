@@ -9,7 +9,7 @@ Input variables:
 - Available tools: {{#Tools}}
 
 StepDraft kind format:
-- Intent: use { "Intent": "short fuzzy description" } when the step is only a future intention and cannot be made concrete yet.
+- Intent: use "Intent" when the step is only a future intention and cannot be made concrete yet; put the fuzzy explanation in StepDraft.description.
 - Model: use { "Model": "Initial" | "Plan" | "ExecutionAnalysis" | "Composition" } for reasoning or text-generation steps.
 - Execution: use { "Execution": { "Invocation": { "tool": "tool_name", "input": "parameter" } } } when a concrete tool call is known. Use only tools listed in {{#Tools}}. The `input` value must be a single string, never an object or array. If a tool needs structured JSON input, put compact JSON text inside that single string parameter. The conversion layer will create the execution signature.
 - User: use { "User": "Verdict" | "Warrant" } when the next action requires the user's decision or authorization.
@@ -32,7 +32,7 @@ Return a raw strict JSON object matching this shape. Do not wrap it in Markdown 
   ],
   "pending_steps": [
     {
-      "kind": { "Intent": "Future step that depends on earlier output." },
+      "kind": "Intent",
       "description": "Why this step cannot be fully specified yet."
     }
   ],

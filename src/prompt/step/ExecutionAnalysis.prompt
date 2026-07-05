@@ -10,7 +10,7 @@ Input variables:
 - Available tools: {{#Tools}}
 
 StepDraft kind format:
-- Intent: { "Intent": "still vague future action" } when the next action depends on more information.
+- Intent: "Intent" when the next action depends on more information; put the vague future action in StepDraft.description.
 - Model: { "Model": "Plan" | "ExecutionAnalysis" | "Composition" } for follow-up reasoning.
 - Execution: { "Execution": { "Invocation": { "tool": "tool_name", "input": "parameter" } } } when the execution output makes the next tool call concrete. The `input` value must be a single string, never an object or array. If a tool needs structured JSON input, put compact JSON text inside that single string parameter. The conversion layer will create the execution signature.
 - User: { "User": "Verdict" | "Warrant" } when the execution output requires user approval or authorization.
@@ -33,7 +33,7 @@ Return only raw strict JSON. Do not wrap it in Markdown fences and do not add an
   ],
   "pending_steps": [
     {
-      "kind": { "Intent": "Still unresolved future action." },
+      "kind": "Intent",
       "description": "Why this remains pending."
     }
   ],

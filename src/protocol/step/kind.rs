@@ -4,7 +4,7 @@ use crate::ExecutionRequest;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum StepKind {
-    Intent(String),
+    Intent,
     Model(ModelStepKind),
     Execution(ExecutionStepKind),
     User(UserStepKind),

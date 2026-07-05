@@ -3,14 +3,17 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; agent tasks split private step/execution helpers into dedicated files, send events through session_tx, and use StepPlan::parse to continue ready steps from completed model-step output.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; protocol now owns a dedicated plan module exporting Plan and PlanSignature, step intent kinds are unit variants whose wording lives in StepDraft.description, Plan prompt wording names the protocol Plan directly, prompt templates emit \"Intent\" unit strings, and agent task runtime records parsed Plan values with generated StepSignature lists in TaskState::plan_list.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent crate namespace for model/session/task/prompt orchestration; Session owns total event routing for client, host, and task-originated events, while Task sends through session_tx and splits private step/execution helpers before continuing StepPlan ready steps."
+      "purpose": "Agent crate namespace for model/session/task/prompt/step orchestration; task runtime parses Plan output, stores plan_list entries, rejects unit Intent steps before insertion, tracks step_count, and imports the top-level step::Step runtime type."
     },
     {
       "path": "src/client",
@@ -25,12 +28,12 @@
     {
       "path": "src/prompt",
       "name": "prompt",
-      "purpose": "Owns prompt templates used by model-facing steps, including an Initial prompt that declares System separately from conditional previous-task Context rendering."
+      "purpose": "Owns prompt templates used by model-facing steps, including Plan prompt wording that names the protocol Plan directly and unit-string Intent examples whose pending text belongs in StepDraft.description."
     },
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "First-class marix-protocol workspace crate for reusable session, task, step, execution, tool, and shared Signature trait definitions; StepPlan includes serde_json parsing for completed step output, and task/execution/step signatures implement Signature."
+      "purpose": "First-class marix-protocol workspace crate for reusable session, task, plan, step, execution, tool, and shared Signature trait definitions; Plan includes serde_json parsing for completed model-step output, PlanSignature implements Signature, and StepKind::Intent has no string payload."
     },
     {
       "path": "src/host",

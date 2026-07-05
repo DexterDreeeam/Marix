@@ -98,10 +98,6 @@ impl Task {
 
     fn send_status_event(state: &TaskState, status: TaskStatus) {
         let event = SessionEvent::Task(state.signature.clone(), TaskEvent::Status(status));
-        Self::send_event(state, event);
-    }
-
-    pub(super) fn send_event(state: &TaskState, event: SessionEvent) {
         let _ = state.session_tx.send(event);
     }
 }

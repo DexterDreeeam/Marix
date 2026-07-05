@@ -217,3 +217,4 @@ ew impl grew (builder block, 17-33->18-39); both segments stay fully-dded. Left
 
 ## 2026-07-05 (ancestor-only task metadata follow-up)
 - When a hook reports that the direct module .design.json is already refreshed but ancestors are still blocking for a descendant source edit, update only ancestor .design.json files: set module.changeStatus to modified, use top-level modified:["."] rather than child-folder names, and adjust child purpose text without adding childModules.changeStatus. Source: src/agent/task/task.rs Task::raise removal follow-up.
+- 2026-07-05: When a Rust module file is moved into a new source folder, keep the old folder's `.design.json` free of moved element `codeSegments`, add the new child module at the parent, and mark the old direct file as deleted while the new module owns the relocated element path (source: src/agent/task/step.rs -> src/agent/step/step.rs move).

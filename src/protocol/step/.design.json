@@ -3,9 +3,16 @@
   "module": {
     "path": "src/protocol/step",
     "name": "step",
-    "purpose": "Owns step protocol contracts: StepDraft executable drafts, StepPlan planning output with a serde_json parse helper, StepKind including Intent(String), ModelStepKind phases Initial, Plan, ExecutionAnalysis, and Composition, ExecutionStepKind, UserStepKind, StepSignature with description and a shared Signature implementation that derives a deterministic UUID v5 from the task signature id plus step_no, StepEvent, StepResult, StepStatus, and StepPreview.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns step protocol contracts: StepDraft executable drafts whose description carries Intent wording, StepKind with unit Intent plus model/execution/user variants, ModelStepKind phases Initial, Plan, ExecutionAnalysis, and Composition, ExecutionStepKind, UserStepKind, StepSignature with description and deterministic Signature implementation, StepEvent, StepResult, StepStatus, and StepPreview. Planning output moved to src/protocol/plan as Plan.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "kind.rs",
+    "mod.rs"
+  ],
+  "deleted": [
+    "plan.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -19,41 +26,7 @@
           "lineStart": 5,
           "lineEnd": 8,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 5,
-              "lineEnd": 8
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "StepPlan",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/step/plan.rs",
-          "lineStart": 5,
-          "lineEnd": 10,
-          "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/protocol/step/plan.rs",
-          "lineStart": 12,
-          "lineEnd": 16,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 12,
-              "lineEnd": 16
-            }
-          ],
           "modifiedLines": []
         }
       ]
@@ -62,23 +35,18 @@
       "name": "StepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/kind.rs",
-          "lineStart": 6,
+          "lineStart": 5,
           "lineEnd": 11,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 7,
               "lineEnd": 7
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 6,
-              "lineEnd": 10
             }
           ]
         }
@@ -92,21 +60,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/kind.rs",
-          "lineStart": 14,
+          "lineStart": 13,
           "lineEnd": 19,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 18
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 18
-            }
-          ]
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -118,7 +76,7 @@
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/kind.rs",
-          "lineStart": 22,
+          "lineStart": 21,
           "lineEnd": 26,
           "language": "rust",
           "addedLines": [],
@@ -134,7 +92,7 @@
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/kind.rs",
-          "lineStart": 29,
+          "lineStart": 28,
           "lineEnd": 32,
           "language": "rust",
           "addedLines": [],
@@ -169,12 +127,7 @@
           "lineStart": 24,
           "lineEnd": 29,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 24,
-              "lineEnd": 29
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -191,12 +144,7 @@
           "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 6,
-              "lineEnd": 11
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -228,12 +176,7 @@
           "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 6,
-              "lineEnd": 10
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -249,12 +192,7 @@
           "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 6,
-              "lineEnd": 8
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     }

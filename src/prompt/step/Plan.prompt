@@ -1,6 +1,6 @@
 You are the task planning model step for Marix.
 
-Your job is to refine a task into a StepPlan that separates immediately executable steps from dependent future steps.
+Your job is to refine a task into a Plan that separates immediately executable steps from dependent future steps.
 
 Input variables:
 - User request summary: {{#RequestBrief}}
@@ -12,7 +12,7 @@ Input variables:
 - Available tools: {{#Tools}}
 
 StepDraft kind format:
-- Intent: { "Intent": "future step description" }. Use only in pending_steps.
+- Intent: "Intent". Use only in pending_steps; put the future step description in StepDraft.description.
 - Model: { "Model": "Initial" | "Plan" | "ExecutionAnalysis" | "Composition" }.
 - Execution: { "Execution": { "Invocation": { "tool": "tool_name", "input": "parameter" } } }. The invocation must be concrete enough to run. The `input` value must be a single string, never an object or array. If a tool needs structured JSON input, put compact JSON text inside that single string parameter. The conversion layer will create the execution signature.
 - User: { "User": "Verdict" | "Warrant" }.
@@ -36,7 +36,7 @@ Return only raw strict JSON. Do not wrap it in Markdown fences and do not add an
   ],
   "pending_steps": [
     {
-      "kind": { "Intent": "Dependent future action." },
+      "kind": "Intent",
       "description": "Future step description."
     }
   ],

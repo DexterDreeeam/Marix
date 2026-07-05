@@ -3,9 +3,12 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent crate namespace for model/session/task/prompt orchestration. It carries host System metadata through SessionContext from preview handling into initial prompt rendering, routes all SessionEvent traffic through Session before client/host/task dispatch, and lets Task send task/step events through the local session channel while step and execution helpers are split into private task module files.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent crate namespace for model/session/task/prompt/step orchestration. It carries host System metadata through SessionContext from preview handling into initial prompt rendering, routes all SessionEvent traffic through Session before client/host/task dispatch, re-exports the top-level step::Step runtime type, and lets Task parse Plan output, store (Plan, StepSignature list) records in TaskState::plan_list, reject unit Intent steps, enforce a ten-step TaskState::step_count limit, and assign authoritative step numbers.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "lib.rs"
+  ],
   "childModules": [
     {
       "path": "src/agent/model",
@@ -23,9 +26,14 @@
       "purpose": "Owns Session startup/routing behavior, the local task event worker/channel, total route_session_event dispatch policy, and SessionContext storage for host System metadata, task previews, and tool previews."
     },
     {
+      "path": "src/agent/step",
+      "name": "step",
+      "purpose": "Owns the top-level agent runtime Step type re-exported by lib.rs and consumed by task runtime state and step execution helpers."
+    },
+    {
       "path": "src/agent/task",
       "name": "task",
-      "purpose": "Owns task runtime state that sends SessionEvents through session_tx, exposes sender/preview interfaces, and splits private step/execution routing into task_step.rs and task_execution.rs while continuing concrete ready steps parsed from StepPlan completions."
+      "purpose": "Owns task runtime state that imports the top-level Step type, sends SessionEvents through session_tx, parses Plan output with Plan::parse, stores parsed plans in plan_list, rejects unit Intent steps before insertion, fails new steps once the ten-step limit is reached, assigns step.signature.step_no in run_step, and splits private step/execution routing into task_step.rs and task_execution.rs."
     }
   ],
   "elements": [

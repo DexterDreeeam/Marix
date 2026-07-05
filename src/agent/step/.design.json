@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/agent/step",
+    "name": "step",
+    "purpose": "Owns the agent runtime Step type as a top-level agent module. Step stores protocol step identity, current status, and update sequencing state used by task execution.",
+    "changeStatus": "added"
+  },
+  "added": [
+    "."
+  ],
+  "renamed": [
+    "step.rs"
+  ],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "Step",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "renamed",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/step/step.rs",
+          "lineStart": 7,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/step/step.rs",
+          "lineStart": 13,
+          "lineEnd": 21,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 13,
+              "lineEnd": 21
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

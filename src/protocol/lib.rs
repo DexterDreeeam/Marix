@@ -1,6 +1,7 @@
 pub mod execution;
 pub mod external;
 pub mod message;
+pub mod plan;
 pub mod session;
 pub mod signature;
 pub mod step;
@@ -11,11 +12,12 @@ pub use execution::{
     ExeId, ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, ExecutionUpdate,
 };
 pub use message::SessionMessage;
+pub use plan::{Plan, PlanSignature};
 pub use session::SessionEvent;
 pub use signature::Signature;
 pub use step::{
-    ExecutionStepKind, ModelStepKind, StepDraft, StepEvent, StepKind, StepPlan, StepPreview,
-    StepResult, StepSignature, StepStatus, UserStepKind,
+    ExecutionStepKind, ModelStepKind, StepDraft, StepEvent, StepKind, StepPreview, StepResult,
+    StepSignature, StepStatus, UserStepKind,
 };
 pub use task::{
     TaskEvent, TaskId, TaskPreview, TaskRequestBrief, TaskResult, TaskSignature, TaskStatus,

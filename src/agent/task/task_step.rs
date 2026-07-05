@@ -3,13 +3,14 @@ use std::sync::atomic::Ordering;
 use std::thread;
 
 use marix_protocol::{
-    ModelStepKind, SessionEvent, StepEvent, StepKind, StepPlan, StepResult, StepSignature,
+    ModelStepKind, Plan, SessionEvent, StepEvent, StepKind, StepResult, StepSignature,
 };
 
 use crate::model::{ModelRequest, ModelResponse};
 use crate::prompt::{InitialPrompt, Prompt};
 use crate::session::SessionContext;
-use crate::task::{Step, Task, TaskState};
+use crate::step::Step;
+use crate::task::{Task, TaskState};
 
 impl Task {
     pub(super) fn route_step_event(
@@ -19,28 +20,57 @@ impl Task {
     ) {
         if let StepEvent::Complete { result, .. } = event {
             state.steps.complete(signature.step_no);
-            if let Ok(plan) = StepPlan::parse(&result.content) {
-                Self::run_ready_steps(state, signature.step_no + 1, plan);
+            if let Ok(plan) = Plan::parse(&result.content) {
+                let mut signatures = Vec::new();
+                for (index, draft) in plan.ready_steps.iter().cloned().enumerate() {
+                    let step = Step::new(StepSignature::new(
+                        state.signature.clone(),
+                        index,
+                        draft.description,
+                        draft.kind,
+                    ));
+                    signatures.push(step.signature.clone());
+                    Self::run_step(Arc::clone(&state), step);
+                }
+                state
+                    .plan_list
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner())
+                    .push((plan, signatures));
             }
         }
     }
 
-    pub(super) fn run_step(state: Arc<TaskState>, step: Step) {
-        state
-            .steps
-            .insert_or_update(step.signature.step_no, step.clone());
-        thread::spawn(move || {
-            if matches!(step.signature.kind, StepKind::Intent(_)) {
-                Self::send_step_event(
-                    &state,
-                    &step.signature,
-                    StepEvent::Fail {
-                        result: StepResult {
-                            content: "intent step is not executable".to_owned(),
-                        },
+    pub(super) fn run_step(state: Arc<TaskState>, mut step: Step) {
+        if matches!(step.signature.kind, StepKind::Intent) {
+            Self::send_step_event(
+                &state,
+                &step.signature,
+                StepEvent::Fail {
+                    result: StepResult {
+                        content: "intent step is not executable".to_owned(),
                     },
-                );
-            } else if matches!(step.signature.kind, StepKind::Model(_)) {
+                },
+            );
+            return;
+        }
+        if state.step_count.load(Ordering::Relaxed) >= 10 {
+            Self::send_step_event(
+                &state,
+                &step.signature,
+                StepEvent::Fail {
+                    result: StepResult {
+                        content: "task step limit exceeded".to_owned(),
+                    },
+                },
+            );
+            return;
+        }
+        let step_no = state.step_count.fetch_add(1, Ordering::Relaxed);
+        step.signature.step_no = step_no;
+        state.steps.insert_or_update(step_no, step.clone());
+        thread::spawn(move || {
+            if matches!(step.signature.kind, StepKind::Model(_)) {
                 Self::execute_model_step(&state, step);
             } else {
                 Self::send_step_event(
@@ -127,7 +157,9 @@ impl Task {
     }
 
     pub(super) fn send_step_event(state: &TaskState, signature: &StepSignature, event: StepEvent) {
-        Self::send_event(state, SessionEvent::Step(signature.clone(), event));
+        let _ = state
+            .session_tx
+            .send(SessionEvent::Step(signature.clone(), event));
     }
 
     pub(super) fn model_step_prompt(state: &TaskState, step: &Step) -> String {
@@ -147,18 +179,6 @@ impl Task {
                 InitialPrompt::new(state.signature.name.clone(), session_context).prompt()
             }
             _ => state.signature.name.clone(),
-        }
-    }
-
-    fn run_ready_steps(state: Arc<TaskState>, first_step_no: usize, plan: StepPlan) {
-        for (index, draft) in plan.ready_steps.into_iter().enumerate() {
-            let step = Step::new(StepSignature::new(
-                state.signature.clone(),
-                first_step_no + index,
-                draft.description,
-                draft.kind,
-            ));
-            Self::run_step(Arc::clone(&state), step);
         }
     }
 }

@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/protocol/plan",
+    "name": "plan",
+    "purpose": "Owns task plan extraction protocol contracts. Plan is the dedicated planning output type, parses model output JSON with Plan::parse, and pairs with PlanSignature UUID identities for persisted or tracked plan records.",
+    "changeStatus": "added"
+  },
+  "added": [
+    ".",
+    "mod.rs",
+    "signature.rs"
+  ],
+  "renamed": [
+    "plan.rs"
+  ],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "Plan",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "renamed",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/plan/plan.rs",
+          "lineStart": 4,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 5
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/protocol/plan/plan.rs",
+          "lineStart": 12,
+          "lineEnd": 16,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PlanSignature",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/plan/signature.rs",
+          "lineStart": 4,
+          "lineEnd": 7,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 4,
+              "lineEnd": 7
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/plan/signature.rs",
+          "lineStart": 9,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 15
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/plan/signature.rs",
+          "lineStart": 17,
+          "lineEnd": 21,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 21
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

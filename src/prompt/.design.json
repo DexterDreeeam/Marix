@@ -3,14 +3,17 @@
   "module": {
     "path": "src/prompt",
     "name": "prompt",
-    "purpose": "Owns prompt templates used by model-facing steps, including raw strict JSON response requirements, no-Markdown-fence output constraints, single-string execution invocation input guidance, and Initial input rendering that keeps System separate from previous-task Context.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns prompt templates used by model-facing steps, including raw strict JSON response requirements, no-Markdown-fence output constraints, single-string execution invocation input guidance, Plan prompt wording that names the protocol Plan directly, and step prompt examples that serialize Intent as the unit string \"Intent\" while placing intent detail in StepDraft.description.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/prompt/step",
       "name": "step",
-      "purpose": "Owns step model prompt templates; Initial declares System on its own input line and uses {{#IF condition | accepted | rejected}} only for previous-task Context."
+      "purpose": "Owns step model prompt templates; Plan wording names the protocol Plan directly, and Initial, Plan, and ExecutionAnalysis use unit-string Intent examples with StepDraft.description for pending-intent text."
     }
   ],
   "elements": []

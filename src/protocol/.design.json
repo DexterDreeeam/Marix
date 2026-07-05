@@ -3,9 +3,13 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, step, execution, tool, and shared signature protocol contracts. StepPlan now includes a serde_json parse helper so agent task routing can continue ready steps from completed model-step output.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, plan, step, execution, tool, and shared signature protocol contracts. lib.rs and mod.rs expose plan::{Plan, PlanSignature}; step exports no longer include the planning output type, and StepKind::Intent is a unit variant whose text belongs in StepDraft.description.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "lib.rs",
+    "mod.rs"
+  ],
   "childModules": [
     {
       "path": "src/protocol/task",
@@ -13,9 +17,14 @@
       "purpose": "Owns task protocol contracts including task identifiers, events, request previews, signature-free TaskPreview request/result snapshots, TaskSignature values that implement Signature via their TaskId UUID, results, and statuses."
     },
     {
+      "path": "src/protocol/plan",
+      "name": "plan",
+      "purpose": "Owns Plan parsing and PlanSignature identity contracts for extracted model task plans."
+    },
+    {
       "path": "src/protocol/step",
       "name": "step",
-      "purpose": "Owns step protocol contracts including executable drafts, planning output with StepPlan::parse, kinds, StepSignature values that implement Signature with deterministic uuid v5 ids derived from task id plus step_no, events, results, statuses, and previews."
+      "purpose": "Owns step protocol contracts including executable drafts, unit Intent step kinds whose descriptions live on StepDraft, StepSignature values, events, results, statuses, and previews; planning output moved to the plan module."
     },
     {
       "path": "src/protocol/execution",
@@ -74,12 +83,7 @@
           "lineStart": 1,
           "lineEnd": 3,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 1,
-              "lineEnd": 3
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
