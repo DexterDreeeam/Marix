@@ -4,7 +4,7 @@
     "path": "src/protocol",
     "name": "protocol",
     "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, plan, answer, step, execution, tool, and shared signature protocol contracts. lib.rs and mod.rs expose plan::{Answer, Plan, PlanSignature}; Answer and Plan parse completed model-step JSON into answer-only or follow-up planning outputs.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -84,9 +84,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "lib.rs",
-    "mod.rs"
   ]
 }

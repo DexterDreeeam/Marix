@@ -4,14 +4,14 @@
     "path": "src/protocol/plan",
     "name": "plan",
     "purpose": "Owns task plan and answer extraction protocol contracts. Answer is the dedicated answer-only model output type with Answer::parse, Plan is the planning output type with description, run_steps, pending_steps, and expected_result fields plus Plan::parse, and PlanSignature UUID identities support persisted or tracked plan records.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
     {
       "name": "Answer",
       "type": "struct",
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/answer.rs",
@@ -102,11 +102,5 @@
         }
       ]
     }
-  ],
-  "added": [
-    "answer.rs"
-  ],
-  "modified": [
-    "mod.rs"
   ]
 }
