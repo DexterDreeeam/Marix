@@ -4,20 +4,15 @@
     "path": "src/agent/task",
     "name": "task",
     "purpose": "Owns agent task runtime state. Task keeps public construction, preview, worker routing, and direct session_tx event sending in task.rs; TaskState stores the original user request, step_count, steps, and a PlanQueue-backed plan_queue. task_step.rs creates the initial Plan from user_request, inserts plans into PlanQueue with generated StepSignatures, runs plans from queued signatures, records completed steps through PlanQueue::complete_step, and only parses/starts a follow-up Plan after every stored step in the completed plan has finished.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "task.rs",
-    "task_state.rs",
-    "task_step.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
@@ -118,7 +113,7 @@
       "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task_state.rs",

@@ -4,18 +4,15 @@
     "path": "src/agent/plan",
     "name": "plan",
     "purpose": "Owns the agent-side plan queue module: PlanRecord stores a PlanSignature, Plan, run StepSignatures, and remaining-step counter; PlanQueue keeps PlanRecords in insertion order behind a mutex for insertion, lookup, listing, and completion tracking; PlanError reports duplicate plans, missing plans, and missing steps.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "."
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "PlanQueue",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/plan/queue.rs",
@@ -49,7 +46,7 @@
       "name": "PlanRecord",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/plan/record.rs",
@@ -83,7 +80,7 @@
       "name": "PlanError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/plan/error.rs",

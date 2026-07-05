@@ -4,7 +4,7 @@
     "path": "src/prompt/step",
     "name": "step",
     "purpose": "Owns step model prompt templates for Initial, Plan, ExecutionAnalysis, and Composition. The model-facing step format is now named Step kind format/reminder, no longer exposes Model step kinds, Plan-shaped output uses run_steps, Initial can return an answer-only JSON object when no step is needed, and examples use concrete Execution or User step kinds.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "InitialPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Initial.prompt",
@@ -50,7 +50,7 @@
       "name": "PlanPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Plan.prompt",
@@ -83,7 +83,7 @@
       "name": "ExecutionAnalysisPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/ExecutionAnalysis.prompt",
@@ -116,7 +116,7 @@
       "name": "CompositionPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Composition.prompt",
@@ -133,11 +133,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "Composition.prompt",
-    "ExecutionAnalysis.prompt",
-    "Initial.prompt",
-    "Plan.prompt"
   ]
 }

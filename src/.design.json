@@ -4,11 +4,8 @@
     "path": "src",
     "name": "src",
     "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; the agent crate now includes an agent-side plan queue module and TaskState integration that stores PlanQueue-backed plan records so follow-up plans begin only after all stored steps for a plan complete.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "."
-  ],
   "childModules": [
     {
       "path": "src/agent",
