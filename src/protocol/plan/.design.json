@@ -4,23 +4,15 @@
     "path": "src/protocol/plan",
     "name": "plan",
     "purpose": "Owns task plan extraction protocol contracts. Plan is the dedicated planning output type, parses model output JSON with Plan::parse, and pairs with PlanSignature UUID identities for persisted or tracked plan records.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    ".",
-    "mod.rs",
-    "signature.rs"
-  ],
-  "renamed": [
-    "plan.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "Plan",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/plan.rs",
@@ -54,7 +46,7 @@
       "name": "PlanSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/signature.rs",

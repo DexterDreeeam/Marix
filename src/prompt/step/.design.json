@@ -4,20 +4,15 @@
     "path": "src/prompt/step",
     "name": "step",
     "purpose": "Owns step model prompt templates for Initial, Plan, ExecutionAnalysis, and Composition. The Plan prompt job wording now names the protocol Plan directly, and Initial, Plan, and ExecutionAnalysis show Intent as the unit JSON string \"Intent\" with future or vague action text in StepDraft.description.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "Initial.prompt",
-    "Plan.prompt",
-    "ExecutionAnalysis.prompt"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "InitialPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Initial.prompt",
@@ -42,7 +37,7 @@
       "name": "PlanPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Plan.prompt",
@@ -71,7 +66,7 @@
       "name": "ExecutionAnalysisPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/ExecutionAnalysis.prompt",

@@ -4,11 +4,8 @@
     "path": "src",
     "name": "src",
     "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; protocol now owns a dedicated plan module exporting Plan and PlanSignature, step intent kinds are unit variants whose wording lives in StepDraft.description, Plan prompt wording names the protocol Plan directly, prompt templates emit \"Intent\" unit strings, and agent task runtime records parsed Plan values with generated StepSignature lists in TaskState::plan_list.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "."
-  ],
   "childModules": [
     {
       "path": "src/agent",

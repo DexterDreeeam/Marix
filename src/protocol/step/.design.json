@@ -4,15 +4,8 @@
     "path": "src/protocol/step",
     "name": "step",
     "purpose": "Owns step protocol contracts: StepDraft executable drafts whose description carries Intent wording, StepKind with unit Intent plus model/execution/user variants, ModelStepKind phases Initial, Plan, ExecutionAnalysis, and Composition, ExecutionStepKind, UserStepKind, StepSignature with description and deterministic Signature implementation, StepEvent, StepResult, StepStatus, and StepPreview. Planning output moved to src/protocol/plan as Plan.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "kind.rs",
-    "mod.rs"
-  ],
-  "deleted": [
-    "plan.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -35,7 +28,7 @@
       "name": "StepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/kind.rs",

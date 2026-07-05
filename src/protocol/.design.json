@@ -4,12 +4,8 @@
     "path": "src/protocol",
     "name": "protocol",
     "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, plan, step, execution, tool, and shared signature protocol contracts. lib.rs and mod.rs expose plan::{Plan, PlanSignature}; step exports no longer include the planning output type, and StepKind::Intent is a unit variant whose text belongs in StepDraft.description.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "lib.rs",
-    "mod.rs"
-  ],
   "childModules": [
     {
       "path": "src/protocol/task",

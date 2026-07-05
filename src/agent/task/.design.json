@@ -4,24 +4,15 @@
     "path": "src/agent/task",
     "name": "task",
     "purpose": "Owns agent task runtime state. Task keeps public construction, preview, worker routing, and direct session_tx event sending in task.rs via send_status_event and in task_step.rs via send_step_event, imports Step from the top-level step module, tracks inserted steps with TaskState::step_count, stores parsed Plan records with their StepSignature list in TaskState::plan_list, keeps private step behavior in task_step.rs, and keeps execution routing in task_execution.rs. route_step_event parses Plan output with Plan::parse, runs ready steps, and records (plan, signatures); run_step rejects unit Intent steps before insertion, enforces the ten-step limit, and assigns authoritative step numbers.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "mod.rs",
-    "task.rs",
-    "task_state.rs",
-    "task_step.rs"
-  ],
-  "deleted": [
-    "step.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
@@ -100,7 +91,7 @@
       "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task_state.rs",
