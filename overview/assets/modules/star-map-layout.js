@@ -3,8 +3,8 @@ const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 // Center->module edges fan out from the scope center as spokes. They are
 // treated as repulsion corridors so exposed element nodes never land on top of
 // a spoke and the arrows never cut through element shapes/labels.
-const EDGE_CORRIDOR_MARGIN = 10;
-const EDGE_CORRIDOR_STRENGTH = 0.45;
+const EDGE_CORRIDOR_MARGIN = 4;
+const EDGE_CORRIDOR_STRENGTH = 0.3;
 
 function layoutScopeStarMap(scopeNode, options) {
   const {
@@ -180,7 +180,8 @@ function layoutWithD3ForceSimulation(items, moduleRadius, moduleObstacles, edges
     targetX: item.x,
     targetY: item.y,
     corridorId: getExposedElementId(item),
-    collisionRadius: getExposedCorridorRadius(item, options)
+    collisionRadius: getExposedCorridorRadius(item, options),
+    edgeRadius: getEdgeCorridorRadius(item)
   }));
   const obstacles = (moduleObstacles || []).map(item => ({
     obstacle: true,
@@ -197,8 +198,8 @@ function layoutWithD3ForceSimulation(items, moduleRadius, moduleObstacles, edges
     .velocityDecay(0.52)
     .force("x", window.d3.forceX(d => d.obstacle ? d.x : d.targetX).strength(d => d.obstacle ? 1 : 0.24))
     .force("y", window.d3.forceY(d => d.obstacle ? d.y : d.targetY).strength(d => d.obstacle ? 1 : 0.24))
-    .force("collide", window.d3.forceCollide(d => d.collisionRadius).strength(0.82).iterations(3))
-    .force("edgeCorridor", createEdgeCorridorForce(edges, EDGE_CORRIDOR_STRENGTH, EDGE_CORRIDOR_MARGIN))
+    .force("collide", window.d3.forceCollide(d => d.collisionRadius).strength(0.9).iterations(4))
+    .force("edgeCorridor", createEdgeCorridorForce(edges, EDGE_CORRIDOR_STRENGTH))
     .stop();
 
   for (let i = 0; i < 110; i++) simulation.tick();
@@ -207,7 +208,50 @@ function layoutWithD3ForceSimulation(items, moduleRadius, moduleObstacles, edges
 
 function relaxExposedLayout(items, moduleRadius, moduleObstacles, edges, options) {
   const relaxed = items.map(item => ({ ...item }));
-  for (let iteration = 0; iteration < 18; iteration++) {
+  for (let iteration = 0; iteration < 22; iteration++) {
+    // 1. Gentle, small, best-effort edge-corridor avoidance. Only the element's
+    //    own shape tries to stay off a spoke, and the push is a soft fraction of
+    //    the deficit (never a hard snap), so it can't shove two elements onto the
+    //    same line. Crossing a connecting line occasionally is acceptable.
+    for (let i = 0; i < relaxed.length; i++) {
+      const corridor = getEdgeCorridorRadius(relaxed[i]);
+      for (const edge of edges || []) {
+        const closest = nearestPointOnSegment(relaxed[i].x, relaxed[i].y, edge.ax, edge.ay, edge.bx, edge.by);
+        let dx = relaxed[i].x - closest.x;
+        let dy = relaxed[i].y - closest.y;
+        let distance = Math.hypot(dx, dy);
+        if (distance >= corridor) continue;
+        if (distance < 1e-6) {
+          const length = Math.max(1e-6, Math.hypot(edge.bx - edge.ax, edge.by - edge.ay));
+          const sign = stableRandom(`${getExposedElementId(relaxed[i])}:${edge.id}`) > 0.5 ? 1 : -1;
+          dx = (-(edge.by - edge.ay) / length) * sign;
+          dy = ((edge.bx - edge.ax) / length) * sign;
+          distance = 1;
+        }
+        const push = (corridor - distance) * EDGE_CORRIDOR_STRENGTH;
+        relaxed[i].x += (dx / distance) * push;
+        relaxed[i].y += (dy / distance) * push;
+      }
+    }
+
+    // 2. Keep elements off the module spheres.
+    for (let i = 0; i < relaxed.length; i++) {
+      for (const obstacle of moduleObstacles || []) {
+        const dx = relaxed[i].x - obstacle.x;
+        const dy = relaxed[i].y - obstacle.y;
+        const distanceToObstacle = Math.max(1, Math.hypot(dx, dy));
+        const minDistance = getNodeRadius(obstacle) + getNodeRadius(relaxed[i]) + 42;
+        if (distanceToObstacle < minDistance) {
+          const scale = minDistance / distanceToObstacle;
+          relaxed[i].x = obstacle.x + dx * scale;
+          relaxed[i].y = obstacle.y + dy * scale;
+        }
+      }
+    }
+
+    // 3. Element-element separation runs LAST so it always has the final say:
+    //    two elements must never end up stacked, even if an earlier edge/obstacle
+    //    nudge moved them together. This is the priority constraint.
     for (let i = 0; i < relaxed.length; i++) {
       for (let j = i + 1; j < relaxed.length; j++) {
         const a = relaxed[i];
@@ -234,37 +278,6 @@ function relaxExposedLayout(items, moduleRadius, moduleObstacles, edges, options
             b.y += direction * push;
           }
         }
-      }
-      for (const obstacle of moduleObstacles || []) {
-        const dx = relaxed[i].x - obstacle.x;
-        const dy = relaxed[i].y - obstacle.y;
-        const distanceToObstacle = Math.max(1, Math.hypot(dx, dy));
-        const minDistance = getNodeRadius(obstacle) + getNodeRadius(relaxed[i]) + 42;
-        if (distanceToObstacle < minDistance) {
-          const scale = minDistance / distanceToObstacle;
-          relaxed[i].x = obstacle.x + dx * scale;
-          relaxed[i].y = obstacle.y + dy * scale;
-        }
-      }
-      // Mirror the simulation's edge-corridor avoidance: nudge the element off
-      // the nearest center->module edge segment when it sits inside the corridor.
-      const corridor = getExposedCorridorRadius(relaxed[i], options) + EDGE_CORRIDOR_MARGIN;
-      for (const edge of edges || []) {
-        const closest = nearestPointOnSegment(relaxed[i].x, relaxed[i].y, edge.ax, edge.ay, edge.bx, edge.by);
-        let dx = relaxed[i].x - closest.x;
-        let dy = relaxed[i].y - closest.y;
-        let distance = Math.hypot(dx, dy);
-        if (distance >= corridor) continue;
-        if (distance < 1e-6) {
-          const length = Math.max(1e-6, Math.hypot(edge.bx - edge.ax, edge.by - edge.ay));
-          const sign = stableRandom(`${getExposedElementId(relaxed[i])}:${edge.id}`) > 0.5 ? 1 : -1;
-          dx = (-(edge.by - edge.ay) / length) * sign;
-          dy = ((edge.bx - edge.ax) / length) * sign;
-          distance = 1;
-        }
-        const scale = corridor / distance;
-        relaxed[i].x = closest.x + dx * scale;
-        relaxed[i].y = closest.y + dy * scale;
       }
     }
   }
@@ -311,6 +324,14 @@ function getExposedElementId(item) {
 function getExposedCorridorRadius(item, options) {
   const box = getExposedLabelBox(item, options);
   return Math.max(18, Math.hypot(box.width / 2, box.height / 2) * 0.74 + getNodeRadius(item) + 3);
+}
+
+// Edge avoidance is deliberately gentle: only the element's own shape (not its
+// whole label box) should try to stay off the spokes. Overlapping a connecting
+// line is a minor, acceptable issue, so this radius is small and edge pushes are
+// soft/best-effort. Element-element separation always takes priority.
+function getEdgeCorridorRadius(item) {
+  return getNodeRadius(item) + EDGE_CORRIDOR_MARGIN;
 }
 
 // Build the center->module edge segments (spokes) from the module obstacle set.
@@ -383,13 +404,13 @@ function nearestPointOnSegment(px, py, ax, ay, bx, by) {
 // point on any edge segment if it lies within the element's corridor width.
 // Deterministic: the only tie-break (element exactly on the line) uses
 // stableRandom, never Math.random.
-function createEdgeCorridorForce(edges, strength, margin) {
+function createEdgeCorridorForce(edges, strength) {
   let simNodes = [];
   function force(alpha) {
     if (!edges || edges.length === 0) return;
     for (const node of simNodes) {
       if (node.obstacle) continue;
-      const corridor = node.collisionRadius + margin;
+      const corridor = node.edgeRadius;
       for (const edge of edges) {
         const closest = nearestPointOnSegment(node.x, node.y, edge.ax, edge.ay, edge.bx, edge.by);
         let dx = node.x - closest.x;
