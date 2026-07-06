@@ -4,9 +4,8 @@
     "path": "src/agent/execution",
     "name": "execution",
     "purpose": "Owns agent-side tracking of tool executions. Execution captures one tool execution keyed by its ExecutionSignature with lifecycle status and ordered output chunks, while ExecutionHub owns an Arc<TaskState> and a map of Execution values to route execution events and report per-signature status.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["hub.rs"],
   "childModules": [],
   "elements": [
     {

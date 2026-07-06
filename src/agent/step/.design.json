@@ -4,16 +4,15 @@
     "path": "src/agent/step",
     "name": "step",
     "purpose": "Owns the agent runtime Step type as a top-level agent module. Step holds a shared Arc<TaskState>, protocol step identity, and update sequencing, and now owns task-step routing (route_step_event handling StepEvent::Trigger and StepEvent::Complete, trigger_initial_plan, send_step_event, and send_plan_event), model-prompt rendering, and step/model completion handling; plan execution moved to PlanHub, so Step emits PlanEvent::Trigger instead of running plans directly.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["step.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/step/step.rs",
