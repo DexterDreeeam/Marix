@@ -4,9 +4,8 @@
     "path": "src/protocol/execution",
     "name": "execution",
     "purpose": "Owns execution protocol contracts: ExeId allocation, ExecutionEvent notifications, ExecutionUpdate payloads, ExecutionRequest with signature and typed input, ExecutionSignature construction keyed by a task TaskSignature with map-friendly ordering/hash traits for task execution_map keys, and ExecutionStatus lifecycle states.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["signature.rs"],
   "childModules": [],
   "elements": [
     {
@@ -90,7 +89,7 @@
       "name": "ExecutionSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/signature.rs",

@@ -4,9 +4,8 @@
     "path": "src/agent",
     "name": "agent",
     "purpose": "Agent crate namespace for model/session/task/prompt/step/execution orchestration and the plan queue module. Step now owns task-step routing, a new execution module tracks tool executions keyed by execution signature, and task runtime maps execution signatures to step signatures so execution success can complete steps and trigger follow-up execution-analysis model plans.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["lib.rs"],
   "childModules": [
     {
       "path": "src/agent/execution",

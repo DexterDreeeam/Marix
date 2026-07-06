@@ -4,9 +4,8 @@
     "path": "src/protocol/task",
     "name": "task",
     "purpose": "Owns task protocol contracts: TaskId allocation, TaskEvent notifications, TaskRequestBrief input, TaskPreview request/result snapshots without embedded signatures, TaskResult output, TaskSignature construction that derives ordering and hashing so it can key execution and plan maps and implements the shared Signature trait by exposing its task UUID, and TaskStatus lifecycle states.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["signature.rs"],
   "childModules": [],
   "elements": [
     {
@@ -111,7 +110,7 @@
       "name": "TaskSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/signature.rs",

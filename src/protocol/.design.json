@@ -4,9 +4,8 @@
     "path": "src/protocol",
     "name": "protocol",
     "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, plan, answer, step, execution, tool, and shared signature protocol contracts. TaskSignature derives ordering and hashing so ExecutionSignature and PlanSignature can key runtime maps, and the plan module now re-exports PlanEvent alongside Plan and PlanSignature.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["mod.rs", "lib.rs"],
   "childModules": [
     {
       "path": "src/protocol/task",

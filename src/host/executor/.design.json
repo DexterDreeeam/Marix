@@ -4,9 +4,8 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Owns host-side tool registry, tool process launching, and execution orchestration. Executor sends preview responses through send_preview_event, reports unknown-tool failures through send_failed_event, and includes System::new host metadata with current ToolPreview entries for the agent session.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["mod.rs"],
   "childModules": [
     {
       "path": "src/host/executor/execution",
