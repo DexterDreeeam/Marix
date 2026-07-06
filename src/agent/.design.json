@@ -4,9 +4,8 @@
     "path": "src/agent",
     "name": "agent",
     "purpose": "Agent crate namespace for model/session/task/prompt/step/execution orchestration and the plan hub module. Step owns task-step routing, emits plan events, and builds the execution-analysis follow-up plan when an execution completes; PlanHub routes plan events and runs plans by reserving step-number blocks and emitting StepEvent::Trigger; the execution module's ExecutionHub tracks tool executions keyed by execution signature, accumulates their output, and emits StepEvent::Complete back to the step layer on completion; and TaskState now owns that ExecutionHub instead of an execution-signature-to-step map.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["main.rs"],
   "childModules": [
     {
       "path": "src/agent/execution",
@@ -49,7 +48,7 @@
       "name": "marix-agent",
       "type": "bin",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/main.rs",
