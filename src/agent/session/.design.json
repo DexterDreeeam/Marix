@@ -4,10 +4,8 @@
     "path": "src/agent/session",
     "name": "session",
     "purpose": "Owns the agent session runtime, total SessionEvent routing entrypoint, local task-originated event channel, shared session preview context with SessionContext::snapshot for prompt rendering, and task creation. route_session_event routes task, step, execution, and plan events back to the owning Task by task id through the task signature and then calls send_client_event once; send_client_event applies a matches! filter that forwards only Task Status/Preview/CreateFailed and all Step events to the client. Host preview queries build a preview TaskSignature.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["mod.rs"],
-  "renamed": ["context.rs", "state.rs"],
   "childModules": [],
   "elements": [
     {

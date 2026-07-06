@@ -4,16 +4,15 @@
     "path": "src/agent/execution",
     "name": "execution",
     "purpose": "Owns agent-side tracking of tool executions. Execution captures one tool execution keyed by its ExecutionSignature, records the spawning step, accumulates ordered output chunks, and finalizes against the expected update count so out-of-order or early Succeed events still complete correctly. ExecutionHub holds a Mutex<HashMap<ExecutionSignature, Execution>>, spawns execution steps and emits ExecutionEvent::Evoke, routes Update/Succeed(count) events into the tracked Execution, emits StepEvent::Complete back to the step layer on completion, and reports per-signature status.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["execution.rs", "hub.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Execution",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/execution/execution.rs",
@@ -77,7 +76,7 @@
       "name": "ExecutionHub",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/execution/hub.rs",
