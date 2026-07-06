@@ -4,8 +4,9 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Owns host-side tool registry, tool process launching, and execution orchestration. Executor sends preview responses through send_preview_event, reports unknown-tool failures through send_failed_event, and includes System::new host metadata with current ToolPreview entries for the agent session.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["executor.rs", "registry.rs"],
   "childModules": [
     {
       "path": "src/host/executor/execution",
@@ -18,7 +19,7 @@
       "name": "Executor",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/executor.rs",
@@ -34,38 +35,24 @@
           "lineEnd": 39,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 34,
-              "lineEnd": 34
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/executor.rs",
           "lineStart": 43,
-          "lineEnd": 97,
+          "lineEnd": 105,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 91,
-              "lineEnd": 91
+              "lineStart": 48,
+              "lineEnd": 51
+            },
+            {
+              "lineStart": 58,
+              "lineEnd": 61
             }
           ],
-          "modifiedLines": [
-            {
-              "lineStart": 49,
-              "lineEnd": 49
-            },
-            {
-              "lineStart": 67,
-              "lineEnd": 67
-            },
-            {
-              "lineStart": 81,
-              "lineEnd": 81
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -89,7 +76,7 @@
       "name": "ToolRegistry",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/registry.rs",
@@ -102,9 +89,18 @@
         {
           "sourcePath": "src/host/executor/registry.rs",
           "lineStart": 20,
-          "lineEnd": 66,
+          "lineEnd": 75,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 28,
+              "lineEnd": 31
+            },
+            {
+              "lineStart": 44,
+              "lineEnd": 48
+            }
+          ],
           "modifiedLines": []
         }
       ]

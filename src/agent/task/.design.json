@@ -4,42 +4,56 @@
     "path": "src/agent/task",
     "name": "task",
     "purpose": "Owns agent task runtime. Task drives the per-task worker thread: it sends the initial status, triggers the initial plan through Step, routes task and step events, forwards execution events to execution_hub.route_event, and routes plan events to plan_hub.route_event. TaskState (state.rs) holds the session context, plan signature, user request, model backend, session event sender, plan_hub, an ExecutionHub that owns execution tracking, a monotonic step_count allocator that reserves contiguous step-number blocks, and the step WorkQueue, plus a manual Debug impl. Execution step spawning and event routing live in ExecutionHub, and execution-analysis plan triggering lives in Step.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["task.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 15,
-          "lineEnd": 19,
+          "lineStart": 17,
+          "lineEnd": 21,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 21,
-          "lineEnd": 61,
+          "lineStart": 23,
+          "lineEnd": 63,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 65,
-          "lineEnd": 116,
+          "lineStart": 67,
+          "lineEnd": 123,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 78,
+              "lineEnd": 78
+            },
+            {
+              "lineStart": 107,
+              "lineEnd": 107
+            },
+            {
+              "lineStart": 112,
+              "lineEnd": 112
+            }
+          ],
           "modifiedLines": [
             {
-              "lineStart": 90,
-              "lineEnd": 90
+              "lineStart": 111,
+              "lineEnd": 111
             }
           ]
         }

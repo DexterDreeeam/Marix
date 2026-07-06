@@ -1,5 +1,5 @@
 use crate::executor::Tool;
-use marix_common::Config;
+use marix_common::{Config, Logger};
 use marix_protocol::ToolPreview;
 
 /// Error produced while registering a tool into a [`ToolRegistry`].
@@ -25,6 +25,10 @@ impl ToolRegistry {
         let config =
             Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
         let Ok(entries) = std::fs::read_dir(&config.tool.directory) else {
+            let _ = Logger::warning(format!(
+                "tool directory unavailable: {}",
+                config.tool.directory
+            ));
             return registry;
         };
         for entry in entries.flatten() {
@@ -37,6 +41,11 @@ impl ToolRegistry {
                 let _ = registry.register(tool);
             }
         }
+        let _ = Logger::log(format!(
+            "loaded {} tool(s) from {}",
+            registry.tools.len(),
+            config.tool.directory
+        ));
         registry
     }
 

@@ -3,7 +3,7 @@ use std::io::Read;
 use std::thread;
 
 use marix_common::external::*;
-use marix_common::{Config, DeepseekConfig, Receiver, Sender, build_channel};
+use marix_common::{Config, DeepseekConfig, Logger, Receiver, Sender, build_channel};
 
 use super::backend::ModelBackendImpl;
 use super::{ModelBackendError, ModelRequest, ModelResponse};
@@ -34,6 +34,10 @@ impl ModelBackendImpl for DeepseekBackend {
         &mut self,
         request: ModelRequest,
     ) -> Result<Receiver<ModelResponse>, ModelBackendError> {
+        let _ = Logger::debug(format!(
+            "deepseek request: model '{}'",
+            self.config.model.trim()
+        ));
         let payload = serde_json::json!({
             "model": self.config.model.trim(),
             "messages": [
@@ -53,12 +57,14 @@ impl ModelBackendImpl for DeepseekBackend {
         let status = response.status();
         if !status.is_success() {
             let body = response.text()?;
+            let _ = Logger::error(format!("deepseek request failed: {status}"));
             return Err(ModelBackendError::RequestFailed(format!(
                 "Deepseek request failed with {status}: {body}"
             )));
         }
 
         let (sender, receiver) = build_channel();
+        let _ = Logger::debug("deepseek stream established");
         thread::spawn(move || {
             if let Err(error) = Self::stream_response(&mut response, &sender) {
                 let _ = sender.send(ModelResponse::Failed(error));

@@ -4,7 +4,7 @@ use std::sync::OnceLock;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
 
-use marix_common::{Config, NetReceiver, SharedNetSender, connect_channel};
+use marix_common::{Config, Logger, NetReceiver, SharedNetSender, connect_channel};
 use marix_protocol::{SessionEvent, SessionMessage};
 
 use crate::executor::Executor;
@@ -58,6 +58,7 @@ impl HostSession {
                 let Ok((net_tx, net_rx)) = connect_channel::<SessionMessage>(address) else {
                     continue;
                 };
+                let _ = Logger::log("host connected to agent core");
                 *agent_tx.lock().unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
                 Self::run_worker(net_rx, &mut executor, &shutdown);
             }

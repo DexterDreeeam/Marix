@@ -22,6 +22,7 @@ fn main() {
         eprintln!("failed to connect telemetry logger: {error}");
         std::process::exit(1);
     }
+    let _ = Logger::log(format!("host '{}' connected to telemetry", config.name));
     let _session = HostSession::new(config.name);
     loop {
         std::thread::park();

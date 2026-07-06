@@ -4,8 +4,9 @@
     "path": "src/agent/model",
     "name": "model",
     "purpose": "Owns the agent model backend abstraction. backend.rs defines the public ModelBackend trait, the crate-internal ModelBackendImpl trait, and a blanket impl that delegates request directly to ModelBackendImpl::request; backend_deepseek.rs implements DeepseekBackend as a config-driven streaming Deepseek chat-completions backend over reqwest with SSE parsing and a user-role single-message payload that preserves request.prompt as content; error.rs defines ModelBackendError with From conversions for io, serde_json, and reqwest errors plus a Display impl. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["backend_deepseek.rs"],
   "childModules": [],
   "elements": [
     {
@@ -94,7 +95,7 @@
       "name": "DeepseekBackend",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/model/backend_deepseek.rs",
@@ -115,28 +116,36 @@
         {
           "sourcePath": "src/agent/model/backend_deepseek.rs",
           "lineStart": 32,
-          "lineEnd": 70,
+          "lineEnd": 76,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 33,
-              "lineEnd": 33
+              "lineStart": 37,
+              "lineEnd": 40
+            },
+            {
+              "lineStart": 60,
+              "lineEnd": 60
+            },
+            {
+              "lineStart": 67,
+              "lineEnd": 67
             }
-          ]
+          ],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/model/backend_deepseek.rs",
-          "lineStart": 72,
-          "lineEnd": 155,
+          "lineStart": 78,
+          "lineEnd": 161,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/model/backend_deepseek.rs",
-          "lineStart": 157,
-          "lineEnd": 166,
+          "lineStart": 163,
+          "lineEnd": 172,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

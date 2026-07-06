@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::sync::Mutex;
 
+use marix_common::Logger;
 use marix_protocol::{
     ExecutionEvent, ExecutionSignature, ExecutionStatus, ExecutionStepKind, SessionEvent,
     StepEvent, StepKind, StepResult,
@@ -27,6 +28,7 @@ impl ExecutionHub {
         let request = match &step.signature.kind {
             StepKind::Execution(ExecutionStepKind::Invocation(request)) => request.clone(),
             _ => {
+                let _ = Logger::warning("execution step kind not supported");
                 Step::send_step_event(
                     state,
                     &step.signature,
@@ -44,6 +46,10 @@ impl ExecutionHub {
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .insert(request.signature.clone(), execution);
+        let _ = Logger::debug(format!(
+            "evoking execution: tool {}",
+            request.signature.name
+        ));
         let _ = state.session_tx.send(SessionEvent::Execution(
             request.signature.clone(),
             ExecutionEvent::Evoke(request),
@@ -88,6 +94,7 @@ impl ExecutionHub {
         else {
             return;
         };
+        let _ = Logger::debug(format!("execution {} completed", signature.exe_id.0));
         Step::send_step_event(
             state,
             &step_signature,

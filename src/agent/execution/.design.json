@@ -4,8 +4,9 @@
     "path": "src/agent/execution",
     "name": "execution",
     "purpose": "Owns agent-side tracking of tool executions. Execution captures one tool execution keyed by its ExecutionSignature, records the spawning step, accumulates ordered output chunks, and finalizes against the expected update count so out-of-order or early Succeed events still complete correctly. ExecutionHub holds a Mutex<HashMap<ExecutionSignature, Execution>>, spawns execution steps and emits ExecutionEvent::Evoke, routes Update/Succeed(count) events into the tracked Execution, emits StepEvent::Complete back to the step layer on completion, and reports per-signature status.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["hub.rs"],
   "childModules": [],
   "elements": [
     {
@@ -76,46 +77,36 @@
       "name": "ExecutionHub",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/execution/hub.rs",
-          "lineStart": 14,
-          "lineEnd": 16,
+          "lineStart": 15,
+          "lineEnd": 17,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 15,
-              "lineEnd": 15
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/execution/hub.rs",
-          "lineStart": 18,
-          "lineEnd": 110,
+          "lineStart": 19,
+          "lineEnd": 117,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 25,
-              "lineEnd": 99
+              "lineStart": 31,
+              "lineEnd": 31
             },
             {
-              "lineStart": 104,
-              "lineEnd": 105
+              "lineStart": 49,
+              "lineEnd": 52
+            },
+            {
+              "lineStart": 97,
+              "lineEnd": 97
             }
           ],
-          "modifiedLines": [
-            {
-              "lineStart": 19,
-              "lineEnd": 19
-            },
-            {
-              "lineStart": 21,
-              "lineEnd": 21
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     }

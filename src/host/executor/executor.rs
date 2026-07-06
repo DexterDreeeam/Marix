@@ -1,4 +1,4 @@
-use marix_common::{SharedNetSender, System, WorkQueue};
+use marix_common::{Logger, SharedNetSender, System, WorkQueue};
 use marix_protocol::{
     ExeId, ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, SessionEvent,
     SessionMessage, ToolPreview,
@@ -45,12 +45,20 @@ impl Executor {
         let tool = match self.registry.get(&request.signature.name) {
             Some(tool) => tool.clone(),
             None => {
+                let _ = Logger::error(format!(
+                    "unknown tool requested: {}",
+                    request.signature.name
+                ));
                 let reason = format!("unknown tool: {}", request.signature.name);
                 self.send_failed_event(&request.signature, reason);
                 return;
             }
         };
         let exe_id = request.signature.exe_id.clone();
+        let _ = Logger::log(format!(
+            "starting execution {} for tool {}",
+            exe_id.0, request.signature.name
+        ));
         let runtime = ExecutionRuntime::new(tool, request, self.agent_tx.clone());
         self.executions.insert(exe_id, runtime);
     }

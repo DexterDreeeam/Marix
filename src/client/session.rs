@@ -5,7 +5,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
 
 use marix_common::{
-    Config, NetReceiver, Receiver, Sender, SharedNetSender, build_channel, connect_channel,
+    Config, Logger, NetReceiver, Receiver, Sender, SharedNetSender, build_channel, connect_channel,
 };
 use marix_protocol::{
     SessionEvent, SessionMessage, Signature, StepEvent, TaskEvent, TaskId, TaskSignature,
@@ -51,11 +51,13 @@ impl ClientSession {
     }
 
     pub fn create_task(&self, request: String) {
+        let _ = Logger::log("client submitting task request");
         let signature = TaskSignature::new(String::new());
         self.send_to_agent(SessionEvent::Task(signature, TaskEvent::Create { request }));
     }
 
     pub fn cancel_task(&self, task_id: TaskId) {
+        let _ = Logger::log(format!("client canceling task {}", task_id.0));
         let signature = TaskSignature {
             name: String::new(),
             id: task_id,
@@ -93,6 +95,7 @@ impl ClientSession {
                 let Ok((net_tx, net_rx)) = connect_channel::<SessionMessage>(address) else {
                     continue;
                 };
+                let _ = Logger::log("client connected to agent core");
                 *agent_tx.lock().unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
                 Self::run_worker(net_rx, &user_tx, &shutdown);
             }

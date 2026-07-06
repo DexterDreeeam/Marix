@@ -3,7 +3,7 @@ use std::thread::{self, JoinHandle};
 
 use crate::executor::Tool;
 use crate::session::HostSession;
-use marix_common::{Receiver, Sender, SharedNetSender, build_channel};
+use marix_common::{Logger, Receiver, Sender, SharedNetSender, build_channel};
 use marix_protocol::{
     ExecutionEvent, ExecutionRequest, ExecutionStatus, ExecutionUpdate, SessionEvent,
     SessionMessage,
@@ -50,10 +50,12 @@ impl ExecutionRuntime {
         while let Ok(event) = execution_rx.recv() {
             match event {
                 SessionEvent::Execution(_, ExecutionEvent::Cancel) => {
+                    let _ = Logger::log("execution canceled");
                     Self::send_status_event(&state, ExecutionStatus::Canceled);
                     break;
                 }
                 SessionEvent::Execution(_, ExecutionEvent::Kill) => {
+                    let _ = Logger::log("execution killed");
                     Self::send_status_event(&state, ExecutionStatus::Killed);
                     break;
                 }
@@ -65,6 +67,10 @@ impl ExecutionRuntime {
     fn spawn_execution(state: Arc<ExecutionState>) {
         thread::spawn(move || {
             let input = state.parameters.input.content.clone();
+            let _ = Logger::debug(format!(
+                "executing tool {}",
+                state.parameters.signature.name
+            ));
             let output = state.tool.execute(&input);
             Self::send_update_event(&state, 0, output);
             Self::send_status_event(&state, ExecutionStatus::Succeed(1));

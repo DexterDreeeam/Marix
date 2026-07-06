@@ -4,8 +4,9 @@
     "path": "src/host",
     "name": "host",
     "purpose": "Host crate namespace for HostSession and host-side tool execution. The executor sends preview replies with host System metadata and tool previews, sends unknown-tool failure events, and HostSession imports reusable protocol contracts from marix-protocol while common provides config/channel helpers.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["main.rs", "session.rs"],
   "childModules": [
     {
       "path": "src/host/executor",
@@ -18,7 +19,7 @@
       "name": "HostSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/session.rs",
@@ -39,9 +40,14 @@
         {
           "sourcePath": "src/host/session.rs",
           "lineStart": 44,
-          "lineEnd": 85,
+          "lineEnd": 86,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 61,
+              "lineEnd": 61
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -50,17 +56,17 @@
       "name": "marix-host",
       "type": "bin",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/main.rs",
           "lineStart": 6,
-          "lineEnd": 29,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 14,
-              "lineEnd": 24
+              "lineStart": 25,
+              "lineEnd": 25
             }
           ],
           "modifiedLines": []

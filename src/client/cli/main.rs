@@ -41,6 +41,7 @@ fn main() {
         eprintln!("failed to connect telemetry logger: {error}");
         std::process::exit(1);
     }
+    let _ = Logger::log(format!("client '{}' connected to telemetry", config.name));
     let mut session = ClientSession::new(config.name);
     for _ in 0..100 {
         if session.is_connected() {
@@ -67,6 +68,7 @@ fn run_interactive(session: &ClientSession) {
         let prompt = match line {
             Ok(prompt) => prompt,
             Err(error) => {
+                let _ = Logger::error(format!("client stdin read failed: {error}"));
                 eprintln!("failed to read stdin: {error}");
                 break;
             }

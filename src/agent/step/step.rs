@@ -2,6 +2,7 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::thread;
 
+use marix_common::Logger;
 use marix_protocol::{
     Answer, ModelStepKind, Plan, PlanEvent, PlanSignature, SessionEvent, StepDraft, StepEvent,
     StepKind, StepResult, StepSignature, TaskEvent, TaskResult, TaskStatus,
@@ -67,9 +68,7 @@ impl Step {
 
     pub(crate) fn send_plan_event(state: &TaskState, event: PlanEvent) {
         let signature = PlanSignature::new(state.signature.clone());
-        let _ = state
-            .session_tx
-            .send(SessionEvent::Plan(signature, event));
+        let _ = state.session_tx.send(SessionEvent::Plan(signature, event));
     }
 }
 
@@ -90,6 +89,10 @@ impl Step {
             return None;
         }
         if self.signature.step_no >= 10 {
+            let _ = Logger::warning(format!(
+                "step {} exceeds limit (task {})",
+                self.signature.step_no, self.signature.task.id.0
+            ));
             Self::send_step_event(
                 &self.state,
                 &self.signature,
@@ -130,6 +133,10 @@ impl Step {
             let prompt = self.model_prompt();
             let update_count = Arc::clone(&self.update_count);
             let signature = self.signature.clone();
+            let _ = Logger::debug(format!(
+                "model step {} request (task {})",
+                signature.step_no, signature.task.id.0
+            ));
             let mut result = String::new();
             let request = ModelRequest { step: self, prompt };
             let responses = {
@@ -142,6 +149,10 @@ impl Step {
             let responses = match responses {
                 Ok(responses) => responses,
                 Err(error) => {
+                    let _ = Logger::error(format!(
+                        "model step {} request failed: {error}",
+                        signature.step_no
+                    ));
                     Self::send_step_event(
                         &state,
                         &signature,
@@ -166,6 +177,10 @@ impl Step {
                         );
                     }
                     ModelResponse::Failed(error) => {
+                        let _ = Logger::error(format!(
+                            "model step {} stream failed: {error}",
+                            signature.step_no
+                        ));
                         Self::send_step_event(
                             &state,
                             &signature,
@@ -180,6 +195,10 @@ impl Step {
                 }
             }
             let seq_count = update_count.load(Ordering::Relaxed);
+            let _ = Logger::debug(format!(
+                "model step {} completed ({seq_count} chunks)",
+                signature.step_no
+            ));
             let event = StepEvent::Complete {
                 seq_count,
                 result: StepResult { content: result },
@@ -250,6 +269,10 @@ impl Step {
 
     fn on_model_complete(state: Arc<TaskState>, content: &str) -> bool {
         if let Ok(answer) = Answer::parse(content) {
+            let _ = Logger::log(format!(
+                "task {} produced final answer",
+                state.signature.id.0
+            ));
             let event = SessionEvent::Task(
                 state.signature.clone(),
                 TaskEvent::Status(TaskStatus::Succeed(TaskResult {
@@ -260,6 +283,7 @@ impl Step {
             return false;
         }
         if let Ok(plan) = Plan::parse(content) {
+            let _ = Logger::debug("model produced a new plan");
             Self::send_plan_event(&state, PlanEvent::Trigger(plan));
         }
         true

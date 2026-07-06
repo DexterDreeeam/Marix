@@ -17,6 +17,11 @@ fn main() {
         eprintln!("failed to start telemetry logger: {error}");
         std::process::exit(1);
     }
+    let _ = Logger::log(format!(
+        "agent telemetry hosting on port {}",
+        config.telemetry.bind_port
+    ));
+    let _ = Logger::log(format!("agent core '{}' starting", config.name));
     let _session = Session::new(config.name);
     loop {
         std::thread::park();

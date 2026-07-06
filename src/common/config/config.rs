@@ -109,7 +109,6 @@ pub struct DeepseekConfig {
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct TelemetryConfig {
-    pub database_path: String,
     pub bind_port: u16,
     pub server_address: String,
 }
@@ -203,14 +202,7 @@ fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
                 api_key: deepseek_api_key,
             },
         },
-        telemetry: TelemetryConfig {
-            database_path: path_to_config_string(resolve_config_path(
-                &repo_root,
-                &raw_config.telemetry.database_path,
-            )),
-            bind_port: raw_config.telemetry.bind_port,
-            server_address: raw_config.telemetry.server_address,
-        },
+        telemetry: raw_config.telemetry,
         credential: raw_config.credential,
         tool: ToolConfig {
             directory: path_to_config_string(resolve_config_path(

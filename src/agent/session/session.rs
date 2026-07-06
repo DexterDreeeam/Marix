@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 use std::sync::{Arc, Mutex as StdMutex, OnceLock};
 use std::thread::{self, JoinHandle};
 
-use marix_common::{Config, accept_channel};
+use marix_common::{Config, Logger, accept_channel};
 use marix_protocol::{
     ExecutionEvent, ExecutionSignature, SessionEvent, SessionMessage, TaskEvent, TaskId,
     TaskSignature,
@@ -22,6 +22,7 @@ pub struct Session {
 
 impl Session {
     pub fn new(name: String) -> Self {
+        let _ = Logger::log(format!("core session '{name}' initializing"));
         let _ = SOURCE_NAME.set(name);
         let state = Arc::new(SessionState::new());
         let client_worker = Self::spawn_client_worker(Arc::clone(&state));
@@ -58,6 +59,7 @@ impl Session {
                 let Ok((tx, rx)) = accept_channel::<SessionMessage>(address) else {
                     continue;
                 };
+                let _ = Logger::log("client channel connected");
                 *state
                     .client_tx
                     .lock()
@@ -80,6 +82,7 @@ impl Session {
                 let Ok((tx, rx)) = accept_channel::<SessionMessage>(address) else {
                     continue;
                 };
+                let _ = Logger::log("host channel connected");
                 *state
                     .host_tx
                     .lock()
@@ -159,6 +162,10 @@ impl Session {
             .unwrap_or_else(|error| error.into_inner())
             .is_none()
         {
+            let _ = Logger::warning(format!(
+                "task {} rejected: host not connected",
+                signature.id.0
+            ));
             let event = SessionEvent::Task(
                 signature,
                 TaskEvent::CreateFailed {
@@ -176,6 +183,7 @@ impl Session {
             return;
         }
         let task_id = signature.id.clone();
+        let _ = Logger::log(format!("task {} created", task_id.0));
         let task = Task::new(
             Arc::clone(&state.context),
             signature,
@@ -200,6 +208,7 @@ impl Session {
                 Self::route_task_event(state, &signature.task.id, event.clone());
             }
             SessionEvent::Execution(_, ExecutionEvent::Preview { system, tools }) => {
+                let _ = Logger::debug(format!("host preview received: {} tools", tools.len()));
                 *state
                     .host_sys
                     .lock()
@@ -270,6 +279,7 @@ impl Session {
     }
 
     fn host_disconnect(state: &SessionState) {
+        let _ = Logger::warning("host disconnected; clearing session state");
         *state
             .client_tx
             .lock()

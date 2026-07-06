@@ -2,6 +2,7 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use std::sync::atomic::Ordering;
 
+use marix_common::Logger;
 use marix_protocol::{Plan, PlanEvent, PlanSignature, StepEvent, StepSignature};
 
 use crate::plan::{PlanError, PlanRecord, PlanStringify};
@@ -31,6 +32,11 @@ impl PlanHub {
     }
 
     pub(crate) fn run_plan(&self, state: &Arc<TaskState>, signature: PlanSignature, plan: Plan) {
+        let _ = Logger::debug(format!(
+            "running plan with {} step(s) (task {})",
+            plan.run_steps.len(),
+            state.signature.id.0
+        ));
         // Reserve a unique, contiguous step-number block for this plan up front.
         let base_step_no = state
             .step_count

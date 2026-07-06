@@ -4,13 +4,14 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Shared common crate root for reusable config loading, external re-export adapters, database telemetry logging, and structure utilities. It exposes WorkQueue cleanup support used by agent host-disconnect session reset, and lib.rs re-exports serializable config system types Arch, Platform, and System alongside Config, TelemetryConfig, and related models, plus the Logger telemetry client with LogMessage, LogTag, and LoggingError.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/common/config",
       "name": "config",
-      "purpose": "Owns the common crate configuration model, config-file discovery, serializable OS/architecture System detection, alias substitution, credential resolution, runtime path normalization, telemetry database-path resolution, and tool directory settings."
+      "purpose": "Owns the common crate configuration model, config-file discovery, serializable OS/architecture System detection, alias substitution, credential resolution, runtime path normalization, and tool directory settings."
     },
     {
       "path": "src/common/external",
@@ -20,7 +21,7 @@
     {
       "path": "src/common/logging",
       "name": "logging",
-      "purpose": "Owns the database telemetry logging system: the serializable LogTag and LogMessage records, the LoggingError enum, and the Logger client that hosts a TCP telemetry server persisting messages to a local redb database or connects to a remote server over length-prefixed JSON frames."
+      "purpose": "Owns the database telemetry logging system: the serializable LogTag and LogMessage records, the LoggingError enum, and the Logger client that hosts a TCP telemetry server persisting messages to a fresh per-start timestamped local redb database or connects to a remote server over length-prefixed JSON frames."
     },
     {
       "path": "src/common/structure",

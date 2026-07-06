@@ -2,7 +2,9 @@ use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 use std::thread::{self, JoinHandle};
 
-use marix_common::{Config, ModelBackend as ConfigModelBackend, Receiver, Sender, build_channel};
+use marix_common::{
+    Config, Logger, ModelBackend as ConfigModelBackend, Receiver, Sender, build_channel,
+};
 use marix_protocol::{
     SessionEvent, TaskEvent, TaskPreview, TaskRequestBrief, TaskResult, TaskSignature, TaskStatus,
 };
@@ -73,6 +75,7 @@ impl Task {
 
     fn run_worker(state: Arc<TaskState>, task_rx: Receiver<SessionEvent>) {
         Self::send_status_event(&state, TaskStatus::Started);
+        let _ = Logger::log(format!("task {} started", state.signature.id.0));
         Step::trigger_initial_plan(Arc::clone(&state));
         while let Ok(event) = task_rx.recv() {
             match event {
@@ -101,10 +104,14 @@ impl Task {
     fn route_task_event(state: &TaskState, event: SessionEvent) -> bool {
         match event {
             SessionEvent::Task(_, TaskEvent::Cancel) => {
+                let _ = Logger::log(format!("task {} canceled", state.signature.id.0));
                 Self::send_status_event(state, TaskStatus::Canceled);
                 false
             }
-            SessionEvent::Task(_, TaskEvent::Status(TaskStatus::Succeed(_))) => false,
+            SessionEvent::Task(_, TaskEvent::Status(TaskStatus::Succeed(_))) => {
+                let _ = Logger::log(format!("task {} succeeded", state.signature.id.0));
+                false
+            }
             _ => true,
         }
     }

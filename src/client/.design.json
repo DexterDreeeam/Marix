@@ -4,8 +4,9 @@
     "path": "src/client",
     "name": "client",
     "purpose": "Client crate namespace for the marix_client library and client binaries. ClientEvent carries Common streaming output and Done completion events by signature id, and ClientSession now creates tasks with an empty TaskSignature.name while keeping the user request only in TaskEvent::Create.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["session.rs"],
   "childModules": [
     {
       "path": "src/client/app",
@@ -39,7 +40,7 @@
       "name": "ClientSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
@@ -52,22 +53,31 @@
         {
           "sourcePath": "src/client/session.rs",
           "lineStart": 26,
-          "lineEnd": 74,
+          "lineEnd": 76,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
               "lineStart": 54,
               "lineEnd": 54
+            },
+            {
+              "lineStart": 60,
+              "lineEnd": 60
             }
-          ]
+          ],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 78,
-          "lineEnd": 174,
+          "lineStart": 80,
+          "lineEnd": 177,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 98,
+              "lineEnd": 98
+            }
+          ],
           "modifiedLines": []
         }
       ]
