@@ -1,5 +1,11 @@
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
+// Center->module edges fan out from the scope center as spokes. They are
+// treated as repulsion corridors so exposed element nodes never land on top of
+// a spoke and the arrows never cut through element shapes/labels.
+const EDGE_CORRIDOR_MARGIN = 10;
+const EDGE_CORRIDOR_STRENGTH = 0.45;
+
 function layoutScopeStarMap(scopeNode, options) {
   const {
     sourceRoot,
@@ -118,6 +124,11 @@ function layoutExposedElements(scopeNode, moduleRadius, moduleObstacles, options
   const layoutRadiusX = 360 + Math.min(170, count * 4);
   const layoutRadiusY = 240 + Math.min(120, count * 3);
 
+  // Derive module spoke angles from the already-placed module nodes so exposed
+  // elements can start inside the empty angular wedges between spokes rather
+  // than on top of the center->module edges.
+  const spokeGaps = computeSpokeGaps(moduleObstacles);
+
   const initialLayout = elements
     .sort((a, b) => stableHash(a.id) - stableHash(b.id))
     .map((entry, index) => {
@@ -125,7 +136,14 @@ function layoutExposedElements(scopeNode, moduleRadius, moduleObstacles, options
       const changedWeight = status === "unchanged" ? 1 : 0.62;
       const t = (index + 0.5) / count;
       const radiusFactor = Math.max(0.22, Math.sqrt(t) * changedWeight * 0.84);
-      const angle = index * GOLDEN_ANGLE + stableRandom(`${entry.id}:angle`) * 0.26;
+      // A golden-angle phase keeps a stable low-discrepancy spread; when spoke
+      // gaps exist the phase is remapped into those gaps so the initial angle is
+      // biased away from the spokes, reducing how hard the corridor force works.
+      const goldenPhase = ((index * GOLDEN_ANGLE) % (Math.PI * 2)) / (Math.PI * 2);
+      const gapJitter = (stableRandom(`${entry.id}:angle`) - 0.5) * 0.16;
+      const angle = spokeGaps
+        ? angleFromGaps(spokeGaps, goldenPhase + gapJitter)
+        : index * GOLDEN_ANGLE + stableRandom(`${entry.id}:angle`) * 0.26;
       const jitterX = (stableRandom(`${entry.id}:jx`) - 0.5) * 28;
       const jitterY = (stableRandom(`${entry.id}:jy`) - 0.5) * 22;
       const x = Math.cos(angle) * layoutRadiusX * radiusFactor + jitterX;
@@ -145,26 +163,25 @@ function layoutExposedElements(scopeNode, moduleRadius, moduleObstacles, options
       };
     });
 
-  return layoutWithD3Force(initialLayout, moduleRadius, moduleObstacles, options);
+  const moduleEdges = computeModuleEdges(moduleObstacles);
+  return layoutWithD3Force(initialLayout, moduleRadius, moduleObstacles, moduleEdges, options);
 }
 
-function layoutWithD3Force(items, moduleRadius, moduleObstacles, options) {
+function layoutWithD3Force(items, moduleRadius, moduleObstacles, edges, options) {
   if (window.d3 && typeof window.d3.forceSimulation === "function") {
-    return layoutWithD3ForceSimulation(items, moduleRadius, moduleObstacles, options);
+    return layoutWithD3ForceSimulation(items, moduleRadius, moduleObstacles, edges, options);
   }
-  return relaxExposedLayout(items, moduleRadius, moduleObstacles, options);
+  return relaxExposedLayout(items, moduleRadius, moduleObstacles, edges, options);
 }
 
-function layoutWithD3ForceSimulation(items, moduleRadius, moduleObstacles, options) {
-  const nodes = items.map(item => {
-    const box = getExposedLabelBox(item, options);
-    return {
-      ...item,
-      targetX: item.x,
-      targetY: item.y,
-      collisionRadius: Math.max(18, Math.hypot(box.width / 2, box.height / 2) * 0.74 + getNodeRadius(item) + 3)
-    };
-  });
+function layoutWithD3ForceSimulation(items, moduleRadius, moduleObstacles, edges, options) {
+  const nodes = items.map(item => ({
+    ...item,
+    targetX: item.x,
+    targetY: item.y,
+    corridorId: getExposedElementId(item),
+    collisionRadius: getExposedCorridorRadius(item, options)
+  }));
   const obstacles = (moduleObstacles || []).map(item => ({
     obstacle: true,
     x: item.x,
@@ -181,13 +198,14 @@ function layoutWithD3ForceSimulation(items, moduleRadius, moduleObstacles, optio
     .force("x", window.d3.forceX(d => d.obstacle ? d.x : d.targetX).strength(d => d.obstacle ? 1 : 0.24))
     .force("y", window.d3.forceY(d => d.obstacle ? d.y : d.targetY).strength(d => d.obstacle ? 1 : 0.24))
     .force("collide", window.d3.forceCollide(d => d.collisionRadius).strength(0.82).iterations(3))
+    .force("edgeCorridor", createEdgeCorridorForce(edges, EDGE_CORRIDOR_STRENGTH, EDGE_CORRIDOR_MARGIN))
     .stop();
 
   for (let i = 0; i < 110; i++) simulation.tick();
   return finalizeExposedLayout(nodes, options);
 }
 
-function relaxExposedLayout(items, moduleRadius, moduleObstacles, options) {
+function relaxExposedLayout(items, moduleRadius, moduleObstacles, edges, options) {
   const relaxed = items.map(item => ({ ...item }));
   for (let iteration = 0; iteration < 18; iteration++) {
     for (let i = 0; i < relaxed.length; i++) {
@@ -228,6 +246,26 @@ function relaxExposedLayout(items, moduleRadius, moduleObstacles, options) {
           relaxed[i].y = obstacle.y + dy * scale;
         }
       }
+      // Mirror the simulation's edge-corridor avoidance: nudge the element off
+      // the nearest center->module edge segment when it sits inside the corridor.
+      const corridor = getExposedCorridorRadius(relaxed[i], options) + EDGE_CORRIDOR_MARGIN;
+      for (const edge of edges || []) {
+        const closest = nearestPointOnSegment(relaxed[i].x, relaxed[i].y, edge.ax, edge.ay, edge.bx, edge.by);
+        let dx = relaxed[i].x - closest.x;
+        let dy = relaxed[i].y - closest.y;
+        let distance = Math.hypot(dx, dy);
+        if (distance >= corridor) continue;
+        if (distance < 1e-6) {
+          const length = Math.max(1e-6, Math.hypot(edge.bx - edge.ax, edge.by - edge.ay));
+          const sign = stableRandom(`${getExposedElementId(relaxed[i])}:${edge.id}`) > 0.5 ? 1 : -1;
+          dx = (-(edge.by - edge.ay) / length) * sign;
+          dy = ((edge.bx - edge.ax) / length) * sign;
+          distance = 1;
+        }
+        const scale = corridor / distance;
+        relaxed[i].x = closest.x + dx * scale;
+        relaxed[i].y = closest.y + dy * scale;
+      }
     }
   }
 
@@ -265,6 +303,116 @@ function getExposedLabelBox(item, options) {
 function getExposedElementId(item) {
   const element = item.element || {};
   return element.id || `${item.groupName || "group"}:${element.name || "element"}`;
+}
+
+// Shared corridor/collision radius for an exposed element. Combines the node
+// radius with the half-diagonal of its label box so both the shape and its
+// label are kept clear of neighbors and edge corridors.
+function getExposedCorridorRadius(item, options) {
+  const box = getExposedLabelBox(item, options);
+  return Math.max(18, Math.hypot(box.width / 2, box.height / 2) * 0.74 + getNodeRadius(item) + 3);
+}
+
+// Build the center->module edge segments (spokes) from the module obstacle set.
+// The scope center is the depth-0 root item; every depth-1 module node is an
+// edge endpoint. These segments are used as repulsion corridors for elements.
+function computeModuleEdges(moduleObstacles) {
+  const center = (moduleObstacles || []).find(item => item.depth === 0) || { x: 0, y: 0 };
+  return (moduleObstacles || [])
+    .filter(item => item.depth === 1)
+    .map((item, index) => ({
+      ax: center.x,
+      ay: center.y,
+      bx: item.x,
+      by: item.y,
+      id: (item.node && item.node.path) || `edge:${index}`
+    }));
+}
+
+// Compute the angular wedges BETWEEN consecutive module spokes (shrunk on each
+// side so the wedge stays clear of the spokes themselves). Exposed elements are
+// initially placed inside these gaps. Returns null when there are no spokes.
+function computeSpokeGaps(moduleObstacles) {
+  const center = (moduleObstacles || []).find(item => item.depth === 0) || { x: 0, y: 0 };
+  const spokes = (moduleObstacles || [])
+    .filter(item => item.depth === 1)
+    .map(item => Math.atan2(item.y - center.y, item.x - center.x))
+    .sort((a, b) => a - b);
+  if (spokes.length === 0) return null;
+  if (spokes.length === 1) {
+    // One spoke: the usable gap is the full circle minus a wedge around it.
+    return [{ start: spokes[0] + 0.6, size: Math.PI * 2 - 1.2 }];
+  }
+  const gaps = [];
+  for (let i = 0; i < spokes.length; i++) {
+    const a = spokes[i];
+    const b = i + 1 < spokes.length ? spokes[i + 1] : spokes[0] + Math.PI * 2;
+    const raw = b - a;
+    const shrink = Math.min(raw * 0.24, 0.55);
+    const size = raw - shrink * 2;
+    if (size > 0.05) gaps.push({ start: a + shrink, size });
+  }
+  return gaps.length ? gaps : null;
+}
+
+// Map a fraction in [0,1) onto the union of gap wedges, proportional to each
+// wedge's angular size, returning the resulting absolute angle.
+function angleFromGaps(gaps, frac) {
+  const total = gaps.reduce((sum, gap) => sum + gap.size, 0);
+  if (total <= 0) return gaps[0].start;
+  let target = (((frac % 1) + 1) % 1) * total;
+  for (const gap of gaps) {
+    if (target <= gap.size) return gap.start + target;
+    target -= gap.size;
+  }
+  const last = gaps[gaps.length - 1];
+  return last.start + last.size;
+}
+
+// Closest point on segment AB to point P, clamped to the segment endpoints.
+function nearestPointOnSegment(px, py, ax, ay, bx, by) {
+  const abx = bx - ax;
+  const aby = by - ay;
+  const lengthSq = abx * abx + aby * aby;
+  let t = lengthSq > 0 ? ((px - ax) * abx + (py - ay) * aby) / lengthSq : 0;
+  t = Math.max(0, Math.min(1, t));
+  return { x: ax + abx * t, y: ay + aby * t };
+}
+
+// Custom d3 force: each tick, push every element node away from the nearest
+// point on any edge segment if it lies within the element's corridor width.
+// Deterministic: the only tie-break (element exactly on the line) uses
+// stableRandom, never Math.random.
+function createEdgeCorridorForce(edges, strength, margin) {
+  let simNodes = [];
+  function force(alpha) {
+    if (!edges || edges.length === 0) return;
+    for (const node of simNodes) {
+      if (node.obstacle) continue;
+      const corridor = node.collisionRadius + margin;
+      for (const edge of edges) {
+        const closest = nearestPointOnSegment(node.x, node.y, edge.ax, edge.ay, edge.bx, edge.by);
+        let dx = node.x - closest.x;
+        let dy = node.y - closest.y;
+        let distance = Math.hypot(dx, dy);
+        if (distance >= corridor) continue;
+        if (distance < 1e-6) {
+          // Element sits exactly on the edge; pick a deterministic perpendicular
+          // push direction so repeated layouts stay stable.
+          const length = Math.max(1e-6, Math.hypot(edge.bx - edge.ax, edge.by - edge.ay));
+          const sign = stableRandom(`${node.corridorId}:${edge.id}`) > 0.5 ? 1 : -1;
+          dx = (-(edge.by - edge.ay) / length) * sign;
+          dy = ((edge.bx - edge.ax) / length) * sign;
+          distance = 1;
+        }
+        const push = (corridor - distance) * strength * alpha;
+        node.vx += (dx / distance) * push;
+        node.vy += (dy / distance) * push;
+      }
+    }
+  }
+  force.initialize = nodes => { simNodes = nodes; };
+  return force;
 }
 
 function getLayoutItemId(item, sourceRoot) {
