@@ -66,8 +66,8 @@ impl ExecutionRuntime {
         thread::spawn(move || {
             let input = state.parameters.input.content.clone();
             let output = state.tool.execute(&input);
-            Self::send_update_event(&state, output);
-            Self::send_status_event(&state, ExecutionStatus::Succeed);
+            Self::send_update_event(&state, 0, output);
+            Self::send_status_event(&state, ExecutionStatus::Succeed(1));
         });
     }
 
@@ -81,12 +81,12 @@ impl ExecutionRuntime {
         );
     }
 
-    fn send_update_event(state: &ExecutionState, content: String) {
+    fn send_update_event(state: &ExecutionState, seq: usize, content: String) {
         Self::send_event(
             state,
             SessionEvent::Execution(
                 state.parameters.signature.clone(),
-                ExecutionEvent::Update(ExecutionUpdate { content }),
+                ExecutionEvent::Update(ExecutionUpdate { seq, content }),
             ),
         );
     }

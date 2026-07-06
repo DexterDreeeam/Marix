@@ -9,7 +9,7 @@ use marix_protocol::{
 
 use crate::model::{ModelRequest, ModelResponse};
 use crate::prompt::{ExecutionAnalysisPrompt, InitialPrompt, Prompt};
-use crate::task::{Task, TaskState};
+use crate::task::TaskState;
 
 #[derive(Debug, Clone)]
 pub struct Step {
@@ -40,7 +40,7 @@ impl Step {
                 true
             }
             StepEvent::Complete { result, .. } => {
-                Self::on_step_complete(state, signature, result.content)
+                Self::on_complete(state, signature, result.content)
             }
             _ => true,
         }
@@ -106,7 +106,10 @@ impl Step {
         self.state.steps.insert_or_update(step_no, self.clone());
         match &self.signature.kind {
             StepKind::Model(_) => self.run_model(),
-            StepKind::Execution(_) => Task::run_execution_step(Arc::clone(&self.state), self),
+            StepKind::Execution(_) => {
+                let state = Arc::clone(&self.state);
+                state.execution_hub.run_execution_step(&state, self);
+            }
             StepKind::Intent | StepKind::User(_) => Self::send_step_event(
                 &self.state,
                 &self.signature,
@@ -217,7 +220,7 @@ impl Step {
         }
     }
 
-    fn on_step_complete(state: Arc<TaskState>, signature: StepSignature, content: String) -> bool {
+    fn on_complete(state: Arc<TaskState>, signature: StepSignature, content: String) -> bool {
         state.steps.complete(signature.step_no);
         let Some(_) = state.plan_hub.complete_step(&signature) else {
             return true;
@@ -225,11 +228,24 @@ impl Step {
         match &signature.kind {
             StepKind::Model(_) => Self::on_model_complete(state, &content),
             StepKind::Execution(_) => {
-                Task::on_execution_complete(state, &signature, &content);
+                Self::on_execution_complete(&state, &content);
                 true
             }
             StepKind::Intent | StepKind::User(_) => true,
         }
+    }
+
+    fn on_execution_complete(state: &TaskState, content: &str) {
+        let plan = Plan {
+            description: "Analyze completed execution output".to_owned(),
+            run_steps: vec![StepDraft {
+                kind: StepKind::Model(ModelStepKind::ExecutionAnalysis),
+                description: content.to_owned(),
+            }],
+            pending_steps: Vec::new(),
+            expected_result: "Execution analysis updates the remaining plan".to_owned(),
+        };
+        Self::send_plan_event(state, PlanEvent::Trigger(plan));
     }
 
     fn on_model_complete(state: Arc<TaskState>, content: &str) -> bool {

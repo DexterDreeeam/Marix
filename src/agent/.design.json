@@ -3,14 +3,15 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent crate namespace for model/session/task/prompt/step/execution orchestration and the plan hub module. Step owns task-step routing and emits plan events, PlanHub routes plan events and runs plans by reserving step-number blocks and emitting StepEvent::Trigger, the execution module tracks tool executions keyed by execution signature, and task runtime maps execution signatures to step signatures so execution success can complete steps and trigger follow-up execution-analysis model plans.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent crate namespace for model/session/task/prompt/step/execution orchestration and the plan hub module. Step owns task-step routing, emits plan events, and builds the execution-analysis follow-up plan when an execution completes; PlanHub routes plan events and runs plans by reserving step-number blocks and emitting StepEvent::Trigger; the execution module's ExecutionHub tracks tool executions keyed by execution signature, accumulates their output, and emits StepEvent::Complete back to the step layer on completion; and TaskState now owns that ExecutionHub instead of an execution-signature-to-step map.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/agent/execution",
       "name": "execution",
-      "purpose": "Owns agent-side execution tracking: Execution values keyed by ExecutionSignature and an ExecutionHub that owns an Arc<TaskState> and an execution map to route execution events and report per-signature status."
+      "purpose": "Owns agent-side execution tracking: Execution values keyed by ExecutionSignature that accumulate ordered output and finalize on the expected update count, and an ExecutionHub holding a Mutex<HashMap<ExecutionSignature, Execution>> that spawns execution steps, routes Update/Succeed events, and emits StepEvent::Complete to the step layer on completion while reporting per-signature status."
     },
     {
       "path": "src/agent/model",
@@ -35,12 +36,12 @@
     {
       "path": "src/agent/step",
       "name": "step",
-      "purpose": "Owns the top-level agent runtime Step type re-exported by lib.rs; Step holds Arc<TaskState> and owns task-step routing (StepEvent::Trigger/Complete), model-prompt rendering, plan-event emission, and step/model completion handling."
+      "purpose": "Owns the top-level agent runtime Step type re-exported by lib.rs; Step holds Arc<TaskState> and owns task-step routing (StepEvent::Trigger/Complete), model-prompt rendering, plan-event emission, step/model completion handling, and building the execution-analysis plan (PlanEvent::Trigger) when an execution completes; execution step spawning is delegated to the execution hub."
     },
     {
       "path": "src/agent/task",
       "name": "task",
-      "purpose": "Owns agent task runtime and TaskState (session context, plan_hub, execution_map, a monotonic step_count allocator, and step queue); step routing lives on Step, plan events route to PlanHub, and task_execution drives execution steps and execution-analysis follow-up plans."
+      "purpose": "Owns agent task runtime and TaskState (session context, plan_hub, an ExecutionHub owning execution tracking, a monotonic step_count allocator, and the step queue); step routing lives on Step, plan events route to PlanHub, and execution spawning/routing lives in the execution hub."
     }
   ],
   "elements": [

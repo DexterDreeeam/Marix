@@ -6,6 +6,6 @@ pub enum ExecutionStatus {
     Running,
     Canceled,
     Killed,
-    Succeed,
+    Succeed(usize),
     Failed { reason: String },
 }

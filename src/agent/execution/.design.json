@@ -3,39 +3,70 @@
   "module": {
     "path": "src/agent/execution",
     "name": "execution",
-    "purpose": "Owns agent-side tracking of tool executions. Execution captures one tool execution keyed by its ExecutionSignature with lifecycle status and ordered output chunks, while ExecutionHub owns an Arc<TaskState> and a map of Execution values to route execution events and report per-signature status.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns agent-side tracking of tool executions. Execution captures one tool execution keyed by its ExecutionSignature, records the spawning step, accumulates ordered output chunks, and finalizes against the expected update count so out-of-order or early Succeed events still complete correctly. ExecutionHub holds a Mutex<HashMap<ExecutionSignature, Execution>>, spawns execution steps and emits ExecutionEvent::Evoke, routes Update/Succeed(count) events into the tracked Execution, emits StepEvent::Complete back to the step layer on completion, and reports per-signature status.",
+    "changeStatus": "modified"
   },
+  "modified": ["execution.rs", "hub.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Execution",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/execution/execution.rs",
           "lineStart": 5,
-          "lineEnd": 10,
+          "lineEnd": 12,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 5,
-              "lineEnd": 10
+              "lineStart": 8,
+              "lineEnd": 8
+            },
+            {
+              "lineStart": 11,
+              "lineEnd": 11
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/execution/execution.rs",
-          "lineStart": 12,
-          "lineEnd": 20,
+          "lineStart": 14,
+          "lineEnd": 39,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 20
+              "lineStart": 18,
+              "lineEnd": 18
+            },
+            {
+              "lineStart": 21,
+              "lineEnd": 21
+            },
+            {
+              "lineStart": 25,
+              "lineEnd": 38
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 15
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/agent/execution/execution.rs",
+          "lineStart": 43,
+          "lineEnd": 48,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 43,
+              "lineEnd": 48
             }
           ],
           "modifiedLines": []
@@ -46,33 +77,46 @@
       "name": "ExecutionHub",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/execution/hub.rs",
-          "lineStart": 9,
-          "lineEnd": 12,
+          "lineStart": 14,
+          "lineEnd": 16,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 9,
-              "lineEnd": 12
+              "lineStart": 15,
+              "lineEnd": 15
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/agent/execution/hub.rs",
-          "lineStart": 14,
-          "lineEnd": 33,
+          "lineStart": 18,
+          "lineEnd": 110,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 14,
-              "lineEnd": 33
+              "lineStart": 25,
+              "lineEnd": 99
+            },
+            {
+              "lineStart": 104,
+              "lineEnd": 105
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 19,
+              "lineEnd": 19
+            },
+            {
+              "lineStart": 21,
+              "lineEnd": 21
+            }
+          ]
         }
       ]
     }

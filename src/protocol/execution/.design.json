@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/execution",
     "name": "execution",
-    "purpose": "Owns execution protocol contracts: ExeId allocation, ExecutionEvent notifications, ExecutionUpdate payloads, ExecutionRequest with signature and typed input, ExecutionSignature construction keyed by a task TaskSignature with map-friendly ordering/hash traits for task execution_map keys, and ExecutionStatus lifecycle states.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns execution protocol contracts: ExeId allocation, ExecutionEvent notifications, ExecutionUpdate payloads carrying a 0-based seq and content, ExecutionRequest with signature and typed input, ExecutionSignature construction keyed by a task TaskSignature with map-friendly ordering/hash traits for keying execution maps, and ExecutionStatus lifecycle states whose Succeed variant carries the expected update count.",
+    "changeStatus": "modified"
   },
+  "modified": ["event.rs", "status.rs"],
   "childModules": [],
   "elements": [
     {
@@ -57,14 +58,19 @@
       "name": "ExecutionUpdate",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/event.rs",
           "lineStart": 22,
-          "lineEnd": 25,
+          "lineEnd": 26,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 24,
+              "lineEnd": 24
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -135,7 +141,7 @@
       "name": "ExecutionStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/status.rs",
@@ -143,7 +149,12 @@
           "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 9
+            }
+          ]
         }
       ]
     }

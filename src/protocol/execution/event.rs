@@ -21,5 +21,6 @@ pub enum ExecutionEvent {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ExecutionUpdate {
+    pub seq: usize,
     pub content: String,
 }

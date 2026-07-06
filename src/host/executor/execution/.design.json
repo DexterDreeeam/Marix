@@ -3,16 +3,17 @@
   "module": {
     "path": "src/host/executor/execution",
     "name": "execution",
-    "purpose": "Owns execution runtime state and per-request ExecutionState. ExecutionRuntime holds an Arc<ExecutionState> and sends execution status and update events through send_status_event/send_update_event helpers while Execution/session protocol contracts come from marix-protocol and common provides channels and shared senders.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns execution runtime state and per-request ExecutionState. ExecutionRuntime holds an Arc<ExecutionState> and sends execution update and status events through send_update_event/send_status_event helpers; send_update_event now stamps each update with a 0-based seq, and the single-update spawn path emits Update{seq:0} followed by Status(Succeed(1)) carrying the expected update count. Execution/session protocol contracts come from marix-protocol and common provides channels and shared senders.",
+    "changeStatus": "modified"
   },
+  "modified": ["execution.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "ExecutionRuntime",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
@@ -20,12 +21,7 @@
           "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 15,
-              "lineEnd": 15
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
@@ -33,20 +29,7 @@
           "lineEnd": 42,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 27,
-              "lineEnd": 27
-            },
-            {
-              "lineStart": 29,
-              "lineEnd": 30
-            },
-            {
-              "lineStart": 33,
-              "lineEnd": 33
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
@@ -56,52 +39,16 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 47,
-              "lineEnd": 49
-            },
-            {
-              "lineStart": 53,
-              "lineEnd": 53
-            },
-            {
-              "lineStart": 57,
-              "lineEnd": 57
-            },
-            {
-              "lineStart": 65,
-              "lineEnd": 65
-            },
-            {
-              "lineStart": 67,
+              "lineStart": 69,
               "lineEnd": 70
-            },
-            {
-              "lineStart": 74,
-              "lineEnd": 74
-            },
-            {
-              "lineStart": 76,
-              "lineEnd": 76
-            },
-            {
-              "lineStart": 78,
-              "lineEnd": 78
             },
             {
               "lineStart": 84,
               "lineEnd": 84
             },
             {
-              "lineStart": 86,
-              "lineEnd": 86
-            },
-            {
-              "lineStart": 88,
-              "lineEnd": 88
-            },
-            {
-              "lineStart": 94,
-              "lineEnd": 95
+              "lineStart": 89,
+              "lineEnd": 89
             }
           ]
         }

@@ -4,13 +4,14 @@
     "path": "src/host",
     "name": "host",
     "purpose": "Host crate namespace for HostSession and host-side tool execution. The executor sends preview replies with host System metadata and tool previews, sends unknown-tool failure events, and HostSession imports reusable protocol contracts from marix-protocol while common provides config/channel helpers.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/host/executor",
       "name": "executor",
-      "purpose": "Executor folder module owning tool preview and host-side tool execution; preview replies send System::new host metadata plus tool preview schema content, and failed tool lookups send ExecutionStatus failures."
+      "purpose": "Executor folder module owning tool preview and host-side tool execution; preview replies send System::new host metadata plus tool preview schema content, failed tool lookups send ExecutionStatus failures, and per-execution updates now carry a 0-based seq with success reporting the expected update count."
     }
   ],
   "elements": [
