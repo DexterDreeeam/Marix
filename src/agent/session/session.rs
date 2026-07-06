@@ -192,14 +192,11 @@ impl Session {
             }
             SessionEvent::Task(_, TaskEvent::Status(_))
             | SessionEvent::Task(_, TaskEvent::Preview { .. })
-            | SessionEvent::Task(_, TaskEvent::CreateFailed { .. }) => {
-                Self::send_client_event(state, event.clone());
-            }
+            | SessionEvent::Task(_, TaskEvent::CreateFailed { .. }) => {}
             SessionEvent::Task(signature, _) => {
                 Self::route_task_event(state, &signature.id, event.clone());
             }
             SessionEvent::Step(signature, _) => {
-                Self::send_client_event(state, event.clone());
                 Self::route_task_event(state, &signature.task.id, event.clone());
             }
             SessionEvent::Execution(_, ExecutionEvent::Preview { system, tools }) => {
@@ -224,8 +221,11 @@ impl Session {
             SessionEvent::Execution(signature, _) => {
                 Self::route_task_event(state, &signature.task.id, event.clone());
             }
-            SessionEvent::Plan(_, _) => {}
+            SessionEvent::Plan(signature, _) => {
+                Self::route_task_event(state, &signature.task.id, event.clone());
+            }
         }
+        Self::send_client_event(state, event);
     }
 
     fn route_task_event(state: &SessionState, task_id: &TaskId, event: SessionEvent) {
@@ -238,6 +238,16 @@ impl Session {
     }
 
     fn send_client_event(state: &SessionState, event: SessionEvent) {
+        let forward = matches!(
+            event,
+            SessionEvent::Task(_, TaskEvent::Status(_))
+                | SessionEvent::Task(_, TaskEvent::Preview { .. })
+                | SessionEvent::Task(_, TaskEvent::CreateFailed { .. })
+                | SessionEvent::Step(_, _)
+        );
+        if !forward {
+            return;
+        }
         if let Some(sender) = state
             .client_tx
             .lock()

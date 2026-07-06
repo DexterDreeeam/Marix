@@ -4,6 +4,7 @@ use crate::StepResult;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum StepEvent {
+    Trigger,
     Started,
     Update {
         seq: usize,

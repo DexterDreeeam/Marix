@@ -3,9 +3,10 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent crate namespace for model/session/task/prompt/step/execution orchestration and the plan queue module. Step now owns task-step routing, a new execution module tracks tool executions keyed by execution signature, and task runtime maps execution signatures to step signatures so execution success can complete steps and trigger follow-up execution-analysis model plans.",
-    "changeStatus": "unchanged"
+    "purpose": "Agent crate namespace for model/session/task/prompt/step/execution orchestration and the plan hub module. Step owns task-step routing and emits plan events, PlanHub routes plan events and runs plans by reserving step-number blocks and emitting StepEvent::Trigger, the execution module tracks tool executions keyed by execution signature, and task runtime maps execution signatures to step signatures so execution success can complete steps and trigger follow-up execution-analysis model plans.",
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs"],
   "childModules": [
     {
       "path": "src/agent/execution",
@@ -20,7 +21,7 @@
     {
       "path": "src/agent/plan",
       "name": "plan",
-      "purpose": "Owns PlanQueue, PlanRecord, and PlanError for insertion-ordered task plan storage, lookup, completion tracking, and current/pending plan text rendering for prompts."
+      "purpose": "Owns PlanHub, PlanRecord, PlanStringify, and PlanError for insertion-ordered task plan storage, plan-event routing, step-block reservation, lookup, completion tracking, and current/pending plan text rendering for prompts."
     },
     {
       "path": "src/agent/prompt",
@@ -30,17 +31,17 @@
     {
       "path": "src/agent/session",
       "name": "session",
-      "purpose": "Owns Session startup/routing behavior, including forwarding Step events to clients and routing them back to the owning Task worker, SessionContext snapshots for prompts, and a no-op Plan event arm."
+      "purpose": "Owns Session startup/routing behavior, forwarding Task status/preview and Step events to clients through a matches! filter and routing task, step, execution, and plan events back to the owning Task worker, plus SessionContext snapshots for prompts."
     },
     {
       "path": "src/agent/step",
       "name": "step",
-      "purpose": "Owns the top-level agent runtime Step type re-exported by lib.rs; Step holds Arc<TaskState> and now owns task-step routing, plan execution, model-prompt rendering, and step/model completion handling."
+      "purpose": "Owns the top-level agent runtime Step type re-exported by lib.rs; Step holds Arc<TaskState> and owns task-step routing (StepEvent::Trigger/Complete), model-prompt rendering, plan-event emission, and step/model completion handling."
     },
     {
       "path": "src/agent/task",
       "name": "task",
-      "purpose": "Owns agent task runtime and TaskState (session context, plan queue, execution_map, and step queue); step routing now lives on Step while task_execution drives execution steps and execution-analysis follow-up plans."
+      "purpose": "Owns agent task runtime and TaskState (session context, plan_hub, execution_map, a monotonic step_count allocator, and step queue); step routing lives on Step, plan events route to PlanHub, and task_execution drives execution steps and execution-analysis follow-up plans."
     }
   ],
   "elements": [

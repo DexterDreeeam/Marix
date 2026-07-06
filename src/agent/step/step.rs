@@ -3,8 +3,8 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::thread;
 
 use marix_protocol::{
-    Answer, ModelStepKind, Plan, PlanSignature, SessionEvent, StepDraft, StepEvent, StepKind,
-    StepResult, StepSignature, StepStatus, TaskEvent, TaskResult, TaskStatus,
+    Answer, ModelStepKind, Plan, PlanEvent, PlanSignature, SessionEvent, StepDraft, StepEvent,
+    StepKind, StepResult, StepSignature, TaskEvent, TaskResult, TaskStatus,
 };
 
 use crate::model::{ModelRequest, ModelResponse};
@@ -15,7 +15,6 @@ use crate::task::{Task, TaskState};
 pub struct Step {
     pub state: Arc<TaskState>,
     pub signature: StepSignature,
-    pub status: StepStatus,
     pub update_count: Arc<AtomicUsize>,
 }
 
@@ -24,7 +23,6 @@ impl Step {
         Self {
             state,
             signature,
-            status: StepStatus::Prepare,
             update_count: Arc::new(AtomicUsize::new(0)),
         }
     }
@@ -36,10 +34,16 @@ impl Step {
         signature: StepSignature,
         event: StepEvent,
     ) -> bool {
-        if let StepEvent::Complete { result, .. } = event {
-            return Self::on_step_complete(state, signature, result.content);
+        match event {
+            StepEvent::Trigger => {
+                Step::new(state, signature).run();
+                true
+            }
+            StepEvent::Complete { result, .. } => {
+                Self::on_step_complete(state, signature, result.content)
+            }
+            _ => true,
         }
-        true
     }
 
     pub(crate) fn trigger_initial_plan(state: Arc<TaskState>) {
@@ -52,25 +56,20 @@ impl Step {
             pending_steps: Vec::new(),
             expected_result: String::new(),
         };
-        Self::run_plan(state, plan);
-    }
-
-    pub(crate) fn run_plan(state: Arc<TaskState>, plan: Plan) {
-        let plan_signature = Self::add_plan(&state, plan);
-        let steps = match state.plan_queue.step_signatures(&plan_signature) {
-            Ok(steps) => steps,
-            Err(_) => return,
-        };
-        for signature in steps {
-            let step = Step::new(Arc::clone(&state), signature);
-            step.run();
-        }
+        Self::send_plan_event(&state, PlanEvent::Trigger(plan));
     }
 
     pub(crate) fn send_step_event(state: &TaskState, signature: &StepSignature, event: StepEvent) {
         let _ = state
             .session_tx
             .send(SessionEvent::Step(signature.clone(), event));
+    }
+
+    pub(crate) fn send_plan_event(state: &TaskState, event: PlanEvent) {
+        let signature = PlanSignature::new(state.signature.clone());
+        let _ = state
+            .session_tx
+            .send(SessionEvent::Plan(signature, event));
     }
 }
 
@@ -204,11 +203,12 @@ impl Step {
                     .lock()
                     .unwrap_or_else(|error| error.into_inner())
                     .snapshot();
+                let plan_stringify = self.state.plan_hub.stringify();
                 ExecutionAnalysisPrompt::new(
                     self.state.user_request.clone(),
                     self.signature.description.clone(),
-                    self.state.plan_queue.current_plan_text(),
-                    self.state.plan_queue.pending_intentions_text(),
+                    plan_stringify.current_plan_text(),
+                    plan_stringify.pending_intentions_text(),
                     session_context,
                 )
                 .prompt()
@@ -219,7 +219,7 @@ impl Step {
 
     fn on_step_complete(state: Arc<TaskState>, signature: StepSignature, content: String) -> bool {
         state.steps.complete(signature.step_no);
-        let Some(_) = state.plan_queue.complete_step(&signature) else {
+        let Some(_) = state.plan_hub.complete_step(&signature) else {
             return true;
         };
         match &signature.kind {
@@ -244,36 +244,8 @@ impl Step {
             return false;
         }
         if let Ok(plan) = Plan::parse(content) {
-            Self::run_plan(state, plan);
+            Self::send_plan_event(&state, PlanEvent::Trigger(plan));
         }
         true
-    }
-
-    fn add_plan(state: &TaskState, plan: Plan) -> PlanSignature {
-        let plan_signature = PlanSignature::new(state.signature.clone());
-        // Step numbers are derived from the current number of steps in the queue.
-        // add_plan builds all of a plan's signatures before any step is inserted,
-        // so the enumerate offset keeps them unique within this batch; run_plan is
-        // processed serially, so steps.size() is stable between plans.
-        let base_step_no = state.steps.size();
-        let signatures = plan
-            .run_steps
-            .iter()
-            .cloned()
-            .enumerate()
-            .map(|(index, draft)| {
-                StepSignature::new(
-                    state.signature.clone(),
-                    base_step_no + index,
-                    draft.description,
-                    draft.kind,
-                )
-            })
-            .collect();
-        state
-            .plan_queue
-            .insert(plan_signature.clone(), plan, signatures)
-            .unwrap_or_else(|error| panic!("failed to insert task plan: {error:?}"));
-        plan_signature
     }
 }

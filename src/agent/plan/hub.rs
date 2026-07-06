@@ -1,17 +1,58 @@
+use std::sync::Arc;
 use std::sync::Mutex;
+use std::sync::atomic::Ordering;
 
-use marix_protocol::{Plan, PlanSignature, StepSignature};
+use marix_protocol::{Plan, PlanEvent, PlanSignature, StepEvent, StepSignature};
 
-use crate::plan::{PlanError, PlanRecord};
+use crate::plan::{PlanError, PlanRecord, PlanStringify};
+use crate::step::Step;
+use crate::task::TaskState;
 
-pub struct PlanQueue {
+pub struct PlanHub {
     records: Mutex<Vec<PlanRecord>>,
 }
 
-impl PlanQueue {
+impl PlanHub {
     pub fn new() -> Self {
         Self {
             records: Mutex::new(Vec::new()),
+        }
+    }
+
+    pub(crate) fn route_event(
+        &self,
+        state: &Arc<TaskState>,
+        signature: PlanSignature,
+        event: PlanEvent,
+    ) {
+        match event {
+            PlanEvent::Trigger(plan) => self.run_plan(state, signature, plan),
+        }
+    }
+
+    pub(crate) fn run_plan(&self, state: &Arc<TaskState>, signature: PlanSignature, plan: Plan) {
+        // Reserve a unique, contiguous step-number block for this plan up front.
+        let base_step_no = state
+            .step_count
+            .fetch_add(plan.run_steps.len(), Ordering::Relaxed);
+        let step_signatures: Vec<StepSignature> = plan
+            .run_steps
+            .iter()
+            .cloned()
+            .enumerate()
+            .map(|(index, draft)| {
+                StepSignature::new(
+                    state.signature.clone(),
+                    base_step_no + index,
+                    draft.description,
+                    draft.kind,
+                )
+            })
+            .collect();
+        self.insert(signature, plan, step_signatures.clone())
+            .unwrap_or_else(|error| panic!("failed to insert task plan: {error:?}"));
+        for step_signature in step_signatures {
+            Step::send_step_event(state, &step_signature, StepEvent::Trigger);
         }
     }
 
@@ -64,37 +105,12 @@ impl PlanQueue {
             .collect())
     }
 
-    pub fn current_plan_text(&self) -> String {
-        self.records
+    pub fn stringify(&self) -> PlanStringify {
+        let records = self
+            .records
             .lock()
             .unwrap_or_else(|error| error.into_inner())
-            .iter()
-            .map(|record| format!("{:?}", record.plan))
-            .collect::<Vec<_>>()
-            .join("\n")
-    }
-
-    pub fn pending_intentions_text(&self) -> String {
-        self.records
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .iter()
-            .flat_map(|record| record.plan.pending_steps.iter())
-            .map(|step| step.description.clone())
-            .collect::<Vec<_>>()
-            .join("\n")
-    }
-
-    pub(crate) fn step_signatures(
-        &self,
-        signature: &PlanSignature,
-    ) -> Result<Vec<StepSignature>, PlanError> {
-        self.records
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .iter()
-            .find(|record| &record.signature == signature)
-            .map(|record| record.step_signatures.clone())
-            .ok_or(PlanError::PlanNotFound)
+            .clone();
+        PlanStringify::new(records)
     }
 }

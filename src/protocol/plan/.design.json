@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/plan",
     "name": "plan",
-    "purpose": "Owns task plan and answer extraction protocol contracts. Answer is the dedicated answer-only model output type with Answer::parse, Plan is the planning output type with description, run_steps, pending_steps, and expected_result fields plus Plan::parse, PlanEvent carries a Run(Plan) notification, and PlanSignature pairs a task TaskSignature with a UUID identity to support persisted or tracked plan records.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns task plan and answer extraction protocol contracts. Answer is the dedicated answer-only model output type with Answer::parse, Plan is the planning output type with description, run_steps, pending_steps, and expected_result fields plus Plan::parse, PlanEvent carries a Trigger(Plan) notification, and PlanSignature pairs a task TaskSignature with a UUID identity to support persisted or tracked plan records.",
+    "changeStatus": "modified"
   },
+  "modified": ["event.rs"],
   "childModules": [],
   "elements": [
     {
@@ -75,20 +76,20 @@
       "name": "PlanEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/event.rs",
           "lineStart": 4,
           "lineEnd": 7,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 4,
-              "lineEnd": 7
+              "lineStart": 6,
+              "lineEnd": 6
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },

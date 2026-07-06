@@ -8,7 +8,7 @@ pub mod task;
 
 pub use execution::{Execution, ExecutionHub};
 pub use model::{DeepseekBackend, ModelBackend, ModelBackendError, ModelRequest, ModelResponse};
-pub use plan::{PlanError, PlanQueue, PlanRecord};
+pub use plan::{PlanError, PlanHub, PlanRecord, PlanStringify};
 pub use prompt::{InitialPrompt, Prompt};
 pub use session::{Session, SessionContext, SessionState};
 pub use step::Step;

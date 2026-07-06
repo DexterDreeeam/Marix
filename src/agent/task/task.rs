@@ -91,7 +91,9 @@ impl Task {
                         break;
                     }
                 }
-                SessionEvent::Plan(_, _) => {}
+                SessionEvent::Plan(signature, event) => {
+                    state.plan_hub.route_event(&state, signature, event);
+                }
             }
         }
     }

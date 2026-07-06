@@ -9,6 +9,17 @@ pub struct PlanRecord {
     pub remaining_steps: AtomicUsize,
 }
 
+impl Clone for PlanRecord {
+    fn clone(&self) -> Self {
+        Self {
+            signature: self.signature.clone(),
+            plan: self.plan.clone(),
+            step_signatures: self.step_signatures.clone(),
+            remaining_steps: AtomicUsize::new(self.remaining_steps.load(Ordering::Relaxed)),
+        }
+    }
+}
+
 impl PlanRecord {
     pub fn new(signature: PlanSignature, plan: Plan, step_signatures: Vec<StepSignature>) -> Self {
         let remaining_steps = AtomicUsize::new(step_signatures.len());

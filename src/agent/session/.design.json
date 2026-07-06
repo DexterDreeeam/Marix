@@ -3,16 +3,17 @@
   "module": {
     "path": "src/agent/session",
     "name": "session",
-    "purpose": "Owns the agent session runtime, total SessionEvent routing entrypoint, local task-originated event channel, shared session preview context with SessionContext::snapshot for prompt rendering, and task creation. Step and execution events are forwarded to the client and routed back to the owning Task by task id (through the task signature), plan events are accepted as a no-op placeholder, and host preview queries build a preview TaskSignature.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent session runtime, total SessionEvent routing entrypoint, local task-originated event channel, shared session preview context with SessionContext::snapshot for prompt rendering, and task creation. route_session_event routes task, step, execution, and plan events back to the owning Task by task id through the task signature and then calls send_client_event once; send_client_event applies a matches! filter that forwards only Task Status/Preview/CreateFailed and all Step events to the client. Host preview queries build a preview TaskSignature.",
+    "changeStatus": "modified"
   },
+  "modified": ["session.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
@@ -33,22 +34,26 @@
         {
           "sourcePath": "src/agent/session/session.rs",
           "lineStart": 45,
-          "lineEnd": 315,
+          "lineEnd": 325,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 227,
-              "lineEnd": 227
+              "lineStart": 228,
+              "lineEnd": 228
+            },
+            {
+              "lineStart": 241,
+              "lineEnd": 250
             }
           ],
           "modifiedLines": [
             {
-              "lineStart": 225,
-              "lineEnd": 225
+              "lineStart": 195,
+              "lineEnd": 195
             },
             {
-              "lineStart": 305,
-              "lineEnd": 308
+              "lineStart": 224,
+              "lineEnd": 226
             }
           ]
         }

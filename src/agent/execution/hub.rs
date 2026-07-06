@@ -24,8 +24,7 @@ impl ExecutionHub {
     }
 
     pub fn status(&self, signature: &ExecutionSignature) -> ExecutionStatus {
-        // Report the status of the execution tracked under this signature. An
-        // untracked signature has not begun, so it reports Started.
+        // An untracked signature has not started yet, so it reports Started.
         self.execution_map
             .get(signature)
             .map(|execution| execution.status.clone())

@@ -3,14 +3,15 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; the agent gained an execution-tracking module and routes step and plan events through Step, protocol plan/session events now carry PlanEvent and task-keyed signatures, and the host renamed its per-request ExecutionContext to ExecutionState.",
-    "changeStatus": "unchanged"
+    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; the agent now routes plan events to PlanHub which reserves step-number blocks and emits StepEvent::Trigger, Step emits PlanEvent::Trigger, protocol StepEvent gained a Trigger variant while PlanEvent renamed Run to Trigger, and the unused StepStatus enum was removed.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent crate namespace for model/session/task/prompt/step/plan/execution orchestration; a new execution module tracks tool executions keyed by ExecutionSignature, and Step owns step/plan routing shared by the task runtime."
+      "purpose": "Agent crate namespace for model/session/task/prompt/step/plan/execution orchestration; PlanHub (renamed from PlanQueue) routes plan events and reserves step-number blocks via TaskState::step_count, Step owns step/plan routing and emits PlanEvent::Trigger, and the execution module tracks tool executions keyed by ExecutionSignature."
     },
     {
       "path": "src/client",
@@ -30,7 +31,7 @@
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "First-class marix-protocol workspace crate for reusable session, task, answer, plan, step, execution, tool, and shared Signature definitions; TaskSignature derives ordering/hashing to key execution and plan maps, PlanEvent and task-carrying PlanSignature join the plan contracts, and SessionEvent carries plan events."
+      "purpose": "First-class marix-protocol workspace crate for reusable session, task, answer, plan, step, execution, tool, and shared Signature definitions; TaskSignature derives ordering/hashing to key execution and plan maps, PlanEvent renamed its Run variant to Trigger, StepEvent gained a Trigger variant, and the unused StepStatus enum was removed."
     },
     {
       "path": "src/host",

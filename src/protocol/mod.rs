@@ -16,7 +16,7 @@ pub use session::SessionEvent;
 pub use signature::Signature;
 pub use step::{
     ExecutionStepKind, ModelStepKind, StepDraft, StepEvent, StepKind, StepPreview, StepResult,
-    StepSignature, StepStatus, UserStepKind,
+    StepSignature, UserStepKind,
 };
 pub use task::{
     TaskEvent, TaskId, TaskPreview, TaskRequestBrief, TaskResult, TaskSignature, TaskStatus,

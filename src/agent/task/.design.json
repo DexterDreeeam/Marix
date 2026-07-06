@@ -3,16 +3,17 @@
   "module": {
     "path": "src/agent/task",
     "name": "task",
-    "purpose": "Owns agent task runtime. Task drives the per-task worker thread: it sends the initial status, triggers the initial plan through Step, and routes task, step, execution, and placeholder plan events, delegating step routing to Step. TaskState stores session context, plan_queue, execution_map from ExecutionSignature to StepSignature, and the step WorkQueue (step numbers derive from the queue size) with a manual Debug impl. task_execution.rs starts execution steps, records execution_map entries, maps succeeding execution status back into StepEvent::Complete via Step, and starts execution-analysis plans from completed execution output.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns agent task runtime. Task drives the per-task worker thread: it sends the initial status, triggers the initial plan through Step, routes task, step, and execution events, and now routes plan events to plan_hub.route_event. TaskState stores session context, plan_hub, execution_map from ExecutionSignature to StepSignature, a monotonic step_count allocator that reserves contiguous step-number blocks, and the step WorkQueue, with a manual Debug impl. task_execution.rs starts execution steps, records execution_map entries, maps succeeding execution status back into StepEvent::Complete via Step, and starts execution-analysis plans by emitting PlanEvent::Trigger through Step::send_plan_event.",
+    "changeStatus": "modified"
   },
+  "modified": ["task.rs", "task_execution.rs", "task_state.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
@@ -33,22 +34,13 @@
         {
           "sourcePath": "src/agent/task/task.rs",
           "lineStart": 65,
-          "lineEnd": 114,
+          "lineEnd": 116,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 94,
-              "lineEnd": 94
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 76,
-              "lineEnd": 76
-            },
-            {
-              "lineStart": 85,
-              "lineEnd": 85
+              "lineStart": 94,
+              "lineEnd": 96
             }
           ]
         },
@@ -60,24 +52,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 12
-            },
-            {
               "lineStart": 26,
               "lineEnd": 26
-            },
-            {
-              "lineStart": 29,
-              "lineEnd": 30
-            },
-            {
-              "lineStart": 34,
-              "lineEnd": 34
-            },
-            {
-              "lineStart": 80,
-              "lineEnd": 80
             }
           ]
         }
@@ -87,35 +63,50 @@
       "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task_state.rs",
-          "lineStart": 14,
-          "lineEnd": 23,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/agent/task/task_state.rs",
-          "lineStart": 25,
-          "lineEnd": 44,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/agent/task/task_state.rs",
-          "lineStart": 48,
-          "lineEnd": 55,
+          "lineStart": 15,
+          "lineEnd": 25,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 48,
-              "lineEnd": 55
+              "lineStart": 23,
+              "lineEnd": 23
             }
           ],
+          "modifiedLines": [
+            {
+              "lineStart": 21,
+              "lineEnd": 21
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/agent/task/task_state.rs",
+          "lineStart": 27,
+          "lineEnd": 47,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 43,
+              "lineEnd": 43
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 41,
+              "lineEnd": 41
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/agent/task/task_state.rs",
+          "lineStart": 51,
+          "lineEnd": 58,
+          "language": "rust",
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

@@ -3,9 +3,11 @@
   "module": {
     "path": "src/protocol/step",
     "name": "step",
-    "purpose": "Owns step protocol contracts: StepDraft executable drafts whose description carries Intent wording, StepKind with unit Intent plus model/execution/user variants, ModelStepKind phases Initial, Plan, ExecutionAnalysis, and Composition, ExecutionStepKind, UserStepKind, StepSignature with description and deterministic Signature implementation, StepEvent, StepResult, StepStatus, and StepPreview. Planning output moved to src/protocol/plan as Plan.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns step protocol contracts: StepDraft executable drafts whose description carries Intent wording, StepKind with unit Intent plus model/execution/user variants, ModelStepKind phases Initial, Plan, ExecutionAnalysis, and Composition, ExecutionStepKind, UserStepKind, StepSignature with description and deterministic Signature implementation, StepEvent whose new Trigger variant starts a step, StepResult, and StepPreview. Planning output moved to src/protocol/plan as Plan, and the unused StepStatus enum was removed.",
+    "changeStatus": "modified"
   },
+  "modified": ["event.rs", "mod.rs"],
+  "deleted": ["status.rs"],
   "childModules": [],
   "elements": [
     {
@@ -129,14 +131,19 @@
       "name": "StepEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/event.rs",
           "lineStart": 6,
-          "lineEnd": 19,
+          "lineEnd": 20,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 7
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -151,22 +158,6 @@
           "sourcePath": "src/protocol/step/result.rs",
           "lineStart": 4,
           "lineEnd": 6,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "StepStatus",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/step/status.rs",
-          "lineStart": 6,
-          "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

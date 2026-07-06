@@ -3,73 +3,81 @@
   "module": {
     "path": "src/agent/step",
     "name": "step",
-    "purpose": "Owns the agent runtime Step type as a top-level agent module. Step holds a shared Arc<TaskState>, protocol step identity, status, and update sequencing, and now owns task-step routing (route_step_event, trigger_initial_plan, run_plan, send_step_event), model-prompt rendering, and step/model completion handling moved from the task module.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent runtime Step type as a top-level agent module. Step holds a shared Arc<TaskState>, protocol step identity, and update sequencing, and now owns task-step routing (route_step_event handling StepEvent::Trigger and StepEvent::Complete, trigger_initial_plan, send_step_event, and send_plan_event), model-prompt rendering, and step/model completion handling; plan execution moved to PlanHub, so Step emits PlanEvent::Trigger instead of running plans directly.",
+    "changeStatus": "modified"
   },
+  "modified": ["step.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/step/step.rs",
           "lineStart": 14,
-          "lineEnd": 20,
+          "lineEnd": 19,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 16,
-              "lineEnd": 16
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/step/step.rs",
-          "lineStart": 22,
-          "lineEnd": 31,
+          "lineStart": 21,
+          "lineEnd": 29,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/step/step.rs",
+          "lineStart": 31,
+          "lineEnd": 74,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 25,
-              "lineEnd": 25
+              "lineStart": 67,
+              "lineEnd": 73
             }
           ],
           "modifiedLines": [
             {
-              "lineStart": 23,
-              "lineEnd": 23
+              "lineStart": 37,
+              "lineEnd": 46
+            },
+            {
+              "lineStart": 59,
+              "lineEnd": 59
             }
           ]
         },
         {
           "sourcePath": "src/agent/step/step.rs",
-          "lineStart": 33,
-          "lineEnd": 75,
+          "lineStart": 78,
+          "lineEnd": 251,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 33,
-              "lineEnd": 75
+              "lineStart": 206,
+              "lineEnd": 206
             }
           ],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/agent/step/step.rs",
-          "lineStart": 79,
-          "lineEnd": 279,
-          "language": "rust",
-          "addedLines": [
+          "modifiedLines": [
             {
-              "lineStart": 79,
-              "lineEnd": 279
+              "lineStart": 210,
+              "lineEnd": 211
+            },
+            {
+              "lineStart": 222,
+              "lineEnd": 222
+            },
+            {
+              "lineStart": 247,
+              "lineEnd": 247
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     }

@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use marix_protocol::{
     ExecutionEvent, ExecutionSignature, ExecutionStatus, ExecutionStepKind, ModelStepKind, Plan,
-    SessionEvent, StepDraft, StepEvent, StepKind, StepResult, StepSignature,
+    PlanEvent, SessionEvent, StepDraft, StepEvent, StepKind, StepResult, StepSignature,
 };
 
 use crate::step::Step;
@@ -23,7 +23,7 @@ impl Task {
             pending_steps: Vec::new(),
             expected_result: "Execution analysis updates the remaining plan".to_owned(),
         };
-        Step::run_plan(state, plan);
+        Step::send_plan_event(&state, PlanEvent::Trigger(plan));
     }
 
     pub(crate) fn run_execution_step(state: Arc<TaskState>, step: Step) {
