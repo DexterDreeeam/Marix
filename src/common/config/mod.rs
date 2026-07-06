@@ -4,7 +4,7 @@ pub mod sys;
 
 pub use config::{
     AgentConfig, CONFIG_FILE, ClientConfig, Config, CoreConfig, CredentialConfig, DeepseekConfig,
-    LogLevel, LoggingConfig, ModelBackend, ModelConfig, RuntimeConfig, RuntimeEnvironment,
-    RuntimeMode, ToolConfig,
+    ModelBackend, ModelConfig, RuntimeConfig, RuntimeEnvironment, RuntimeMode, TelemetryConfig,
+    ToolConfig,
 };
 pub use sys::{Arch, Platform, System};

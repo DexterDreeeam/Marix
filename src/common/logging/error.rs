@@ -4,7 +4,10 @@ use std::fmt;
 pub enum LoggingError {
     Config(String),
     Io(String),
-    Clock(String),
+    Database(String),
+    Serialization(String),
+    AlreadyConfigured,
+    NotHosting,
 }
 
 // -- Private -- //
@@ -15,18 +18,17 @@ impl From<std::io::Error> for LoggingError {
     }
 }
 
-impl From<std::time::SystemTimeError> for LoggingError {
-    fn from(error: std::time::SystemTimeError) -> Self {
-        Self::Clock(error.to_string())
-    }
-}
-
 impl fmt::Display for LoggingError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Config(message) => write!(formatter, "logging config error: {message}"),
-            Self::Io(message) => write!(formatter, "logging I/O error: {message}"),
-            Self::Clock(message) => write!(formatter, "logging clock error: {message}"),
+            Self::Config(message) => write!(formatter, "telemetry config error: {message}"),
+            Self::Io(message) => write!(formatter, "telemetry I/O error: {message}"),
+            Self::Database(message) => write!(formatter, "telemetry database error: {message}"),
+            Self::Serialization(message) => {
+                write!(formatter, "telemetry serialization error: {message}")
+            }
+            Self::AlreadyConfigured => write!(formatter, "telemetry logger already configured"),
+            Self::NotHosting => write!(formatter, "telemetry logger is not hosting a store"),
         }
     }
 }

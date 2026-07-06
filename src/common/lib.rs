@@ -5,10 +5,10 @@ pub mod structure;
 
 pub use config::{
     AgentConfig, Arch, ClientConfig, Config, CoreConfig, CredentialConfig, DeepseekConfig,
-    LoggingConfig, ModelBackend, ModelConfig, Platform, RuntimeConfig, RuntimeEnvironment,
-    RuntimeMode, System, ToolConfig,
+    ModelBackend, ModelConfig, Platform, RuntimeConfig, RuntimeEnvironment, RuntimeMode, System,
+    TelemetryConfig, ToolConfig,
 };
-pub use logging::{LogMessage, LogTag, LoggingError, debug, error, log, warning};
+pub use logging::{LogMessage, LogTag, Logger, LoggingError};
 pub use structure::WorkQueue;
 pub use structure::{
     ChannelError, NetReceiver, NetSender, Receiver, Sender, SharedNetReceiver, SharedNetSender,

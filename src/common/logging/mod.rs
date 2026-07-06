@@ -1,7 +1,9 @@
-pub mod entry;
 pub mod error;
 pub mod logger;
+pub mod message;
+pub mod tag;
 
-pub use entry::{LogMessage, LogTag};
 pub use error::LoggingError;
-pub use logger::{debug, error, log, warning};
+pub use logger::Logger;
+pub use message::LogMessage;
+pub use tag::LogTag;

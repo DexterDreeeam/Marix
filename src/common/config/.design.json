@@ -3,9 +3,10 @@
   "module": {
     "path": "src/common/config",
     "name": "config",
-    "purpose": "Strongly typed TOML configuration model and fallible loader. config.rs owns config-file discovery, alias substitution, credential resolution, runtime path normalization, and tool directory settings; sys.rs owns supported OS/architecture detection through serializable System, Platform, and Arch types with System::new and the private Ubuntu detector; mod.rs re-exports the public config surface including ToolConfig and system types.",
-    "changeStatus": "unchanged"
+    "purpose": "Strongly typed TOML configuration model and fallible loader. config.rs owns config-file discovery, alias substitution, credential resolution, runtime path normalization, telemetry database-path resolution, and tool directory settings; sys.rs owns supported OS/architecture detection through serializable System, Platform, and Arch types with System::new and the private Ubuntu detector; mod.rs re-exports the public config surface including TelemetryConfig, ToolConfig, and system types.",
+    "changeStatus": "modified"
   },
+  "modified": ["config.rs", "mod.rs"],
   "childModules": [],
   "elements": [
     {
@@ -28,7 +29,7 @@
       "name": "Config",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
@@ -38,8 +39,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 18,
-              "lineEnd": 18
+              "lineStart": 24,
+              "lineEnd": 24
             }
           ]
         },
@@ -53,18 +54,19 @@
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 194,
-          "lineEnd": 230,
+          "lineStart": 179,
+          "lineEnd": 222,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 207,
+              "lineEnd": 213
+            }
+          ],
           "modifiedLines": [
             {
-              "lineStart": 195,
-              "lineEnd": 195
-            },
-            {
-              "lineStart": 208,
-              "lineEnd": 208
+              "lineStart": 206,
+              "lineEnd": 206
             }
           ]
         }
@@ -290,8 +292,8 @@
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 403,
-          "lineEnd": 412,
+          "lineStart": 395,
+          "lineEnd": 404,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -299,33 +301,22 @@
       ]
     },
     {
-      "name": "LoggingConfig",
+      "name": "TelemetryConfig",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
           "lineStart": 109,
-          "lineEnd": 120,
+          "lineEnd": 115,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "LogLevel",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/config/config.rs",
-          "lineStart": 122,
-          "lineEnd": 130,
-          "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 109,
+              "lineEnd": 115
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -338,8 +329,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 132,
-          "lineEnd": 136,
+          "lineStart": 117,
+          "lineEnd": 121,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -354,8 +345,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 138,
-          "lineEnd": 142,
+          "lineStart": 123,
+          "lineEnd": 127,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

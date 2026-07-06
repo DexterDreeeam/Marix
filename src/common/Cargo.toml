@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 image = { version = "0.25", default-features = false, features = ["bmp", "gif", "ico", "jpeg", "png", "webp"] }
+redb = "4"
 reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
 remoc = "0.18"
 serde = { version = "1.0", features = ["derive"] }

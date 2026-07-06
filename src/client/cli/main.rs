@@ -1,8 +1,9 @@
 use std::io::{self, BufRead, Write};
+use std::net::SocketAddr;
 use std::time::Duration;
 
 use marix_client::{ClientEvent, ClientSession};
-use marix_common::Config;
+use marix_common::{Config, Logger};
 
 const IDLE_TIMEOUT: Duration = Duration::from_secs(30);
 
@@ -29,6 +30,17 @@ fn main() {
             std::process::exit(1);
         }
     };
+    let telemetry_address = match config.telemetry.server_address.parse::<SocketAddr>() {
+        Ok(address) => address,
+        Err(error) => {
+            eprintln!("invalid telemetry server address: {error}");
+            std::process::exit(1);
+        }
+    };
+    if let Err(error) = Logger::connect(telemetry_address) {
+        eprintln!("failed to connect telemetry logger: {error}");
+        std::process::exit(1);
+    }
     let mut session = ClientSession::new(config.name);
     for _ in 0..100 {
         if session.is_connected() {

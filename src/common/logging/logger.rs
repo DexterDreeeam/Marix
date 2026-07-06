@@ -1,237 +1,207 @@
-use std::env;
-use std::fs::{File, OpenOptions};
-use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::io::{Read, Write};
+use std::net::{SocketAddr, TcpListener, TcpStream};
+use std::path::PathBuf;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Mutex, OnceLock};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::thread;
 
-use crate::config::{Config, LoggingConfig};
+use crate::config::Config;
+use crate::external::redb::{Database, ReadableTableMetadata, TableDefinition};
+use crate::external::serde_json;
 use crate::logging::{LogMessage, LogTag, LoggingError};
 
-const LOG_DIRECTORY_NAME: &str = "log";
-const MAX_LOG_FILE_COUNT: usize = 20;
+const TELEMETRY_TABLE: TableDefinition<u64, &[u8]> = TableDefinition::new("telemetry");
 
-static LOGGING_CONFIG: OnceLock<Result<LoggingConfig, LoggingError>> = OnceLock::new();
-static LOG_FILE: OnceLock<Result<Mutex<LogFile>, LoggingError>> = OnceLock::new();
+static LOGGER: Logger = Logger::new();
 
-/// Writes an info, warning, or error log message when the matching config flag is enabled.
-pub fn log(message: impl Into<LogMessage>) -> Result<(), LoggingError> {
-    let message = message.into();
-    if !is_log_enabled(message.tag)? {
-        return Ok(());
+pub struct Logger {
+    sink: OnceLock<Sink>,
+}
+
+impl Logger {
+    /// Starts the telemetry logger server on the given port and records this
+    /// process's own telemetry directly to the local database. Agent-only.
+    pub fn host(port: u16) -> Result<(), LoggingError> {
+        let store = Store::open()?;
+        LOGGER
+            .sink
+            .set(Sink::Local(store))
+            .map_err(|_| LoggingError::AlreadyConfigured)?;
+        let listener = TcpListener::bind(SocketAddr::from(([0, 0, 0, 0], port)))?;
+        thread::spawn(move || spawn_worker(listener));
+        Ok(())
     }
-    write_log_line(message.tag.label(), &message.message)
-}
 
-/// Writes a warning log message when warning logging is enabled.
-pub fn warning(message: impl Into<String>) -> Result<(), LoggingError> {
-    log(LogMessage::warning(message))
-}
+    /// Connects this process to a telemetry logger server, blocking until the
+    /// connection is established. Later telemetry is streamed to that server.
+    pub fn connect(socket: SocketAddr) -> Result<(), LoggingError> {
+        let stream = TcpStream::connect(socket)?;
+        LOGGER
+            .sink
+            .set(Sink::Remote(Mutex::new(stream)))
+            .map_err(|_| LoggingError::AlreadyConfigured)?;
+        Ok(())
+    }
 
-/// Writes an error log message when error logging is enabled.
-pub fn error(message: impl Into<String>) -> Result<(), LoggingError> {
-    log(LogMessage::error(message))
-}
+    /// Emits an info-tagged telemetry message.
+    pub fn log(message: impl Into<String>) -> Result<(), LoggingError> {
+        LOGGER.telemetry(LogTag::Info, message.into())
+    }
 
-/// Writes a debug-only log message; the closure is evaluated only in debug builds.
-#[cfg(debug_assertions)]
-pub fn debug<T>(message: impl FnOnce() -> T) -> Result<(), LoggingError>
-where
-    T: Into<String>,
-{
-    write_log_line("DEBUG", &message().into())
-}
+    /// Emits a warning-tagged telemetry message.
+    pub fn warning(message: impl Into<String>) -> Result<(), LoggingError> {
+        LOGGER.telemetry(LogTag::Warning, message.into())
+    }
 
-/// Writes a debug-only log message; release builds keep the API and skip the closure.
-#[cfg(not(debug_assertions))]
-pub fn debug<T>(_message: impl FnOnce() -> T) -> Result<(), LoggingError>
-where
-    T: Into<String>,
-{
-    Ok(())
+    /// Emits an error-tagged telemetry message.
+    pub fn error(message: impl Into<String>) -> Result<(), LoggingError> {
+        LOGGER.telemetry(LogTag::Error, message.into())
+    }
+
+    /// Emits a debug-tagged telemetry message.
+    pub fn debug(message: impl Into<String>) -> Result<(), LoggingError> {
+        LOGGER.telemetry(LogTag::Debug, message.into())
+    }
 }
 
 // -- Private -- //
 
-struct LogFile {
-    file: File,
-}
-
-enum ProcessRole {
-    Client,
-    Agent,
-    Shared,
-}
-
-impl LogFile {
-    fn create() -> Result<Self, LoggingError> {
-        let directory = log_directory()?;
-        std::fs::create_dir_all(&directory)?;
-        prune_log_files(&directory)?;
-        let path = next_log_path(&directory)?;
-        let file = OpenOptions::new()
-            .append(true)
-            .create_new(true)
-            .open(path)?;
-        Ok(Self { file })
+impl Logger {
+    const fn new() -> Self {
+        Self {
+            sink: OnceLock::new(),
+        }
     }
 
-    fn write_line(&mut self, tag: &str, message: &str) -> Result<(), LoggingError> {
-        let timestamp = timestamp_millis()?;
-        writeln!(
-            self.file,
-            "{timestamp} [{tag}] {}",
-            normalize_log_message(message)
-        )?;
-        self.file.flush()?;
-        self.file.sync_data()?;
-        Ok(())
+    fn telemetry(&self, tag: LogTag, message: String) -> Result<(), LoggingError> {
+        let message = LogMessage::new(tag, message);
+        match self.sink.get() {
+            Some(Sink::Local(_)) => self.record(message),
+            Some(Sink::Remote(stream)) => send_message(stream, &message),
+            None => Ok(()),
+        }
     }
-}
 
-impl LogTag {
-    fn label(self) -> &'static str {
-        match self {
-            Self::Info => "INFO",
-            Self::Warning => "WARNING",
-            Self::Error => "ERROR",
+    fn record(&self, mut message: LogMessage) -> Result<(), LoggingError> {
+        message.stamp_arrival();
+        match self.sink.get() {
+            Some(Sink::Local(store)) => store.record(&message),
+            _ => Err(LoggingError::NotHosting),
         }
     }
 }
 
-fn is_log_enabled(tag: LogTag) -> Result<bool, LoggingError> {
-    let config = logging_config()?;
-    Ok(match tag {
-        LogTag::Info => config.enable_log_info,
-        LogTag::Warning => config.enable_log_warning,
-        LogTag::Error => config.enable_log_error,
-    })
+enum Sink {
+    Local(Store),
+    Remote(Mutex<TcpStream>),
 }
 
-fn logging_config() -> Result<&'static LoggingConfig, LoggingError> {
-    match LOGGING_CONFIG.get_or_init(load_logging_config) {
-        Ok(config) => Ok(config),
-        Err(error) => Err(error.clone()),
+struct Store {
+    database: Database,
+    next_id: AtomicU64,
+}
+
+impl Store {
+    fn open() -> Result<Self, LoggingError> {
+        let config = Config::load().map_err(LoggingError::Config)?;
+        let path = PathBuf::from(config.telemetry.database_path);
+        if let Some(parent) = path.parent()
+            && !parent.as_os_str().is_empty()
+        {
+            std::fs::create_dir_all(parent)?;
+        }
+        let database =
+            Database::create(&path).map_err(|error| LoggingError::Database(error.to_string()))?;
+        let next_id = Self::stored_count(&database)?;
+        Ok(Self {
+            database,
+            next_id: AtomicU64::new(next_id),
+        })
+    }
+
+    fn record(&self, message: &LogMessage) -> Result<(), LoggingError> {
+        let id = self.next_id.fetch_add(1, Ordering::Relaxed);
+        let bytes = serde_json::to_vec(message)
+            .map_err(|error| LoggingError::Serialization(error.to_string()))?;
+        let write = self
+            .database
+            .begin_write()
+            .map_err(|error| LoggingError::Database(error.to_string()))?;
+        {
+            let mut table = write
+                .open_table(TELEMETRY_TABLE)
+                .map_err(|error| LoggingError::Database(error.to_string()))?;
+            table
+                .insert(id, bytes.as_slice())
+                .map_err(|error| LoggingError::Database(error.to_string()))?;
+        }
+        write
+            .commit()
+            .map_err(|error| LoggingError::Database(error.to_string()))?;
+        Ok(())
+    }
+
+    fn stored_count(database: &Database) -> Result<u64, LoggingError> {
+        let write = database
+            .begin_write()
+            .map_err(|error| LoggingError::Database(error.to_string()))?;
+        let count = {
+            let table = write
+                .open_table(TELEMETRY_TABLE)
+                .map_err(|error| LoggingError::Database(error.to_string()))?;
+            table
+                .len()
+                .map_err(|error| LoggingError::Database(error.to_string()))?
+        };
+        write
+            .commit()
+            .map_err(|error| LoggingError::Database(error.to_string()))?;
+        Ok(count)
     }
 }
 
-fn load_logging_config() -> Result<LoggingConfig, LoggingError> {
-    Config::load()
-        .map(|config| config.logging)
-        .map_err(LoggingError::Config)
+fn spawn_worker(listener: TcpListener) {
+    loop {
+        match listener.accept() {
+            Ok((stream, _address)) => {
+                thread::spawn(move || run_worker(stream));
+            }
+            Err(_) => continue,
+        }
+    }
 }
 
-fn write_log_line(tag: &str, message: &str) -> Result<(), LoggingError> {
-    let file = log_file()?;
-    let mut guard = file
+fn run_worker(mut stream: TcpStream) {
+    while let Ok(Some(message)) = read_message(&mut stream) {
+        let _ = LOGGER.record(message);
+    }
+}
+
+fn send_message(stream: &Mutex<TcpStream>, message: &LogMessage) -> Result<(), LoggingError> {
+    let bytes = serde_json::to_vec(message)
+        .map_err(|error| LoggingError::Serialization(error.to_string()))?;
+    let length = u32::try_from(bytes.len())
+        .map_err(|_| LoggingError::Serialization("telemetry message too large".to_owned()))?;
+    let mut guard = stream
         .lock()
         .map_err(|error| LoggingError::Io(error.to_string()))?;
-    guard.write_line(tag, message)
-}
-
-fn log_file() -> Result<&'static Mutex<LogFile>, LoggingError> {
-    match LOG_FILE.get_or_init(|| LogFile::create().map(Mutex::new)) {
-        Ok(file) => Ok(file),
-        Err(error) => Err(error.clone()),
-    }
-}
-
-fn log_directory() -> Result<PathBuf, LoggingError> {
-    let config = Config::load().map_err(LoggingError::Config)?;
-    Ok(PathBuf::from(marix_path_for_process(&config)).join(LOG_DIRECTORY_NAME))
-}
-
-fn prune_log_files(directory: &Path) -> Result<(), LoggingError> {
-    let mut entries = log_file_entries(directory)?;
-    entries.sort_by(|left, right| {
-        left.modified
-            .cmp(&right.modified)
-            .then_with(|| left.path.cmp(&right.path))
-    });
-
-    let remove_count = entries.len().saturating_sub(MAX_LOG_FILE_COUNT - 1);
-    for entry in entries.into_iter().take(remove_count) {
-        std::fs::remove_file(entry.path)?;
-    }
+    guard.write_all(&length.to_be_bytes())?;
+    guard.write_all(&bytes)?;
+    guard.flush()?;
     Ok(())
 }
 
-fn log_file_entries(directory: &Path) -> Result<Vec<LogFileEntry>, LoggingError> {
-    let mut entries = Vec::new();
-    for entry in std::fs::read_dir(directory)? {
-        let entry = entry?;
-        let path = entry.path();
-        if !path.is_file()
-            || path.extension().and_then(|extension| extension.to_str()) != Some("log")
-        {
-            continue;
-        }
-        let modified = entry.metadata()?.modified().unwrap_or(UNIX_EPOCH);
-        entries.push(LogFileEntry { path, modified });
+fn read_message(stream: &mut TcpStream) -> Result<Option<LogMessage>, LoggingError> {
+    let mut length_buffer = [0_u8; 4];
+    match stream.read_exact(&mut length_buffer) {
+        Ok(()) => {}
+        Err(error) if error.kind() == std::io::ErrorKind::UnexpectedEof => return Ok(None),
+        Err(error) => return Err(LoggingError::Io(error.to_string())),
     }
-    Ok(entries)
-}
-
-fn next_log_path(directory: &Path) -> Result<PathBuf, LoggingError> {
-    let timestamp = timestamp_millis()?;
-    for suffix in 0..=999 {
-        let file_name = if suffix == 0 {
-            format!("{timestamp}.log")
-        } else {
-            format!("{timestamp}-{suffix}.log")
-        };
-        let path = directory.join(file_name);
-        if !path.exists() {
-            return Ok(path);
-        }
-    }
-    Err(LoggingError::Io(
-        "could not allocate unique log file name".to_owned(),
-    ))
-}
-
-fn timestamp_millis() -> Result<u128, LoggingError> {
-    Ok(SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis())
-}
-
-fn normalize_log_message(message: &str) -> String {
-    message.replace("\r\n", "\\n").replace(['\r', '\n'], "\\n")
-}
-
-fn marix_path_for_process(config: &Config) -> &str {
-    match current_process_role() {
-        ProcessRole::Client => config
-            .runtime
-            .marix_path_client
-            .as_deref()
-            .unwrap_or(&config.runtime.marix_path),
-        ProcessRole::Agent => config
-            .runtime
-            .marix_path_agent
-            .as_deref()
-            .unwrap_or(&config.runtime.marix_path),
-        ProcessRole::Shared => &config.runtime.marix_path,
-    }
-}
-
-fn current_process_role() -> ProcessRole {
-    let Some(name) = env::current_exe().ok().and_then(|path| {
-        path.file_name()
-            .map(|name| name.to_string_lossy().to_lowercase())
-    }) else {
-        return ProcessRole::Shared;
-    };
-
-    if name.contains("agent") {
-        ProcessRole::Agent
-    } else if name.contains("client") || name.contains("cli") {
-        ProcessRole::Client
-    } else {
-        ProcessRole::Shared
-    }
-}
-
-struct LogFileEntry {
-    path: PathBuf,
-    modified: SystemTime,
+    let length = u32::from_be_bytes(length_buffer) as usize;
+    let mut buffer = vec![0_u8; length];
+    stream.read_exact(&mut buffer)?;
+    let message = serde_json::from_slice(&buffer)
+        .map_err(|error| LoggingError::Serialization(error.to_string()))?;
+    Ok(Some(message))
 }

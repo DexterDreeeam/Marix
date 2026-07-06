@@ -21,7 +21,7 @@ pub struct Config {
     pub client: ClientConfig,
     pub agent: AgentConfig,
     pub model: ModelConfig,
-    pub logging: LoggingConfig,
+    pub telemetry: TelemetryConfig,
     pub credential: CredentialConfig,
     pub tool: ToolConfig,
 }
@@ -108,25 +108,10 @@ pub struct DeepseekConfig {
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct LoggingConfig {
-    pub directory: String,
-    pub level: LogLevel,
-    #[serde(default)]
-    pub enable_log_info: bool,
-    #[serde(default)]
-    pub enable_log_warning: bool,
-    #[serde(default)]
-    pub enable_log_error: bool,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum LogLevel {
-    Error,
-    Warn,
-    Info,
-    Debug,
-    Trace,
+pub struct TelemetryConfig {
+    pub database_path: String,
+    pub bind_port: u16,
+    pub server_address: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
@@ -152,7 +137,7 @@ struct RawConfig {
     client: ClientConfig,
     agent: AgentConfig,
     model: RawModelConfig,
-    logging: LoggingConfig,
+    telemetry: TelemetryConfig,
     credential: CredentialConfig,
     tool: ToolConfig,
 }
@@ -218,7 +203,14 @@ fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
                 api_key: deepseek_api_key,
             },
         },
-        logging: raw_config.logging,
+        telemetry: TelemetryConfig {
+            database_path: path_to_config_string(resolve_config_path(
+                &repo_root,
+                &raw_config.telemetry.database_path,
+            )),
+            bind_port: raw_config.telemetry.bind_port,
+            server_address: raw_config.telemetry.server_address,
+        },
         credential: raw_config.credential,
         tool: ToolConfig {
             directory: path_to_config_string(resolve_config_path(

@@ -1,4 +1,5 @@
 pub mod image;
+pub mod redb;
 pub mod remoc;
 pub mod reqwest;
 pub mod serde;

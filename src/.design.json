@@ -4,8 +4,9 @@
     "path": "src",
     "name": "src",
     "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; the agent now routes plan events to PlanHub which reserves step-number blocks and emits StepEvent::Trigger, Step emits PlanEvent::Trigger, protocol StepEvent gained a Trigger variant while PlanEvent renamed Run to Trigger, and the unused StepStatus enum was removed.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/agent",
@@ -20,7 +21,7 @@
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared common crate namespace for config loading with serializable System/Platform/Arch re-exports, external adapters, logging, and structure utilities including WorkQueue::clear for session cleanup."
+      "purpose": "Shared common crate namespace for config loading with serializable System/Platform/Arch re-exports and telemetry database-path resolution, external adapters including a redb embedded-database wrapper, database telemetry logging via the Logger client over redb and TCP, and structure utilities including WorkQueue::clear for session cleanup."
     },
     {
       "path": "src/prompt",

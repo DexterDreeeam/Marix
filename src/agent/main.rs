@@ -1,5 +1,5 @@
 use marix_agent::Session;
-use marix_common::Config;
+use marix_common::{Config, Logger};
 
 fn main() {
     let config = match Config::load() {
@@ -11,6 +11,10 @@ fn main() {
     };
     if !config.agent.enabled {
         eprintln!("agent is disabled by configuration");
+        std::process::exit(1);
+    }
+    if let Err(error) = Logger::host(config.telemetry.bind_port) {
+        eprintln!("failed to start telemetry logger: {error}");
         std::process::exit(1);
     }
     let _session = Session::new(config.name);
