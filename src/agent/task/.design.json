@@ -4,16 +4,15 @@
     "path": "src/agent/task",
     "name": "task",
     "purpose": "Owns agent task runtime. Task drives the per-task worker thread: it sends the initial status, triggers the initial plan through Step, routes task and step events, forwards execution events to execution_hub.route_event, and routes plan events to plan_hub.route_event. TaskState (state.rs) holds the session context, plan signature, user request, model backend, session event sender, plan_hub, an ExecutionHub that owns execution tracking, a monotonic step_count allocator that reserves contiguous step-number blocks, and the step WorkQueue, plus a manual Debug impl. Execution step spawning and event routing live in ExecutionHub, and execution-analysis plan triggering lives in Step.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["task.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
