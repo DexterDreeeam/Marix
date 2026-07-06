@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/agent/execution",
+    "name": "execution",
+    "purpose": "Owns agent-side tracking of tool executions. Execution captures one tool execution keyed by its ExecutionSignature with lifecycle status and ordered output chunks, while ExecutionHub owns an Arc<TaskState> and a map of Execution values to route execution events and report per-signature status.",
+    "changeStatus": "added"
+  },
+  "added": [".", "execution.rs", "hub.rs", "mod.rs"],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "Execution",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/execution/execution.rs",
+          "lineStart": 5,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/execution/execution.rs",
+          "lineStart": 12,
+          "lineEnd": 20,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 20
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ExecutionHub",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/execution/hub.rs",
+          "lineStart": 9,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/execution/hub.rs",
+          "lineStart": 14,
+          "lineEnd": 34,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 34
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

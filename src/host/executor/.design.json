@@ -4,13 +4,14 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Owns host-side tool registry, tool process launching, and execution orchestration. Executor sends preview responses through send_preview_event, reports unknown-tool failures through send_failed_event, and includes System::new host metadata with current ToolPreview entries for the agent session.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["mod.rs"],
   "childModules": [
     {
       "path": "src/host/executor/execution",
       "name": "execution",
-      "purpose": "Per-execution host runtime split out of executor.rs: ExecutionRuntime drives one agent Execution, spawning a worker in new that reads raw tool input from parameters.input.content on the typed ExecutionRequest, runs tool.execute, and sends ExecutionUpdate plus terminal ExecutionStatus while handling Cancel/Kill control events; ExecutionContext holds the host-local Tool handle, ExecutionRequest, and agent SessionMessage sender."
+      "purpose": "Per-execution host runtime split out of executor.rs: ExecutionRuntime drives one agent Execution, spawning a worker in new that reads raw tool input from parameters.input.content on the typed ExecutionRequest, runs tool.execute, and sends ExecutionUpdate plus terminal ExecutionStatus while handling Cancel/Kill control events; ExecutionState holds the host-local Tool handle, ExecutionRequest, and agent SessionMessage sender."
     }
   ],
   "elements": [

@@ -9,6 +9,7 @@ use marix_protocol::{
 
 use crate::model::{DeepseekBackend, ModelBackend};
 use crate::session::SessionContext;
+use crate::step::Step;
 use crate::task::TaskState;
 
 pub struct Task {
@@ -72,7 +73,7 @@ impl Task {
 
     fn run_worker(state: Arc<TaskState>, task_rx: Receiver<SessionEvent>) {
         Self::send_status_event(&state, TaskStatus::Started);
-        Self::trigger_initial_plan(Arc::clone(&state));
+        Step::trigger_initial_plan(Arc::clone(&state));
         while let Ok(event) = task_rx.recv() {
             match event {
                 SessionEvent::Task(_, _) => {
@@ -81,7 +82,7 @@ impl Task {
                     }
                 }
                 SessionEvent::Step(signature, event) => {
-                    if !Self::route_step_event(Arc::clone(&state), signature, event) {
+                    if !Step::route_step_event(Arc::clone(&state), signature, event) {
                         break;
                     }
                 }
@@ -90,6 +91,7 @@ impl Task {
                         break;
                     }
                 }
+                SessionEvent::Plan(_, _) => {}
             }
         }
     }

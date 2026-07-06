@@ -1,7 +1,7 @@
 use std::collections::HashMap;
+use std::fmt;
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
-use std::sync::atomic::AtomicUsize;
 
 use marix_common::{Sender, WorkQueue};
 use marix_protocol::{ExecutionSignature, SessionEvent, StepSignature, TaskSignature};
@@ -17,7 +17,6 @@ pub struct TaskState {
     pub user_request: String,
     pub model_backend: StdMutex<Box<dyn ModelBackend>>,
     pub session_tx: Sender<SessionEvent>,
-    pub step_count: AtomicUsize,
     pub plan_queue: PlanQueue,
     pub execution_map: StdMutex<HashMap<ExecutionSignature, StepSignature>>,
     pub steps: WorkQueue<usize, Step>,
@@ -37,10 +36,20 @@ impl TaskState {
             user_request,
             model_backend: StdMutex::new(model_backend),
             session_tx,
-            step_count: AtomicUsize::new(0),
             plan_queue: PlanQueue::new(),
             execution_map: StdMutex::new(HashMap::new()),
             steps: WorkQueue::new(),
         }
+    }
+}
+
+// -- Private -- //
+
+impl fmt::Debug for TaskState {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("TaskState")
+            .field("signature", &self.signature)
+            .finish_non_exhaustive()
     }
 }

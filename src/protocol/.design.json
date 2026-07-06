@@ -3,19 +3,20 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, plan, answer, step, execution, tool, and shared signature protocol contracts. ExecutionSignature now supports ordering and hashing for runtime execution-to-step maps.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, plan, answer, step, execution, tool, and shared signature protocol contracts. TaskSignature derives ordering and hashing so ExecutionSignature and PlanSignature can key runtime maps, and the plan module now re-exports PlanEvent alongside Plan and PlanSignature.",
+    "changeStatus": "modified"
   },
+  "modified": ["mod.rs", "lib.rs"],
   "childModules": [
     {
       "path": "src/protocol/task",
       "name": "task",
-      "purpose": "Owns task protocol contracts including task identifiers, events, request previews, signature-free TaskPreview request/result snapshots, TaskSignature values that implement Signature via their TaskId UUID, results, and statuses."
+      "purpose": "Owns task protocol contracts including task identifiers, events, request previews, signature-free TaskPreview request/result snapshots, TaskSignature values that derive ordering and hashing and implement Signature via their TaskId UUID, results, and statuses."
     },
     {
       "path": "src/protocol/plan",
       "name": "plan",
-      "purpose": "Owns Answer parsing, Plan parsing, run_steps/pending_steps planning fields, and PlanSignature identity contracts for extracted model task outputs."
+      "purpose": "Owns Answer parsing, Plan parsing, run_steps/pending_steps planning fields, the PlanEvent Run notification, and task-carrying PlanSignature identity contracts for extracted model task outputs."
     },
     {
       "path": "src/protocol/step",
@@ -25,12 +26,12 @@
     {
       "path": "src/protocol/execution",
       "name": "execution",
-      "purpose": "Owns execution protocol contracts including map-friendly ExecutionSignature values, execution ids, events, requests, updates, and statuses."
+      "purpose": "Owns execution protocol contracts including map-friendly ExecutionSignature values keyed by a task signature, execution ids, events, requests, updates, and statuses."
     },
     {
       "path": "src/protocol/session",
       "name": "session",
-      "purpose": "Owns the SessionEvent protocol enum."
+      "purpose": "Owns the SessionEvent protocol enum carrying task, step, execution, and plan events."
     },
     {
       "path": "src/protocol/tool",

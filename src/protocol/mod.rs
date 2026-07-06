@@ -11,7 +11,7 @@ pub use execution::{
     ExeId, ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, ExecutionUpdate,
 };
 pub use message::SessionMessage;
-pub use plan::{Answer, Plan, PlanSignature};
+pub use plan::{Answer, Plan, PlanEvent, PlanSignature};
 pub use session::SessionEvent;
 pub use signature::Signature;
 pub use step::{

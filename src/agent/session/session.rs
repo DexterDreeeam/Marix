@@ -222,8 +222,9 @@ impl Session {
                 Self::send_host_event(state, event.clone());
             }
             SessionEvent::Execution(signature, _) => {
-                Self::route_task_event(state, &signature.task_id, event.clone());
+                Self::route_task_event(state, &signature.task.id, event.clone());
             }
+            SessionEvent::Plan(_, _) => {}
         }
     }
 
@@ -301,7 +302,10 @@ impl Session {
             .unwrap_or_else(|error| error.into_inner())
             .as_mut()
         {
-            let signature = ExecutionSignature::new(TaskId::new(), "preview".to_string());
+            let signature = ExecutionSignature::new(
+                TaskSignature::new("preview".to_string()),
+                "preview".to_string(),
+            );
             let _ = sender.try_send(Self::package_message(SessionEvent::Execution(
                 signature,
                 ExecutionEvent::PreviewQuery,

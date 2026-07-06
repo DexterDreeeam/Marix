@@ -9,10 +9,10 @@ use marix_protocol::{
     SessionMessage,
 };
 
-use super::ExecutionContext;
+use super::ExecutionState;
 
 pub struct ExecutionRuntime {
-    context: Arc<ExecutionContext>,
+    state: Arc<ExecutionState>,
     execution_tx: Sender<SessionEvent>,
     worker: JoinHandle<()>,
 }
@@ -24,13 +24,13 @@ impl ExecutionRuntime {
         agent_tx: SharedNetSender<SessionMessage>,
     ) -> Self {
         let (execution_tx, execution_rx) = build_channel();
-        let context = Arc::new(ExecutionContext::new(tool, parameters, agent_tx));
+        let state = Arc::new(ExecutionState::new(tool, parameters, agent_tx));
         let worker = thread::spawn({
-            let context = Arc::clone(&context);
-            move || Self::event_loop(context, execution_rx)
+            let state = Arc::clone(&state);
+            move || Self::event_loop(state, execution_rx)
         });
         Self {
-            context,
+            state,
             execution_tx,
             worker,
         }
@@ -44,17 +44,17 @@ impl ExecutionRuntime {
 // -- Private -- //
 
 impl ExecutionRuntime {
-    fn event_loop(context: Arc<ExecutionContext>, execution_rx: Receiver<SessionEvent>) {
-        Self::send_status_event(&context, ExecutionStatus::Started);
-        Self::spawn_execution(Arc::clone(&context));
+    fn event_loop(state: Arc<ExecutionState>, execution_rx: Receiver<SessionEvent>) {
+        Self::send_status_event(&state, ExecutionStatus::Started);
+        Self::spawn_execution(Arc::clone(&state));
         while let Ok(event) = execution_rx.recv() {
             match event {
                 SessionEvent::Execution(_, ExecutionEvent::Cancel) => {
-                    Self::send_status_event(&context, ExecutionStatus::Canceled);
+                    Self::send_status_event(&state, ExecutionStatus::Canceled);
                     break;
                 }
                 SessionEvent::Execution(_, ExecutionEvent::Kill) => {
-                    Self::send_status_event(&context, ExecutionStatus::Killed);
+                    Self::send_status_event(&state, ExecutionStatus::Killed);
                     break;
                 }
                 _ => {}
@@ -62,37 +62,37 @@ impl ExecutionRuntime {
         }
     }
 
-    fn spawn_execution(context: Arc<ExecutionContext>) {
+    fn spawn_execution(state: Arc<ExecutionState>) {
         thread::spawn(move || {
-            let input = context.parameters.input.content.clone();
-            let output = context.tool.execute(&input);
-            Self::send_update_event(&context, output);
-            Self::send_status_event(&context, ExecutionStatus::Succeed);
+            let input = state.parameters.input.content.clone();
+            let output = state.tool.execute(&input);
+            Self::send_update_event(&state, output);
+            Self::send_status_event(&state, ExecutionStatus::Succeed);
         });
     }
 
-    fn send_status_event(context: &ExecutionContext, status: ExecutionStatus) {
+    fn send_status_event(state: &ExecutionState, status: ExecutionStatus) {
         Self::send_event(
-            context,
+            state,
             SessionEvent::Execution(
-                context.parameters.signature.clone(),
+                state.parameters.signature.clone(),
                 ExecutionEvent::Status(status),
             ),
         );
     }
 
-    fn send_update_event(context: &ExecutionContext, content: String) {
+    fn send_update_event(state: &ExecutionState, content: String) {
         Self::send_event(
-            context,
+            state,
             SessionEvent::Execution(
-                context.parameters.signature.clone(),
+                state.parameters.signature.clone(),
                 ExecutionEvent::Update(ExecutionUpdate { content }),
             ),
         );
     }
 
-    fn send_event(context: &ExecutionContext, event: SessionEvent) {
-        if let Some(sender) = context
+    fn send_event(state: &ExecutionState, event: SessionEvent) {
+        if let Some(sender) = state
             .agent_tx
             .lock()
             .unwrap_or_else(|error| error.into_inner())

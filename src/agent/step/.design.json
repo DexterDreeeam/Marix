@@ -3,34 +3,71 @@
   "module": {
     "path": "src/agent/step",
     "name": "step",
-    "purpose": "Owns the agent runtime Step type as a top-level agent module. Step stores protocol step identity, current status, and update sequencing state used by task execution.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent runtime Step type as a top-level agent module. Step holds a shared Arc<TaskState>, protocol step identity, status, and update sequencing, and now owns task-step routing (route_step_event, trigger_initial_plan, run_plan, send_step_event), model-prompt rendering, and step/model completion handling moved from the task module.",
+    "changeStatus": "modified"
   },
+  "modified": ["step.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/step/step.rs",
-          "lineStart": 7,
-          "lineEnd": 11,
+          "lineStart": 14,
+          "lineEnd": 20,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 16,
+              "lineEnd": 16
+            }
+          ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/step/step.rs",
-          "lineStart": 13,
-          "lineEnd": 21,
+          "lineStart": 22,
+          "lineEnd": 31,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 13,
-              "lineEnd": 21
+              "lineStart": 25,
+              "lineEnd": 25
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 23
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/agent/step/step.rs",
+          "lineStart": 33,
+          "lineEnd": 75,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 33,
+              "lineEnd": 75
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/step/step.rs",
+          "lineStart": 79,
+          "lineEnd": 279,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 79,
+              "lineEnd": 279
             }
           ],
           "modifiedLines": []

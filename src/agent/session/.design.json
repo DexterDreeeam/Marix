@@ -3,16 +3,17 @@
   "module": {
     "path": "src/agent/session",
     "name": "session",
-    "purpose": "Owns the agent session runtime, total SessionEvent routing entrypoint, local task-originated event channel, shared session preview context, and task creation. Step events are forwarded to the client and also routed back to the owning Task by task id so task workers handle completion state transitions.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the agent session runtime, total SessionEvent routing entrypoint, local task-originated event channel, shared session preview context with SessionContext::snapshot for prompt rendering, and task creation. Step and execution events are forwarded to the client and routed back to the owning Task by task id (through the task signature), plan events are accepted as a no-op placeholder, and host preview queries build a preview TaskSignature.",
+    "changeStatus": "modified"
   },
+  "modified": ["session.rs", "session_context.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session.rs",
@@ -33,13 +34,22 @@
         {
           "sourcePath": "src/agent/session/session.rs",
           "lineStart": 45,
-          "lineEnd": 309,
+          "lineEnd": 315,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 227,
+              "lineEnd": 227
+            }
+          ],
           "modifiedLines": [
             {
-              "lineStart": 201,
-              "lineEnd": 204
+              "lineStart": 225,
+              "lineEnd": 225
+            },
+            {
+              "lineStart": 305,
+              "lineEnd": 308
             }
           ]
         }
@@ -89,7 +99,7 @@
       "name": "SessionContext",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/session/session_context.rs",
@@ -97,6 +107,19 @@
           "lineEnd": 8,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/session/session_context.rs",
+          "lineStart": 10,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 18
+            }
+          ],
           "modifiedLines": []
         }
       ]

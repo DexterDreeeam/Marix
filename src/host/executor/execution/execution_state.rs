@@ -2,13 +2,13 @@ use crate::executor::Tool;
 use marix_common::SharedNetSender;
 use marix_protocol::{ExecutionRequest, SessionMessage};
 
-pub struct ExecutionContext {
+pub struct ExecutionState {
     pub tool: Tool,
     pub parameters: ExecutionRequest,
     pub agent_tx: SharedNetSender<SessionMessage>,
 }
 
-impl ExecutionContext {
+impl ExecutionState {
     pub fn new(
         tool: Tool,
         parameters: ExecutionRequest,

@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/task",
     "name": "task",
-    "purpose": "Owns task protocol contracts: TaskId allocation, TaskEvent notifications, TaskRequestBrief input, TaskPreview request/result snapshots without embedded signatures, TaskResult output, TaskSignature construction that implements the shared Signature trait by exposing its task UUID, and TaskStatus lifecycle states.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns task protocol contracts: TaskId allocation, TaskEvent notifications, TaskRequestBrief input, TaskPreview request/result snapshots without embedded signatures, TaskResult output, TaskSignature construction that derives ordering and hashing so it can key execution and plan maps and implements the shared Signature trait by exposing its task UUID, and TaskStatus lifecycle states.",
+    "changeStatus": "modified"
   },
+  "modified": ["signature.rs"],
   "childModules": [],
   "elements": [
     {
@@ -110,15 +111,20 @@
       "name": "TaskSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/signature.rs",
-          "lineStart": 5,
+          "lineStart": 4,
           "lineEnd": 8,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 4,
+              "lineEnd": 4
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/task/signature.rs",
@@ -133,12 +139,7 @@
           "lineStart": 19,
           "lineEnd": 23,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 19,
-              "lineEnd": 23
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

@@ -1,7 +1,7 @@
 use crate::external::*;
 use crate::{Signature, TaskId};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct TaskSignature {
     pub name: String,
     pub id: TaskId,

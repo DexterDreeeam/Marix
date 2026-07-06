@@ -3,28 +3,30 @@
   "module": {
     "path": "src/agent/task",
     "name": "task",
-    "purpose": "Owns agent task runtime state. TaskState stores execution_map from ExecutionSignature to StepSignature. task_step.rs routes only complete step events into on_step_complete, waits for PlanQueue::complete_step to report plan completion before running model/execution completion handlers, and renders ExecutionAnalysisPrompt for execution-analysis model steps. task_execution.rs starts execution steps, records execution_map entries, maps succeeding execution status back into StepEvent::Complete, and starts execution-analysis plans from completed execution output.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns agent task runtime. Task drives the per-task worker thread: it sends the initial status, triggers the initial plan through Step, and routes task, step, execution, and placeholder plan events, delegating step routing to Step. TaskState stores session context, plan_queue, execution_map from ExecutionSignature to StepSignature, and the step WorkQueue (step numbers derive from the queue size) with a manual Debug impl. task_execution.rs starts execution steps, records execution_map entries, maps succeeding execution status back into StepEvent::Complete via Step, and starts execution-analysis plans from completed execution output.",
+    "changeStatus": "modified"
   },
+  "modified": ["task.rs", "task_state.rs", "task_execution.rs", "mod.rs"],
+  "deleted": ["task_step.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 14,
-          "lineEnd": 18,
+          "lineStart": 15,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 20,
+          "lineStart": 21,
           "lineEnd": 61,
           "language": "rust",
           "addedLines": [],
@@ -32,64 +34,23 @@
         },
         {
           "sourcePath": "src/agent/task/task.rs",
-          "lineStart": 64,
-          "lineEnd": 108,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 88,
-              "lineEnd": 90
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/agent/task/task_step.rs",
-          "lineStart": 16,
-          "lineEnd": 290,
+          "lineStart": 65,
+          "lineEnd": 114,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 28,
-              "lineEnd": 41
-            },
-            {
-              "lineStart": 88,
-              "lineEnd": 100
-            },
-            {
-              "lineStart": 152,
-              "lineEnd": 213
-            },
-            {
-              "lineStart": 238,
-              "lineEnd": 248
-            },
-            {
-              "lineStart": 253,
-              "lineEnd": 290
+              "lineStart": 94,
+              "lineEnd": 94
             }
           ],
           "modifiedLines": [
             {
-              "lineStart": 17,
-              "lineEnd": 25
+              "lineStart": 76,
+              "lineEnd": 76
             },
             {
-              "lineStart": 43,
-              "lineEnd": 57
-            },
-            {
-              "lineStart": 60,
-              "lineEnd": 101
-            },
-            {
-              "lineStart": 140,
-              "lineEnd": 149
-            },
-            {
-              "lineStart": 222,
-              "lineEnd": 250
+              "lineStart": 85,
+              "lineEnd": 85
             }
           ]
         },
@@ -98,13 +59,29 @@
           "lineStart": 11,
           "lineEnd": 83,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 12,
-              "lineEnd": 82
+              "lineEnd": 12
+            },
+            {
+              "lineStart": 26,
+              "lineEnd": 26
+            },
+            {
+              "lineStart": 29,
+              "lineEnd": 30
+            },
+            {
+              "lineStart": 34,
+              "lineEnd": 34
+            },
+            {
+              "lineStart": 80,
+              "lineEnd": 80
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -112,30 +89,33 @@
       "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/task_state.rs",
           "lineStart": 14,
-          "lineEnd": 24,
+          "lineEnd": 23,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 22,
-              "lineEnd": 22
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/task/task_state.rs",
-          "lineStart": 26,
-          "lineEnd": 46,
+          "lineStart": 25,
+          "lineEnd": 44,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/task/task_state.rs",
+          "lineStart": 48,
+          "lineEnd": 55,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 42,
-              "lineEnd": 42
+              "lineStart": 48,
+              "lineEnd": 55
             }
           ],
           "modifiedLines": []

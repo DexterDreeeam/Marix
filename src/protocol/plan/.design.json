@@ -3,14 +3,17 @@
   "module": {
     "path": "src/protocol/plan",
     "name": "plan",
-    "purpose": "Owns task plan and answer extraction protocol contracts. Answer is the dedicated answer-only model output type with Answer::parse, Plan is the planning output type with description, run_steps, pending_steps, and expected_result fields plus Plan::parse, and PlanSignature UUID identities support persisted or tracked plan records.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns task plan and answer extraction protocol contracts. Answer is the dedicated answer-only model output type with Answer::parse, Plan is the planning output type with description, run_steps, pending_steps, and expected_result fields plus Plan::parse, PlanEvent carries a Run(Plan) notification, and PlanSignature pairs a task TaskSignature with a UUID identity to support persisted or tracked plan records.",
+    "changeStatus": "modified"
   },
+  "added": ["event.rs"],
+  "modified": ["mod.rs", "signature.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Answer",
       "type": "struct",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
@@ -71,31 +74,67 @@
       ]
     },
     {
-      "name": "PlanSignature",
-      "type": "struct",
+      "name": "PlanEvent",
+      "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/protocol/plan/signature.rs",
+          "sourcePath": "src/protocol/plan/event.rs",
           "lineStart": 4,
           "lineEnd": 7,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 4,
+              "lineEnd": 7
+            }
+          ],
           "modifiedLines": []
-        },
+        }
+      ]
+    },
+    {
+      "name": "PlanSignature",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/signature.rs",
-          "lineStart": 9,
-          "lineEnd": 15,
+          "lineStart": 5,
+          "lineEnd": 9,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 7
+            }
+          ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/plan/signature.rs",
-          "lineStart": 17,
-          "lineEnd": 21,
+          "lineStart": 11,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 14
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 12
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/protocol/plan/signature.rs",
+          "lineStart": 20,
+          "lineEnd": 24,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

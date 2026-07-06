@@ -64,6 +64,27 @@ impl PlanQueue {
             .collect())
     }
 
+    pub fn current_plan_text(&self) -> String {
+        self.records
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .iter()
+            .map(|record| format!("{:?}", record.plan))
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+
+    pub fn pending_intentions_text(&self) -> String {
+        self.records
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .iter()
+            .flat_map(|record| record.plan.pending_steps.iter())
+            .map(|step| step.description.clone())
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+
     pub(crate) fn step_signatures(
         &self,
         signature: &PlanSignature,

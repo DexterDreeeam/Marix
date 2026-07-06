@@ -9,7 +9,7 @@ use crate::step::Step;
 use crate::task::{Task, TaskState};
 
 impl Task {
-    pub(super) fn on_execution_complete(
+    pub(crate) fn on_execution_complete(
         state: Arc<TaskState>,
         _signature: &StepSignature,
         content: &str,
@@ -23,15 +23,15 @@ impl Task {
             pending_steps: Vec::new(),
             expected_result: "Execution analysis updates the remaining plan".to_owned(),
         };
-        Self::run_plan(state, plan);
+        Step::run_plan(state, plan);
     }
 
-    pub(super) fn run_execution_step(state: Arc<TaskState>, step: Step) {
-        Self::send_step_event(&state, &step.signature, StepEvent::Started);
+    pub(crate) fn run_execution_step(state: Arc<TaskState>, step: Step) {
+        Step::send_step_event(&state, &step.signature, StepEvent::Started);
         let request = match &step.signature.kind {
             StepKind::Execution(ExecutionStepKind::Invocation(request)) => request.clone(),
             _ => {
-                Self::send_step_event(
+                Step::send_step_event(
                     &state,
                     &step.signature,
                     StepEvent::Fail {
@@ -77,7 +77,7 @@ impl Task {
                 content: String::new(),
             },
         };
-        Self::send_step_event(state.as_ref(), &step_signature, event);
+        Step::send_step_event(state.as_ref(), &step_signature, event);
         true
     }
 }
