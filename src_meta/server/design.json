@@ -4,15 +4,8 @@
     "path": "src/server",
     "name": "server",
     "purpose": "Server crate namespace for model/session/task/prompt/step/execution orchestration and server-side plan runtime storage. Step emits flat StepDraft model plan events, parses model JSON answers and plans, converts StepDraft values into StepId-backed runtime steps through Step::from_draft for Plan::from_draft, and ExecutionHub tracks tool executions keyed by execution signature before completing steps.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "Cargo.toml",
-    "main.rs"
-  ],
-  "renamed": [
-    "."
-  ],
   "childModules": [
     {
       "path": "src/server/execution",
@@ -55,7 +48,7 @@
       "name": "marix-server",
       "type": "bin",
       "source_depth": 2,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/main.rs",

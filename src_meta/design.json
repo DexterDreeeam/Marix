@@ -4,12 +4,8 @@
     "path": "src",
     "name": "src",
     "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. Protocol signatures now use generated PlanId and StepId wrappers, prompt JSON uses flat model-facing PlanDraft step objects that Step::from_draft maps into runtime StepKind values through Plan::from_draft, and protocol Answer/PlanDraft data types rely on serde_json call sites rather than parse helper methods.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "Cargo.toml",
-    "Cargo.lock"
-  ],
   "childModules": [
     {
       "path": "src/server",

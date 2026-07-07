@@ -4,12 +4,8 @@
     "path": "src/common/config",
     "name": "config",
     "purpose": "Strongly typed TOML configuration model and fallible loader. config.rs owns config-file discovery, credential resolution, runtime path normalization including client and server Marix paths, default CoreConfig fallback when TOML omits core, symmetric client/host connection settings via ClientConfig and HostConfig, and server endpoint settings via ServerConfig; sys.rs owns supported OS/architecture detection through serializable System, Platform, and Arch types with System::new and the private Ubuntu detector; mod.rs re-exports the public config surface including ServerConfig, TelemetryConfig, ToolConfig, and system types.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "config.rs",
-    "mod.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -32,7 +28,7 @@
       "name": "Config",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
@@ -171,7 +167,7 @@
       "name": "RuntimeConfig",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
@@ -256,7 +252,7 @@
       "name": "HostConfig",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
@@ -277,7 +273,7 @@
       "name": "ServerConfig",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
