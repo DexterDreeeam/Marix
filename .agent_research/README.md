@@ -34,7 +34,7 @@ This directory collects source-level research notes for leading open-source agen
 
 ## Common comparison dimensions
 
-Each research file is organized around the same implementation dimensions so {{proj}} can compare designs consistently:
+Each research file is organized around the same implementation dimensions so Marix can compare designs consistently:
 
 - source and activity evidence
 - technology stack and project role

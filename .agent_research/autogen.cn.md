@@ -202,7 +202,7 @@ CI 包含 format、lint、mypy、docs-mypy、pyright、tests、gRPC tests、Wind
 | Studio/storage | `python/packages/autogen-studio` |
 | Protocols | `protos` |
 
-## 12. 对 {{proj}} 的借鉴
+## 12. 对 Marix 的借鉴
 
 1. Core、AgentChat、Extensions、Studio 分层清晰。
 2. Agent、Runtime、Tool、ModelClient、Memory 都协议优先。

@@ -13,9 +13,7 @@ pub enum StepKind {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ModelStepKind {
     Initial,
-    Plan,
-    ExecutionAnalysis,
-    Composition,
+    Analysis,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

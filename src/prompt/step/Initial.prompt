@@ -8,17 +8,15 @@ Input variables:
 - Context: {{#IF {{#NoPreviewTask}} | This is the first task in the session. | Previous task previews: {{#Context}}}}
 - Available tools: {{#Tools}}
 
-Step kind format:
-- Intent: use "Intent" when the step is only a future intention and cannot be made concrete yet; put the fuzzy explanation in the surrounding step description.
-- Execution: use { "Execution": { "Invocation": { "tool": "tool_name", "input": "parameter" } } } when a concrete tool call is known. Use only tools listed in {{#Tools}}. The `input` value must be a single string, never an object or array. If a tool needs structured JSON input, put compact JSON text inside that single string parameter. The conversion layer will create the execution signature.
-- User: use { "User": "Verdict" | "Warrant" } when the next action requires the user's decision or authorization.
+Plan format:
+- run_steps are always concrete tool calls. Each run step is an object `{ "tool": { "name", "description", "input" } }` whose single key `tool` holds an object with a `name` (one of the tools listed in {{#Tools}}), a `description`, and an `input`. The `input` value must be a single string, never an object or array. If a tool needs structured input, put compact JSON text inside that single string. The system creates the execution signature; never emit signatures or ids.
+- pending_steps are future intentions that cannot be made concrete yet. Each pending step has ONLY an `intent`; it carries no tool and no input.
 
 Requirements:
 1. Identify the user's goal, constraints, and any missing information.
-2. Prefer concrete executable steps when enough information is available.
-3. Use Intent steps only when a future step depends on results that are not available yet.
-4. If a step may modify or delete files, include a user approval step before the destructive action.
-5. Keep descriptions short and operational.
+2. Prefer concrete run_steps when enough information is available.
+3. Use pending_steps only when a future step depends on results that are not available yet.
+4. Keep descriptions short and operational.
 
 Return raw strict JSON. Do not wrap it in Markdown fences and do not add any text before or after the JSON.
 
@@ -32,14 +30,16 @@ Otherwise return this Plan shape:
   "description": "Short description of the whole plan.",
   "run_steps": [
     {
-      "kind": { "Execution": { "Invocation": { "tool": "tool_name", "input": "parameter" } } },
-      "description": "Concrete step description."
+      "tool": {
+        "name": "tool_name",
+        "description": "Concrete step description.",
+        "input": "single-string parameter"
+      }
     }
   ],
   "pending_steps": [
     {
-      "kind": "Intent",
-      "description": "Why this step cannot be fully specified yet."
+      "intent": "Why this step cannot be fully specified yet."
     }
   ],
   "expected_result": "What should be true when the plan is complete."

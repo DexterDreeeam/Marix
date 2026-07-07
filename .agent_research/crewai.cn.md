@@ -210,7 +210,7 @@ CrewAI 有两层编排：
 | HITL | `task.py`, `core/providers/human_input.py`, `flow/human_feedback.py`, `flow/async_feedback/types.py` |
 | Events/tracing | `events/event_bus.py`, `events/event_listener.py`, `events/types/*`, `events/listeners/tracing/*` |
 
-## 12. 对 {{proj}} 的借鉴
+## 12. 对 Marix 的借鉴
 
 1. 双层编排：team orchestration 与 deterministic graph workflow 分离但可组合。
 2. 事件即状态：EventBus 写入 RuntimeState/EventRecord。

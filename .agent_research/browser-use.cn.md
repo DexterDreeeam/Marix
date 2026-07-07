@@ -345,7 +345,7 @@ GitHub workflows 包含：
 - `browser_use/sandbox/sandbox.py`
 - `browser_use/beta/service.py`
 
-## 12. 对 {{proj}} 的借鉴
+## 12. 对 Marix 的借鉴
 
 1. 浏览器 agent 应有强 page-change guard：URL/focus 变化后停止后续动作。
 2. 动作模型应根据当前页面和可用 action 动态生成，减少 LLM 误用。

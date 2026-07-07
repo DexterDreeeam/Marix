@@ -202,7 +202,7 @@ CI includes format, lint, mypy, docs-mypy, pyright, tests, gRPC tests, Windows/e
 | Studio/storage | `python/packages/autogen-studio` |
 | Protocols | `protos` |
 
-## 12. Reusable lessons for {{proj}}
+## 12. Reusable lessons for Marix
 
 1. Keep Core, AgentChat, Extensions, and Studio as separate layers.
 2. Prefer protocols for Agent, Runtime, Tool, ModelClient, and Memory.

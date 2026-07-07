@@ -38,7 +38,7 @@
   }
 
   function getWorkflowDocumentPath(modulePath) {
-    return `${normalizeScopePath(modulePath || SOURCE_ROOT)}/.workflow.mmd`;
+    return workflowDocPathForModule(normalizeScopePath(modulePath || SOURCE_ROOT));
   }
 
   function renderWorkflowUnavailable() {

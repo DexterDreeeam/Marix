@@ -1,4 +1,4 @@
-# {{proj}} Host, Client, and Agent Rewrite Notes
+# Marix Host, Client, and Agent Rewrite Notes
 
 ## Scope
 
@@ -13,7 +13,7 @@ may be linked into the same process or deployed on the same device. The design
 should keep their boundaries explicit so deployment topology stays flexible.
 
 The previous source tree has been archived at
-`{{repo_root}}\.archive\src.20260702`.
+`C:\r\Marix\.archive\src.20260702`.
 
 This note only describes the three core libraries and their communication
 contracts. Existing reusable areas such as model backend implementations,

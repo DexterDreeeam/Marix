@@ -164,7 +164,7 @@ Platform backend validation uses pytest, pytest-asyncio, pytest-cov, pytest-snap
 | Classic agent | `classic/original_autogpt/autogpt/agents/agent.py` |
 | Forge agent | `classic/forge/forge/agent/base.py` |
 
-## 12. Reusable lessons for {{proj}}
+## 12. Reusable lessons for Marix
 
 1. Use schema-bearing runtime units so tools, UI metadata, validation, credentials, billing, and marketplace metadata stay aligned.
 2. Persist graph and node execution state for recovery, audit, debugging, billing, and event replay.

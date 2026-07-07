@@ -11,7 +11,7 @@ use marix_protocol::{
 use crate::plan::parse_plan;
 
 use crate::model::{ModelRequest, ModelResponse};
-use crate::prompt::{ExecutionAnalysisPrompt, InitialPrompt, Prompt};
+use crate::prompt::{AnalysisPrompt, InitialPrompt, Prompt};
 use crate::task::TaskState;
 
 #[derive(Debug, Clone)]
@@ -220,7 +220,7 @@ impl Step {
                     .snapshot();
                 InitialPrompt::new(self.state.user_request.clone(), session_context).prompt()
             }
-            StepKind::Model(ModelStepKind::ExecutionAnalysis) => {
+            StepKind::Model(ModelStepKind::Analysis) => {
                 let session_context = self
                     .state
                     .session_context
@@ -228,7 +228,7 @@ impl Step {
                     .unwrap_or_else(|error| error.into_inner())
                     .snapshot();
                 let plan_stringify = self.state.plan_hub.stringify();
-                ExecutionAnalysisPrompt::new(
+                AnalysisPrompt::new(
                     self.state.user_request.clone(),
                     self.signature.description.clone(),
                     plan_stringify.current_plan_text(),
@@ -260,7 +260,7 @@ impl Step {
         let plan = Plan {
             description: "Analyze completed execution output".to_owned(),
             run_steps: vec![StepDraft {
-                kind: StepKind::Model(ModelStepKind::ExecutionAnalysis),
+                kind: StepKind::Model(ModelStepKind::Analysis),
                 description: content.to_owned(),
             }],
             pending_steps: Vec::new(),

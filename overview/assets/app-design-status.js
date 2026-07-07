@@ -52,7 +52,7 @@
 
     const changes = { files: {}, folders: {} };
     for (const [designPath, data] of Object.entries(manifest.files || {})) {
-      if (!designPath.endsWith("/.design.json") || !data || !data.content) continue;
+      if (!isDesignDocumentPathName(designPath) || !data || !data.content) continue;
 
       let document = null;
       try {
@@ -62,7 +62,7 @@
         continue;
       }
 
-      const modulePath = (document.module && document.module.path) || designPath.replace(/\/\.design\.json$/i, "");
+      const modulePath = (document.module && document.module.path) || moduleKeyFromCompanionPath(designPath);
       collectDesignStatusEntries(changes, modulePath, document, "added");
       collectDesignStatusEntries(changes, modulePath, document, "modified");
       collectDesignStatusEntries(changes, modulePath, document, "deleted");

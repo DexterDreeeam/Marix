@@ -1,4 +1,3 @@
-use std::collections::BTreeMap;
 use std::env;
 use std::fmt;
 use std::path::{Path, PathBuf};
@@ -193,10 +192,8 @@ fn config_path() -> PathBuf {
 fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
     let system = System::new();
     let repo_root = repository_root_for_config(config_path);
-    let aliases = load_aliases(&repo_root.join(".alias"))?;
     let content = std::fs::read_to_string(config_path)?;
-    let resolved_content = resolve_aliases(&content, &aliases)?;
-    let raw_config: RawConfig = toml::from_str(&resolved_content)?;
+    let raw_config: RawConfig = toml::from_str(&content)?;
     let credential_root = resolve_config_path(&repo_root, &raw_config.credential.directory);
     let deepseek_api_key = read_credential(&credential_root, &raw_config.model.deepseek.api_key)?;
 
@@ -314,63 +311,10 @@ fn read_credential(
     Ok(value)
 }
 
-fn load_aliases(alias_root: &Path) -> Result<BTreeMap<String, String>, ConfigError> {
-    let mut aliases = BTreeMap::new();
-    if !alias_root.is_dir() {
-        return Ok(aliases);
-    }
-
-    for entry in std::fs::read_dir(alias_root)? {
-        let entry = entry?;
-        let path = entry.path();
-        if !path.is_file()
-            || path.extension().and_then(|extension| extension.to_str()) != Some("txt")
-        {
-            continue;
-        }
-        let Some(key) = path.file_stem().and_then(|stem| stem.to_str()) else {
-            continue;
-        };
-        let value = std::fs::read_to_string(&path)?.trim().to_owned();
-        if !value.is_empty() {
-            aliases.insert(key.to_owned(), value);
-        }
-    }
-
-    Ok(aliases)
-}
-
-fn resolve_aliases(
-    content: &str,
-    aliases: &BTreeMap<String, String>,
-) -> Result<String, ConfigError> {
-    let mut resolved = String::with_capacity(content.len());
-    let mut index = 0;
-    while let Some(start_offset) = content[index..].find("{{") {
-        let start = index + start_offset;
-        resolved.push_str(&content[index..start]);
-        let value_start = start + 2;
-        let Some(end_offset) = content[value_start..].find("}}") else {
-            return Err(ConfigError::UnclosedAlias);
-        };
-        let end = value_start + end_offset;
-        let key = content[value_start..end].trim();
-        let value = aliases
-            .get(key)
-            .ok_or_else(|| ConfigError::MissingAlias(key.to_owned()))?;
-        resolved.push_str(value);
-        index = end + 2;
-    }
-    resolved.push_str(&content[index..]);
-    Ok(resolved)
-}
-
 #[derive(Debug)]
 enum ConfigError {
     Io(std::io::Error),
     Toml(toml::de::Error),
-    MissingAlias(String),
-    UnclosedAlias,
     EmptyCredential(String),
 }
 
@@ -391,8 +335,6 @@ impl fmt::Display for ConfigError {
         match self {
             Self::Io(error) => write!(formatter, "I/O error: {error}"),
             Self::Toml(error) => write!(formatter, "TOML error: {error}"),
-            Self::MissingAlias(key) => write!(formatter, "missing alias: {key}"),
-            Self::UnclosedAlias => write!(formatter, "unclosed alias placeholder"),
             Self::EmptyCredential(name) => write!(formatter, "credential is empty: {name}"),
         }
     }

@@ -6,13 +6,13 @@ marix_path_client = "C:\\marix"
 marix_path_agent = "."
 
 [client]
-core_address = "{{ubuntu_ip}}:{{ubuntu_core_port}}"
+core_address = "43.142.167.218:22345"
 interactive = true
 request_timeout_ms = 30000
 
 [agent]
 enabled = true
-bind_address = "0.0.0.0:{{ubuntu_core_port}}"
+bind_address = "0.0.0.0:22345"
 max_turns = 32
 
 [model]

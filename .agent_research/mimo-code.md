@@ -226,7 +226,7 @@ Recommended paths for deeper follow-up:
 - `packages/opencode/src/mcp/index.ts`
 - `packages/opencode/src/permission/evaluate.ts`
 
-## 11. Lessons for {{proj}}
+## 11. Lessons for Marix
 
 1. Keep the main loop focused on orchestration; delegate durable context maintenance to a checkpoint writer.
 2. Treat subagents/actors as first-class system objects rather than simple tool callbacks.
@@ -243,4 +243,4 @@ Recommended paths for deeper follow-up:
 - Strong local shell and file-edit capabilities are not equivalent to sandboxing.
 - Hidden agents, checkpoints, memory, tasks, plugins, and MCP can interact in ways that are hard to debug.
 - Multi-provider and plugin hooks improve flexibility but also increase unpredictable input surfaces.
-- Avoid copying the whole architecture wholesale; extract only the checkpoint, permission, and actor lifecycle patterns that match {{proj}} boundaries.
+- Avoid copying the whole architecture wholesale; extract only the checkpoint, permission, and actor lifecycle patterns that match Marix boundaries.

@@ -1,4 +1,4 @@
-# {{proj}} Host、Client 与 Agent 重写说明
+# Marix Host、Client 与 Agent 重写说明
 
 ## 范围
 
@@ -12,7 +12,7 @@
 
 旧源码树已经归档到：
 
-`{{repo_root}}\.archive\src.20260702`
+`C:\r\Marix\.archive\src.20260702`
 
 本文档只说明 3 个核心 lib 的用途和交互方式。类似 model backend、config、external、logging、tests 等已有可复用模块，可以在重写时继续沿用，不在本文档里重复展开。
 

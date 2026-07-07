@@ -204,7 +204,7 @@ Recommended paths for architecture review:
 - `openhands-sdk/openhands/sdk/context/condenser.py`
 - `openhands-tools/openhands/tools/apply_patch/core.py`
 
-## 15. Lessons for `{{proj}}`
+## 15. Lessons for `Marix`
 
 1. Use event-sourced conversation state so action, observation, message, pause, and compaction are replayable and auditable.
 2. Keep sandbox topology outside the core loop; the loop should target a sandbox/service boundary, not hard-code Docker or process details.

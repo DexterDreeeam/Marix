@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/agent/prompt",
+    "name": "prompt",
+    "purpose": "Defines the agent prompt interface, render_template conditional/variable rendering, InitialPrompt for initial planning, and AnalysisPrompt for model analysis of completed execution output using RequestBrief, ExecutionOutput, CurrentPlan, PendingIntentions, and Tools variables.",
+    "changeStatus": "modified"
+  },
+  "modified": ["mod.rs"],
+  "renamed": ["analysis.rs"],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "Prompt",
+      "type": "trait",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/prompt/prompt.rs",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "render_template",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/prompt/prompt.rs",
+          "lineStart": 7,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 9
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/prompt/prompt.rs",
+          "lineStart": 11,
+          "lineEnd": 102,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 102
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "InitialPrompt",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/prompt/initial.rs",
+          "lineStart": 9,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/prompt/initial.rs",
+          "lineStart": 14,
+          "lineEnd": 21,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/prompt/initial.rs",
+          "lineStart": 23,
+          "lineEnd": 49,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 37,
+              "lineEnd": 47
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/prompt/initial.rs",
+          "lineStart": 53,
+          "lineEnd": 94,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 54,
+              "lineEnd": 63
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "AnalysisPrompt",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/prompt/analysis.rs",
+          "lineStart": 9,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 9
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/agent/prompt/analysis.rs",
+          "lineStart": 17,
+          "lineEnd": 33,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 17
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/agent/prompt/analysis.rs",
+          "lineStart": 35,
+          "lineEnd": 60,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 35,
+              "lineEnd": 35
+            },
+            {
+              "lineStart": 50,
+              "lineEnd": 50
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/agent/prompt/analysis.rs",
+          "lineStart": 64,
+          "lineEnd": 81,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 64,
+              "lineEnd": 64
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

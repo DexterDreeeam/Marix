@@ -256,7 +256,7 @@ Recommended paths for architecture review:
 - `aider/run_cmd.py`
 - `aider/repo.py`
 
-## 15. Lessons for `{{proj}}`
+## 15. Lessons for `Marix`
 
 1. Make diff, commit, and undo first-class if the product edits source code.
 2. Choose edit formats per model instead of assuming one patch protocol works for every provider.

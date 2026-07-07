@@ -1,6 +1,6 @@
-# {{proj}}
+# Marix
 
-{{proj}} 是一个功能完整的 AI Agent 框架，用于构建自主、可调用工具的智能代理，底层支持主流的本地和在线大模型。
+Marix 是一个功能完整的 AI Agent 框架，用于构建自主、可调用工具的智能代理，底层支持主流的本地和在线大模型。
 
 ## 愿景
 
@@ -13,7 +13,7 @@
 
 ## 支持的模型后端
 
-{{proj}} 抽象了 LLM 层，Agent 可以运行在以下任意后端上：
+Marix 抽象了 LLM 层，Agent 可以运行在以下任意后端上：
 
 | 类型 | 提供商 | 模型 |
 |------|--------|------|
@@ -48,7 +48,7 @@
 ## 项目结构
 
 ```
-{{proj_lower}}/
+marix/
 ├── src/
 │   ├── agent/      # Agent 契约与 overview 刷新接口
 │   └── overview/   # 仓库快照与星图可视化模型
@@ -61,8 +61,8 @@
 
 ```bash
 # 克隆
-git clone https://github.com/DexterDreeeam/{{proj}}.git
-cd {{proj}}
+git clone https://github.com/DexterDreeeam/Marix.git
+cd Marix
 
 # 构建 Rust crate
 cargo build

@@ -589,10 +589,10 @@ ACP workspace 位于 `/mnt/acp-workspace`；要交付给用户需复制到 `/mnt
 | `docker/nginx/nginx.conf` | route rewrite / SSE support |
 | `docker/provisioner/*` | K8s sandbox provisioner |
 
-## 17. 对 `{{proj}}` 的借鉴
+## 17. 对 `Marix` 的借鉴
 
 1. **以 harness 而非单个 workflow 组织 agent**
-   - `{{proj}}` 可将 agent loop、runtime、tool registry、sandbox、memory、observability 拆成独立模块。
+   - `Marix` 可将 agent loop、runtime、tool registry、sandbox、memory、observability 拆成独立模块。
    - 避免把 planner/researcher/coder/reporter 写死在一张固定图里。
 
 2. **静态 prompt + 动态 context 分离**
@@ -601,7 +601,7 @@ ACP workspace 位于 `/mnt/acp-workspace`；要交付给用户需复制到 `/mnt
    - 用户可编辑 memory 不应提升为 system 权限。
 
 3. **Tool schema deferred loading**
-   - 当 `{{proj}}` 接入大量 MCP/tools 时，可以只在 prompt 暴露名字，用 tool_search 按需加载 schema。
+   - 当 `Marix` 接入大量 MCP/tools 时，可以只在 prompt 暴露名字，用 tool_search 按需加载 schema。
    - promotion 需绑定 catalog hash，防止工具漂移。
 
 4. **Subagent 作为 runtime capability，而不是 prompt trick**
@@ -615,32 +615,32 @@ ACP workspace 位于 `/mnt/acp-workspace`；要交付给用户需复制到 `/mnt
 
 6. **Run lifecycle 要可观测**
    - RunManager + StreamBridge + RunJournal 是非常实用的组合。
-   - `{{proj}}` 可采用 run_id/thread_id/event_id 三元结构支持 replay、resume、audit。
+   - `Marix` 可采用 run_id/thread_id/event_id 三元结构支持 replay、resume、audit。
 
 7. **配置驱动 provider patch**
    - 模型能力和 provider quirks 应在 model factory 集中处理。
    - thinking/reasoning/vision/tool-call replay 不能散落在 agent 逻辑中。
 
 8. **Skills 安全扫描和 allowed-tools**
-   - 若 `{{proj}}` 支持用户/agent 写入技能，必须有 archive extraction guard、LLM scanner fail-closed、tool allowlist。
+   - 若 `Marix` 支持用户/agent 写入技能，必须有 archive extraction guard、LLM scanner fail-closed、tool allowlist。
 
 9. **单 worker caveat 要显式**
-   - 如果 `{{proj}}` 使用 in-process stream/run registry，就不要默认多 worker。
+   - 如果 `Marix` 使用 in-process stream/run registry，就不要默认多 worker。
    - 多 worker 需要 Redis/NATS/DB-backed stream bridge 和 distributed run manager。
 
 ## 18. 风险 / 反模式
 
-| 风险 | DeerFlow 观察 | 对 `{{proj}}` 的提醒 |
+| 风险 | DeerFlow 观察 | 对 `Marix` 的提醒 |
 |---|---|---|
-| Local sandbox 被误认为安全隔离 | DeerFlow 明确禁用 host bash 默认值 | `{{proj}}` 文档必须区分 convenience sandbox 与 security sandbox |
+| Local sandbox 被误认为安全隔离 | DeerFlow 明确禁用 host bash 默认值 | `Marix` 文档必须区分 convenience sandbox 与 security sandbox |
 | in-process state 限制扩展 | RunManager/StreamBridge/IM services 多为进程内 | 上生产多副本前必须设计共享状态 |
 | provider patch 复杂 | Gemini/vLLM/MiMo/Codex/Claude 都需要特殊处理 | provider abstraction 需要测试矩阵 |
-| skills self-evolution 有供应链风险 | 默认关闭，写入前扫描 | `{{proj}}` 不应默认允许 agent 自改 skills |
-| MCP state leakage | DeerFlow 用 user_id:thread_id scope | `{{proj}}` 需要明确 MCP session isolation key |
-| Artifact active content | HTML/SVG 强制下载 | `{{proj}}` 不应在 app origin inline 运行生成 HTML |
+| skills self-evolution 有供应链风险 | 默认关闭，写入前扫描 | `Marix` 不应默认允许 agent 自改 skills |
+| MCP state leakage | DeerFlow 用 user_id:thread_id scope | `Marix` 需要明确 MCP session isolation key |
+| Artifact active content | HTML/SVG 强制下载 | `Marix` 不应在 app origin inline 运行生成 HTML |
 | Upload conversion parser risk | 自动转换默认关闭 | host-side parser 要 opt-in + sandbox |
 | Prompt/context 泄露 | System-context confidentiality 明确禁止 | 仍需 UI 与日志侧防泄露 |
-| Tool output 上下文爆炸 | ToolOutputBudgetMiddleware 外置大输出 | `{{proj}}` 应内建 tool result budget |
+| Tool output 上下文爆炸 | ToolOutputBudgetMiddleware 外置大输出 | `Marix` 应内建 tool result budget |
 | 旧架构资料误导 | v1 planner/researcher/coder/reporter 不等于 2.x | 研究/实现时必须标注版本 |
 
 ## 19. 总结模块图

@@ -383,7 +383,7 @@ The material emphasizes event-shaped control flow more than a single logging sub
 - API usage and token count are anchored to provider usage data when available.
 - Telemetry/profiling is used to validate startup and context-performance improvements.
 
-For {{proj}}, the transferable point is that events, terminal reasons, and task notifications should be typed and auditable, not just log lines.
+For Marix, the transferable point is that events, terminal reasons, and task notifications should be typed and auditable, not just log lines.
 
 ## 11. Testing and validation
 
@@ -421,7 +421,7 @@ Recommended chapter paths for follow-up:
 - `https://claude-code-from-source.com/ch15-mcp/`
 - `https://claude-code-from-source.com/ch17-performance/`
 
-## 13. Lessons for {{proj}}
+## 13. Lessons for Marix
 
 1. Use an async-generator agent loop with typed terminal reasons.
 2. Make tools self-describing: schema, permission, concurrency, safety, rendering, and budget belong to the tool definition.

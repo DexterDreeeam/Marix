@@ -248,7 +248,7 @@ Recommended paths for architecture review:
 - `extensions/vscode/src/extension.ts`
 - `binary/src/index.ts`
 
-## 15. Lessons for `{{proj}}`
+## 15. Lessons for `Marix`
 
 1. Define IDE-to-core protocol messages explicitly so editor surfaces stay replaceable.
 2. Use a `ContextProvider` pattern to unify selection, file tree, RAG, docs, web, and database context.

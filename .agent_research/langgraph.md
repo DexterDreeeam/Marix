@@ -186,7 +186,7 @@ CI/tooling covers Python 3.10-3.14, ruff, ty, codespell, syrupy snapshots, pytes
 | Streaming | `libs/langgraph/langgraph/stream/_mux.py`, `stream/transformers.py`, `callbacks.py` |
 | SDK/CLI | `libs/sdk-py/*`, `libs/cli/*` |
 
-## 12. Reusable lessons for {{proj}}
+## 12. Reusable lessons for Marix
 
 1. Separate builder and runtime so declaration and execution evolve independently.
 2. Use channel/reducer state to support parallelism and recovery.

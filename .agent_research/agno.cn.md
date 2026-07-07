@@ -252,7 +252,7 @@ AgentOS 是 FastAPI runtime/control plane，可注册 agents、teams、workflows
 
 安全能力包括 JWT authorization、scope/RBAC、optional user isolation、MCP host/origin protection、scheduler internal service token。
 
-## 13. 对 {{proj}} 的借鉴
+## 13. 对 Marix 的借鉴
 
 1. Agent、Team、Workflow 统一围绕 run output、events、metrics、session persistence。
 2. `Toolkit`、`Function`、decorator 工具层分工清晰。

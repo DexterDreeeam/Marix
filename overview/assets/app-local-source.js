@@ -1,15 +1,23 @@
 "use strict";
   async function fetchLocalRepositoryTree(rootHandle) {
     const files = [];
-    let sourceHandle = null;
+    // Index the src/ source tree plus the src_meta/ companion mirror so design
+    // and workflow files are available to metadata loaders. Visible-source
+    // filters keep src_meta/ out of the file tree and star map.
+    await collectLocalRootDirectory(rootHandle, SOURCE_ROOT, files);
+    await collectLocalRootDirectory(rootHandle, SOURCE_META_ROOT, files);
+    return files;
+  }
+
+  async function collectLocalRootDirectory(rootHandle, rootName, files) {
+    let directoryHandle = null;
     try {
-      sourceHandle = await rootHandle.getDirectoryHandle(SOURCE_ROOT);
+      directoryHandle = await rootHandle.getDirectoryHandle(rootName);
     } catch (e) {
-      if (e && e.name === "NotFoundError") return files;
+      if (e && e.name === "NotFoundError") return;
       throw e;
     }
-    await collectLocalFiles(sourceHandle, SOURCE_ROOT, files);
-    return files;
+    await collectLocalFiles(directoryHandle, rootName, files);
   }
 
   async function collectLocalFiles(directoryHandle, prefix, files) {
@@ -261,7 +269,7 @@
     const tags = new Map();
     await collectLocalLooseTags(gitHandle, "refs/tags", "", tags);
     await collectLocalPackedTags(gitHandle, tags);
-    const tagPrefix = resolveAliases("{{proj_lower}}_tag_");
+    const tagPrefix = "marix_tag_";
     return Array.from(tags.entries())
       .filter(([name]) => name.startsWith(tagPrefix))
       .map(([name, sha]) => ({ name, sha }))

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/agent",
+    "name": "agent",
+    "purpose": "Agent crate namespace for model/session/task/prompt/step/execution orchestration and the plan hub module. Step owns task-step routing, emits plan events, and builds the analysis follow-up plan when an execution completes; PlanHub routes plan events and runs plans by reserving step-number blocks and emitting StepEvent::Trigger; the execution module's ExecutionHub tracks tool executions keyed by execution signature, accumulates their output, and emits StepEvent::Complete back to the step layer on completion; and TaskState now owns that ExecutionHub instead of an execution-signature-to-step map.",
+    "changeStatus": "modified"
+  },
+  "modified": ["."],
+  "childModules": [
+    {
+      "path": "src/agent/execution",
+      "name": "execution",
+      "purpose": "Owns agent-side execution tracking: Execution values keyed by ExecutionSignature that accumulate ordered output and finalize on the expected update count, and an ExecutionHub holding a Mutex<HashMap<ExecutionSignature, Execution>> that spawns execution steps, routes Update/Succeed events, and emits StepEvent::Complete to the step layer on completion while reporting per-signature status."
+    },
+    {
+      "path": "src/agent/model",
+      "name": "model",
+      "purpose": "Owns agent model backend traits, request/response data, backend errors, and the implemented Deepseek streaming backend. Internal backend implementations expose request directly instead of a send adapter."
+    },
+    {
+      "path": "src/agent/plan",
+      "name": "plan",
+      "purpose": "Owns PlanHub, PlanRecord, PlanStringify, and PlanError for insertion-ordered task plan storage, plan-event routing, step-block reservation, lookup, completion tracking, and current/pending plan text rendering for prompts; parse_plan converts the model's flat plan output (nested-tool run_steps, intent-only pending_steps) into a protocol Plan."
+    },
+    {
+      "path": "src/agent/prompt",
+      "name": "prompt",
+      "purpose": "Defines the agent prompt interface, render_template rendering, InitialPrompt, and AnalysisPrompt for execution-output analysis."
+    },
+    {
+      "path": "src/agent/session",
+      "name": "session",
+      "purpose": "Owns Session startup/routing behavior, forwarding Task status/preview and Step events to clients through a matches! filter and routing task, step, execution, and plan events back to the owning Task worker, plus SessionContext snapshots for prompts."
+    },
+    {
+      "path": "src/agent/step",
+      "name": "step",
+      "purpose": "Owns the top-level agent runtime Step type re-exported by lib.rs; Step holds Arc<TaskState> and owns task-step routing (StepEvent::Trigger/Complete), model-prompt rendering, plan-event emission, step/model completion handling, and building the analysis follow-up plan (PlanEvent::Trigger) when an execution completes; execution step spawning is delegated to the execution hub."
+    },
+    {
+      "path": "src/agent/task",
+      "name": "task",
+      "purpose": "Owns agent task runtime and TaskState (session context, plan_hub, an ExecutionHub owning execution tracking, a monotonic step_count allocator, and the step queue); step routing lives on Step, plan events route to PlanHub, and execution spawning/routing lives in the execution hub."
+    }
+  ],
+  "elements": [
+    {
+      "name": "marix-agent",
+      "type": "bin",
+      "source_depth": 2,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/main.rs",
+          "lineStart": 4,
+          "lineEnd": 29,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 24
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

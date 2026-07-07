@@ -226,7 +226,7 @@ CI workflow 包含：
 - `packages/opencode/src/mcp/index.ts`
 - `packages/opencode/src/permission/evaluate.ts`
 
-## 11. 对 {{proj}} 的借鉴
+## 11. 对 Marix 的借鉴
 
 1. 主 loop 只做调度，checkpoint writer 专门做持久上下文整理。
 2. subagent/actor 应作为一级系统对象，而不是普通工具回调。
@@ -243,4 +243,4 @@ CI workflow 包含：
 - 本地 shell/file edit 能力强，默认安全依赖权限与用户判断，不等同于沙箱。
 - hidden agent、checkpoint、memory、task、plugin、MCP 交叉复杂，调试成本较高。
 - 多 provider + plugin hooks 提升灵活性，也增加不可预测输入面。
-- 不宜整体照搬架构；应只抽取适合 {{proj}} 边界的 checkpoint、permission、actor lifecycle 模式。
+- 不宜整体照搬架构；应只抽取适合 Marix 边界的 checkpoint、permission、actor lifecycle 模式。

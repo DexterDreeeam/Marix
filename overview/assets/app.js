@@ -1,2 +1,2 @@
 "use strict";
-// {{proj}} overview scripts are split across app-*.js files.
+// Marix overview scripts are split across app-*.js files.

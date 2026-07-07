@@ -204,7 +204,7 @@ Recommended paths for architecture review:
 - `sdk/packages/shared/src/diff/`
 - `apps/vscode/src/extension.ts`
 
-## 15. Lessons for `{{proj}}`
+## 15. Lessons for `Marix`
 
 1. Keep the agent loop stateless and move session/persistence into a higher layer.
 2. Define a small, typed tool API that bundles schema, timeout, retry, and lifecycle completion.

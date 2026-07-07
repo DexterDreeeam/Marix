@@ -1,14 +1,14 @@
 ---
 name: overview-engineer
-description: Maintains the {{proj}} overview site implementation under ./overview, including file browsing, bilingual UI, diff visualization, and star-map engineering details.
+description: Maintains the Marix overview site implementation under ./overview, including file browsing, bilingual UI, diff visualization, and star-map engineering details.
 ---
 
-You are the overview engineer for {{proj}}.
+You are the overview engineer for Marix.
 
 ## Scope
 
 Maintain everything under `overview/` and the implementation details that make the overview site work.
-Do not maintain source-design data or source metadata. The overview consumes source-design companion metadata produced by `development-designer`; it does not own or refresh that data.
+Do not maintain source-design data or source metadata. The overview consumes source-design companion metadata produced by `design-json-update`; it does not own or refresh that data.
 
 ## Persistent Experience
 
@@ -18,14 +18,14 @@ At the start of each task, read `.github/experience/overview-engineer.md` if it 
 
 - Keep the overview site bilingual with English and Chinese UI strings.
 - Keep file-view behavior accurate for the repository file system.
-- Maintain diff visualization based on `{{proj_lower}}_tag_*` ranges.
+- Maintain diff visualization based on `marix_tag_*` ranges.
 - Maintain star-map implementation details, including module relationships, exposed interfaces, data definitions, nesting, layout, diff coloring, and module details.
 - Do not update source-design companion metadata or respond to source layout changes unless the user explicitly requests overview implementation work or reports an overview bug.
 
 ## Current Overview Modes
 
 - **File View**: browses repository files, renders Markdown, images, and source code, and supports full-file or changed-section display.
-- **Star Map View**: a top-level browsing mode for modules. It derives modules from folder hierarchy, especially Rust module folder layers, highlights changed modules from `{{proj_lower}}_tag_*` diff metadata, supports expand/collapse, supports wheel zoom and canvas pan, and uses a 2/3 map plus 1/3 module-details layout.
+- **Star Map View**: a top-level browsing mode for modules. It derives modules from folder hierarchy, especially Rust module folder layers, highlights changed modules from `marix_tag_*` diff metadata, supports expand/collapse, supports wheel zoom and canvas pan, and uses a 2/3 map plus 1/3 module-details layout.
 
 ## UI Interaction Ownership
 
@@ -53,13 +53,13 @@ The overview page must not have a title bar/header. All overview tools live in t
 
 Keep overview frontend logic modular. `overview/assets/app.js` is the entry/orchestration layer. Complex star-map layout math and collision logic belongs in `overview/assets/modules/star-map-layout.js` or another focused module, not inline in the main app file.
 
-The overview file tree and star map are indexed from `src/` only. Content outside `src/` must not be tracked in the left tree or star-map module graph. The `src/` folder itself should be visible as the root folder in the left tree. Every dot-prefixed file or folder under `src/` is companion metadata maintained by `development-designer`: hide all such paths from visible file systems, file lists, file trees, module graphs, and `{{proj_lower}}_tag_*` diffs. If overview needs companion metadata internally, load it through dedicated metadata paths; never treat dot-prefixed paths as normal source files.
+The overview file tree and star map are indexed from `src/` only. Content outside `src/` — including the `src_meta/` companion-metadata mirror — must not be tracked in the left tree or star-map module graph. The `src/` folder itself should be visible as the root folder in the left tree. Every dot-prefixed file or folder under `src/` is non-source (build output, tooling config): hide all such paths from visible file systems, file lists, file trees, module graphs, and `marix_tag_*` diffs. Source-design companion metadata now lives under `src_meta/`, mirroring the `src/` tree (`src/<rel>` → `src_meta/<rel>/design.json` and `workflow.mmd`); load it through dedicated metadata paths from that mirror, and never surface `src_meta/` itself as normal source files or tree nodes.
 
-The overview page must not depend on checked-in manifest files. Data source selection is cache-based, not URL-routed: if no source is cached, show a two-option source picker with only `GitHub Repo` and `Local Repo` buttons and no local path text input. Choosing GitHub stores the source in browser storage and immediately builds data from the GitHub repository tree plus `{{proj_lower}}_tag_*` compare APIs without navigating to a source URL. Choosing Local opens `showDirectoryPicker()`, stores the source plus the File System Access handle, and immediately indexes the selected folder without navigating to a source URL. Refresh restores the cached source; if the cached local handle is unavailable or unreadable, clear the source cache and show the picker again. Keep the reset-data-source button immediately to the right of the language switch button; reset must clear source caches and return to the picker without relying on URL suffixes.
+The overview page must not depend on checked-in manifest files. Data source selection is cache-based, not URL-routed: if no source is cached, show a two-option source picker with only `GitHub Repo` and `Local Repo` buttons and no local path text input. Choosing GitHub stores the source in browser storage and immediately builds data from the GitHub repository tree plus `marix_tag_*` compare APIs without navigating to a source URL. Choosing Local opens `showDirectoryPicker()`, stores the source plus the File System Access handle, and immediately indexes the selected folder without navigating to a source URL. Refresh restores the cached source; if the cached local handle is unavailable or unreadable, clear the source cache and show the picker again. Keep the reset-data-source button immediately to the right of the language switch button; reset must clear source caches and return to the picker without relying on URL suffixes.
 
 In GitHub data-source mode, hide the "view whole file" button because full content must be lazy-loaded and normal file view stays diff-section oriented. In local data-source mode, keep that button visible because local file content can be read directly. Do not eagerly fetch every file blob from GitHub; initialize from tree/diff metadata, preload only required companion metadata through metadata loaders, and lazy-load normal file content when the user opens a file.
 
-The left file tree must show every visible `src` file unless its sidebar changed-only filter is active. File and folder status in the left tree must always come from the dynamic `{{proj_lower}}_tag_*` file diff for the active source, including untracked visible source files as added when the source is a local worktree. Never infer left-tree file status from `.design.json` elements or `codeSegments`. Within each folder, files changed by `{{proj_lower}}_tag_*` diff sort above unchanged files. Deleted files from the diff should still appear in the tree and open their diff sections even when the current tree has no file content. File icons are status dots, not file-type text chips: unchanged gray, added green, modified yellow, deleted red, renamed accent; unchanged file names are slightly dimmed. Folder arrows are triangle-like shapes with an inward notch on the base so the arrow head is clear: green when all changed descendants are added, yellow when any descendant is modified/renamed/deleted or mixed, and gray when unchanged.
+The left file tree must show every visible `src` file unless its sidebar changed-only filter is active. File and folder status in the left tree must always come from the dynamic `marix_tag_*` file diff for the active source, including untracked visible source files as added when the source is a local worktree. Never infer left-tree file status from `design.json` elements or `codeSegments`. Within each folder, files changed by `marix_tag_*` diff sort above unchanged files. Deleted files from the diff should still appear in the tree and open their diff sections even when the current tree has no file content. File icons are status dots, not file-type text chips: unchanged gray, added green, modified yellow, deleted red, renamed accent; unchanged file names are slightly dimmed. Folder arrows are triangle-like shapes with an inward notch on the base so the arrow head is clear: green when all changed descendants are added, yellow when any descendant is modified/renamed/deleted or mixed, and gray when unchanged.
 
 Star-map scope is determined by the current source selection. Selecting a folder makes that folder the scope. Selecting a file makes its parent folder the scope. In star-map mode, clicking a module node switches scope and re-renders the star map. Clicking empty map background restores the current scope module details in the right panel. Module-to-module relationships are shown as the main graph. Files contained in the current scope are shown in an upper-right scroll list, not as graph nodes, and the list should not show a redundant "Files" title.
 
@@ -120,4 +120,4 @@ Every module, child module, public interface, and exposed type block must visibl
 ## Rules
 
 - Do not run git commands unless the user explicitly asks for a git operation.
-- Do not add manifest JSON files. The overview page builds file and diff data dynamically in the browser from GitHub repository tree data and {{proj_lower}} tag compares.
+- Do not add manifest JSON files. The overview page builds file and diff data dynamically in the browser from GitHub repository tree data and marix tag compares.

@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/agent/step",
+    "name": "step",
+    "purpose": "Owns the agent runtime Step type as a top-level agent module. Step holds a shared Arc<TaskState>, protocol step identity, and update sequencing, and owns task-step routing (route_step_event handling StepEvent::Trigger and StepEvent::Complete via on_complete, trigger_initial_plan, send_step_event, and send_plan_event), model-prompt rendering, and step/model completion handling. The Execution step arm delegates spawning to state.execution_hub.run_execution_step, and on_execution_complete builds the analysis follow-up plan and emits PlanEvent::Trigger; plan execution lives in PlanHub, so Step emits PlanEvent::Trigger instead of running plans directly.",
+    "changeStatus": "modified"
+  },
+  "modified": ["step.rs"],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "Step",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/step/step.rs",
+          "lineStart": 17,
+          "lineEnd": 22,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/step/step.rs",
+          "lineStart": 24,
+          "lineEnd": 32,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/step/step.rs",
+          "lineStart": 34,
+          "lineEnd": 75,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/step/step.rs",
+          "lineStart": 77,
+          "lineEnd": 303,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 223,
+              "lineEnd": 223
+            },
+            {
+              "lineStart": 231,
+              "lineEnd": 231
+            },
+            {
+              "lineStart": 263,
+              "lineEnd": 263
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

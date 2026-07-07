@@ -353,28 +353,29 @@
   }
 
   function getDesignDocumentForModule(modulePath) {
-    const basePath = modulePath || SOURCE_ROOT;
-    return parseDesignDocument(`${basePath}/.design.json`);
+    return parseDesignDocument(designDocPathForModule(modulePath || SOURCE_ROOT));
   }
 
   function collectDesignDocuments(modulePath) {
-    const prefix = modulePath ? `${modulePath}/` : "";
+    const scopeKey = modulePath || "";
     const preferredDocuments = new Map();
-    for (const [path] of Object.entries(manifest.files || {})
-      .filter(([path]) => isDesignDocumentPath(path))
-      .filter(([path]) => !prefix || path.startsWith(prefix))) {
-      const moduleKey = path.replace(/\/\.design\.json$/i, "");
+    for (const [path] of Object.entries(manifest.files || {})) {
+      if (!isDesignDocumentPath(path)) continue;
+      // Design files live under src_meta/; derive the src/ module key so scope
+      // matching stays aligned with the source tree.
+      const moduleKey = moduleKeyFromCompanionPath(path);
+      if (scopeKey && moduleKey !== scopeKey && !moduleKey.startsWith(`${scopeKey}/`)) continue;
       preferredDocuments.set(moduleKey, path);
     }
 
     return Array.from(preferredDocuments.values())
       .map(path => parseDesignDocument(path))
       .filter(Boolean)
-      .sort((a, b) => a.path.localeCompare(b.path));
+      .sort((a, b) => moduleKeyFromCompanionPath(a.path).localeCompare(moduleKeyFromCompanionPath(b.path)));
   }
 
   function isDesignDocumentPath(path) {
-    return path.endsWith("/.design.json");
+    return isDesignDocumentPathName(path);
   }
 
   function parseDesignDocument(path) {

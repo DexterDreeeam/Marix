@@ -215,7 +215,7 @@ Recommended paths for architecture review:
 - `packages/opencode/src/mcp/index.ts`
 - `packages/plugin/src/index.ts`
 
-## 15. Lessons for `{{proj}}`
+## 15. Lessons for `Marix`
 
 1. Separate durable events from ephemeral stream deltas to support both replay and responsive UI.
 2. Use typed schema-based tools where possible and JSON Schema dynamic tools for MCP/plugins.

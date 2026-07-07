@@ -1,6 +1,6 @@
-# {{proj}}
+# Marix
 
-{{proj}} is a full-featured AI agent framework designed to build autonomous, tool-using agents powered by mainstream LLM backends — both local and online.
+Marix is a full-featured AI agent framework designed to build autonomous, tool-using agents powered by mainstream LLM backends — both local and online.
 
 ## Vision
 
@@ -13,7 +13,7 @@ Build a complete agent system that can:
 
 ## Supported Model Backends
 
-{{proj}} abstracts the LLM layer so agents can run on any of the following:
+Marix abstracts the LLM layer so agents can run on any of the following:
 
 | Type | Provider | Models |
 |------|----------|--------|
@@ -48,7 +48,7 @@ Build a complete agent system that can:
 ## Project Structure
 
 ```
-{{proj_lower}}/
+marix/
 ├── src/
 │   ├── agent/      # Agent contracts and overview refresh interface
 │   └── overview/   # Repository snapshot and star-map visualization models
@@ -61,8 +61,8 @@ Build a complete agent system that can:
 
 ```bash
 # Clone
-git clone https://github.com/DexterDreeeam/{{proj}}.git
-cd {{proj}}
+git clone https://github.com/DexterDreeeam/Marix.git
+cd Marix
 
 # Build Rust crate
 cargo build

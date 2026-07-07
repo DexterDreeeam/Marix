@@ -1,6 +1,6 @@
 # JavaScript Coding Style
 
-This document is the JavaScript coding style source for {{proj}}. Use it when
+This document is the JavaScript coding style source for Marix. Use it when
 reviewing, drafting, or changing JavaScript code.
 
 ## Scope

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src",
+    "name": "src",
+    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; the agent now routes plan events to PlanHub which reserves step-number blocks and emits StepEvent::Trigger, Step emits PlanEvent::Trigger, protocol StepEvent gained a Trigger variant while PlanEvent renamed Run to Trigger, and the unused StepStatus enum was removed. Model-facing plans now use a flat shape whose run_steps are concrete tool calls given as { tool: { name, description, input } } and whose pending_steps carry only an intent, and the model step kinds and step prompt templates collapsed to Initial and Analysis.",
+    "changeStatus": "modified"
+  },
+  "modified": ["."],
+  "childModules": [
+    {
+      "path": "src/agent",
+      "name": "agent",
+      "purpose": "Agent crate namespace for model/session/task/prompt/step/plan/execution orchestration; PlanHub (renamed from PlanQueue) routes plan events and reserves step-number blocks via TaskState::step_count, Step owns step/plan routing and emits PlanEvent::Trigger, and the execution module's ExecutionHub tracks tool executions keyed by ExecutionSignature, accumulating output and emitting StepEvent::Complete back to the step layer on completion, with TaskState owning that ExecutionHub."
+    },
+    {
+      "path": "src/client",
+      "name": "client",
+      "purpose": "Client crate namespace for the marix_client library, ClientSession and signature-aware ClientEvent source, and client binaries including a CLI whose oneshot mode exits on Done completion events; ClientSession creates task signatures with empty names and leaves request text in TaskEvent::Create."
+    },
+    {
+      "path": "src/common",
+      "name": "common",
+      "purpose": "Shared common crate namespace for config loading with serializable System/Platform/Arch re-exports, external adapters including a redb embedded-database wrapper, database telemetry logging via the Logger client over redb and TCP, and structure utilities including WorkQueue::clear for session cleanup."
+    },
+    {
+      "path": "src/prompt",
+      "name": "prompt",
+      "purpose": "Owns prompt templates used by model-facing steps: a flat Plan shape with concrete { tool: { name, description, input } } run_steps and intent-only pending_steps, answer-only Initial and Analysis JSON for requests that are already answerable, all emitted as raw strict JSON."
+    },
+    {
+      "path": "src/protocol",
+      "name": "protocol",
+      "purpose": "First-class marix-protocol workspace crate for reusable session, task, answer, plan, step, execution, tool, and shared Signature definitions; TaskSignature derives ordering/hashing to key execution and plan maps, PlanEvent renamed its Run variant to Trigger, StepEvent gained a Trigger variant, the unused StepStatus enum was removed, ExecutionUpdate now carries a 0-based seq, and ExecutionStatus::Succeed carries the expected update count."
+    },
+    {
+      "path": "src/host",
+      "name": "host",
+      "purpose": "Host crate namespace for HostSession and host-side tool execution; executor preview replies send System::new host metadata and tool previews, unknown-tool failures send ExecutionStatus failure events, the per-request ExecutionContext was renamed to ExecutionState, and per-execution updates are now seq-stamped with success reporting the expected update count."
+    },
+    {
+      "path": "src/tool",
+      "name": "tool",
+      "purpose": "Top-level marix-tool crate that defines ToolProgram and native tool executables; it now depends on marix-protocol for tool preview/schema protocol types."
+    }
+  ],
+  "elements": []
+}

@@ -186,7 +186,7 @@ CI/tooling 覆盖 Python 3.10-3.14、ruff、ty、codespell、syrupy snapshot、p
 | Streaming | `libs/langgraph/langgraph/stream/_mux.py`, `stream/transformers.py`, `callbacks.py` |
 | SDK/CLI | `libs/sdk-py/*`, `libs/cli/*` |
 
-## 12. 对 {{proj}} 的借鉴
+## 12. 对 Marix 的借鉴
 
 1. Builder/runtime 分层，让声明与执行独立演进。
 2. Channel + reducer state model 支撑并行与恢复。

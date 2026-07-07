@@ -384,7 +384,7 @@
     label.setAttribute("class", "star-label");
     label.setAttribute("x", 0);
     label.setAttribute("y", 1);
-    label.textContent = node.path ? node.name : resolveAliases("{{proj}}");
+    label.textContent = node.path ? node.name : "Marix";
     group.appendChild(label);
 
     group.addEventListener("click", evt => {

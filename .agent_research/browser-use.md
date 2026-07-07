@@ -345,7 +345,7 @@ Recommended paths for deeper follow-up:
 - `browser_use/sandbox/sandbox.py`
 - `browser_use/beta/service.py`
 
-## 12. Lessons for {{proj}}
+## 12. Lessons for Marix
 
 1. A browser agent should have a strong page-change guard: stop remaining actions after URL or focus changes.
 2. Dynamically generate the action model from the current page and allowed actions to reduce LLM misuse.

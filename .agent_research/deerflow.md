@@ -491,7 +491,7 @@ Design details:
 | `docker/nginx/nginx.conf` | Routing and SSE support |
 | `docker/provisioner/*` | Kubernetes sandbox provisioner |
 
-## 17. Takeaways for `{{proj}}`
+## 17. Takeaways for `Marix`
 
 1. **Build a harness, not just one workflow**
    - Separate agent loop, runtime, tool registry, sandbox, memory, and observability.
@@ -500,7 +500,7 @@ Design details:
    - This improves caching and keeps authority boundaries clear.
 
 3. **Use deferred tool schema loading for large tool ecosystems**
-   - Especially useful when `{{proj}}` integrates MCP or many plugins.
+   - Especially useful when `Marix` integrates MCP or many plugins.
 
 4. **Engineer subagents as runtime units**
    - Isolated context, timeouts, cancellation, status contracts, and token accounting should be first-class.
@@ -519,11 +519,11 @@ Design details:
    - Agent-writable skills require archive guards, scanner fail-closed behavior, and `allowed-tools`.
 
 9. **Be explicit about single-worker assumptions**
-   - If `{{proj}}` uses in-process run/stream state, multi-worker deployment needs shared infrastructure first.
+   - If `Marix` uses in-process run/stream state, multi-worker deployment needs shared infrastructure first.
 
 ## 18. Risks and anti-patterns
 
-| Risk | DeerFlow observation | `{{proj}}` caution |
+| Risk | DeerFlow observation | `Marix` caution |
 |---|---|---|
 | Local sandbox mistaken for isolation | Host bash disabled by default | Document local mode as convenience only |
 | In-process state limits scaling | Run/stream/channel state is process-local | Add shared bridge before multi-worker deployment |

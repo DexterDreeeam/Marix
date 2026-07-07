@@ -239,7 +239,7 @@ Recommended paths for architecture review:
 - `crates/goose/src/config/permission.rs`
 - `crates/goose-server/src/session_event_bus.rs`
 
-## 15. Lessons for `{{proj}}`
+## 15. Lessons for `Marix`
 
 1. Use MCP as a native tool boundary when external tool ecosystems matter.
 2. Persist permission configuration in a simple auditable format like `permission.yaml`.

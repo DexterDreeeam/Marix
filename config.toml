@@ -1,4 +1,4 @@
-name = "{{proj_lower}}"
+name = "marix"
 
 [runtime]
 environment = "development"
@@ -6,12 +6,12 @@ mode = "network"
 marix_path = "."
 
 [client]
-core_address = "{{core}}:22345"
+core_address = "43.142.167.218:22345"
 interactive = true
 request_timeout_ms = 30000
 
 [host]
-core_address = "{{core}}:22346"
+core_address = "43.142.167.218:22346"
 
 [agent]
 enabled = true

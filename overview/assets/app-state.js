@@ -44,7 +44,6 @@
 
   async function init() {
     try {
-      await resolveConfigAliases();
       initStateFromStorage();
       applyDocumentTitle();
       const dataSource = await resolveDataSourceChoice();
@@ -170,7 +169,7 @@
   }
 
   function applyDocumentTitle() {
-    document.title = resolveAliases(`{{proj}} - ${t("title")}`);
+    document.title = `Marix - ${t("title")}`;
   }
 
   function applyLanguage() {

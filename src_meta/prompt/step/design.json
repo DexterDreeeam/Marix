@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/prompt/step",
+    "name": "step",
+    "purpose": "Owns step model prompt templates for Initial and Analysis. Both emit a flat Plan shape whose run_steps are concrete tool calls given as { tool: { name, description, input } } and whose pending_steps carry only an { intent }; either step can instead return an answer-only JSON object when the request is already answerable, and all output is raw strict JSON without Markdown fences.",
+    "changeStatus": "modified"
+  },
+  "added": ["Analysis.prompt"],
+  "modified": ["Initial.prompt"],
+  "deleted": ["Composition.prompt", "ExecutionAnalysis.prompt", "Plan.prompt"],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "InitialPrompt",
+      "type": "prompt",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/prompt/step/Initial.prompt",
+          "lineStart": 1,
+          "lineEnd": 46,
+          "language": "prompt",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 13
+            },
+            {
+              "lineStart": 32,
+              "lineEnd": 38
+            },
+            {
+              "lineStart": 41,
+              "lineEnd": 43
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "AnalysisPrompt",
+      "type": "prompt",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/prompt/step/Analysis.prompt",
+          "lineStart": 1,
+          "lineEnd": 48,
+          "language": "prompt",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 48
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

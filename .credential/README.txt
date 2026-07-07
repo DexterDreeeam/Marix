@@ -1,6 +1,6 @@
 # Credentials
 
-Local-only secret files used by {{proj}}. This folder is git-ignored except for
+Local-only secret files used by Marix. This folder is git-ignored except for
 this README; never commit the replacement files.
 
 ## Runtime config references
@@ -16,5 +16,6 @@ Consumed by deployment and Hyper-V operator tooling, not by the runtime config:
 
 - `CORE_SERVER_PASSWORD.txt`
 - `CORE_SERVER_ROOT_PASSWORD.txt`
+- `CORE_SERVER_SSH_KEY.txt` (path to the SSH private key for the Ubuntu core host)
 - `HYPERV_OPERATOR_USERNAME.txt`
 - `HYPERV_OPERATOR_PASSWORD.txt`

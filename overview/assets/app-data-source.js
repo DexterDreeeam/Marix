@@ -78,7 +78,7 @@
         }
         try {
           const handle = await window.showDirectoryPicker({
-            id: resolveAliases("{{proj_lower}}-overview-local-root"),
+            id: "marix-overview-local-root",
             mode: "read"
           });
           const allowed = await requestLocalReadPermission(handle);
@@ -272,7 +272,7 @@
 
   async function fetchProjectTags(repoApi) {
     const tags = await fetchJson(`${repoApi}/tags?per_page=100`);
-    const tagPrefix = resolveAliases("{{proj_lower}}_tag_");
+    const tagPrefix = "marix_tag_";
     const projectTags = tags.filter(tag => String(tag.name || "").startsWith(tagPrefix));
     logOverview("project tags listed", { count: projectTags.length });
     return projectTags
@@ -305,12 +305,18 @@
   function shouldIncludeManifestPath(path) {
     if (!path || isGeneratedPath(path)) return false;
     if (path.split("/").some(part => isExcludedPathPart(part))) return false;
-    if (!isSourcePathName(path)) return false;
+    // Companion metadata lives under src_meta/ (outside src/); include it for
+    // internal loaders but keep it out of visible source via
+    // shouldIncludeVisibleSourcePath below.
     if (isCompanionDocumentPathName(path)) return !hasHiddenAncestorPathName(path);
+    if (!isSourcePathName(path)) return false;
     return !isHiddenPathName(path);
   }
 
   function shouldIncludeVisibleSourcePath(path) {
+    // The src_meta/ companion mirror is never visible source, even though its
+    // files have no dot prefix.
+    if (isMetaPathName(path)) return false;
     return shouldIncludeManifestPath(path) && !isHiddenPathName(path);
   }
 
@@ -335,11 +341,11 @@
   }
 
   function isDesignDocumentPathName(path) {
-    return String(path || "").endsWith("/.design.json");
+    return isMetaPathName(path) && String(path || "").endsWith(`/${DESIGN_DOC_FILENAME}`);
   }
 
   function isWorkflowDocumentPathName(path) {
-    return String(path || "").endsWith("/.workflow.mmd");
+    return isMetaPathName(path) && String(path || "").endsWith(`/${WORKFLOW_DOC_FILENAME}`);
   }
 
   function isCompanionDocumentPathName(path) {

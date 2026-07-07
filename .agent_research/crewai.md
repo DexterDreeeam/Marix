@@ -210,7 +210,7 @@ Test traits include `--block-network`, pytest-xdist, 60-second timeout, importli
 | HITL | `task.py`, `core/providers/human_input.py`, `flow/human_feedback.py`, `flow/async_feedback/types.py` |
 | Events/tracing | `events/event_bus.py`, `events/event_listener.py`, `events/types/*`, `events/listeners/tracing/*` |
 
-## 12. Reusable lessons for {{proj}}
+## 12. Reusable lessons for Marix
 
 1. Keep team orchestration and deterministic graph workflow as separate but composable layers.
 2. Treat events as state: EventBus writes into RuntimeState/EventRecord.

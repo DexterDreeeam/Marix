@@ -252,7 +252,7 @@ AgentOS is a FastAPI runtime/control plane that can register agents, teams, work
 
 Security capabilities include JWT authorization, scope/RBAC, optional user isolation, MCP host/origin protection, and scheduler internal service token.
 
-## 13. Reusable lessons for {{proj}}
+## 13. Reusable lessons for Marix
 
 1. Align Agent, Team, and Workflow around shared run output, events, metrics, and session persistence.
 2. Use clear layers for `Toolkit`, `Function`, and decorator-based tools.

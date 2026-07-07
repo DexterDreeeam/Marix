@@ -326,9 +326,9 @@ Cline 扩展层分为：
 | cron automation | Markdown spec + YAML frontmatter + durable queue |
 | remote config | materialize managed rules/workflows/skills 到 workspace-local `.cline/...` |
 
-## 14. 对 `{{proj}}` 的借鉴
+## 14. 对 `Marix` 的借鉴
 
-以下经验可作为 `{{proj}}` 设计 agent runtime、工具边界和工程治理时的参考：
+以下经验可作为 `Marix` 设计 agent runtime、工具边界和工程治理时的参考：
 
 1. **清晰 layered architecture**：shared → llms → agents → core → apps。
 2. **agent loop 无状态**：便于复用、测试和嵌入。

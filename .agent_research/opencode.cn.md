@@ -411,9 +411,9 @@ Hooks 很丰富：
 - roots capability；
 - status：connected/disabled/failed/needs_auth/needs_client_registration。
 
-## 14. 对 `{{proj}}` 的借鉴
+## 14. 对 `Marix` 的借鉴
 
-以下经验可作为 `{{proj}}` 设计 agent runtime、工具边界和工程治理时的参考：
+以下经验可作为 `Marix` 设计 agent runtime、工具边界和工程治理时的参考：
 
 1. **Effect + Schema 工具抽象**：类型安全、错误模型统一。
 2. **durable/ephemeral event 分离**：流式 UI 与可回放状态两者兼顾。

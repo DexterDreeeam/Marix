@@ -371,9 +371,9 @@ Goose 是 MCP-first：
 - `crates/goose/src/hooks/`
 - `crates/goose/src/acp/`
 
-## 14. 对 `{{proj}}` 的借鉴
+## 14. 对 `Marix` 的借鉴
 
-以下经验可作为 `{{proj}}` 设计 agent runtime、工具边界和工程治理时的参考：
+以下经验可作为 `Marix` 设计 agent runtime、工具边界和工程治理时的参考：
 
 1. **MCP-native 工具生态**：工具是外部能力，而不是全塞进核心。
 2. **权限配置持久化**：`permission.yaml` 简洁可审计。

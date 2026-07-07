@@ -430,9 +430,9 @@ Continue 更偏 config-driven，而不是 OpenCode 那类 plugin hooks：
 - MCP servers；
 - IDE extension commands。
 
-## 14. 对 `{{proj}}` 的借鉴
+## 14. 对 `Marix` 的借鉴
 
-以下经验可作为 `{{proj}}` 设计 agent runtime、工具边界和工程治理时的参考：
+以下经验可作为 `Marix` 设计 agent runtime、工具边界和工程治理时的参考：
 
 1. **IDE protocol-first**：`core/protocol/core.ts` 把 IDE ↔ Core 能力定义得很清楚。
 2. **ContextProvider pattern**：非常适合把 IDE selection、文件树、RAG、docs、数据库统一成上下文。

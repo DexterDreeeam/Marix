@@ -328,9 +328,9 @@ OpenHands 的扩展层很完整：
 | file-based agents | `.agents/agents/*.md`、`.openhands/agents/*.md` |
 | client tools | 前端或外部 client 注册动态工具，由 event consumer 执行 |
 
-## 14. 对 `{{proj}}` 的借鉴
+## 14. 对 `Marix` 的借鉴
 
-以下经验可作为 `{{proj}}` 设计 agent runtime、工具边界和工程治理时的参考：
+以下经验可作为 `Marix` 设计 agent runtime、工具边界和工程治理时的参考：
 
 1. **事件溯源式 conversation state**：action/observation/message 都是 event，便于恢复、审计、fork。
 2. **sandbox 与 agent loop 分离**：agent 不直接关心 Docker/remote/process sandbox。

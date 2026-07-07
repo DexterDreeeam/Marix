@@ -1,6 +1,6 @@
 # Rust Coding Style
 
-This document is the Rust coding style source for {{proj}}. Use it when reviewing,
+This document is the Rust coding style source for Marix. Use it when reviewing,
 drafting, or changing Rust code.
 
 ## Naming
