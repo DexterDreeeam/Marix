@@ -4,18 +4,15 @@
     "path": "src/agent/step",
     "name": "step",
     "purpose": "Owns the agent runtime Step type as a top-level agent module. Step holds a shared Arc<TaskState>, protocol StepId-backed step identity, update sequencing, and Step::from_draft conversion from flat model StepDraft values into runtime StepKind values; owns task-step routing, initial and analysis PlanDraft creation, plan-event emission, model-prompt rendering, and step/model completion handling; model completion parses JSON objects, handles Answer objects first, and deserializes PlanDraft directly with serde_json; and execution spawning is delegated to ExecutionHub.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "step.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/step/step.rs",

@@ -4,10 +4,8 @@
     "path": "src/agent/prompt",
     "name": "prompt",
     "purpose": "Defines the agent prompt interface, render_template conditional/variable rendering, InitialPrompt for initial planning, and AnalysisPrompt for model analysis of completed execution output using RequestBrief, ExecutionOutput, CurrentPlan, PendingIntentions, and Tools variables.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["mod.rs"],
-  "renamed": ["analysis.rs"],
   "childModules": [],
   "elements": [
     {
@@ -114,7 +112,7 @@
       "name": "AnalysisPrompt",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/prompt/analysis.rs",

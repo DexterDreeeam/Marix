@@ -4,25 +4,15 @@
     "path": "src/agent/plan",
     "name": "plan",
     "purpose": "Owns agent-side plan runtime orchestration. Plan stores description, run_steps, pending_steps, and expected_result, delegates flat StepDraft conversion to Step::from_draft without reserving numeric step numbers, and exposes run step signatures; PlanHub routes valid drafts, logs and discards invalid drafts, stores PlanRecords, emits StepEvent::Trigger for runnable steps, and supports lookup, listing, completion tracking, and stringify snapshots; PlanStringify renders current runtime plans in the flat step-field shape; and PlanError reports duplicate plans, missing plans, missing steps, and invalid draft conversion failures.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "mod.rs",
-    "plan.rs",
-    "error.rs",
-    "hub.rs",
-    "stringify.rs"
-  ],
-  "deleted": [
-    "draft.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "PlanHub",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/plan/hub.rs",
@@ -51,7 +41,7 @@
       "name": "Plan",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/plan/plan.rs",
@@ -101,7 +91,7 @@
       "name": "PlanStringify",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/plan/stringify.rs",
@@ -143,7 +133,7 @@
       "name": "PlanRecord",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/plan/record.rs",
@@ -185,7 +175,7 @@
       "name": "PlanError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/agent/plan/error.rs",

@@ -4,26 +4,15 @@
     "path": "src/prompt/step",
     "name": "step",
     "purpose": "Owns step model prompt templates for Initial and Analysis. Both emit the flat model-facing PlanDraft shape: run_steps contain step objects with name, kind, description, and input for tool or model work; pending_steps contain intent objects with name, kind, and description and no required input; either step can instead return an answer-only JSON object, and all output is raw strict JSON without Markdown fences.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "Analysis.prompt"
-  ],
-  "modified": [
-    "Initial.prompt"
-  ],
-  "deleted": [
-    "Composition.prompt",
-    "ExecutionAnalysis.prompt",
-    "Plan.prompt"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "InitialPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Initial.prompt",
@@ -48,7 +37,7 @@
       "name": "AnalysisPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Analysis.prompt",

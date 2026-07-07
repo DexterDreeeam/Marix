@@ -4,27 +4,15 @@
     "path": "src/protocol/plan",
     "name": "plan",
     "purpose": "Owns task plan draft and answer extraction protocol contracts. Answer is the dedicated answer-only model output type; PlanDraft is the model-facing planning output draft with description, StepDraft-based run_steps and pending_steps, and expected_result fields; PlanEvent carries a Trigger(PlanDraft) notification; PlanId allocates plan identity; and PlanSignature pairs a task TaskSignature with a PlanId for tracked plan records.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "id.rs"
-  ],
-  "modified": [
-    "event.rs",
-    "mod.rs",
-    "answer.rs",
-    "signature.rs"
-  ],
-  "renamed": [
-    "draft.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "Answer",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/answer.rs",
@@ -40,7 +28,7 @@
       "name": "PlanDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/draft.rs",
@@ -56,7 +44,7 @@
       "name": "PlanEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/event.rs",
@@ -77,7 +65,7 @@
       "name": "PlanSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/signature.rs",
@@ -124,7 +112,7 @@
       "name": "PlanId",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/id.rs",
