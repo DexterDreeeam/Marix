@@ -18,10 +18,8 @@ pub struct Config {
     pub runtime: RuntimeConfig,
     pub core: CoreConfig,
     pub client: ClientConfig,
-    pub host: HostConfig,
     pub server: ServerConfig,
     pub model: ModelConfig,
-    pub telemetry: TelemetryConfig,
     pub credential: CredentialConfig,
     pub tool: ToolConfig,
 }
@@ -73,30 +71,18 @@ pub struct CoreConfig {
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ClientConfig {
-    pub core_address: String,
     pub interactive: bool,
     pub request_timeout_ms: u64,
-}
-
-/// Host-node connection settings.
-///
-/// The host is a client of the server, symmetric to [`ClientConfig`]: it dials
-/// the server's reachable address rather than binding a port. The server always
-/// listens on `0.0.0.0` at the ports in [`ServerConfig`], so a single config can
-/// serve every node — only `core_address` here (and in [`ClientConfig`]) points
-/// at the server's externally reachable host and port.
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct HostConfig {
-    pub core_address: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ServerConfig {
     pub enabled: bool,
+    pub ip: String,
     pub client_port: u16,
     pub host_port: u16,
+    pub telemetry_port: u16,
     pub max_turns: u32,
 }
 
@@ -121,13 +107,6 @@ pub struct DeepseekConfig {
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct TelemetryConfig {
-    pub bind_port: u16,
-    pub server_address: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
-#[serde(deny_unknown_fields)]
 pub struct CredentialConfig {
     pub directory: String,
 }
@@ -147,12 +126,21 @@ struct RawConfig {
     runtime: RuntimeConfig,
     core: Option<CoreConfig>,
     client: ClientConfig,
-    host: HostConfig,
-    server: ServerConfig,
+    server: RawServerConfig,
     model: RawModelConfig,
-    telemetry: TelemetryConfig,
     credential: CredentialConfig,
     tool: ToolConfig,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct RawServerConfig {
+    enabled: bool,
+    ip: CredentialRef,
+    client_port: u16,
+    host_port: u16,
+    telemetry_port: u16,
+    max_turns: u32,
 }
 
 #[derive(Debug, Deserialize)]
@@ -195,6 +183,7 @@ fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
     let content = std::fs::read_to_string(config_path)?;
     let raw_config: RawConfig = toml::from_str(&content)?;
     let credential_root = resolve_config_path(&repo_root, &raw_config.credential.directory);
+    let server_ip = read_credential(&credential_root, &raw_config.server.ip)?;
     let deepseek_api_key = read_credential(&credential_root, &raw_config.model.deepseek.api_key)?;
 
     let runtime = resolve_runtime_paths(&repo_root, raw_config.runtime);
@@ -205,8 +194,14 @@ fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
         runtime,
         core: raw_config.core.unwrap_or_else(default_core_config),
         client: raw_config.client,
-        host: raw_config.host,
-        server: raw_config.server,
+        server: ServerConfig {
+            enabled: raw_config.server.enabled,
+            ip: server_ip,
+            client_port: raw_config.server.client_port,
+            host_port: raw_config.server.host_port,
+            telemetry_port: raw_config.server.telemetry_port,
+            max_turns: raw_config.server.max_turns,
+        },
         model: ModelConfig {
             backend: raw_config.model.backend,
             deepseek: DeepseekConfig {
@@ -215,7 +210,6 @@ fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
                 api_key: deepseek_api_key,
             },
         },
-        telemetry: raw_config.telemetry,
         credential: raw_config.credential,
         tool: ToolConfig {
             directory: path_to_config_string(resolve_config_path(

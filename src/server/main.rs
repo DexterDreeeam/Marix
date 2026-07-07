@@ -13,13 +13,13 @@ fn main() {
         eprintln!("server is disabled by configuration");
         std::process::exit(1);
     }
-    if let Err(error) = Logger::host(config.telemetry.bind_port) {
+    if let Err(error) = Logger::host(config.server.telemetry_port) {
         eprintln!("failed to start telemetry logger: {error}");
         std::process::exit(1);
     }
     let _ = Logger::log(format!(
         "server telemetry hosting on port {}",
-        config.telemetry.bind_port
+        config.server.telemetry_port
     ));
     let _ = Logger::log(format!("server core '{}' starting", config.name));
     let _session = Session::new(config.name);

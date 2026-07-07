@@ -6,17 +6,15 @@ mode = "network"
 marix_path = "."
 
 [client]
-core_address = "43.142.167.218:22345"
 interactive = true
 request_timeout_ms = 30000
 
-[host]
-core_address = "43.142.167.218:22346"
-
 [server]
 enabled = true
+ip = { name = "SERVER_IP" }
 client_port = 22345
 host_port = 22346
+telemetry_port = 22347
 max_turns = 32
 
 [model]
@@ -26,10 +24,6 @@ backend = "deepseek"
 endpoint = "https://api.deepseek.com/chat/completions"
 model = "deepseek-chat"
 api_key = { name = "DEEPSEEK_API_KEY" }
-
-[telemetry]
-bind_port = 22347
-server_address = "127.0.0.1:22347"
 
 [credential]
 directory = ".credential"

@@ -3,16 +3,19 @@
   "module": {
     "path": "src/server/session",
     "name": "session",
-    "purpose": "Owns the server session runtime, total SessionEvent routing entrypoint, local task-originated event channel, shared session preview context with SessionContext::snapshot for prompt rendering, and task creation. route_session_event routes task, step, execution, and plan events back to the owning Task by task id through the task signature and then calls send_client_event once; send_client_event applies a matches! filter that forwards only Task Status/Preview/CreateFailed and all Step events to the client. Host preview queries build a preview TaskSignature.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the server session runtime, total SessionEvent routing entrypoint, local task-originated event channel, shared session preview context with SessionContext::snapshot for prompt rendering, and task creation. Session builds client and host listener addresses from config.server.ip plus the configured ports; route_session_event routes task, step, execution, and plan events back to the owning Task by task id and then calls send_client_event once.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "session.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/session.rs",
@@ -33,17 +36,21 @@
         {
           "sourcePath": "src/server/session/session.rs",
           "lineStart": 46,
-          "lineEnd": 333,
+          "lineEnd": 335,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 55,
-              "lineEnd": 55
+              "lineStart": 47,
+              "lineEnd": 50
             },
             {
-              "lineStart": 78,
-              "lineEnd": 78
+              "lineStart": 57,
+              "lineEnd": 57
+            },
+            {
+              "lineStart": 80,
+              "lineEnd": 80
             }
           ]
         }

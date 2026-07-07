@@ -85,11 +85,9 @@ impl ClientSession {
         std::thread::spawn(move || {
             let config =
                 Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
-            let address: SocketAddr = config
-                .client
-                .core_address
+            let address: SocketAddr = format!("{}:{}", config.server.ip, config.server.client_port)
                 .parse()
-                .unwrap_or_else(|error| panic!("invalid core address: {error}"));
+                .unwrap_or_else(|error| panic!("invalid server client address: {error}"));
             while !shutdown.load(Ordering::Relaxed) {
                 let Ok((net_tx, net_rx)) = connect_channel::<SessionMessage>(address) else {
                     continue;

@@ -30,7 +30,8 @@ fn main() {
             std::process::exit(1);
         }
     };
-    match config.telemetry.server_address.parse::<SocketAddr>() {
+    let telemetry_address = format!("{}:{}", config.server.ip, config.server.telemetry_port);
+    match telemetry_address.parse::<SocketAddr>() {
         Ok(address) => match Logger::connect(address) {
             Ok(()) => {
                 let _ = Logger::log(format!("client '{}' connected to telemetry", config.name));

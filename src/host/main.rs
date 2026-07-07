@@ -24,7 +24,8 @@ fn main() {
 /// channel, so an unreachable or misconfigured server must not stop the host
 /// from serving executions.
 fn connect_telemetry(config: &Config) {
-    let address = match config.telemetry.server_address.parse::<SocketAddr>() {
+    let telemetry_address = format!("{}:{}", config.server.ip, config.server.telemetry_port);
+    let address = match telemetry_address.parse::<SocketAddr>() {
         Ok(address) => address,
         Err(error) => {
             eprintln!("invalid telemetry server address, continuing without telemetry: {error}");

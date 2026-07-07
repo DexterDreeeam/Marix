@@ -3,8 +3,7 @@ pub mod config;
 pub mod sys;
 
 pub use config::{
-    CONFIG_FILE, ClientConfig, Config, CoreConfig, CredentialConfig, DeepseekConfig, HostConfig,
-    ModelBackend, ModelConfig, RuntimeConfig, RuntimeEnvironment, RuntimeMode, ServerConfig,
-    TelemetryConfig, ToolConfig,
+    CONFIG_FILE, ClientConfig, Config, CoreConfig, CredentialConfig, DeepseekConfig, ModelBackend,
+    ModelConfig, RuntimeConfig, RuntimeEnvironment, RuntimeMode, ServerConfig, ToolConfig,
 };
 pub use sys::{Arch, Platform, System};

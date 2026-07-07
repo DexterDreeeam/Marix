@@ -13,3 +13,4 @@
 - `src/server/plan/draft.rs` is intentionally absent. Model completion handles answer JSON before plan JSON; `Plan::from_draft` builds runtime plans and `Step::from_draft` maps flat drafts to `StepKind`.
 - Execution signatures are injected only when a tool draft becomes a runtime step. `StepSignature` owns `StepId`, `PlanSignature` owns `PlanId`, and there are no numeric step numbers or `TaskState::step_count`.
 - Alias placeholders were removed repo-wide. Config now reads literal TOML; credential refs are separate and must remain.
+- 2026-07-07: Config endpoints now centralize node IP under `ServerConfig.ip`; client/host connections and telemetry clients derive addresses from `config.server.ip` plus `client_port`, `host_port`, or `telemetry_port`. The current config contract has no separate host or telemetry sections.

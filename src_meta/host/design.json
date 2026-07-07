@@ -3,9 +3,13 @@
   "module": {
     "path": "src/host",
     "name": "host",
-    "purpose": "Host crate namespace for HostSession and host-side tool execution. The executor sends preview replies with host System metadata and tool previews, sends unknown-tool failure events, and HostSession connects to the server core while importing reusable protocol contracts from marix-protocol and config/channel helpers from common.",
-    "changeStatus": "unchanged"
+    "purpose": "Host crate namespace for HostSession and host-side tool execution. The executor sends preview replies with host System metadata and tool previews, sends unknown-tool failure events, and HostSession builds the server host endpoint from config.server.ip plus config.server.host_port while importing reusable protocol contracts from marix-protocol and config/channel helpers from common.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "session.rs",
+    "main.rs"
+  ],
   "childModules": [
     {
       "path": "src/host/executor",
@@ -18,7 +22,7 @@
       "name": "HostSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/session.rs",
@@ -39,25 +43,13 @@
         {
           "sourcePath": "src/host/session.rs",
           "lineStart": 44,
-          "lineEnd": 86,
+          "lineEnd": 84,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 54,
-              "lineEnd": 56
-            },
-            {
-              "lineStart": 61,
-              "lineEnd": 62
-            },
-            {
-              "lineStart": 69,
-              "lineEnd": 69
-            },
-            {
-              "lineStart": 78,
-              "lineEnd": 78
+              "lineStart": 49,
+              "lineEnd": 51
             }
           ]
         }
@@ -67,20 +59,20 @@
       "name": "marix-host",
       "type": "bin",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/main.rs",
           "lineStart": 6,
-          "lineEnd": 30,
+          "lineEnd": 43,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 25,
-              "lineEnd": 25
+              "lineStart": 27,
+              "lineEnd": 28
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     }

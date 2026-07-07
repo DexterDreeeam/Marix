@@ -9,6 +9,7 @@ this README; never commit the replacement files.
 this folder as `<name>.txt`:
 
 - `[model.deepseek] api_key = { name = "DEEPSEEK_API_KEY" }` -> `DEEPSEEK_API_KEY.txt`
+- `[server] ip = { name = "SERVER_IP" }` -> `SERVER_IP.txt`
 
 ## Deployment secrets
 

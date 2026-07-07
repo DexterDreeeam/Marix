@@ -46,11 +46,9 @@ impl HostSession {
         std::thread::spawn(move || {
             let config =
                 Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
-            let address: SocketAddr = config
-                .host
-                .core_address
+            let address: SocketAddr = format!("{}:{}", config.server.ip, config.server.host_port)
                 .parse()
-                .unwrap_or_else(|error| panic!("invalid host core address: {error}"));
+                .unwrap_or_else(|error| panic!("invalid server host address: {error}"));
             let server_tx: SharedNetSender<SessionMessage> =
                 SharedNetSender::new(std::sync::Mutex::new(None));
             let mut executor = Executor::new(Arc::clone(&server_tx));
