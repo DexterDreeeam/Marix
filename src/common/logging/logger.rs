@@ -21,7 +21,7 @@ pub struct Logger {
 
 impl Logger {
     /// Starts the telemetry logger server on the given port and records this
-    /// process's own telemetry directly to the local database. Agent-only.
+    /// process's own telemetry directly to the local database. Server-only.
     pub fn host(port: u16) -> Result<(), LoggingError> {
         let store = Store::open()?;
         LOGGER
@@ -117,18 +117,18 @@ impl Store {
         })
     }
 
-    /// Directory that holds telemetry databases: the agent's resolved marix
+    /// Directory that holds telemetry databases: the server's resolved marix
     /// path (falling back to the shared marix path) plus a `log` child.
     fn database_directory(config: &Config) -> PathBuf {
         let base = config
             .runtime
-            .marix_path_agent
+            .marix_path_server
             .as_deref()
             .unwrap_or(config.runtime.marix_path.as_str());
         PathBuf::from(base).join("log")
     }
 
-    /// A fresh timestamped database file name, so each agent start records
+    /// A fresh timestamped database file name, so each server start records
     /// into its own database rather than appending to a shared one.
     fn database_file_name() -> String {
         let seconds = SystemTime::now()

@@ -1,10 +1,10 @@
 # Marix
 
-Marix is a full-featured AI agent framework designed to build autonomous, tool-using agents powered by mainstream LLM backends — both local and online.
+Marix is a full-featured tool-using AI runtime powered by mainstream LLM backends — both local and online.
 
 ## Vision
 
-Build a complete agent system that can:
+Build a complete orchestration system that can:
 
 - **Reason & Plan** — decompose complex tasks into actionable steps
 - **Use Tools** — invoke external tools, APIs, and system commands
@@ -13,7 +13,7 @@ Build a complete agent system that can:
 
 ## Supported Model Backends
 
-Marix abstracts the LLM layer so agents can run on any of the following:
+Marix abstracts the LLM layer so the server can run on any of the following:
 
 | Type | Provider | Models |
 |------|----------|--------|
@@ -29,7 +29,7 @@ Marix abstracts the LLM layer so agents can run on any of the following:
 
 ```
 ┌─────────────────────────────────────┐
-│            Agent Loop               │
+│       Server Orchestration Loop     │
 │  (Plan → Act → Observe → Reflect)  │
 ├─────────────────────────────────────┤
 │          Tool Registry              │
@@ -50,8 +50,13 @@ Marix abstracts the LLM layer so agents can run on any of the following:
 ```
 marix/
 ├── src/
-│   ├── agent/      # Agent contracts and overview refresh interface
-│   └── overview/   # Repository snapshot and star-map visualization models
+│   ├── server/     # Server orchestration, model, session, plan, step, and task runtime
+│   ├── host/       # Host-side tool execution
+│   ├── client/     # User-facing client entrypoints
+│   ├── common/     # Shared config, logging, external adapters, and structures
+│   ├── protocol/   # Shared protocol data contracts
+│   ├── prompt/     # Model prompt templates
+│   └── tool/       # Native tool executables
 └── overview/       # GitHub Pages overview UI
 ```
 

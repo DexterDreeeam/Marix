@@ -16,7 +16,7 @@ use crate::ClientEvent;
 static SOURCE_NAME: OnceLock<String> = OnceLock::new();
 
 pub struct ClientSession {
-    agent_tx: SharedNetSender<SessionMessage>,
+    server_tx: SharedNetSender<SessionMessage>,
     user_rx: Receiver<ClientEvent>,
     worker: Option<JoinHandle<()>>,
     shutdown: Arc<AtomicBool>,
@@ -26,12 +26,12 @@ impl ClientSession {
     pub fn new(name: String) -> Self {
         let _ = SOURCE_NAME.set(name);
         let (user_tx, user_rx) = build_channel();
-        let agent_tx: SharedNetSender<SessionMessage> =
+        let server_tx: SharedNetSender<SessionMessage> =
             SharedNetSender::new(std::sync::Mutex::new(None));
         let shutdown = Arc::new(AtomicBool::new(false));
-        let worker = Self::spawn_worker(Arc::clone(&agent_tx), user_tx, Arc::clone(&shutdown));
+        let worker = Self::spawn_worker(Arc::clone(&server_tx), user_tx, Arc::clone(&shutdown));
         Self {
-            agent_tx,
+            server_tx,
             user_rx,
             worker: Some(worker),
             shutdown,
@@ -43,7 +43,7 @@ impl ClientSession {
     }
 
     pub fn is_connected(&self) -> bool {
-        self.agent_tx
+        self.server_tx
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .is_some()
@@ -52,7 +52,7 @@ impl ClientSession {
     pub fn create_task(&self, request: String) {
         let _ = Logger::log("client submitting task request");
         let signature = TaskSignature::new(String::new());
-        self.send_to_agent(SessionEvent::Task(signature, TaskEvent::Create { request }));
+        self.send_to_server(SessionEvent::Task(signature, TaskEvent::Create { request }));
     }
 
     pub fn cancel_task(&self, task_id: TaskId) {
@@ -61,7 +61,7 @@ impl ClientSession {
             name: String::new(),
             id: task_id,
         };
-        self.send_to_agent(SessionEvent::Task(signature, TaskEvent::Cancel));
+        self.send_to_server(SessionEvent::Task(signature, TaskEvent::Cancel));
     }
 
     pub fn receiver(&self) -> &Receiver<ClientEvent> {
@@ -78,7 +78,7 @@ impl ClientSession {
 
 impl ClientSession {
     fn spawn_worker(
-        agent_tx: SharedNetSender<SessionMessage>,
+        server_tx: SharedNetSender<SessionMessage>,
         user_tx: Sender<ClientEvent>,
         shutdown: Arc<AtomicBool>,
     ) -> JoinHandle<()> {
@@ -94,15 +94,15 @@ impl ClientSession {
                 let Ok((net_tx, net_rx)) = connect_channel::<SessionMessage>(address) else {
                     continue;
                 };
-                let _ = Logger::log("client connected to agent core");
-                *agent_tx.lock().unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
+                let _ = Logger::log("client connected to server core");
+                *server_tx.lock().unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
                 Self::run_worker(net_rx, &user_tx, &shutdown);
             }
         })
     }
 
     fn run_worker(
-        mut agent_rx: NetReceiver<SessionMessage>,
+        mut server_rx: NetReceiver<SessionMessage>,
         user_tx: &Sender<ClientEvent>,
         shutdown: &AtomicBool,
     ) {
@@ -111,7 +111,7 @@ impl ClientSession {
             .build()
             .unwrap_or_else(|error| panic!("failed to build client event runtime: {error}"));
         runtime.block_on(async move {
-            while let Ok(Some(message)) = agent_rx.recv().await {
+            while let Ok(Some(message)) = server_rx.recv().await {
                 if let Some(client_event) = Self::to_client_event(message.event) {
                     let _ = user_tx.send(client_event);
                 }
@@ -122,9 +122,9 @@ impl ClientSession {
         });
     }
 
-    fn send_to_agent(&self, event: SessionEvent) {
+    fn send_to_server(&self, event: SessionEvent) {
         if let Some(sender) = self
-            .agent_tx
+            .server_tx
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .as_mut()
@@ -139,7 +139,10 @@ impl ClientSession {
                 Some(Self::done_event(&signature, Some(result.content)))
             }
             SessionEvent::Task(signature, TaskEvent::Status(TaskStatus::Failed { reason })) => {
-                Some(Self::done_event(&signature, Some(format!("task failed: {reason}"))))
+                Some(Self::done_event(
+                    &signature,
+                    Some(format!("task failed: {reason}")),
+                ))
             }
             SessionEvent::Task(signature, TaskEvent::Status(TaskStatus::Canceled)) => {
                 Some(Self::done_event(&signature, None))

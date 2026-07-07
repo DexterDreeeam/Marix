@@ -1,4 +1,4 @@
-# Marix Host、Client 与 Agent 重写说明
+# Marix Host、Client 与 Server 重写说明
 
 ## 范围
 
@@ -6,7 +6,7 @@
 
 - `host`
 - `client`
-- `agent`
+- `server`
 
 这 3 个 lib 可以运行在 3 台不同设备上，也可以任意组合在同一台设备或同一个进程里。设计上应该保持边界清晰，方便未来自由组合部署拓扑。
 
@@ -28,49 +28,49 @@ Host 持有 `HostSession` 和 `Executor`。
 
 ### Client
 
-Client 是用户控制 Agent 的入口。用户通过 Client 发送指令，并通过 Client 接收 task、model、tool 的执行状态和输出。
+Client 是用户控制 Server 的入口。用户通过 Client 发送指令，并通过 Client 接收 task、model、tool 的执行状态和输出。
 
-Client 持有 `ClientSession`。`ClientSession` 通过网络 channel 连接到 Agent 的 `Session`。同时，`ClientSession` 对外部用户暴露一个用户侧 channel，该 channel 的事件类型是 `ClientEvent`。
+Client 持有 `ClientSession`。`ClientSession` 通过网络 channel 连接到 Server 的 `Session`。同时，`ClientSession` 对外部用户暴露一个用户侧 channel，该 channel 的事件类型是 `ClientEvent`。
 
-### Agent
+### Server
 
-Agent 负责任务调度、Step 调度、模型交互，以及 Client 与 Host 之间的事件路由。
+Server 负责任务调度、Step 调度、模型交互，以及 Client 与 Host 之间的事件路由。
 
-Agent 持有核心 `Session`。Agent `Session` 可以接收 `ClientSession` 和 `HostSession` 的连接。Agent `Session` 应该支持重新连接：某一个 `ClientSession` 断开后，Agent `Session` 仍然存活，并可以接收后续新的 Client 连接。
+Server 持有核心 `Session`。Server `Session` 可以接收 `ClientSession` 和 `HostSession` 的连接。Server `Session` 应该支持重新连接：某一个 `ClientSession` 断开后，Server `Session` 仍然存活，并可以接收后续新的 Client 连接。
 
 ## Session 级通信
 
-`ClientSession` 和 `HostSession` 都通过网络 channel 连接到 Agent `Session`。
+`ClientSession` 和 `HostSession` 都通过网络 channel 连接到 Server `Session`。
 
 跨 Session 传递的顶层事件类型是 `SessionEvent`。它可以包含 task/tool 的命名空间子事件，但顶层 Session 边界应该主要负责连接生命周期和路由，不应该直接执行 task 或 tool 的内部逻辑。
 
 ## Host 通信流程
 
-Host `Executor` 接收 Agent 发来的 tool 相关 `SessionEvent`，并向 Agent 返回 tool 相关 `SessionEvent`。
+Host `Executor` 接收 Server 发来的 tool 相关 `SessionEvent`，并向 Server 返回 tool 相关 `SessionEvent`。
 
 预期 tool 事件流：
 
 | 方向 | 事件 | 用途 |
 | --- | --- | --- |
-| Agent -> Host | `SessionEvent::Tool::PreviewQuery` | 查询 Host 上可用 Tool 的概况。 |
-| Host -> Agent | `SessionEvent::Tool::Preview` | 返回可用 Tool 的 preview 列表。 |
-| Agent -> Host | `SessionEvent::Tool::ExecutionEvoke` | 启动一次 Tool 执行。 |
-| Host -> Agent | `SessionEvent::Tool::ExecutionStatus::Started` | 告知 Agent 执行已开始。 |
-| Host -> Agent | `SessionEvent::Tool::ExecutionStatus::Failed` | 告知 Agent 启动失败或执行失败。 |
-| Agent -> Host | `SessionEvent::Tool::ExecutionQuery` | 查询某次 Tool 执行的当前状态。 |
-| Host -> Agent | `SessionEvent::Tool::ExecutionStatus::*` | 返回某次 Tool 执行的当前状态。 |
-| Agent -> Host | `SessionEvent::Tool::ExecutionCancel` | 请求温和取消某次 Tool 执行。 |
-| Host -> Agent | `SessionEvent::Tool::ExecutionStatus::Canceled` | 返回取消结果。 |
-| Agent -> Host | `SessionEvent::Tool::ExecutionKill` | 强制 kill 某个 Tool 进程。 |
-| Host -> Agent | `SessionEvent::Tool::ExecutionStatus::Killed` | 返回强制终止结果。 |
-| Host -> Agent | `SessionEvent::Tool::ExecutionStatus` | 主动推送重要执行状态变化。 |
-| Host -> Agent | `SessionEvent::Tool::ExecutionUpdate` | 主动推送用户可见的执行输出。 |
+| Server -> Host | `SessionEvent::Tool::PreviewQuery` | 查询 Host 上可用 Tool 的概况。 |
+| Host -> Server | `SessionEvent::Tool::Preview` | 返回可用 Tool 的 preview 列表。 |
+| Server -> Host | `SessionEvent::Tool::ExecutionEvoke` | 启动一次 Tool 执行。 |
+| Host -> Server | `SessionEvent::Tool::ExecutionStatus::Started` | 告知 Server 执行已开始。 |
+| Host -> Server | `SessionEvent::Tool::ExecutionStatus::Failed` | 告知 Server 启动失败或执行失败。 |
+| Server -> Host | `SessionEvent::Tool::ExecutionQuery` | 查询某次 Tool 执行的当前状态。 |
+| Host -> Server | `SessionEvent::Tool::ExecutionStatus::*` | 返回某次 Tool 执行的当前状态。 |
+| Server -> Host | `SessionEvent::Tool::ExecutionCancel` | 请求温和取消某次 Tool 执行。 |
+| Host -> Server | `SessionEvent::Tool::ExecutionStatus::Canceled` | 返回取消结果。 |
+| Server -> Host | `SessionEvent::Tool::ExecutionKill` | 强制 kill 某个 Tool 进程。 |
+| Host -> Server | `SessionEvent::Tool::ExecutionStatus::Killed` | 返回强制终止结果。 |
+| Host -> Server | `SessionEvent::Tool::ExecutionStatus` | 主动推送重要执行状态变化。 |
+| Host -> Server | `SessionEvent::Tool::ExecutionUpdate` | 主动推送用户可见的执行输出。 |
 
-Agent 不需要消费每一段中间 tool status 流来驱动内部状态机。Agent 需要的是：终态、按需查询到的当前状态，以及可转发给 Client 的用户可见执行更新。
+Server 不需要消费每一段中间 tool status 流来驱动内部状态机。Server 需要的是：终态、按需查询到的当前状态，以及可转发给 Client 的用户可见执行更新。
 
 ## Client 通信流程
 
-Client 只有一个面向 Agent 的连接：`ClientSession`。
+Client 只有一个面向 Server 的连接：`ClientSession`。
 
 `ClientSession` 同时暴露一个用户侧 channel，用于向外部 UI 或用户入口发送 `ClientEvent`。外部用户界面通过 `ClientEvent` 展示 task 进度、model 输出、tool 执行更新和最终状态。
 
@@ -78,18 +78,18 @@ Client 只有一个面向 Agent 的连接：`ClientSession`。
 
 | 方向 | 事件 | 用途 |
 | --- | --- | --- |
-| Client -> Agent | `SessionEvent::Task::Create` | 根据用户请求创建 task。 |
-| Agent -> Client | `SessionEvent::Task::Status::Started` | 确认 task 已开始，并返回 `TaskSignature`。 |
-| Agent -> Client | `SessionEvent::Task::CreateFailed` | 返回 task 创建失败。 |
-| Agent -> Client | `SessionEvent::Task::Status::Update` | 流式返回当前 task 输出或进度。 |
-| Client -> Agent | `SessionEvent::Task::Query` | 查询 task preview 或当前状态。 |
-| Agent -> Client | `SessionEvent::Task::Preview` | 返回 task preview 或当前状态。 |
-| Client -> Agent | `SessionEvent::Task::Cancel` | 请求取消 task。 |
-| Agent -> Client | `SessionEvent::Task::Status::Canceled` | 返回 task 已取消。 |
-| Agent -> Client | `SessionEvent::Task::Status::Succeed` | 返回 task 成功。 |
-| Agent -> Client | `SessionEvent::Task::Status::Failed` | 返回 task 失败。 |
-| Agent -> Client | `SessionEvent::Tool::ExecutionStatus` | 转发与当前 task 相关的 tool 执行状态。 |
-| Agent -> Client | `SessionEvent::Tool::ExecutionUpdate` | 转发用户可见的 tool 执行输出。 |
+| Client -> Server | `SessionEvent::Task::Create` | 根据用户请求创建 task。 |
+| Server -> Client | `SessionEvent::Task::Status::Started` | 确认 task 已开始，并返回 `TaskSignature`。 |
+| Server -> Client | `SessionEvent::Task::CreateFailed` | 返回 task 创建失败。 |
+| Server -> Client | `SessionEvent::Task::Status::Update` | 流式返回当前 task 输出或进度。 |
+| Client -> Server | `SessionEvent::Task::Query` | 查询 task preview 或当前状态。 |
+| Server -> Client | `SessionEvent::Task::Preview` | 返回 task preview 或当前状态。 |
+| Client -> Server | `SessionEvent::Task::Cancel` | 请求取消 task。 |
+| Server -> Client | `SessionEvent::Task::Status::Canceled` | 返回 task 已取消。 |
+| Server -> Client | `SessionEvent::Task::Status::Succeed` | 返回 task 成功。 |
+| Server -> Client | `SessionEvent::Task::Status::Failed` | 返回 task 失败。 |
+| Server -> Client | `SessionEvent::Tool::ExecutionStatus` | 转发与当前 task 相关的 tool 执行状态。 |
+| Server -> Client | `SessionEvent::Tool::ExecutionUpdate` | 转发用户可见的 tool 执行输出。 |
 
 `TaskSignature` 应该包含一个用户可读的 task 名称和一个 GUID。
 
@@ -124,11 +124,11 @@ complete(K)
 - `complete(K)` 把一个 item 从 `working` 移动到 `complete`。
 - 整个结构必须线程安全。
 
-## Agent 内部设计
+## Server 内部设计
 
 ### Session
 
-Agent `Session` 是 Agent 的核心模块。
+Server `Session` 是 Server 的核心模块。
 
 它持有：
 
@@ -146,7 +146,7 @@ Agent `Session` 是 Agent 的核心模块。
 
 ### Task
 
-`Task` 是 Agent 侧具体执行资源调度的核心单元。
+`Task` 是 Server 侧具体执行资源调度的核心单元。
 
 它由 `Session` 创建。
 
@@ -163,7 +163,7 @@ Agent `Session` 是 Agent 的核心模块。
 
 `Task` 应该提供 `sender()` 接口，让 `Session` 可以拿到该 Task 的 sender 并向它路由 task 相关事件。
 
-`Task` 线程可以通过从 Agent `Session` 的核心 channel fork 出来的 sender，向 Host 和 Client 发送指令。
+`Task` 线程可以通过从 Server `Session` 的核心 channel fork 出来的 sender，向 Host 和 Client 发送指令。
 
 ### Step
 
@@ -202,4 +202,4 @@ Host `Executor` 是 Host 侧执行核心。
 
 每个 Tool 都应该编译为独立可运行程序。这样 Host 进程与每个 Tool 进程相互隔离，force-kill 语义也更清晰。
 
-Executor 负责跟踪 active tool executions，支持状态查询、温和取消、强制 kill，并向 Agent 发送 execution status/update 事件。
+Executor 负责跟踪 active tool executions，支持状态查询、温和取消、强制 kill，并向 Server 发送 execution status/update 事件。

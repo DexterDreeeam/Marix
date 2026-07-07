@@ -1,27 +1,15 @@
 # source-programmer experience — Marix
 
-## Build & validation
-- 2026-07-07: Rust workspace root is `src/` (members: protocol, common, agent, client, host, tool). Build from `src/`.
-  - Agent bin: `cargo build --release --bin marix-agent` (package `marix-agent`).
-  - Host/CLI: `cargo build --release -p marix-host --bin marix-host -p marix-client --bin marix-client-cli`.
-  - Incremental release builds are fast (~5-15s) since `target/` is already populated.
-- 2026-07-07: Repo is NOT fully rustfmt-clean. Pre-existing diffs exist in `src/agent/session/mod.rs` (mod ordering) and `src/agent/step/step.rs` (~line 293, a multi-line `Logger::warning`). `cargo fmt -p <pkg> -- --check` flags them. Do NOT reformat unrelated code — keep changes surgical; only ensure your own edited lines are fmt-clean.
-- 2026-07-07: Pre-existing (not-mine) build warnings: dead_code on `Session`/`Task`/`ExecutionRuntime` worker fields, and a `tool/Cargo.toml` "file present in multiple build targets" warning (all five tool bins share `tool_main.rs`).
+## Validation gotchas
 
-## Planning / step architecture (agent crate)
-- 2026-07-07: Model-facing Plan JSON: `{ description, run_steps:[{tool:{name,description,input}}], pending_steps:[{intent}], expected_result }`. Each run_step is an object whose single key `tool` holds `{name,description,input}` (name = one of the available tools, input = single string / compact JSON text if structured); pending_steps are future intentions with ONLY an `intent` string (no tool/input). The model never emits execution signatures/ids. (Shape changed 2026-07-07 from the earlier flat `run_steps:[{description,tool,input}]` / `pending_steps:[{description}]`.)
-- 2026-07-07: Superseded/reverted: the temporary `StepDraftKind` direct-parse shape was removed from protocol; do not rely on `PlanDraft::parse` for prompt JSON.
-- 2026-07-07: Superseded/reverted: `src/agent/plan/draft.rs::parse_plan(content)` is not a direct parser wrapper; it owns the prompt-shape-to-protocol conversion and receives a `TaskSignature`.
-- 2026-07-07: `ModelStepKind` (in `src/protocol/step/kind.rs`) is `{ Initial, Analysis }`. `StepKind`/`ExecutionStepKind`/`UserStepKind` still exist; internal Model steps use `StepKind::Model(ModelStepKind::...)`. `step.rs::on_execution_complete` triggers a follow-up `Analysis` model step; `trigger_initial_plan` triggers an `Initial` model step.
-- 2026-07-07: Prompt templates live in `src/prompt/step/*.prompt`, loaded at runtime via `Config::load().runtime.marix_path` + `src/prompt/step/<Name>.prompt`. Prompt struct name maps to file name via `Self::load("<Name>")` (e.g. `AnalysisPrompt` loads `Analysis.prompt`). Template rendering: `render_template` handles `{{#Var}}` substitution and `{{#IF cond | accepted | rejected}}` conditionals.
+- If Cargo fails at the repo root, rerun from `src/`; the repository root intentionally has no `Cargo.toml`.
+- The workspace is not fully rustfmt-clean. Avoid formatting unrelated files; for one Rust file use `rustfmt --edition 2024 --check <file>`.
+- Known baseline warnings: all native tool bins share `tool/tool_main.rs`, and several worker/state handle fields are currently `dead_code`.
 
-## Misc
-- 2026-07-07: `src/common/external/serde_json.rs` re-exports `from_value` etc. A `pub use` re-export does NOT emit an unused warning even if no in-crate code uses it, so it's safe to leave in place after removing consumers.
-- 2026-07-07: The alias placeholder system was fully removed repo-wide. Its runtime impl lived in `src/common/config/config.rs` (`load_aliases`/`resolve_aliases` + `ConfigError::MissingAlias`/`UnclosedAlias` + a `BTreeMap` import). Deleted as dead code; `load_config` now reads `config.toml` and parses it directly via `toml::from_str(&content)`. NOTE: the credential ref mechanism (`read_credential`, `{ name = "..." }` TOML tables) is separate and must stay.
-- 2026-07-07: To fmt-check a SINGLE file without reformatting the whole (not-fmt-clean) workspace, run `rustfmt --edition 2024 --check <file>` directly — the `common` crate is edition 2024 (not 2021). `cargo fmt -- --check <path>` does NOT target one file; it checks the whole workspace and then errors on the path arg.
-- 2026-07-07: Additional PRE-EXISTING (not-mine) rustfmt diffs beyond those noted above: `src/client/session.rs:139` (a `Self::done_event(...)` call wrapping) and `src/common/lib.rs:5` (the `pub use config::{...}` re-export list wrapping). Leave them alone.
-- 2026-07-07: The StepDraftKind direct-parse experiment was reverted. Protocol `StepDraft` is again `{ kind: StepKind, description }`; prompt JSON remains the model-facing `{ tool: { name, description, input } }` / `{ intent }` shape and must be converted in `src/agent/plan/draft.rs::parse_plan(content, task)` where `ExecutionSignature::new(task.clone(), name)` is injected.
-- 2026-07-07: Protocol `StepDraft` is now the model-facing flat shape `{ name, kind, description, input }`; `input` has serde default so intent pending steps can omit it. `agent::plan::draft::parse_plan` directly reuses `PlanDraft::parse` after preserving answer-only JSON as `None`, so old nested `{ tool: ... }` / `{ intent: ... }` prompt plans are invalid rather than converted. Runtime conversion lives in `agent/plan/plan.rs`: `tool` injects `ExecutionSignature`, `intent` maps to `StepKind::Intent`, and `model` accepts only `Initial`/`Analysis` from `name` or the first comma-separated `input` token.
-- 2026-07-07: Protocol `Answer` and `PlanDraft` are pure serde data contracts without inherent `parse` helpers; agent call sites deserialize with `serde_json::from_str::<Answer>` / `serde_json::from_str::<PlanDraft>` instead.
-- 2026-07-07: `src/agent/plan/draft.rs` was removed. Model-step completion now parses JSON objects in `Step`, handles `Answer` objects before plan drafts, deserializes `PlanDraft` directly with `serde_json::from_str`, keeps `Plan::from_draft` focused on step-number allocation/collection, and centralizes flat `StepDraft` -> runtime `StepKind` conversion in `Step::from_draft` with `PlanError` for invalid kind/model mappings.
-- 2026-07-07: `StepSignature` now owns a generated `StepId`, and `PlanSignature` owns a generated `PlanId`; runtime `TaskState.steps` is keyed by `StepId`, so `Plan::from_draft` no longer reserves numeric step numbers and `TaskState::step_count` is gone.
+## Current source shape
+
+- Model-facing plan drafts are flat serde data: `PlanDraft { description, run_steps, pending_steps, expected_result }` and `StepDraft { name, kind, description, input }`; `input` defaults for intent steps, and `kind` is `tool`, `model`, or `intent`.
+- Protocol `Answer` and `PlanDraft` have no inherent parse helpers; call sites deserialize with `serde_json::from_str`.
+- `src/server/plan/draft.rs` is intentionally absent. Model completion handles answer JSON before plan JSON; `Plan::from_draft` builds runtime plans and `Step::from_draft` maps flat drafts to `StepKind`.
+- Execution signatures are injected only when a tool draft becomes a runtime step. `StepSignature` owns `StepId`, `PlanSignature` owns `PlanId`, and there are no numeric step numbers or `TaskState::step_count`.
+- Alias placeholders were removed repo-wide. Config now reads literal TOML; credential refs are separate and must remain.

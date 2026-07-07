@@ -3,9 +3,12 @@
   "module": {
     "path": "src/common/logging",
     "name": "logging",
-    "purpose": "Common database telemetry logging module. tag.rs defines the serializable LogTag severity enum (Info, Warning, Error, Debug); message.rs defines the serializable LogMessage record carrying a tag, message text, and emit/arrival millisecond timestamps with tagged constructors and a crate-visible arrival stamp; error.rs defines the LoggingError enum with config, I/O, database, serialization, already-configured, and not-hosting variants; logger.rs owns the Logger telemetry client that either hosts a TCP telemetry server persisting messages to a fresh per-start timestamped local redb database or connects to a remote server, streaming length-prefixed JSON LogMessage frames.",
-    "changeStatus": "unchanged"
+    "purpose": "Common database telemetry logging module. tag.rs defines the serializable LogTag severity enum (Info, Warning, Error, Debug); message.rs defines the serializable LogMessage record carrying a tag, message text, and emit/arrival millisecond timestamps with tagged constructors and a crate-visible arrival stamp; error.rs defines the LoggingError enum with config, I/O, database, serialization, already-configured, and not-hosting variants; logger.rs owns the Logger telemetry client that either hosts a TCP telemetry server persisting messages under the server Marix path to a fresh per-start timestamped local redb database or connects to a remote server, streaming length-prefixed JSON LogMessage frames.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "logger.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -140,7 +143,7 @@
       "name": "Logger",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
@@ -156,7 +159,12 @@
           "lineEnd": 66,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 24,
+              "lineEnd": 24
+            }
+          ]
         },
         {
           "sourcePath": "src/common/logging/logger.rs",
@@ -179,16 +187,11 @@
           "lineStart": 100,
           "lineEnd": 212,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 120,
-              "lineEnd": 171
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 108,
-              "lineEnd": 110
+              "lineStart": 120,
+              "lineEnd": 131
             }
           ]
         },

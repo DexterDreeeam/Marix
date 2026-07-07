@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-marix-agent = { path = "../agent" }
+marix-server = { path = "../server" }
 marix-common = { path = "../common" }
 marix-protocol = { path = "../protocol" }
 tokio = { version = "1", features = ["net", "rt-multi-thread", "sync", "time"] }

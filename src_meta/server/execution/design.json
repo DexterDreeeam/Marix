@@ -1,11 +1,14 @@
 {
   "schemaVersion": 1,
   "module": {
-    "path": "src/agent/execution",
+    "path": "src/server/execution",
     "name": "execution",
-    "purpose": "Owns agent-side tracking of tool executions. Execution captures one tool execution keyed by its ExecutionSignature, records the spawning step, accumulates ordered output chunks, and finalizes against the expected update count so out-of-order or early Succeed events still complete correctly. ExecutionHub holds a Mutex<HashMap<ExecutionSignature, Execution>>, spawns execution steps and emits ExecutionEvent::Evoke, routes Update/Succeed(count) events into the tracked Execution, emits StepEvent::Complete back to the step layer on completion, and reports per-signature status.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns server-side tracking of tool executions. Execution captures one tool execution keyed by its ExecutionSignature, records the spawning step, accumulates ordered output chunks, and finalizes against the expected update count so out-of-order or early Succeed events still complete correctly. ExecutionHub holds a Mutex<HashMap<ExecutionSignature, Execution>>, spawns execution steps and emits ExecutionEvent::Evoke, routes Update/Succeed(count) events into the tracked Execution, emits StepEvent::Complete back to the step layer on completion, and reports per-signature status.",
+    "changeStatus": "renamed"
   },
+  "renamed": [
+    "."
+  ],
   "childModules": [],
   "elements": [
     {
@@ -15,7 +18,7 @@
       "changeStatus": "unchanged",
       "codeSegments": [
         {
-          "sourcePath": "src/agent/execution/execution.rs",
+          "sourcePath": "src/server/execution/execution.rs",
           "lineStart": 5,
           "lineEnd": 12,
           "language": "rust",
@@ -32,7 +35,7 @@
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/agent/execution/execution.rs",
+          "sourcePath": "src/server/execution/execution.rs",
           "lineStart": 14,
           "lineEnd": 39,
           "language": "rust",
@@ -58,7 +61,7 @@
           ]
         },
         {
-          "sourcePath": "src/agent/execution/execution.rs",
+          "sourcePath": "src/server/execution/execution.rs",
           "lineStart": 43,
           "lineEnd": 48,
           "language": "rust",
@@ -79,7 +82,7 @@
       "changeStatus": "unchanged",
       "codeSegments": [
         {
-          "sourcePath": "src/agent/execution/hub.rs",
+          "sourcePath": "src/server/execution/hub.rs",
           "lineStart": 15,
           "lineEnd": 17,
           "language": "rust",
@@ -87,7 +90,7 @@
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/agent/execution/hub.rs",
+          "sourcePath": "src/server/execution/hub.rs",
           "lineStart": 19,
           "lineEnd": 117,
           "language": "rust",

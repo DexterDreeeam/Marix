@@ -14,5 +14,5 @@
 
 - All file operations under `src/` except reading must go through the `source-programmer` agent. This includes creating, modifying, deleting, moving, or renaming files.
 - All file operations under `overview/` except reading must go through the `overview-engineer` agent. This includes creating, modifying, deleting, moving, or renaming files.
-- Deployment-related work must go through the `deployment-engineer` agent. Deployment follows a three-endpoint model: Ubuntu server deploys Agent, VM deploys Host, and local machine deploys Client.
+- Deployment-related work must go through the `deployment-engineer` agent. Deployment follows a three-endpoint model: Ubuntu machine deploys Server, VM deploys Host, and local machine deploys Client.
 - Research questions about external agent implementations must go through the `agent-researcher` agent.

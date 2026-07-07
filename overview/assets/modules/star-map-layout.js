@@ -84,7 +84,7 @@ function layoutScopeStarMap(scopeNode, options) {
 
 // Depth-limited element visibility.
 // The viewed module's depth D equals the number of path segments in its module
-// path (src = 1, src/common = 2, src/agent/engine = 3). The star map renders
+// path (src = 1, src/common = 2, src/server/engine = 3). The star map renders
 // exposed element nodes only for the current level or one level down
 // (source_depth === D or D + 1), so a top-level scope such as `src` no longer
 // renders every descendant element at once. D is derived from the module path,

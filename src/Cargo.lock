@@ -555,23 +555,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "112b39cec0b298b6c1999fee3e31427f74f676e4cb9879ed1a121b43661a4154"
 
 [[package]]
-name = "marix-agent"
-version = "0.1.0"
-dependencies = [
- "marix-common",
- "marix-protocol",
- "remoc",
- "tokio",
- "uuid",
-]
-
-[[package]]
 name = "marix-client"
 version = "0.1.0"
 dependencies = [
- "marix-agent",
  "marix-common",
  "marix-protocol",
+ "marix-server",
  "tokio",
 ]
 
@@ -594,9 +583,9 @@ dependencies = [
 name = "marix-host"
 version = "0.1.0"
 dependencies = [
- "marix-agent",
  "marix-common",
  "marix-protocol",
+ "marix-server",
  "tokio",
 ]
 
@@ -607,6 +596,17 @@ dependencies = [
  "marix-common",
  "serde",
  "serde_json",
+ "uuid",
+]
+
+[[package]]
+name = "marix-server"
+version = "0.1.0"
+dependencies = [
+ "marix-common",
+ "marix-protocol",
+ "remoc",
+ "tokio",
  "uuid",
 ]
 

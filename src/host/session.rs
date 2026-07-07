@@ -51,22 +51,22 @@ impl HostSession {
                 .core_address
                 .parse()
                 .unwrap_or_else(|error| panic!("invalid host core address: {error}"));
-            let agent_tx: SharedNetSender<SessionMessage> =
+            let server_tx: SharedNetSender<SessionMessage> =
                 SharedNetSender::new(std::sync::Mutex::new(None));
-            let mut executor = Executor::new(Arc::clone(&agent_tx));
+            let mut executor = Executor::new(Arc::clone(&server_tx));
             while !shutdown.load(Ordering::Relaxed) {
                 let Ok((net_tx, net_rx)) = connect_channel::<SessionMessage>(address) else {
                     continue;
                 };
-                let _ = Logger::log("host connected to agent core");
-                *agent_tx.lock().unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
+                let _ = Logger::log("host connected to server core");
+                *server_tx.lock().unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
                 Self::run_worker(net_rx, &mut executor, &shutdown);
             }
         })
     }
 
     fn run_worker(
-        mut agent_rx: NetReceiver<SessionMessage>,
+        mut server_rx: NetReceiver<SessionMessage>,
         executor: &mut Executor,
         shutdown: &AtomicBool,
     ) {
@@ -75,7 +75,7 @@ impl HostSession {
             .build()
             .unwrap_or_else(|error| panic!("failed to build host event runtime: {error}"));
         runtime.block_on(async move {
-            while let Ok(Some(message)) = agent_rx.recv().await {
+            while let Ok(Some(message)) = server_rx.recv().await {
                 executor.route_session_event(message.event);
                 if shutdown.load(Ordering::Relaxed) {
                     break;

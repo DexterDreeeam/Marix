@@ -1,4 +1,4 @@
-# Marix Host, Client, and Agent Rewrite Notes
+# Marix Host, Client, and Server Rewrite Notes
 
 ## Scope
 
@@ -6,7 +6,7 @@ The next source rewrite should organize the project around three core libraries:
 
 - `host`
 - `client`
-- `agent`
+- `server`
 
 These libraries may run on three different devices, or any two or three of them
 may be linked into the same process or deployed on the same device. The design
@@ -38,23 +38,23 @@ tool processes remain isolated.
 The client is the user-facing control entrypoint. Users send instructions through
 the client and receive streamed task/tool/model updates through the client.
 
-The client owns `ClientSession`. `ClientSession` connects to the agent `Session`
+The client owns `ClientSession`. `ClientSession` connects to the server `Session`
 through the network channel. It also exposes a user-facing event channel whose
 event type is `ClientEvent`.
 
-### Agent
+### Server
 
-The agent performs task orchestration, step scheduling, model interaction, and
+The server performs task orchestration, step scheduling, model interaction, and
 routing between client and host.
 
-The agent owns the central `Session`. The agent `Session` accepts connections
-from both `ClientSession` and `HostSession`. The agent session should be
-reconnectable: when one `ClientSession` disconnects, the agent `Session` remains
+The server owns the central `Session`. The server `Session` accepts connections
+from both `ClientSession` and `HostSession`. The server session should be
+reconnectable: when one `ClientSession` disconnects, the server `Session` remains
 alive and can accept a later client connection.
 
 ## Session-Level Communication
 
-`ClientSession` and `HostSession` connect to the agent `Session` through network
+`ClientSession` and `HostSession` connect to the server `Session` through network
 channels.
 
 The cross-session transport event type is `SessionEvent`. It may contain
@@ -64,34 +64,34 @@ directly.
 
 ## Host Communication Flow
 
-The host `Executor` receives tool-related `SessionEvent`s from the agent and sends
-tool-related `SessionEvent`s back to the agent.
+The host `Executor` receives tool-related `SessionEvent`s from the server and sends
+tool-related `SessionEvent`s back to the server.
 
 Expected tool event flow:
 
 | Direction | Event | Purpose |
 | --- | --- | --- |
-| Agent -> Host | `SessionEvent::Tool::PreviewQuery` | Ask the host for available tool summaries. |
-| Host -> Agent | `SessionEvent::Tool::Preview` | Return the available tool preview list. |
-| Agent -> Host | `SessionEvent::Tool::ExecutionEvoke` | Start one tool execution. |
-| Host -> Agent | `SessionEvent::Tool::ExecutionStatus::Started` | Report that execution started. |
-| Host -> Agent | `SessionEvent::Tool::ExecutionStatus::Failed` | Report that execution could not start or failed. |
-| Agent -> Host | `SessionEvent::Tool::ExecutionQuery` | Query the current execution status. |
-| Host -> Agent | `SessionEvent::Tool::ExecutionStatus::*` | Return the current status. |
-| Agent -> Host | `SessionEvent::Tool::ExecutionCancel` | Request graceful cancellation. |
-| Host -> Agent | `SessionEvent::Tool::ExecutionStatus::Canceled` | Report graceful cancellation. |
-| Agent -> Host | `SessionEvent::Tool::ExecutionKill` | Force-kill a tool process. |
-| Host -> Agent | `SessionEvent::Tool::ExecutionStatus::Killed` | Report forced termination. |
-| Host -> Agent | `SessionEvent::Tool::ExecutionStatus` | Push important execution status changes. |
-| Host -> Agent | `SessionEvent::Tool::ExecutionUpdate` | Push user-visible execution output updates. |
+| Server -> Host | `SessionEvent::Tool::PreviewQuery` | Ask the host for available tool summaries. |
+| Host -> Server | `SessionEvent::Tool::Preview` | Return the available tool preview list. |
+| Server -> Host | `SessionEvent::Tool::ExecutionEvoke` | Start one tool execution. |
+| Host -> Server | `SessionEvent::Tool::ExecutionStatus::Started` | Report that execution started. |
+| Host -> Server | `SessionEvent::Tool::ExecutionStatus::Failed` | Report that execution could not start or failed. |
+| Server -> Host | `SessionEvent::Tool::ExecutionQuery` | Query the current execution status. |
+| Host -> Server | `SessionEvent::Tool::ExecutionStatus::*` | Return the current status. |
+| Server -> Host | `SessionEvent::Tool::ExecutionCancel` | Request graceful cancellation. |
+| Host -> Server | `SessionEvent::Tool::ExecutionStatus::Canceled` | Report graceful cancellation. |
+| Server -> Host | `SessionEvent::Tool::ExecutionKill` | Force-kill a tool process. |
+| Host -> Server | `SessionEvent::Tool::ExecutionStatus::Killed` | Report forced termination. |
+| Host -> Server | `SessionEvent::Tool::ExecutionStatus` | Push important execution status changes. |
+| Host -> Server | `SessionEvent::Tool::ExecutionUpdate` | Push user-visible execution output updates. |
 
-The agent should not need a stream of every intermediate tool status for its own
+The server should not need a stream of every intermediate tool status for its own
 state machine. It needs terminal status, current status on query, and
 user-visible execution updates that can be forwarded to the client.
 
 ## Client Communication Flow
 
-The client has one agent-facing connection: `ClientSession`.
+The client has one server-facing connection: `ClientSession`.
 
 `ClientSession` also exposes a user-facing channel that emits `ClientEvent`.
 External user interfaces consume `ClientEvent` to show task progress, model
@@ -101,18 +101,18 @@ Expected task event flow:
 
 | Direction | Event | Purpose |
 | --- | --- | --- |
-| Client -> Agent | `SessionEvent::Task::Create` | Create a task from a user request. |
-| Agent -> Client | `SessionEvent::Task::Status::Started` | Confirm the task started and provide `TaskSignature`. |
-| Agent -> Client | `SessionEvent::Task::CreateFailed` | Report task creation failure. |
-| Agent -> Client | `SessionEvent::Task::Status::Update` | Stream current task output or progress. |
-| Client -> Agent | `SessionEvent::Task::Query` | Query a task preview/current state. |
-| Agent -> Client | `SessionEvent::Task::Preview` | Return task preview/current state. |
-| Client -> Agent | `SessionEvent::Task::Cancel` | Request task cancellation. |
-| Agent -> Client | `SessionEvent::Task::Status::Canceled` | Report task cancellation. |
-| Agent -> Client | `SessionEvent::Task::Status::Succeed` | Report task success. |
-| Agent -> Client | `SessionEvent::Task::Status::Failed` | Report task failure. |
-| Agent -> Client | `SessionEvent::Tool::ExecutionStatus` | Forward tool execution status relevant to the task. |
-| Agent -> Client | `SessionEvent::Tool::ExecutionUpdate` | Forward user-visible tool execution output. |
+| Client -> Server | `SessionEvent::Task::Create` | Create a task from a user request. |
+| Server -> Client | `SessionEvent::Task::Status::Started` | Confirm the task started and provide `TaskSignature`. |
+| Server -> Client | `SessionEvent::Task::CreateFailed` | Report task creation failure. |
+| Server -> Client | `SessionEvent::Task::Status::Update` | Stream current task output or progress. |
+| Client -> Server | `SessionEvent::Task::Query` | Query a task preview/current state. |
+| Server -> Client | `SessionEvent::Task::Preview` | Return task preview/current state. |
+| Client -> Server | `SessionEvent::Task::Cancel` | Request task cancellation. |
+| Server -> Client | `SessionEvent::Task::Status::Canceled` | Report task cancellation. |
+| Server -> Client | `SessionEvent::Task::Status::Succeed` | Report task success. |
+| Server -> Client | `SessionEvent::Task::Status::Failed` | Report task failure. |
+| Server -> Client | `SessionEvent::Tool::ExecutionStatus` | Forward tool execution status relevant to the task. |
+| Server -> Client | `SessionEvent::Tool::ExecutionUpdate` | Forward user-visible tool execution output. |
 
 `TaskSignature` should contain a human-readable task name and a GUID.
 
@@ -148,11 +148,11 @@ Rules:
 - `complete(K)` moves one item from `working` to `complete`.
 - The whole structure must be thread-safe.
 
-## Agent Internals
+## Server Internals
 
 ### Session
 
-The agent `Session` is the core agent module.
+The server `Session` is the core server module.
 
 It owns:
 
@@ -173,7 +173,7 @@ The session creates each task and starts that task's thread.
 
 ### Task
 
-`Task` is the agent-side resource scheduling unit.
+`Task` is the server-side resource scheduling unit.
 
 It is created by `Session`.
 
@@ -193,7 +193,7 @@ channel for routed session events.
 and route task-specific events to it.
 
 The task thread can send commands to host and client through forked sender
-handles from the central agent session channels.
+handles from the central server session channels.
 
 ### Step
 
@@ -240,4 +240,4 @@ the host process isolated from individual tool processes and makes force-kill
 semantics clear.
 
 The executor tracks active tool executions, supports status query, graceful
-cancel, force kill, and emits execution status/update events to the agent.
+cancel, force kill, and emits execution status/update events to the server.

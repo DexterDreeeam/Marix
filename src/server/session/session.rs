@@ -52,7 +52,7 @@ impl Session {
         thread::spawn(move || {
             let config =
                 Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
-            let address = Self::bind_address(config.agent.client_port);
+            let address = Self::bind_address(config.server.client_port);
             loop {
                 let Ok((tx, rx)) = accept_channel::<SessionMessage>(address) else {
                     continue;
@@ -75,7 +75,7 @@ impl Session {
         thread::spawn(move || {
             let config =
                 Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
-            let address = Self::bind_address(config.agent.host_port);
+            let address = Self::bind_address(config.server.host_port);
             loop {
                 let Ok((tx, rx)) = accept_channel::<SessionMessage>(address) else {
                     continue;

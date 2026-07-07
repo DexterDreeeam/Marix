@@ -4,9 +4,9 @@ pub mod logging;
 pub mod structure;
 
 pub use config::{
-    AgentConfig, Arch, ClientConfig, Config, CoreConfig, CredentialConfig, DeepseekConfig,
-    HostConfig, ModelBackend, ModelConfig, Platform, RuntimeConfig, RuntimeEnvironment, RuntimeMode,
-    System, TelemetryConfig, ToolConfig,
+    Arch, ClientConfig, Config, CoreConfig, CredentialConfig, DeepseekConfig, HostConfig,
+    ModelBackend, ModelConfig, Platform, RuntimeConfig, RuntimeEnvironment, RuntimeMode,
+    ServerConfig, System, TelemetryConfig, ToolConfig,
 };
 pub use logging::{LogMessage, LogTag, Logger, LoggingError};
 pub use structure::WorkQueue;

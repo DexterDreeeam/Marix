@@ -21,10 +21,10 @@ impl ExecutionRuntime {
     pub fn new(
         tool: Tool,
         parameters: ExecutionRequest,
-        agent_tx: SharedNetSender<SessionMessage>,
+        server_tx: SharedNetSender<SessionMessage>,
     ) -> Self {
         let (execution_tx, execution_rx) = build_channel();
-        let state = Arc::new(ExecutionState::new(tool, parameters, agent_tx));
+        let state = Arc::new(ExecutionState::new(tool, parameters, server_tx));
         let worker = thread::spawn({
             let state = Arc::clone(&state);
             move || Self::event_loop(state, execution_rx)
@@ -99,7 +99,7 @@ impl ExecutionRuntime {
 
     fn send_event(state: &ExecutionState, event: SessionEvent) {
         if let Some(sender) = state
-            .agent_tx
+            .server_tx
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .as_mut()

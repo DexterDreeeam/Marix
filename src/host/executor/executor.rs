@@ -10,15 +10,15 @@ use crate::session::HostSession;
 pub struct Executor {
     registry: ToolRegistry,
     executions: WorkQueue<ExeId, ExecutionRuntime>,
-    agent_tx: SharedNetSender<SessionMessage>,
+    server_tx: SharedNetSender<SessionMessage>,
 }
 
 impl Executor {
-    pub fn new(agent_tx: SharedNetSender<SessionMessage>) -> Self {
+    pub fn new(server_tx: SharedNetSender<SessionMessage>) -> Self {
         Self {
             registry: ToolRegistry::new(),
             executions: WorkQueue::new(),
-            agent_tx,
+            server_tx,
         }
     }
 
@@ -59,7 +59,7 @@ impl Executor {
             "starting execution {} for tool {}",
             exe_id.0, request.signature.name
         ));
-        let runtime = ExecutionRuntime::new(tool, request, self.agent_tx.clone());
+        let runtime = ExecutionRuntime::new(tool, request, self.server_tx.clone());
         self.executions.insert(exe_id, runtime);
     }
 
@@ -74,7 +74,7 @@ impl Executor {
 
     fn send_failed_event(&self, signature: &ExecutionSignature, reason: String) {
         if let Some(sender) = self
-            .agent_tx
+            .server_tx
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .as_mut()
@@ -88,7 +88,7 @@ impl Executor {
 
     fn send_preview_event(&self, signature: ExecutionSignature) {
         if let Some(sender) = self
-            .agent_tx
+            .server_tx
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .as_mut()

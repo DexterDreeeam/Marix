@@ -1,11 +1,14 @@
 {
   "schemaVersion": 1,
   "module": {
-    "path": "src/agent/task",
+    "path": "src/server/task",
     "name": "task",
-    "purpose": "Owns agent task runtime. Task drives the per-task worker thread: it sends the initial status, triggers the initial plan through Step, routes task and step events, forwards execution events to execution_hub.route_event, and routes plan events to plan_hub.route_event. TaskState holds the session context, task signature, user request, model backend, session event sender, PlanHub, ExecutionHub, and a StepId-keyed step WorkQueue, plus a manual Debug impl.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns server task runtime. Task drives the per-task worker thread: it sends the initial status, triggers the initial plan through Step, routes task and step events, forwards execution events to execution_hub.route_event, and routes plan events to plan_hub.route_event. TaskState holds the session context, task signature, user request, model backend, session event sender, PlanHub, ExecutionHub, and a StepId-keyed step WorkQueue, plus a manual Debug impl.",
+    "changeStatus": "renamed"
   },
+  "renamed": [
+    "."
+  ],
   "childModules": [],
   "elements": [
     {
@@ -15,7 +18,7 @@
       "changeStatus": "unchanged",
       "codeSegments": [
         {
-          "sourcePath": "src/agent/task/task.rs",
+          "sourcePath": "src/server/task/task.rs",
           "lineStart": 17,
           "lineEnd": 21,
           "language": "rust",
@@ -23,7 +26,7 @@
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/agent/task/task.rs",
+          "sourcePath": "src/server/task/task.rs",
           "lineStart": 23,
           "lineEnd": 63,
           "language": "rust",
@@ -31,7 +34,7 @@
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/agent/task/task.rs",
+          "sourcePath": "src/server/task/task.rs",
           "lineStart": 67,
           "lineEnd": 123,
           "language": "rust",
@@ -65,7 +68,7 @@
       "changeStatus": "unchanged",
       "codeSegments": [
         {
-          "sourcePath": "src/agent/task/state.rs",
+          "sourcePath": "src/server/task/state.rs",
           "lineStart": 14,
           "lineEnd": 23,
           "language": "rust",
@@ -78,7 +81,7 @@
           ]
         },
         {
-          "sourcePath": "src/agent/task/state.rs",
+          "sourcePath": "src/server/task/state.rs",
           "lineStart": 25,
           "lineEnd": 44,
           "language": "rust",
@@ -91,7 +94,7 @@
           ]
         },
         {
-          "sourcePath": "src/agent/task/state.rs",
+          "sourcePath": "src/server/task/state.rs",
           "lineStart": 48,
           "lineEnd": 55,
           "language": "rust",

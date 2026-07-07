@@ -1,11 +1,14 @@
 {
   "schemaVersion": 1,
   "module": {
-    "path": "src/agent/plan",
+    "path": "src/server/plan",
     "name": "plan",
-    "purpose": "Owns agent-side plan runtime orchestration. Plan stores description, run_steps, pending_steps, and expected_result, delegates flat StepDraft conversion to Step::from_draft without reserving numeric step numbers, and exposes run step signatures; PlanHub routes valid drafts, logs and discards invalid drafts, stores PlanRecords, emits StepEvent::Trigger for runnable steps, and supports lookup, listing, completion tracking, and stringify snapshots; PlanStringify renders current runtime plans in the flat step-field shape; and PlanError reports duplicate plans, missing plans, missing steps, and invalid draft conversion failures.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns server-side plan runtime orchestration. Plan stores description, run_steps, pending_steps, and expected_result, delegates flat StepDraft conversion to Step::from_draft without reserving numeric step numbers, and exposes run step signatures; PlanHub routes valid drafts, logs and discards invalid drafts, stores PlanRecords, emits StepEvent::Trigger for runnable steps, and supports lookup, listing, completion tracking, and stringify snapshots; PlanStringify renders current runtime plans in the flat step-field shape; and PlanError reports duplicate plans, missing plans, missing steps, and invalid draft conversion failures.",
+    "changeStatus": "renamed"
   },
+  "renamed": [
+    "."
+  ],
   "childModules": [],
   "elements": [
     {
@@ -15,7 +18,7 @@
       "changeStatus": "unchanged",
       "codeSegments": [
         {
-          "sourcePath": "src/agent/plan/hub.rs",
+          "sourcePath": "src/server/plan/hub.rs",
           "lineStart": 11,
           "lineEnd": 13,
           "language": "rust",
@@ -23,7 +26,7 @@
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/agent/plan/hub.rs",
+          "sourcePath": "src/server/plan/hub.rs",
           "lineStart": 15,
           "lineEnd": 119,
           "language": "rust",
@@ -44,7 +47,7 @@
       "changeStatus": "unchanged",
       "codeSegments": [
         {
-          "sourcePath": "src/agent/plan/plan.rs",
+          "sourcePath": "src/server/plan/plan.rs",
           "lineStart": 10,
           "lineEnd": 17,
           "language": "rust",
@@ -52,7 +55,7 @@
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/agent/plan/plan.rs",
+          "sourcePath": "src/server/plan/plan.rs",
           "lineStart": 19,
           "lineEnd": 42,
           "language": "rust",
@@ -65,7 +68,7 @@
           ]
         },
         {
-          "sourcePath": "src/agent/plan/plan.rs",
+          "sourcePath": "src/server/plan/plan.rs",
           "lineStart": 46,
           "lineEnd": 53,
           "language": "rust",
@@ -78,7 +81,7 @@
           ]
         },
         {
-          "sourcePath": "src/agent/plan/plan.rs",
+          "sourcePath": "src/server/plan/plan.rs",
           "lineStart": 55,
           "lineEnd": 76,
           "language": "rust",
@@ -94,7 +97,7 @@
       "changeStatus": "unchanged",
       "codeSegments": [
         {
-          "sourcePath": "src/agent/plan/stringify.rs",
+          "sourcePath": "src/server/plan/stringify.rs",
           "lineStart": 4,
           "lineEnd": 7,
           "language": "rust",
@@ -102,7 +105,7 @@
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/agent/plan/stringify.rs",
+          "sourcePath": "src/server/plan/stringify.rs",
           "lineStart": 9,
           "lineEnd": 30,
           "language": "rust",
@@ -115,7 +118,7 @@
           ]
         },
         {
-          "sourcePath": "src/agent/plan/stringify.rs",
+          "sourcePath": "src/server/plan/stringify.rs",
           "lineStart": 34,
           "lineEnd": 121,
           "language": "rust",
@@ -136,7 +139,7 @@
       "changeStatus": "unchanged",
       "codeSegments": [
         {
-          "sourcePath": "src/agent/plan/record.rs",
+          "sourcePath": "src/server/plan/record.rs",
           "lineStart": 7,
           "lineEnd": 12,
           "language": "rust",
@@ -149,7 +152,7 @@
           ]
         },
         {
-          "sourcePath": "src/agent/plan/record.rs",
+          "sourcePath": "src/server/plan/record.rs",
           "lineStart": 14,
           "lineEnd": 23,
           "language": "rust",
@@ -157,7 +160,7 @@
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/agent/plan/record.rs",
+          "sourcePath": "src/server/plan/record.rs",
           "lineStart": 25,
           "lineEnd": 50,
           "language": "rust",
@@ -178,7 +181,7 @@
       "changeStatus": "unchanged",
       "codeSegments": [
         {
-          "sourcePath": "src/agent/plan/error.rs",
+          "sourcePath": "src/server/plan/error.rs",
           "lineStart": 1,
           "lineEnd": 8,
           "language": "rust",

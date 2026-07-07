@@ -3,16 +3,20 @@
   "module": {
     "path": "src/host/executor/execution",
     "name": "execution",
-    "purpose": "Owns execution runtime state and per-request ExecutionState. ExecutionRuntime holds an Arc<ExecutionState> and sends execution update and status events through send_update_event/send_status_event helpers; send_update_event now stamps each update with a 0-based seq, and the single-update spawn path emits Update{seq:0} followed by Status(Succeed(1)) carrying the expected update count. Execution/session protocol contracts come from marix-protocol and common provides channels and shared senders.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns execution runtime state and per-request ExecutionState. ExecutionRuntime holds an Arc<ExecutionState> and sends execution update and status events back to the server through send_update_event/send_status_event helpers; send_update_event stamps each update with a 0-based seq, and the single-update spawn path emits Update{seq:0} followed by Status(Succeed(1)) carrying the expected update count. Execution/session protocol contracts come from marix-protocol and common provides channels and shared senders.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "execution.rs",
+    "execution_state.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "ExecutionRuntime",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
@@ -28,28 +32,25 @@
           "lineEnd": 42,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 24,
+              "lineEnd": 27
+            }
+          ]
         },
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
           "lineStart": 46,
           "lineEnd": 110,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 53,
-              "lineEnd": 53
-            },
-            {
-              "lineStart": 58,
-              "lineEnd": 58
-            },
-            {
-              "lineStart": 70,
-              "lineEnd": 73
+              "lineStart": 102,
+              "lineEnd": 102
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -57,7 +58,7 @@
       "name": "ExecutionState",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/execution/execution_state.rs",
@@ -67,8 +68,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 5,
-              "lineEnd": 5
+              "lineStart": 8,
+              "lineEnd": 8
             }
           ]
         },
@@ -80,8 +81,12 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 11,
-              "lineEnd": 11
+              "lineStart": 15,
+              "lineEnd": 15
+            },
+            {
+              "lineStart": 20,
+              "lineEnd": 20
             }
           ]
         }

@@ -1,5 +1,5 @@
 [package]
-name = "marix-agent"
+name = "marix-server"
 version = "0.1.0"
 edition = "2024"
 
@@ -11,9 +11,9 @@ tokio = { version = "1", features = ["net", "rt-multi-thread", "sync", "time"] }
 uuid = { version = "1", features = ["v4"] }
 
 [lib]
-name = "marix_agent"
+name = "marix_server"
 path = "lib.rs"
 
 [[bin]]
-name = "marix-agent"
+name = "marix-server"
 path = "main.rs"

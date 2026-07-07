@@ -4,13 +4,17 @@
     "path": "src",
     "name": "src",
     "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. Protocol signatures now use generated PlanId and StepId wrappers, prompt JSON uses flat model-facing PlanDraft step objects that Step::from_draft maps into runtime StepKind values through Plan::from_draft, and protocol Answer/PlanDraft data types rely on serde_json call sites rather than parse helper methods.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "Cargo.toml",
+    "Cargo.lock"
+  ],
   "childModules": [
     {
-      "path": "src/agent",
-      "name": "agent",
-      "purpose": "Agent crate namespace for model/session/task/prompt/step/execution orchestration and agent-side plan runtime storage. Step creates StepId-backed signatures from flat StepDraft values, and Plan::from_draft no longer allocates numeric step numbers."
+      "path": "src/server",
+      "name": "server",
+      "purpose": "Server crate namespace for model/session/task/prompt/step/execution orchestration and server-side plan runtime storage. Step creates StepId-backed signatures from flat StepDraft values, and Plan::from_draft no longer allocates numeric step numbers."
     },
     {
       "path": "src/client",
@@ -25,7 +29,7 @@
     {
       "path": "src/prompt",
       "name": "prompt",
-      "purpose": "Owns prompt templates used by model-facing steps, including raw strict JSON response requirements, no-Markdown-fence output constraints, single-string tool and model input guidance, and a flat model-facing PlanDraft shape converted by the agent into runtime steps."
+      "purpose": "Owns prompt templates used by model-facing steps, including raw strict JSON response requirements, no-Markdown-fence output constraints, single-string tool and model input guidance, and a flat model-facing PlanDraft shape converted by the server into runtime steps."
     },
     {
       "path": "src/protocol",

@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/server",
+    "name": "server",
+    "purpose": "Server crate namespace for model/session/task/prompt/step/execution orchestration and server-side plan runtime storage. Step emits flat StepDraft model plan events, parses model JSON answers and plans, converts StepDraft values into StepId-backed runtime steps through Step::from_draft for Plan::from_draft, and ExecutionHub tracks tool executions keyed by execution signature before completing steps.",
+    "changeStatus": "modified"
+  },
+  "modified": [
+    "Cargo.toml",
+    "main.rs"
+  ],
+  "renamed": [
+    "."
+  ],
+  "childModules": [
+    {
+      "path": "src/server/execution",
+      "name": "execution",
+      "purpose": "Owns server-side execution tracking: Execution values keyed by ExecutionSignature that accumulate ordered output and finalize on the expected update count, and an ExecutionHub holding a Mutex<HashMap<ExecutionSignature, Execution>> that spawns execution steps, routes Update/Succeed events, and emits StepEvent::Complete to the step layer on completion while reporting per-signature status."
+    },
+    {
+      "path": "src/server/model",
+      "name": "model",
+      "purpose": "Owns server model backend traits, request/response data, backend errors, and the implemented Deepseek streaming backend. Internal backend implementations expose request directly instead of a send adapter."
+    },
+    {
+      "path": "src/server/plan",
+      "name": "plan",
+      "purpose": "Owns server-side plan runtime orchestration. Plan delegates StepDraft conversion to Step::from_draft without numeric step-number allocation, exposes run step signatures, and works with PlanHub, PlanRecord, PlanStringify, and PlanError for routing, storage, rendering, and invalid draft reporting."
+    },
+    {
+      "path": "src/server/prompt",
+      "name": "prompt",
+      "purpose": "Defines the server prompt interface, render_template rendering, InitialPrompt, and AnalysisPrompt for execution-output analysis."
+    },
+    {
+      "path": "src/server/session",
+      "name": "session",
+      "purpose": "Owns Session startup/routing behavior, forwarding Task status/preview and Step events to clients through a matches! filter and routing task, step, execution, and plan events back to the owning Task worker, plus SessionContext snapshots for prompts."
+    },
+    {
+      "path": "src/server/step",
+      "name": "step",
+      "purpose": "Owns the server runtime Step type, flat StepDraft to runtime StepKind conversion, task-step routing, internal Initial/Analysis flat StepDraft plan creation, model JSON answer/plan handling, model-prompt rendering, completion handling, and execution delegation."
+    },
+    {
+      "path": "src/server/task",
+      "name": "task",
+      "purpose": "Owns server task runtime and TaskState (session context, plan_hub, an ExecutionHub owning execution tracking, and a StepId-keyed step queue); step routing lives on Step, plan events route to PlanHub, and execution spawning/routing lives in the execution hub."
+    }
+  ],
+  "elements": [
+    {
+      "name": "marix-server",
+      "type": "bin",
+      "source_depth": 2,
+      "changeStatus": "renamed",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/main.rs",
+          "lineStart": 4,
+          "lineEnd": 29,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 24
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

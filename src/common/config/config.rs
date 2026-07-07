@@ -19,7 +19,7 @@ pub struct Config {
     pub core: CoreConfig,
     pub client: ClientConfig,
     pub host: HostConfig,
-    pub agent: AgentConfig,
+    pub server: ServerConfig,
     pub model: ModelConfig,
     pub telemetry: TelemetryConfig,
     pub credential: CredentialConfig,
@@ -44,7 +44,7 @@ pub struct RuntimeConfig {
     #[serde(default)]
     pub marix_path_client: Option<String>,
     #[serde(default)]
-    pub marix_path_agent: Option<String>,
+    pub marix_path_server: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
@@ -80,11 +80,11 @@ pub struct ClientConfig {
 
 /// Host-node connection settings.
 ///
-/// The host is a client of the agent, symmetric to [`ClientConfig`]: it dials
-/// the agent's reachable address rather than binding a port. The agent always
-/// listens on `0.0.0.0` at the ports in [`AgentConfig`], so a single config can
+/// The host is a client of the server, symmetric to [`ClientConfig`]: it dials
+/// the server's reachable address rather than binding a port. The server always
+/// listens on `0.0.0.0` at the ports in [`ServerConfig`], so a single config can
 /// serve every node — only `core_address` here (and in [`ClientConfig`]) points
-/// at the agent's externally reachable host and port.
+/// at the server's externally reachable host and port.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct HostConfig {
@@ -93,7 +93,7 @@ pub struct HostConfig {
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct AgentConfig {
+pub struct ServerConfig {
     pub enabled: bool,
     pub client_port: u16,
     pub host_port: u16,
@@ -148,7 +148,7 @@ struct RawConfig {
     core: Option<CoreConfig>,
     client: ClientConfig,
     host: HostConfig,
-    agent: AgentConfig,
+    server: ServerConfig,
     model: RawModelConfig,
     telemetry: TelemetryConfig,
     credential: CredentialConfig,
@@ -206,7 +206,7 @@ fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
         core: raw_config.core.unwrap_or_else(default_core_config),
         client: raw_config.client,
         host: raw_config.host,
-        agent: raw_config.agent,
+        server: raw_config.server,
         model: ModelConfig {
             backend: raw_config.model.backend,
             deepseek: DeepseekConfig {
@@ -240,7 +240,7 @@ fn default_marix_path() -> String {
 fn resolve_runtime_paths(repo_root: &Path, mut runtime: RuntimeConfig) -> RuntimeConfig {
     runtime.marix_path = resolve_required_runtime_path(repo_root, &runtime.marix_path);
     runtime.marix_path_client = resolve_optional_runtime_path(repo_root, runtime.marix_path_client);
-    runtime.marix_path_agent = resolve_optional_runtime_path(repo_root, runtime.marix_path_agent);
+    runtime.marix_path_server = resolve_optional_runtime_path(repo_root, runtime.marix_path_server);
     runtime
 }
 

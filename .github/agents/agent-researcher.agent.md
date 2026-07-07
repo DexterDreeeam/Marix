@@ -30,6 +30,7 @@ Do not copy proprietary or copyrighted implementation text. Summarize architectu
 - Identify concrete modules: agent loop, model provider layer, context builder, memory, tool registry, tool runtime, permission system, sandbox, event stream, UI, plugin/skill system, workflow engine, evaluation, observability, and git/diff workflows.
 - Track data flow from user input to model call, tool execution, observation, state update, and completion.
 - Track how each system handles failure: permissions, rate limits, context overflow, long-running jobs, user cancellation, sandbox errors, and rollback.
+- When comparing tool systems, distinguish model-facing input schemas from host-facing output schemas; do not assume output schemas improve model tool selection.
 - Call out what applies to Marix and what does not.
 
 ## Output Format
