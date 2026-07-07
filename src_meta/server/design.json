@@ -4,12 +4,8 @@
     "path": "src/server",
     "name": "server",
     "purpose": "Server crate namespace for model/session/task/prompt/step/execution orchestration and server-side plan runtime storage. The binary hosts telemetry on config.server.telemetry_port, Session binds client and host listeners from config.server.ip plus their server ports, Step emits flat StepDraft model plan events, and ExecutionHub tracks tool executions keyed by execution signature before completing steps.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "main.rs",
-    "."
-  ],
   "childModules": [
     {
       "path": "src/server/execution",
@@ -52,7 +48,7 @@
       "name": "marix-server",
       "type": "bin",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/main.rs",
