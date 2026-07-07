@@ -5,7 +5,7 @@ use std::time::Duration;
 use marix_client::{ClientEvent, ClientSession};
 use marix_common::{Config, Logger};
 
-const IDLE_TIMEOUT: Duration = Duration::from_secs(30);
+const IDLE_TIMEOUT: Duration = Duration::from_secs(120);
 
 enum ClientMode {
     Interactive,
@@ -30,18 +30,19 @@ fn main() {
             std::process::exit(1);
         }
     };
-    let telemetry_address = match config.telemetry.server_address.parse::<SocketAddr>() {
-        Ok(address) => address,
+    match config.telemetry.server_address.parse::<SocketAddr>() {
+        Ok(address) => match Logger::connect(address) {
+            Ok(()) => {
+                let _ = Logger::log(format!("client '{}' connected to telemetry", config.name));
+            }
+            Err(error) => {
+                eprintln!("telemetry logger unavailable, continuing without it: {error}");
+            }
+        },
         Err(error) => {
-            eprintln!("invalid telemetry server address: {error}");
-            std::process::exit(1);
+            eprintln!("invalid telemetry server address, continuing without telemetry: {error}");
         }
-    };
-    if let Err(error) = Logger::connect(telemetry_address) {
-        eprintln!("failed to connect telemetry logger: {error}");
-        std::process::exit(1);
     }
-    let _ = Logger::log(format!("client '{}' connected to telemetry", config.name));
     let mut session = ClientSession::new(config.name);
     for _ in 0..100 {
         if session.is_connected() {
@@ -89,43 +90,25 @@ fn print_help() {
 
 fn drain_events(session: &ClientSession) {
     let receiver = session.receiver();
-    let mut last_signature_id = None;
+    let mut printed = false;
     while let Ok(event) = receiver.recv_timeout(IDLE_TIMEOUT) {
         match event {
-            ClientEvent::Common {
-                signature_id,
-                message,
-            } => {
-                print_event(&mut last_signature_id, signature_id, message);
+            ClientEvent::Common { message, .. } => {
+                print!("{message}");
                 let _ = io::stdout().flush();
+                printed = true;
             }
-            ClientEvent::Done {
-                signature_id,
-                message,
-            } => {
+            ClientEvent::Done { message, .. } => {
                 if let Some(message) = message {
-                    print_event(&mut last_signature_id, signature_id, message);
-                    let _ = io::stdout().flush();
-                    break;
+                    print!("{message}");
+                    printed = true;
                 }
-                if last_signature_id.as_ref() == Some(&signature_id) {
-                    break;
-                }
+                break;
             }
         }
     }
-    if last_signature_id.is_some() {
+    if printed {
         println!();
+        let _ = io::stdout().flush();
     }
-}
-
-fn print_event(last_signature_id: &mut Option<String>, signature_id: String, message: String) {
-    if last_signature_id
-        .as_ref()
-        .is_some_and(|previous| previous != &signature_id)
-    {
-        println!();
-    }
-    print!("{message}");
-    *last_signature_id = Some(signature_id);
 }

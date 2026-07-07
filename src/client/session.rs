@@ -8,8 +8,7 @@ use marix_common::{
     Config, Logger, NetReceiver, Receiver, Sender, SharedNetSender, build_channel, connect_channel,
 };
 use marix_protocol::{
-    SessionEvent, SessionMessage, Signature, StepEvent, TaskEvent, TaskId, TaskSignature,
-    TaskStatus,
+    SessionEvent, SessionMessage, Signature, TaskEvent, TaskId, TaskSignature, TaskStatus,
 };
 
 use crate::ClientEvent;
@@ -136,26 +135,23 @@ impl ClientSession {
 
     fn to_client_event(event: SessionEvent) -> Option<ClientEvent> {
         match event {
+            SessionEvent::Task(signature, TaskEvent::Status(TaskStatus::Succeed(result))) => {
+                Some(Self::done_event(&signature, Some(result.content)))
+            }
+            SessionEvent::Task(signature, TaskEvent::Status(TaskStatus::Failed { reason })) => {
+                Some(Self::done_event(&signature, Some(format!("task failed: {reason}"))))
+            }
+            SessionEvent::Task(signature, TaskEvent::Status(TaskStatus::Canceled)) => {
+                Some(Self::done_event(&signature, None))
+            }
+            SessionEvent::Task(signature, TaskEvent::CreateFailed { reason }) => Some(
+                Self::done_event(&signature, Some(format!("task could not start: {reason}"))),
+            ),
             SessionEvent::Task(signature, TaskEvent::Status(TaskStatus::Update { content })) => {
                 Some(Self::common_event(&signature, content))
             }
-            SessionEvent::Task(signature, TaskEvent::Status(TaskStatus::Failed { reason })) => {
-                Some(Self::common_event(&signature, reason))
-            }
             SessionEvent::Task(signature, TaskEvent::Preview { content }) => {
                 Some(Self::common_event(&signature, content))
-            }
-            SessionEvent::Task(signature, TaskEvent::CreateFailed { reason }) => {
-                Some(Self::common_event(&signature, reason))
-            }
-            SessionEvent::Step(signature, StepEvent::Update { content, .. }) => {
-                Some(Self::common_event(&signature, content))
-            }
-            SessionEvent::Step(signature, StepEvent::Complete { seq_count, result }) => Some(
-                Self::done_event(&signature, (seq_count == 0).then_some(result.content)),
-            ),
-            SessionEvent::Step(signature, StepEvent::Fail { result }) => {
-                Some(Self::done_event(&signature, Some(result.content)))
             }
             _ => None,
         }

@@ -19,6 +19,7 @@ pub struct Config {
     pub runtime: RuntimeConfig,
     pub core: CoreConfig,
     pub client: ClientConfig,
+    pub host: HostConfig,
     pub agent: AgentConfig,
     pub model: ModelConfig,
     pub telemetry: TelemetryConfig,
@@ -78,12 +79,25 @@ pub struct ClientConfig {
     pub request_timeout_ms: u64,
 }
 
+/// Host-node connection settings.
+///
+/// The host is a client of the agent, symmetric to [`ClientConfig`]: it dials
+/// the agent's reachable address rather than binding a port. The agent always
+/// listens on `0.0.0.0` at the ports in [`AgentConfig`], so a single config can
+/// serve every node — only `core_address` here (and in [`ClientConfig`]) points
+/// at the agent's externally reachable host and port.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct HostConfig {
+    pub core_address: String,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AgentConfig {
     pub enabled: bool,
-    pub client_bind_address: String,
-    pub host_bind_address: String,
+    pub client_port: u16,
+    pub host_port: u16,
     pub max_turns: u32,
 }
 
@@ -134,6 +148,7 @@ struct RawConfig {
     runtime: RuntimeConfig,
     core: Option<CoreConfig>,
     client: ClientConfig,
+    host: HostConfig,
     agent: AgentConfig,
     model: RawModelConfig,
     telemetry: TelemetryConfig,
@@ -193,6 +208,7 @@ fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
         runtime,
         core: raw_config.core.unwrap_or_else(default_core_config),
         client: raw_config.client,
+        host: raw_config.host,
         agent: raw_config.agent,
         model: ModelConfig {
             backend: raw_config.model.backend,

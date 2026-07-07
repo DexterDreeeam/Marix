@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Normalizes any path to a repo-relative, forward-slash path.
 to_repo_path() {
   local path repo
   path="$(printf '%s' "$1" | tr '\\' '/')"
   repo="$(pwd | tr '\\' '/')"
   path="${path#"$repo/"}"
+  path="${path#./}"
   printf '%s' "$path"
 }
 
+# A design-tracked source file lives under src/, is not src/tests, and has no
+# dot-prefixed path segment.
 is_non_dot_source_path() {
   local path
   path="$(to_repo_path "$1")"
@@ -26,47 +30,33 @@ json_escape() {
   sed 's/\\/\\\\/g; s/"/\\"/g; s/\r//g'
 }
 
-read_hook_input() {
-  cat || true
-}
+# Drain stdin so the hook host is never blocked writing to us.
+cat >/dev/null 2>&1 || true
 
-get_transcript_path() {
-  local input="$1"
-  printf '%s' "$input" |
-    sed -n 's/.*"transcriptPath"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p; s/.*"transcript_path"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' |
-    head -n 1
-}
-
-mapfile -t changed_paths < <(
-  {
-    git diff --name-only --diff-filter=ACMRTD 2>/dev/null || true
-    git diff --cached --name-only --diff-filter=ACMRTD 2>/dev/null || true
-    git ls-files --others --exclude-standard 2>/dev/null || true
-  } | sed 's#\\#/#g' | awk 'NF' | sort -u
-)
-
-declare -A changed_set=()
-for path in "${changed_paths[@]}"; do
-  changed_set["$(to_repo_path "$path")"]=1
-done
-
-hook_input="$(read_hook_input)"
-transcript_path="$(get_transcript_path "$hook_input")"
-written_paths=()
-if [[ -n "$transcript_path" && -f "$transcript_path" ]]; then
-  while IFS= read -r path; do
-    repo_path="$(to_repo_path "$path")"
-    is_non_dot_source_path "$repo_path" || continue
-    written_paths+=("$repo_path")
-  done < <(
-    sed 's/\\r\\n/\n/g; s/\\n/\n/g; s#\\\\#/#g' "$transcript_path" |
-      sed -n 's/.*\*\*\* \(Add\|Update\|Delete\) File: \([^"\r\n]*\).*/\2/p; s/.*\*\*\* Move to: \([^"\r\n]*\).*/\1/p'
-  )
+# The current turn's change manifest is the lexicographically largest file in
+# .temp/changed. Turn names are YYYYMMDD_HHMMSS timestamps, so lexical order is
+# chronological order.
+manifest_dir=".temp/changed"
+current_manifest=""
+if [[ -d "$manifest_dir" ]]; then
+  current_manifest="$(ls -1 "$manifest_dir"/*.txt 2>/dev/null | LC_ALL=C sort | tail -n 1 || true)"
 fi
 
+# No manifest recorded for this turn means there is nothing to verify.
+if [[ -z "$current_manifest" || ! -f "$current_manifest" ]]; then
+  printf '{"decision":"allow"}\n'
+  exit 0
+fi
+
+declare -A changed_set=()
+while IFS= read -r line || [[ -n "$line" ]]; do
+  line="$(to_repo_path "$line")"
+  [[ -n "$line" ]] && changed_set["$line"]=1
+done < "$current_manifest"
+
 missing=()
-for path in "${written_paths[@]}"; do
-  [[ -n "${changed_set[$path]+x}" ]] || continue
+for path in "${!changed_set[@]}"; do
+  is_non_dot_source_path "$path" || continue
   dir="${path%/*}"
   [[ "$dir" == "$path" ]] && dir="src"
   while [[ "$dir" == src* ]]; do
@@ -81,7 +71,7 @@ done
 
 if (( ${#missing[@]} > 0 )); then
   joined="$(printf '%s; ' "${missing[@]:0:20}")"
-  reason="This agent changed non-dot src files that require updated .design.json in the file folder and every ancestor up to src. Invoke development-designer before finishing. Missing updates: ${joined%; }"
+  reason="This turn changed non-dot src files that require updated .design.json in the file folder and every ancestor up to src, listed in the same turn change manifest. Invoke development-designer, then add the updated .design.json paths to the manifest. Missing updates: ${joined%; }"
   escaped="$(printf '%s' "$reason" | json_escape)"
   printf '{"decision":"block","reason":"%s"}\n' "$escaped"
 else

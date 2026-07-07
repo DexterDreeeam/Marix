@@ -47,10 +47,10 @@ impl HostSession {
             let config =
                 Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
             let address: SocketAddr = config
-                .agent
-                .host_bind_address
+                .host
+                .core_address
                 .parse()
-                .unwrap_or_else(|error| panic!("invalid host bind address: {error}"));
+                .unwrap_or_else(|error| panic!("invalid host core address: {error}"));
             let agent_tx: SharedNetSender<SessionMessage> =
                 SharedNetSender::new(std::sync::Mutex::new(None));
             let mut executor = Executor::new(Arc::clone(&agent_tx));

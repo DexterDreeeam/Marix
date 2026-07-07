@@ -1,18 +1,18 @@
 ---
 name: design-json-reset
-description: Reset {{proj}} src/.design.json changeStatus fields after a successful {{proj_lower}} tag. Use only from git-tag after the tag is created.
+description: Reset {{proj}} src/.design.json changeStatus fields. Use only from git-tag, before the tag is created.
 ---
 
 ## Purpose
 
-Reset committed source design metadata status after a successful `{{proj_lower}}_tag_*` tag is created.
+Reset committed source design metadata status as part of `git-tag`, before the `{{proj_lower}}_tag_*` tag is created.
 
 This skill is intentionally narrow: it only resets `changeStatus` values in `.design.json` files under `src/`. It does not refresh structure, discover new elements, edit source code, or parse legacy `.design.md`.
 
 ## Trigger
 
-- Use this skill only after `git-tag` successfully creates the annotated `{{proj_lower}}_tag_*` tag on the source-change commit.
-- After this skill changes `.design.json`, `git-tag` should create a second commit for the reset, then push the branch and the newly created tag together.
+- Use this skill only from `git-tag`, after `git-sync` completes and before the tag is created.
+- After this skill changes `.design.json`, `git-tag` commits the reset, then creates and pushes the tag on that commit.
 
 ## Workflow
 
@@ -33,7 +33,7 @@ This skill is intentionally narrow: it only resets `changeStatus` values in `.de
 - Do not create `.design.md`.
 - Do not change `codeSegments` unless required only to keep JSON valid.
 - Do not change non-design files.
-- Do not run this before the tag exists; pre-tag metadata updates belong to `design-json-update`.
+- This skill only strips status; `.design.json` content and structure updates belong to `development-designer` during source edits.
 
 ## Validation
 

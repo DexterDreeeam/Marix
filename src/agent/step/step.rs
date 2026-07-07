@@ -8,6 +8,8 @@ use marix_protocol::{
     StepKind, StepResult, StepSignature, TaskEvent, TaskResult, TaskStatus,
 };
 
+use crate::plan::parse_plan;
+
 use crate::model::{ModelRequest, ModelResponse};
 use crate::prompt::{ExecutionAnalysisPrompt, InitialPrompt, Prompt};
 use crate::task::TaskState;
@@ -282,9 +284,19 @@ impl Step {
             let _ = state.session_tx.send(event);
             return false;
         }
-        if let Ok(plan) = Plan::parse(content) {
-            let _ = Logger::debug("model produced a new plan");
-            Self::send_plan_event(&state, PlanEvent::Trigger(plan));
+        match parse_plan(content, &state.signature) {
+            Some(plan) => {
+                let _ = Logger::debug(format!(
+                    "model produced a plan with {} run step(s)",
+                    plan.run_steps.len()
+                ));
+                Self::send_plan_event(&state, PlanEvent::Trigger(plan));
+            }
+            None => {
+                let _ = Logger::warning(
+                    "model output is neither answer nor plan",
+                );
+            }
         }
         true
     }

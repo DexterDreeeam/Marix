@@ -11,20 +11,32 @@ fn main() {
             std::process::exit(1);
         }
     };
-    let telemetry_address = match config.telemetry.server_address.parse::<SocketAddr>() {
-        Ok(address) => address,
-        Err(error) => {
-            eprintln!("invalid telemetry server address: {error}");
-            std::process::exit(1);
-        }
-    };
-    if let Err(error) = Logger::connect(telemetry_address) {
-        eprintln!("failed to connect telemetry logger: {error}");
-        std::process::exit(1);
-    }
-    let _ = Logger::log(format!("host '{}' connected to telemetry", config.name));
+    connect_telemetry(&config);
     let _session = HostSession::new(config.name);
     loop {
         std::thread::park();
+    }
+}
+
+// -- Private -- //
+
+/// Connects telemetry on a best-effort basis. Telemetry is a diagnostic side
+/// channel, so an unreachable or misconfigured server must not stop the host
+/// from serving executions.
+fn connect_telemetry(config: &Config) {
+    let address = match config.telemetry.server_address.parse::<SocketAddr>() {
+        Ok(address) => address,
+        Err(error) => {
+            eprintln!("invalid telemetry server address, continuing without telemetry: {error}");
+            return;
+        }
+    };
+    match Logger::connect(address) {
+        Ok(()) => {
+            let _ = Logger::log(format!("host '{}' connected to telemetry", config.name));
+        }
+        Err(error) => {
+            eprintln!("telemetry logger unavailable, continuing without it: {error}");
+        }
     }
 }

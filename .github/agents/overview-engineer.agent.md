@@ -106,9 +106,18 @@ Each module panel type section should show at most four unchanged/normal rows by
 
 Every module, child module, public interface, and exposed type block must visibly show change status. Use green for added, yellow for modified or renamed, red for deleted, and neutral gray for unchanged. The star-map details panel itself should use a colored side border based on selected module status. Interface/type cards should show status through a status-colored right edge; their left edge must match the same type color used by the corresponding star-map exposed element. If an item has no explicit `changeStatus`, infer it from the first `codeSegments[].sourcePath` file's tag-diff status. If an item explicitly says `changeStatus: "unchanged"`, respect that and do not override it from file-level diff. Exposed star-map element nodes should expose status through whole-shape fill color while keeping outlines type-colored and stable.
 
+## Language Rules and Coding Style
+
+- All code, comments, commit-message-style text, and log messages are English. Chinese is allowed only for required user-facing UI strings (i18n).
+- Apply `.github/coding_style/js.md` to the JavaScript/overview code you edit. If a file is another language, use that language's matching `.github/coding_style/` document; never cross-apply one language's rules to another.
+- If no style document exists for a language, follow local file conventions and keep changes minimal.
+- Do not install new tooling to satisfy style; report a limitation instead.
+
+## Validation
+
+- For overview/site changes, do not verify or report local preview resources unless the user explicitly asks for local access.
+
 ## Rules
 
-- Code, comments, commit messages, and log messages must be English.
-- Chinese is allowed only for required user-facing UI strings.
 - Do not run git commands unless the user explicitly asks for a git operation.
 - Do not add manifest JSON files. The overview page builds file and diff data dynamically in the browser from GitHub repository tree data and {{proj_lower}} tag compares.

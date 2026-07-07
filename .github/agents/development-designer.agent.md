@@ -28,6 +28,7 @@ At the start of each task, read `.github/experience/development-designer.md` if 
 - Use top-level status arrays (`added`, `modified`, `deleted`, `renamed`) to mark changed items owned by the current folder only. Use `"."` for the current folder itself and direct file names for files in the current folder. Do not put `changeStatus` on `childModules`; child folders record their own status in their own `.design.json`.
 - This agent is triggered only by the `ensure-deveopment-design` hook after it detects current-agent design-tracked source changes under `src/` whose ancestor `.design.json` files were not updated. A non-dot source path has no file or parent directory segment starting with `.`; design-tracked source paths also exclude `src/tests/`.
 - For each changed design-tracked source path, update `.design.json` in that file's folder and every ancestor folder up to `src/`.
+- Record every `.design.json` file you update in the current turn's change manifest at `.temp/changed/<turn_name>.txt` (append to the turn's existing file, one repository-relative forward-slash path per line).
 - Do not wait for `git-sync` to refresh design documents. `git-sync` should only commit/push already-updated design metadata.
 - Do not mark items `added` just because metadata was regenerated. Use the actual changed source definitions to set `changeStatus`; leave existing unaffected definitions `unchanged`.
 - Do not propagate a changed file's status to every element in that file. Element `changeStatus` must be based on the element's own definition and related `codeSegments`; unaffected elements remain `unchanged` even when their file is listed in a top-level `modified` array.
@@ -232,4 +233,5 @@ Elements should use only `name`, `type`, `source_depth`, `changeStatus`, and `co
 - Write design files in English.
 - Do not list dot-prefixed paths or `src/tests/` paths.
 - Do not run git commands unless the user explicitly asks for a git operation.
+- Never operate as part of `git-tag`. `git-tag`'s only design action is the `design-json-reset` skill: a mechanical status strip (module/element `changeStatus`→`unchanged`, drop top-level `added`/`modified`/`deleted`/`renamed` arrays) that touches only `.design.json` and reads no Rust. Never view or read `.rs` source during tagging, and never run a full design re-scan at tag time — `.design.json` line ranges are maintained incrementally right after each source edit, so they already match source when a tag is created. If `git-sync`'s commit is blocked by `ensure-deveopment-design` during tagging, an earlier edit skipped its design update; fix it as part of that edit rather than turning tagging into a design-refresh pass.
 - Do not add generated manifest JSON files.

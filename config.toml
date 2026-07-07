@@ -1,0 +1,38 @@
+name = "{{proj_lower}}"
+
+[runtime]
+environment = "development"
+mode = "network"
+marix_path = "."
+
+[client]
+core_address = "{{core}}:22345"
+interactive = true
+request_timeout_ms = 30000
+
+[host]
+core_address = "{{core}}:22346"
+
+[agent]
+enabled = true
+client_port = 22345
+host_port = 22346
+max_turns = 32
+
+[model]
+backend = "deepseek"
+
+[model.deepseek]
+endpoint = "https://api.deepseek.com/chat/completions"
+model = "deepseek-chat"
+api_key = { name = "DEEPSEEK_API_KEY" }
+
+[telemetry]
+bind_port = 22347
+server_address = "127.0.0.1:22347"
+
+[credential]
+directory = ".credential"
+
+[tool]
+directory = "tool"

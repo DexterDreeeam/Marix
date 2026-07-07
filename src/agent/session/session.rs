@@ -44,17 +44,15 @@ impl Session {
 // -- Private -- //
 
 impl Session {
-    fn parse_address(address: &str, label: &str) -> SocketAddr {
-        address
-            .parse()
-            .unwrap_or_else(|error| panic!("invalid {label} bind address: {error}"))
+    fn bind_address(port: u16) -> SocketAddr {
+        SocketAddr::from(([0, 0, 0, 0], port))
     }
 
     fn spawn_client_worker(state: Arc<SessionState>) -> JoinHandle<()> {
         thread::spawn(move || {
             let config =
                 Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
-            let address = Self::parse_address(&config.agent.client_bind_address, "client");
+            let address = Self::bind_address(config.agent.client_port);
             loop {
                 let Ok((tx, rx)) = accept_channel::<SessionMessage>(address) else {
                     continue;
@@ -77,7 +75,7 @@ impl Session {
         thread::spawn(move || {
             let config =
                 Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
-            let address = Self::parse_address(&config.agent.host_bind_address, "host");
+            let address = Self::bind_address(config.agent.host_port);
             loop {
                 let Ok((tx, rx)) = accept_channel::<SessionMessage>(address) else {
                     continue;

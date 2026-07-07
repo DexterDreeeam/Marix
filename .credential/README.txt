@@ -1,13 +1,20 @@
-# Credential placeholders
+# Credentials
 
-This folder is for local-only replacement files used by `deployment.json`.
+Local-only secret files used by {{proj}}. This folder is git-ignored except for
+this README; never commit the replacement files.
 
-Each placeholder in `deployment.json` has the form `{PLACEHOLDER_NAME}`. At deployment time, replace it with the contents of the matching local file:
+## Runtime config references
 
-- `{CORE_SERVER_PASSWORD}` -> `.credential/CORE_SERVER_PASSWORD.txt`
-- `{CORE_SERVER_ROOT_PASSWORD}` -> `.credential/CORE_SERVER_ROOT_PASSWORD.txt`
-- `{DEEPSEEK_API_KEY}` -> `.credential/DEEPSEEK_API_KEY.txt`
-- Hyper-V VM operator username -> `.credential/HYPERV_OPERATOR_USERNAME.txt`
-- Hyper-V VM operator password -> `.credential/HYPERV_OPERATOR_PASSWORD.txt`
+`config.toml` refers to secrets by name via `{ name = "..." }`, resolved against
+this folder as `<name>.txt`:
 
-Do not commit replacement files. `.gitignore` ignores everything in this folder except this README.
+- `[model.deepseek] api_key = { name = "DEEPSEEK_API_KEY" }` -> `DEEPSEEK_API_KEY.txt`
+
+## Deployment secrets
+
+Consumed by deployment and Hyper-V operator tooling, not by the runtime config:
+
+- `CORE_SERVER_PASSWORD.txt`
+- `CORE_SERVER_ROOT_PASSWORD.txt`
+- `HYPERV_OPERATOR_USERNAME.txt`
+- `HYPERV_OPERATOR_PASSWORD.txt`
