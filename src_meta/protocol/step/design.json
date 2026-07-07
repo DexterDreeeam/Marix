@@ -3,25 +3,47 @@
   "module": {
     "path": "src/protocol/step",
     "name": "step",
-    "purpose": "Owns step protocol contracts: StepDraft executable drafts whose description carries Intent wording, StepKind with unit Intent plus model/execution/user variants, ModelStepKind phases Initial and Analysis, ExecutionStepKind, UserStepKind, StepSignature with description and deterministic Signature implementation, StepEvent whose new Trigger variant starts a step, StepResult, and StepPreview. Planning output moved to src/protocol/plan as Plan, and the unused StepStatus enum was removed.",
+    "purpose": "Owns step protocol contracts: StepId allocation, flat model-facing StepDraft values, runtime StepKind variants, ModelStepKind phases Initial and Analysis, ExecutionStepKind, UserStepKind, StepSignature values that carry generated step identity plus task, description, and kind, StepEvent, StepResult, and StepPreview.",
     "changeStatus": "modified"
   },
-  "modified": ["kind.rs"],
+  "added": [
+    "id.rs"
+  ],
+  "modified": [
+    "draft.rs",
+    "kind.rs",
+    "mod.rs",
+    "signature.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "StepDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/draft.rs",
-          "lineStart": 5,
-          "lineEnd": 8,
+          "lineStart": 3,
+          "lineEnd": 10,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 6
+            },
+            {
+              "lineStart": 8,
+              "lineEnd": 9
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 4,
+              "lineEnd": 10
+            }
+          ]
         }
       ]
     },
@@ -37,12 +59,7 @@
           "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 7,
-              "lineEnd": 7
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -50,7 +67,7 @@
       "name": "ModelStepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/kind.rs",
@@ -58,12 +75,7 @@
           "lineEnd": 17,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 16,
-              "lineEnd": 16
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -103,15 +115,20 @@
       "name": "StepSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/signature.rs",
-          "lineStart": 6,
+          "lineStart": 5,
           "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 8
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/step/signature.rs",
@@ -119,15 +136,25 @@
           "lineEnd": 22,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 17
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/step/signature.rs",
           "lineStart": 24,
-          "lineEnd": 29,
+          "lineEnd": 28,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 26,
+              "lineEnd": 26
+            }
+          ]
         }
       ]
     },
@@ -180,6 +207,40 @@
           "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "StepId",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/step/id.rs",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 4
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/step/id.rs",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 10
+            }
+          ],
           "modifiedLines": []
         }
       ]

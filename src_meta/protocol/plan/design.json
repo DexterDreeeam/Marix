@@ -3,68 +3,49 @@
   "module": {
     "path": "src/protocol/plan",
     "name": "plan",
-    "purpose": "Owns task plan and answer extraction protocol contracts. Answer is the dedicated answer-only model output type with Answer::parse, Plan is the planning output type with description, run_steps, pending_steps, and expected_result fields plus Plan::parse, PlanEvent carries a Trigger(Plan) notification, and PlanSignature pairs a task TaskSignature with a UUID identity to support persisted or tracked plan records.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns task plan draft and answer extraction protocol contracts. Answer is the dedicated answer-only model output type; PlanDraft is the model-facing planning output draft with description, StepDraft-based run_steps and pending_steps, and expected_result fields; PlanEvent carries a Trigger(PlanDraft) notification; PlanId allocates plan identity; and PlanSignature pairs a task TaskSignature with a PlanId for tracked plan records.",
+    "changeStatus": "modified"
   },
+  "added": [
+    "id.rs"
+  ],
+  "modified": [
+    "event.rs",
+    "mod.rs",
+    "answer.rs",
+    "signature.rs"
+  ],
+  "renamed": [
+    "draft.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "Answer",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/answer.rs",
           "lineStart": 3,
           "lineEnd": 6,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 3,
-              "lineEnd": 6
-            }
-          ],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/protocol/plan/answer.rs",
-          "lineStart": 8,
-          "lineEnd": 12,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 8,
-              "lineEnd": 12
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
     },
     {
-      "name": "Plan",
+      "name": "PlanDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
-          "sourcePath": "src/protocol/plan/plan.rs",
+          "sourcePath": "src/protocol/plan/draft.rs",
           "lineStart": 4,
           "lineEnd": 10,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 7,
-              "lineEnd": 7
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/protocol/plan/plan.rs",
-          "lineStart": 12,
-          "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -75,7 +56,7 @@
       "name": "PlanEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/event.rs",
@@ -96,45 +77,79 @@
       "name": "PlanSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/signature.rs",
-          "lineStart": 5,
-          "lineEnd": 9,
+          "lineStart": 4,
+          "lineEnd": 8,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 7,
-              "lineEnd": 7
-            }
-          ],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/protocol/plan/signature.rs",
-          "lineStart": 11,
-          "lineEnd": 18,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 14
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 12
+              "lineStart": 4,
+              "lineEnd": 7
             }
           ]
         },
         {
           "sourcePath": "src/protocol/plan/signature.rs",
-          "lineStart": 20,
-          "lineEnd": 24,
+          "lineStart": 10,
+          "lineEnd": 17,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 14
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/protocol/plan/signature.rs",
+          "lineStart": 19,
+          "lineEnd": 23,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 21,
+              "lineEnd": 21
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PlanId",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/plan/id.rs",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 4
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/plan/id.rs",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 10
+            }
+          ],
           "modifiedLines": []
         }
       ]

@@ -8,9 +8,11 @@ Input variables:
 - Context: {{#IF {{#NoPreviewTask}} | This is the first task in the session. | Previous task previews: {{#Context}}}}
 - Available tools: {{#Tools}}
 
-Plan format:
-- run_steps are always concrete tool calls. Each run step is an object `{ "tool": { "name", "description", "input" } }` whose single key `tool` holds an object with a `name` (one of the tools listed in {{#Tools}}), a `description`, and an `input`. The `input` value must be a single string, never an object or array. If a tool needs structured input, put compact JSON text inside that single string. The system creates the execution signature; never emit signatures or ids.
-- pending_steps are future intentions that cannot be made concrete yet. Each pending step has ONLY an `intent`; it carries no tool and no input.
+Model-facing plan format (parsed directly as protocol PlanDraft):
+- Every step `kind` must be exactly one of `tool`, `model`, or `intent`.
+- A tool step needs `name`, `kind`, `description`, and `input`. The `name` is one of the tools listed in {{#Tools}}. The `input` value must be a single string, never an object or array. If a tool needs structured input, put compact JSON text inside that single string. The system creates the execution signature; never emit signatures or ids.
+- A model step needs `name`, `kind`, `description`, and `input`. Use `Initial` or `Analysis` as the model name. The `input` value must be a single string in the form `model-name,tool-name-1,tool-name-2`.
+- An intent step is only for work that cannot be made concrete yet. It needs at least `name`, `kind`, and `description`; it does not need `input`.
 
 Requirements:
 1. Identify the user's goal, constraints, and any missing information.
@@ -25,21 +27,28 @@ If the request can be answered without running any step, return this shape:
   "answer": "response of request"
 }
 
-Otherwise return this Plan shape:
+Otherwise return this model-facing plan shape:
 {
   "description": "Short description of the whole plan.",
   "run_steps": [
     {
-      "tool": {
-        "name": "tool_name",
-        "description": "Concrete step description.",
-        "input": "single-string parameter"
-      }
+      "name": "<tool_name>",
+      "kind": "tool",
+      "description": "Concrete step description.",
+      "input": "single-string parameter"
+    },
+    {
+      "name": "<model_name>",
+      "kind": "model",
+      "description": "Model request description.",
+      "input": "model-name,tool-name-1,tool-name-2"
     }
   ],
   "pending_steps": [
     {
-      "intent": "Why this step cannot be fully specified yet."
+      "name": "<intent_name>",
+      "kind": "intent",
+      "description": "Why this step cannot be fully specified yet."
     }
   ],
   "expected_result": "What should be true when the plan is complete."

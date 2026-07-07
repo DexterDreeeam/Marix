@@ -3,7 +3,7 @@
   "module": {
     "path": "src/common/config",
     "name": "config",
-    "purpose": "Strongly typed TOML configuration model and fallible loader. config.rs owns config-file discovery, credential resolution, runtime path normalization, symmetric client/host connection settings via ClientConfig and HostConfig, and tool directory settings; sys.rs owns supported OS/architecture detection through serializable System, Platform, and Arch types with System::new and the private Ubuntu detector; mod.rs re-exports the public config surface including TelemetryConfig, ToolConfig, and system types.",
+    "purpose": "Strongly typed TOML configuration model and fallible loader. config.rs owns config-file discovery, credential resolution, runtime path normalization, default CoreConfig fallback when TOML omits core, symmetric client/host connection settings via ClientConfig and HostConfig, and tool directory settings; sys.rs owns supported OS/architecture detection through serializable System, Platform, and Arch types with System::new and the private Ubuntu detector; mod.rs re-exports the public config surface including TelemetryConfig, ToolConfig, and system types.",
     "changeStatus": "modified"
   },
   "modified": ["config.rs"],
@@ -49,10 +49,41 @@
         },
         {
           "sourcePath": "src/common/config/config.rs",
+          "lineStart": 143,
+          "lineEnd": 156,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 148,
+              "lineEnd": 148
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/common/config/config.rs",
           "lineStart": 192,
           "lineEnd": 227,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 206,
+              "lineEnd": 206
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 229,
+          "lineEnd": 234,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 229,
+              "lineEnd": 234
+            }
+          ],
           "modifiedLines": []
         }
       ]

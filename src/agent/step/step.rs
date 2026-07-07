@@ -3,14 +3,15 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::thread;
 
 use marix_common::Logger;
+use marix_common::external::*;
 use marix_protocol::{
-    Answer, ModelStepKind, Plan, PlanEvent, PlanSignature, SessionEvent, StepDraft, StepEvent,
-    StepKind, StepResult, StepSignature, TaskEvent, TaskResult, TaskStatus,
+    Answer, ExecutionRequest, ExecutionSignature, ExecutionStepKind, ModelStepKind, PlanDraft,
+    PlanEvent, PlanSignature, SessionEvent, StepDraft, StepEvent, StepKind, StepResult,
+    StepSignature, TaskEvent, TaskResult, TaskStatus, ToolInputSchema,
 };
 
-use crate::plan::parse_plan;
-
 use crate::model::{ModelRequest, ModelResponse};
+use crate::plan::PlanError;
 use crate::prompt::{AnalysisPrompt, InitialPrompt, Prompt};
 use crate::task::TaskState;
 
@@ -28,6 +29,12 @@ impl Step {
             signature,
             update_count: Arc::new(AtomicUsize::new(0)),
         }
+    }
+
+    pub(crate) fn from_draft(state: &Arc<TaskState>, draft: StepDraft) -> Result<Self, PlanError> {
+        let kind = Self::step_kind(state, &draft)?;
+        let signature = StepSignature::new(state.signature.clone(), draft.description, kind);
+        Ok(Self::new(Arc::clone(state), signature))
     }
 }
 
@@ -50,11 +57,13 @@ impl Step {
     }
 
     pub(crate) fn trigger_initial_plan(state: Arc<TaskState>) {
-        let plan = Plan {
+        let plan = PlanDraft {
             description: state.user_request.clone(),
             run_steps: vec![StepDraft {
-                kind: StepKind::Model(ModelStepKind::Initial),
+                name: "Initial".to_owned(),
+                kind: "model".to_owned(),
                 description: state.user_request.clone(),
+                input: "Initial".to_owned(),
             }],
             pending_steps: Vec::new(),
             expected_result: String::new(),
@@ -77,6 +86,43 @@ impl Step {
 // -- Private -- //
 
 impl Step {
+    fn step_kind(state: &TaskState, draft: &StepDraft) -> Result<StepKind, PlanError> {
+        match draft.kind.trim() {
+            "tool" => Ok(StepKind::Execution(ExecutionStepKind::Invocation(
+                ExecutionRequest {
+                    signature: ExecutionSignature::new(state.signature.clone(), draft.name.clone()),
+                    input: ToolInputSchema {
+                        content: draft.input.clone(),
+                    },
+                },
+            ))),
+            "intent" => Ok(StepKind::Intent),
+            "model" => Ok(StepKind::Model(Self::model_step_kind(draft)?)),
+            kind => Err(PlanError::InvalidStepKind(kind.to_owned())),
+        }
+    }
+
+    fn model_step_kind(draft: &StepDraft) -> Result<ModelStepKind, PlanError> {
+        Self::parse_model_step_name(&draft.name)
+            .or_else(|| Self::parse_model_step_name(Self::input_model_name(&draft.input)))
+            .ok_or_else(|| PlanError::InvalidModelStep {
+                name: draft.name.clone(),
+                input: draft.input.clone(),
+            })
+    }
+
+    fn parse_model_step_name(name: &str) -> Option<ModelStepKind> {
+        match name.trim() {
+            "Initial" | "initial" => Some(ModelStepKind::Initial),
+            "Analysis" | "analysis" => Some(ModelStepKind::Analysis),
+            _ => None,
+        }
+    }
+
+    fn input_model_name(input: &str) -> &str {
+        input.split(',').next().unwrap_or_default().trim()
+    }
+
     fn run(self) -> Option<StepSignature> {
         if matches!(self.signature.kind, StepKind::Intent) {
             Self::send_step_event(
@@ -90,10 +136,10 @@ impl Step {
             );
             return None;
         }
-        if self.signature.step_no >= 10 {
+        if self.state.steps.size() >= 10 {
             let _ = Logger::warning(format!(
                 "step {} exceeds limit (task {})",
-                self.signature.step_no, self.signature.task.id.0
+                self.signature.id.0, self.signature.task.id.0
             ));
             Self::send_step_event(
                 &self.state,
@@ -106,9 +152,9 @@ impl Step {
             );
             return None;
         }
-        let step_no = self.signature.step_no;
+        let step_id = self.signature.id.clone();
         let signature = self.signature.clone();
-        self.state.steps.insert_or_update(step_no, self.clone());
+        self.state.steps.insert_or_update(step_id, self.clone());
         match &self.signature.kind {
             StepKind::Model(_) => self.run_model(),
             StepKind::Execution(_) => {
@@ -137,7 +183,7 @@ impl Step {
             let signature = self.signature.clone();
             let _ = Logger::debug(format!(
                 "model step {} request (task {})",
-                signature.step_no, signature.task.id.0
+                signature.id.0, signature.task.id.0
             ));
             let mut result = String::new();
             let request = ModelRequest { step: self, prompt };
@@ -153,7 +199,7 @@ impl Step {
                 Err(error) => {
                     let _ = Logger::error(format!(
                         "model step {} request failed: {error}",
-                        signature.step_no
+                        signature.id.0
                     ));
                     Self::send_step_event(
                         &state,
@@ -181,7 +227,7 @@ impl Step {
                     ModelResponse::Failed(error) => {
                         let _ = Logger::error(format!(
                             "model step {} stream failed: {error}",
-                            signature.step_no
+                            signature.id.0
                         ));
                         Self::send_step_event(
                             &state,
@@ -199,7 +245,7 @@ impl Step {
             let seq_count = update_count.load(Ordering::Relaxed);
             let _ = Logger::debug(format!(
                 "model step {} completed ({seq_count} chunks)",
-                signature.step_no
+                signature.id.0
             ));
             let event = StepEvent::Complete {
                 seq_count,
@@ -242,7 +288,7 @@ impl Step {
     }
 
     fn on_complete(state: Arc<TaskState>, signature: StepSignature, content: String) -> bool {
-        state.steps.complete(signature.step_no);
+        state.steps.complete(signature.id.clone());
         let Some(_) = state.plan_hub.complete_step(&signature) else {
             return true;
         };
@@ -257,11 +303,13 @@ impl Step {
     }
 
     fn on_execution_complete(state: &TaskState, content: &str) {
-        let plan = Plan {
+        let plan = PlanDraft {
             description: "Analyze completed execution output".to_owned(),
             run_steps: vec![StepDraft {
-                kind: StepKind::Model(ModelStepKind::Analysis),
+                name: "Analysis".to_owned(),
+                kind: "model".to_owned(),
                 description: content.to_owned(),
+                input: "Analysis".to_owned(),
             }],
             pending_steps: Vec::new(),
             expected_result: "Execution analysis updates the remaining plan".to_owned(),
@@ -270,32 +318,49 @@ impl Step {
     }
 
     fn on_model_complete(state: Arc<TaskState>, content: &str) -> bool {
-        if let Ok(answer) = Answer::parse(content) {
-            let _ = Logger::log(format!(
-                "task {} produced final answer",
-                state.signature.id.0
-            ));
-            let event = SessionEvent::Task(
-                state.signature.clone(),
-                TaskEvent::Status(TaskStatus::Succeed(TaskResult {
-                    content: answer.answer,
-                })),
-            );
-            let _ = state.session_tx.send(event);
-            return false;
+        let value = match serde_json::from_str::<serde_json::Value>(content) {
+            Ok(value) => value,
+            Err(error) => {
+                let _ = Logger::warning(format!("model output is not valid JSON: {error}"));
+                return true;
+            }
+        };
+        let Some(object) = value.as_object() else {
+            let _ = Logger::warning("model output JSON is not an object");
+            return true;
+        };
+        if object.get("answer").is_some() {
+            match serde_json::from_str::<Answer>(content) {
+                Ok(answer) => {
+                    let _ = Logger::log(format!(
+                        "task {} produced final answer",
+                        state.signature.id.0
+                    ));
+                    let event = SessionEvent::Task(
+                        state.signature.clone(),
+                        TaskEvent::Status(TaskStatus::Succeed(TaskResult {
+                            content: answer.answer,
+                        })),
+                    );
+                    let _ = state.session_tx.send(event);
+                    return false;
+                }
+                Err(error) => {
+                    let _ = Logger::warning(format!("model output is not a valid answer: {error}"));
+                    return true;
+                }
+            }
         }
-        match parse_plan(content, &state.signature) {
-            Some(plan) => {
+        match serde_json::from_str::<PlanDraft>(content) {
+            Ok(plan) => {
                 let _ = Logger::debug(format!(
                     "model produced a plan with {} run step(s)",
                     plan.run_steps.len()
                 ));
                 Self::send_plan_event(&state, PlanEvent::Trigger(plan));
             }
-            None => {
-                let _ = Logger::warning(
-                    "model output is neither answer nor plan",
-                );
+            Err(error) => {
+                let _ = Logger::warning(format!("model output is not a valid plan: {error}"));
             }
         }
         true

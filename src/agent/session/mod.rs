@@ -1,5 +1,5 @@
-mod session;
 pub mod context;
+mod session;
 pub mod state;
 
 pub use context::SessionContext;

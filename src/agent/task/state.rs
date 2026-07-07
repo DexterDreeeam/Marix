@@ -1,10 +1,9 @@
 use std::fmt;
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
-use std::sync::atomic::AtomicUsize;
 
 use marix_common::{Sender, WorkQueue};
-use marix_protocol::{SessionEvent, TaskSignature};
+use marix_protocol::{SessionEvent, StepId, TaskSignature};
 
 use crate::execution::ExecutionHub;
 use crate::model::ModelBackend;
@@ -20,8 +19,7 @@ pub struct TaskState {
     pub session_tx: Sender<SessionEvent>,
     pub plan_hub: PlanHub,
     pub execution_hub: ExecutionHub,
-    pub step_count: AtomicUsize,
-    pub steps: WorkQueue<usize, Step>,
+    pub steps: WorkQueue<StepId, Step>,
 }
 
 impl TaskState {
@@ -40,7 +38,6 @@ impl TaskState {
             session_tx,
             plan_hub: PlanHub::new(),
             execution_hub: ExecutionHub::new(),
-            step_count: AtomicUsize::new(0),
             steps: WorkQueue::new(),
         }
     }

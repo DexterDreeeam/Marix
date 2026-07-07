@@ -3,15 +3,17 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. It organizes agent, client, common, prompt, host, protocol, and tool crates/modules; the agent now routes plan events to PlanHub which reserves step-number blocks and emits StepEvent::Trigger, Step emits PlanEvent::Trigger, protocol StepEvent gained a Trigger variant while PlanEvent renamed Run to Trigger, and the unused StepStatus enum was removed. Model-facing plans now use a flat shape whose run_steps are concrete tool calls given as { tool: { name, description, input } } and whose pending_steps carry only an intent, and the model step kinds and step prompt templates collapsed to Initial and Analysis.",
+    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. Protocol signatures now use generated PlanId and StepId wrappers, prompt JSON uses flat model-facing PlanDraft step objects that Step::from_draft maps into runtime StepKind values through Plan::from_draft, and protocol Answer/PlanDraft data types rely on serde_json call sites rather than parse helper methods.",
     "changeStatus": "modified"
   },
-  "modified": ["."],
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/agent",
       "name": "agent",
-      "purpose": "Agent crate namespace for model/session/task/prompt/step/plan/execution orchestration; PlanHub (renamed from PlanQueue) routes plan events and reserves step-number blocks via TaskState::step_count, Step owns step/plan routing and emits PlanEvent::Trigger, and the execution module's ExecutionHub tracks tool executions keyed by ExecutionSignature, accumulating output and emitting StepEvent::Complete back to the step layer on completion, with TaskState owning that ExecutionHub."
+      "purpose": "Agent crate namespace for model/session/task/prompt/step/execution orchestration and agent-side plan runtime storage. Step creates StepId-backed signatures from flat StepDraft values, and Plan::from_draft no longer allocates numeric step numbers."
     },
     {
       "path": "src/client",
@@ -21,17 +23,17 @@
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared common crate namespace for config loading with serializable System/Platform/Arch re-exports, external adapters including a redb embedded-database wrapper, database telemetry logging via the Logger client over redb and TCP, and structure utilities including WorkQueue::clear for session cleanup."
+      "purpose": "Shared common crate namespace for config loading with default CoreConfig fallback and serializable System/Platform/Arch re-exports, external adapters including a redb embedded-database wrapper, database telemetry logging via the Logger client over redb and TCP, and structure utilities including WorkQueue::clear for session cleanup."
     },
     {
       "path": "src/prompt",
       "name": "prompt",
-      "purpose": "Owns prompt templates used by model-facing steps: a flat Plan shape with concrete { tool: { name, description, input } } run_steps and intent-only pending_steps, answer-only Initial and Analysis JSON for requests that are already answerable, all emitted as raw strict JSON."
+      "purpose": "Owns prompt templates used by model-facing steps, including raw strict JSON response requirements, no-Markdown-fence output constraints, single-string tool and model input guidance, and a flat model-facing PlanDraft shape converted by the agent into runtime steps."
     },
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "First-class marix-protocol workspace crate for reusable session, task, answer, plan, step, execution, tool, and shared Signature definitions; TaskSignature derives ordering/hashing to key execution and plan maps, PlanEvent renamed its Run variant to Trigger, StepEvent gained a Trigger variant, the unused StepStatus enum was removed, ExecutionUpdate now carries a 0-based seq, and ExecutionStatus::Succeed carries the expected update count."
+      "purpose": "Owns the marix-protocol crate definitions and namespace exports for session, task, plan, step, execution, tool, and shared signature contracts including PlanId and StepId identity wrappers."
     },
     {
       "path": "src/host",

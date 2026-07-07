@@ -1,24 +1,23 @@
-use crate::Signature;
-use crate::TaskSignature;
 use crate::external::*;
+use crate::{PlanId, Signature, TaskSignature};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct PlanSignature {
     pub task: TaskSignature,
-    pub id: uuid::Uuid,
+    pub id: PlanId,
 }
 
 impl PlanSignature {
     pub fn new(task: TaskSignature) -> Self {
         Self {
             task,
-            id: uuid::Uuid::new_v4(),
+            id: PlanId::new(),
         }
     }
 }
 
 impl Signature for PlanSignature {
     fn id(&self) -> uuid::Uuid {
-        self.id
+        self.id.0
     }
 }

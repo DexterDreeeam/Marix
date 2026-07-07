@@ -3,9 +3,12 @@
   "module": {
     "path": "src/agent/task",
     "name": "task",
-    "purpose": "Owns agent task runtime. Task drives the per-task worker thread: it sends the initial status, triggers the initial plan through Step, routes task and step events, forwards execution events to execution_hub.route_event, and routes plan events to plan_hub.route_event. TaskState (state.rs) holds the session context, plan signature, user request, model backend, session event sender, plan_hub, an ExecutionHub that owns execution tracking, a monotonic step_count allocator that reserves contiguous step-number blocks, and the step WorkQueue, plus a manual Debug impl. Execution step spawning and event routing live in ExecutionHub, and execution-analysis plan triggering lives in Step.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns agent task runtime. Task drives the per-task worker thread: it sends the initial status, triggers the initial plan through Step, routes task and step events, forwards execution events to execution_hub.route_event, and routes plan events to plan_hub.route_event. TaskState holds the session context, task signature, user request, model backend, session event sender, PlanHub, ExecutionHub, and a StepId-keyed step WorkQueue, plus a manual Debug impl.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "state.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -62,12 +65,12 @@
       "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/task/state.rs",
-          "lineStart": 15,
-          "lineEnd": 25,
+          "lineStart": 14,
+          "lineEnd": 23,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
@@ -79,21 +82,21 @@
         },
         {
           "sourcePath": "src/agent/task/state.rs",
-          "lineStart": 27,
-          "lineEnd": 47,
+          "lineStart": 25,
+          "lineEnd": 44,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 42,
-              "lineEnd": 42
+              "lineStart": 41,
+              "lineEnd": 41
             }
           ]
         },
         {
           "sourcePath": "src/agent/task/state.rs",
-          "lineStart": 51,
-          "lineEnd": 58,
+          "lineStart": 48,
+          "lineEnd": 55,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

@@ -3,37 +3,96 @@
   "module": {
     "path": "src/agent/plan",
     "name": "plan",
-    "purpose": "Owns the agent-side plan hub module (renamed from the plan queue): PlanRecord stores a PlanSignature, Plan, run StepSignatures, and a remaining-step counter and now implements a manual Clone; PlanHub keeps PlanRecords in insertion order behind a mutex and routes plan events, reserving a contiguous step-number block via TaskState::step_count in run_plan and emitting StepEvent::Trigger for each step, plus insertion, lookup, listing, completion tracking, and a stringify snapshot; PlanStringify renders current plan text and pending intention text for prompts; PlanError reports duplicate plans, missing plans, and missing steps; parse_plan converts the model's flat plan output (run_steps given as { tool: { name, description, input } } objects and intent-only pending_steps) into a protocol Plan, deriving each run step's ExecutionSignature from the task.",
+    "purpose": "Owns agent-side plan runtime orchestration. Plan stores description, run_steps, pending_steps, and expected_result, delegates flat StepDraft conversion to Step::from_draft without reserving numeric step numbers, and exposes run step signatures; PlanHub routes valid drafts, logs and discards invalid drafts, stores PlanRecords, emits StepEvent::Trigger for runnable steps, and supports lookup, listing, completion tracking, and stringify snapshots; PlanStringify renders current runtime plans in the flat step-field shape; and PlanError reports duplicate plans, missing plans, missing steps, and invalid draft conversion failures.",
     "changeStatus": "modified"
   },
-  "modified": ["draft.rs"],
+  "modified": [
+    "mod.rs",
+    "plan.rs",
+    "error.rs",
+    "hub.rs",
+    "stringify.rs"
+  ],
+  "deleted": [
+    "draft.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "PlanHub",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/plan/hub.rs",
-          "lineStart": 12,
-          "lineEnd": 14,
+          "lineStart": 11,
+          "lineEnd": 13,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/plan/hub.rs",
-          "lineStart": 16,
-          "lineEnd": 122,
+          "lineStart": 15,
+          "lineEnd": 119,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 35,
-              "lineEnd": 39
+              "lineStart": 33,
+              "lineEnd": 60
             }
-          ],
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Plan",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/agent/plan/plan.rs",
+          "lineStart": 10,
+          "lineEnd": 17,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/agent/plan/plan.rs",
+          "lineStart": 19,
+          "lineEnd": 42,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 26
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/agent/plan/plan.rs",
+          "lineStart": 46,
+          "lineEnd": 53,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 47,
+              "lineEnd": 50
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/agent/plan/plan.rs",
+          "lineStart": 55,
+          "lineEnd": 76,
+          "language": "rust",
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -42,30 +101,38 @@
       "name": "PlanStringify",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/plan/stringify.rs",
           "lineStart": 4,
-          "lineEnd": 6,
+          "lineEnd": 7,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 4,
-              "lineEnd": 6
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/plan/stringify.rs",
-          "lineStart": 8,
-          "lineEnd": 29,
+          "lineStart": 9,
+          "lineEnd": 30,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 20
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/agent/plan/stringify.rs",
+          "lineStart": 34,
+          "lineEnd": 121,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 8,
-              "lineEnd": 29
+              "lineStart": 34,
+              "lineEnd": 121
             }
           ],
           "modifiedLines": []
@@ -76,36 +143,41 @@
       "name": "PlanRecord",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/plan/record.rs",
-          "lineStart": 5,
-          "lineEnd": 10,
+          "lineStart": 7,
+          "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/agent/plan/record.rs",
-          "lineStart": 12,
-          "lineEnd": 21,
-          "language": "rust",
-          "addedLines": [
+          "modifiedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 21
+              "lineStart": 9,
+              "lineEnd": 9
             }
-          ],
+          ]
+        },
+        {
+          "sourcePath": "src/agent/plan/record.rs",
+          "lineStart": 14,
+          "lineEnd": 23,
+          "language": "rust",
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/agent/plan/record.rs",
-          "lineStart": 23,
-          "lineEnd": 48,
+          "lineStart": 25,
+          "lineEnd": 50,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 26,
+              "lineEnd": 26
+            }
+          ]
         }
       ]
     },
@@ -113,54 +185,25 @@
       "name": "PlanError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/agent/plan/error.rs",
           "lineStart": 1,
-          "lineEnd": 6,
+          "lineEnd": 8,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 1,
-              "lineEnd": 6
+              "lineStart": 4,
+              "lineEnd": 5
             }
           ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "parse_plan",
-      "type": "function",
-      "source_depth": 3,
-      "changeStatus": "modified",
-      "codeSegments": [
-        {
-          "sourcePath": "src/agent/plan/draft.rs",
-          "lineStart": 16,
-          "lineEnd": 31,
-          "language": "rust",
-          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 27,
-              "lineEnd": 28
+              "lineStart": 2,
+              "lineEnd": 8
             }
           ]
-        },
-        {
-          "sourcePath": "src/agent/plan/draft.rs",
-          "lineStart": 35,
-          "lineEnd": 86,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 35,
-              "lineEnd": 86
-            }
-          ],
-          "modifiedLines": []
         }
       ]
     }

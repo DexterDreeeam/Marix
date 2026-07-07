@@ -3,10 +3,13 @@
   "module": {
     "path": "src/agent",
     "name": "agent",
-    "purpose": "Agent crate namespace for model/session/task/prompt/step/execution orchestration and the plan hub module. Step owns task-step routing, emits plan events, and builds the analysis follow-up plan when an execution completes; PlanHub routes plan events and runs plans by reserving step-number blocks and emitting StepEvent::Trigger; the execution module's ExecutionHub tracks tool executions keyed by execution signature, accumulates their output, and emits StepEvent::Complete back to the step layer on completion; and TaskState now owns that ExecutionHub instead of an execution-signature-to-step map.",
+    "purpose": "Agent crate namespace for model/session/task/prompt/step/execution orchestration and agent-side plan runtime storage. Step emits flat StepDraft model plan events, parses model JSON answers and plans, converts StepDraft values into StepId-backed runtime steps through Step::from_draft for Plan::from_draft, and ExecutionHub tracks tool executions keyed by execution signature before completing steps.",
     "changeStatus": "modified"
   },
-  "modified": ["."],
+  "modified": [
+    ".",
+    "lib.rs"
+  ],
   "childModules": [
     {
       "path": "src/agent/execution",
@@ -21,7 +24,7 @@
     {
       "path": "src/agent/plan",
       "name": "plan",
-      "purpose": "Owns PlanHub, PlanRecord, PlanStringify, and PlanError for insertion-ordered task plan storage, plan-event routing, step-block reservation, lookup, completion tracking, and current/pending plan text rendering for prompts; parse_plan converts the model's flat plan output (nested-tool run_steps, intent-only pending_steps) into a protocol Plan."
+      "purpose": "Owns agent-side plan runtime orchestration. Plan delegates StepDraft conversion to Step::from_draft without numeric step-number allocation, exposes run step signatures, and works with PlanHub, PlanRecord, PlanStringify, and PlanError for routing, storage, rendering, and invalid draft reporting."
     },
     {
       "path": "src/agent/prompt",
@@ -36,12 +39,12 @@
     {
       "path": "src/agent/step",
       "name": "step",
-      "purpose": "Owns the top-level agent runtime Step type re-exported by lib.rs; Step holds Arc<TaskState> and owns task-step routing (StepEvent::Trigger/Complete), model-prompt rendering, plan-event emission, step/model completion handling, and building the analysis follow-up plan (PlanEvent::Trigger) when an execution completes; execution step spawning is delegated to the execution hub."
+      "purpose": "Owns the agent runtime Step type, flat StepDraft to runtime StepKind conversion, task-step routing, internal Initial/Analysis flat StepDraft plan creation, model JSON answer/plan handling, model-prompt rendering, completion handling, and execution delegation."
     },
     {
       "path": "src/agent/task",
       "name": "task",
-      "purpose": "Owns agent task runtime and TaskState (session context, plan_hub, an ExecutionHub owning execution tracking, a monotonic step_count allocator, and the step queue); step routing lives on Step, plan events route to PlanHub, and execution spawning/routing lives in the execution hub."
+      "purpose": "Owns agent task runtime and TaskState (session context, plan_hub, an ExecutionHub owning execution tracking, and a StepId-keyed step queue); step routing lives on Step, plan events route to PlanHub, and execution spawning/routing lives in the execution hub."
     }
   ],
   "elements": [

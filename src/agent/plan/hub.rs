@@ -1,11 +1,10 @@
 use std::sync::Arc;
 use std::sync::Mutex;
-use std::sync::atomic::Ordering;
 
 use marix_common::Logger;
-use marix_protocol::{Plan, PlanEvent, PlanSignature, StepEvent, StepSignature};
+use marix_protocol::{PlanDraft, PlanEvent, PlanSignature, StepEvent, StepSignature};
 
-use crate::plan::{PlanError, PlanRecord, PlanStringify};
+use crate::plan::{Plan, PlanError, PlanRecord, PlanStringify};
 use crate::step::Step;
 use crate::task::TaskState;
 
@@ -31,31 +30,29 @@ impl PlanHub {
         }
     }
 
-    pub(crate) fn run_plan(&self, state: &Arc<TaskState>, signature: PlanSignature, plan: Plan) {
+    pub(crate) fn run_plan(
+        &self,
+        state: &Arc<TaskState>,
+        signature: PlanSignature,
+        draft: PlanDraft,
+    ) {
+        let plan = match Plan::from_draft(state, signature, draft) {
+            Ok(plan) => plan,
+            Err(error) => {
+                let _ = Logger::warning(format!(
+                    "discarding invalid plan draft (task {}): {error:?}",
+                    state.signature.id.0
+                ));
+                return;
+            }
+        };
         let _ = Logger::debug(format!(
             "running plan with {} step(s) (task {})",
             plan.run_steps.len(),
             state.signature.id.0
         ));
-        // Reserve a unique, contiguous step-number block for this plan up front.
-        let base_step_no = state
-            .step_count
-            .fetch_add(plan.run_steps.len(), Ordering::Relaxed);
-        let step_signatures: Vec<StepSignature> = plan
-            .run_steps
-            .iter()
-            .cloned()
-            .enumerate()
-            .map(|(index, draft)| {
-                StepSignature::new(
-                    state.signature.clone(),
-                    base_step_no + index,
-                    draft.description,
-                    draft.kind,
-                )
-            })
-            .collect();
-        self.insert(signature, plan, step_signatures.clone())
+        let step_signatures = plan.run_step_signatures();
+        self.insert(plan.signature.clone(), plan, step_signatures.clone())
             .unwrap_or_else(|error| panic!("failed to insert task plan: {error:?}"));
         for step_signature in step_signatures {
             Step::send_step_event(state, &step_signature, StepEvent::Trigger);

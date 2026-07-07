@@ -3,9 +3,12 @@
   "module": {
     "path": "src/protocol/external",
     "name": "external",
-    "purpose": "Local protocol crate wiring that re-exports serde, serde_json, and uuid for protocol internals; it has no selectable protocol elements.",
-    "changeStatus": "unchanged"
+    "purpose": "Local protocol crate wiring that re-exports serde derive macros, serde_json, and uuid for protocol internals; it has no selectable protocol elements.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "mod.rs"
+  ],
   "childModules": [],
   "elements": []
 }

@@ -3,10 +3,14 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, plan, answer, step, execution, tool, and shared signature protocol contracts. TaskSignature derives ordering and hashing so ExecutionSignature and PlanSignature can key runtime maps, the plan module re-exports PlanEvent alongside Plan and PlanSignature, and the step re-export no longer includes the removed StepStatus.",
+    "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, plan draft, answer, plan identity, step identity, execution, tool, and shared signature protocol contracts. PlanSignature and StepSignature expose generated id wrappers, while PlanDraft and StepDraft remain flat model-facing data contracts.",
     "changeStatus": "modified"
   },
-  "modified": ["."],
+  "modified": [
+    ".",
+    "lib.rs",
+    "mod.rs"
+  ],
   "childModules": [
     {
       "path": "src/protocol/task",
@@ -16,12 +20,12 @@
     {
       "path": "src/protocol/plan",
       "name": "plan",
-      "purpose": "Owns Answer parsing, Plan parsing, run_steps/pending_steps planning fields, the PlanEvent Trigger notification, and task-carrying PlanSignature identity contracts for extracted model task outputs."
+      "purpose": "Owns plan protocol contracts including Answer, PlanDraft, PlanEvent, PlanId, and PlanSignature keyed by generated plan identity."
     },
     {
       "path": "src/protocol/step",
       "name": "step",
-      "purpose": "Owns step protocol contracts including executable drafts, unit Intent step kinds whose descriptions live on StepDraft, ModelStepKind phases Initial and Analysis, StepSignature values, events whose StepEvent adds a Trigger variant, results, and previews; planning output moved to the plan module and the unused StepStatus enum was removed."
+      "purpose": "Owns step protocol contracts including StepId, flat model-facing StepDraft values, runtime StepKind variants, StepSignature values, events, results, and previews."
     },
     {
       "path": "src/protocol/execution",

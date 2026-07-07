@@ -1,6 +1,8 @@
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use marix_protocol::{Plan, PlanSignature, StepSignature};
+use marix_protocol::{PlanSignature, StepSignature};
+
+use crate::plan::Plan;
 
 pub struct PlanRecord {
     pub signature: PlanSignature,

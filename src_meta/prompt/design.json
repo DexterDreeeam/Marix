@@ -3,15 +3,17 @@
   "module": {
     "path": "src/prompt",
     "name": "prompt",
-    "purpose": "Owns prompt templates used by model-facing steps, including raw strict JSON response requirements, no-Markdown-fence output constraints, single-string execution invocation input guidance, a flat Plan shape whose run_steps are concrete tool calls given as { tool: { name, description, input } } and whose pending_steps carry only an intent, and answer-only Initial and Analysis JSON for requests that are already answerable.",
+    "purpose": "Owns prompt templates used by model-facing steps, including raw strict JSON response requirements, no-Markdown-fence output constraints, single-string tool and model input guidance, flat model-facing PlanDraft step objects, and answer-only Initial and Analysis JSON for requests that are already answerable.",
     "changeStatus": "modified"
   },
-  "modified": ["."],
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/prompt/step",
       "name": "step",
-      "purpose": "Owns step model prompt templates for Initial and Analysis; both emit a flat Plan shape with concrete { tool: { name, description, input } } run_steps and { intent }-only pending_steps, or an answer-only JSON object, as raw strict JSON without Markdown fences."
+      "purpose": "Owns step model prompt templates for Initial and Analysis. Both emit the flat model-facing PlanDraft shape with tool/model run_steps and intent pending_steps, or an answer-only JSON object when the request is already answerable."
     }
   ],
   "elements": []

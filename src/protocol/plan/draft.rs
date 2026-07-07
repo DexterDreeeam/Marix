@@ -2,15 +2,9 @@ use crate::StepDraft;
 use crate::external::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct Plan {
+pub struct PlanDraft {
     pub description: String,
     pub run_steps: Vec<StepDraft>,
     pub pending_steps: Vec<StepDraft>,
     pub expected_result: String,
-}
-
-impl Plan {
-    pub fn parse(content: &str) -> Result<Self, serde_json::Error> {
-        serde_json::from_str(content)
-    }
 }
