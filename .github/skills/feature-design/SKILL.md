@@ -42,7 +42,7 @@ Examples:
    ```
 
    Trait methods should use signature-only declarations with semicolons unless a body is part of the public API shape. Do not add bodies, fields, helper types, or implementation scaffolding outside the intended public interface.
-6. **Review the Interface** — After editing, review the drafted public interface for cohesion, naming, ownership, error shape, extensibility, and whether it exposes too much or too little.
+6. **Review the Interface** — After editing, review the drafted public interface for cohesion, naming, ownership, error shape, extensibility, and whether it exposes too much or too little. Design work does not need to compile: do not run `cargo check`, `cargo build`, or tests unless the user explicitly asks.
 7. **Report** — Summarize the public API that was drafted, any files added or edited, and the interface review findings.
 
 ## Rules

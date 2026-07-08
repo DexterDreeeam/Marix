@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 use std::sync::{Arc, Mutex as StdMutex, OnceLock};
 use std::thread::{self, JoinHandle};
 
-use marix_common::{Config, Logger, accept_channel};
+use marix_common::{ChannelAuth, Config, Logger, accept_channel};
 use marix_protocol::{
     ExecutionEvent, ExecutionSignature, SessionEvent, SessionMessage, TaskEvent, TaskId,
     TaskSignature,
@@ -56,7 +56,12 @@ impl Session {
                 Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
             let address = Self::bind_address(&config.server.ip, config.server.client_port);
             loop {
-                let Ok((tx, rx)) = accept_channel::<SessionMessage>(address) else {
+                // TODO(feature-implement): source the handshake
+                // token from config/credential.
+                let Ok((tx, rx)) = accept_channel::<SessionMessage>(
+                    address,
+                    ChannelAuth { token: String::new() },
+                ) else {
                     continue;
                 };
                 let _ = Logger::log("client channel connected");
@@ -79,7 +84,12 @@ impl Session {
                 Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
             let address = Self::bind_address(&config.server.ip, config.server.host_port);
             loop {
-                let Ok((tx, rx)) = accept_channel::<SessionMessage>(address) else {
+                // TODO(feature-implement): source the handshake
+                // token from config/credential.
+                let Ok((tx, rx)) = accept_channel::<SessionMessage>(
+                    address,
+                    ChannelAuth { token: String::new() },
+                ) else {
                     continue;
                 };
                 let _ = Logger::log("host channel connected");

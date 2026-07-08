@@ -23,9 +23,9 @@ This skill owns `.temp/changed` processing, design file selection, schema, sourc
 3. Normalize paths to repo-relative forward-slash paths and preserve first-seen order.
 4. Keep only design-tracked source paths.
 5. If no design-tracked source path remains, clear `.temp/changed/` and report that there was no source-design work.
-6. For each changed file, update the `design.json` for the file's direct source folder and every ancestor up to `src_meta/design.json`.
-7. For folder-level source changes, update the mirrored folder's `design.json` and every ancestor up to `src_meta/design.json`.
-8. Batch all required `design.json` updates in one pass.
+6. Build the list of `design.json` files to update. A `design.json` surfaces only two layers: its own module's elements and its direct child modules' summaries. So a changed file requires updating only the `design.json` for the file's direct source folder and that folder's immediate parent `design.json`; do not propagate to further ancestors up toward `src_meta/design.json`. For a folder-level source change, update the changed folder's `design.json` and its immediate parent `design.json`. The `src/` root maps to `src_meta/design.json` and has no parent.
+7. Deduplicate the collected `design.json` list.
+8. Update the deduplicated `design.json` files from deepest to shallowest.
 9. After every required `design.json` update succeeds, clear `.temp/changed/` by deleting every marker file in that folder.
 10. If any update fails, do not clear `.temp/changed/`; report the failure and leave marker files for retry.
 
@@ -125,11 +125,11 @@ Omit empty status arrays. `childModules` entries must not contain `changeStatus`
 - `module.changeStatus` uses the current tag-window status when known.
 - `childModules` lists direct design-tracked child source folders only.
 - Do not list child folders in the parent status arrays. Child folders record their own `"."` status in their own `design.json`.
-- A pure-descendant ancestor with no direct file changes uses `modified: ["."]` and communicates the descendant change through purpose and child module summaries.
+- A pure-descendant immediate parent with no direct file changes uses `modified: ["."]` and communicates the descendant change through purpose and child module summaries.
 
 ## Element Rules
 
-- `elements` contains one entry per concrete outward-facing definition owned by this module layer.
+- `elements` contains one entry per concrete outward-facing definition owned by this module layer and by its direct child modules (one layer down). Do not include definitions from deeper descendant modules.
 - Include traits, structs, enums, functions, type aliases, constants, statics, classes, globals, and prompt/bin entries that users can inspect.
 - Treat `pub`, `pub(crate)`, `pub(super)`, and `pub(in ...)` as outward-facing.
 - Fully private functions/methods are not standalone elements. Fold them into the owning public element as extra `codeSegments` when they are relevant.
@@ -140,7 +140,7 @@ Omit empty status arrays. `childModules` entries must not contain `changeStatus`
 - Create one element per definition. Do not combine names with `/`, commas, or summary labels.
 - Use semantic `type` values: `trait`, `struct`, `enum`, `type-alias`, `const`, `static`, `function`, `class`, `global`, `prompt`, or `bin`.
 - Every element includes only `name`, `type`, `source_depth`, `changeStatus`, and `codeSegments`.
-- `source_depth` is the number of segments in `module.path`: `src` = 1, `src/common` = 2, `src/common/config` = 3.
+- `source_depth` is the number of segments in the element's own source folder path: `src` = 1, `src/common` = 2, `src/common/config` = 3. Own-layer elements match this module's `module.path` depth; direct child module elements are one level deeper. A `design.json` therefore holds only elements at the module's depth and one level below.
 - Do not store signatures or copied source code in metadata.
 
 ## Code Segment Rules

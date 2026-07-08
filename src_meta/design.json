@@ -4,8 +4,9 @@
     "path": "src",
     "name": "src",
     "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. Configuration now centralizes runtime server IP and client, host, and telemetry ports under config.server while loading the server IP from a credential reference and deriving client and host endpoints from that server section; protocol signatures use generated PlanId and StepId wrappers, and prompt JSON uses flat model-facing PlanDraft step objects.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/server",

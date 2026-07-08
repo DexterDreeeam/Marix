@@ -34,7 +34,8 @@ Examples:
 4. **Stop on Interface Gaps** — If the current public interface cannot support the behavior, would make the implementation infeasible, or would force an awkward workaround, stop immediately. Tell the user that the current outward-facing interface cannot implement the feature cleanly, propose one concrete interface improvement, and wait for the user's next instruction. Do not implement the workaround and do not update the design yourself.
 5. **Implement Behind the Interface** — Add or modify private functions, private methods, private data, internal algorithms, IO, validation, persistence, runtime orchestration, and error handling only as needed to satisfy the existing contract.
 6. **Preserve Public Shape** — Keep all public API names, visibility, data shapes, and semantic contracts unchanged unless the user explicitly approves a design change.
-7. **Report** — Summarize what behavior was implemented, files changed, and any remaining limitations.
+7. **Verify Compilation** — Run `cargo check` from `src/` and ensure it passes cleanly before reporting. Run tests only when the user explicitly asks.
+8. **Report** — Summarize what behavior was implemented, files changed, and any remaining limitations.
 
 ## Rules
 

@@ -11,6 +11,7 @@ pub use config::{
 pub use logging::{LogMessage, LogTag, Logger, LoggingError};
 pub use structure::WorkQueue;
 pub use structure::{
-    ChannelError, NetReceiver, NetSender, Receiver, Sender, SharedNetReceiver, SharedNetSender,
-    accept_channel, build_channel, connect_channel,
+    ChannelAuth, ChannelError, NetReceiver, NetSender, Receiver, Sender,
+    SharedNetReceiver, SharedNetSender, accept_channel, build_channel,
+    connect_channel,
 };

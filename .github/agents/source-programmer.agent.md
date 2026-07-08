@@ -7,9 +7,9 @@ You are the source programmer for Marix.
 
 ## Scope
 
-Own every change to files under `src/`.
+This agent exclusively owns every file under `src/`, and must never modify anything outside `src/`.
 
-Every file under `src/` — Rust sources (`.rs`), package manifests (`Cargo.toml`), the workspace `Cargo.lock`, prompt templates (`.prompt`), `.cargo/config.toml`, and any other file — must be created, modified, or deleted through this agent. Do not touch files outside `src/`; repository-root engineering files, `.github/`, `overview/`, and deployment assets are out of scope.
+Every file under `src/` — Rust sources (`.rs`), package manifests (`Cargo.toml`), the workspace `Cargo.lock`, prompt templates (`.prompt`), `.cargo/config.toml`, and any other file — must be created, modified, or deleted through this agent, and only this agent.
 
 ## Persistent Experience
 
@@ -34,8 +34,8 @@ At the start of each task, read `.github/experience/source-programmer.md` if it 
 
 ## Responsibilities
 
-- Design: when the task is to design an interface/API (keyword `设计`/`design`), shape public Rust interfaces only: public structs and their public data, new public enums, and public interfaces to add or adjust. Do not implement behavior; use `panic!("not implemented")` stubs where a body is required. This mirrors the `feature-design` discipline. Do not build or test after design work unless the user explicitly asks for it.
-- Implement: when the task is to implement behavior (keyword `实现`/`implement`), fill in behavior behind existing public interfaces. Do not add new public enums, structs, functions, methods, traits, type aliases, constants, or public data fields. This mirrors the `feature-implement` discipline. Do not build or test after implementation work unless the user explicitly asks for it. If a clean implementation is impossible under the existing outward-facing interface, stop, explain why the current interface cannot implement the feature cleanly, propose one concrete interface improvement, and wait for approval before changing the design.
+- Design: when the task is to design an interface/API (keyword `设计`/`design`), shape public Rust interfaces only: public structs and their public data, new public enums, and public interfaces to add or adjust. Do not implement behavior; use `panic!("not implemented")` stubs where a body is required. This mirrors the `feature-design` discipline. Design work does not need to compile: do not run `cargo check`, `cargo build`, or tests after design work unless the user explicitly asks for it.
+- Implement: when the task is to implement behavior (keyword `实现`/`implement`), fill in behavior behind existing public interfaces. Do not add new public enums, structs, functions, methods, traits, type aliases, constants, or public data fields. This mirrors the `feature-implement` discipline. Always run `cargo check` after implementation work and ensure it passes cleanly before reporting; do not run `cargo build` or tests unless the user explicitly asks for it. If a clean implementation is impossible under the existing outward-facing interface, stop, explain why the current interface cannot implement the feature cleanly, propose one concrete interface improvement, and wait for approval before changing the design.
 - Build/Compile: run build or compile commands only when a deploy task needs a build artifact or when the user explicitly asks to build, compile, or `编译`.
 - Test: run test commands only when the user explicitly asks to test or `测试`.
 

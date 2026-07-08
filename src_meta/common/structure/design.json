@@ -4,8 +4,9 @@
     "path": "src/common/structure",
     "name": "structure",
     "purpose": "Owns shared structural utilities for the common crate. channel.rs defines local and TCP-backed remoc channel helpers and shared net endpoint wrappers. work_queue.rs defines the generic WorkQueue over working and completed maps, including borrowed access through with and clear() cleanup that empties both maps for host-disconnect session reset. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["channel.rs"],
   "childModules": [],
   "elements": [
     {
@@ -16,15 +17,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 7,
-          "lineEnd": 7,
+          "lineStart": 6,
+          "lineEnd": 6,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 7,
-              "lineEnd": 7
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -37,15 +33,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 8,
-          "lineEnd": 8,
+          "lineStart": 7,
+          "lineEnd": 7,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 8,
-              "lineEnd": 8
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -58,16 +49,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 9,
-          "lineEnd": 9,
+          "lineStart": 8,
+          "lineEnd": 8,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 9
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -79,16 +65,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 10,
-          "lineEnd": 10,
+          "lineStart": 9,
+          "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 10
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -100,16 +81,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 11,
-          "lineEnd": 11,
+          "lineStart": 10,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 11,
-              "lineEnd": 11
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -121,16 +97,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 12,
-          "lineEnd": 12,
+          "lineStart": 11,
+          "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 12,
-              "lineEnd": 12
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -142,15 +113,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 16,
+          "lineStart": 13,
           "lineEnd": 24,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 16,
-              "lineEnd": 24
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -167,12 +133,7 @@
           "lineEnd": 28,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 26,
-              "lineEnd": 26
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -180,20 +141,20 @@
       "name": "accept_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
           "lineStart": 30,
-          "lineEnd": 71,
+          "lineEnd": 46,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 30,
-              "lineEnd": 71
+              "lineStart": 38,
+              "lineEnd": 38
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -201,18 +162,18 @@
       "name": "connect_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 73,
-          "lineEnd": 107,
+          "lineStart": 48,
+          "lineEnd": 64,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 73,
-              "lineEnd": 73
+              "lineStart": 56,
+              "lineEnd": 56
             }
           ]
         }

@@ -4,7 +4,9 @@ use std::sync::OnceLock;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
 
-use marix_common::{Config, Logger, NetReceiver, SharedNetSender, connect_channel};
+use marix_common::{
+    ChannelAuth, Config, Logger, NetReceiver, SharedNetSender, connect_channel,
+};
 use marix_protocol::{SessionEvent, SessionMessage};
 
 use crate::executor::Executor;
@@ -53,7 +55,12 @@ impl HostSession {
                 SharedNetSender::new(std::sync::Mutex::new(None));
             let mut executor = Executor::new(Arc::clone(&server_tx));
             while !shutdown.load(Ordering::Relaxed) {
-                let Ok((net_tx, net_rx)) = connect_channel::<SessionMessage>(address) else {
+                // TODO(feature-implement): source the handshake
+                // token from config/credential.
+                let Ok((net_tx, net_rx)) = connect_channel::<SessionMessage>(
+                    address,
+                    ChannelAuth { token: String::new() },
+                ) else {
                     continue;
                 };
                 let _ = Logger::log("host connected to server core");

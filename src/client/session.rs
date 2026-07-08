@@ -5,7 +5,8 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
 
 use marix_common::{
-    Config, Logger, NetReceiver, Receiver, Sender, SharedNetSender, build_channel, connect_channel,
+    ChannelAuth, Config, Logger, NetReceiver, Receiver, Sender, SharedNetSender,
+    build_channel, connect_channel,
 };
 use marix_protocol::{
     SessionEvent, SessionMessage, Signature, TaskEvent, TaskId, TaskSignature, TaskStatus,
@@ -89,7 +90,12 @@ impl ClientSession {
                 .parse()
                 .unwrap_or_else(|error| panic!("invalid server client address: {error}"));
             while !shutdown.load(Ordering::Relaxed) {
-                let Ok((net_tx, net_rx)) = connect_channel::<SessionMessage>(address) else {
+                // TODO(feature-implement): source the handshake
+                // token from config/credential.
+                let Ok((net_tx, net_rx)) = connect_channel::<SessionMessage>(
+                    address,
+                    ChannelAuth { token: String::new() },
+                ) else {
                     continue;
                 };
                 let _ = Logger::log("client connected to server core");
