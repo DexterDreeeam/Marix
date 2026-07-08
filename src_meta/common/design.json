@@ -4,8 +4,9 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Shared common crate root for reusable config loading with default CoreConfig fallback, server IP and handshake token resolution from plain config values, external re-export adapters, database telemetry logging, and structure utilities. It exposes WorkQueue cleanup support used by server host-disconnect session reset, and lib.rs re-exports serializable config system types Arch, Platform, and System alongside Config, ServerConfig, and related models, plus the Logger telemetry client with LogMessage, LogTag, and LoggingError.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/common/config",
@@ -25,7 +26,7 @@
     {
       "path": "src/common/structure",
       "name": "structure",
-      "purpose": "Owns shared structural data interfaces such as WorkQueue, whose clear() method empties working and completed entries for session cleanup, plus channel helpers whose accept and connect entry points select a client, host, or telemetry endpoint and resolve its address and token from config before running a shared-secret token handshake."
+      "purpose": "Owns shared structural data interfaces such as WorkQueue, whose clear() method empties working and completed entries for session cleanup, plus channel helpers: accept_channel binds the listener once and accepts in a loop until one connection passes the shared-secret handshake within a 5-second per-connection timeout, while connect_channel makes a single attempt and surfaces ChannelError::Auth when the server rejects the token."
     }
   ],
   "elements": []

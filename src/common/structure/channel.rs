@@ -1,10 +1,18 @@
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex, mpsc};
 use std::thread;
+use std::time::Duration;
 
 use crate::config::Config;
 
 const NET_CHANNEL_BUFFER: usize = 16;
+/// How long the server waits, after a TCP connection is accepted, for
+/// that connection to complete the transport handshake and present a
+/// valid token before the attempt is abandoned.
+const HANDSHAKE_TIMEOUT: Duration = Duration::from_secs(5);
+/// How long the server keeps driving a rejected connection so the
+/// rejection reaches the connecter before the connection is torn down.
+const REJECT_FLUSH_GRACE: Duration = Duration::from_secs(2);
 
 pub type Sender<T> = mpsc::Sender<T>;
 pub type Receiver<T> = mpsc::Receiver<T>;
@@ -40,15 +48,23 @@ pub fn build_channel<T>() -> (Sender<T>, Receiver<T>) {
 }
 
 /// Accept an inbound connection for the logical channel selected by
-/// `endpoint`, run the shared-secret handshake, then return the
-/// channel pair.
+/// `endpoint`, returning the channel pair for the first connection that
+/// both establishes and passes the shared-secret handshake.
 ///
 /// The bind address (the node IP plus the port matching `endpoint`)
 /// and the expected handshake token are resolved from the loaded
 /// configuration inside this function; there is no caller-provided
-/// address or token. The peer's presented token is validated against
-/// the configured token, and a token mismatch or a failed handshake
-/// yields [`ChannelError::Auth`].
+/// address or token.
+///
+/// This call blocks until one fully authenticated connection succeeds.
+/// A connection that establishes but fails the transport handshake,
+/// presents the wrong token, or fails to complete the handshake within
+/// [`HANDSHAKE_TIMEOUT`] is abandoned (the connecter is told the token
+/// was rejected when applicable) and the listener keeps accepting the
+/// next connection. Only server-side setup problems return early:
+/// configuration or address resolution failures yield
+/// [`ChannelError::Setup`] and a bind failure yields
+/// [`ChannelError::Bind`].
 pub fn accept_channel<T>(
     endpoint: ChannelEndpoint,
 ) -> Result<(NetSender<T>, NetReceiver<T>), ChannelError>
@@ -80,24 +96,7 @@ where
                 return;
             }
         };
-        runtime.block_on(async move {
-            let listener = match tokio::net::TcpListener::bind(address).await {
-                Ok(listener) => listener,
-                Err(error) => {
-                    let _ = setup_tx.send(Err(ChannelError::Bind(error.to_string())));
-                    return;
-                }
-            };
-            let (socket, _) = match listener.accept().await {
-                Ok(connection) => connection,
-                Err(error) => {
-                    let _ = setup_tx.send(Err(ChannelError::Accept(error.to_string())));
-                    return;
-                }
-            };
-            let expected_token = token.clone();
-            connect_socket(socket, token, Some(expected_token), setup_tx).await;
-        });
+        runtime.block_on(accept_loop::<T>(address, token, setup_tx));
     });
     setup_rx
         .recv()
@@ -110,9 +109,10 @@ where
 /// The connect address (the node IP plus the port matching
 /// `endpoint`) and the handshake token are resolved from the loaded
 /// configuration inside this function; there is no caller-provided
-/// address or token. The configured token is presented to the
-/// server, and if the server rejects it or the handshake fails, the
-/// call yields [`ChannelError::Auth`].
+/// address or token. This is a single attempt: it connects once, runs
+/// the handshake, and returns. If the server rejects the presented
+/// token the call yields [`ChannelError::Auth`]; a failed transport
+/// handshake yields [`ChannelError::Transport`].
 pub fn connect_channel<T>(
     endpoint: ChannelEndpoint,
 ) -> Result<(NetSender<T>, NetReceiver<T>), ChannelError>
@@ -152,7 +152,7 @@ where
                     return;
                 }
             };
-            connect_socket(socket, token, None, setup_tx).await;
+            connecter_handshake(socket, token, setup_tx).await;
         });
     });
     setup_rx
@@ -162,10 +162,185 @@ where
 
 // -- Private -- //
 
-async fn connect_socket<T>(
+/// Setup-channel handshake messages exchanged over the remoc base
+/// channel before the caller-facing pair is handed back.
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(bound(
+    serialize = "T: remoc::RemoteSend",
+    deserialize = "T: remoc::RemoteSend"
+))]
+enum Handshake<T>
+where
+    T: remoc::RemoteSend,
+{
+    /// Connecter -> server: presents the token and the receiver the
+    /// server will use to read the connecter's messages.
+    Connect { token: String, rx: NetReceiver<T> },
+    /// Server -> connecter: token accepted; carries the receiver the
+    /// connecter will use to read the server's messages.
+    Accept { rx: NetReceiver<T> },
+    /// Server -> connecter: token rejected; no pair follows.
+    Reject,
+}
+
+/// Owns a spawned remoc connection task and aborts it on drop, so a
+/// connection that is abandoned (timed out or handshake failed) never
+/// leaks a detached driver. Call [`ConnectionGuard::disarm`] on the
+/// success path to hand the task off for keep-alive instead.
+struct ConnectionGuard {
+    handle: Option<tokio::task::JoinHandle<()>>,
+}
+
+impl ConnectionGuard {
+    fn new(handle: tokio::task::JoinHandle<()>) -> Self {
+        Self {
+            handle: Some(handle),
+        }
+    }
+
+    /// Keep driving the connection for up to `grace` (or until it ends
+    /// on its own) without disarming, so a pending message can flush
+    /// before the guard tears the connection down.
+    async fn flush(&mut self, grace: Duration) {
+        if let Some(handle) = self.handle.as_mut() {
+            let _ = tokio::time::timeout(grace, handle).await;
+        }
+    }
+
+    fn disarm(mut self) -> tokio::task::JoinHandle<()> {
+        self.handle
+            .take()
+            .expect("connection guard disarmed without a live handle")
+    }
+}
+
+impl Drop for ConnectionGuard {
+    fn drop(&mut self) {
+        if let Some(handle) = self.handle.take() {
+            handle.abort();
+        }
+    }
+}
+
+/// Bind the listener once, then accept connections until one both
+/// establishes and passes the handshake, sending that pair to the
+/// caller. Setup failures (bind) are reported to the caller and stop
+/// the loop; per-connection failures are abandoned and the loop
+/// continues.
+async fn accept_loop<T>(
+    address: SocketAddr,
+    token: String,
+    setup_tx: mpsc::Sender<Result<(NetSender<T>, NetReceiver<T>), ChannelError>>,
+) where
+    T: remoc::RemoteSend + 'static,
+    NetSender<T>: Send,
+    NetReceiver<T>: Send,
+{
+    let listener = match tokio::net::TcpListener::bind(address).await {
+        Ok(listener) => listener,
+        Err(error) => {
+            let _ = setup_tx.send(Err(ChannelError::Bind(error.to_string())));
+            return;
+        }
+    };
+
+    let (net_tx, peer_rx, connection_handle) = loop {
+        let (socket, _) = match listener.accept().await {
+            Ok(connection) => connection,
+            Err(_) => continue,
+        };
+        match tokio::time::timeout(
+            HANDSHAKE_TIMEOUT,
+            server_handshake::<T>(socket, token.clone()),
+        )
+        .await
+        {
+            Ok(Ok(accepted)) => break accepted,
+            Ok(Err(_)) => continue,
+            Err(_) => continue,
+        }
+    };
+
+    // Free the port as soon as one connection is established so a later
+    // accept on the same endpoint can bind; the connection itself is
+    // kept alive below.
+    drop(listener);
+
+    if setup_tx.send(Ok((net_tx, peer_rx))).is_ok() {
+        let _ = connection_handle.await;
+    } else {
+        connection_handle.abort();
+    }
+}
+
+/// Drive one accepted connection through the transport handshake and
+/// token check. On success returns the caller-facing sender/receiver
+/// plus the (disarmed) connection task for keep-alive. On any failure
+/// returns an error and the internal connection task is aborted; a
+/// token mismatch first flushes a [`Handshake::Reject`] to the
+/// connecter.
+async fn server_handshake<T>(
+    socket: tokio::net::TcpStream,
+    expected_token: String,
+) -> Result<(NetSender<T>, NetReceiver<T>, tokio::task::JoinHandle<()>), ChannelError>
+where
+    T: remoc::RemoteSend + 'static,
+    NetSender<T>: Send,
+    NetReceiver<T>: Send,
+{
+    let (socket_rx, socket_tx) = socket.into_split();
+    let (connection, mut base_tx, mut base_rx): (
+        _,
+        remoc::rch::base::Sender<Handshake<T>>,
+        remoc::rch::base::Receiver<Handshake<T>>,
+    ) = remoc::Connect::io(remoc::Cfg::default(), socket_rx, socket_tx)
+        .await
+        .map_err(|error| ChannelError::Transport(error.to_string()))?;
+    let mut guard = ConnectionGuard::new(tokio::spawn(async move {
+        let _ = connection.await;
+    }));
+
+    let message = match base_rx.recv().await {
+        Ok(Some(message)) => message,
+        Ok(None) => {
+            return Err(ChannelError::Transport(
+                "connecter closed setup channel".to_owned(),
+            ));
+        }
+        Err(error) => return Err(ChannelError::Transport(error.to_string())),
+    };
+    let (token, peer_rx) = match message {
+        Handshake::Connect { token, rx } => (token, rx),
+        _ => {
+            return Err(ChannelError::Transport(
+                "unexpected handshake from connecter".to_owned(),
+            ));
+        }
+    };
+
+    if token != expected_token {
+        let _ = base_tx.send(Handshake::Reject).await;
+        drop(base_tx);
+        drop(base_rx);
+        // Keep the connection running briefly so the rejection reaches
+        // the connecter; the guard aborts the task afterwards.
+        guard.flush(REJECT_FLUSH_GRACE).await;
+        return Err(ChannelError::Auth("channel token rejected".to_owned()));
+    }
+
+    let (net_tx, net_rx) = remoc::rch::mpsc::channel::<T, _>(NET_CHANNEL_BUFFER);
+    if let Err(error) = base_tx.send(Handshake::Accept { rx: net_rx }).await {
+        return Err(ChannelError::Transport(error.to_string()));
+    }
+    Ok((net_tx, peer_rx, guard.disarm()))
+}
+
+/// Connecter side of the handshake: present the token, then interpret
+/// the server's accept/reject reply, sending the resulting pair or
+/// error back through `setup_tx`.
+async fn connecter_handshake<T>(
     socket: tokio::net::TcpStream,
     token: String,
-    expected_token: Option<String>,
     setup_tx: mpsc::Sender<Result<(NetSender<T>, NetReceiver<T>), ChannelError>>,
 ) where
     T: remoc::RemoteSend + 'static,
@@ -175,8 +350,8 @@ async fn connect_socket<T>(
     let (socket_rx, socket_tx) = socket.into_split();
     let (connection, mut base_tx, mut base_rx): (
         _,
-        remoc::rch::base::Sender<(String, NetReceiver<T>)>,
-        remoc::rch::base::Receiver<(String, NetReceiver<T>)>,
+        remoc::rch::base::Sender<Handshake<T>>,
+        remoc::rch::base::Receiver<Handshake<T>>,
     ) = match remoc::Connect::io(remoc::Cfg::default(), socket_rx, socket_tx).await {
         Ok(connection) => connection,
         Err(error) => {
@@ -184,32 +359,46 @@ async fn connect_socket<T>(
             return;
         }
     };
-    let connection_task = tokio::spawn(connection);
+    let connection_task = tokio::spawn(async move {
+        let _ = connection.await;
+    });
+
     let (net_tx, net_rx) = remoc::rch::mpsc::channel::<T, _>(NET_CHANNEL_BUFFER);
-    if let Err(error) = base_tx.send((token, net_rx)).await {
+    if let Err(error) = base_tx.send(Handshake::Connect { token, rx: net_rx }).await {
         let _ = setup_tx.send(Err(ChannelError::Transport(error.to_string())));
+        connection_task.abort();
         return;
     }
-    let (peer_token, peer_rx) = match base_rx.recv().await {
-        Ok(Some(payload)) => payload,
+
+    match base_rx.recv().await {
+        Ok(Some(Handshake::Accept { rx: peer_rx })) => {
+            if setup_tx.send(Ok((net_tx, peer_rx))).is_ok() {
+                let _ = connection_task.await;
+            } else {
+                connection_task.abort();
+            }
+        }
+        Ok(Some(Handshake::Reject)) => {
+            let _ = setup_tx.send(Err(ChannelError::Auth(
+                "channel token rejected".to_owned(),
+            )));
+            connection_task.abort();
+        }
+        Ok(Some(_)) => {
+            let _ = setup_tx.send(Err(ChannelError::Transport(
+                "unexpected handshake from server".to_owned(),
+            )));
+            connection_task.abort();
+        }
         Ok(None) => {
             let _ = setup_tx.send(Err(ChannelError::Transport(
-                "peer closed setup channel".to_owned(),
+                "server closed setup channel".to_owned(),
             )));
-            return;
+            connection_task.abort();
         }
         Err(error) => {
             let _ = setup_tx.send(Err(ChannelError::Transport(error.to_string())));
-            return;
+            connection_task.abort();
         }
-    };
-    if let Some(expected_token) = expected_token
-        && peer_token != expected_token
-    {
-        let _ = setup_tx.send(Err(ChannelError::Auth("channel token mismatch".to_owned())));
-        return;
-    }
-    if setup_tx.send(Ok((net_tx, peer_rx))).is_ok() {
-        let _ = connection_task.await;
     }
 }
