@@ -1,2 +1,9 @@
 # Shell scripts must use LF so they run on the Linux server host.
 *.sh text eol=lf
+
+# git-crypt: encrypt credential files under .credential/, but keep the
+# documentation and attribute files themselves in plaintext.
+/.credential/** filter=git-crypt diff=git-crypt
+/.credential/README.txt !filter !diff
+/.credential/.gitattributes !filter !diff
+.gitattributes !filter !diff
