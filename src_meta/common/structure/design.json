@@ -4,8 +4,12 @@
     "path": "src/common/structure",
     "name": "structure",
     "purpose": "Owns shared structural utilities for the common crate. channel.rs defines local and TCP-backed remoc channel helpers: accept_channel resolves the bind address and expected token from config, binds the listener once, and accepts in a loop until one connection completes the transport handshake and presents the valid token within a 5-second per-connection timeout, abandoning connections that fail authentication, transport, or the timeout while continuing to accept, and returning early only on server-side setup, bind, or runtime failures; connect_channel resolves the connect address and token from config and makes a single attempt, surfacing ChannelError::Auth when the server rejects the token. It also defines the ChannelEndpoint client/host/telemetry channel-role selector and shared net endpoint wrappers. work_queue.rs defines the generic WorkQueue over working and completed maps, including borrowed access through with and clear() cleanup that empties both maps for host-disconnect session reset. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "channel.rs",
+    "mod.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -131,12 +135,7 @@
           "lineStart": 37,
           "lineEnd": 44,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 37,
-              "lineEnd": 44
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -169,24 +168,6 @@
           "lineEnd": 104,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 50,
-              "lineEnd": 104
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 165,
-          "lineEnd": 336,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 165,
-              "lineEnd": 336
-            }
-          ],
           "modifiedLines": []
         }
       ]
@@ -203,38 +184,75 @@
           "lineEnd": 161,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Handshake",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 172,
+          "lineEnd": 184,
+          "language": "rust",
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 106,
-              "lineEnd": 161
+              "lineStart": 172,
+              "lineEnd": 172
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ConnectionGuard",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 186,
+          "lineEnd": 192,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 186,
+              "lineEnd": 186
             }
           ]
         },
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 165,
-          "lineEnd": 184,
+          "lineStart": 194,
+          "lineEnd": 215,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 165,
-              "lineEnd": 184
+              "lineStart": 194,
+              "lineEnd": 194
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 338,
-          "lineEnd": 404,
+          "lineStart": 217,
+          "lineEnd": 223,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 338,
-              "lineEnd": 404
+              "lineStart": 217,
+              "lineEnd": 217
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -250,19 +268,6 @@
           "lineEnd": 7,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/common/structure/work_queue.rs",
-          "lineStart": 9,
-          "lineEnd": 149,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 62,
-              "lineEnd": 71
-            }
-          ],
           "modifiedLines": []
         }
       ]

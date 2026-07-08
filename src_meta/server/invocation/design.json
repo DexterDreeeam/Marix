@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/server/invocation",
+    "name": "invocation",
+    "purpose": "Owns the server-side Invocation subject and InvocationHub storage boundary for invocation tracking; behavior is intentionally left as design stubs in this interface pass.",
+    "changeStatus": "added"
+  },
+  "added": [
+    "."
+  ],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "InvocationHub",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/invocation/hub.rs",
+          "lineStart": 10,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/invocation/hub.rs",
+          "lineStart": 14,
+          "lineEnd": 71,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 71
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Invocation",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/invocation/invocation.rs",
+          "lineStart": 15,
+          "lineEnd": 22,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 22
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/invocation/invocation.rs",
+          "lineStart": 24,
+          "lineEnd": 78,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 24,
+              "lineEnd": 78
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/invocation/invocation.rs",
+          "lineStart": 122,
+          "lineEnd": 305,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 122,
+              "lineEnd": 305
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/invocation/invocation.rs",
+          "lineStart": 307,
+          "lineEnd": 316,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 307,
+              "lineEnd": 316
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "InvocationInner",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/invocation/invocation.rs",
+          "lineStart": 82,
+          "lineEnd": 88,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 82,
+              "lineEnd": 88
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/invocation/invocation.rs",
+          "lineStart": 90,
+          "lineEnd": 120,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 90,
+              "lineEnd": 120
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

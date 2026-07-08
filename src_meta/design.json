@@ -3,45 +3,241 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. Configuration now centralizes runtime server IP and client, host, and telemetry ports under config.server while loading the server IP, handshake token, and Deepseek API key as plain config values and deriving client and host endpoints from that server section; protocol signatures use generated PlanId and StepId wrappers, and prompt JSON uses flat model-facing PlanDraft step objects.",
-    "changeStatus": "unchanged"
+    "purpose": "Workspace source root for Marix Rust crates and prompt sources; direct child modules are crate packages for protocol, common, server, client, host, tool, and prompts.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
-    {
-      "path": "src/server",
-      "name": "server",
-      "purpose": "Server crate namespace for model/session/task/prompt/step/execution orchestration and server-side plan runtime storage. The binary hosts telemetry on config.server.telemetry_port, Session binds client and host listeners from config.server.ip plus their server ports, Step emits flat StepDraft model plan events, and ExecutionHub tracks tool executions keyed by execution signature before completing steps."
-    },
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Client crate namespace for the marix_client library and client binaries. ClientEvent carries Common streaming output and Done completion events by signature id, and ClientSession connects to the server over the client channel selected by ChannelEndpoint::Client, creates tasks with an empty TaskSignature.name, and keeps the user request only in TaskEvent::Create."
+      "purpose": "Client crate namespace for client sessions, CLI, and app-facing events."
     },
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared common crate root for reusable config loading with default CoreConfig fallback, server IP resolution from plain config values, external re-export adapters, database telemetry logging, and structure utilities. It exposes WorkQueue cleanup support used by server host-disconnect session reset, and lib.rs re-exports serializable config system types Arch, Platform, and System alongside Config, ServerConfig, and related models, plus the Logger telemetry client with LogMessage, LogTag, and LoggingError."
-    },
-    {
-      "path": "src/prompt",
-      "name": "prompt",
-      "purpose": "Owns prompt templates used by model-facing steps, including raw strict JSON response requirements, no-Markdown-fence output constraints, single-string tool and model input guidance, and a flat model-facing PlanDraft shape converted by the server into runtime steps."
-    },
-    {
-      "path": "src/protocol",
-      "name": "protocol",
-      "purpose": "Owns the marix-protocol crate definitions and namespace exports for session, task, plan, step, execution, tool, and shared signature contracts including PlanId and StepId identity wrappers."
+      "purpose": "Common crate helpers for config, logging, transport structure, and third-party wrapper namespaces."
     },
     {
       "path": "src/host",
       "name": "host",
-      "purpose": "Host crate namespace for HostSession and host-side tool execution. The executor sends preview replies with host System metadata and tool previews, sends unknown-tool failure events, and HostSession connects to the server over the host channel selected by ChannelEndpoint::Host while importing reusable protocol contracts from marix-protocol and channel helpers from common."
+      "purpose": "Host crate namespace for HostSession and host-side executor dispatch/runtime exported through the executor module."
+    },
+    {
+      "path": "src/prompt",
+      "name": "prompt",
+      "purpose": "Prompt template sources grouped by prompt role."
+    },
+    {
+      "path": "src/protocol",
+      "name": "protocol",
+      "purpose": "Owns marix-protocol crate definitions and namespace exports for hierarchical session, task, plan, step, invocation, executor, relay, host execution, tool, and shared signature contracts."
+    },
+    {
+      "path": "src/server",
+      "name": "server",
+      "purpose": "Server crate namespace for model, session, task, prompt, step, invocation, relay, and plan runtime subjects. Invocation and Relay are top-level server subjects while protocol shapes live in marix-protocol."
+    },
+    {
+      "path": "src/target",
+      "name": "target",
+      "purpose": "Owns the target source module."
     },
     {
       "path": "src/tool",
       "name": "tool",
-      "purpose": "Top-level marix-tool crate that defines ToolProgram and native tool executables; it now depends on marix-protocol for tool preview/schema protocol types."
+      "purpose": "Tool crate namespace for native tool programs and schemas."
     }
   ],
-  "elements": []
+  "elements": [
+    {
+      "name": "ClientEvent",
+      "type": "enum",
+      "source_depth": 2,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/event.rs",
+          "lineStart": 1,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ClientSession",
+      "type": "struct",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/session.rs",
+          "lineStart": 18,
+          "lineEnd": 23,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 18,
+              "lineEnd": 18
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/client/session.rs",
+          "lineStart": 25,
+          "lineEnd": 74,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 25
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/client/session.rs",
+          "lineStart": 78,
+          "lineEnd": 162,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 78,
+              "lineEnd": 78
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HostSession",
+      "type": "struct",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/session.rs",
+          "lineStart": 13,
+          "lineEnd": 16,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 13,
+              "lineEnd": 13
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/session.rs",
+          "lineStart": 18,
+          "lineEnd": 39,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 18,
+              "lineEnd": 18
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/session.rs",
+          "lineStart": 43,
+          "lineEnd": 93,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 72,
+              "lineEnd": 72
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SessionMessage",
+      "type": "struct",
+      "source_depth": 2,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/message.rs",
+          "lineStart": 6,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/message.rs",
+          "lineStart": 13,
+          "lineEnd": 25,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "SignatureKey",
+      "type": "struct",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/signature.rs",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Signature",
+      "type": "trait",
+      "source_depth": 2,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/signature.rs",
+          "lineStart": 6,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolProgram",
+      "type": "trait",
+      "source_depth": 2,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/tool_program.rs",
+          "lineStart": 3,
+          "lineEnd": 7,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
 }

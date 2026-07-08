@@ -1,10 +1,11 @@
-use std::sync::{Arc, Mutex as StdMutex, OnceLock};
+use std::sync::Arc;
+use std::sync::Mutex as StdMutex;
+use std::sync::OnceLock;
 use std::thread::{self, JoinHandle};
 
 use marix_common::{ChannelEndpoint, Logger, accept_channel};
 use marix_protocol::{
-    ExecutionEvent, ExecutionSignature, SessionEvent, SessionMessage, TaskEvent, TaskId,
-    TaskSignature,
+    ExecutorEvent, SessionEvent, SessionMessage, TaskId, TaskRequest, TaskSignature, TaskStatus,
 };
 
 use super::{SessionContext, SessionState};
@@ -14,9 +15,9 @@ static SOURCE_NAME: OnceLock<String> = OnceLock::new();
 
 pub struct Session {
     pub state: Arc<SessionState>,
-    client_worker: JoinHandle<()>,
-    host_worker: JoinHandle<()>,
-    task_worker: JoinHandle<()>,
+    _client_worker: JoinHandle<()>,
+    _host_worker: JoinHandle<()>,
+    _task_worker: JoinHandle<()>,
 }
 
 impl Session {
@@ -26,12 +27,12 @@ impl Session {
         let state = Arc::new(SessionState::new());
         let client_worker = Self::spawn_client_worker(Arc::clone(&state));
         let host_worker = Self::spawn_host_worker(Arc::clone(&state));
-        let task_worker = Self::spawn_task_worker(Arc::clone(&state));
+        let task_worker = Self::task_worker(Arc::clone(&state));
         Self {
             state,
-            client_worker,
-            host_worker,
-            task_worker,
+            _client_worker: client_worker,
+            _host_worker: host_worker,
+            _task_worker: task_worker,
         }
     }
 
@@ -46,8 +47,7 @@ impl Session {
     fn spawn_client_worker(state: Arc<SessionState>) -> JoinHandle<()> {
         thread::spawn(move || {
             loop {
-                let Ok((tx, rx)) = accept_channel::<SessionMessage>(ChannelEndpoint::Client)
-                else {
+                let Ok((tx, rx)) = accept_channel::<SessionMessage>(ChannelEndpoint::Client) else {
                     continue;
                 };
                 let _ = Logger::log("client channel connected");
@@ -59,7 +59,7 @@ impl Session {
                     .client_rx
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(rx);
-                Self::run_client_worker(Arc::clone(&state));
+                Self::client_worker(Arc::clone(&state));
             }
         })
     }
@@ -67,8 +67,7 @@ impl Session {
     fn spawn_host_worker(state: Arc<SessionState>) -> JoinHandle<()> {
         thread::spawn(move || {
             loop {
-                let Ok((tx, rx)) = accept_channel::<SessionMessage>(ChannelEndpoint::Host)
-                else {
+                let Ok((tx, rx)) = accept_channel::<SessionMessage>(ChannelEndpoint::Host) else {
                     continue;
                 };
                 let _ = Logger::log("host channel connected");
@@ -81,14 +80,13 @@ impl Session {
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(rx);
                 Self::reset_session_context(&state);
-                Self::query_host_preview(&state);
-                Self::run_host_worker(Arc::clone(&state));
+                Self::host_worker(Arc::clone(&state));
                 Self::host_disconnect(&state);
             }
         })
     }
 
-    fn spawn_task_worker(state: Arc<SessionState>) -> JoinHandle<()> {
+    fn task_worker(state: Arc<SessionState>) -> JoinHandle<()> {
         thread::spawn(move || {
             loop {
                 let event = state
@@ -99,12 +97,12 @@ impl Session {
                 let Ok(event) = event else {
                     break;
                 };
-                Self::route_session_event(&state, event);
+                Self::dispatch(&state, event);
             }
         })
     }
 
-    fn run_client_worker(state: Arc<SessionState>) {
+    fn client_worker(state: Arc<SessionState>) {
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
@@ -119,12 +117,14 @@ impl Session {
                 return;
             };
             while let Ok(Some(message)) = rx.recv().await {
-                Self::route_session_event(&state, message.event);
+                if state.task_tx.send(message.event).is_err() {
+                    let _ = Logger::warning("session event enqueue failed: session worker stopped");
+                }
             }
         });
     }
 
-    fn run_host_worker(state: Arc<SessionState>) {
+    fn host_worker(state: Arc<SessionState>) {
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
@@ -139,36 +139,27 @@ impl Session {
                 return;
             };
             while let Ok(Some(message)) = rx.recv().await {
-                Self::route_session_event(&state, message.event);
+                if state.task_tx.send(message.event).is_err() {
+                    let _ = Logger::warning("session event enqueue failed: session worker stopped");
+                }
             }
         });
     }
 
-    fn create_task(state: &SessionState, signature: TaskSignature, request: String) {
+    fn create_task(state: &SessionState, request: TaskRequest) {
+        let signature = TaskSignature::new("task".to_owned());
         if state
             .host_tx
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .is_none()
         {
-            let _ = Logger::warning(format!(
-                "task {} rejected: host not connected",
-                signature.id.0
-            ));
-            let event = SessionEvent::Task(
-                signature,
-                TaskEvent::CreateFailed {
-                    reason: "host not connected".to_string(),
-                },
+            let reason = "host not connected".to_string();
+            let _ = Logger::warning(format!("task {} rejected: {reason}", signature.id.0));
+            Self::send_client_event(
+                state,
+                SessionEvent::TaskUpdate(TaskStatus::Failed { reason }),
             );
-            if let Some(sender) = state
-                .client_tx
-                .lock()
-                .unwrap_or_else(|error| error.into_inner())
-                .as_mut()
-            {
-                let _ = sender.try_send(Session::package_message(event));
-            }
             return;
         }
         let task_id = signature.id.clone();
@@ -176,77 +167,53 @@ impl Session {
         let task = Task::new(
             Arc::clone(&state.context),
             signature,
-            request,
+            request.content,
             state.task_tx.clone(),
         );
         state.tasks.insert(task_id, Arc::new(StdMutex::new(task)));
     }
 
-    fn route_session_event(state: &SessionState, event: SessionEvent) {
+    fn dispatch(state: &SessionState, event: SessionEvent) {
         match &event {
-            SessionEvent::Task(signature, TaskEvent::Create { request }) => {
-                Self::create_task(state, signature.clone(), request.clone());
+            SessionEvent::TaskCreate(request) => {
+                Self::create_task(state, request.clone());
             }
-            SessionEvent::Task(_, TaskEvent::Status(_))
-            | SessionEvent::Task(_, TaskEvent::Preview { .. })
-            | SessionEvent::Task(_, TaskEvent::CreateFailed { .. }) => {}
             SessionEvent::Task(signature, _) => {
-                Self::route_task_event(state, &signature.id, event.clone());
+                Self::dispatch_task(state, &signature.id, event.clone());
             }
-            SessionEvent::Step(signature, _) => {
-                Self::route_task_event(state, &signature.task.id, event.clone());
+            SessionEvent::TaskUpdate(_) => {
+                Self::send_client_event(state, event);
             }
-            SessionEvent::Execution(_, ExecutionEvent::Preview { system, tools }) => {
-                let _ = Logger::debug(format!("host preview received: {} tools", tools.len()));
-                *state
-                    .host_sys
-                    .lock()
-                    .unwrap_or_else(|error| error.into_inner()) = Some(*system);
-                let mut context = state
-                    .context
-                    .lock()
-                    .unwrap_or_else(|error| error.into_inner());
-                context.system = Some(*system);
-                context.tools = tools.clone();
-            }
-            SessionEvent::Execution(_, ExecutionEvent::Evoke(_))
-            | SessionEvent::Execution(_, ExecutionEvent::PreviewQuery)
-            | SessionEvent::Execution(_, ExecutionEvent::Query)
-            | SessionEvent::Execution(_, ExecutionEvent::Cancel)
-            | SessionEvent::Execution(_, ExecutionEvent::Kill) => {
-                Self::send_host_event(state, event.clone());
-            }
-            SessionEvent::Execution(signature, _) => {
-                Self::route_task_event(state, &signature.task.id, event.clone());
-            }
-            SessionEvent::Relay(signature, _) => {
-                Self::route_task_event(state, &signature.task.id, event.clone());
-            }
-            SessionEvent::Plan(signature, _) => {
-                Self::route_task_event(state, &signature.task.id, event.clone());
+            SessionEvent::Executor(event) => {
+                Self::send_host_event(state, SessionEvent::Executor(event.clone()));
             }
         }
-        Self::send_client_event(state, event);
     }
 
-    fn route_task_event(state: &SessionState, task_id: &TaskId, event: SessionEvent) {
-        let task = state.tasks.get(task_id.clone());
-        let sender = task
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .sender();
-        let _ = sender.send(event);
+    fn dispatch_task(state: &SessionState, task_id: &TaskId, event: SessionEvent) {
+        let Some(sent) = state.tasks.with(task_id, |task| {
+            let sender = task
+                .lock()
+                .unwrap_or_else(|error| error.into_inner())
+                .sender();
+            sender.send(event).is_ok()
+        }) else {
+            let _ = Logger::warning(format!(
+                "session could not dispatch event: task {} not found",
+                task_id.0
+            ));
+            return;
+        };
+        if !sent {
+            let _ = Logger::warning(format!(
+                "session could not dispatch event: task {} worker stopped",
+                task_id.0
+            ));
+        }
     }
 
     fn send_client_event(state: &SessionState, event: SessionEvent) {
-        let forward = matches!(
-            event,
-            SessionEvent::Task(_, TaskEvent::Status(_))
-                | SessionEvent::Task(_, TaskEvent::Preview { .. })
-                | SessionEvent::Task(_, TaskEvent::CreateFailed { .. })
-                | SessionEvent::Step(_, _)
-        );
-        if !forward {
+        if !matches!(event, SessionEvent::TaskUpdate(_)) {
             return;
         }
         if let Some(sender) = state
@@ -255,18 +222,34 @@ impl Session {
             .unwrap_or_else(|error| error.into_inner())
             .as_mut()
         {
-            let _ = sender.try_send(Session::package_message(event));
+            if let Err(error) = sender.try_send(Session::package_message(event)) {
+                let _ =
+                    Logger::warning(format!("core session could not send client event: {error}"));
+            }
         }
     }
 
     fn send_host_event(state: &SessionState, event: SessionEvent) {
+        if !matches!(
+            event,
+            SessionEvent::Executor(ExecutorEvent::Execution(_, _))
+                | SessionEvent::Executor(ExecutorEvent::ExecutionCreate(_))
+                | SessionEvent::Executor(ExecutorEvent::ExecutionUpdate(_, _))
+        ) {
+            let _ = Logger::warning("core session ignored non-executor host event");
+            return;
+        }
         if let Some(sender) = state
             .host_tx
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .as_mut()
         {
-            let _ = sender.try_send(Session::package_message(event));
+            if let Err(error) = sender.try_send(Session::package_message(event)) {
+                let _ = Logger::warning(format!("core session could not send host event: {error}"));
+            }
+        } else {
+            let _ = Logger::warning("core session could not send host event: host disconnected");
         }
     }
 
@@ -305,23 +288,5 @@ impl Session {
             tasks: Vec::new(),
             tools: Vec::new(),
         };
-    }
-
-    fn query_host_preview(state: &SessionState) {
-        if let Some(sender) = state
-            .host_tx
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .as_mut()
-        {
-            let signature = ExecutionSignature::new(
-                TaskSignature::new("preview".to_string()),
-                "preview".to_string(),
-            );
-            let _ = sender.try_send(Self::package_message(SessionEvent::Execution(
-                signature,
-                ExecutionEvent::PreviewQuery,
-            )));
-        }
     }
 }

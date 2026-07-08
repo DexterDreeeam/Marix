@@ -3,12 +3,38 @@
   "module": {
     "path": "src/server/session",
     "name": "session",
-    "purpose": "Owns the server session runtime, total SessionEvent routing entrypoint, local task-originated event channel, shared session preview context with SessionContext::snapshot for prompt rendering, and task creation. Session accepts the client and host channels by role through accept_channel with ChannelEndpoint, leaving listener address resolution to the channel helper; route_session_event routes task, step, execution, relay, and plan events back to the owning Task by task id and then calls send_client_event once.",
+    "purpose": "Owns server session startup and routing boundaries for client, host, and task channels; implementation routing still awaits the new hierarchical event shape.",
     "changeStatus": "modified"
   },
-  "modified": ["session.rs"],
+  "modified": [
+    "session.rs"
+  ],
   "childModules": [],
   "elements": [
+    {
+      "name": "SessionContext",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/session/context.rs",
+          "lineStart": 4,
+          "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/session/context.rs",
+          "lineStart": 10,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
     {
       "name": "Session",
       "type": "struct",
@@ -17,48 +43,42 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/session/session.rs",
-          "lineStart": 15,
-          "lineEnd": 20,
+          "lineStart": 16,
+          "lineEnd": 21,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/session/session.rs",
-          "lineStart": 22,
-          "lineEnd": 41,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/session/session.rs",
-          "lineStart": 45,
-          "lineEnd": 327,
-          "language": "rust",
-          "addedLines": [
+          "modifiedLines": [
             {
-              "lineStart": 222,
-              "lineEnd": 224
+              "lineStart": 15,
+              "lineEnd": 15
             }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "package_message",
-      "type": "function",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
+          ]
+        },
         {
           "sourcePath": "src/server/session/session.rs",
-          "lineStart": 38,
-          "lineEnd": 40,
+          "lineStart": 23,
+          "lineEnd": 42,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 22
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/session/session.rs",
+          "lineStart": 46,
+          "lineEnd": 292,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 45,
+              "lineEnd": 45
+            }
+          ]
         }
       ]
     },
@@ -82,35 +102,6 @@
           "lineEnd": 42,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "SessionContext",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/session/context.rs",
-          "lineStart": 4,
-          "lineEnd": 8,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/session/context.rs",
-          "lineStart": 10,
-          "lineEnd": 18,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 18
-            }
-          ],
           "modifiedLines": []
         }
       ]

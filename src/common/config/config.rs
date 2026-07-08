@@ -33,8 +33,7 @@ impl Config {
             return cached.clone();
         }
 
-        let computed =
-            load_config(&config_path()).map_err(|error| error.to_string());
+        let computed = load_config(&config_path()).map_err(|error| error.to_string());
         CONFIG_CACHE
             .write()
             .unwrap_or_else(|error| error.into_inner())
@@ -50,19 +49,15 @@ impl Config {
         Self::load()?;
         let path = config_path();
         let repo_root = repository_root_for_config(&path);
-        let content =
-            std::fs::read_to_string(&path).map_err(|error| error.to_string())?;
-        let mut table: toml::Table =
-            toml::from_str(&content).map_err(|error| error.to_string())?;
+        let content = std::fs::read_to_string(&path).map_err(|error| error.to_string())?;
+        let mut table: toml::Table = toml::from_str(&content).map_err(|error| error.to_string())?;
         for fragment in overrides {
             let overlay: toml::Table =
                 toml::from_str(fragment).map_err(|error| error.to_string())?;
             merge_tables(&mut table, overlay);
         }
-        let merged =
-            toml::to_string(&table).map_err(|error| error.to_string())?;
-        let config = build_config(&merged, &repo_root)
-            .map_err(|error| error.to_string())?;
+        let merged = toml::to_string(&table).map_err(|error| error.to_string())?;
+        let config = build_config(&merged, &repo_root).map_err(|error| error.to_string())?;
         *CONFIG_CACHE
             .write()
             .unwrap_or_else(|error| error.into_inner()) = Some(Ok(config.clone()));
@@ -251,10 +246,7 @@ fn build_config(content: &str, repo_root: &Path) -> Result<Config, ConfigError> 
 fn merge_tables(base: &mut toml::Table, overlay: toml::Table) {
     for (key, overlay_value) in overlay {
         match (base.get_mut(&key), overlay_value) {
-            (
-                Some(toml::Value::Table(base_table)),
-                toml::Value::Table(overlay_table),
-            ) => {
+            (Some(toml::Value::Table(base_table)), toml::Value::Table(overlay_table)) => {
                 merge_tables(base_table, overlay_table);
             }
             (_, overlay_value) => {

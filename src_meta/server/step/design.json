@@ -3,22 +3,18 @@
   "module": {
     "path": "src/server/step",
     "name": "step",
-    "purpose": "Owns the server runtime Step type as a top-level server module and hosts the execution and relay submodules. Step holds a shared Arc<TaskState>, protocol StepId-backed step identity, update sequencing, and Step::from_draft conversion from flat model StepDraft values into runtime StepKind values; owns task-step routing, initial and analysis PlanDraft creation, plan-event emission, model-prompt rendering, and step/model completion handling; model completion parses JSON objects, handles Answer objects first by forwarding the final Succeed status through the task event sender, and deserializes PlanDraft directly with serde_json; and execution spawning is delegated to the ExecutionHub in the execution submodule.",
+    "purpose": "Owns the server runtime Step type and re-exports top-level Invocation and Relay subjects for callers that still enter through the step namespace.",
     "changeStatus": "modified"
   },
-  "modified": ["step.rs", "mod.rs"],
-  "childModules": [
-    {
-      "path": "src/server/step/execution",
-      "name": "execution",
-      "purpose": "Owns server-side execution tracking: Execution values keyed by ExecutionSignature that accumulate ordered output and finalize on the expected update count, and an ExecutionHub holding a Mutex<HashMap<ExecutionSignature, Execution>> that spawns execution steps, routes Update/Succeed events, and emits StepEvent::Complete to the step layer on completion while reporting per-signature status."
-    },
-    {
-      "path": "src/server/step/relay",
-      "name": "relay",
-      "purpose": "Owns server-side relay tracking mirroring the execution submodule with panic-stub placeholders: Relay values keyed by RelaySignature and a RelayHub holding a Mutex<HashMap<RelaySignature, Relay>>, intended to spawn relay steps, route RelayEvent updates, and report per-signature status."
-    }
+  "added": [
+    "child.rs",
+    "model.rs"
   ],
+  "modified": [
+    "mod.rs",
+    "step.rs"
+  ],
+  "childModules": [],
   "elements": [
     {
       "name": "Step",
@@ -28,38 +24,53 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/step/step.rs",
-          "lineStart": 18,
-          "lineEnd": 23,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/step/step.rs",
-          "lineStart": 25,
-          "lineEnd": 39,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/step/step.rs",
-          "lineStart": 41,
-          "lineEnd": 83,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/step/step.rs",
-          "lineStart": 87,
-          "lineEnd": 362,
+          "lineStart": 16,
+          "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 335,
-              "lineEnd": 335
+              "lineStart": 16,
+              "lineEnd": 16
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/step/step.rs",
+          "lineStart": 27,
+          "lineEnd": 124,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 27,
+              "lineEnd": 27
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/step/step.rs",
+          "lineStart": 128,
+          "lineEnd": 354,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 128,
+              "lineEnd": 128
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/step/step.rs",
+          "lineStart": 356,
+          "lineEnd": 365,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 356,
+              "lineEnd": 356
             }
           ]
         }

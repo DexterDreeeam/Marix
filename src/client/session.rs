@@ -4,11 +4,11 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
 
 use marix_common::{
-    ChannelEndpoint, Logger, NetReceiver, Receiver, Sender, SharedNetSender,
-    build_channel, connect_channel,
+    ChannelEndpoint, Logger, NetReceiver, Receiver, Sender, SharedNetSender, build_channel,
+    connect_channel,
 };
 use marix_protocol::{
-    SessionEvent, SessionMessage, Signature, TaskEvent, TaskId, TaskSignature, TaskStatus,
+    SessionEvent, SessionMessage, TaskEvent, TaskId, TaskRequest, TaskSignature, TaskStatus,
 };
 
 use crate::ClientEvent;
@@ -51,8 +51,7 @@ impl ClientSession {
 
     pub fn create_task(&self, request: String) {
         let _ = Logger::log("client submitting task request");
-        let signature = TaskSignature::new(String::new());
-        self.send_to_server(SessionEvent::Task(signature, TaskEvent::Create { request }));
+        self.send_to_server(SessionEvent::TaskCreate(TaskRequest { content: request }));
     }
 
     pub fn cancel_task(&self, task_id: TaskId) {
@@ -91,12 +90,12 @@ impl ClientSession {
                 };
                 let _ = Logger::log("client connected to server core");
                 *server_tx.lock().unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
-                Self::run_worker(net_rx, &user_tx, &shutdown);
+                Self::worker(net_rx, &user_tx, &shutdown);
             }
         })
     }
 
-    fn run_worker(
+    fn worker(
         mut server_rx: NetReceiver<SessionMessage>,
         user_tx: &Sender<ClientEvent>,
         shutdown: &AtomicBool,
@@ -130,41 +129,33 @@ impl ClientSession {
 
     fn to_client_event(event: SessionEvent) -> Option<ClientEvent> {
         match event {
-            SessionEvent::Task(signature, TaskEvent::Status(TaskStatus::Succeed(result))) => {
-                Some(Self::done_event(&signature, Some(result.content)))
+            SessionEvent::TaskUpdate(TaskStatus::Succeed(result)) => {
+                Some(Self::done_event("", Some(result.content)))
             }
-            SessionEvent::Task(signature, TaskEvent::Status(TaskStatus::Failed { reason })) => {
-                Some(Self::done_event(
-                    &signature,
-                    Some(format!("task failed: {reason}")),
-                ))
+            SessionEvent::TaskUpdate(TaskStatus::Failed { reason }) => {
+                Some(Self::done_event("", Some(format!("task failed: {reason}"))))
             }
-            SessionEvent::Task(signature, TaskEvent::Status(TaskStatus::Canceled)) => {
-                Some(Self::done_event(&signature, None))
+            SessionEvent::TaskUpdate(TaskStatus::Canceled) => Some(Self::done_event("", None)),
+            SessionEvent::TaskUpdate(TaskStatus::Created) => {
+                Some(Self::common_event("", "task created".to_owned()))
             }
-            SessionEvent::Task(signature, TaskEvent::CreateFailed { reason }) => Some(
-                Self::done_event(&signature, Some(format!("task could not start: {reason}"))),
-            ),
-            SessionEvent::Task(signature, TaskEvent::Status(TaskStatus::Update { content })) => {
-                Some(Self::common_event(&signature, content))
-            }
-            SessionEvent::Task(signature, TaskEvent::Preview { content }) => {
-                Some(Self::common_event(&signature, content))
+            SessionEvent::TaskUpdate(TaskStatus::Started) => {
+                Some(Self::common_event("", "task started".to_owned()))
             }
             _ => None,
         }
     }
 
-    fn common_event(signature: &impl Signature, message: String) -> ClientEvent {
+    fn common_event(signature_id: impl Into<String>, message: String) -> ClientEvent {
         ClientEvent::Common {
-            signature_id: signature.id().to_string(),
+            signature_id: signature_id.into(),
             message,
         }
     }
 
-    fn done_event(signature: &impl Signature, message: Option<String>) -> ClientEvent {
+    fn done_event(signature_id: impl Into<String>, message: Option<String>) -> ClientEvent {
         ClientEvent::Done {
-            signature_id: signature.id().to_string(),
+            signature_id: signature_id.into(),
             message,
         }
     }

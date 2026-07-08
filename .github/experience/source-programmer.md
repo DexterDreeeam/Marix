@@ -33,5 +33,157 @@
 
 ## 2026-07-08 — protocol/plan re-export duality
 - src/protocol/ has TWO parallel module roots that must stay in sync for every plan-level symbol: lib.rs and mod.rs. Both carry an identical pub use plan::{...} line. Any add/remove of a plan re-export must edit both.
-- PlanEvent (src/protocol/plan/event.rs) is Trigger(PlanDraft), Complete, Fail — Complete/Fail are unit variants (no payload). Its matching consumer is PlanHub::route_event in src/server/plan/hub.rs, where Complete/Fail arms are panic!("not implemented") stubs.
+- PlanEvent (src/protocol/plan/event.rs) is Trigger(PlanDraft), Complete, Fail — Complete/Fail are unit variants (no payload). Trigger is routed by the task worker into `PlanHub::run_plan`; existing Plan objects log unsupported Complete/Fail in `Plan::route_event`.
 - Plan submodules live under src/protocol/plan/{answer,draft,event,id,signature}.rs, each re-exported via plan/mod.rs.
+
+## 2026-07-08 — task event routing ownership
+- `src/server/task/task.rs` now routes Step/Execution/Relay/Plan events by finding the concrete stored object and then calling that object's `route_event`; hub-level `route_event` dispatchers are intentionally absent.
+- Step lookup must check both `TaskState.steps.with(&StepId, ...)` and `PlanHub::step(&StepSignature)`: run steps live only inside `Plan.run_steps` before `StepEvent::Trigger`, then in the WorkQueue after running.
+- `ExecutionHub`/`RelayHub` are storage helpers with `with_mut` accessors; object behavior lives in `Execution::route_event` and `Relay::route_event`. Unsupported or missing routes should log via `Logger::error`/`warning` without payload content.
+- `PlanEvent::Trigger` is the special plan-creation entry through `PlanHub::run_plan`; existing Plan objects handle later object events themselves and currently log unsupported Complete/Fail.
+
+## 2026-07-08 — invocation protocol design split
+- Protocol now distinguishes server-side `Invocation*` from host-side `Execution*`: `src/protocol/invocation/` owns `InvocationId`, signature/request/status/event, while `src/protocol/execution/` owns host `ExecutionId`, `ExecutionSignature`, `ExecutionStatus`, and `ExecutionEvent::Cancel`; host execution creation has no draft payload.
+- Public event shapes are hierarchical definitions only: `SessionEvent` carries task create/update and nested task events, `TaskEvent` carries plan create/update/cancel, and `StepEvent` carries invocation/relay create/update/cancel. The old implementation routers still need an implement pass to target that hierarchy.
+- Server subjects moved to top-level modules: `src/server/invocation/` exports `Invocation`/`InvocationHub`, and `src/server/relay/` exports `Relay`/`RelayHub`; `src/server/step/mod.rs` only re-exports those top-level subjects for compatibility.
+- Host runtime type is now `host::executor::execution::Execution` (not `ExecutionRuntime`) and takes a `Tool` plus server sender; its event loop is intentionally a `panic!("not implemented")` design stub until host execution routing is implemented.
+
+## 2026-07-08 — host execution draft removal
+- Host execution no longer exposes a draft payload/type: `src/protocol/execution/draft.rs` is absent, `src/protocol/execution/mod.rs` exports only event/id/signature/status, and `InvocationEvent::ExecutionCreate` is payloadless.
+- Host runtime state is now `src/host/executor/execution/state.rs`; the public `ExecutionState` name is unchanged and carries only the tool plus server sender in this design layer.
+- `PlanStatus` has both `Success` and `Fail`; `PlanEvent` carries `PlanUpdate(PlanStatus)` independently from `TaskEvent::PlanUpdate`. `SessionEvent` has no top-level cancel variant.
+
+## 2026-07-08 — host execution dispatch implementation
+- Superseded by the correction below: `dispatch` is receiver-side handling and must not enqueue on `execution_tx`.
+- Host `Executor::dispatch` is only a thin extractor for the current `SessionEvent -> TaskEvent -> PlanEvent -> StepEvent -> InvocationEvent::Execution` path. `ExecutionCreate`/`ExecutionUpdate` remain logged as incomplete because the current protocol has no host execution create payload/signature path and no complete status/output route back to the server.
+
+## 2026-07-08 — host execution dispatch correction (supersedes above)
+- `src/host/executor/execution/execution.rs` uses `Execution::sender()` as the only external entry to enqueue `ExecutionEvent`s. Private `Execution::dispatch(&ExecutionState, ExecutionEvent)` is receiver-side handling called by `event_loop` after `execution_rx.recv()`; it must not send on `execution_tx`.
+- `src/host/executor/executor.rs` forwards nested `InvocationEvent::Execution` payloads with `execution.sender().send(event)` and logs send/forward failures separately from object dispatch failures.
+
+## 2026-07-08 — executor protocol envelope design
+- Protocol now has `src/protocol/executor/` for host-executor envelope events:
+  `ExecutorEvent::{Execution, ExecutionCreate, ExecutionUpdate, ExecutionCancel}`.
+  The create payload is `ExecutionRequest`, currently a public type alias to
+  `InvocationRequest` in `src/protocol/execution/request.rs`.
+- Keep `ExecutionRequest` and `ExecutorEvent` exported from both parallel
+  protocol roots (`src/protocol/lib.rs` and `src/protocol/mod.rs`).
+- `ExecutionStatus` is intentionally `Started`, `Processing(String)`,
+  `Canceled`, `Killed`, `Succeed(usize)`, and payloadless `Failed`;
+  do not restore `Running` or `Failed { reason }` for host execution status.
+
+## 2026-07-08 — InvocationEvent execution payload
+- `InvocationEvent::Execution` now carries only `ExecutionEvent` (no `ExecutionSignature`). The host executor cannot recover an `ExecutionId` from the surrounding `InvocationSignature`, so it records a routing warning instead of inventing an invocation-to-execution id mapping; `ExecutorEvent::Execution` remains the signed host-executor envelope.
+
+## 2026-07-08 — protocol signature hierarchy
+- `src/protocol/plan/signature.rs` is intentionally non-recursive: `PlanSignature` is `{ task, id, name }` only. `StepSignature` adds `{ task, plan, id, name }`, and `InvocationSignature`/`RelaySignature` add `{ task, plan, step, *_id, name }`.
+- `StepSignature` no longer carries `description` or `kind`; server runtime `Step` keeps the draft `description`/`kind` separately for legacy routing/stringification while protocol signatures remain identity-only.
+
+## 2026-07-08 — invocation/execution status protocol shape
+- `InvocationStatus` and `ExecutionStatus` now share the same public variants:
+  `Created`, `Started`, `Processing { seq, content }`, `Canceled`,
+  `Killed`, `Succeed { seq_count }`, and payloadless `Failed`. Do not restore
+  `Running`, tuple `Processing(String)`, tuple `Succeed(usize)`, or
+  `Failed { reason }` in either protocol status.
+- `ExecutionRequest` is a concrete protocol struct
+  `{ signature: ExecutionSignature, input: ToolInputSchema }`, not an alias to
+  `InvocationRequest`. `InvocationEvent::Execution` remains unsigned
+  (`Execution(ExecutionEvent)`); use `ExecutorEvent::Execution` for the signed
+  host-executor envelope.
+- 2026-07-08: `ExecutorEvent::ExecutionUpdate` is now signed as
+  `ExecutionUpdate(ExecutionSignature, ExecutionStatus)`, while
+  `InvocationEvent::ExecutionUpdate` remains status-only. Keep executor and
+  invocation envelopes distinct when updating direct matches/constructors.
+
+## 2026-07-08 — signature key API
+- `src/protocol/signature.rs` owns the shared `SignatureKey` UUID wrapper for
+  WorkQueue-friendly signature keys. It derives `Ord`, `Hash`, and serde via
+  `use crate::external::*`, and `Signature::key()` defaults to
+  `SignatureKey(self.id())`, so concrete signature impls only need `id()`.
+- Keep `SignatureKey` re-exported next to `Signature` from both protocol roots:
+  `src/protocol/lib.rs` and the mirrored `src/protocol/mod.rs`.
+
+## 2026-07-09 — host executor event boundary
+- Host `Executor::dispatch` is an `ExecutorEvent` boundary only. `HostSession`
+  must unwrap `SessionEvent::Executor(event)` before dispatching; other
+  session events are unsupported on the host side and should be logged.
+- Host execution status is a two-hop path: `Execution` sends
+  `ExecutorEvent::ExecutionUpdate(signature, status)` on the private executor
+  channel, and the executor worker wraps it back into
+  `SessionEvent::Task(...Plan(...Step(...Invocation(...ExecutionUpdate))))`
+  before sending to the server.
+- 2026-07-09: `src/host/session.rs` no longer calls
+  `Executor::dispatch` directly; it enqueues `SessionEvent::Executor(event)`
+  through `executor.sender().send(event)` and warns if the worker channel is
+  closed. `src/host/executor/executor.rs` keeps `executor_tx` on public
+  `Executor`, shares registry/executions through private `ExecutorState`, and
+  the worker calls private `dispatch`; `ExecutionUpdate` forwarding is inlined
+  in that dispatch branch. Execution event route logs snapshot names with
+  `format!("{event:?}")` rather than a helper.
+- 2026-07-09: `src/host/session.rs` keeps its private host event loop helper
+  named `worker` (not `run_worker`) to match the `HostSession.worker` field,
+  and unsupported host-side `SessionEvent`s are warning-logged with direct
+  Debug formatting (`{event:?}`); do not reintroduce a `session_event_name`
+  helper for those warnings.
+- 2026-07-09: `ExecutorEvent` now has only `Execution`,
+  `ExecutionCreate`, and signed `ExecutionUpdate`; the unused envelope-level
+  `ExecutionCancel` variant and host executor unsupported-cancel dispatch arm
+  were removed. Use `ExecutionEvent::Cancel` for per-execution cancellation.
+- 2026-07-09: Host executor shared state lives in
+  `src/host/executor/state.rs` as sibling-private `ExecutorState`; it owns the
+  `ToolRegistry`, `WorkQueue<ExecutionSignature, Execution>`, and private
+  executor sender. `src/host/executor/mod.rs` declares `mod state;` without a
+  public re-export, and `executor.rs` imports `super::state::ExecutorState` so
+  worker/dispatch behavior stays local to the executor module.
+
+
+## 2026-07-09 — server event-chain workers
+- `src/server/session/session.rs` treats client/host network receives as enqueue-only: both connection workers send `SessionEvent` into the session worker channel, and private `dispatch` either creates a task, forwards `SessionEvent::Task(..)` to `Task::sender()`, forwards `TaskUpdate` to the client, or sends `SessionEvent::Executor(..)` to the host channel.
+- `src/server/task/task.rs`, `src/server/plan/plan.rs`, `src/server/step/step.rs`, `src/server/invocation/invocation.rs`, and `src/server/relay/relay.rs` each own an mpsc worker loop plus `sender()`; callers send protocol events to the child sender and never call child dispatch directly.
+- Upward server status now uses the task worker channel: invocation/relay workers wrap status as `TaskEvent::Plan(PlanEvent::Step(StepEvent::*Update))`, step/model code emits `TaskEvent::PlanCreate` or `SessionEvent::TaskUpdate`, plan workers emit `TaskEvent::PlanUpdate`, and the task worker is the only layer that forwards `TaskUpdate` to the session worker.
+- Server invocation bridges to host execution with `SessionEvent::Executor(ExecutorEvent::ExecutionCreate(..))`; host `ExecutionUpdate` returns through the nested Task/Plan/Step/Invocation event path before invocation maps it to `InvocationStatus` and emits a step update.
+- `src/protocol/relay/status.rs` mirrors `InvocationStatus` (`Created`, `Started`, `Processing`, `Canceled`, `Killed`, `Succeed { seq_count }`, `Failed`) so relay and invocation updates have the same status shape.
+
+- 2026-07-09: In `src/server/session/session.rs`, private receive-loop helpers are named `client_worker`/`host_worker`, and the session worker spawner is `task_worker` (not `spawn_task_worker`). Client/host receive loops inline `state.task_tx.send(message.event)` with the existing enqueue warning; task routing uses `dispatch_task`.
+- 2026-07-09: Remaining source cleanup keeps runtime worker bodies named
+  `worker` (not `run_worker`) in client telemetry/server task-plan-step
+  workers, and nested event forwarders named `dispatch_task` /
+  `dispatch_plan` / `dispatch_step` / `dispatch_invocation` /
+  `dispatch_relay`. Event logs in task/plan/step routing use
+  `format!("{event:?}")`; do not reintroduce `*_event_name` helpers there.
+- 2026-07-09: `src/server/task/task.rs` intentionally has no
+  `plan_error_name` helper. `PlanError` diagnostics in plan creation/insertion
+  use direct Debug formatting (`{error:?}`); remaining `*_name` helpers under
+  `src/` are behavior/path helpers (`parse_model_step_name`,
+  `input_model_name`, `database_file_name`), not log stringifiers.
+
+## 2026-07-09 — typed dispatch stop reasons
+- `src/server/task/task.rs`, `src/server/plan/plan.rs`, `src/server/step/step.rs`, `src/server/invocation/invocation.rs`, `src/server/relay/relay.rs`, and `src/host/executor/execution/execution.rs` now use private `*DispatchError` enums behind `Result<(), _>` dispatch methods; worker loops log `{error:?}` before breaking on cancel/terminal statuses while unsupported task-level events still warn and continue.
+- `src/server/step/step.rs` maps terminal `InvocationStatus` and `RelayStatus` values directly to `StepDispatchError` variants; the old private `is_terminal_invocation` / `is_terminal_relay` bool helpers in `src/server/step/child.rs` were removed to keep step worker exit reasons typed.
+
+## 2026-07-09 — protocol error relocation
+- Public protocol stop/error enums now live in
+  `src/protocol/{task,plan,step,invocation,relay,execution}/error.rs`,
+  derive serde through `use crate::external::*`, and are re-exported from each
+  leaf module plus both protocol roots (`lib.rs` and the mirrored `mod.rs`).
+- The private server/host `*DispatchError` enums were removed; worker dispatch
+  methods use `TaskError`, `PlanError`, `StepError`, `InvocationError`,
+  `RelayError`, or `ExecutionError` from `marix_protocol`. The old
+  `src/server/plan/error.rs` is gone; plan hub/build/step draft validation use
+  `marix_protocol::PlanError`.
+
+## 2026-07-09 — status cleanup
+- Protocol statuses no longer have any `Killed` variants; keep stop handling on
+  `Canceled`. This also removes the matching protocol errors
+  `ExecutionKilled`, `InvocationKilled`, and `RelayKilled`; server routing now
+  treats only canceled/succeed/failed as terminal child outcomes.
+- `TaskStatus` is now `Created`, `Started`, `Canceled`, `Succeed`, `Failed`.
+  There is no task-level streaming/update status. Model/invocation/relay
+  processing chunks stay in the lower-level event chain/logs until a terminal
+  task status is produced.
+
+## 2026-07-09 — plan step updates
+- `PlanEvent` no longer carries `PlanUpdate(PlanStatus)`. Step outcomes flow
+  through `PlanEvent::StepUpdate(StepStatus)`, where `StepStatus` mirrors the
+  invocation/relay lifecycle shape without `Killed`. The plan worker converts
+  terminal step status to `TaskEvent::PlanUpdate(PlanStatus::{Success, Fail})`.

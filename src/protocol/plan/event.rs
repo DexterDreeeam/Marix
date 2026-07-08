@@ -1,9 +1,11 @@
-use crate::PlanDraft;
 use crate::external::*;
+
+use crate::{StepDraft, StepEvent, StepSignature, StepStatus};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PlanEvent {
-    Trigger(PlanDraft),
-    Complete,
-    Fail,
+    Step(StepSignature, StepEvent),
+    StepCreate(StepDraft),
+    StepUpdate(StepStatus),
+    Cancel,
 }

@@ -1,22 +1,22 @@
 use crate::external::*;
 
-use crate::{Signature, StepId, StepKind, TaskSignature};
+use crate::{PlanSignature, Signature, StepId, TaskSignature};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct StepSignature {
     pub task: TaskSignature,
+    pub plan: PlanSignature,
     pub id: StepId,
-    pub description: String,
-    pub kind: StepKind,
+    pub name: String,
 }
 
 impl StepSignature {
-    pub fn new(task: TaskSignature, description: String, kind: StepKind) -> Self {
+    pub fn new(task: TaskSignature, plan: PlanSignature, name: String) -> Self {
         Self {
             task,
+            plan,
             id: StepId::new(),
-            description,
-            kind,
+            name,
         }
     }
 }

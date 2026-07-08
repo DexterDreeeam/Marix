@@ -3,10 +3,12 @@
   "module": {
     "path": "src/protocol/session",
     "name": "session",
-    "purpose": "Owns the SessionEvent protocol enum that carries task, step, execution, relay, and plan events; mod.rs is namespace/re-export wiring only.",
+    "purpose": "Owns the SessionEvent protocol enum for top-level task creation, task updates, and nested task events.",
     "changeStatus": "modified"
   },
-  "modified": ["event.rs"],
+  "modified": [
+    "event.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -17,16 +19,16 @@
       "codeSegments": [
         {
           "sourcePath": "src/protocol/session/event.rs",
-          "lineStart": 7,
-          "lineEnd": 14,
+          "lineStart": 5,
+          "lineEnd": 11,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 12
+              "lineStart": 5,
+              "lineEnd": 10
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     }

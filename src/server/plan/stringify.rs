@@ -1,5 +1,6 @@
 use crate::plan::PlanRecord;
-use marix_protocol::{ExecutionStepKind, ModelStepKind, StepKind, StepSignature, UserStepKind};
+use crate::step::Step;
+use marix_protocol::{InvocationStepKind, ModelStepKind, StepKind, UserStepKind};
 
 /// Read-only helper that renders a snapshot of plan records into prompt text.
 pub struct PlanStringify {
@@ -23,7 +24,7 @@ impl PlanStringify {
         self.records
             .iter()
             .flat_map(|record| record.plan.pending_steps.iter())
-            .map(|step| step.signature.description.clone())
+            .map(|step| step.description.clone())
             .collect::<Vec<_>>()
             .join("\n")
     }
@@ -43,30 +44,18 @@ impl PlanStringify {
             format!("description: {}", record.plan.description),
             "run_steps:".to_owned(),
         ];
-        lines.extend(
-            record
-                .plan
-                .run_steps
-                .iter()
-                .map(|step| Self::step_text(&step.signature)),
-        );
+        lines.extend(record.plan.run_steps.iter().map(Self::step_text));
         lines.push("pending_steps:".to_owned());
-        lines.extend(
-            record
-                .plan
-                .pending_steps
-                .iter()
-                .map(|step| Self::step_text(&step.signature)),
-        );
+        lines.extend(record.plan.pending_steps.iter().map(Self::step_text));
         lines.push(format!("expected_result: {}", record.plan.expected_result));
         lines.join("\n")
     }
 
-    fn step_text(signature: &StepSignature) -> String {
-        let text = Self::step_fields(signature);
+    fn step_text(step: &Step) -> String {
+        let text = Self::step_fields(step);
         let mut fields = format!(
             "- name: {}\n  kind: {}\n  description: {}",
-            text.name, text.kind, signature.description
+            text.name, text.kind, step.description
         );
         if let Some(input) = text.input {
             fields.push_str(&format!("\n  input: {input}"));
@@ -74,19 +63,19 @@ impl PlanStringify {
         fields
     }
 
-    fn step_fields(signature: &StepSignature) -> StepText {
-        match &signature.kind {
-            StepKind::Execution(ExecutionStepKind::Invocation(request)) => StepText {
+    fn step_fields(step: &Step) -> StepText {
+        match &step.kind {
+            StepKind::Invocation(InvocationStepKind::Invocation(request)) => StepText {
                 name: request.signature.name.clone(),
                 kind: "tool",
                 input: Some(request.input.content.clone()),
             },
-            StepKind::Execution(ExecutionStepKind::Cancel) => StepText {
+            StepKind::Invocation(InvocationStepKind::Cancel) => StepText {
                 name: "cancel".to_owned(),
                 kind: "tool",
                 input: Some(String::new()),
             },
-            StepKind::Execution(ExecutionStepKind::Kill) => StepText {
+            StepKind::Invocation(InvocationStepKind::Kill) => StepText {
                 name: "kill".to_owned(),
                 kind: "tool",
                 input: Some(String::new()),

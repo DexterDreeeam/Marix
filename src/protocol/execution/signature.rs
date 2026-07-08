@@ -1,19 +1,19 @@
 use crate::external::*;
 
-use crate::{ExeId, Signature, TaskSignature};
+use crate::{ExecutionId, InvocationSignature, Signature};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct ExecutionSignature {
-    pub task: TaskSignature,
-    pub exe_id: ExeId,
+    pub invocation: InvocationSignature,
+    pub execution_id: ExecutionId,
     pub name: String,
 }
 
 impl ExecutionSignature {
-    pub fn new(task: TaskSignature, name: String) -> Self {
+    pub fn new(invocation: InvocationSignature, name: String) -> Self {
         Self {
-            task,
-            exe_id: ExeId::new(),
+            invocation,
+            execution_id: ExecutionId::new(),
             name,
         }
     }
@@ -21,6 +21,6 @@ impl ExecutionSignature {
 
 impl Signature for ExecutionSignature {
     fn id(&self) -> uuid::Uuid {
-        self.exe_id.0
+        self.execution_id.0
     }
 }

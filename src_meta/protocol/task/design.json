@@ -3,11 +3,62 @@
   "module": {
     "path": "src/protocol/task",
     "name": "task",
-    "purpose": "Owns task protocol contracts: TaskId allocation, TaskEvent notifications, TaskRequestBrief input, TaskPreview request/result snapshots without embedded signatures, TaskResult output, TaskSignature construction that derives ordering and hashing so it can key execution and plan maps and implements the shared Signature trait by exposing its task UUID, and TaskStatus lifecycle states.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns task protocol contracts including task identity/signatures, task requests, previews/results, task status, task errors, and task events that nest plan events.",
+    "changeStatus": "modified"
   },
+  "added": [
+    "error.rs",
+    "request.rs"
+  ],
+  "modified": [
+    "event.rs",
+    "mod.rs",
+    "status.rs"
+  ],
   "childModules": [],
   "elements": [
+    {
+      "name": "TaskError",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/task/error.rs",
+          "lineStart": 3,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 9
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "TaskEvent",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/task/event.rs",
+          "lineStart": 5,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 5
+            }
+          ]
+        }
+      ]
+    },
     {
       "name": "TaskId",
       "type": "struct",
@@ -16,7 +67,7 @@
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/id.rs",
-          "lineStart": 4,
+          "lineStart": 3,
           "lineEnd": 4,
           "language": "rust",
           "addedLines": [],
@@ -33,23 +84,39 @@
       ]
     },
     {
-      "name": "TaskEvent",
-      "type": "enum",
+      "name": "TaskPreview",
+      "type": "struct",
       "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
-          "sourcePath": "src/protocol/task/event.rs",
-          "lineStart": 5,
-          "lineEnd": 12,
+          "sourcePath": "src/protocol/task/preview.rs",
+          "lineStart": 4,
+          "lineEnd": 8,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "TaskRequest",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/task/request.rs",
+          "lineStart": 3,
+          "lineEnd": 6,
+          "language": "rust",
+          "addedLines": [
             {
-              "lineStart": 5,
-              "lineEnd": 10
+              "lineStart": 3,
+              "lineEnd": 6
             }
-          ]
+          ],
+          "modifiedLines": []
         }
       ]
     },
@@ -61,32 +128,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/request_brief.rs",
-          "lineStart": 4,
+          "lineStart": 3,
           "lineEnd": 6,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "TaskPreview",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/task/preview.rs",
-          "lineStart": 5,
-          "lineEnd": 8,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 5,
-              "lineEnd": 7
-            }
-          ]
         }
       ]
     },
@@ -98,7 +144,7 @@
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/result.rs",
-          "lineStart": 4,
+          "lineStart": 3,
           "lineEnd": 6,
           "language": "rust",
           "addedLines": [],
@@ -118,12 +164,7 @@
           "lineEnd": 8,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 4,
-              "lineEnd": 4
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/task/signature.rs",
@@ -147,18 +188,18 @@
       "name": "TaskStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/status.rs",
-          "lineStart": 5,
+          "lineStart": 4,
           "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 5,
-              "lineEnd": 9
+              "lineStart": 4,
+              "lineEnd": 4
             }
           ]
         }

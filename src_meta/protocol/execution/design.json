@@ -3,31 +3,42 @@
   "module": {
     "path": "src/protocol/execution",
     "name": "execution",
-    "purpose": "Owns execution protocol contracts: ExeId allocation, ExecutionEvent notifications, ExecutionUpdate payloads carrying a 0-based seq and content, ExecutionRequest with signature and typed input, ExecutionSignature construction keyed by a task TaskSignature with map-friendly ordering/hash traits for keying execution maps, and ExecutionStatus lifecycle states whose Succeed variant carries the expected update count.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns host execution protocol contracts: execution requests, ids, signatures, statuses, errors, and cancellation events.",
+    "changeStatus": "modified"
   },
+  "added": [
+    "error.rs"
+  ],
+  "modified": [
+    "event.rs",
+    "id.rs",
+    "mod.rs",
+    "request.rs",
+    "signature.rs",
+    "status.rs"
+  ],
+  "deleted": [
+    "draft.rs"
+  ],
   "childModules": [],
   "elements": [
     {
-      "name": "ExeId",
-      "type": "struct",
+      "name": "ExecutionError",
+      "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/protocol/execution/id.rs",
-          "lineStart": 4,
-          "lineEnd": 4,
+          "sourcePath": "src/protocol/execution/error.rs",
+          "lineStart": 3,
+          "lineEnd": 6,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/protocol/execution/id.rs",
-          "lineStart": 6,
-          "lineEnd": 10,
-          "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 6
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -36,41 +47,54 @@
       "name": "ExecutionEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/event.rs",
-          "lineStart": 7,
-          "lineEnd": 20,
+          "lineStart": 3,
+          "lineEnd": 6,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 10,
-              "lineEnd": 13
+              "lineStart": 3,
+              "lineEnd": 3
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
     {
-      "name": "ExecutionUpdate",
+      "name": "ExecutionId",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
-          "sourcePath": "src/protocol/execution/event.rs",
-          "lineStart": 22,
-          "lineEnd": 26,
+          "sourcePath": "src/protocol/execution/id.rs",
+          "lineStart": 3,
+          "lineEnd": 4,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 24,
-              "lineEnd": 24
+              "lineStart": 3,
+              "lineEnd": 3
             }
-          ],
-          "modifiedLines": []
+          ]
+        },
+        {
+          "sourcePath": "src/protocol/execution/id.rs",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 6
+            }
+          ]
         }
       ]
     },
@@ -78,14 +102,19 @@
       "name": "ExecutionRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/request.rs",
           "lineStart": 5,
-          "lineEnd": 8,
+          "lineEnd": 9,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 9
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -94,18 +123,18 @@
       "name": "ExecutionSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/signature.rs",
-          "lineStart": 6,
+          "lineStart": 5,
           "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 7,
-              "lineEnd": 7
+              "lineStart": 5,
+              "lineEnd": 5
             }
           ]
         },
@@ -117,12 +146,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 13,
-              "lineEnd": 13
-            },
-            {
-              "lineStart": 15,
-              "lineEnd": 15
+              "lineStart": 12,
+              "lineEnd": 12
             }
           ]
         },
@@ -132,7 +157,12 @@
           "lineEnd": 26,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 22
+            }
+          ]
         }
       ]
     },
@@ -140,18 +170,18 @@
       "name": "ExecutionStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/status.rs",
-          "lineStart": 4,
+          "lineStart": 3,
           "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 9,
-              "lineEnd": 9
+              "lineStart": 3,
+              "lineEnd": 3
             }
           ]
         }

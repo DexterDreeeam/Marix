@@ -3,67 +3,147 @@
   "module": {
     "path": "src/host/executor",
     "name": "executor",
-    "purpose": "Owns host-side tool registry, tool process launching, and execution orchestration. Executor sends preview responses through send_preview_event, reports unknown-tool failures through send_failed_event, and includes System::new host metadata with current ToolPreview entries for the server session.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns host-side tool registry, tool previews, Executor session-event dispatch, and execution runtime worker storage/routing diagnostics.",
+    "changeStatus": "modified"
   },
+  "added": [
+    "state.rs"
+  ],
+  "modified": [
+    "executor.rs",
+    "mod.rs"
+  ],
   "childModules": [
     {
       "path": "src/host/executor/execution",
       "name": "execution",
-      "purpose": "Per-execution host runtime split out of executor.rs: ExecutionRuntime drives one server Execution, spawning a worker in new that reads raw tool input from parameters.input.content on the typed ExecutionRequest, runs tool.execute, and sends a seq-stamped ExecutionUpdate plus a terminal ExecutionStatus::Succeed carrying the expected update count while handling Cancel/Kill control events; ExecutionState holds the host-local Tool handle, ExecutionRequest, and server SessionMessage sender."
+      "purpose": "Owns host execution runtime state and receiver-side ExecutionEvent handling for cancellation."
     }
   ],
   "elements": [
     {
-      "name": "Executor",
+      "name": "Execution",
       "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
+      "source_depth": 4,
+      "changeStatus": "modified",
       "codeSegments": [
         {
-          "sourcePath": "src/host/executor/executor.rs",
-          "lineStart": 10,
-          "lineEnd": 14,
+          "sourcePath": "src/host/executor/execution/execution.rs",
+          "lineStart": 12,
+          "lineEnd": 15,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 13,
-              "lineEnd": 13
+              "lineStart": 10,
+              "lineEnd": 12
             }
           ]
         },
         {
-          "sourcePath": "src/host/executor/executor.rs",
-          "lineStart": 16,
-          "lineEnd": 39,
+          "sourcePath": "src/host/executor/execution/execution.rs",
+          "lineStart": 17,
+          "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 17,
-              "lineEnd": 21
+              "lineEnd": 17
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/executor/execution/execution.rs",
+          "lineStart": 38,
+          "lineEnd": 88,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 37,
+              "lineEnd": 40
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ExecutionState",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/executor/execution/state.rs",
+          "lineStart": 5,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 9
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/host/executor/execution/state.rs",
+          "lineStart": 11,
+          "lineEnd": 19,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 19
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Executor",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/executor/executor.rs",
+          "lineStart": 14,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 14
             }
           ]
         },
         {
           "sourcePath": "src/host/executor/executor.rs",
-          "lineStart": 43,
-          "lineEnd": 105,
+          "lineStart": 20,
+          "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 62,
-              "lineEnd": 62
-            },
+              "lineStart": 28,
+              "lineEnd": 28
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/executor/executor.rs",
+          "lineStart": 47,
+          "lineEnd": 153,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 77,
-              "lineEnd": 77
-            },
-            {
-              "lineStart": 91,
-              "lineEnd": 91
+              "lineStart": 120,
+              "lineEnd": 126
             }
           ]
         }
@@ -77,7 +157,7 @@
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/registry.rs",
-          "lineStart": 6,
+          "lineStart": 5,
           "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
@@ -93,7 +173,7 @@
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/registry.rs",
-          "lineStart": 16,
+          "lineStart": 11,
           "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
@@ -104,14 +184,39 @@
           "lineStart": 20,
           "lineEnd": 75,
           "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ExecutorState",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/executor/state.rs",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "language": "rust",
           "addedLines": [
             {
-              "lineStart": 28,
-              "lineEnd": 31
-            },
+              "lineStart": 6,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/host/executor/state.rs",
+          "lineStart": 12,
+          "lineEnd": 20,
+          "language": "rust",
+          "addedLines": [
             {
-              "lineStart": 44,
-              "lineEnd": 48
+              "lineStart": 12,
+              "lineEnd": 20
             }
           ],
           "modifiedLines": []
@@ -126,7 +231,7 @@
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/tool.rs",
-          "lineStart": 7,
+          "lineStart": 6,
           "lineEnd": 10,
           "language": "rust",
           "addedLines": [],

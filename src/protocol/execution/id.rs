@@ -1,9 +1,9 @@
 use crate::external::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-pub struct ExeId(pub uuid::Uuid);
+pub struct ExecutionId(pub uuid::Uuid);
 
-impl ExeId {
+impl ExecutionId {
     pub fn new() -> Self {
         Self(uuid::Uuid::new_v4())
     }

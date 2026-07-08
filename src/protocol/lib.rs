@@ -1,5 +1,7 @@
 pub mod execution;
+pub mod executor;
 pub mod external;
+pub mod invocation;
 pub mod message;
 pub mod plan;
 pub mod relay;
@@ -10,20 +12,25 @@ pub mod task;
 pub mod tool;
 
 pub use execution::{
-    ExeId, ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, ExecutionUpdate,
+    ExecutionError, ExecutionEvent, ExecutionId, ExecutionRequest, ExecutionSignature,
+    ExecutionStatus,
+};
+pub use executor::ExecutorEvent;
+pub use invocation::{
+    InvocationError, InvocationEvent, InvocationId, InvocationRequest, InvocationSignature,
+    InvocationStatus,
 };
 pub use message::SessionMessage;
-pub use plan::{Answer, PlanDraft, PlanEvent, PlanId, PlanSignature};
-pub use relay::{
-    RelayEvent, RelayId, RelayRequest, RelaySignature, RelayStatus, RelayUpdate,
-};
+pub use plan::{Answer, PlanDraft, PlanError, PlanEvent, PlanId, PlanSignature, PlanStatus};
+pub use relay::{RelayError, RelayEvent, RelayId, RelayRequest, RelaySignature, RelayStatus};
 pub use session::SessionEvent;
-pub use signature::Signature;
+pub use signature::{Signature, SignatureKey};
 pub use step::{
-    ExecutionStepKind, ModelStepKind, StepDraft, StepEvent, StepId, StepKind, StepPreview,
-    StepResult, StepSignature, UserStepKind,
+    InvocationStepKind, ModelStepKind, StepDraft, StepError, StepEvent, StepId, StepKind,
+    StepPreview, StepResult, StepSignature, StepStatus, UserStepKind,
 };
 pub use task::{
-    TaskEvent, TaskId, TaskPreview, TaskRequestBrief, TaskResult, TaskSignature, TaskStatus,
+    TaskError, TaskEvent, TaskId, TaskPreview, TaskRequest, TaskRequestBrief, TaskResult,
+    TaskSignature, TaskStatus,
 };
 pub use tool::{ToolInputSchema, ToolOutputSchema, ToolPreview, ToolSchema};

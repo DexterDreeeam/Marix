@@ -2,10 +2,10 @@ use crate::external::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ExecutionStatus {
+    Created,
     Started,
-    Running,
+    Processing { seq: usize, content: String },
     Canceled,
-    Killed,
-    Succeed(usize),
-    Failed { reason: String },
+    Succeed { seq_count: usize },
+    Failed,
 }

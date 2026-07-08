@@ -174,8 +174,7 @@ fn handshake_timeout_drops_connection() {
     std::thread::sleep(Duration::from_millis(400));
 
     // A raw TCP connection that never runs the remoc/token handshake.
-    let mut raw =
-        std::net::TcpStream::connect("127.0.0.1:34130").expect("raw tcp connect");
+    let mut raw = std::net::TcpStream::connect("127.0.0.1:34130").expect("raw tcp connect");
     raw.set_read_timeout(Some(Duration::from_secs(8)))
         .expect("set read timeout");
 
@@ -285,7 +284,9 @@ fn multiple_connections_same_endpoint() {
         recv_message(&mut b_server_rx, Duration::from_secs(5)).as_deref(),
         Some("b-ping"),
     );
-    b_server_tx.try_send("b-pong".to_owned()).expect("B send back");
+    b_server_tx
+        .try_send("b-pong".to_owned())
+        .expect("B send back");
     assert_eq!(
         recv_message(&mut b_client_rx, Duration::from_secs(5)).as_deref(),
         Some("b-pong"),
@@ -303,8 +304,7 @@ fn repeated_connect_disconnect_cycles() {
     install_config("stress-token", 34150);
 
     for iteration in 0..10 {
-        let accept =
-            std::thread::spawn(|| accept_channel::<String>(ChannelEndpoint::Client));
+        let accept = std::thread::spawn(|| accept_channel::<String>(ChannelEndpoint::Client));
         std::thread::sleep(Duration::from_millis(250));
         let (client_tx, client_rx) = connect_channel::<String>(ChannelEndpoint::Client)
             .unwrap_or_else(|error| panic!("connect on iteration {iteration}: {error:?}"));

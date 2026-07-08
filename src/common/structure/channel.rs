@@ -379,9 +379,7 @@ async fn connecter_handshake<T>(
             }
         }
         Ok(Some(Handshake::Reject)) => {
-            let _ = setup_tx.send(Err(ChannelError::Auth(
-                "channel token rejected".to_owned(),
-            )));
+            let _ = setup_tx.send(Err(ChannelError::Auth("channel token rejected".to_owned())));
             connection_task.abort();
         }
         Ok(Some(_)) => {

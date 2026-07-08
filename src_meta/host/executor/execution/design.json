@@ -3,48 +3,63 @@
   "module": {
     "path": "src/host/executor/execution",
     "name": "execution",
-    "purpose": "Owns execution runtime state and per-request ExecutionState. ExecutionRuntime holds an Arc<ExecutionState> and sends execution update and status events back to the server through send_update_event/send_status_event helpers; send_update_event stamps each update with a 0-based seq, and the single-update spawn path emits Update{seq:0} followed by Status(Succeed(1)) carrying the expected update count. Execution/session protocol contracts come from marix-protocol and common provides channels and shared senders.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns host execution runtime state and receiver-side ExecutionEvent handling for cancellation.",
+    "changeStatus": "modified"
   },
+  "added": [
+    "state.rs"
+  ],
+  "modified": [
+    "execution.rs",
+    "mod.rs"
+  ],
+  "deleted": [
+    "execution_state.rs"
+  ],
   "childModules": [],
   "elements": [
     {
-      "name": "ExecutionRuntime",
+      "name": "Execution",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
-          "lineStart": 14,
-          "lineEnd": 18,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/host/executor/execution/execution.rs",
-          "lineStart": 20,
-          "lineEnd": 42,
+          "lineStart": 12,
+          "lineEnd": 15,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 24,
-              "lineEnd": 27
+              "lineStart": 10,
+              "lineEnd": 12
             }
           ]
         },
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
-          "lineStart": 46,
-          "lineEnd": 110,
+          "lineStart": 17,
+          "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 102,
-              "lineEnd": 102
+              "lineStart": 17,
+              "lineEnd": 17
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/executor/execution/execution.rs",
+          "lineStart": 38,
+          "lineEnd": 88,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 37,
+              "lineEnd": 40
             }
           ]
         }
@@ -54,37 +69,33 @@
       "name": "ExecutionState",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/host/executor/execution/execution_state.rs",
+          "sourcePath": "src/host/executor/execution/state.rs",
           "lineStart": 5,
           "lineEnd": 9,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 8,
-              "lineEnd": 8
+              "lineStart": 5,
+              "lineEnd": 9
             }
-          ]
+          ],
+          "modifiedLines": []
         },
         {
-          "sourcePath": "src/host/executor/execution/execution_state.rs",
+          "sourcePath": "src/host/executor/execution/state.rs",
           "lineStart": 11,
-          "lineEnd": 23,
+          "lineEnd": 19,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 15,
-              "lineEnd": 15
-            },
-            {
-              "lineStart": 20,
-              "lineEnd": 20
+              "lineStart": 11,
+              "lineEnd": 19
             }
-          ]
+          ],
+          "modifiedLines": []
         }
       ]
     }

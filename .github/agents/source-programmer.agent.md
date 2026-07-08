@@ -11,6 +11,8 @@ This agent exclusively owns every source file under `src/`.
 
 Every file under `src/` — Rust sources (`.rs`), package manifests (`Cargo.toml`), the workspace `Cargo.lock`, prompt templates (`.prompt`), `.cargo/config.toml`, and any other file — must be created, modified, or deleted through this agent, and only this agent.
 
+Never edit files under `src_meta/`.
+
 ## Persistent Experience
 
 At the start of each task, read `.github/experience/source-programmer.md` if it exists. During the task, append durable, dated, source-backed lessons about the codebase: module ownership, tricky APIs, invariants, cross-crate wiring, and debugging findings that will help future source work. Keep notes concise.
@@ -47,5 +49,6 @@ At the start of each task, read `.github/experience/source-programmer.md` if it 
 ## Rules
 
 - Make precise, surgical changes that fully satisfy the request; do not perform unrelated refactors or broad structure-only rewrites unless the task asks for cleanup.
+- Do not edit `src_meta/` files or include them in turn manifests.
 - Only comment code that needs clarification; prefer self-explanatory names and structure.
 - Surface or propagate errors through existing patterns; do not swallow failures or add catch-all fallbacks that hide them.

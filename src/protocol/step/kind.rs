@@ -1,12 +1,12 @@
 use crate::external::*;
 
-use crate::ExecutionRequest;
+use crate::InvocationRequest;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum StepKind {
     Intent,
     Model(ModelStepKind),
-    Execution(ExecutionStepKind),
+    Invocation(InvocationStepKind),
     User(UserStepKind),
 }
 
@@ -17,8 +17,8 @@ pub enum ModelStepKind {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ExecutionStepKind {
-    Invocation(ExecutionRequest),
+pub enum InvocationStepKind {
+    Invocation(InvocationRequest),
     Cancel,
     Kill,
 }

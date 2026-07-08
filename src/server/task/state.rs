@@ -5,10 +5,12 @@ use std::sync::Mutex as StdMutex;
 use marix_common::{Sender, WorkQueue};
 use marix_protocol::{SessionEvent, StepId, TaskSignature};
 
+use crate::invocation::InvocationHub;
 use crate::model::ModelBackend;
 use crate::plan::PlanHub;
+use crate::relay::RelayHub;
 use crate::session::SessionContext;
-use crate::step::{ExecutionHub, RelayHub, Step};
+use crate::step::Step;
 
 pub struct TaskState {
     pub session_context: Arc<StdMutex<SessionContext>>,
@@ -18,7 +20,7 @@ pub struct TaskState {
     pub session_tx: Sender<SessionEvent>,
     pub task_tx: Sender<SessionEvent>,
     pub plan_hub: PlanHub,
-    pub execution_hub: ExecutionHub,
+    pub invocation_hub: InvocationHub,
     pub relay_hub: RelayHub,
     pub steps: WorkQueue<StepId, Step>,
 }
@@ -40,7 +42,7 @@ impl TaskState {
             session_tx,
             task_tx,
             plan_hub: PlanHub::new(),
-            execution_hub: ExecutionHub::new(),
+            invocation_hub: InvocationHub::new(),
             relay_hub: RelayHub::new(),
             steps: WorkQueue::new(),
         }

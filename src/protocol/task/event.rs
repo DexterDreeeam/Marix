@@ -1,12 +1,11 @@
-use crate::TaskStatus;
 use crate::external::*;
+
+use crate::{PlanDraft, PlanEvent, PlanSignature, PlanStatus};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TaskEvent {
-    Create { request: String },
-    CreateFailed { reason: String },
-    Query,
-    Preview { content: String },
+    Plan(PlanSignature, PlanEvent),
+    PlanCreate(PlanDraft),
+    PlanUpdate(PlanStatus),
     Cancel,
-    Status(TaskStatus),
 }

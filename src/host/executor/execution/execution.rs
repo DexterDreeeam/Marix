@@ -2,109 +2,87 @@ use std::sync::Arc;
 use std::thread::{self, JoinHandle};
 
 use crate::executor::Tool;
-use crate::session::HostSession;
-use marix_common::{Logger, Receiver, Sender, SharedNetSender, build_channel};
+use marix_common::{Logger, Receiver, Sender, build_channel};
 use marix_protocol::{
-    ExecutionEvent, ExecutionRequest, ExecutionStatus, ExecutionUpdate, SessionEvent,
-    SessionMessage,
+    ExecutionError, ExecutionEvent, ExecutionRequest, ExecutionStatus, ExecutorEvent,
 };
 
 use super::ExecutionState;
 
-pub struct ExecutionRuntime {
-    state: Arc<ExecutionState>,
-    execution_tx: Sender<SessionEvent>,
-    worker: JoinHandle<()>,
+pub struct Execution {
+    execution_tx: Sender<ExecutionEvent>,
+    _worker: JoinHandle<()>,
 }
 
-impl ExecutionRuntime {
-    pub fn new(
-        tool: Tool,
-        parameters: ExecutionRequest,
-        server_tx: SharedNetSender<SessionMessage>,
-    ) -> Self {
+impl Execution {
+    pub fn new(tool: Tool, request: ExecutionRequest, executor_tx: Sender<ExecutorEvent>) -> Self {
         let (execution_tx, execution_rx) = build_channel();
-        let state = Arc::new(ExecutionState::new(tool, parameters, server_tx));
+        let state = Arc::new(ExecutionState::new(tool, request, executor_tx));
         let worker = thread::spawn({
             let state = Arc::clone(&state);
-            move || Self::event_loop(state, execution_rx)
+            move || Self::worker(state, execution_rx)
         });
         Self {
-            state,
             execution_tx,
-            worker,
+            _worker: worker,
         }
     }
 
-    pub fn sender(&self) -> Sender<SessionEvent> {
+    pub fn sender(&self) -> Sender<ExecutionEvent> {
         self.execution_tx.clone()
     }
 }
 
 // -- Private -- //
 
-impl ExecutionRuntime {
-    fn event_loop(state: Arc<ExecutionState>, execution_rx: Receiver<SessionEvent>) {
-        Self::send_status_event(&state, ExecutionStatus::Started);
-        Self::spawn_execution(Arc::clone(&state));
+impl Execution {
+    fn worker(state: Arc<ExecutionState>, execution_rx: Receiver<ExecutionEvent>) {
+        Self::run(&state);
         while let Ok(event) = execution_rx.recv() {
-            match event {
-                SessionEvent::Execution(_, ExecutionEvent::Cancel) => {
-                    let _ = Logger::log("execution canceled");
-                    Self::send_status_event(&state, ExecutionStatus::Canceled);
-                    break;
-                }
-                SessionEvent::Execution(_, ExecutionEvent::Kill) => {
-                    let _ = Logger::log("execution killed");
-                    Self::send_status_event(&state, ExecutionStatus::Killed);
-                    break;
-                }
-                _ => {}
+            if let Err(error) = Self::dispatch(&state, event) {
+                let _ = Logger::debug(format!(
+                    "execution {} worker stopping: {error:?}",
+                    state.request.signature.execution_id.0
+                ));
+                break;
             }
         }
     }
 
-    fn spawn_execution(state: Arc<ExecutionState>) {
-        thread::spawn(move || {
-            let input = state.parameters.input.content.clone();
-            let _ = Logger::debug(format!(
-                "executing tool {}",
-                state.parameters.signature.name
-            ));
-            let output = state.tool.execute(&input);
-            Self::send_update_event(&state, 0, output);
-            Self::send_status_event(&state, ExecutionStatus::Succeed(1));
-        });
+    fn run(state: &ExecutionState) {
+        Self::send_status(state, ExecutionStatus::Started);
+        let content = state.tool.execute(&state.request.input.content);
+        Self::send_status(state, ExecutionStatus::Processing { seq: 0, content });
+        Self::send_status(state, ExecutionStatus::Succeed { seq_count: 1 });
     }
 
-    fn send_status_event(state: &ExecutionState, status: ExecutionStatus) {
-        Self::send_event(
-            state,
-            SessionEvent::Execution(
-                state.parameters.signature.clone(),
-                ExecutionEvent::Status(status),
-            ),
-        );
+    fn dispatch(state: &ExecutionState, event: ExecutionEvent) -> Result<(), ExecutionError> {
+        match event {
+            ExecutionEvent::Cancel => {
+                Self::on_cancel(state);
+                Err(ExecutionError::Canceled)
+            }
+        }
     }
 
-    fn send_update_event(state: &ExecutionState, seq: usize, content: String) {
-        Self::send_event(
-            state,
-            SessionEvent::Execution(
-                state.parameters.signature.clone(),
-                ExecutionEvent::Update(ExecutionUpdate { seq, content }),
-            ),
-        );
+    fn on_cancel(state: &ExecutionState) {
+        let _ = Logger::log(format!("execution canceled for tool {}", state.tool.name()));
+        Self::send_status(state, ExecutionStatus::Canceled);
     }
 
-    fn send_event(state: &ExecutionState, event: SessionEvent) {
-        if let Some(sender) = state
-            .server_tx
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .as_mut()
+    fn send_status(state: &ExecutionState, status: ExecutionStatus) {
+        if state
+            .executor_tx
+            .send(ExecutorEvent::ExecutionUpdate(
+                state.request.signature.clone(),
+                status,
+            ))
+            .is_err()
         {
-            let _ = sender.try_send(HostSession::package_message(event));
+            let _ = Logger::warning(format!(
+                "execution {} status update failed: executor worker stopped",
+                state.request.signature.execution_id.0
+            ));
         }
     }
 }

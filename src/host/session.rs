@@ -3,9 +3,7 @@ use std::sync::OnceLock;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
 
-use marix_common::{
-    ChannelEndpoint, Logger, NetReceiver, SharedNetSender, connect_channel,
-};
+use marix_common::{ChannelEndpoint, Logger, NetReceiver, SharedNetSender, connect_channel};
 use marix_protocol::{SessionEvent, SessionMessage};
 
 use crate::executor::Executor;
@@ -47,23 +45,22 @@ impl HostSession {
         std::thread::spawn(move || {
             let server_tx: SharedNetSender<SessionMessage> =
                 SharedNetSender::new(std::sync::Mutex::new(None));
-            let mut executor = Executor::new(Arc::clone(&server_tx));
+            let executor = Executor::new(Arc::clone(&server_tx));
             while !shutdown.load(Ordering::Relaxed) {
-                let Ok((net_tx, net_rx)) =
-                    connect_channel::<SessionMessage>(ChannelEndpoint::Host)
+                let Ok((net_tx, net_rx)) = connect_channel::<SessionMessage>(ChannelEndpoint::Host)
                 else {
                     continue;
                 };
                 let _ = Logger::log("host connected to server core");
                 *server_tx.lock().unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
-                Self::run_worker(net_rx, &mut executor, &shutdown);
+                Self::worker(net_rx, &executor, &shutdown);
             }
         })
     }
 
-    fn run_worker(
+    fn worker(
         mut server_rx: NetReceiver<SessionMessage>,
-        executor: &mut Executor,
+        executor: &Executor,
         shutdown: &AtomicBool,
     ) {
         let runtime = tokio::runtime::Builder::new_current_thread()
@@ -72,7 +69,21 @@ impl HostSession {
             .unwrap_or_else(|error| panic!("failed to build host event runtime: {error}"));
         runtime.block_on(async move {
             while let Ok(Some(message)) = server_rx.recv().await {
-                executor.route_session_event(message.event);
+                match message.event {
+                    SessionEvent::Executor(event) => {
+                        if executor.sender().send(event).is_err() {
+                            let _ = Logger::warning(
+                                "host session could not send executor event: \
+                                 executor worker stopped",
+                            );
+                        }
+                    }
+                    event => {
+                        let _ = Logger::warning(format!(
+                            "host session received unsupported session event {event:?}"
+                        ));
+                    }
+                }
                 if shutdown.load(Ordering::Relaxed) {
                     break;
                 }

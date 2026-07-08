@@ -1,5 +1,5 @@
-pub mod relay;
 pub mod hub;
+pub mod relay;
 
-pub use relay::Relay;
 pub use hub::RelayHub;
+pub use relay::Relay;

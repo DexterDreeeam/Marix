@@ -5,13 +5,15 @@ use crate::{PlanId, Signature, TaskSignature};
 pub struct PlanSignature {
     pub task: TaskSignature,
     pub id: PlanId,
+    pub name: String,
 }
 
 impl PlanSignature {
-    pub fn new(task: TaskSignature) -> Self {
+    pub fn new(task: TaskSignature, name: String) -> Self {
         Self {
             task,
             id: PlanId::new(),
+            name,
         }
     }
 }

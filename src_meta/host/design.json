@@ -3,74 +3,208 @@
   "module": {
     "path": "src/host",
     "name": "host",
-    "purpose": "Host crate namespace for HostSession and host-side tool execution. The executor sends preview replies with host System metadata and tool previews, sends unknown-tool failure events, and HostSession connects to the server over the host channel selected by ChannelEndpoint::Host while importing reusable protocol contracts from marix-protocol and channel helpers from common.",
-    "changeStatus": "unchanged"
+    "purpose": "Host crate namespace for HostSession and host-side executor dispatch/runtime exported through the executor module.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "lib.rs",
+    "session.rs"
+  ],
   "childModules": [
     {
       "path": "src/host/executor",
       "name": "executor",
-      "purpose": "Executor folder module owning tool preview and host-side tool execution; preview replies send System::new host metadata plus tool preview schema content, failed tool lookups send ExecutionStatus failures, and per-execution updates now carry a 0-based seq with success reporting the expected update count."
+      "purpose": "Owns host-side tool registry, tool previews, Executor session-event dispatch, and execution runtime worker storage/routing diagnostics."
     }
   ],
   "elements": [
     {
-      "name": "HostSession",
+      "name": "Executor",
       "type": "struct",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
+      "source_depth": 3,
+      "changeStatus": "modified",
       "codeSegments": [
         {
-          "sourcePath": "src/host/session.rs",
-          "lineStart": 15,
+          "sourcePath": "src/host/executor/executor.rs",
+          "lineStart": 14,
           "lineEnd": 18,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/host/session.rs",
-          "lineStart": 20,
-          "lineEnd": 41,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/host/session.rs",
-          "lineStart": 45,
-          "lineEnd": 82,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 53,
-              "lineEnd": 53
+              "lineStart": 14,
+              "lineEnd": 14
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/executor/executor.rs",
+          "lineStart": 20,
+          "lineEnd": 43,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 28,
+              "lineEnd": 28
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/executor/executor.rs",
+          "lineStart": 47,
+          "lineEnd": 153,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 120,
+              "lineEnd": 126
             }
           ]
         }
       ]
     },
     {
-      "name": "marix-host",
-      "type": "bin",
-      "source_depth": 2,
+      "name": "RegistryError",
+      "type": "enum",
+      "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
-          "sourcePath": "src/host/main.rs",
-          "lineStart": 4,
-          "lineEnd": 33,
+          "sourcePath": "src/host/executor/registry.rs",
+          "lineStart": 5,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolRegistry",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/executor/registry.rs",
+          "lineStart": 11,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/host/executor/registry.rs",
+          "lineStart": 20,
+          "lineEnd": 75,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ExecutorState",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/executor/state.rs",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/host/executor/state.rs",
+          "lineStart": 12,
+          "lineEnd": 20,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 20
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Tool",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/executor/tool.rs",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/host/executor/tool.rs",
+          "lineStart": 12,
+          "lineEnd": 54,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "HostSession",
+      "type": "struct",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/session.rs",
+          "lineStart": 13,
+          "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 12
-            },
+              "lineStart": 13,
+              "lineEnd": 13
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/session.rs",
+          "lineStart": 18,
+          "lineEnd": 39,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 25,
-              "lineEnd": 25
+              "lineStart": 18,
+              "lineEnd": 18
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/session.rs",
+          "lineStart": 43,
+          "lineEnd": 93,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 72,
+              "lineEnd": 72
             }
           ]
         }

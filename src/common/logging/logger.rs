@@ -8,9 +8,7 @@ use crate::config::Config;
 use crate::external::redb::{Database, ReadableTableMetadata, TableDefinition};
 use crate::external::serde_json;
 use crate::logging::{LogMessage, LogTag, LoggingError};
-use crate::structure::{
-    ChannelEndpoint, NetReceiver, NetSender, accept_channel, connect_channel,
-};
+use crate::structure::{ChannelEndpoint, NetReceiver, NetSender, accept_channel, connect_channel};
 
 const TELEMETRY_TABLE: TableDefinition<u64, &[u8]> = TableDefinition::new("telemetry");
 
@@ -261,7 +259,7 @@ fn accept_loop() {
     loop {
         match accept_channel::<LogMessage>(ChannelEndpoint::Telemetry) {
             Ok((_net_tx, net_rx)) => {
-                thread::spawn(move || run_worker(net_rx));
+                thread::spawn(move || worker(net_rx));
             }
             Err(_) => {
                 thread::sleep(Duration::from_millis(200));
@@ -272,7 +270,7 @@ fn accept_loop() {
 
 /// Records every telemetry message received on a single accepted connection,
 /// stamping arrival time and writing it to the local store.
-fn run_worker(mut net_rx: NetReceiver<LogMessage>) {
+fn worker(mut net_rx: NetReceiver<LogMessage>) {
     let runtime = match tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
