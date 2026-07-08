@@ -3,16 +3,17 @@
   "module": {
     "path": "src/server/task",
     "name": "task",
-    "purpose": "Owns server task runtime. Task drives the per-task worker thread: it sends the initial status, triggers the initial plan through Step, routes task and step events, forwards execution events to execution_hub.route_event, and routes plan events to plan_hub.route_event. TaskState holds the session context, task signature, user request, model backend, session event sender, PlanHub, ExecutionHub, and a StepId-keyed step WorkQueue, plus a manual Debug impl.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns server task runtime. Task drives the per-task worker thread: it sends the initial status, triggers the initial plan through Step, handles terminal Cancel and Status(Succeed) task events inline by emitting the final status and breaking, routes the remaining task events through an exhaustive no-op route_task_event, forwards step events to Step, execution events to execution_hub.route_event, relay events to relay_hub.route_event, and plan events to plan_hub.route_event. TaskState holds the session context, task signature, user request, model backend, a session event sender and a task event sender, PlanHub, ExecutionHub, RelayHub, and a StepId-keyed step WorkQueue, plus a manual Debug impl.",
+    "changeStatus": "modified"
   },
+  "modified": ["task.rs", "state.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/task.rs",
@@ -25,34 +26,35 @@
         {
           "sourcePath": "src/server/task/task.rs",
           "lineStart": 23,
-          "lineEnd": 63,
+          "lineEnd": 64,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 37,
+              "lineEnd": 37
+            }
+          ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/task/task.rs",
-          "lineStart": 67,
-          "lineEnd": 123,
+          "lineStart": 68,
+          "lineEnd": 129,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 78,
-              "lineEnd": 78
+              "lineStart": 83,
+              "lineEnd": 92
             },
             {
-              "lineStart": 107,
-              "lineEnd": 107
-            },
-            {
-              "lineStart": 112,
-              "lineEnd": 112
+              "lineStart": 102,
+              "lineEnd": 104
             }
           ],
           "modifiedLines": [
             {
-              "lineStart": 111,
-              "lineEnd": 111
+              "lineStart": 112,
+              "lineEnd": 123
             }
           ]
         }
@@ -62,38 +64,50 @@
       "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/state.rs",
-          "lineStart": 14,
-          "lineEnd": 23,
+          "lineStart": 13,
+          "lineEnd": 24,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
+            {
+              "lineStart": 19,
+              "lineEnd": 19
+            },
             {
               "lineStart": 22,
               "lineEnd": 22
             }
-          ]
+          ],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/task/state.rs",
-          "lineStart": 25,
-          "lineEnd": 44,
+          "lineStart": 26,
+          "lineEnd": 48,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
+            {
+              "lineStart": 33,
+              "lineEnd": 33
+            },
             {
               "lineStart": 41,
               "lineEnd": 41
+            },
+            {
+              "lineStart": 44,
+              "lineEnd": 44
             }
-          ]
+          ],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/task/state.rs",
-          "lineStart": 48,
-          "lineEnd": 55,
+          "lineStart": 52,
+          "lineEnd": 59,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

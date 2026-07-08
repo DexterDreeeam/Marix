@@ -27,6 +27,8 @@ impl PlanHub {
     ) {
         match event {
             PlanEvent::Trigger(plan) => self.run_plan(state, signature, plan),
+            PlanEvent::Complete => panic!("not implemented"),
+            PlanEvent::Fail => panic!("not implemented"),
         }
     }
 

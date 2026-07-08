@@ -8,8 +8,8 @@ use marix_protocol::{
     StepEvent, StepKind, StepResult,
 };
 
-use crate::execution::Execution;
 use crate::step::Step;
+use crate::step::execution::Execution;
 use crate::task::TaskState;
 
 pub struct ExecutionHub {
@@ -61,27 +61,26 @@ impl ExecutionHub {
         state: &Arc<TaskState>,
         signature: ExecutionSignature,
         event: ExecutionEvent,
-    ) -> bool {
+    ) {
         let completed = {
             let mut executions = self
                 .execution_map
                 .lock()
                 .unwrap_or_else(|error| error.into_inner());
             let Some(execution) = executions.get_mut(&signature) else {
-                return true;
+                return;
             };
             match event {
                 ExecutionEvent::Update(update) => execution.push(update.seq, update.content),
                 ExecutionEvent::Status(ExecutionStatus::Succeed(count)) => {
                     execution.finalize(count)
                 }
-                _ => return true,
+                _ => return,
             }
         };
         if completed {
             self.on_complete(state, &signature);
         }
-        true
     }
 
     fn on_complete(&self, state: &Arc<TaskState>, signature: &ExecutionSignature) {

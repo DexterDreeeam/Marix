@@ -43,16 +43,15 @@ impl Step {
         state: Arc<TaskState>,
         signature: StepSignature,
         event: StepEvent,
-    ) -> bool {
+    ) {
         match event {
             StepEvent::Trigger => {
                 Step::new(state, signature).run();
-                true
             }
             StepEvent::Complete { result, .. } => {
-                Self::on_complete(state, signature, result.content)
+                Self::on_complete(state, signature, result.content);
             }
-            _ => true,
+            _ => {}
         }
     }
 
@@ -287,18 +286,15 @@ impl Step {
         }
     }
 
-    fn on_complete(state: Arc<TaskState>, signature: StepSignature, content: String) -> bool {
+    fn on_complete(state: Arc<TaskState>, signature: StepSignature, content: String) {
         state.steps.complete(signature.id.clone());
         let Some(_) = state.plan_hub.complete_step(&signature) else {
-            return true;
+            return;
         };
         match &signature.kind {
             StepKind::Model(_) => Self::on_model_complete(state, &content),
-            StepKind::Execution(_) => {
-                Self::on_execution_complete(&state, &content);
-                true
-            }
-            StepKind::Intent | StepKind::User(_) => true,
+            StepKind::Execution(_) => Self::on_execution_complete(&state, &content),
+            StepKind::Intent | StepKind::User(_) => {}
         }
     }
 
@@ -317,17 +313,17 @@ impl Step {
         Self::send_plan_event(state, PlanEvent::Trigger(plan));
     }
 
-    fn on_model_complete(state: Arc<TaskState>, content: &str) -> bool {
+    fn on_model_complete(state: Arc<TaskState>, content: &str) {
         let value = match serde_json::from_str::<serde_json::Value>(content) {
             Ok(value) => value,
             Err(error) => {
                 let _ = Logger::warning(format!("model output is not valid JSON: {error}"));
-                return true;
+                return;
             }
         };
         let Some(object) = value.as_object() else {
             let _ = Logger::warning("model output JSON is not an object");
-            return true;
+            return;
         };
         if object.get("answer").is_some() {
             match serde_json::from_str::<Answer>(content) {
@@ -336,18 +332,17 @@ impl Step {
                         "task {} produced final answer",
                         state.signature.id.0
                     ));
-                    let event = SessionEvent::Task(
+                    let _ = state.task_tx.send(SessionEvent::Task(
                         state.signature.clone(),
                         TaskEvent::Status(TaskStatus::Succeed(TaskResult {
                             content: answer.answer,
                         })),
-                    );
-                    let _ = state.session_tx.send(event);
-                    return false;
+                    ));
+                    return;
                 }
                 Err(error) => {
                     let _ = Logger::warning(format!("model output is not a valid answer: {error}"));
-                    return true;
+                    return;
                 }
             }
         }
@@ -363,6 +358,5 @@ impl Step {
                 let _ = Logger::warning(format!("model output is not a valid plan: {error}"));
             }
         }
-        true
     }
 }

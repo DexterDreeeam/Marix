@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/plan",
     "name": "plan",
-    "purpose": "Owns task plan draft and answer extraction protocol contracts. Answer is the dedicated answer-only model output type; PlanDraft is the model-facing planning output draft with description, StepDraft-based run_steps and pending_steps, and expected_result fields; PlanEvent carries a Trigger(PlanDraft) notification; PlanId allocates plan identity; and PlanSignature pairs a task TaskSignature with a PlanId for tracked plan records.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns task plan draft and answer extraction protocol contracts. Answer is the dedicated answer-only model output type; PlanDraft is the model-facing planning output draft with description, StepDraft-based run_steps and pending_steps, and expected_result fields; PlanEvent carries Trigger(PlanDraft), Complete, and Fail notifications; PlanId allocates plan identity; and PlanSignature pairs a task TaskSignature with a PlanId for tracked plan records.",
+    "changeStatus": "modified"
   },
+  "modified": ["event.rs"],
   "childModules": [],
   "elements": [
     {
@@ -44,20 +45,20 @@
       "name": "PlanEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/event.rs",
           "lineStart": 4,
-          "lineEnd": 7,
+          "lineEnd": 9,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 6,
-              "lineEnd": 6
+              "lineStart": 7,
+              "lineEnd": 8
             }
-          ]
+          ],
+          "modifiedLines": []
         }
       ]
     },

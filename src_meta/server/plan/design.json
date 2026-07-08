@@ -3,16 +3,17 @@
   "module": {
     "path": "src/server/plan",
     "name": "plan",
-    "purpose": "Owns server-side plan runtime orchestration. Plan stores description, run_steps, pending_steps, and expected_result, delegates flat StepDraft conversion to Step::from_draft without reserving numeric step numbers, and exposes run step signatures; PlanHub routes valid drafts, logs and discards invalid drafts, stores PlanRecords, emits StepEvent::Trigger for runnable steps, and supports lookup, listing, completion tracking, and stringify snapshots; PlanStringify renders current runtime plans in the flat step-field shape; and PlanError reports duplicate plans, missing plans, missing steps, and invalid draft conversion failures.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns server-side plan runtime orchestration. Plan stores description, run_steps, pending_steps, and expected_result, delegates flat StepDraft conversion to Step::from_draft without reserving numeric step numbers, and exposes run step signatures; PlanHub routes PlanEvent::Trigger drafts and treats PlanEvent::Complete and PlanEvent::Fail as not-yet-implemented placeholders, logs and discards invalid drafts, stores PlanRecords, emits StepEvent::Trigger for runnable steps, and supports lookup, listing, completion tracking, and stringify snapshots; PlanStringify renders current runtime plans in the flat step-field shape; and PlanError reports duplicate plans, missing plans, missing steps, and invalid draft conversion failures.",
+    "changeStatus": "modified"
   },
+  "modified": ["hub.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "PlanHub",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/hub.rs",
@@ -25,15 +26,15 @@
         {
           "sourcePath": "src/server/plan/hub.rs",
           "lineStart": 15,
-          "lineEnd": 119,
+          "lineEnd": 121,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 33,
-              "lineEnd": 60
+              "lineStart": 30,
+              "lineEnd": 31
             }
-          ]
+          ],
+          "modifiedLines": []
         }
       ]
     },

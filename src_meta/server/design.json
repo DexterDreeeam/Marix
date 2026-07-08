@@ -3,15 +3,11 @@
   "module": {
     "path": "src/server",
     "name": "server",
-    "purpose": "Server crate namespace for model/session/task/prompt/step/execution orchestration and server-side plan runtime storage. The binary hosts telemetry on config.server.telemetry_port, Session accepts client and host channels by ChannelEndpoint role, Step emits flat StepDraft model plan events, and ExecutionHub tracks tool executions keyed by execution signature before completing steps.",
-    "changeStatus": "unchanged"
+    "purpose": "Server crate namespace for model/session/task/prompt/step orchestration and server-side plan runtime storage. The binary hosts telemetry on config.server.telemetry_port, Session accepts client and host channels by ChannelEndpoint role, Step emits flat StepDraft model plan events, and the step module's ExecutionHub tracks tool executions keyed by execution signature before completing steps while a parallel RelayHub mirrors it.",
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs"],
   "childModules": [
-    {
-      "path": "src/server/execution",
-      "name": "execution",
-      "purpose": "Owns server-side execution tracking: Execution values keyed by ExecutionSignature that accumulate ordered output and finalize on the expected update count, and an ExecutionHub holding a Mutex<HashMap<ExecutionSignature, Execution>> that spawns execution steps, routes Update/Succeed events, and emits StepEvent::Complete to the step layer on completion while reporting per-signature status."
-    },
     {
       "path": "src/server/model",
       "name": "model",
@@ -30,17 +26,17 @@
     {
       "path": "src/server/session",
       "name": "session",
-      "purpose": "Owns Session startup/routing behavior, accepting client and host channels by ChannelEndpoint role, forwarding Task status/preview and Step events to clients through a matches! filter, routing task, step, execution, and plan events back to the owning Task worker, plus SessionContext snapshots for prompts."
+      "purpose": "Owns Session startup/routing behavior, accepting client and host channels by ChannelEndpoint role, forwarding Task status/preview and Step events to clients through a matches! filter, routing task, step, execution, relay, and plan events back to the owning Task worker, plus SessionContext snapshots for prompts."
     },
     {
       "path": "src/server/step",
       "name": "step",
-      "purpose": "Owns the server runtime Step type, flat StepDraft to runtime StepKind conversion, task-step routing, internal Initial/Analysis flat StepDraft plan creation, model JSON answer/plan handling, model-prompt rendering, completion handling, and execution delegation."
+      "purpose": "Owns the server runtime Step type, flat StepDraft to runtime StepKind conversion, task-step routing, internal Initial/Analysis flat StepDraft plan creation, model JSON answer/plan handling, model-prompt rendering, completion handling, and the execution and relay tracking submodules."
     },
     {
       "path": "src/server/task",
       "name": "task",
-      "purpose": "Owns server task runtime and TaskState (session context, plan_hub, an ExecutionHub owning execution tracking, and a StepId-keyed step queue); step routing lives on Step, plan events route to PlanHub, and execution spawning/routing lives in the execution hub."
+      "purpose": "Owns server task runtime and TaskState (session context, a session event sender and a task event sender, plan_hub, an ExecutionHub and RelayHub owning execution and relay tracking, and a StepId-keyed step queue); the worker handles terminal Cancel/Succeed inline, step routing lives on Step, plan events route to PlanHub, and execution/relay routing lives in their hubs."
     }
   ],
   "elements": [

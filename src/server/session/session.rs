@@ -219,6 +219,9 @@ impl Session {
             SessionEvent::Execution(signature, _) => {
                 Self::route_task_event(state, &signature.task.id, event.clone());
             }
+            SessionEvent::Relay(signature, _) => {
+                Self::route_task_event(state, &signature.task.id, event.clone());
+            }
             SessionEvent::Plan(signature, _) => {
                 Self::route_task_event(state, &signature.task.id, event.clone());
             }

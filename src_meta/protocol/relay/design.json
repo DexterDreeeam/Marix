@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/protocol/relay",
+    "name": "relay",
+    "purpose": "Owns relay protocol contracts mirroring the execution contracts: RelayId allocation, RelaySignature construction keyed by a task TaskSignature with map-friendly ordering/hash traits and a Signature impl, RelayRequest pairing a signature with a prompt String, RelayEvent notifications with Evoke/Update/Status variants, RelayUpdate payloads carrying a seq and content, and RelayStatus lifecycle states whose Succeed variant carries the expected update count.",
+    "changeStatus": "added"
+  },
+  "added": ["."],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "RelayId",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/relay/id.rs",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 4
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/relay/id.rs",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "RelayEvent",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/relay/event.rs",
+          "lineStart": 5,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "RelayUpdate",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/relay/event.rs",
+          "lineStart": 12,
+          "lineEnd": 16,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 16
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "RelayRequest",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/relay/request.rs",
+          "lineStart": 5,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 9
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "RelaySignature",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/relay/signature.rs",
+          "lineStart": 5,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/relay/signature.rs",
+          "lineStart": 12,
+          "lineEnd": 20,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 20
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/relay/signature.rs",
+          "lineStart": 22,
+          "lineEnd": 26,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 26
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "RelayStatus",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/relay/status.rs",
+          "lineStart": 3,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 9
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

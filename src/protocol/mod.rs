@@ -1,6 +1,7 @@
 pub mod execution;
 pub mod message;
 pub mod plan;
+pub mod relay;
 pub mod session;
 pub mod signature;
 pub mod step;
@@ -12,6 +13,9 @@ pub use execution::{
 };
 pub use message::SessionMessage;
 pub use plan::{Answer, PlanDraft, PlanEvent, PlanId, PlanSignature};
+pub use relay::{
+    RelayEvent, RelayId, RelayRequest, RelaySignature, RelayStatus, RelayUpdate,
+};
 pub use session::SessionEvent;
 pub use signature::Signature;
 pub use step::{

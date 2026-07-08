@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, plan draft, answer, plan identity, step identity, execution, tool, and shared signature protocol contracts. PlanSignature and StepSignature expose generated id wrappers, while PlanDraft and StepDraft remain flat model-facing data contracts.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the marix-protocol crate definitions and namespace exports for reusable session, task, plan draft, answer, plan identity, step identity, execution, relay, tool, and shared signature protocol contracts. PlanSignature and StepSignature expose generated id wrappers, while PlanDraft and StepDraft remain flat model-facing data contracts.",
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs", "mod.rs"],
   "childModules": [
     {
       "path": "src/protocol/task",
@@ -28,9 +29,14 @@
       "purpose": "Owns execution protocol contracts including map-friendly ExecutionSignature values keyed by a task signature, execution ids, events, requests, updates that carry a 0-based seq, and statuses whose Succeed variant carries the expected update count."
     },
     {
+      "path": "src/protocol/relay",
+      "name": "relay",
+      "purpose": "Owns relay protocol contracts mirroring execution: map-friendly RelaySignature values keyed by a task signature, relay ids, events, requests carrying a prompt String, updates that carry a seq, and statuses whose Succeed variant carries the expected update count."
+    },
+    {
       "path": "src/protocol/session",
       "name": "session",
-      "purpose": "Owns the SessionEvent protocol enum carrying task, step, execution, and plan events."
+      "purpose": "Owns the SessionEvent protocol enum carrying task, step, execution, relay, and plan events."
     },
     {
       "path": "src/protocol/tool",

@@ -3,16 +3,17 @@
   "module": {
     "path": "src/server/session",
     "name": "session",
-    "purpose": "Owns the server session runtime, total SessionEvent routing entrypoint, local task-originated event channel, shared session preview context with SessionContext::snapshot for prompt rendering, and task creation. Session accepts the client and host channels by role through accept_channel with ChannelEndpoint, leaving listener address resolution to the channel helper; route_session_event routes task, step, execution, and plan events back to the owning Task by task id and then calls send_client_event once.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the server session runtime, total SessionEvent routing entrypoint, local task-originated event channel, shared session preview context with SessionContext::snapshot for prompt rendering, and task creation. Session accepts the client and host channels by role through accept_channel with ChannelEndpoint, leaving listener address resolution to the channel helper; route_session_event routes task, step, execution, relay, and plan events back to the owning Task by task id and then calls send_client_event once.",
+    "changeStatus": "modified"
   },
+  "modified": ["session.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/session.rs",
@@ -33,19 +34,15 @@
         {
           "sourcePath": "src/server/session/session.rs",
           "lineStart": 45,
-          "lineEnd": 324,
+          "lineEnd": 327,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 49,
-              "lineEnd": 49
-            },
-            {
-              "lineStart": 70,
-              "lineEnd": 70
+              "lineStart": 222,
+              "lineEnd": 224
             }
-          ]
+          ],
+          "modifiedLines": []
         }
       ]
     },

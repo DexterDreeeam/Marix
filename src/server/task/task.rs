@@ -34,6 +34,7 @@ impl Task {
             user_request,
             Self::build_model_backend(),
             session_tx,
+            task_tx.clone(),
         ));
         let worker = thread::spawn({
             let state = Arc::clone(&state);
@@ -79,20 +80,27 @@ impl Task {
         Step::trigger_initial_plan(Arc::clone(&state));
         while let Ok(event) = task_rx.recv() {
             match event {
-                SessionEvent::Task(_, _) => {
-                    if !Self::route_task_event(&state, event) {
-                        break;
-                    }
+                SessionEvent::Task(_, TaskEvent::Cancel) => {
+                    let _ = Logger::log(format!("task {} canceled", state.signature.id.0));
+                    Self::send_status_event(&state, TaskStatus::Canceled);
+                    break;
+                }
+                SessionEvent::Task(_, TaskEvent::Status(TaskStatus::Succeed(result))) => {
+                    let _ = Logger::log(format!("task {} succeeded", state.signature.id.0));
+                    Self::send_status_event(&state, TaskStatus::Succeed(result));
+                    break;
+                }
+                SessionEvent::Task(_, event) => {
+                    Self::route_task_event(&state, event);
                 }
                 SessionEvent::Step(signature, event) => {
-                    if !Step::route_step_event(Arc::clone(&state), signature, event) {
-                        break;
-                    }
+                    Step::route_step_event(Arc::clone(&state), signature, event);
                 }
                 SessionEvent::Execution(signature, event) => {
-                    if !state.execution_hub.route_event(&state, signature, event) {
-                        break;
-                    }
+                    state.execution_hub.route_event(&state, signature, event);
+                }
+                SessionEvent::Relay(signature, event) => {
+                    state.relay_hub.route_event(&state, signature, event);
                 }
                 SessionEvent::Plan(signature, event) => {
                     state.plan_hub.route_event(&state, signature, event);
@@ -101,18 +109,16 @@ impl Task {
         }
     }
 
-    fn route_task_event(state: &TaskState, event: SessionEvent) -> bool {
+    fn route_task_event(_state: &TaskState, event: TaskEvent) {
         match event {
-            SessionEvent::Task(_, TaskEvent::Cancel) => {
-                let _ = Logger::log(format!("task {} canceled", state.signature.id.0));
-                Self::send_status_event(state, TaskStatus::Canceled);
-                false
-            }
-            SessionEvent::Task(_, TaskEvent::Status(TaskStatus::Succeed(_))) => {
-                let _ = Logger::log(format!("task {} succeeded", state.signature.id.0));
-                false
-            }
-            _ => true,
+            // Remaining TaskEvents (Create / CreateFailed / Query / Preview / non-Succeed
+            // Status); the worker has no handling for these yet, placeholder to be filled in.
+            TaskEvent::Create { .. }
+            | TaskEvent::CreateFailed { .. }
+            | TaskEvent::Query
+            | TaskEvent::Preview { .. }
+            | TaskEvent::Cancel
+            | TaskEvent::Status(_) => {}
         }
     }
 
