@@ -11,10 +11,10 @@ request_timeout_ms = 30000
 
 [server]
 enabled = true
-ip = { name = "SERVER_IP" }
-client_port = 22345
-host_port = 22346
-telemetry_port = 22347
+ip = "{{SERVER_IP}}"
+client_port = {{SERVER_PORT_CLIENT}}
+host_port = {{SERVER_PORT_HOST}}
+telemetry_port = {{SERVER_PORT_TELEMETRY}}
 max_turns = 32
 
 [model]
@@ -23,7 +23,7 @@ backend = "deepseek"
 [model.deepseek]
 endpoint = "https://api.deepseek.com/chat/completions"
 model = "deepseek-chat"
-api_key = { name = "DEEPSEEK_API_KEY" }
+api_key = "{{MODEL_DEEPSEEK_API_KEY}}"
 
 [credential]
 directory = ".credential"
