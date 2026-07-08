@@ -4,18 +4,15 @@
     "path": "src/protocol/executor",
     "name": "executor",
     "purpose": "Owns executor-level protocol events that wrap host execution lifecycle requests, nested execution events, status updates, and cancellation.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "."
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "ExecutorEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/executor/event.rs",

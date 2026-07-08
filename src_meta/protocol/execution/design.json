@@ -4,29 +4,15 @@
     "path": "src/protocol/execution",
     "name": "execution",
     "purpose": "Owns host execution protocol contracts: execution requests, ids, signatures, statuses, errors, and cancellation events.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "error.rs"
-  ],
-  "modified": [
-    "event.rs",
-    "id.rs",
-    "mod.rs",
-    "request.rs",
-    "signature.rs",
-    "status.rs"
-  ],
-  "deleted": [
-    "draft.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "ExecutionError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/error.rs",
@@ -47,7 +33,7 @@
       "name": "ExecutionEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/event.rs",
@@ -68,7 +54,7 @@
       "name": "ExecutionId",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/id.rs",
@@ -102,7 +88,7 @@
       "name": "ExecutionRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/request.rs",
@@ -123,7 +109,7 @@
       "name": "ExecutionSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/signature.rs",
@@ -170,7 +156,7 @@
       "name": "ExecutionStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/status.rs",

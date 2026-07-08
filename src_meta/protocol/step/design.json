@@ -4,18 +4,8 @@
     "path": "src/protocol/step",
     "name": "step",
     "purpose": "Owns step protocol contracts including step identity/signatures, step drafts/kinds, previews/results, step statuses, and step events that nest invocation and relay events.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "error.rs",
-    "status.rs"
-  ],
-  "modified": [
-    "event.rs",
-    "kind.rs",
-    "mod.rs",
-    "signature.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -38,7 +28,7 @@
       "name": "StepError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/error.rs",
@@ -59,7 +49,7 @@
       "name": "StepEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/event.rs",
@@ -104,7 +94,7 @@
       "name": "StepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/kind.rs",
@@ -125,7 +115,7 @@
       "name": "ModelStepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/kind.rs",
@@ -146,7 +136,7 @@
       "name": "InvocationStepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/kind.rs",
@@ -167,7 +157,7 @@
       "name": "UserStepKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/kind.rs",
@@ -252,7 +242,7 @@
       "name": "StepStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/status.rs",

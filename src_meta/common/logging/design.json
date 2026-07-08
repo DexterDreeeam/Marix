@@ -4,11 +4,8 @@
     "path": "src/common/logging",
     "name": "logging",
     "purpose": "Common database telemetry logging module. tag.rs defines the serializable LogTag severity enum (Info, Warning, Error, Debug); message.rs defines the serializable LogMessage record carrying a tag, message text, and emit/arrival millisecond timestamps with tagged constructors and a crate-visible arrival stamp; error.rs defines the LoggingError enum with config, I/O, database, serialization, channel, already-configured, and not-hosting variants; logger.rs owns the Logger telemetry client that either hosts a telemetry server accepting authenticated remoc channel connections and persisting messages under the server Marix path to a fresh per-start timestamped local redb database, serving each accepted connection with its own receive worker, or connects to a remote server and streams LogMessage records over the authenticated channel transport with retry.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "logger.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -55,7 +52,7 @@
       "name": "Logger",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
@@ -102,7 +99,7 @@
       "name": "Sink",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
@@ -123,7 +120,7 @@
       "name": "Store",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",

@@ -4,17 +4,8 @@
     "path": "src/protocol/plan",
     "name": "plan",
     "purpose": "Owns plan protocol contracts including plan identity/signatures, plan drafts, plan events that carry step status updates, plan statuses, errors, and model answer payloads.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "error.rs",
-    "status.rs"
-  ],
-  "modified": [
-    "event.rs",
-    "mod.rs",
-    "signature.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -53,7 +44,7 @@
       "name": "PlanError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/error.rs",
@@ -74,7 +65,7 @@
       "name": "PlanEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/event.rs",
@@ -151,7 +142,7 @@
       "name": "PlanStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/status.rs",
