@@ -1,8 +1,7 @@
-use std::net::SocketAddr;
 use std::sync::{Arc, Mutex as StdMutex, OnceLock};
 use std::thread::{self, JoinHandle};
 
-use marix_common::{ChannelAuth, Config, Logger, accept_channel};
+use marix_common::{ChannelEndpoint, Logger, accept_channel};
 use marix_protocol::{
     ExecutionEvent, ExecutionSignature, SessionEvent, SessionMessage, TaskEvent, TaskId,
     TaskSignature,
@@ -44,24 +43,11 @@ impl Session {
 // -- Private -- //
 
 impl Session {
-    fn bind_address(ip: &str, port: u16) -> SocketAddr {
-        format!("{ip}:{port}")
-            .parse()
-            .unwrap_or_else(|error| panic!("invalid server bind address: {error}"))
-    }
-
     fn spawn_client_worker(state: Arc<SessionState>) -> JoinHandle<()> {
         thread::spawn(move || {
-            let config =
-                Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
-            let address = Self::bind_address(&config.server.ip, config.server.client_port);
             loop {
-                // TODO(feature-implement): source the handshake
-                // token from config/credential.
-                let Ok((tx, rx)) = accept_channel::<SessionMessage>(
-                    address,
-                    ChannelAuth { token: String::new() },
-                ) else {
+                let Ok((tx, rx)) = accept_channel::<SessionMessage>(ChannelEndpoint::Client)
+                else {
                     continue;
                 };
                 let _ = Logger::log("client channel connected");
@@ -80,16 +66,9 @@ impl Session {
 
     fn spawn_host_worker(state: Arc<SessionState>) -> JoinHandle<()> {
         thread::spawn(move || {
-            let config =
-                Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
-            let address = Self::bind_address(&config.server.ip, config.server.host_port);
             loop {
-                // TODO(feature-implement): source the handshake
-                // token from config/credential.
-                let Ok((tx, rx)) = accept_channel::<SessionMessage>(
-                    address,
-                    ChannelAuth { token: String::new() },
-                ) else {
+                let Ok((tx, rx)) = accept_channel::<SessionMessage>(ChannelEndpoint::Host)
+                else {
                     continue;
                 };
                 let _ = Logger::log("host channel connected");

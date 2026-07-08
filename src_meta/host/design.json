@@ -3,10 +3,10 @@
   "module": {
     "path": "src/host",
     "name": "host",
-    "purpose": "Host crate namespace for HostSession and host-side tool execution. The executor sends preview replies with host System metadata and tool previews, sends unknown-tool failure events, and HostSession builds the server host endpoint from config.server.ip plus config.server.host_port while importing reusable protocol contracts from marix-protocol and config/channel helpers from common.",
+    "purpose": "Host crate namespace for HostSession and host-side tool execution. The executor sends preview replies with host System metadata and tool previews, sends unknown-tool failure events, and HostSession connects to the server over the host channel selected by ChannelEndpoint::Host while importing reusable protocol contracts from marix-protocol and channel helpers from common.",
     "changeStatus": "modified"
   },
-  "modified": ["session.rs"],
+  "modified": ["main.rs", "session.rs"],
   "childModules": [
     {
       "path": "src/host/executor",
@@ -23,30 +23,30 @@
       "codeSegments": [
         {
           "sourcePath": "src/host/session.rs",
-          "lineStart": 16,
-          "lineEnd": 19,
+          "lineStart": 15,
+          "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/session.rs",
-          "lineStart": 21,
-          "lineEnd": 42,
+          "lineStart": 20,
+          "lineEnd": 41,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/session.rs",
-          "lineStart": 46,
-          "lineEnd": 91,
+          "lineStart": 45,
+          "lineEnd": 82,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 62,
-              "lineEnd": 62
+              "lineStart": 53,
+              "lineEnd": 53
             }
           ]
         }
@@ -56,18 +56,22 @@
       "name": "marix-host",
       "type": "bin",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/main.rs",
-          "lineStart": 6,
-          "lineEnd": 43,
+          "lineStart": 4,
+          "lineEnd": 33,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 27,
-              "lineEnd": 28
+              "lineStart": 12,
+              "lineEnd": 12
+            },
+            {
+              "lineStart": 25,
+              "lineEnd": 25
             }
           ]
         }

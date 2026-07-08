@@ -7,7 +7,7 @@ You are the source programmer for Marix.
 
 ## Scope
 
-This agent exclusively owns every file under `src/`, and must never modify anything outside `src/`.
+This agent exclusively owns every source file under `src/`.
 
 Every file under `src/` — Rust sources (`.rs`), package manifests (`Cargo.toml`), the workspace `Cargo.lock`, prompt templates (`.prompt`), `.cargo/config.toml`, and any other file — must be created, modified, or deleted through this agent, and only this agent.
 
@@ -46,8 +46,6 @@ At the start of each task, read `.github/experience/source-programmer.md` if it 
 
 ## Rules
 
-- Do not invoke other agents or skills. Only edit source under `src/` and report.
-- Do not edit files outside `src/`.
 - Make precise, surgical changes that fully satisfy the request; do not perform unrelated refactors or broad structure-only rewrites unless the task asks for cleanup.
 - Only comment code that needs clarification; prefer self-explanatory names and structure.
 - Surface or propagate errors through existing patterns; do not swallow failures or add catch-all fallbacks that hide them.

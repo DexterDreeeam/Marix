@@ -1,15 +1,16 @@
-use std::io::{Read, Write};
-use std::net::{SocketAddr, TcpListener, TcpStream};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Mutex, OnceLock};
 use std::thread;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use crate::config::Config;
 use crate::external::redb::{Database, ReadableTableMetadata, TableDefinition};
 use crate::external::serde_json;
 use crate::logging::{LogMessage, LogTag, LoggingError};
+use crate::structure::{
+    ChannelEndpoint, NetReceiver, NetSender, accept_channel, connect_channel,
+};
 
 const TELEMETRY_TABLE: TableDefinition<u64, &[u8]> = TableDefinition::new("telemetry");
 
@@ -20,26 +21,35 @@ pub struct Logger {
 }
 
 impl Logger {
-    /// Starts the telemetry logger server on the given port and records this
-    /// process's own telemetry directly to the local database. Server-only.
-    pub fn host(port: u16) -> Result<(), LoggingError> {
+    /// Starts the telemetry logger server and records this process's own
+    /// telemetry directly to the local database. Server-only.
+    ///
+    /// The bind address and handshake token are resolved from configuration
+    /// by [`accept_channel`]; each accepted client connection is served by its
+    /// own receive worker, so telemetry from multiple processes is recorded
+    /// concurrently.
+    pub fn host() -> Result<(), LoggingError> {
         let store = Store::open()?;
         LOGGER
             .sink
             .set(Sink::Local(store))
             .map_err(|_| LoggingError::AlreadyConfigured)?;
-        let listener = TcpListener::bind(SocketAddr::from(([0, 0, 0, 0], port)))?;
-        thread::spawn(move || spawn_worker(listener));
+        thread::spawn(accept_loop);
         Ok(())
     }
 
-    /// Connects this process to a telemetry logger server, blocking until the
-    /// connection is established. Later telemetry is streamed to that server.
-    pub fn connect(socket: SocketAddr) -> Result<(), LoggingError> {
-        let stream = TcpStream::connect(socket)?;
+    /// Connects this process to a telemetry logger server. Later telemetry is
+    /// streamed to that server over the authenticated channel transport.
+    ///
+    /// The connect address and handshake token are resolved from
+    /// configuration by [`connect_channel`]. The connect is retried a few
+    /// times, since the server may not yet be listening or may be briefly
+    /// rebinding between accepted connections.
+    pub fn connect() -> Result<(), LoggingError> {
+        let sender = Self::connect_sender()?;
         LOGGER
             .sink
-            .set(Sink::Remote(Mutex::new(stream)))
+            .set(Sink::Remote(Mutex::new(sender)))
             .map_err(|_| LoggingError::AlreadyConfigured)?;
         Ok(())
     }
@@ -78,9 +88,41 @@ impl Logger {
         let message = LogMessage::new(tag, message);
         match self.sink.get() {
             Some(Sink::Local(_)) => self.record(message),
-            Some(Sink::Remote(stream)) => send_message(stream, &message),
+            Some(Sink::Remote(sender)) => {
+                let guard = sender
+                    .lock()
+                    .map_err(|error| LoggingError::Io(error.to_string()))?;
+                guard
+                    .try_send(message)
+                    .map_err(|error| LoggingError::Channel(error.to_string()))?;
+                Ok(())
+            }
             None => Ok(()),
         }
+    }
+
+    /// Connects the telemetry channel, retrying a few times so a not-yet-ready
+    /// or briefly rebinding server does not permanently disable telemetry.
+    fn connect_sender() -> Result<NetSender<LogMessage>, LoggingError> {
+        const MAX_ATTEMPTS: usize = 5;
+        const RETRY_BACKOFF: Duration = Duration::from_millis(200);
+        let mut last_error = None;
+        for attempt in 0..MAX_ATTEMPTS {
+            match connect_channel::<LogMessage>(ChannelEndpoint::Telemetry) {
+                Ok((net_tx, _net_rx)) => return Ok(net_tx),
+                Err(error) => {
+                    last_error = Some(error);
+                    if attempt + 1 < MAX_ATTEMPTS {
+                        thread::sleep(RETRY_BACKOFF);
+                    }
+                }
+            }
+        }
+        Err(LoggingError::Channel(
+            last_error
+                .map(|error| format!("{error:?}"))
+                .unwrap_or_else(|| "telemetry channel connect failed".to_owned()),
+        ))
     }
 
     fn record(&self, mut message: LogMessage) -> Result<(), LoggingError> {
@@ -94,7 +136,7 @@ impl Logger {
 
 enum Sink {
     Local(Store),
-    Remote(Mutex<TcpStream>),
+    Remote(Mutex<NetSender<LogMessage>>),
 }
 
 struct Store {
@@ -211,48 +253,36 @@ impl Store {
     }
 }
 
-fn spawn_worker(listener: TcpListener) {
+/// Accepts telemetry connections in a loop, serving each accepted connection
+/// with its own receive worker. A failed accept (e.g. a bind race between
+/// connections or a rejected handshake) is retried after a short pause rather
+/// than aborting the loop, since telemetry is best-effort.
+fn accept_loop() {
     loop {
-        match listener.accept() {
-            Ok((stream, _address)) => {
-                thread::spawn(move || run_worker(stream));
+        match accept_channel::<LogMessage>(ChannelEndpoint::Telemetry) {
+            Ok((_net_tx, net_rx)) => {
+                thread::spawn(move || run_worker(net_rx));
             }
-            Err(_) => continue,
+            Err(_) => {
+                thread::sleep(Duration::from_millis(200));
+            }
         }
     }
 }
 
-fn run_worker(mut stream: TcpStream) {
-    while let Ok(Some(message)) = read_message(&mut stream) {
-        let _ = LOGGER.record(message);
-    }
-}
-
-fn send_message(stream: &Mutex<TcpStream>, message: &LogMessage) -> Result<(), LoggingError> {
-    let bytes = serde_json::to_vec(message)
-        .map_err(|error| LoggingError::Serialization(error.to_string()))?;
-    let length = u32::try_from(bytes.len())
-        .map_err(|_| LoggingError::Serialization("telemetry message too large".to_owned()))?;
-    let mut guard = stream
-        .lock()
-        .map_err(|error| LoggingError::Io(error.to_string()))?;
-    guard.write_all(&length.to_be_bytes())?;
-    guard.write_all(&bytes)?;
-    guard.flush()?;
-    Ok(())
-}
-
-fn read_message(stream: &mut TcpStream) -> Result<Option<LogMessage>, LoggingError> {
-    let mut length_buffer = [0_u8; 4];
-    match stream.read_exact(&mut length_buffer) {
-        Ok(()) => {}
-        Err(error) if error.kind() == std::io::ErrorKind::UnexpectedEof => return Ok(None),
-        Err(error) => return Err(LoggingError::Io(error.to_string())),
-    }
-    let length = u32::from_be_bytes(length_buffer) as usize;
-    let mut buffer = vec![0_u8; length];
-    stream.read_exact(&mut buffer)?;
-    let message = serde_json::from_slice(&buffer)
-        .map_err(|error| LoggingError::Serialization(error.to_string()))?;
-    Ok(Some(message))
+/// Records every telemetry message received on a single accepted connection,
+/// stamping arrival time and writing it to the local store.
+fn run_worker(mut net_rx: NetReceiver<LogMessage>) {
+    let runtime = match tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+    {
+        Ok(runtime) => runtime,
+        Err(_) => return,
+    };
+    runtime.block_on(async move {
+        while let Ok(Some(message)) = net_rx.recv().await {
+            let _ = LOGGER.record(message);
+        }
+    });
 }

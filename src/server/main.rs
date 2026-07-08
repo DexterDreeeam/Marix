@@ -13,7 +13,7 @@ fn main() {
         eprintln!("server is disabled by configuration");
         std::process::exit(1);
     }
-    if let Err(error) = Logger::host(config.server.telemetry_port) {
+    if let Err(error) = Logger::host() {
         eprintln!("failed to start telemetry logger: {error}");
         std::process::exit(1);
     }

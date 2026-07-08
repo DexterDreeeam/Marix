@@ -3,7 +3,7 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. Configuration now centralizes runtime server IP and client, host, and telemetry ports under config.server while loading the server IP from a credential reference and deriving client and host endpoints from that server section; protocol signatures use generated PlanId and StepId wrappers, and prompt JSON uses flat model-facing PlanDraft step objects.",
+    "purpose": "Rust workspace source root for Marix crates with a flat Cargo crate layout plus prompt-template sources. Configuration now centralizes runtime server IP and client, host, and telemetry ports under config.server while loading the server IP, handshake token, and Deepseek API key as plain config values and deriving client and host endpoints from that server section; protocol signatures use generated PlanId and StepId wrappers, and prompt JSON uses flat model-facing PlanDraft step objects.",
     "changeStatus": "modified"
   },
   "modified": ["."],
@@ -16,12 +16,12 @@
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Client crate namespace for the marix_client library and client binaries. ClientEvent carries Common streaming output and Done completion events by signature id, and ClientSession builds the server client endpoint from config.server.ip plus config.server.client_port, creates tasks with an empty TaskSignature.name, and keeps the user request only in TaskEvent::Create."
+      "purpose": "Client crate namespace for the marix_client library and client binaries. ClientEvent carries Common streaming output and Done completion events by signature id, and ClientSession connects to the server over the client channel selected by ChannelEndpoint::Client, creates tasks with an empty TaskSignature.name, and keeps the user request only in TaskEvent::Create."
     },
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared common crate root for reusable config loading with default CoreConfig fallback, credential-backed server IP resolution, external re-export adapters, database telemetry logging, and structure utilities. It exposes WorkQueue cleanup support used by server host-disconnect session reset, and lib.rs re-exports serializable config system types Arch, Platform, and System alongside Config, ServerConfig, and related models, plus the Logger telemetry client with LogMessage, LogTag, and LoggingError."
+      "purpose": "Shared common crate root for reusable config loading with default CoreConfig fallback, server IP resolution from plain config values, external re-export adapters, database telemetry logging, and structure utilities. It exposes WorkQueue cleanup support used by server host-disconnect session reset, and lib.rs re-exports serializable config system types Arch, Platform, and System alongside Config, ServerConfig, and related models, plus the Logger telemetry client with LogMessage, LogTag, and LoggingError."
     },
     {
       "path": "src/prompt",
@@ -36,7 +36,7 @@
     {
       "path": "src/host",
       "name": "host",
-      "purpose": "Host crate namespace for HostSession and host-side tool execution. The executor sends preview replies with host System metadata and tool previews, sends unknown-tool failure events, and HostSession builds the server host endpoint from config.server.ip plus config.server.host_port while importing reusable protocol contracts from marix-protocol and config/channel helpers from common."
+      "purpose": "Host crate namespace for HostSession and host-side tool execution. The executor sends preview replies with host System metadata and tool previews, sends unknown-tool failure events, and HostSession connects to the server over the host channel selected by ChannelEndpoint::Host while importing reusable protocol contracts from marix-protocol and channel helpers from common."
     },
     {
       "path": "src/tool",

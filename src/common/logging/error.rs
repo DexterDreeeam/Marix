@@ -6,6 +6,7 @@ pub enum LoggingError {
     Io(String),
     Database(String),
     Serialization(String),
+    Channel(String),
     AlreadyConfigured,
     NotHosting,
 }
@@ -27,6 +28,7 @@ impl fmt::Display for LoggingError {
             Self::Serialization(message) => {
                 write!(formatter, "telemetry serialization error: {message}")
             }
+            Self::Channel(message) => write!(formatter, "telemetry channel error: {message}"),
             Self::AlreadyConfigured => write!(formatter, "telemetry logger already configured"),
             Self::NotHosting => write!(formatter, "telemetry logger is not hosting a store"),
         }

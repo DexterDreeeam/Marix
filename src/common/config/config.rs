@@ -1,7 +1,7 @@
 use std::env;
 use std::fmt;
 use std::path::{Path, PathBuf};
-use std::sync::OnceLock;
+use std::sync::RwLock;
 
 use super::sys::System;
 use crate::external::*;
@@ -9,7 +9,7 @@ use crate::external::*;
 pub const CONFIG_FILE: &str = "src/config.toml";
 const CONFIG_ENV_VAR: &str = "MARIX_CONFIG";
 const DEPLOYED_CONFIG_FILE: &str = "config.toml";
-static CONFIG_CACHE: OnceLock<Result<Config, String>> = OnceLock::new();
+static CONFIG_CACHE: RwLock<Option<Result<Config, String>>> = RwLock::new(None);
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Config {
@@ -20,15 +20,53 @@ pub struct Config {
     pub client: ClientConfig,
     pub server: ServerConfig,
     pub model: ModelConfig,
-    pub credential: CredentialConfig,
     pub tool: ToolConfig,
 }
 
 impl Config {
     pub fn load() -> Result<Self, String> {
+        if let Some(cached) = CONFIG_CACHE
+            .read()
+            .unwrap_or_else(|error| error.into_inner())
+            .as_ref()
+        {
+            return cached.clone();
+        }
+
+        let computed =
+            load_config(&config_path()).map_err(|error| error.to_string());
         CONFIG_CACHE
-            .get_or_init(|| load_config(&config_path()).map_err(|error| error.to_string()))
+            .write()
+            .unwrap_or_else(|error| error.into_inner())
+            .get_or_insert(computed)
             .clone()
+    }
+
+    /// Builds a test config: loads the base config, applies each TOML
+    /// fragment on top (later fragments win on conflict), installs the
+    /// result as the active config so subsequent `Config::load()` calls
+    /// return it, and returns it. Intended for tests.
+    pub fn mock(overrides: &[&str]) -> Result<Self, String> {
+        Self::load()?;
+        let path = config_path();
+        let repo_root = repository_root_for_config(&path);
+        let content =
+            std::fs::read_to_string(&path).map_err(|error| error.to_string())?;
+        let mut table: toml::Table =
+            toml::from_str(&content).map_err(|error| error.to_string())?;
+        for fragment in overrides {
+            let overlay: toml::Table =
+                toml::from_str(fragment).map_err(|error| error.to_string())?;
+            merge_tables(&mut table, overlay);
+        }
+        let merged =
+            toml::to_string(&table).map_err(|error| error.to_string())?;
+        let config = build_config(&merged, &repo_root)
+            .map_err(|error| error.to_string())?;
+        *CONFIG_CACHE
+            .write()
+            .unwrap_or_else(|error| error.into_inner()) = Some(Ok(config.clone()));
+        Ok(config)
     }
 }
 
@@ -80,6 +118,7 @@ pub struct ClientConfig {
 pub struct ServerConfig {
     pub enabled: bool,
     pub ip: String,
+    pub auth_token: String,
     pub client_port: u16,
     pub host_port: u16,
     pub telemetry_port: u16,
@@ -107,12 +146,6 @@ pub struct DeepseekConfig {
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct CredentialConfig {
-    pub directory: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
-#[serde(deny_unknown_fields)]
 pub struct ToolConfig {
     pub directory: String,
 }
@@ -128,7 +161,6 @@ struct RawConfig {
     client: ClientConfig,
     server: RawServerConfig,
     model: RawModelConfig,
-    credential: CredentialConfig,
     tool: ToolConfig,
 }
 
@@ -136,7 +168,8 @@ struct RawConfig {
 #[serde(deny_unknown_fields)]
 struct RawServerConfig {
     enabled: bool,
-    ip: CredentialRef,
+    ip: String,
+    auth_token: String,
     client_port: u16,
     host_port: u16,
     telemetry_port: u16,
@@ -155,13 +188,7 @@ struct RawModelConfig {
 struct RawDeepseekConfig {
     endpoint: String,
     model: String,
-    api_key: CredentialRef,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-struct CredentialRef {
-    name: String,
+    api_key: String,
 }
 
 fn config_path() -> PathBuf {
@@ -178,15 +205,16 @@ fn config_path() -> PathBuf {
 }
 
 fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
-    let system = System::new();
-    let repo_root = repository_root_for_config(config_path);
     let content = std::fs::read_to_string(config_path)?;
-    let raw_config: RawConfig = toml::from_str(&content)?;
-    let credential_root = resolve_config_path(&repo_root, &raw_config.credential.directory);
-    let server_ip = read_credential(&credential_root, &raw_config.server.ip)?;
-    let deepseek_api_key = read_credential(&credential_root, &raw_config.model.deepseek.api_key)?;
+    let repo_root = repository_root_for_config(config_path);
+    build_config(&content, &repo_root)
+}
 
-    let runtime = resolve_runtime_paths(&repo_root, raw_config.runtime);
+fn build_config(content: &str, repo_root: &Path) -> Result<Config, ConfigError> {
+    let system = System::new();
+    let raw_config: RawConfig = toml::from_str(content)?;
+
+    let runtime = resolve_runtime_paths(repo_root, raw_config.runtime);
 
     Ok(Config {
         name: raw_config.name,
@@ -196,7 +224,8 @@ fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
         client: raw_config.client,
         server: ServerConfig {
             enabled: raw_config.server.enabled,
-            ip: server_ip,
+            ip: raw_config.server.ip,
+            auth_token: raw_config.server.auth_token,
             client_port: raw_config.server.client_port,
             host_port: raw_config.server.host_port,
             telemetry_port: raw_config.server.telemetry_port,
@@ -207,17 +236,32 @@ fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
             deepseek: DeepseekConfig {
                 endpoint: raw_config.model.deepseek.endpoint,
                 model: raw_config.model.deepseek.model,
-                api_key: deepseek_api_key,
+                api_key: raw_config.model.deepseek.api_key,
             },
         },
-        credential: raw_config.credential,
         tool: ToolConfig {
             directory: path_to_config_string(resolve_config_path(
-                &repo_root,
+                repo_root,
                 &raw_config.tool.directory,
             )),
         },
     })
+}
+
+fn merge_tables(base: &mut toml::Table, overlay: toml::Table) {
+    for (key, overlay_value) in overlay {
+        match (base.get_mut(&key), overlay_value) {
+            (
+                Some(toml::Value::Table(base_table)),
+                toml::Value::Table(overlay_table),
+            ) => {
+                merge_tables(base_table, overlay_table);
+            }
+            (_, overlay_value) => {
+                base.insert(key, overlay_value);
+            }
+        }
+    }
 }
 
 fn default_core_config() -> CoreConfig {
@@ -293,23 +337,10 @@ fn resolve_config_path(root: &Path, configured_path: &str) -> PathBuf {
     }
 }
 
-fn read_credential(
-    credential_root: &Path,
-    credential_ref: &CredentialRef,
-) -> Result<String, ConfigError> {
-    let path = credential_root.join(format!("{}.txt", credential_ref.name));
-    let value = std::fs::read_to_string(&path)?.trim().to_owned();
-    if value.is_empty() {
-        return Err(ConfigError::EmptyCredential(credential_ref.name.clone()));
-    }
-    Ok(value)
-}
-
 #[derive(Debug)]
 enum ConfigError {
     Io(std::io::Error),
     Toml(toml::de::Error),
-    EmptyCredential(String),
 }
 
 impl From<std::io::Error> for ConfigError {
@@ -329,7 +360,6 @@ impl fmt::Display for ConfigError {
         match self {
             Self::Io(error) => write!(formatter, "I/O error: {error}"),
             Self::Toml(error) => write!(formatter, "TOML error: {error}"),
-            Self::EmptyCredential(name) => write!(formatter, "credential is empty: {name}"),
         }
     }
 }

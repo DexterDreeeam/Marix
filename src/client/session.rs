@@ -1,11 +1,10 @@
-use std::net::SocketAddr;
 use std::sync::Arc;
 use std::sync::OnceLock;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
 
 use marix_common::{
-    ChannelAuth, Config, Logger, NetReceiver, Receiver, Sender, SharedNetSender,
+    ChannelEndpoint, Logger, NetReceiver, Receiver, Sender, SharedNetSender,
     build_channel, connect_channel,
 };
 use marix_protocol::{
@@ -84,18 +83,10 @@ impl ClientSession {
         shutdown: Arc<AtomicBool>,
     ) -> JoinHandle<()> {
         std::thread::spawn(move || {
-            let config =
-                Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
-            let address: SocketAddr = format!("{}:{}", config.server.ip, config.server.client_port)
-                .parse()
-                .unwrap_or_else(|error| panic!("invalid server client address: {error}"));
             while !shutdown.load(Ordering::Relaxed) {
-                // TODO(feature-implement): source the handshake
-                // token from config/credential.
-                let Ok((net_tx, net_rx)) = connect_channel::<SessionMessage>(
-                    address,
-                    ChannelAuth { token: String::new() },
-                ) else {
+                let Ok((net_tx, net_rx)) =
+                    connect_channel::<SessionMessage>(ChannelEndpoint::Client)
+                else {
                     continue;
                 };
                 let _ = Logger::log("client connected to server core");

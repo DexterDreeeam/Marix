@@ -3,9 +3,10 @@
   "module": {
     "path": "src/common/config",
     "name": "config",
-    "purpose": "Strongly typed TOML configuration model and fallible loader. config.rs owns config-file discovery, credential resolution for Deepseek API keys and the server IP, runtime path normalization including client and server Marix paths, default CoreConfig fallback when TOML omits core, client settings without endpoint addresses, and server endpoint settings whose runtime ServerConfig keeps the resolved IP plus client, host, and telemetry ports; sys.rs owns supported OS/architecture detection through serializable System, Platform, and Arch types with System::new and the private Ubuntu detector; mod.rs re-exports the public config surface including ServerConfig, ToolConfig, and system types.",
-    "changeStatus": "unchanged"
+    "purpose": "Strongly typed TOML configuration model and fallible loader. config.rs owns config-file discovery, the Deepseek API key, server IP, and server handshake auth token as plain config values, a process-wide replaceable config cache with Config::load get-or-init plus Config::mock TOML-override installation for tests, runtime path normalization including client and server Marix paths, default CoreConfig fallback when TOML omits core, client settings without endpoint addresses, and server endpoint settings whose runtime ServerConfig keeps the resolved IP and handshake token plus client, host, and telemetry ports; sys.rs owns supported OS/architecture detection through serializable System, Platform, and Arch types with System::new and the private Ubuntu detector; mod.rs re-exports the public config surface including ServerConfig, ToolConfig, and system types.",
+    "changeStatus": "modified"
   },
+  "modified": ["config.rs", "mod.rs"],
   "childModules": [],
   "elements": [
     {
@@ -28,70 +29,79 @@
       "name": "Config",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
           "lineStart": 14,
-          "lineEnd": 25,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 15,
-              "lineEnd": 24
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/common/config/config.rs",
-          "lineStart": 27,
-          "lineEnd": 33,
+          "lineEnd": 24,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 122,
-          "lineEnd": 144,
+          "lineStart": 26,
+          "lineEnd": 71,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 135,
-              "lineEnd": 144
+              "lineStart": 45,
+              "lineEnd": 70
             }
           ],
           "modifiedLines": [
             {
-              "lineStart": 129,
-              "lineEnd": 129
+              "lineStart": 28,
+              "lineEnd": 42
             }
           ]
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 180,
-          "lineEnd": 221,
+          "lineStart": 194,
+          "lineEnd": 205,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 207,
+          "lineEnd": 211,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 208,
+              "lineEnd": 210
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 213,
+          "lineEnd": 249,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 186,
-              "lineEnd": 186
-            },
-            {
-              "lineStart": 197,
-              "lineEnd": 204
+              "lineStart": 213,
+              "lineEnd": 249
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 223,
-          "lineEnd": 228,
+          "lineStart": 251,
+          "lineEnd": 265,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 251,
+              "lineEnd": 265
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -180,8 +190,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 35,
-          "lineEnd": 46,
+          "lineStart": 73,
+          "lineEnd": 84,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -196,8 +206,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 48,
-          "lineEnd": 54,
+          "lineStart": 86,
+          "lineEnd": 92,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -212,8 +222,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 56,
-          "lineEnd": 62,
+          "lineStart": 94,
+          "lineEnd": 100,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -228,8 +238,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 64,
-          "lineEnd": 69,
+          "lineStart": 102,
+          "lineEnd": 107,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -244,14 +254,14 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 71,
-          "lineEnd": 76,
+          "lineStart": 109,
+          "lineEnd": 114,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 73,
-              "lineEnd": 75
+              "lineStart": 111,
+              "lineEnd": 113
             }
           ]
         }
@@ -261,29 +271,20 @@
       "name": "ServerConfig",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 78,
-          "lineEnd": 87,
+          "lineStart": 116,
+          "lineEnd": 126,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 82,
-              "lineEnd": 82
-            },
-            {
-              "lineStart": 85,
-              "lineEnd": 85
+              "lineStart": 124,
+              "lineEnd": 124
             }
           ],
-          "modifiedLines": [
-            {
-              "lineStart": 80,
-              "lineEnd": 86
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -295,8 +296,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 89,
-          "lineEnd": 93,
+          "lineStart": 128,
+          "lineEnd": 132,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -311,8 +312,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 95,
-          "lineEnd": 99,
+          "lineStart": 134,
+          "lineEnd": 138,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -327,32 +328,16 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 101,
-          "lineEnd": 106,
+          "lineStart": 140,
+          "lineEnd": 145,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 339,
-          "lineEnd": 348,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "CredentialConfig",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/config/config.rs",
-          "lineStart": 108,
-          "lineEnd": 112,
+          "lineStart": 369,
+          "lineEnd": 378,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -367,8 +352,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 114,
-          "lineEnd": 118,
+          "lineStart": 147,
+          "lineEnd": 151,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

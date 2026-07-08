@@ -3,15 +3,15 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Shared common crate root for reusable config loading with default CoreConfig fallback, credential-backed server IP resolution, external re-export adapters, database telemetry logging, and structure utilities. It exposes WorkQueue cleanup support used by server host-disconnect session reset, and lib.rs re-exports serializable config system types Arch, Platform, and System alongside Config, ServerConfig, and related models, plus the Logger telemetry client with LogMessage, LogTag, and LoggingError.",
+    "purpose": "Shared common crate root for reusable config loading with default CoreConfig fallback, server IP and handshake token resolution from plain config values, external re-export adapters, database telemetry logging, and structure utilities. It exposes WorkQueue cleanup support used by server host-disconnect session reset, and lib.rs re-exports serializable config system types Arch, Platform, and System alongside Config, ServerConfig, and related models, plus the Logger telemetry client with LogMessage, LogTag, and LoggingError.",
     "changeStatus": "modified"
   },
-  "modified": ["."],
+  "modified": ["lib.rs"],
   "childModules": [
     {
       "path": "src/common/config",
       "name": "config",
-      "purpose": "Owns the common crate configuration model, config-file discovery, serializable OS/architecture System detection, credential resolution for model API keys and the server IP, runtime path normalization, default CoreConfig fallback, client settings without endpoint addresses, server runtime IP and port settings, and tool directory settings."
+      "purpose": "Owns the common crate configuration model, config-file discovery, serializable OS/architecture System detection, the model API key, server IP, and server handshake auth token as plain config values, a replaceable config cache with Config::load and test-only Config::mock overrides, runtime path normalization, default CoreConfig fallback, client settings without endpoint addresses, server runtime IP, handshake token, and port settings, and tool directory settings."
     },
     {
       "path": "src/common/external",
@@ -21,12 +21,12 @@
     {
       "path": "src/common/logging",
       "name": "logging",
-      "purpose": "Owns the database telemetry logging system: the serializable LogTag and LogMessage records, the LoggingError enum, and the Logger client that hosts a TCP telemetry server persisting messages to a fresh per-start timestamped local redb database or connects to a remote server over length-prefixed JSON frames."
+      "purpose": "Owns the database telemetry logging system: the serializable LogTag and LogMessage records, the LoggingError enum, and the Logger client that hosts a telemetry server accepting authenticated remoc channel connections and persisting messages to a fresh per-start timestamped local redb database, or connects to a remote server and streams LogMessage records over the authenticated channel transport."
     },
     {
       "path": "src/common/structure",
       "name": "structure",
-      "purpose": "Owns shared structural data interfaces such as WorkQueue, whose clear() method empties working and completed entries for session cleanup, plus channel helpers."
+      "purpose": "Owns shared structural data interfaces such as WorkQueue, whose clear() method empties working and completed entries for session cleanup, plus channel helpers whose accept and connect entry points select a client, host, or telemetry endpoint and resolve its address and token from config before running a shared-secret token handshake."
     }
   ],
   "elements": []

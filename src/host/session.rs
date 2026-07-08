@@ -1,11 +1,10 @@
-use std::net::SocketAddr;
 use std::sync::Arc;
 use std::sync::OnceLock;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
 
 use marix_common::{
-    ChannelAuth, Config, Logger, NetReceiver, SharedNetSender, connect_channel,
+    ChannelEndpoint, Logger, NetReceiver, SharedNetSender, connect_channel,
 };
 use marix_protocol::{SessionEvent, SessionMessage};
 
@@ -46,21 +45,13 @@ impl HostSession {
 impl HostSession {
     fn spawn_worker(shutdown: Arc<AtomicBool>) -> JoinHandle<()> {
         std::thread::spawn(move || {
-            let config =
-                Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
-            let address: SocketAddr = format!("{}:{}", config.server.ip, config.server.host_port)
-                .parse()
-                .unwrap_or_else(|error| panic!("invalid server host address: {error}"));
             let server_tx: SharedNetSender<SessionMessage> =
                 SharedNetSender::new(std::sync::Mutex::new(None));
             let mut executor = Executor::new(Arc::clone(&server_tx));
             while !shutdown.load(Ordering::Relaxed) {
-                // TODO(feature-implement): source the handshake
-                // token from config/credential.
-                let Ok((net_tx, net_rx)) = connect_channel::<SessionMessage>(
-                    address,
-                    ChannelAuth { token: String::new() },
-                ) else {
+                let Ok((net_tx, net_rx)) =
+                    connect_channel::<SessionMessage>(ChannelEndpoint::Host)
+                else {
                     continue;
                 };
                 let _ = Logger::log("host connected to server core");

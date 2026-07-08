@@ -32,7 +32,7 @@ This skill owns `.temp/changed` processing, design file selection, schema, sourc
 ### `full`
 
 1. Walk `src/`.
-2. Ignore `src/tests/`.
+2. Ignore any folder named `tests` and everything under it, at any depth (any path containing a `tests` segment, e.g. `src/tests/`, `src/common/tests/`, `src/server/session/tests/`).
 3. Treat every remaining folder under `src/` as a design-tracked source module.
 4. Sort source module folders from deepest to shallowest, with `src/` last.
 5. Update or create `design.json` at the mirrored `src_meta/` path for every source module folder in that bottom-up order.
@@ -44,8 +44,8 @@ This skill owns `.temp/changed` processing, design file selection, schema, sourc
 - Source code stays under `src/`; companion metadata lives under `src_meta/`.
 - A source module `src/<rel>` maps to `src_meta/<rel>/design.json`; the `src/` root maps to `src_meta/design.json`.
 - Inside `design.json`, `module.path` and every `codeSegments[].sourcePath` must still point to `src/...`, never to `src_meta/...`.
-- A design-tracked source path is under `src/` and is not under `src/tests/`.
-- Ignore `src/tests/` entirely: no companion, no child module, no source status entry.
+- A design-tracked source path is under `src/` and has no path segment named `tests` (i.e. its path does not contain `/tests/` and it is not directly under a `src/tests` root).
+- Ignore any `tests` folder entirely, at any depth: a folder named `tests` and everything under it gets no companion, no child module, and no source status entry. This lets a module keep its own `tests/` folder without it appearing in design metadata.
 - `design.json` is machine-readable JSON only. Do not generate or preserve legacy Markdown design metadata.
 
 ## Schema
@@ -214,7 +214,7 @@ After updating:
 
 1. Parse every changed `design.json` as JSON.
 2. Confirm no legacy Markdown design metadata was created.
-3. Confirm no `src/tests/` path is listed as a normal child module or source file.
+3. Confirm no path with a `tests` segment (any `/tests/` path, at any depth) is listed as a normal child module or source file.
 4. Confirm `childModules` entries do not contain `changeStatus`.
 5. Confirm top-level status arrays list only `"."` or direct current-folder filenames.
 6. Confirm every element has `name`, `type`, `source_depth`, `changeStatus`, and `codeSegments`.

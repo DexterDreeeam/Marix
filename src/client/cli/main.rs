@@ -1,5 +1,4 @@
 use std::io::{self, BufRead, Write};
-use std::net::SocketAddr;
 use std::time::Duration;
 
 use marix_client::{ClientEvent, ClientSession};
@@ -30,18 +29,12 @@ fn main() {
             std::process::exit(1);
         }
     };
-    let telemetry_address = format!("{}:{}", config.server.ip, config.server.telemetry_port);
-    match telemetry_address.parse::<SocketAddr>() {
-        Ok(address) => match Logger::connect(address) {
-            Ok(()) => {
-                let _ = Logger::log(format!("client '{}' connected to telemetry", config.name));
-            }
-            Err(error) => {
-                eprintln!("telemetry logger unavailable, continuing without it: {error}");
-            }
-        },
+    match Logger::connect() {
+        Ok(()) => {
+            let _ = Logger::log(format!("client '{}' connected to telemetry", config.name));
+        }
         Err(error) => {
-            eprintln!("invalid telemetry server address, continuing without telemetry: {error}");
+            eprintln!("telemetry logger unavailable, continuing without it: {error}");
         }
     }
     let mut session = ClientSession::new(config.name);
