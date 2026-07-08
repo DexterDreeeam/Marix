@@ -4,9 +4,8 @@
     "path": "src/server",
     "name": "server",
     "purpose": "Server crate namespace for model/session/task/prompt/step/execution orchestration and server-side plan runtime storage. The binary hosts telemetry on config.server.telemetry_port, Session accepts client and host channels by ChannelEndpoint role, Step emits flat StepDraft model plan events, and ExecutionHub tracks tool executions keyed by execution signature before completing steps.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["."],
   "childModules": [
     {
       "path": "src/server/execution",
