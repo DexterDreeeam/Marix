@@ -4,18 +4,15 @@
     "path": "src/client/cli",
     "name": "cli",
     "purpose": "Contains the marix-client-cli command-line binary entrypoint. The CLI accepts exactly --interactive or --oneshot \"request\", drains signature-aware ClientEvent output, prints Common messages and optional Done messages, and exits oneshot on Done completion. It connects the telemetry Logger over the authenticated channel transport before starting the ClientSession.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "main.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "marix-client-cli",
       "type": "bin",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/main.rs",

@@ -4,12 +4,8 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Owns host-side tool registry, tool previews, Executor session-event dispatch, and execution runtime worker storage/routing diagnostics.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "executor.rs",
-    "registry.rs"
-  ],
   "childModules": [
     {
       "path": "src/host/executor/execution",
@@ -22,7 +18,7 @@
       "name": "Execution",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
@@ -101,7 +97,7 @@
       "name": "Executor",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/executor.rs",
@@ -174,7 +170,7 @@
       "name": "ToolRegistry",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/registry.rs",
