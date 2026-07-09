@@ -79,11 +79,11 @@ impl Task {
     fn worker(state: Arc<TaskState>, task_rx: Receiver<SessionEvent>) {
         Self::send_session_status(&state, TaskStatus::Created);
         Self::send_session_status(&state, TaskStatus::Started);
-        let _ = Logger::log(format!("task {} started", state.signature.id.0));
+        Logger::log(format!("task {} started", state.signature.id.0));
         Step::trigger_initial_plan(Arc::clone(&state));
         while let Ok(event) = task_rx.recv() {
             if let Err(error) = Self::dispatch(&state, event) {
-                let _ = Logger::debug(format!(
+                Logger::debug(format!(
                     "task {} worker stopping: {error:?}",
                     state.signature.id.0
                 ));
@@ -96,7 +96,7 @@ impl Task {
         match event {
             SessionEvent::Task(signature, event) => {
                 if signature.id != state.signature.id {
-                    let _ = Logger::warning(format!(
+                    Logger::warning(format!(
                         "task {} received event for task {}",
                         state.signature.id.0, signature.id.0
                     ));
@@ -114,14 +114,14 @@ impl Task {
                 }
             }
             SessionEvent::TaskCreate(_) => {
-                let _ = Logger::warning(format!(
+                Logger::warning(format!(
                     "task {} received unsupported TaskCreate event",
                     state.signature.id.0
                 ));
                 Ok(())
             }
             SessionEvent::Executor(_) => {
-                let _ = Logger::warning(format!(
+                Logger::warning(format!(
                     "task {} received unsupported Executor event",
                     state.signature.id.0
                 ));
@@ -162,12 +162,12 @@ impl Task {
             Ok(plan) => plan,
             Err(error) => {
                 let reason = format!("discarding invalid plan draft: {error:?}");
-                let _ = Logger::warning(format!("{reason} (task {})", state.signature.id.0));
+                Logger::warning(format!("{reason} (task {})", state.signature.id.0));
                 Self::send_session_status(state, TaskStatus::Failed { reason });
                 return;
             }
         };
-        let _ = Logger::debug(format!(
+        Logger::debug(format!(
             "running plan {} with {} step(s) (task {})",
             signature.id.0,
             plan.run_steps.len(),
@@ -179,7 +179,7 @@ impl Task {
             .insert(signature.clone(), plan.clone(), step_signatures)
         {
             let reason = format!("failed to insert task plan: {error:?}");
-            let _ = Logger::error(format!("{reason} (task {})", state.signature.id.0));
+            Logger::error(format!("{reason} (task {})", state.signature.id.0));
             Self::send_session_status(state, TaskStatus::Failed { reason });
             return;
         }
@@ -191,14 +191,14 @@ impl Task {
         match state.plan_hub.get(&signature) {
             Ok(plan) => {
                 if plan.sender().send(event).is_err() {
-                    let _ = Logger::warning(format!(
+                    Logger::warning(format!(
                         "plan {} event {event_name} dispatch failed: worker stopped (task {})",
                         signature.id.0, signature.task.id.0
                     ));
                 }
             }
             Err(_) => {
-                let _ = Logger::error(format!(
+                Logger::error(format!(
                     "plan {} event {event_name} not dispatched: plan not found (task {})",
                     signature.id.0, signature.task.id.0
                 ));
@@ -209,7 +209,7 @@ impl Task {
     fn on_plan_update(state: &Arc<TaskState>, status: PlanStatus) {
         match status {
             PlanStatus::Success => {
-                let _ = Logger::debug(format!("task {} plan completed", state.signature.id.0));
+                Logger::debug(format!("task {} plan completed", state.signature.id.0));
             }
             PlanStatus::Fail => {
                 Self::send_session_status(
@@ -223,7 +223,7 @@ impl Task {
     }
 
     fn cancel_task(state: &Arc<TaskState>) {
-        let _ = Logger::log(format!("task {} canceled", state.signature.id.0));
+        Logger::log(format!("task {} canceled", state.signature.id.0));
         for signature in state.plan_hub.list().unwrap_or_default() {
             Self::dispatch_plan(state, signature, PlanEvent::Cancel);
         }
@@ -236,7 +236,7 @@ impl Task {
             .send(SessionEvent::TaskUpdate(status))
             .is_err()
         {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "task {} status update failed: session worker stopped",
                 state.signature.id.0
             ));

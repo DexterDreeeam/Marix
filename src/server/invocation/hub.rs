@@ -30,7 +30,7 @@ impl InvocationHub {
             .lock()
             .unwrap_or_else(|error| error.into_inner());
         if invocations.contains_key(&signature) {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "invocation {} create ignored: invocation already exists",
                 signature.invocation_id.0
             ));

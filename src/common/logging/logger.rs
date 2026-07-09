@@ -53,23 +53,23 @@ impl Logger {
     }
 
     /// Emits an info-tagged telemetry message.
-    pub fn log(message: impl Into<String>) -> Result<(), LoggingError> {
-        LOGGER.telemetry(LogTag::Info, message.into())
+    pub fn log(message: impl Into<String>) {
+        LOGGER.emit(LogTag::Info, message.into());
     }
 
     /// Emits a warning-tagged telemetry message.
-    pub fn warning(message: impl Into<String>) -> Result<(), LoggingError> {
-        LOGGER.telemetry(LogTag::Warning, message.into())
+    pub fn warning(message: impl Into<String>) {
+        LOGGER.emit(LogTag::Warning, message.into());
     }
 
     /// Emits an error-tagged telemetry message.
-    pub fn error(message: impl Into<String>) -> Result<(), LoggingError> {
-        LOGGER.telemetry(LogTag::Error, message.into())
+    pub fn error(message: impl Into<String>) {
+        LOGGER.emit(LogTag::Error, message.into());
     }
 
     /// Emits a debug-tagged telemetry message.
-    pub fn debug(message: impl Into<String>) -> Result<(), LoggingError> {
-        LOGGER.telemetry(LogTag::Debug, message.into())
+    pub fn debug(message: impl Into<String>) {
+        LOGGER.emit(LogTag::Debug, message.into());
     }
 }
 
@@ -80,6 +80,16 @@ impl Logger {
         Self {
             sink: OnceLock::new(),
         }
+    }
+
+    fn emit(&self, tag: LogTag, message: String) {
+        if let Err(error) = self.telemetry(tag, message) {
+            Self::report_error(error);
+        }
+    }
+
+    fn report_error(error: LoggingError) {
+        eprintln!("marix logger failed: {error}");
     }
 
     fn telemetry(&self, tag: LogTag, message: String) -> Result<(), LoggingError> {
@@ -280,7 +290,9 @@ fn worker(mut net_rx: NetReceiver<LogMessage>) {
     };
     runtime.block_on(async move {
         while let Ok(Some(message)) = net_rx.recv().await {
-            let _ = LOGGER.record(message);
+            if let Err(error) = LOGGER.record(message) {
+                Logger::report_error(error);
+            }
         }
     });
 }

@@ -70,7 +70,7 @@ impl Step {
 
     pub(crate) fn start(&self) {
         if self.state.steps.with(&self.signature.id, |_| ()).is_some() {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "step {} start ignored: step already exists (task {})",
                 self.signature.id.0, self.signature.task.id.0
             ));
@@ -78,7 +78,7 @@ impl Step {
         }
         if self.state.steps.size() >= 10 {
             let reason = "task step limit exceeded".to_owned();
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "step {} rejected: {reason} (task {})",
                 self.signature.id.0, self.signature.task.id.0
             ));
@@ -129,7 +129,7 @@ impl Step {
     fn worker(self, step_rx: Receiver<StepEvent>) {
         while let Ok(event) = step_rx.recv() {
             if let Err(error) = self.dispatch(event) {
-                let _ = Logger::debug(format!(
+                Logger::debug(format!(
                     "step {} worker stopping: {error:?} (task {})",
                     self.signature.id.0, self.signature.task.id.0
                 ));
@@ -263,7 +263,7 @@ impl Step {
     }
 
     pub(super) fn fail_with_reason(&self, reason: String) {
-        let _ = Logger::error(format!(
+        Logger::error(format!(
             "step {} failed: {reason} (task {})",
             self.signature.id.0, self.signature.task.id.0
         ));
@@ -277,7 +277,7 @@ impl Step {
 
     fn complete_current(&self) -> bool {
         if !self.is_working() {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "step {} completion ignored: step is not working (task {})",
                 self.signature.id.0, self.signature.task.id.0
             ));
@@ -301,7 +301,7 @@ impl Step {
                 self.dispatch_invocation(request.signature.clone(), InvocationEvent::Cancel);
             }
             StepKind::Model(_) => {
-                let _ = Logger::warning(format!(
+                Logger::warning(format!(
                     "model step {} cancel requested, but model cancellation is not supported",
                     self.signature.id.0
                 ));
@@ -315,7 +315,7 @@ impl Step {
 
     fn send_to_self(&self, event: StepEvent) {
         if self.sender().send(event).is_err() {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "step {} self event failed: worker stopped (task {})",
                 self.signature.id.0, self.signature.task.id.0
             ));
@@ -328,7 +328,7 @@ impl Step {
             .send(SessionEvent::TaskUpdate(status))
             .is_err()
         {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "task {} update failed: task worker stopped",
                 state.signature.id.0
             ));
@@ -341,7 +341,7 @@ impl Step {
             .send(SessionEvent::Task(state.signature.clone(), event))
             .is_err()
         {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "task {} event failed: task worker stopped",
                 state.signature.id.0
             ));

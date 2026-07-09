@@ -4,15 +4,20 @@
     "path": "src/server/step",
     "name": "step",
     "purpose": "Owns the server runtime Step type and re-exports top-level Invocation and Relay subjects for callers that still enter through the step namespace.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "child.rs",
+    "model.rs",
+    "step.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/step.rs",
@@ -20,12 +25,7 @@
           "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 16,
-              "lineEnd": 16
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/step/step.rs",
@@ -35,8 +35,12 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 27,
-              "lineEnd": 27
+              "lineStart": 73,
+              "lineEnd": 73
+            },
+            {
+              "lineStart": 81,
+              "lineEnd": 81
             }
           ]
         },
@@ -48,8 +52,32 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 128,
-              "lineEnd": 128
+              "lineStart": 132,
+              "lineEnd": 132
+            },
+            {
+              "lineStart": 266,
+              "lineEnd": 266
+            },
+            {
+              "lineStart": 280,
+              "lineEnd": 280
+            },
+            {
+              "lineStart": 304,
+              "lineEnd": 304
+            },
+            {
+              "lineStart": 318,
+              "lineEnd": 318
+            },
+            {
+              "lineStart": 331,
+              "lineEnd": 331
+            },
+            {
+              "lineStart": 344,
+              "lineEnd": 344
             }
           ]
         },
@@ -59,12 +87,7 @@
           "lineEnd": 365,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 356,
-              "lineEnd": 356
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     }

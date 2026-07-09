@@ -51,7 +51,7 @@ impl HostSession {
                 else {
                     continue;
                 };
-                let _ = Logger::log("host connected to server core");
+                Logger::log("host connected to server core");
                 *server_tx.lock().unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
                 Self::worker(net_rx, &executor, &shutdown);
             }
@@ -72,14 +72,14 @@ impl HostSession {
                 match message.event {
                     SessionEvent::Executor(event) => {
                         if executor.sender().send(event).is_err() {
-                            let _ = Logger::warning(
+                            Logger::warning(
                                 "host session could not send executor event: \
                                  executor worker stopped",
                             );
                         }
                     }
                     event => {
-                        let _ = Logger::warning(format!(
+                        Logger::warning(format!(
                             "host session received unsupported session event {event:?}"
                         ));
                     }

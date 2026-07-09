@@ -4,8 +4,11 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Shared common crate root for reusable config loading with default CoreConfig fallback, server IP and handshake token resolution from plain config values, external re-export adapters, database telemetry logging, and structure utilities. It exposes WorkQueue cleanup support used by server host-disconnect session reset, and lib.rs re-exports serializable config system types Arch, Platform, and System alongside Config, ServerConfig, and related models, plus the Logger telemetry client with LogMessage, LogTag, and LoggingError.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/common/config",
@@ -564,7 +567,7 @@
       "name": "Logger",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
@@ -572,12 +575,7 @@
           "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 17
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/common/logging/logger.rs",
@@ -587,21 +585,33 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 21,
-              "lineEnd": 21
+              "lineStart": 56,
+              "lineEnd": 57
+            },
+            {
+              "lineStart": 61,
+              "lineEnd": 62
+            },
+            {
+              "lineStart": 66,
+              "lineEnd": 67
+            },
+            {
+              "lineStart": 71,
+              "lineEnd": 72
             }
           ]
         },
         {
           "sourcePath": "src/common/logging/logger.rs",
           "lineStart": 78,
-          "lineEnd": 133,
+          "lineEnd": 143,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 78,
-              "lineEnd": 78
+              "lineStart": 85,
+              "lineEnd": 94
             }
           ]
         }
@@ -615,16 +625,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 135,
-          "lineEnd": 138,
+          "lineStart": 145,
+          "lineEnd": 148,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 135,
-              "lineEnd": 135
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -636,29 +641,19 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 140,
-          "lineEnd": 143,
+          "lineStart": 150,
+          "lineEnd": 153,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 140,
-              "lineEnd": 140
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 145,
-          "lineEnd": 252,
+          "lineStart": 155,
+          "lineEnd": 262,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 145,
-              "lineEnd": 145
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },

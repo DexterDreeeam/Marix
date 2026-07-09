@@ -4,8 +4,12 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Owns host-side tool registry, tool previews, Executor session-event dispatch, and execution runtime worker storage/routing diagnostics.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "executor.rs",
+    "registry.rs"
+  ],
   "childModules": [
     {
       "path": "src/host/executor/execution",
@@ -18,7 +22,7 @@
       "name": "Execution",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
@@ -26,12 +30,7 @@
           "lineEnd": 15,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 12
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
@@ -39,12 +38,7 @@
           "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 17
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
@@ -54,8 +48,16 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 37,
-              "lineEnd": 40
+              "lineStart": 43,
+              "lineEnd": 43
+            },
+            {
+              "lineStart": 69,
+              "lineEnd": 69
+            },
+            {
+              "lineStart": 82,
+              "lineEnd": 82
             }
           ]
         }
@@ -99,7 +101,7 @@
       "name": "Executor",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/executor.rs",
@@ -107,12 +109,7 @@
           "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 14
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/executor.rs",
@@ -120,12 +117,7 @@
           "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 28,
-              "lineEnd": 28
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/executor.rs",
@@ -135,8 +127,28 @@
           "addedLines": [],
           "modifiedLines": [
             {
+              "lineStart": 92,
+              "lineEnd": 92
+            },
+            {
+              "lineStart": 98,
+              "lineEnd": 98
+            },
+            {
+              "lineStart": 108,
+              "lineEnd": 108
+            },
+            {
               "lineStart": 120,
-              "lineEnd": 126
+              "lineEnd": 120
+            },
+            {
+              "lineStart": 141,
+              "lineEnd": 141
+            },
+            {
+              "lineStart": 147,
+              "lineEnd": 147
             }
           ]
         }
@@ -162,7 +174,7 @@
       "name": "ToolRegistry",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/registry.rs",
@@ -178,7 +190,16 @@
           "lineEnd": 75,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 28,
+              "lineEnd": 28
+            },
+            {
+              "lineStart": 44,
+              "lineEnd": 44
+            }
+          ]
         }
       ]
     },

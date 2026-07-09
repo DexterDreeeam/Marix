@@ -4,8 +4,11 @@
     "path": "src/server/plan",
     "name": "plan",
     "purpose": "Owns server-side plan runtime orchestration and plan stringification over Invocation step kinds.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "plan.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -36,7 +39,7 @@
       "name": "Plan",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/plan.rs",
@@ -44,12 +47,7 @@
           "lineEnd": 24,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 14
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/plan/plan.rs",
@@ -57,12 +55,7 @@
           "lineEnd": 80,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 26,
-              "lineEnd": 26
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/plan/plan.rs",
@@ -72,8 +65,28 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 84,
-              "lineEnd": 84
+              "lineStart": 88,
+              "lineEnd": 88
+            },
+            {
+              "lineStart": 104,
+              "lineEnd": 104
+            },
+            {
+              "lineStart": 147,
+              "lineEnd": 147
+            },
+            {
+              "lineStart": 154,
+              "lineEnd": 154
+            },
+            {
+              "lineStart": 164,
+              "lineEnd": 164
+            },
+            {
+              "lineStart": 182,
+              "lineEnd": 182
             }
           ]
         },
@@ -83,12 +96,7 @@
           "lineEnd": 211,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 190,
-              "lineEnd": 190
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },

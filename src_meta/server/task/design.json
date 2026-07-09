@@ -4,8 +4,11 @@
     "path": "src/server/task",
     "name": "task",
     "purpose": "Owns server task runtime and TaskState. TaskState holds InvocationHub, RelayHub, PlanHub, and step storage while implementation event routing remains deferred.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "task.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -59,7 +62,7 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/task.rs",
@@ -67,12 +70,7 @@
           "lineEnd": 23,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 19,
-              "lineEnd": 19
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/task/task.rs",
@@ -80,12 +78,7 @@
           "lineEnd": 66,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 25,
-              "lineEnd": 25
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/task/task.rs",
@@ -95,8 +88,56 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 70,
-              "lineEnd": 70
+              "lineStart": 82,
+              "lineEnd": 82
+            },
+            {
+              "lineStart": 86,
+              "lineEnd": 86
+            },
+            {
+              "lineStart": 99,
+              "lineEnd": 99
+            },
+            {
+              "lineStart": 117,
+              "lineEnd": 117
+            },
+            {
+              "lineStart": 124,
+              "lineEnd": 124
+            },
+            {
+              "lineStart": 165,
+              "lineEnd": 165
+            },
+            {
+              "lineStart": 170,
+              "lineEnd": 170
+            },
+            {
+              "lineStart": 182,
+              "lineEnd": 182
+            },
+            {
+              "lineStart": 194,
+              "lineEnd": 194
+            },
+            {
+              "lineStart": 201,
+              "lineEnd": 201
+            },
+            {
+              "lineStart": 212,
+              "lineEnd": 212
+            },
+            {
+              "lineStart": 226,
+              "lineEnd": 226
+            },
+            {
+              "lineStart": 239,
+              "lineEnd": 239
             }
           ]
         }

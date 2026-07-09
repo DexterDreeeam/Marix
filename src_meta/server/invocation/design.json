@@ -4,27 +4,26 @@
     "path": "src/server/invocation",
     "name": "invocation",
     "purpose": "Owns the server-side Invocation subject and InvocationHub storage boundary for invocation tracking; behavior is intentionally left as design stubs in this interface pass.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "hub.rs",
+    "invocation.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "InvocationHub",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/hub.rs",
           "lineStart": 10,
           "lineEnd": 12,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 12
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -32,13 +31,13 @@
           "lineStart": 14,
           "lineEnd": 71,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 14,
-              "lineEnd": 71
+              "lineStart": 33,
+              "lineEnd": 33
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -46,19 +45,14 @@
       "name": "Invocation",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/invocation.rs",
           "lineStart": 15,
           "lineEnd": 22,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 15,
-              "lineEnd": 22
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -66,12 +60,7 @@
           "lineStart": 24,
           "lineEnd": 78,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 24,
-              "lineEnd": 78
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -79,25 +68,40 @@
           "lineStart": 122,
           "lineEnd": 305,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 122,
-              "lineEnd": 305
+              "lineStart": 127,
+              "lineEnd": 127
+            },
+            {
+              "lineStart": 158,
+              "lineEnd": 158
+            },
+            {
+              "lineStart": 190,
+              "lineEnd": 190
+            },
+            {
+              "lineStart": 216,
+              "lineEnd": 216
+            },
+            {
+              "lineStart": 287,
+              "lineEnd": 287
+            },
+            {
+              "lineStart": 300,
+              "lineEnd": 300
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/server/invocation/invocation.rs",
           "lineStart": 307,
           "lineEnd": 316,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 307,
-              "lineEnd": 316
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -113,12 +117,7 @@
           "lineStart": 82,
           "lineEnd": 88,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 82,
-              "lineEnd": 88
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -126,12 +125,7 @@
           "lineStart": 90,
           "lineEnd": 120,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 90,
-              "lineEnd": 120
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

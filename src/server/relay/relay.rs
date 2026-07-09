@@ -125,13 +125,13 @@ impl Relay {
             .unwrap_or_else(|error| error.into_inner())
             .prompt
             .clone();
-        let _ = Logger::warning(format!(
+        Logger::warning(format!(
             "relay {} has no execution backend; prompt was not run: {}",
             self.signature.relay_id.0, prompt
         ));
         while let Ok(event) = relay_rx.recv() {
             if let Err(error) = self.dispatch(&state, event) {
-                let _ = Logger::debug(format!(
+                Logger::debug(format!(
                     "relay {} worker stopping: {error:?}",
                     self.signature.relay_id.0
                 ));
@@ -166,7 +166,7 @@ impl Relay {
             ),
         );
         if state.task_tx.send(event).is_err() {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "relay {} status update failed: task worker stopped",
                 relay.signature.relay_id.0
             ));

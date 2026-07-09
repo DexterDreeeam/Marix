@@ -4,27 +4,26 @@
     "path": "src/server/relay",
     "name": "relay",
     "purpose": "Owns the server-side Relay subject and RelayHub storage boundary for relay tracking; relay behavior remains intentionally unimplemented.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "hub.rs",
+    "relay.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "RelayHub",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/hub.rs",
           "lineStart": 10,
           "lineEnd": 12,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 12
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -32,13 +31,13 @@
           "lineStart": 14,
           "lineEnd": 59,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 14,
-              "lineEnd": 59
+              "lineStart": 29,
+              "lineEnd": 29
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -46,19 +45,14 @@
       "name": "Relay",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/relay.rs",
           "lineStart": 14,
           "lineEnd": 21,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 21
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -66,12 +60,7 @@
           "lineStart": 23,
           "lineEnd": 77,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 23,
-              "lineEnd": 77
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -79,25 +68,28 @@
           "lineStart": 119,
           "lineEnd": 175,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 119,
-              "lineEnd": 175
+              "lineStart": 128,
+              "lineEnd": 128
+            },
+            {
+              "lineStart": 134,
+              "lineEnd": 134
+            },
+            {
+              "lineStart": 169,
+              "lineEnd": 169
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/server/relay/relay.rs",
           "lineStart": 177,
           "lineEnd": 186,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 177,
-              "lineEnd": 186
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -113,12 +105,7 @@
           "lineStart": 81,
           "lineEnd": 86,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 81,
-              "lineEnd": 86
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -126,12 +113,7 @@
           "lineStart": 88,
           "lineEnd": 117,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 88,
-              "lineEnd": 117
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

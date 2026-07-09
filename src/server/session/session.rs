@@ -22,7 +22,7 @@ pub struct Session {
 
 impl Session {
     pub fn new(name: String) -> Self {
-        let _ = Logger::log(format!("core session '{name}' initializing"));
+        Logger::log(format!("core session '{name}' initializing"));
         let _ = SOURCE_NAME.set(name);
         let state = Arc::new(SessionState::new());
         let client_worker = Self::spawn_client_worker(Arc::clone(&state));
@@ -50,7 +50,7 @@ impl Session {
                 let Ok((tx, rx)) = accept_channel::<SessionMessage>(ChannelEndpoint::Client) else {
                     continue;
                 };
-                let _ = Logger::log("client channel connected");
+                Logger::log("client channel connected");
                 *state
                     .client_tx
                     .lock()
@@ -70,7 +70,7 @@ impl Session {
                 let Ok((tx, rx)) = accept_channel::<SessionMessage>(ChannelEndpoint::Host) else {
                     continue;
                 };
-                let _ = Logger::log("host channel connected");
+                Logger::log("host channel connected");
                 *state
                     .host_tx
                     .lock()
@@ -118,7 +118,7 @@ impl Session {
             };
             while let Ok(Some(message)) = rx.recv().await {
                 if state.task_tx.send(message.event).is_err() {
-                    let _ = Logger::warning("session event enqueue failed: session worker stopped");
+                    Logger::warning("session event enqueue failed: session worker stopped");
                 }
             }
         });
@@ -140,7 +140,7 @@ impl Session {
             };
             while let Ok(Some(message)) = rx.recv().await {
                 if state.task_tx.send(message.event).is_err() {
-                    let _ = Logger::warning("session event enqueue failed: session worker stopped");
+                    Logger::warning("session event enqueue failed: session worker stopped");
                 }
             }
         });
@@ -155,7 +155,7 @@ impl Session {
             .is_none()
         {
             let reason = "host not connected".to_string();
-            let _ = Logger::warning(format!("task {} rejected: {reason}", signature.id.0));
+            Logger::warning(format!("task {} rejected: {reason}", signature.id.0));
             Self::send_client_event(
                 state,
                 SessionEvent::TaskUpdate(TaskStatus::Failed { reason }),
@@ -163,7 +163,7 @@ impl Session {
             return;
         }
         let task_id = signature.id.clone();
-        let _ = Logger::log(format!("task {} created", task_id.0));
+        Logger::log(format!("task {} created", task_id.0));
         let task = Task::new(
             Arc::clone(&state.context),
             signature,
@@ -198,14 +198,14 @@ impl Session {
                 .sender();
             sender.send(event).is_ok()
         }) else {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "session could not dispatch event: task {} not found",
                 task_id.0
             ));
             return;
         };
         if !sent {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "session could not dispatch event: task {} worker stopped",
                 task_id.0
             ));
@@ -236,7 +236,7 @@ impl Session {
                 | SessionEvent::Executor(ExecutorEvent::ExecutionCreate(_))
                 | SessionEvent::Executor(ExecutorEvent::ExecutionUpdate(_, _))
         ) {
-            let _ = Logger::warning("core session ignored non-executor host event");
+            Logger::warning("core session ignored non-executor host event");
             return;
         }
         if let Some(sender) = state
@@ -246,15 +246,15 @@ impl Session {
             .as_mut()
         {
             if let Err(error) = sender.try_send(Session::package_message(event)) {
-                let _ = Logger::warning(format!("core session could not send host event: {error}"));
+                Logger::warning(format!("core session could not send host event: {error}"));
             }
         } else {
-            let _ = Logger::warning("core session could not send host event: host disconnected");
+            Logger::warning("core session could not send host event: host disconnected");
         }
     }
 
     fn host_disconnect(state: &SessionState) {
-        let _ = Logger::warning("host disconnected; clearing session state");
+        Logger::warning("host disconnected; clearing session state");
         *state
             .client_tx
             .lock()

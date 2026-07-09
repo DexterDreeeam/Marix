@@ -26,7 +26,7 @@ impl RelayHub {
             .lock()
             .unwrap_or_else(|error| error.into_inner());
         if relays.contains_key(&signature) {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "relay {} create ignored: relay already exists",
                 signature.relay_id.0
             ));

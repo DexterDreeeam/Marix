@@ -25,7 +25,7 @@ impl ToolRegistry {
         let config =
             Config::load().unwrap_or_else(|error| panic!("failed to load config: {error}"));
         let Ok(entries) = std::fs::read_dir(&config.tool.directory) else {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "tool directory unavailable: {}",
                 config.tool.directory
             ));
@@ -41,7 +41,7 @@ impl ToolRegistry {
                 let _ = registry.register(tool);
             }
         }
-        let _ = Logger::log(format!(
+        Logger::log(format!(
             "loaded {} tool(s) from {}",
             registry.tools.len(),
             config.tool.directory

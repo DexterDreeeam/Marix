@@ -124,7 +124,7 @@ impl Invocation {
         Self::send_step_update(&state, &self, InvocationStatus::Created);
         while let Ok(event) = invocation_rx.recv() {
             if let Err(error) = self.dispatch(&state, event) {
-                let _ = Logger::debug(format!(
+                Logger::debug(format!(
                     "invocation {} worker stopping: {error:?}",
                     self.signature.invocation_id.0
                 ));
@@ -155,7 +155,7 @@ impl Invocation {
         let (request, status) = {
             let mut inner = self.inner.lock().unwrap_or_else(|error| error.into_inner());
             if inner.execution_signature.is_some() {
-                let _ = Logger::warning(format!(
+                Logger::warning(format!(
                     "invocation {} create ignored: execution already exists",
                     self.signature.invocation_id.0
                 ));
@@ -187,7 +187,7 @@ impl Invocation {
             .execution_signature
             .clone();
         let Some(signature) = execution_signature else {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "invocation {} could not forward execution event: execution not created",
                 self.signature.invocation_id.0
             ));
@@ -213,7 +213,7 @@ impl Invocation {
                 self.signature.invocation_id.0.to_string(),
             );
         } else {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "invocation {} cancel requested before execution create",
                 self.signature.invocation_id.0
             ));
@@ -284,7 +284,7 @@ impl Invocation {
             ),
         );
         if state.task_tx.send(event).is_err() {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "invocation {} status update failed: task worker stopped",
                 invocation.signature.invocation_id.0
             ));
@@ -297,7 +297,7 @@ impl Invocation {
             .send(SessionEvent::Executor(event))
             .is_err()
         {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "invocation {invocation_id} host event failed: session worker stopped"
             ));
         }

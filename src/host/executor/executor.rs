@@ -89,13 +89,13 @@ impl Executor {
         }) {
             Some(true) => {}
             Some(false) => {
-                let _ = Logger::warning(format!(
+                Logger::warning(format!(
                     "execution {} event {event_name} forward failed: worker stopped",
                     execution_id
                 ));
             }
             None => {
-                let _ = Logger::warning(format!(
+                Logger::warning(format!(
                     "execution {} event {event_name} not routed: execution not found",
                     execution_id
                 ));
@@ -105,7 +105,7 @@ impl Executor {
 
     fn create_execution(state: &ExecutorState, request: ExecutionRequest) {
         let Some(tool) = state.registry.get(&request.signature.name).cloned() else {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "execution {} create failed: tool '{}' not found",
                 request.signature.execution_id.0, request.signature.name
             ));
@@ -117,7 +117,7 @@ impl Executor {
             .executions
             .insert_or_update(signature.clone(), execution)
         {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "execution {} replaced existing queue entry",
                 signature.execution_id.0
             ));
@@ -138,13 +138,13 @@ impl Executor {
         let message = HostSession::package_message(event);
         let mut server_tx = server_tx.lock().unwrap_or_else(|error| error.into_inner());
         let Some(sender) = server_tx.as_mut() else {
-            let _ = Logger::warning(
+            Logger::warning(
                 "host executor worker could not send event: server is disconnected",
             );
             return;
         };
         if let Err(error) = sender.try_send(message) {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "host executor worker could not send event: {}",
                 error
             ));

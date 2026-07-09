@@ -4,8 +4,11 @@
     "path": "src/client",
     "name": "client",
     "purpose": "Client crate namespace for the marix_client library and client binaries. ClientEvent carries Common streaming output and Done completion events by signature id, and ClientSession connects to the server over the client channel selected by ChannelEndpoint::Client, creates tasks with an empty TaskSignature.name, and keeps the user request only in TaskEvent::Create.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "session.rs"
+  ],
   "childModules": [
     {
       "path": "src/client/app",
@@ -55,7 +58,7 @@
       "name": "ClientSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
@@ -63,12 +66,7 @@
           "lineEnd": 23,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 18,
-              "lineEnd": 18
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/client/session.rs",
@@ -78,8 +76,12 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 25,
-              "lineEnd": 25
+              "lineStart": 53,
+              "lineEnd": 53
+            },
+            {
+              "lineStart": 58,
+              "lineEnd": 58
             }
           ]
         },
@@ -91,8 +93,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 78,
-              "lineEnd": 78
+              "lineStart": 91,
+              "lineEnd": 91
             }
           ]
         }

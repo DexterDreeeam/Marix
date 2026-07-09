@@ -4,8 +4,11 @@
     "path": "src",
     "name": "src",
     "purpose": "Workspace source root for Marix Rust crates and prompt sources; direct child modules are crate packages for protocol, common, server, client, host, tool, and prompts.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/client",
@@ -69,7 +72,7 @@
       "name": "ClientSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
@@ -77,12 +80,7 @@
           "lineEnd": 23,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 18,
-              "lineEnd": 18
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/client/session.rs",
@@ -92,8 +90,12 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 25,
-              "lineEnd": 25
+              "lineStart": 53,
+              "lineEnd": 53
+            },
+            {
+              "lineStart": 58,
+              "lineEnd": 58
             }
           ]
         },
@@ -105,8 +107,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 78,
-              "lineEnd": 78
+              "lineStart": 91,
+              "lineEnd": 91
             }
           ]
         }
@@ -116,7 +118,7 @@
       "name": "HostSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/session.rs",
@@ -124,12 +126,7 @@
           "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 13,
-              "lineEnd": 13
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/session.rs",
@@ -137,12 +134,7 @@
           "lineEnd": 39,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 18,
-              "lineEnd": 18
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/session.rs",
@@ -152,8 +144,16 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 72,
-              "lineEnd": 72
+              "lineStart": 54,
+              "lineEnd": 54
+            },
+            {
+              "lineStart": 75,
+              "lineEnd": 75
+            },
+            {
+              "lineStart": 82,
+              "lineEnd": 82
             }
           ]
         }

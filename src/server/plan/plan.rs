@@ -85,7 +85,7 @@ impl Plan {
     fn worker(self, plan_rx: Receiver<PlanEvent>) {
         while let Ok(event) = plan_rx.recv() {
             if let Err(error) = self.dispatch(event) {
-                let _ = Logger::debug(format!(
+                Logger::debug(format!(
                     "plan {} worker stopping: {error:?} (task {})",
                     self.signature.id.0, self.signature.task.id.0
                 ));
@@ -101,7 +101,7 @@ impl Plan {
                 Ok(())
             }
             PlanEvent::StepCreate(draft) => {
-                let _ = Logger::warning(format!(
+                Logger::warning(format!(
                     "plan {} step create '{}' ignored: dynamic step insertion is not supported",
                     self.signature.id.0, draft.name
                 ));
@@ -144,14 +144,14 @@ impl Plan {
     fn dispatch_step(&self, signature: StepSignature, event: StepEvent) {
         let event_name = format!("{event:?}");
         let Some(step) = self.step(&signature) else {
-            let _ = Logger::error(format!(
+            Logger::error(format!(
                 "step {} event {event_name} not dispatched: step not found (task {})",
                 signature.id.0, signature.task.id.0
             ));
             return;
         };
         if step.sender().send(event).is_err() {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "step {} event {event_name} dispatch failed: worker stopped (task {})",
                 signature.id.0, signature.task.id.0
             ));
@@ -161,7 +161,7 @@ impl Plan {
     fn cancel_steps(&self) {
         for step in &self.run_steps {
             if step.sender().send(StepEvent::Cancel).is_err() {
-                let _ = Logger::warning(format!(
+                Logger::warning(format!(
                     "step {} cancel failed: worker stopped (task {})",
                     step.signature.id.0, step.signature.task.id.0
                 ));
@@ -179,7 +179,7 @@ impl Plan {
             ))
             .is_err()
         {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "plan {} update failed: task worker stopped (task {})",
                 self.signature.id.0, self.signature.task.id.0
             ));

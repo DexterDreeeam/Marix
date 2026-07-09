@@ -24,7 +24,7 @@ fn main() {
 fn connect_telemetry(config: &Config) {
     match Logger::connect() {
         Ok(()) => {
-            let _ = Logger::log(format!("host '{}' connected to telemetry", config.name));
+            Logger::log(format!("host '{}' connected to telemetry", config.name));
         }
         Err(error) => {
             eprintln!("telemetry logger unavailable, continuing without it: {error}");

@@ -10,7 +10,7 @@ use crate::step::Step;
 impl Step {
     pub(super) fn create_invocation(&self, request: InvocationRequest) {
         if request.signature.step != self.signature {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "step {} rejected invocation {}: signature step mismatch",
                 self.signature.id.0, request.signature.invocation_id.0
             ));
@@ -22,7 +22,7 @@ impl Step {
                 .send(InvocationEvent::ExecutionCreate)
                 .is_err()
             {
-                let _ = Logger::warning(format!(
+                Logger::warning(format!(
                     "invocation {} create failed: worker stopped",
                     invocation.signature.invocation_id.0
                 ));
@@ -41,13 +41,13 @@ impl Step {
         }) {
             Some(true) => {}
             Some(false) => {
-                let _ = Logger::warning(format!(
+                Logger::warning(format!(
                     "invocation {} event {event_name} failed: worker stopped",
                     signature.invocation_id.0
                 ));
             }
             None => {
-                let _ = Logger::warning(format!(
+                Logger::warning(format!(
                     "invocation {} event {event_name} not dispatched: invocation not found",
                     signature.invocation_id.0
                 ));
@@ -58,19 +58,19 @@ impl Step {
     pub(super) fn on_invocation_update(&self, status: InvocationStatus) {
         match status {
             InvocationStatus::Created => {
-                let _ = Logger::debug(format!(
+                Logger::debug(format!(
                     "step {} invocation created (task {})",
                     self.signature.id.0, self.signature.task.id.0
                 ));
             }
             InvocationStatus::Started => {
-                let _ = Logger::debug(format!(
+                Logger::debug(format!(
                     "step {} invocation started (task {})",
                     self.signature.id.0, self.signature.task.id.0
                 ));
             }
             InvocationStatus::Processing { .. } => {
-                let _ = Logger::debug(format!(
+                Logger::debug(format!(
                     "step {} invocation update (task {})",
                     self.signature.id.0, self.signature.task.id.0
                 ));
@@ -90,7 +90,7 @@ impl Step {
 
     pub(super) fn create_relay(&self, request: RelayRequest) {
         if request.signature.step != self.signature {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "step {} rejected relay {}: signature step mismatch",
                 self.signature.id.0, request.signature.relay_id.0
             ));
@@ -108,13 +108,13 @@ impl Step {
         {
             Some(true) => {}
             Some(false) => {
-                let _ = Logger::warning(format!(
+                Logger::warning(format!(
                     "relay {} event {event_name} failed: worker stopped",
                     signature.relay_id.0
                 ));
             }
             None => {
-                let _ = Logger::warning(format!(
+                Logger::warning(format!(
                     "relay {} event {event_name} not dispatched: relay not found",
                     signature.relay_id.0
                 ));
@@ -125,19 +125,19 @@ impl Step {
     pub(super) fn on_relay_update(&self, status: RelayStatus) {
         match status {
             RelayStatus::Created => {
-                let _ = Logger::debug(format!(
+                Logger::debug(format!(
                     "step {} relay created (task {})",
                     self.signature.id.0, self.signature.task.id.0
                 ));
             }
             RelayStatus::Started => {
-                let _ = Logger::debug(format!(
+                Logger::debug(format!(
                     "step {} relay started (task {})",
                     self.signature.id.0, self.signature.task.id.0
                 ));
             }
             RelayStatus::Processing { .. } => {
-                let _ = Logger::debug(format!(
+                Logger::debug(format!(
                     "step {} relay update (task {})",
                     self.signature.id.0, self.signature.task.id.0
                 ));

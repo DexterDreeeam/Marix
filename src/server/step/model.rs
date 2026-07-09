@@ -14,7 +14,7 @@ use crate::step::Step;
 
 impl Step {
     pub(super) fn run_model(self) {
-        let _ = Logger::debug(format!(
+        Logger::debug(format!(
             "model step {} started (task {})",
             self.signature.id.0, self.signature.task.id.0
         ));
@@ -23,7 +23,7 @@ impl Step {
             let prompt = self.model_prompt();
             let update_count = Arc::clone(&self.update_count);
             let signature = self.signature.clone();
-            let _ = Logger::debug(format!(
+            Logger::debug(format!(
                 "model step {} request (task {})",
                 signature.id.0, signature.task.id.0
             ));
@@ -43,7 +43,7 @@ impl Step {
                 Ok(responses) => responses,
                 Err(error) => {
                     let reason = error.to_string();
-                    let _ = Logger::error(format!(
+                    Logger::error(format!(
                         "model step {} request failed: {reason}",
                         signature.id.0
                     ));
@@ -56,14 +56,14 @@ impl Step {
                     ModelResponse::Content(content) => {
                         let seq = update_count.fetch_add(1, Ordering::Relaxed);
                         result.push_str(&content);
-                        let _ = Logger::debug(format!(
+                        Logger::debug(format!(
                             "model step {} update {seq} (task {})",
                             signature.id.0, signature.task.id.0
                         ));
                     }
                     ModelResponse::Failed(error) => {
                         let reason = error.to_string();
-                        let _ = Logger::error(format!(
+                        Logger::error(format!(
                             "model step {} stream failed: {reason}",
                             signature.id.0
                         ));
@@ -73,7 +73,7 @@ impl Step {
                 }
             }
             let seq_count = update_count.load(Ordering::Relaxed);
-            let _ = Logger::debug(format!(
+            Logger::debug(format!(
                 "model step {} completed ({seq_count} chunks)",
                 signature.id.0
             ));
@@ -86,21 +86,21 @@ impl Step {
             Ok(value) => value,
             Err(error) => {
                 let reason = format!("model output is not valid JSON: {error}");
-                let _ = Logger::warning(reason.clone());
+                Logger::warning(reason.clone());
                 Self::send_task_update(&self.state, TaskStatus::Failed { reason });
                 return;
             }
         };
         let Some(object) = value.as_object() else {
             let reason = "model output JSON is not an object".to_owned();
-            let _ = Logger::warning(reason.clone());
+            Logger::warning(reason.clone());
             Self::send_task_update(&self.state, TaskStatus::Failed { reason });
             return;
         };
         if object.get("answer").is_some() {
             match serde_json::from_str::<Answer>(content) {
                 Ok(answer) => {
-                    let _ = Logger::log(format!(
+                    Logger::log(format!(
                         "task {} produced final answer",
                         self.state.signature.id.0
                     ));
@@ -114,7 +114,7 @@ impl Step {
                 }
                 Err(error) => {
                     let reason = format!("model output is not a valid answer: {error}");
-                    let _ = Logger::warning(reason.clone());
+                    Logger::warning(reason.clone());
                     Self::send_task_update(&self.state, TaskStatus::Failed { reason });
                     return;
                 }
@@ -122,7 +122,7 @@ impl Step {
         }
         match serde_json::from_str::<PlanDraft>(content) {
             Ok(plan) => {
-                let _ = Logger::debug(format!(
+                Logger::debug(format!(
                     "model produced a plan with {} run step(s)",
                     plan.run_steps.len()
                 ));
@@ -130,7 +130,7 @@ impl Step {
             }
             Err(error) => {
                 let reason = format!("model output is not a valid plan: {error}");
-                let _ = Logger::warning(reason.clone());
+                Logger::warning(reason.clone());
                 Self::send_task_update(&self.state, TaskStatus::Failed { reason });
             }
         }

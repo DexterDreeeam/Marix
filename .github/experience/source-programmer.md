@@ -187,3 +187,5 @@
   through `PlanEvent::StepUpdate(StepStatus)`, where `StepStatus` mirrors the
   invocation/relay lifecycle shape without `Killed`. The plan worker converts
   terminal step status to `TaskEvent::PlanUpdate(PlanStatus::{Success, Fail})`.
+
+- 2026-07-09: `Logger::log`/`warning`/`error`/`debug` are fire-and-forget `-> ()` APIs. They route through private `emit`, while `telemetry`/`record` keep returning `Result<(), LoggingError>` internally. Logging failures are reported with non-recursive `eprintln!("marix logger failed: {error}")`; call sites should invoke `Logger::...(...)` directly without `let _ =`.

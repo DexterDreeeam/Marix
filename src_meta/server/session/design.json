@@ -4,8 +4,11 @@
     "path": "src/server/session",
     "name": "session",
     "purpose": "Owns server session startup and routing boundaries for client, host, and task channels; implementation routing still awaits the new hierarchical event shape.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "session.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -36,7 +39,7 @@
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/session.rs",
@@ -44,12 +47,7 @@
           "lineEnd": 21,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 15,
-              "lineEnd": 15
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/session/session.rs",
@@ -59,8 +57,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 22,
-              "lineEnd": 22
+              "lineStart": 25,
+              "lineEnd": 25
             }
           ]
         },
@@ -72,8 +70,52 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 45,
-              "lineEnd": 45
+              "lineStart": 53,
+              "lineEnd": 53
+            },
+            {
+              "lineStart": 73,
+              "lineEnd": 73
+            },
+            {
+              "lineStart": 121,
+              "lineEnd": 121
+            },
+            {
+              "lineStart": 143,
+              "lineEnd": 143
+            },
+            {
+              "lineStart": 158,
+              "lineEnd": 158
+            },
+            {
+              "lineStart": 166,
+              "lineEnd": 166
+            },
+            {
+              "lineStart": 201,
+              "lineEnd": 201
+            },
+            {
+              "lineStart": 208,
+              "lineEnd": 208
+            },
+            {
+              "lineStart": 239,
+              "lineEnd": 239
+            },
+            {
+              "lineStart": 249,
+              "lineEnd": 249
+            },
+            {
+              "lineStart": 252,
+              "lineEnd": 252
+            },
+            {
+              "lineStart": 257,
+              "lineEnd": 257
             }
           ]
         }

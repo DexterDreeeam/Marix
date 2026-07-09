@@ -4,15 +4,18 @@
     "path": "src/host/executor/execution",
     "name": "execution",
     "purpose": "Owns host execution runtime state and receiver-side ExecutionEvent handling for cancellation.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "execution.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "Execution",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
@@ -20,12 +23,7 @@
           "lineEnd": 15,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 12
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
@@ -33,12 +31,7 @@
           "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 17
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/execution/execution.rs",
@@ -48,8 +41,16 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 37,
-              "lineEnd": 40
+              "lineStart": 43,
+              "lineEnd": 43
+            },
+            {
+              "lineStart": 69,
+              "lineEnd": 69
+            },
+            {
+              "lineStart": 82,
+              "lineEnd": 82
             }
           ]
         }

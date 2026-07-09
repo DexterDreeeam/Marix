@@ -50,12 +50,12 @@ impl ClientSession {
     }
 
     pub fn create_task(&self, request: String) {
-        let _ = Logger::log("client submitting task request");
+        Logger::log("client submitting task request");
         self.send_to_server(SessionEvent::TaskCreate(TaskRequest { content: request }));
     }
 
     pub fn cancel_task(&self, task_id: TaskId) {
-        let _ = Logger::log(format!("client canceling task {}", task_id.0));
+        Logger::log(format!("client canceling task {}", task_id.0));
         let signature = TaskSignature {
             name: String::new(),
             id: task_id,
@@ -88,7 +88,7 @@ impl ClientSession {
                 else {
                     continue;
                 };
-                let _ = Logger::log("client connected to server core");
+                Logger::log("client connected to server core");
                 *server_tx.lock().unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
                 Self::worker(net_rx, &user_tx, &shutdown);
             }

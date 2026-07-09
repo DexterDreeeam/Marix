@@ -4,8 +4,12 @@
     "path": "src/host",
     "name": "host",
     "purpose": "Host crate namespace for HostSession and host-side executor dispatch/runtime exported through the executor module.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "main.rs",
+    "session.rs"
+  ],
   "childModules": [
     {
       "path": "src/host/executor",
@@ -18,7 +22,7 @@
       "name": "Executor",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/executor.rs",
@@ -26,12 +30,7 @@
           "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 14
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/executor.rs",
@@ -39,12 +38,7 @@
           "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 28,
-              "lineEnd": 28
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/executor.rs",
@@ -54,8 +48,28 @@
           "addedLines": [],
           "modifiedLines": [
             {
+              "lineStart": 92,
+              "lineEnd": 92
+            },
+            {
+              "lineStart": 98,
+              "lineEnd": 98
+            },
+            {
+              "lineStart": 108,
+              "lineEnd": 108
+            },
+            {
               "lineStart": 120,
-              "lineEnd": 126
+              "lineEnd": 120
+            },
+            {
+              "lineStart": 141,
+              "lineEnd": 141
+            },
+            {
+              "lineStart": 147,
+              "lineEnd": 147
             }
           ]
         }
@@ -81,7 +95,7 @@
       "name": "ToolRegistry",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/registry.rs",
@@ -97,7 +111,16 @@
           "lineEnd": 75,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 28,
+              "lineEnd": 28
+            },
+            {
+              "lineStart": 44,
+              "lineEnd": 44
+            }
+          ]
         }
       ]
     },
@@ -163,7 +186,7 @@
       "name": "HostSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/session.rs",
@@ -171,12 +194,7 @@
           "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 13,
-              "lineEnd": 13
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/session.rs",
@@ -184,12 +202,7 @@
           "lineEnd": 39,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 18,
-              "lineEnd": 18
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/session.rs",
@@ -199,8 +212,16 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 72,
-              "lineEnd": 72
+              "lineStart": 54,
+              "lineEnd": 54
+            },
+            {
+              "lineStart": 75,
+              "lineEnd": 75
+            },
+            {
+              "lineStart": 82,
+              "lineEnd": 82
             }
           ]
         }

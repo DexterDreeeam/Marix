@@ -17,11 +17,11 @@ fn main() {
         eprintln!("failed to start telemetry logger: {error}");
         std::process::exit(1);
     }
-    let _ = Logger::log(format!(
+    Logger::log(format!(
         "server telemetry hosting on port {}",
         config.server.telemetry_port
     ));
-    let _ = Logger::log(format!("server core '{}' starting", config.name));
+    Logger::log(format!("server core '{}' starting", config.name));
     let _session = Session::new(config.name);
     loop {
         std::thread::park();

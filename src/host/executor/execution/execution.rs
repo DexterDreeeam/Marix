@@ -40,7 +40,7 @@ impl Execution {
         Self::run(&state);
         while let Ok(event) = execution_rx.recv() {
             if let Err(error) = Self::dispatch(&state, event) {
-                let _ = Logger::debug(format!(
+                Logger::debug(format!(
                     "execution {} worker stopping: {error:?}",
                     state.request.signature.execution_id.0
                 ));
@@ -66,7 +66,7 @@ impl Execution {
     }
 
     fn on_cancel(state: &ExecutionState) {
-        let _ = Logger::log(format!("execution canceled for tool {}", state.tool.name()));
+        Logger::log(format!("execution canceled for tool {}", state.tool.name()));
         Self::send_status(state, ExecutionStatus::Canceled);
     }
 
@@ -79,7 +79,7 @@ impl Execution {
             ))
             .is_err()
         {
-            let _ = Logger::warning(format!(
+            Logger::warning(format!(
                 "execution {} status update failed: executor worker stopped",
                 state.request.signature.execution_id.0
             ));

@@ -31,7 +31,7 @@ fn main() {
     };
     match Logger::connect() {
         Ok(()) => {
-            let _ = Logger::log(format!("client '{}' connected to telemetry", config.name));
+            Logger::log(format!("client '{}' connected to telemetry", config.name));
         }
         Err(error) => {
             eprintln!("telemetry logger unavailable, continuing without it: {error}");
@@ -63,7 +63,7 @@ fn run_interactive(session: &ClientSession) {
         let prompt = match line {
             Ok(prompt) => prompt,
             Err(error) => {
-                let _ = Logger::error(format!("client stdin read failed: {error}"));
+                Logger::error(format!("client stdin read failed: {error}"));
                 eprintln!("failed to read stdin: {error}");
                 break;
             }
