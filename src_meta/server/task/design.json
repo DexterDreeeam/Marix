@@ -4,24 +4,15 @@
     "path": "src/server/task",
     "name": "task",
     "purpose": "Owns server task runtime and TaskState. TaskState holds InvocationHub, RelayHub, PlanHub, and step storage while implementation event routing remains deferred.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "runtime.rs",
-    "access.rs"
-  ],
-  "modified": [
-    "task.rs",
-    "state.rs",
-    "mod.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "TaskAccess",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/access.rs",
@@ -42,7 +33,7 @@
       "name": "TaskRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/runtime.rs",
@@ -102,7 +93,7 @@
       "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/state.rs",
@@ -149,7 +140,7 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/task.rs",

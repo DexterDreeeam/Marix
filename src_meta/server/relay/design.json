@@ -4,24 +4,15 @@
     "path": "src/server/relay",
     "name": "relay",
     "purpose": "Owns the server-side Relay subject and RelayHub storage boundary for relay tracking; relay behavior remains intentionally unimplemented.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "state.rs",
-    "runtime.rs"
-  ],
-  "modified": [
-    "hub.rs",
-    "relay.rs",
-    "mod.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "RelayHub",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/hub.rs",
@@ -55,7 +46,7 @@
       "name": "Relay",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/relay.rs",
@@ -115,7 +106,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
@@ -175,7 +166,7 @@
       "name": "RelayState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/state.rs",

@@ -4,12 +4,8 @@
     "path": "src/server",
     "name": "server",
     "purpose": "Server crate namespace for model, session, task, prompt, step, invocation, relay, and plan runtime subjects. Invocation and Relay are top-level server subjects while protocol shapes live in marix-protocol.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "main.rs",
-    "lib.rs"
-  ],
   "childModules": [
     {
       "path": "src/server/invocation",
@@ -57,7 +53,7 @@
       "name": "main",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/main.rs",
@@ -78,7 +74,7 @@
       "name": "InvocationHub",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/hub.rs",
@@ -112,7 +108,7 @@
       "name": "Invocation",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/invocation.rs",
@@ -172,7 +168,7 @@
       "name": "InvocationRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/runtime.rs",
@@ -232,7 +228,7 @@
       "name": "InvocationState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/state.rs",
@@ -266,7 +262,7 @@
       "name": "ModelResponseReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
@@ -287,7 +283,7 @@
       "name": "ModelResponseAsyncReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
@@ -308,7 +304,7 @@
       "name": "ModelBackend",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
@@ -329,7 +325,7 @@
       "name": "ModelBackendImpl",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
@@ -350,7 +346,7 @@
       "name": "ModelRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
@@ -371,7 +367,7 @@
       "name": "ModelResponse",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
@@ -392,7 +388,7 @@
       "name": "DeepseekBackend",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
@@ -465,7 +461,7 @@
       "name": "ModelResponseSender",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
@@ -542,7 +538,7 @@
       "name": "PlanHub",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/hub.rs",
@@ -576,7 +572,7 @@
       "name": "Plan",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/plan.rs",
@@ -649,7 +645,7 @@
       "name": "PlanState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/plan.rs",
@@ -715,7 +711,7 @@
       "name": "PlanStringify",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/stringify.rs",
@@ -762,7 +758,7 @@
       "name": "StepText",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/stringify.rs",
@@ -975,7 +971,7 @@
       "name": "RelayHub",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/hub.rs",
@@ -1009,7 +1005,7 @@
       "name": "Relay",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/relay.rs",
@@ -1069,7 +1065,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
@@ -1129,7 +1125,7 @@
       "name": "RelayState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/state.rs",
@@ -1187,7 +1183,7 @@
       "name": "SessionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/runtime.rs",
@@ -1247,7 +1243,7 @@
       "name": "SOURCE_NAME",
       "type": "static",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/session.rs",
@@ -1268,7 +1264,7 @@
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/session.rs",
@@ -1315,7 +1311,7 @@
       "name": "SessionState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/state.rs",
@@ -1349,7 +1345,7 @@
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/step.rs",
@@ -1422,7 +1418,7 @@
       "name": "StepState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/step.rs",
@@ -1456,7 +1452,7 @@
       "name": "TaskAccess",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/access.rs",
@@ -1477,7 +1473,7 @@
       "name": "TaskRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/runtime.rs",
@@ -1537,7 +1533,7 @@
       "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/state.rs",
@@ -1584,7 +1580,7 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/task.rs",

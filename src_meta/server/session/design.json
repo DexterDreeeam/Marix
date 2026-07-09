@@ -4,16 +4,8 @@
     "path": "src/server/session",
     "name": "session",
     "purpose": "Owns server session startup and routing boundaries for client, host, and task channels; implementation routing still awaits the new hierarchical event shape.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "runtime.rs"
-  ],
-  "modified": [
-    "session.rs",
-    "state.rs",
-    "mod.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -44,7 +36,7 @@
       "name": "SessionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/runtime.rs",
@@ -104,7 +96,7 @@
       "name": "SOURCE_NAME",
       "type": "static",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/session.rs",
@@ -125,7 +117,7 @@
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/session.rs",
@@ -172,7 +164,7 @@
       "name": "SessionState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/state.rs",

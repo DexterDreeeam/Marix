@@ -4,23 +4,15 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Owns host-side tool registry, tool previews, Executor session-event dispatch, and execution runtime worker storage/routing diagnostics.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "runtime.rs"
-  ],
-  "modified": [
-    "executor.rs",
-    "state.rs",
-    "mod.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "Executor",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/executor.rs",
@@ -107,7 +99,7 @@
       "name": "ExecutorRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -167,7 +159,7 @@
       "name": "ExecutorState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/state.rs",

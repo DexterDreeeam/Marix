@@ -4,16 +4,8 @@
     "path": "src/protocol",
     "name": "protocol",
     "purpose": "Owns marix-protocol crate definitions and namespace exports for hierarchical session, task, plan, step, invocation, executor, relay, host execution, tool, and shared signature/status/error contracts.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "actor.rs",
-    "runtime.rs"
-  ],
-  "modified": [
-    "lib.rs",
-    "mod.rs"
-  ],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -71,7 +63,7 @@
       "name": "Actor",
       "type": "trait",
       "source_depth": 2,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/actor.rs",
@@ -116,7 +108,7 @@
       "name": "Runtime",
       "type": "trait",
       "source_depth": 2,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/runtime.rs",
@@ -137,7 +129,7 @@
       "name": "RuntimeAsync",
       "type": "trait",
       "source_depth": 2,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/runtime.rs",
@@ -262,7 +254,7 @@
       "name": "ExecutionSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/signature.rs",
@@ -370,7 +362,7 @@
       "name": "InvocationEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/event.rs",
@@ -431,7 +423,7 @@
       "name": "InvocationSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/signature.rs",
@@ -595,7 +587,7 @@
       "name": "PlanSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/signature.rs",
@@ -687,7 +679,7 @@
       "name": "RelayEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/event.rs",
@@ -748,7 +740,7 @@
       "name": "RelaySignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/signature.rs",
@@ -1008,7 +1000,7 @@
       "name": "StepSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/signature.rs",
@@ -1156,7 +1148,7 @@
       "name": "TaskRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/request.rs",
@@ -1209,7 +1201,7 @@
       "name": "TaskSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/signature.rs",

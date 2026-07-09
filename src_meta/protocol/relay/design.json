@@ -4,12 +4,8 @@
     "path": "src/protocol/relay",
     "name": "relay",
     "purpose": "Owns relay protocol contracts including relay identity/signatures, requests, statuses, errors, and relay cancellation events.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "signature.rs",
-    "event.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -32,7 +28,7 @@
       "name": "RelayEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/event.rs",
@@ -93,7 +89,7 @@
       "name": "RelaySignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/signature.rs",
