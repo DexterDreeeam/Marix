@@ -4,15 +4,24 @@
     "path": "src/server/relay",
     "name": "relay",
     "purpose": "Owns the server-side Relay subject and RelayHub storage boundary for relay tracking; relay behavior remains intentionally unimplemented.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "added": [
+    "state.rs",
+    "runtime.rs"
+  ],
+  "modified": [
+    "hub.rs",
+    "relay.rs",
+    "mod.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "RelayHub",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/hub.rs",
@@ -20,18 +29,23 @@
           "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 12
+            }
+          ]
         },
         {
           "sourcePath": "src/server/relay/hub.rs",
           "lineStart": 14,
-          "lineEnd": 59,
+          "lineEnd": 51,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 29,
-              "lineEnd": 29
+              "lineStart": 14,
+              "lineEnd": 51
             }
           ]
         }
@@ -41,75 +55,152 @@
       "name": "Relay",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/relay.rs",
-          "lineStart": 14,
-          "lineEnd": 21,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/relay/relay.rs",
-          "lineStart": 23,
-          "lineEnd": 77,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/relay/relay.rs",
-          "lineStart": 119,
-          "lineEnd": 175,
+          "lineStart": 11,
+          "lineEnd": 13,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 128,
-              "lineEnd": 128
-            },
-            {
-              "lineStart": 134,
-              "lineEnd": 134
-            },
-            {
-              "lineStart": 169,
-              "lineEnd": 169
+              "lineStart": 11,
+              "lineEnd": 13
             }
           ]
         },
         {
           "sourcePath": "src/server/relay/relay.rs",
-          "lineStart": 177,
-          "lineEnd": 186,
+          "lineStart": 15,
+          "lineEnd": 23,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 23
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/relay/relay.rs",
+          "lineStart": 25,
+          "lineEnd": 41,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 41
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/relay/relay.rs",
+          "lineStart": 43,
+          "lineEnd": 51,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 43,
+              "lineEnd": 51
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "RelayRuntime",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 14,
+          "lineEnd": 19,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 19
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 21,
+          "lineEnd": 52,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 21,
+              "lineEnd": 52
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 54,
+          "lineEnd": 153,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 54,
+              "lineEnd": 153
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 157,
+          "lineEnd": 207,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 157,
+              "lineEnd": 207
+            }
+          ],
           "modifiedLines": []
         }
       ]
     },
     {
-      "name": "RelayInner",
+      "name": "RelayState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/server/relay/relay.rs",
-          "lineStart": 81,
-          "lineEnd": 86,
+          "sourcePath": "src/server/relay/state.rs",
+          "lineStart": 11,
+          "lineEnd": 20,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 20
+            }
+          ],
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/server/relay/relay.rs",
-          "lineStart": 88,
-          "lineEnd": 117,
+          "sourcePath": "src/server/relay/state.rs",
+          "lineStart": 22,
+          "lineEnd": 45,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 45
+            }
+          ],
           "modifiedLines": []
         }
       ]

@@ -3,15 +3,18 @@ use std::io::Read;
 use std::thread;
 
 use marix_common::external::*;
-use marix_common::{Config, DeepseekConfig, Logger, Receiver, Sender, build_channel};
+use marix_common::{
+    Config, DeepseekConfig, Logger, Receiver, Sender, build_async_channel, build_channel,
+};
 
 use super::backend::ModelBackendImpl;
-use super::{ModelBackendError, ModelRequest, ModelResponse};
+use super::{ModelBackendError, ModelRequest, ModelResponse, ModelResponseAsyncReceiver};
 
 #[derive(Clone)]
 pub struct DeepseekBackend {
     config: DeepseekConfig,
     client: reqwest::blocking::Client,
+    async_client: reqwest::Client,
 }
 
 impl DeepseekBackend {
@@ -23,11 +26,16 @@ impl DeepseekBackend {
         Self {
             config,
             client: reqwest::blocking::Client::new(),
+            async_client: reqwest::Client::new(),
         }
     }
 }
 
 // -- Private -- //
+
+trait ModelResponseSender {
+    fn send_response(&self, response: ModelResponse) -> bool;
+}
 
 impl ModelBackendImpl for DeepseekBackend {
     fn request(
@@ -67,7 +75,37 @@ impl ModelBackendImpl for DeepseekBackend {
         Logger::debug("deepseek stream established");
         thread::spawn(move || {
             if let Err(error) = Self::stream_response(&mut response, &sender) {
-                let _ = sender.send(ModelResponse::Failed(error));
+                Logger::error(format!("deepseek stream response failed: {error}",));
+            }
+        });
+
+        Ok(receiver)
+    }
+
+    fn request_async(
+        &mut self,
+        request: ModelRequest,
+    ) -> Result<ModelResponseAsyncReceiver, ModelBackendError> {
+        Logger::debug(format!(
+            "deepseek async request: model '{}'",
+            self.config.model.trim()
+        ));
+        let payload = serde_json::json!({
+            "model": self.config.model.trim(),
+            "messages": [
+                {
+                    "role": "user",
+                    "content": request.prompt
+                }
+            ],
+            "stream": true
+        });
+        let config = self.config.clone();
+        let client = self.async_client.clone();
+        let (sender, receiver) = build_async_channel();
+        tokio::spawn(async move {
+            if let Err(error) = Self::request_async_stream(client, config, payload, sender).await {
+                Logger::error(format!("deepseek async stream response failed: {error}",));
             }
         });
 
@@ -76,16 +114,42 @@ impl ModelBackendImpl for DeepseekBackend {
 }
 
 impl DeepseekBackend {
+    async fn request_async_stream(
+        client: reqwest::Client,
+        config: DeepseekConfig,
+        payload: serde_json::Value,
+        sender: tokio::mpsc::UnboundedSender<ModelResponse>,
+    ) -> Result<(), ModelBackendError> {
+        let mut response = client
+            .post(config.endpoint.trim())
+            .bearer_auth(config.api_key.trim())
+            .json(&payload)
+            .send()
+            .await?;
+        let status = response.status();
+        if !status.is_success() {
+            let body = response.text().await?;
+            Logger::error(format!("deepseek async request failed: {status}"));
+            return Err(ModelBackendError::RequestFailed(format!(
+                "Deepseek request failed with {status}: {body}"
+            )));
+        }
+
+        Logger::debug("deepseek async stream established");
+        Self::stream_async_response(&mut response, &sender).await
+    }
+
     fn stream_response(
         response: &mut reqwest::blocking::Response,
         sender: &Sender<ModelResponse>,
     ) -> Result<(), ModelBackendError> {
         let mut pending = String::new();
+        let mut seq_count = 0;
         let mut buffer = [0_u8; 8192];
 
         loop {
             while let Some(event) = Self::take_next_sse_event(&mut pending) {
-                if Self::handle_sse_event(&event, sender)? {
+                if Self::handle_sse_event(&event, sender, &mut seq_count)? {
                     return Ok(());
                 }
             }
@@ -97,8 +161,50 @@ impl DeepseekBackend {
         }
 
         if !pending.trim().is_empty() {
-            Self::handle_sse_event(&pending, sender)?;
+            if Self::handle_sse_event(&pending, sender, &mut seq_count)? {
+                return Ok(());
+            }
         }
+
+        let _ = sender.send(ModelResponse {
+            content: String::new(),
+            seq: seq_count,
+            complete: true,
+        });
+
+        Ok(())
+    }
+
+    async fn stream_async_response(
+        response: &mut reqwest::Response,
+        sender: &tokio::mpsc::UnboundedSender<ModelResponse>,
+    ) -> Result<(), ModelBackendError> {
+        let mut pending = String::new();
+        let mut seq_count = 0;
+
+        loop {
+            while let Some(event) = Self::take_next_sse_event(&mut pending) {
+                if Self::handle_sse_event(&event, sender, &mut seq_count)? {
+                    return Ok(());
+                }
+            }
+            let Some(chunk) = response.chunk().await? else {
+                break;
+            };
+            pending.push_str(&String::from_utf8_lossy(chunk.as_ref()));
+        }
+
+        if !pending.trim().is_empty() {
+            if Self::handle_sse_event(&pending, sender, &mut seq_count)? {
+                return Ok(());
+            }
+        }
+
+        let _ = sender.send_response(ModelResponse {
+            content: String::new(),
+            seq: seq_count,
+            complete: true,
+        });
 
         Ok(())
     }
@@ -124,7 +230,8 @@ impl DeepseekBackend {
 
     fn handle_sse_event(
         event: &str,
-        sender: &Sender<ModelResponse>,
+        sender: &impl ModelResponseSender,
+        seq_count: &mut usize,
     ) -> Result<bool, ModelBackendError> {
         for line in event.lines() {
             let Some(data) = line.trim().strip_prefix("data:") else {
@@ -135,6 +242,11 @@ impl DeepseekBackend {
                 continue;
             }
             if data == "[DONE]" {
+                let _ = sender.send_response(ModelResponse {
+                    content: String::new(),
+                    seq: *seq_count,
+                    complete: true,
+                });
                 return Ok(true);
             }
             let value: serde_json::Value = serde_json::from_str(data)?;
@@ -147,16 +259,31 @@ impl DeepseekBackend {
                 .and_then(serde_json::Value::as_str)
                 .filter(|content| !content.is_empty());
             if let Some(content) = content {
-                if sender
-                    .send(ModelResponse::Content(content.to_owned()))
-                    .is_err()
-                {
+                let response = ModelResponse {
+                    content: content.to_owned(),
+                    seq: *seq_count,
+                    complete: false,
+                };
+                if !sender.send_response(response) {
                     return Ok(true);
                 }
+                *seq_count += 1;
             }
         }
 
         Ok(false)
+    }
+}
+
+impl ModelResponseSender for Sender<ModelResponse> {
+    fn send_response(&self, response: ModelResponse) -> bool {
+        self.send(response).is_ok()
+    }
+}
+
+impl ModelResponseSender for tokio::mpsc::UnboundedSender<ModelResponse> {
+    fn send_response(&self, response: ModelResponse) -> bool {
+        self.send(response).is_ok()
     }
 }
 

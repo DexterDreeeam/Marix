@@ -4,8 +4,11 @@
     "path": "src/protocol/plan",
     "name": "plan",
     "purpose": "Owns plan protocol contracts including plan identity/signatures, plan drafts, plan events that carry step status updates, plan statuses, errors, and model answer payloads.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "signature.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -51,12 +54,7 @@
           "lineStart": 3,
           "lineEnd": 11,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 3,
-              "lineEnd": 11
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -73,12 +71,7 @@
           "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 5,
-              "lineEnd": 5
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -110,31 +103,59 @@
       "name": "PlanSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/signature.rs",
-          "lineStart": 4,
-          "lineEnd": 9,
+          "lineStart": 6,
+          "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 11
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/plan/signature.rs",
-          "lineStart": 11,
-          "lineEnd": 19,
+          "lineStart": 13,
+          "lineEnd": 21,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 13,
+              "lineEnd": 21
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/plan/signature.rs",
-          "lineStart": 21,
-          "lineEnd": 25,
+          "lineStart": 23,
+          "lineEnd": 27,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 27
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/protocol/plan/signature.rs",
+          "lineStart": 29,
+          "lineEnd": 33,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 29,
+              "lineEnd": 33
+            }
+          ]
         }
       ]
     },
@@ -149,12 +170,7 @@
           "lineStart": 3,
           "lineEnd": 7,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 3,
-              "lineEnd": 7
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

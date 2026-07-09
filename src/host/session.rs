@@ -4,7 +4,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
 
 use marix_common::{ChannelEndpoint, Logger, NetReceiver, SharedNetSender, connect_channel};
-use marix_protocol::{SessionEvent, SessionMessage};
+use marix_protocol::{Actor, SessionEvent, SessionMessage};
 
 use crate::executor::Executor;
 
@@ -12,17 +12,15 @@ static SOURCE_NAME: OnceLock<String> = OnceLock::new();
 
 pub struct HostSession {
     worker: Option<JoinHandle<()>>,
-    shutdown: Arc<AtomicBool>,
+    state: Arc<HostSessionState>,
 }
 
 impl HostSession {
     pub fn new(name: String) -> Self {
         let _ = SOURCE_NAME.set(name);
-        let shutdown = Arc::new(AtomicBool::new(false));
-        let worker = Self::spawn_worker(Arc::clone(&shutdown));
         Self {
-            worker: Some(worker),
-            shutdown,
+            worker: None,
+            state: Arc::new(HostSessionState::new()),
         }
     }
 
@@ -31,29 +29,40 @@ impl HostSession {
     }
 
     pub fn close(&mut self) {
-        self.shutdown.store(true, Ordering::Relaxed);
+        self.state.shutdown.store(true, Ordering::Relaxed);
         if let Some(worker) = self.worker.take() {
             let _ = worker.join();
         }
+    }
+
+    pub fn run(&mut self) {
+        if self.worker.is_some() {
+            Logger::warning("host session run ignored: worker already running");
+            return;
+        }
+        self.state.shutdown.store(false, Ordering::Relaxed);
+        self.worker = Some(Self::spawn_worker(Arc::clone(&self.state)));
     }
 }
 
 // -- Private -- //
 
 impl HostSession {
-    fn spawn_worker(shutdown: Arc<AtomicBool>) -> JoinHandle<()> {
+    fn spawn_worker(state: Arc<HostSessionState>) -> JoinHandle<()> {
         std::thread::spawn(move || {
-            let server_tx: SharedNetSender<SessionMessage> =
-                SharedNetSender::new(std::sync::Mutex::new(None));
-            let executor = Executor::new(Arc::clone(&server_tx));
-            while !shutdown.load(Ordering::Relaxed) {
+            let mut executor = Executor::new(Arc::clone(&state.server_tx));
+            executor.start();
+            while !state.shutdown.load(Ordering::Relaxed) {
                 let Ok((net_tx, net_rx)) = connect_channel::<SessionMessage>(ChannelEndpoint::Host)
                 else {
                     continue;
                 };
                 Logger::log("host connected to server core");
-                *server_tx.lock().unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
-                Self::worker(net_rx, &executor, &shutdown);
+                *state
+                    .server_tx
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
+                Self::worker(net_rx, &executor, &state.shutdown);
             }
         })
     }
@@ -71,12 +80,7 @@ impl HostSession {
             while let Ok(Some(message)) = server_rx.recv().await {
                 match message.event {
                     SessionEvent::Executor(event) => {
-                        if executor.sender().send(event).is_err() {
-                            Logger::warning(
-                                "host session could not send executor event: \
-                                 executor worker stopped",
-                            );
-                        }
+                        executor.dispatch(event);
                     }
                     event => {
                         Logger::warning(format!(
@@ -89,5 +93,19 @@ impl HostSession {
                 }
             }
         });
+    }
+}
+
+struct HostSessionState {
+    shutdown: Arc<AtomicBool>,
+    server_tx: SharedNetSender<SessionMessage>,
+}
+
+impl HostSessionState {
+    fn new() -> Self {
+        Self {
+            shutdown: Arc::new(AtomicBool::new(false)),
+            server_tx: SharedNetSender::new(std::sync::Mutex::new(None)),
+        }
     }
 }

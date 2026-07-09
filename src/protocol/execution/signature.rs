@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::external::*;
 
 use crate::{ExecutionId, InvocationSignature, Signature};
@@ -22,5 +24,11 @@ impl ExecutionSignature {
 impl Signature for ExecutionSignature {
     fn id(&self) -> uuid::Uuid {
         self.execution_id.0
+    }
+}
+
+impl fmt::Display for ExecutionSignature {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "{}", self.execution_id.0)
     }
 }

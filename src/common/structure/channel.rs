@@ -1,9 +1,11 @@
 use std::net::SocketAddr;
-use std::sync::{Arc, Mutex, mpsc};
+use std::sync::{Arc, Mutex, mpsc as std_mpsc};
 use std::thread;
 use std::time::Duration;
 
 use crate::config::Config;
+
+pub use crossbeam_channel::select;
 
 const NET_CHANNEL_BUFFER: usize = 16;
 /// How long the server waits, after a TCP connection is accepted, for
@@ -14,8 +16,8 @@ const HANDSHAKE_TIMEOUT: Duration = Duration::from_secs(5);
 /// rejection reaches the connecter before the connection is torn down.
 const REJECT_FLUSH_GRACE: Duration = Duration::from_secs(2);
 
-pub type Sender<T> = mpsc::Sender<T>;
-pub type Receiver<T> = mpsc::Receiver<T>;
+pub type Sender<T> = crossbeam_channel::Sender<T>;
+pub type Receiver<T> = crossbeam_channel::Receiver<T>;
 pub type NetSender<T> = remoc::rch::mpsc::Sender<T>;
 pub type NetReceiver<T> = remoc::rch::mpsc::Receiver<T>;
 pub type SharedNetSender<T> = Arc<Mutex<Option<NetSender<T>>>>;
@@ -44,7 +46,14 @@ pub enum ChannelEndpoint {
 }
 
 pub fn build_channel<T>() -> (Sender<T>, Receiver<T>) {
-    mpsc::channel()
+    crossbeam_channel::unbounded()
+}
+
+pub fn build_async_channel<T>() -> (
+    tokio::sync::mpsc::UnboundedSender<T>,
+    tokio::sync::mpsc::UnboundedReceiver<T>,
+) {
+    tokio::sync::mpsc::unbounded_channel()
 }
 
 /// Accept an inbound connection for the logical channel selected by
@@ -84,7 +93,7 @@ where
         .map_err(|error| ChannelError::Setup(error.to_string()))?;
     let token = config.server.auth_token;
 
-    let (setup_tx, setup_rx) = mpsc::channel();
+    let (setup_tx, setup_rx) = std_mpsc::channel();
     thread::spawn(move || {
         let runtime = match tokio::runtime::Builder::new_current_thread()
             .enable_all()
@@ -132,7 +141,7 @@ where
         .map_err(|error| ChannelError::Setup(error.to_string()))?;
     let token = config.server.auth_token;
 
-    let (setup_tx, setup_rx) = mpsc::channel();
+    let (setup_tx, setup_rx) = std_mpsc::channel();
     thread::spawn(move || {
         let runtime = match tokio::runtime::Builder::new_current_thread()
             .enable_all()
@@ -230,7 +239,7 @@ impl Drop for ConnectionGuard {
 async fn accept_loop<T>(
     address: SocketAddr,
     token: String,
-    setup_tx: mpsc::Sender<Result<(NetSender<T>, NetReceiver<T>), ChannelError>>,
+    setup_tx: std_mpsc::Sender<Result<(NetSender<T>, NetReceiver<T>), ChannelError>>,
 ) where
     T: remoc::RemoteSend + 'static,
     NetSender<T>: Send,
@@ -341,7 +350,7 @@ where
 async fn connecter_handshake<T>(
     socket: tokio::net::TcpStream,
     token: String,
-    setup_tx: mpsc::Sender<Result<(NetSender<T>, NetReceiver<T>), ChannelError>>,
+    setup_tx: std_mpsc::Sender<Result<(NetSender<T>, NetReceiver<T>), ChannelError>>,
 ) where
     T: remoc::RemoteSend + 'static,
     NetSender<T>: Send,

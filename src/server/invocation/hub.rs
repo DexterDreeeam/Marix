@@ -1,11 +1,11 @@
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 
 use marix_common::Logger;
-use marix_protocol::{InvocationRequest, InvocationSignature, InvocationStatus};
+use marix_protocol::{Actor, InvocationRequest, InvocationSignature};
 
 use crate::invocation::Invocation;
-use crate::task::TaskState;
+use crate::task::TaskAccess;
 
 pub struct InvocationHub {
     invocation_map: Mutex<HashMap<InvocationSignature, Invocation>>,
@@ -18,13 +18,8 @@ impl InvocationHub {
         }
     }
 
-    pub(crate) fn create(
-        &self,
-        state: &Arc<TaskState>,
-        request: InvocationRequest,
-    ) -> Option<Invocation> {
+    pub(crate) fn create(&self, access: TaskAccess, request: InvocationRequest) -> bool {
         let signature = request.signature.clone();
-        let invocation = Invocation::new(Arc::clone(state), request);
         let mut invocations = self
             .invocation_map
             .lock()
@@ -32,29 +27,14 @@ impl InvocationHub {
         if invocations.contains_key(&signature) {
             Logger::warning(format!(
                 "invocation {} create ignored: invocation already exists",
-                signature.invocation_id.0
+                &signature,
             ));
-            return None;
+            return false;
         }
-        invocations.insert(signature, invocation.clone());
-        Some(invocation)
-    }
-
-    pub fn status(&self, signature: &InvocationSignature) -> InvocationStatus {
-        self.invocation_map
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .get(signature)
-            .map(Invocation::status)
-            .unwrap_or(InvocationStatus::Created)
-    }
-
-    pub(crate) fn content(&self, signature: &InvocationSignature) -> Option<String> {
-        self.invocation_map
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .get(signature)
-            .map(Invocation::content)
+        let mut invocation = Invocation::new(access, request);
+        invocation.start();
+        invocations.insert(signature, invocation);
+        true
     }
 
     pub(crate) fn with<R>(

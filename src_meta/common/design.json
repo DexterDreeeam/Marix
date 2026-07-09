@@ -4,28 +4,32 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Shared common crate root for reusable config loading with default CoreConfig fallback, server IP and handshake token resolution from plain config values, external re-export adapters, database telemetry logging, and structure utilities. It exposes WorkQueue cleanup support used by server host-disconnect session reset, and lib.rs re-exports serializable config system types Arch, Platform, and System alongside Config, ServerConfig, and related models, plus the Logger telemetry client with LogMessage, LogTag, and LoggingError.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "Cargo.toml",
+    "lib.rs"
+  ],
   "childModules": [
     {
       "path": "src/common/config",
       "name": "config",
-      "purpose": "Owns the common crate configuration model, config-file discovery, serializable OS/architecture System detection, the model API key, server IP, and server handshake auth token as plain config values, a replaceable config cache with Config::load and test-only Config::mock overrides, runtime path normalization, default CoreConfig fallback, client settings without endpoint addresses, server runtime IP, handshake token, and port settings, and tool directory settings."
+      "purpose": "Strongly typed TOML configuration model and fallible loader. config.rs owns config-file discovery, the Deepseek API key, server IP, and server handshake auth token as plain config values, a process-wide replaceable config cache with Config::load get-or-init plus Config::mock TOML-override installation for tests, runtime path normalization including client and server Marix paths, default CoreConfig fallback when TOML omits core, client settings without endpoint addresses, and server endpoint settings whose runtime ServerConfig keeps the resolved IP and handshake token plus client, host, and telemetry ports; sys.rs owns supported OS/architecture detection through serializable System, Platform, and Arch types with System::new and the private Ubuntu detector; mod.rs re-exports the public config surface including ServerConfig, ToolConfig, and system types."
     },
     {
       "path": "src/common/external",
       "name": "external",
-      "purpose": "Owns public re-export wrappers for third-party libraries so downstream crates can route third-party access through common where appropriate, including the redb embedded-database wrapper backing telemetry storage."
+      "purpose": "Now-public third-party library namespace wrappers that let downstream crates route third-party access through common::external while single ownership stays in common; includes image, redb embedded-database, remoc connection, reqwest, serde, serde_json, tokio, and toml helpers."
     },
     {
       "path": "src/common/logging",
       "name": "logging",
-      "purpose": "Owns the database telemetry logging system: the serializable LogTag and LogMessage records, the LoggingError enum, and the Logger client that hosts a telemetry server accepting authenticated remoc channel connections and persisting messages to a fresh per-start timestamped local redb database, or connects to a remote server and streams LogMessage records over the authenticated channel transport."
+      "purpose": "Common database telemetry logging module. tag.rs defines the serializable LogTag severity enum (Info, Warning, Error, Debug); message.rs defines the serializable LogMessage record carrying a tag, message text, and emit/arrival millisecond timestamps with tagged constructors and a crate-visible arrival stamp; error.rs defines the LoggingError enum with config, I/O, database, serialization, channel, already-configured, and not-hosting variants; logger.rs owns the Logger telemetry client that either hosts a telemetry server accepting authenticated remoc channel connections and persisting messages under the server Marix path to a fresh per-start timestamped local redb database, serving each accepted connection with its own receive worker, or connects to a remote server and streams LogMessage records over the authenticated channel transport with retry."
     },
     {
       "path": "src/common/structure",
       "name": "structure",
-      "purpose": "Owns shared structural data interfaces such as WorkQueue, whose clear() method empties working and completed entries for session cleanup, plus channel helpers: accept_channel binds the listener once and accepts in a loop until one connection passes the shared-secret handshake within a 5-second per-connection timeout, while connect_channel makes a single attempt and surfaces ChannelError::Auth when the server rejects the token."
+      "purpose": "Owns shared structural utilities for the common crate. channel.rs defines local and TCP-backed remoc channel helpers: accept_channel resolves the bind address and expected token from config, binds the listener once, and accepts in a loop until one connection completes the transport handshake and presents the valid token within a 5-second per-connection timeout, abandoning connections that fail authentication, transport, or the timeout while continuing to accept, and returning early only on server-side setup, bind, or runtime failures; connect_channel resolves the connect address and token from config and makes a single attempt, surfacing ChannelError::Auth when the server rejects the token. It also defines the ChannelEndpoint client/host/telemetry channel-role selector and shared net endpoint wrappers. work_queue.rs defines the generic WorkQueue over working and completed maps, including borrowed access through with and clear() cleanup that empties both maps for host-disconnect session reset. mod.rs is namespace and re-export wiring only."
     }
   ],
   "elements": [
@@ -41,12 +45,55 @@
           "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 9
-            }
-          ]
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "CONFIG_ENV_VAR",
+      "type": "const",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 10,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "DEPLOYED_CONFIG_FILE",
+      "type": "const",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 11,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "CONFIG_CACHE",
+      "type": "static",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 12,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -62,12 +109,7 @@
           "lineEnd": 24,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 14
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
@@ -75,12 +117,7 @@
           "lineEnd": 66,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 26,
-              "lineEnd": 26
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -96,12 +133,7 @@
           "lineEnd": 79,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 68,
-              "lineEnd": 68
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -117,12 +149,7 @@
           "lineEnd": 87,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 81,
-              "lineEnd": 81
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -138,12 +165,7 @@
           "lineEnd": 95,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 89,
-              "lineEnd": 89
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -159,12 +181,7 @@
           "lineEnd": 102,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 97,
-              "lineEnd": 97
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -180,12 +197,7 @@
           "lineEnd": 109,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 104,
-              "lineEnd": 104
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -201,12 +213,7 @@
           "lineEnd": 121,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 111,
-              "lineEnd": 111
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -222,12 +229,7 @@
           "lineEnd": 127,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 123,
-              "lineEnd": 123
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -243,12 +245,7 @@
           "lineEnd": 133,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 129,
-              "lineEnd": 129
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -264,12 +261,7 @@
           "lineEnd": 140,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 135,
-              "lineEnd": 135
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
@@ -277,12 +269,7 @@
           "lineEnd": 370,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 361,
-              "lineEnd": 361
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -298,12 +285,7 @@
           "lineEnd": 146,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 142,
-              "lineEnd": 142
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -319,12 +301,7 @@
           "lineEnd": 160,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 150,
-              "lineEnd": 150
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -340,12 +317,7 @@
           "lineEnd": 172,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 162,
-              "lineEnd": 162
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -361,12 +333,7 @@
           "lineEnd": 179,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 174,
-              "lineEnd": 174
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -382,12 +349,215 @@
           "lineEnd": 187,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 181,
-              "lineEnd": 181
-            }
-          ]
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "config_path",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 189,
+          "lineEnd": 200,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "load_config",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 202,
+          "lineEnd": 206,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "build_config",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 208,
+          "lineEnd": 244,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "merge_tables",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 246,
+          "lineEnd": 257,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "default_core_config",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 259,
+          "lineEnd": 264,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "default_marix_path",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 266,
+          "lineEnd": 268,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "resolve_runtime_paths",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 270,
+          "lineEnd": 275,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "resolve_required_runtime_path",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 277,
+          "lineEnd": 285,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "resolve_optional_runtime_path",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 287,
+          "lineEnd": 302,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "path_to_config_string",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 304,
+          "lineEnd": 306,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "repository_root_for_config",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 308,
+          "lineEnd": 315,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "path_parent_or_current",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 317,
+          "lineEnd": 321,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "resolve_config_path",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 323,
+          "lineEnd": 330,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -403,12 +573,7 @@
           "lineEnd": 336,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 332,
-              "lineEnd": 332
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
@@ -416,12 +581,7 @@
           "lineEnd": 342,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 338,
-              "lineEnd": 338
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
@@ -429,12 +589,7 @@
           "lineEnd": 348,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 344,
-              "lineEnd": 344
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
@@ -442,12 +597,7 @@
           "lineEnd": 357,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 350,
-              "lineEnd": 350
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
@@ -455,12 +605,7 @@
           "lineEnd": 359,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 359,
-              "lineEnd": 359
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -521,6 +666,22 @@
       ]
     },
     {
+      "name": "connect_remoc",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/external/remoc.rs",
+          "lineStart": 5,
+          "lineEnd": 22,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
       "name": "LoggingError",
       "type": "enum",
       "source_depth": 3,
@@ -561,6 +722,38 @@
       ]
     },
     {
+      "name": "TELEMETRY_TABLE",
+      "type": "const",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 13,
+          "lineEnd": 13,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "LOGGER",
+      "type": "static",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 15,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
       "name": "Logger",
       "type": "struct",
       "source_depth": 3,
@@ -580,24 +773,7 @@
           "lineEnd": 74,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 56,
-              "lineEnd": 57
-            },
-            {
-              "lineStart": 61,
-              "lineEnd": 62
-            },
-            {
-              "lineStart": 66,
-              "lineEnd": 67
-            },
-            {
-              "lineStart": 71,
-              "lineEnd": 72
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/common/logging/logger.rs",
@@ -605,12 +781,7 @@
           "lineEnd": 143,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 85,
-              "lineEnd": 94
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -648,6 +819,38 @@
           "sourcePath": "src/common/logging/logger.rs",
           "lineStart": 155,
           "lineEnd": 262,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "accept_loop",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 264,
+          "lineEnd": 279,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "worker",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 281,
+          "lineEnd": 298,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -703,20 +906,62 @@
       ]
     },
     {
-      "name": "Sender",
-      "type": "type-alias",
+      "name": "NET_CHANNEL_BUFFER",
+      "type": "const",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 17,
+          "lineStart": 10,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HANDSHAKE_TIMEOUT",
+      "type": "const",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 11,
+          "lineEnd": 14,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 14
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "REJECT_FLUSH_GRACE",
+      "type": "const",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 15,
           "lineEnd": 17,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 17,
+              "lineStart": 15,
               "lineEnd": 17
             }
           ]
@@ -724,31 +969,10 @@
       ]
     },
     {
-      "name": "Receiver",
+      "name": "Sender",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 18,
-          "lineEnd": 18,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 18,
-              "lineEnd": 18
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "NetSender",
-      "type": "type-alias",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -766,10 +990,10 @@
       ]
     },
     {
-      "name": "NetReceiver",
+      "name": "Receiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -787,10 +1011,10 @@
       ]
     },
     {
-      "name": "SharedNetSender",
+      "name": "NetSender",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -808,10 +1032,10 @@
       ]
     },
     {
-      "name": "SharedNetReceiver",
+      "name": "NetReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -829,15 +1053,36 @@
       ]
     },
     {
-      "name": "ChannelError",
-      "type": "enum",
+      "name": "SharedNetSender",
+      "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 23,
+          "lineEnd": 23,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 23
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SharedNetReceiver",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
           "lineStart": 24,
-          "lineEnd": 35,
+          "lineEnd": 24,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
@@ -850,21 +1095,42 @@
       ]
     },
     {
-      "name": "ChannelEndpoint",
+      "name": "ChannelError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 37,
-          "lineEnd": 44,
+          "lineStart": 26,
+          "lineEnd": 37,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 37,
+              "lineStart": 26,
               "lineEnd": 37
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ChannelEndpoint",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 39,
+          "lineEnd": 46,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 39,
+              "lineEnd": 46
             }
           ]
         }
@@ -874,18 +1140,39 @@
       "name": "build_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 46,
-          "lineEnd": 48,
+          "lineStart": 48,
+          "lineEnd": 50,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 46,
-              "lineEnd": 46
+              "lineStart": 48,
+              "lineEnd": 50
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "build_async_channel",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 52,
+          "lineEnd": 57,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 52,
+              "lineEnd": 57
             }
           ]
         }
@@ -895,18 +1182,18 @@
       "name": "accept_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 50,
-          "lineEnd": 104,
+          "lineStart": 59,
+          "lineEnd": 113,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 50,
-              "lineEnd": 50
+              "lineStart": 59,
+              "lineEnd": 113
             }
           ]
         }
@@ -916,18 +1203,18 @@
       "name": "connect_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 106,
-          "lineEnd": 161,
+          "lineStart": 115,
+          "lineEnd": 170,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 106,
-              "lineEnd": 106
+              "lineStart": 115,
+              "lineEnd": 170
             }
           ]
         }
@@ -937,18 +1224,18 @@
       "name": "Handshake",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 172,
-          "lineEnd": 184,
+          "lineStart": 181,
+          "lineEnd": 193,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 172,
-              "lineEnd": 172
+              "lineStart": 181,
+              "lineEnd": 193
             }
           ]
         }
@@ -958,44 +1245,107 @@
       "name": "ConnectionGuard",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 186,
-          "lineEnd": 192,
+          "lineStart": 195,
+          "lineEnd": 201,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 186,
-              "lineEnd": 186
+              "lineStart": 195,
+              "lineEnd": 201
             }
           ]
         },
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 194,
-          "lineEnd": 215,
+          "lineStart": 203,
+          "lineEnd": 224,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 194,
-              "lineEnd": 194
+              "lineStart": 203,
+              "lineEnd": 224
             }
           ]
         },
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 217,
-          "lineEnd": 223,
+          "lineStart": 226,
+          "lineEnd": 232,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 217,
-              "lineEnd": 217
+              "lineStart": 226,
+              "lineEnd": 232
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "accept_loop",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 234,
+          "lineEnd": 283,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 234,
+              "lineEnd": 283
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "server_handshake",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 285,
+          "lineEnd": 345,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 285,
+              "lineEnd": 345
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "connecter_handshake",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 347,
+          "lineEnd": 411,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 347,
+              "lineEnd": 411
             }
           ]
         }
@@ -1005,7 +1355,7 @@
       "name": "WorkQueue",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/work_queue.rs",
@@ -1013,7 +1363,25 @@
           "lineEnd": 7,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 4,
+              "lineEnd": 7
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/common/structure/work_queue.rs",
+          "lineStart": 9,
+          "lineEnd": 165,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 165
+            }
+          ]
         }
       ]
     }

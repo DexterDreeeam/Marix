@@ -4,85 +4,119 @@
     "path": "src/server/step",
     "name": "step",
     "purpose": "Owns the server runtime Step type and re-exports top-level Invocation and Relay subjects for callers that still enter through the step namespace.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "child.rs",
+    "model.rs",
+    "step.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/step.rs",
           "lineStart": 16,
-          "lineEnd": 25,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/step/step.rs",
-          "lineStart": 27,
-          "lineEnd": 124,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 73,
-              "lineEnd": 73
-            },
-            {
-              "lineStart": 81,
-              "lineEnd": 81
+              "lineStart": 16,
+              "lineEnd": 19
             }
           ]
         },
         {
           "sourcePath": "src/server/step/step.rs",
-          "lineStart": 128,
-          "lineEnd": 354,
+          "lineStart": 21,
+          "lineEnd": 28,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 132,
-              "lineEnd": 132
-            },
-            {
-              "lineStart": 266,
-              "lineEnd": 266
-            },
-            {
-              "lineStart": 280,
-              "lineEnd": 280
-            },
-            {
-              "lineStart": 304,
-              "lineEnd": 304
-            },
-            {
-              "lineStart": 318,
-              "lineEnd": 318
-            },
-            {
-              "lineStart": 331,
-              "lineEnd": 331
-            },
-            {
-              "lineStart": 344,
-              "lineEnd": 344
+              "lineStart": 21,
+              "lineEnd": 28
             }
           ]
         },
         {
           "sourcePath": "src/server/step/step.rs",
-          "lineStart": 356,
-          "lineEnd": 365,
+          "lineStart": 30,
+          "lineEnd": 143,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 30,
+              "lineEnd": 143
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/step/step.rs",
+          "lineStart": 147,
+          "lineEnd": 355,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 147,
+              "lineEnd": 355
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/step/step.rs",
+          "lineStart": 385,
+          "lineEnd": 394,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 385,
+              "lineEnd": 394
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "StepState",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/step/step.rs",
+          "lineStart": 357,
+          "lineEnd": 364,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 357,
+              "lineEnd": 364
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/step/step.rs",
+          "lineStart": 366,
+          "lineEnd": 383,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 366,
+              "lineEnd": 383
+            }
+          ]
         }
       ]
     }

@@ -16,25 +16,18 @@ use crate::ClientEvent;
 static SOURCE_NAME: OnceLock<String> = OnceLock::new();
 
 pub struct ClientSession {
-    server_tx: SharedNetSender<SessionMessage>,
-    user_rx: Receiver<ClientEvent>,
+    state: Arc<ClientSessionState>,
     worker: Option<JoinHandle<()>>,
-    shutdown: Arc<AtomicBool>,
 }
 
 impl ClientSession {
     pub fn new(name: String) -> Self {
         let _ = SOURCE_NAME.set(name);
-        let (user_tx, user_rx) = build_channel();
-        let server_tx: SharedNetSender<SessionMessage> =
-            SharedNetSender::new(std::sync::Mutex::new(None));
-        let shutdown = Arc::new(AtomicBool::new(false));
-        let worker = Self::spawn_worker(Arc::clone(&server_tx), user_tx, Arc::clone(&shutdown));
+        let state = Arc::new(ClientSessionState::new());
+        let worker = Self::spawn_worker(Arc::clone(&state));
         Self {
-            server_tx,
-            user_rx,
+            state,
             worker: Some(worker),
-            shutdown,
         }
     }
 
@@ -43,7 +36,8 @@ impl ClientSession {
     }
 
     pub fn is_connected(&self) -> bool {
-        self.server_tx
+        self.state
+            .server_tx
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .is_some()
@@ -51,7 +45,11 @@ impl ClientSession {
 
     pub fn create_task(&self, request: String) {
         Logger::log("client submitting task request");
-        self.send_to_server(SessionEvent::TaskCreate(TaskRequest { content: request }));
+        let signature = TaskSignature::new("task".to_owned());
+        self.send_to_server(SessionEvent::TaskCreate(TaskRequest {
+            signature,
+            content: request,
+        }));
     }
 
     pub fn cancel_task(&self, task_id: TaskId) {
@@ -64,11 +62,11 @@ impl ClientSession {
     }
 
     pub fn receiver(&self) -> &Receiver<ClientEvent> {
-        &self.user_rx
+        &self.state.user_rx
     }
 
     pub fn close(&mut self) {
-        self.shutdown.store(true, Ordering::Relaxed);
+        self.state.shutdown.store(true, Ordering::Relaxed);
         let _ = self.worker.take();
     }
 }
@@ -76,21 +74,20 @@ impl ClientSession {
 // -- Private -- //
 
 impl ClientSession {
-    fn spawn_worker(
-        server_tx: SharedNetSender<SessionMessage>,
-        user_tx: Sender<ClientEvent>,
-        shutdown: Arc<AtomicBool>,
-    ) -> JoinHandle<()> {
+    fn spawn_worker(state: Arc<ClientSessionState>) -> JoinHandle<()> {
         std::thread::spawn(move || {
-            while !shutdown.load(Ordering::Relaxed) {
+            while !state.shutdown.load(Ordering::Relaxed) {
                 let Ok((net_tx, net_rx)) =
                     connect_channel::<SessionMessage>(ChannelEndpoint::Client)
                 else {
                     continue;
                 };
                 Logger::log("client connected to server core");
-                *server_tx.lock().unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
-                Self::worker(net_rx, &user_tx, &shutdown);
+                *state
+                    .server_tx
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
+                Self::worker(net_rx, &state.user_tx, &state.shutdown);
             }
         })
     }
@@ -118,6 +115,7 @@ impl ClientSession {
 
     fn send_to_server(&self, event: SessionEvent) {
         if let Some(sender) = self
+            .state
             .server_tx
             .lock()
             .unwrap_or_else(|error| error.into_inner())
@@ -157,6 +155,25 @@ impl ClientSession {
         ClientEvent::Done {
             signature_id: signature_id.into(),
             message,
+        }
+    }
+}
+
+struct ClientSessionState {
+    server_tx: SharedNetSender<SessionMessage>,
+    user_tx: Sender<ClientEvent>,
+    user_rx: Receiver<ClientEvent>,
+    shutdown: Arc<AtomicBool>,
+}
+
+impl ClientSessionState {
+    fn new() -> Self {
+        let (user_tx, user_rx) = build_channel();
+        Self {
+            server_tx: SharedNetSender::new(std::sync::Mutex::new(None)),
+            user_tx,
+            user_rx,
+            shutdown: Arc::new(AtomicBool::new(false)),
         }
     }
 }

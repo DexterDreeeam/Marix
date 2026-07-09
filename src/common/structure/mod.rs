@@ -6,6 +6,6 @@ mod tests;
 
 pub use channel::{
     ChannelEndpoint, ChannelError, NetReceiver, NetSender, Receiver, Sender, SharedNetReceiver,
-    SharedNetSender, accept_channel, build_channel, connect_channel,
+    SharedNetSender, accept_channel, build_async_channel, build_channel, connect_channel, select,
 };
 pub use work_queue::WorkQueue;

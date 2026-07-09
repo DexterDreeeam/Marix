@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::external::*;
 use crate::{PlanId, Signature, TaskSignature};
 
@@ -21,5 +23,11 @@ impl PlanSignature {
 impl Signature for PlanSignature {
     fn id(&self) -> uuid::Uuid {
         self.id.0
+    }
+}
+
+impl fmt::Display for PlanSignature {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "{}", self.id.0)
     }
 }

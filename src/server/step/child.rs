@@ -1,123 +1,40 @@
 use marix_common::Logger;
-use marix_protocol::{
-    InvocationEvent, InvocationRequest, InvocationSignature, InvocationStatus, InvocationStepKind,
-    PlanDraft, RelayEvent, RelayRequest, RelaySignature, RelayStatus, StepDraft, StepKind,
-    TaskEvent,
-};
+use marix_protocol::{InvocationStatus, PlanDraft, RelayStatus, StepDraft, TaskEvent};
 
 use crate::step::Step;
 
 impl Step {
-    pub(super) fn create_invocation(&self, request: InvocationRequest) {
-        if request.signature.step != self.signature {
-            Logger::warning(format!(
-                "step {} rejected invocation {}: signature step mismatch",
-                self.signature.id.0, request.signature.invocation_id.0
-            ));
-            return;
-        }
-        if let Some(invocation) = self.state.invocation_hub.create(&self.state, request) {
-            if invocation
-                .sender()
-                .send(InvocationEvent::ExecutionCreate)
-                .is_err()
-            {
-                Logger::warning(format!(
-                    "invocation {} create failed: worker stopped",
-                    invocation.signature.invocation_id.0
-                ));
-            }
-        }
-    }
-
-    pub(super) fn dispatch_invocation(
-        &self,
-        signature: InvocationSignature,
-        event: InvocationEvent,
-    ) {
-        let event_name = format!("{event:?}");
-        match self.state.invocation_hub.with(&signature, |invocation| {
-            invocation.sender().send(event).is_ok()
-        }) {
-            Some(true) => {}
-            Some(false) => {
-                Logger::warning(format!(
-                    "invocation {} event {event_name} failed: worker stopped",
-                    signature.invocation_id.0
-                ));
-            }
-            None => {
-                Logger::warning(format!(
-                    "invocation {} event {event_name} not dispatched: invocation not found",
-                    signature.invocation_id.0
-                ));
-            }
-        }
-    }
-
     pub(super) fn on_invocation_update(&self, status: InvocationStatus) {
         match status {
             InvocationStatus::Created => {
                 Logger::debug(format!(
                     "step {} invocation created (task {})",
-                    self.signature.id.0, self.signature.task.id.0
+                    self.signature(),
+                    &self.signature().task,
                 ));
             }
             InvocationStatus::Started => {
                 Logger::debug(format!(
                     "step {} invocation started (task {})",
-                    self.signature.id.0, self.signature.task.id.0
+                    self.signature(),
+                    &self.signature().task,
                 ));
             }
             InvocationStatus::Processing { .. } => {
                 Logger::debug(format!(
                     "step {} invocation update (task {})",
-                    self.signature.id.0, self.signature.task.id.0
+                    self.signature(),
+                    &self.signature().task,
                 ));
             }
             InvocationStatus::Canceled => {
                 self.fail_with_reason("invocation canceled".to_owned());
             }
             InvocationStatus::Succeed { .. } => {
-                let content = self.invocation_content();
-                self.complete(content);
+                self.complete(String::new());
             }
             InvocationStatus::Failed => {
                 self.fail_with_reason("invocation failed".to_owned());
-            }
-        }
-    }
-
-    pub(super) fn create_relay(&self, request: RelayRequest) {
-        if request.signature.step != self.signature {
-            Logger::warning(format!(
-                "step {} rejected relay {}: signature step mismatch",
-                self.signature.id.0, request.signature.relay_id.0
-            ));
-            return;
-        }
-        let _ = self.state.relay_hub.create(&self.state, request);
-    }
-
-    pub(super) fn dispatch_relay(&self, signature: RelaySignature, event: RelayEvent) {
-        let event_name = format!("{event:?}");
-        match self
-            .state
-            .relay_hub
-            .with(&signature, |relay| relay.sender().send(event).is_ok())
-        {
-            Some(true) => {}
-            Some(false) => {
-                Logger::warning(format!(
-                    "relay {} event {event_name} failed: worker stopped",
-                    signature.relay_id.0
-                ));
-            }
-            None => {
-                Logger::warning(format!(
-                    "relay {} event {event_name} not dispatched: relay not found",
-                    signature.relay_id.0
-                ));
             }
         }
     }
@@ -127,27 +44,29 @@ impl Step {
             RelayStatus::Created => {
                 Logger::debug(format!(
                     "step {} relay created (task {})",
-                    self.signature.id.0, self.signature.task.id.0
+                    self.signature(),
+                    &self.signature().task,
                 ));
             }
             RelayStatus::Started => {
                 Logger::debug(format!(
                     "step {} relay started (task {})",
-                    self.signature.id.0, self.signature.task.id.0
+                    self.signature(),
+                    &self.signature().task,
                 ));
             }
             RelayStatus::Processing { .. } => {
                 Logger::debug(format!(
                     "step {} relay update (task {})",
-                    self.signature.id.0, self.signature.task.id.0
+                    self.signature(),
+                    &self.signature().task,
                 ));
             }
             RelayStatus::Canceled => {
                 self.fail_with_reason("relay canceled".to_owned());
             }
             RelayStatus::Succeed { .. } => {
-                let content = self.relay_content();
-                self.complete(content);
+                self.complete(String::new());
             }
             RelayStatus::Failed => {
                 self.fail_with_reason("relay failed".to_owned());
@@ -168,22 +87,5 @@ impl Step {
             expected_result: "Execution analysis updates the remaining plan".to_owned(),
         };
         Self::send_task_event(&self.state, TaskEvent::PlanCreate(plan));
-    }
-
-    fn invocation_content(&self) -> String {
-        let StepKind::Invocation(InvocationStepKind::Invocation(request)) = &self.kind else {
-            return String::new();
-        };
-        self.state
-            .invocation_hub
-            .content(&request.signature)
-            .unwrap_or_default()
-    }
-
-    fn relay_content(&self) -> String {
-        let StepKind::Invocation(InvocationStepKind::Invocation(_)) = &self.kind else {
-            return String::new();
-        };
-        String::new()
     }
 }

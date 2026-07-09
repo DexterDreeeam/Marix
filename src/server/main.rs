@@ -1,4 +1,5 @@
 use marix_common::{Config, Logger};
+use marix_protocol::Actor;
 use marix_server::Session;
 
 fn main() {
@@ -22,7 +23,8 @@ fn main() {
         config.server.telemetry_port
     ));
     Logger::log(format!("server core '{}' starting", config.name));
-    let _session = Session::new(config.name);
+    let mut session = Session::new(config.name);
+    session.start();
     loop {
         std::thread::park();
     }

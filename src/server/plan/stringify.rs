@@ -23,8 +23,8 @@ impl PlanStringify {
     pub fn pending_intentions_text(&self) -> String {
         self.records
             .iter()
-            .flat_map(|record| record.plan.pending_steps.iter())
-            .map(|step| step.description.clone())
+            .flat_map(|record| record.plan.pending_steps())
+            .map(|step| step.description().to_owned())
             .collect::<Vec<_>>()
             .join("\n")
     }
@@ -41,13 +41,16 @@ struct StepText {
 impl PlanStringify {
     fn plan_text(record: &PlanRecord) -> String {
         let mut lines = vec![
-            format!("description: {}", record.plan.description),
+            format!("description: {}", record.plan.description()),
             "run_steps:".to_owned(),
         ];
-        lines.extend(record.plan.run_steps.iter().map(Self::step_text));
+        lines.extend(record.plan.run_steps().iter().map(Self::step_text));
         lines.push("pending_steps:".to_owned());
-        lines.extend(record.plan.pending_steps.iter().map(Self::step_text));
-        lines.push(format!("expected_result: {}", record.plan.expected_result));
+        lines.extend(record.plan.pending_steps().iter().map(Self::step_text));
+        lines.push(format!(
+            "expected_result: {}",
+            record.plan.expected_result()
+        ));
         lines.join("\n")
     }
 
@@ -55,7 +58,9 @@ impl PlanStringify {
         let text = Self::step_fields(step);
         let mut fields = format!(
             "- name: {}\n  kind: {}\n  description: {}",
-            text.name, text.kind, step.description
+            text.name,
+            text.kind,
+            step.description()
         );
         if let Some(input) = text.input {
             fields.push_str(&format!("\n  input: {input}"));
@@ -64,7 +69,7 @@ impl PlanStringify {
     }
 
     fn step_fields(step: &Step) -> StepText {
-        match &step.kind {
+        match step.kind() {
             StepKind::Invocation(InvocationStepKind::Invocation(request)) => StepText {
                 name: request.signature.name.clone(),
                 kind: "tool",

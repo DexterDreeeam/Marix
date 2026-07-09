@@ -4,8 +4,12 @@
     "path": "src/protocol/task",
     "name": "task",
     "purpose": "Owns task protocol contracts including task identity/signatures, task requests, previews/results, task status, task errors, and task events that nest plan events.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "signature.rs",
+    "request.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -19,12 +23,7 @@
           "lineStart": 3,
           "lineEnd": 9,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 3,
-              "lineEnd": 9
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -41,12 +40,7 @@
           "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 5,
-              "lineEnd": 5
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -94,20 +88,20 @@
       "name": "TaskRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/request.rs",
-          "lineStart": 3,
-          "lineEnd": 6,
+          "lineStart": 5,
+          "lineEnd": 9,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 3,
-              "lineEnd": 6
+              "lineStart": 5,
+              "lineEnd": 9
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -147,31 +141,59 @@
       "name": "TaskSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/signature.rs",
-          "lineStart": 4,
-          "lineEnd": 8,
+          "lineStart": 6,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 10
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/task/signature.rs",
-          "lineStart": 10,
-          "lineEnd": 17,
+          "lineStart": 12,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 19
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/task/signature.rs",
-          "lineStart": 19,
-          "lineEnd": 23,
+          "lineStart": 21,
+          "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 21,
+              "lineEnd": 25
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/protocol/task/signature.rs",
+          "lineStart": 27,
+          "lineEnd": 31,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 27,
+              "lineEnd": 31
+            }
+          ]
         }
       ]
     },
@@ -187,12 +209,7 @@
           "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 4,
-              "lineEnd": 4
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     }

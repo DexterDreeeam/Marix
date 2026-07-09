@@ -4,9 +4,19 @@
     "path": "src/host",
     "name": "host",
     "purpose": "Host crate namespace for HostSession and host-side executor dispatch/runtime exported through the executor module.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "main.rs",
+    "session.rs",
+    "lib.rs"
+  ],
   "childModules": [
+    {
+      "path": "src/host/execution",
+      "name": "execution",
+      "purpose": "Owns the execution source module under src/host/execution."
+    },
     {
       "path": "src/host/executor",
       "name": "executor",
@@ -15,57 +25,332 @@
   ],
   "elements": [
     {
-      "name": "Executor",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
+      "name": "main",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "modified",
       "codeSegments": [
         {
-          "sourcePath": "src/host/executor/executor.rs",
-          "lineStart": 14,
+          "sourcePath": "src/host/main.rs",
+          "lineStart": 4,
           "lineEnd": 18,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/host/executor/executor.rs",
-          "lineStart": 20,
-          "lineEnd": 43,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/host/executor/executor.rs",
-          "lineStart": 47,
-          "lineEnd": 153,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 92,
-              "lineEnd": 92
-            },
+              "lineStart": 4,
+              "lineEnd": 18
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "connect_telemetry",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/main.rs",
+          "lineStart": 22,
+          "lineEnd": 34,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 98,
-              "lineEnd": 98
-            },
+              "lineStart": 22,
+              "lineEnd": 34
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SOURCE_NAME",
+      "type": "static",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/session.rs",
+          "lineStart": 11,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 108,
-              "lineEnd": 108
-            },
+              "lineStart": 11,
+              "lineEnd": 11
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HostSession",
+      "type": "struct",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/session.rs",
+          "lineStart": 13,
+          "lineEnd": 16,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 120,
-              "lineEnd": 120
-            },
+              "lineStart": 13,
+              "lineEnd": 16
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/session.rs",
+          "lineStart": 18,
+          "lineEnd": 46,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 141,
-              "lineEnd": 141
-            },
+              "lineStart": 18,
+              "lineEnd": 46
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/session.rs",
+          "lineStart": 50,
+          "lineEnd": 97,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 147,
-              "lineEnd": 147
+              "lineStart": 50,
+              "lineEnd": 97
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HostSessionState",
+      "type": "struct",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/session.rs",
+          "lineStart": 99,
+          "lineEnd": 102,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 99,
+              "lineEnd": 102
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/session.rs",
+          "lineStart": 104,
+          "lineEnd": 111,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 104,
+              "lineEnd": 111
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Execution",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/execution/execution.rs",
+          "lineStart": 10,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 12
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/execution/execution.rs",
+          "lineStart": 14,
+          "lineEnd": 24,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 24
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/execution/execution.rs",
+          "lineStart": 26,
+          "lineEnd": 43,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 26,
+              "lineEnd": 43
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ExecutionRuntime",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/execution/runtime.rs",
+          "lineStart": 11,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 15
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/execution/runtime.rs",
+          "lineStart": 17,
+          "lineEnd": 26,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 26
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/execution/runtime.rs",
+          "lineStart": 28,
+          "lineEnd": 73,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 28,
+              "lineEnd": 73
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/execution/runtime.rs",
+          "lineStart": 77,
+          "lineEnd": 134,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 77,
+              "lineEnd": 134
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ExecutionState",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/execution/state.rs",
+          "lineStart": 5,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 11
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/execution/state.rs",
+          "lineStart": 13,
+          "lineEnd": 28,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 13,
+              "lineEnd": 28
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Executor",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/executor/executor.rs",
+          "lineStart": 10,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 12
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/executor/executor.rs",
+          "lineStart": 14,
+          "lineEnd": 24,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 24
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/executor/executor.rs",
+          "lineStart": 26,
+          "lineEnd": 40,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 26,
+              "lineEnd": 40
             }
           ]
         }
@@ -107,16 +392,67 @@
           "lineEnd": 75,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ExecutorRuntime",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/executor/runtime.rs",
+          "lineStart": 12,
+          "lineEnd": 16,
+          "language": "rust",
+          "addedLines": [
             {
-              "lineStart": 28,
-              "lineEnd": 28
-            },
-            {
-              "lineStart": 44,
-              "lineEnd": 44
+              "lineStart": 12,
+              "lineEnd": 16
             }
-          ]
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/host/executor/runtime.rs",
+          "lineStart": 18,
+          "lineEnd": 27,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 18,
+              "lineEnd": 27
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/host/executor/runtime.rs",
+          "lineStart": 29,
+          "lineEnd": 72,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 29,
+              "lineEnd": 72
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/host/executor/runtime.rs",
+          "lineStart": 76,
+          "lineEnd": 118,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 76,
+              "lineEnd": 118
+            }
+          ],
+          "modifiedLines": []
         }
       ]
     },
@@ -124,33 +460,33 @@
       "name": "ExecutorState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/state.rs",
-          "lineStart": 6,
-          "lineEnd": 10,
+          "lineStart": 7,
+          "lineEnd": 13,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 6,
-              "lineEnd": 10
+              "lineStart": 7,
+              "lineEnd": 13
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/host/executor/state.rs",
-          "lineStart": 12,
-          "lineEnd": 20,
+          "lineStart": 15,
+          "lineEnd": 26,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 20
+              "lineStart": 15,
+              "lineEnd": 26
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -175,51 +511,6 @@
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "HostSession",
-      "type": "struct",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/host/session.rs",
-          "lineStart": 13,
-          "lineEnd": 16,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/host/session.rs",
-          "lineStart": 18,
-          "lineEnd": 39,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/host/session.rs",
-          "lineStart": 43,
-          "lineEnd": 93,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 54,
-              "lineEnd": 54
-            },
-            {
-              "lineStart": 75,
-              "lineEnd": 75
-            },
-            {
-              "lineStart": 82,
-              "lineEnd": 82
-            }
-          ]
         }
       ]
     }

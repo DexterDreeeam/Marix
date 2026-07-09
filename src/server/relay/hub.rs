@@ -1,11 +1,11 @@
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 
 use marix_common::Logger;
-use marix_protocol::{RelayRequest, RelaySignature, RelayStatus};
+use marix_protocol::{Actor, RelayRequest, RelaySignature};
 
 use crate::relay::Relay;
-use crate::task::TaskState;
+use crate::task::TaskAccess;
 
 pub struct RelayHub {
     relay_map: Mutex<HashMap<RelaySignature, Relay>>,
@@ -18,9 +18,8 @@ impl RelayHub {
         }
     }
 
-    pub(crate) fn create(&self, state: &Arc<TaskState>, request: RelayRequest) -> Option<Relay> {
+    pub(crate) fn create(&self, access: TaskAccess, request: RelayRequest) -> bool {
         let signature = request.signature.clone();
-        let relay = Relay::new(Arc::clone(state), request);
         let mut relays = self
             .relay_map
             .lock()
@@ -28,21 +27,14 @@ impl RelayHub {
         if relays.contains_key(&signature) {
             Logger::warning(format!(
                 "relay {} create ignored: relay already exists",
-                signature.relay_id.0
+                &signature,
             ));
-            return None;
+            return false;
         }
-        relays.insert(signature, relay.clone());
-        Some(relay)
-    }
-
-    pub fn status(&self, signature: &RelaySignature) -> RelayStatus {
-        self.relay_map
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .get(signature)
-            .map(Relay::status)
-            .unwrap_or(RelayStatus::Created)
+        let mut relay = Relay::new(access, request);
+        relay.start();
+        relays.insert(signature, relay);
+        true
     }
 
     pub(crate) fn with<R>(

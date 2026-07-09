@@ -4,18 +4,21 @@
     "path": "src",
     "name": "src",
     "purpose": "Workspace source root for Marix Rust crates and prompt sources; direct child modules are crate packages for protocol, common, server, client, host, tool, and prompts.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "Cargo.lock"
+  ],
   "childModules": [
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Client crate namespace for client sessions, CLI, and app-facing events."
+      "purpose": "Client crate namespace for the marix_client library and client binaries. ClientEvent carries Common streaming output and Done completion events by signature id, and ClientSession connects to the server over the client channel selected by ChannelEndpoint::Client, creates tasks with an empty TaskSignature.name, and keeps the user request only in TaskEvent::Create."
     },
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Common crate helpers for config, logging, transport structure, and third-party wrapper namespaces."
+      "purpose": "Shared common crate root for reusable config loading with default CoreConfig fallback, server IP and handshake token resolution from plain config values, external re-export adapters, database telemetry logging, and structure utilities. It exposes WorkQueue cleanup support used by server host-disconnect session reset, and lib.rs re-exports serializable config system types Arch, Platform, and System alongside Config, ServerConfig, and related models, plus the Logger telemetry client with LogMessage, LogTag, and LoggingError."
     },
     {
       "path": "src/host",
@@ -25,12 +28,12 @@
     {
       "path": "src/prompt",
       "name": "prompt",
-      "purpose": "Prompt template sources grouped by prompt role."
+      "purpose": "Owns prompt templates used by model-facing steps, including raw strict JSON response requirements, no-Markdown-fence output constraints, single-string tool and model input guidance, flat model-facing PlanDraft step objects, and answer-only Initial and Analysis JSON for requests that are already answerable."
     },
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "Owns marix-protocol crate definitions and namespace exports for hierarchical session, task, plan, step, invocation, executor, relay, host execution, tool, and shared signature contracts."
+      "purpose": "Owns marix-protocol crate definitions and namespace exports for hierarchical session, task, plan, step, invocation, executor, relay, host execution, tool, and shared signature/status/error contracts."
     },
     {
       "path": "src/server",
@@ -40,12 +43,12 @@
     {
       "path": "src/target",
       "name": "target",
-      "purpose": "Owns the target source module."
+      "purpose": "Owns the target source module under src/target."
     },
     {
       "path": "src/tool",
       "name": "tool",
-      "purpose": "Tool crate namespace for native tool programs and schemas."
+      "purpose": "Top-level marix-tool crate (lib marix_tool) that defines the per-tool ToolProgram interface and compiles one executable per native tool program. Cargo.toml now depends on marix-protocol, and ToolProgram uses marix_protocol::ToolPreview."
     }
   ],
   "elements": [
@@ -66,46 +69,165 @@
       ]
     },
     {
-      "name": "ClientSession",
-      "type": "struct",
+      "name": "SOURCE_NAME",
+      "type": "static",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 18,
-          "lineEnd": 23,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/client/session.rs",
-          "lineStart": 25,
-          "lineEnd": 74,
+          "lineStart": 16,
+          "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 53,
-              "lineEnd": 53
-            },
+              "lineStart": 16,
+              "lineEnd": 16
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ClientSession",
+      "type": "struct",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/session.rs",
+          "lineStart": 18,
+          "lineEnd": 21,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 58,
-              "lineEnd": 58
+              "lineStart": 18,
+              "lineEnd": 21
             }
           ]
         },
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 78,
-          "lineEnd": 162,
+          "lineStart": 23,
+          "lineEnd": 72,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 91,
-              "lineEnd": 91
+              "lineStart": 23,
+              "lineEnd": 72
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/client/session.rs",
+          "lineStart": 76,
+          "lineEnd": 160,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 76,
+              "lineEnd": 160
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ClientSessionState",
+      "type": "struct",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/client/session.rs",
+          "lineStart": 162,
+          "lineEnd": 167,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 162,
+              "lineEnd": 167
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/client/session.rs",
+          "lineStart": 169,
+          "lineEnd": 179,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 169,
+              "lineEnd": 179
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/main.rs",
+          "lineStart": 4,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 4,
+              "lineEnd": 18
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "connect_telemetry",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/main.rs",
+          "lineStart": 22,
+          "lineEnd": 34,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 34
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SOURCE_NAME",
+      "type": "static",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/session.rs",
+          "lineStart": 11,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 11
             }
           ]
         }
@@ -115,7 +237,7 @@
       "name": "HostSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/session.rs",
@@ -123,36 +245,93 @@
           "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 13,
+              "lineEnd": 16
+            }
+          ]
         },
         {
           "sourcePath": "src/host/session.rs",
           "lineStart": 18,
-          "lineEnd": 39,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/host/session.rs",
-          "lineStart": 43,
-          "lineEnd": 93,
+          "lineEnd": 46,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 54,
-              "lineEnd": 54
-            },
-            {
-              "lineStart": 75,
-              "lineEnd": 75
-            },
-            {
-              "lineStart": 82,
-              "lineEnd": 82
+              "lineStart": 18,
+              "lineEnd": 46
             }
           ]
+        },
+        {
+          "sourcePath": "src/host/session.rs",
+          "lineStart": 50,
+          "lineEnd": 97,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 50,
+              "lineEnd": 97
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HostSessionState",
+      "type": "struct",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/session.rs",
+          "lineStart": 99,
+          "lineEnd": 102,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 99,
+              "lineEnd": 102
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/session.rs",
+          "lineStart": 104,
+          "lineEnd": 111,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 104,
+              "lineEnd": 111
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Actor",
+      "type": "trait",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/actor.rs",
+          "lineStart": 1,
+          "lineEnd": 5,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 5
+            }
+          ],
+          "modifiedLines": []
         }
       ]
     },
@@ -181,6 +360,48 @@
       ]
     },
     {
+      "name": "Runtime",
+      "type": "trait",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/runtime.rs",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 7
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "RuntimeAsync",
+      "type": "trait",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/runtime.rs",
+          "lineStart": 9,
+          "lineEnd": 16,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 16
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
       "name": "SignatureKey",
       "type": "struct",
       "source_depth": 2,
@@ -192,12 +413,7 @@
           "lineEnd": 4,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 3,
-              "lineEnd": 3
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -211,6 +427,59 @@
           "sourcePath": "src/protocol/signature.rs",
           "lineStart": 6,
           "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/main.rs",
+          "lineStart": 5,
+          "lineEnd": 31,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 31
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/tool_main.rs",
+          "lineStart": 5,
+          "lineEnd": 7,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "run",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/tool_main.rs",
+          "lineStart": 12,
+          "lineEnd": 31,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

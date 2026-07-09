@@ -4,15 +4,20 @@
     "path": "src/server/plan",
     "name": "plan",
     "purpose": "Owns server-side plan runtime orchestration and plan stringification over Invocation step kinds.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "plan.rs",
+    "stringify.rs",
+    "hub.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "PlanHub",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/hub.rs",
@@ -20,15 +25,25 @@
           "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 9
+            }
+          ]
         },
         {
           "sourcePath": "src/server/plan/hub.rs",
           "lineStart": 11,
-          "lineEnd": 75,
+          "lineEnd": 88,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 88
+            }
+          ]
         }
       ]
     },
@@ -36,64 +51,106 @@
       "name": "Plan",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/plan.rs",
-          "lineStart": 14,
-          "lineEnd": 24,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/plan/plan.rs",
-          "lineStart": 26,
-          "lineEnd": 80,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/plan/plan.rs",
-          "lineStart": 84,
-          "lineEnd": 188,
+          "lineStart": 16,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 88,
-              "lineEnd": 88
-            },
-            {
-              "lineStart": 104,
-              "lineEnd": 104
-            },
-            {
-              "lineStart": 147,
-              "lineEnd": 147
-            },
-            {
-              "lineStart": 154,
-              "lineEnd": 154
-            },
-            {
-              "lineStart": 164,
-              "lineEnd": 164
-            },
-            {
-              "lineStart": 182,
-              "lineEnd": 182
+              "lineStart": 16,
+              "lineEnd": 19
             }
           ]
         },
         {
           "sourcePath": "src/server/plan/plan.rs",
-          "lineStart": 190,
-          "lineEnd": 211,
+          "lineStart": 21,
+          "lineEnd": 28,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 21,
+              "lineEnd": 28
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/plan/plan.rs",
+          "lineStart": 30,
+          "lineEnd": 108,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 30,
+              "lineEnd": 108
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/plan/plan.rs",
+          "lineStart": 112,
+          "lineEnd": 234,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 112,
+              "lineEnd": 234
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/plan/plan.rs",
+          "lineStart": 270,
+          "lineEnd": 293,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 270,
+              "lineEnd": 293
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PlanState",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/plan/plan.rs",
+          "lineStart": 236,
+          "lineEnd": 245,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 236,
+              "lineEnd": 245
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/plan/plan.rs",
+          "lineStart": 247,
+          "lineEnd": 268,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 247,
+              "lineEnd": 268
+            }
+          ]
         }
       ]
     },
@@ -133,7 +190,7 @@
       "name": "PlanStringify",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/stringify.rs",
@@ -144,7 +201,7 @@
           "modifiedLines": [
             {
               "lineStart": 5,
-              "lineEnd": 5
+              "lineEnd": 8
             }
           ]
         },
@@ -156,21 +213,21 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 9,
-              "lineEnd": 9
+              "lineStart": 10,
+              "lineEnd": 31
             }
           ]
         },
         {
           "sourcePath": "src/server/plan/stringify.rs",
           "lineStart": 41,
-          "lineEnd": 110,
+          "lineEnd": 115,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 40,
-              "lineEnd": 40
+              "lineStart": 41,
+              "lineEnd": 115
             }
           ]
         }
@@ -180,7 +237,7 @@
       "name": "StepText",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/stringify.rs",
@@ -191,7 +248,7 @@
           "modifiedLines": [
             {
               "lineStart": 35,
-              "lineEnd": 35
+              "lineEnd": 39
             }
           ]
         }

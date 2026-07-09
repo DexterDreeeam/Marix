@@ -54,6 +54,19 @@ impl PlanHub {
         Ok(())
     }
 
+    pub(crate) fn with_mut<R>(
+        &self,
+        signature: &PlanSignature,
+        function: impl FnOnce(&mut Plan) -> R,
+    ) -> Option<R> {
+        self.records
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .iter_mut()
+            .find(|record| &record.signature == signature)
+            .map(|record| function(&mut record.plan))
+    }
+
     pub fn list(&self) -> Result<Vec<PlanSignature>, PlanError> {
         Ok(self
             .records

@@ -4,8 +4,12 @@
     "path": "src/protocol/relay",
     "name": "relay",
     "purpose": "Owns relay protocol contracts including relay identity/signatures, requests, statuses, errors, and relay cancellation events.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "signature.rs",
+    "event.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -19,12 +23,7 @@
           "lineStart": 3,
           "lineEnd": 6,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 3,
-              "lineEnd": 6
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -33,7 +32,7 @@
       "name": "RelayEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/event.rs",
@@ -44,7 +43,7 @@
           "modifiedLines": [
             {
               "lineStart": 3,
-              "lineEnd": 3
+              "lineEnd": 6
             }
           ]
         }
@@ -94,31 +93,59 @@
       "name": "RelaySignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/signature.rs",
-          "lineStart": 5,
-          "lineEnd": 12,
+          "lineStart": 7,
+          "lineEnd": 14,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 14
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/relay/signature.rs",
-          "lineStart": 14,
-          "lineEnd": 29,
+          "lineStart": 16,
+          "lineEnd": 31,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 16,
+              "lineEnd": 31
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/relay/signature.rs",
-          "lineStart": 31,
-          "lineEnd": 35,
+          "lineStart": 33,
+          "lineEnd": 37,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 33,
+              "lineEnd": 37
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/protocol/relay/signature.rs",
+          "lineStart": 39,
+          "lineEnd": 43,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 39,
+              "lineEnd": 43
+            }
+          ]
         }
       ]
     },
@@ -134,12 +161,7 @@
           "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 3,
-              "lineEnd": 3
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     }

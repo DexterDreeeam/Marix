@@ -1,9 +1,9 @@
 use std::fmt;
-use std::sync::atomic::AtomicUsize;
-use std::sync::{Arc, Mutex as StdMutex};
-use std::thread::{self, JoinHandle};
+use std::sync::Arc;
+use std::sync::Mutex as StdMutex;
 
-use marix_common::{Logger, Receiver, Sender, build_channel};
+use marix_common::external::*;
+use marix_common::{Logger, build_async_channel};
 use marix_protocol::{
     InvocationEvent, InvocationRequest, InvocationSignature, InvocationStatus, InvocationStepKind,
     ModelStepKind, PlanDraft, PlanError, PlanEvent, PlanSignature, RelayStatus, SessionEvent,
@@ -11,141 +11,187 @@ use marix_protocol::{
     ToolInputSchema,
 };
 
-use crate::task::TaskState;
+use crate::task::TaskAccess;
 
-#[derive(Clone)]
 pub struct Step {
-    pub state: Arc<TaskState>,
-    pub signature: StepSignature,
-    pub description: String,
-    pub kind: StepKind,
-    pub update_count: Arc<AtomicUsize>,
-    step_tx: Sender<StepEvent>,
-    _worker: Arc<StdMutex<Option<JoinHandle<()>>>>,
+    pub(super) state: Arc<StepState>,
+    worker_started: bool,
+}
+
+impl Clone for Step {
+    fn clone(&self) -> Self {
+        Self {
+            state: Arc::clone(&self.state),
+            worker_started: false,
+        }
+    }
 }
 
 impl Step {
     pub fn new(
-        state: Arc<TaskState>,
+        access: TaskAccess,
         signature: StepSignature,
         description: String,
         kind: StepKind,
     ) -> Self {
-        let (step_tx, step_rx) = build_channel();
-        let worker = Arc::new(StdMutex::new(None));
         let step = Self {
-            state,
-            signature,
-            description,
-            kind,
-            update_count: Arc::new(AtomicUsize::new(0)),
-            step_tx,
-            _worker: Arc::clone(&worker),
+            state: Arc::new(StepState::new(signature, description, kind, access)),
+            worker_started: false,
         };
-        let worker_step = step.clone();
-        let handle = thread::spawn(move || worker_step.worker(step_rx));
-        *worker.lock().unwrap_or_else(|error| error.into_inner()) = Some(handle);
+        Self::send_plan_event(
+            &step.state,
+            step.state.signature.plan.clone(),
+            PlanEvent::StepUpdate(StepStatus::Created),
+        );
         step
     }
 
     pub(crate) fn from_draft(
-        state: &Arc<TaskState>,
+        access: TaskAccess,
         plan: &PlanSignature,
         draft: StepDraft,
     ) -> Result<Self, PlanError> {
         let signature =
-            StepSignature::new(state.signature.clone(), plan.clone(), draft.name.clone());
+            StepSignature::new(access.signature.clone(), plan.clone(), draft.name.clone());
         let kind = Self::step_kind(&signature, &draft)?;
-        Ok(Self::new(
-            Arc::clone(state),
-            signature,
-            draft.description,
-            kind,
-        ))
+        Ok(Self::new(access, signature, draft.description, kind))
     }
 
-    pub(crate) fn sender(&self) -> Sender<StepEvent> {
-        self.step_tx.clone()
+    pub(crate) fn sender(&self) -> tokio::mpsc::UnboundedSender<StepEvent> {
+        self.state.step_tx.clone()
     }
 
-    pub(crate) fn start(&self) {
-        if self.state.steps.with(&self.signature.id, |_| ()).is_some() {
+    pub(crate) fn signature(&self) -> &StepSignature {
+        &self.state.signature
+    }
+
+    pub(crate) fn description(&self) -> &str {
+        &self.state.description
+    }
+
+    pub(crate) fn kind(&self) -> &StepKind {
+        &self.state.kind
+    }
+
+    pub(crate) fn run(&mut self) {
+        if self.worker_started {
             Logger::warning(format!(
-                "step {} start ignored: step already exists (task {})",
-                self.signature.id.0, self.signature.task.id.0
+                "step {} run ignored: worker already running (task {})",
+                &self.state.signature, &self.state.signature.task,
             ));
             return;
         }
-        if self.state.steps.size() >= 10 {
-            let reason = "task step limit exceeded".to_owned();
-            Logger::warning(format!(
-                "step {} rejected: {reason} (task {})",
-                self.signature.id.0, self.signature.task.id.0
-            ));
-            self.fail_with_reason(reason);
-            return;
-        }
-        self.state
-            .steps
-            .insert_or_update(self.signature.id.clone(), self.clone());
-        match &self.kind {
-            StepKind::Model(_) => self.clone().run_model(),
-            StepKind::Invocation(InvocationStepKind::Invocation(request)) => {
-                self.send_to_self(StepEvent::InvocationCreate(request.clone()));
-            }
-            StepKind::Invocation(InvocationStepKind::Cancel) => {
-                self.fail_with_reason("invocation cancel step has no target".to_owned());
-            }
-            StepKind::Invocation(InvocationStepKind::Kill) => {
-                self.fail_with_reason(
-                    "invocation kill is not supported by the current protocol".to_owned(),
-                );
-            }
-            StepKind::Intent | StepKind::User(_) => {
-                self.fail_with_reason("task step kind is not supported yet".to_owned());
-            }
-        }
+        let worker_step = self.clone();
+        self.worker_started = true;
+        drop(self.state.access.rt.spawn(async move {
+            worker_step.worker().await;
+        }));
     }
 
-    pub(crate) fn trigger_initial_plan(state: Arc<TaskState>) {
+    pub(crate) fn trigger_initial_plan(access: TaskAccess) {
+        let user_request = access.user_request.clone();
         let plan = PlanDraft {
-            description: state.user_request.clone(),
+            description: user_request.clone(),
             run_steps: vec![StepDraft {
                 name: "Initial".to_owned(),
                 kind: "model".to_owned(),
-                description: state.user_request.clone(),
+                description: user_request,
                 input: "Initial".to_owned(),
             }],
             pending_steps: Vec::new(),
             expected_result: String::new(),
         };
-        Self::send_task_event(&state, TaskEvent::PlanCreate(plan));
+        if access
+            .session_tx
+            .send(SessionEvent::Task(
+                access.signature.clone(),
+                TaskEvent::PlanCreate(plan),
+            ))
+            .is_err()
+        {
+            Logger::warning(format!(
+                "task {} event failed: session worker stopped",
+                &access.signature,
+            ));
+        }
+    }
+
+    pub(crate) fn complete(&self, content: String) {
+        Self::send_plan_event(
+            &self.state,
+            self.state.signature.plan.clone(),
+            PlanEvent::StepUpdate(StepStatus::Succeed),
+        );
+        match &self.state.kind {
+            StepKind::Model(_) => self.on_model_complete(&content),
+            StepKind::Invocation(_) => self.on_invocation_complete(&content),
+            StepKind::Intent | StepKind::User(_) => {}
+        }
+    }
+
+    pub(crate) fn fail_with_reason(&self, reason: String) {
+        Logger::error(format!(
+            "step {} failed: {reason} (task {})",
+            &self.state.signature, &self.state.signature.task,
+        ));
+        Self::send_plan_event(
+            &self.state,
+            self.state.signature.plan.clone(),
+            PlanEvent::StepUpdate(StepStatus::Failed),
+        );
     }
 }
 
 // -- Private -- //
 
 impl Step {
-    fn worker(self, step_rx: Receiver<StepEvent>) {
-        while let Ok(event) = step_rx.recv() {
+    async fn worker(self) {
+        Self::send_plan_event(
+            &self.state,
+            self.state.signature.plan.clone(),
+            PlanEvent::StepUpdate(StepStatus::Started),
+        );
+        let Some(mut step_rx) = self.take_receiver() else {
+            Logger::warning(format!(
+                "step {} worker stopping: event receiver unavailable (task {})",
+                &self.state.signature, &self.state.signature.task,
+            ));
+            return;
+        };
+        while let Some(event) = step_rx.recv().await {
             if let Err(error) = self.dispatch(event) {
                 Logger::debug(format!(
                     "step {} worker stopping: {error:?} (task {})",
-                    self.signature.id.0, self.signature.task.id.0
+                    &self.state.signature, &self.state.signature.task,
                 ));
                 break;
             }
         }
     }
 
+    fn take_receiver(&self) -> Option<tokio::mpsc::UnboundedReceiver<StepEvent>> {
+        self.state
+            .step_rx
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .take()
+    }
+
     fn dispatch(&self, event: StepEvent) -> Result<(), StepError> {
         match event {
             StepEvent::Invocation(signature, event) => {
-                self.dispatch_invocation(signature, event);
+                Logger::warning(format!(
+                    "step {} received invocation event for {} after runtime routing",
+                    &self.state.signature, &signature,
+                ));
+                let _ = event;
                 Ok(())
             }
             StepEvent::InvocationCreate(request) => {
-                self.create_invocation(request);
+                Logger::warning(format!(
+                    "step {} received invocation create for {} after runtime routing",
+                    &self.state.signature, &request.signature,
+                ));
                 Ok(())
             }
             StepEvent::InvocationUpdate(status) => {
@@ -158,11 +204,18 @@ impl Step {
                 }
             }
             StepEvent::Relay(signature, event) => {
-                self.dispatch_relay(signature, event);
+                Logger::warning(format!(
+                    "step {} received relay event for {} after runtime routing",
+                    &self.state.signature, &signature,
+                ));
+                let _ = event;
                 Ok(())
             }
             StepEvent::RelayCreate(request) => {
-                self.create_relay(request);
+                Logger::warning(format!(
+                    "step {} received relay create for {} after runtime routing",
+                    &self.state.signature, &request.signature,
+                ));
                 Ok(())
             }
             StepEvent::RelayUpdate(status) => {
@@ -243,67 +296,22 @@ impl Step {
         input.split(',').next().unwrap_or_default().trim()
     }
 
-    pub(super) fn complete(&self, content: String) {
-        if !self.complete_current() {
-            return;
-        }
-        if self.state.plan_hub.complete_step(&self.signature).is_none() {
-            return;
-        }
-        Self::send_plan_event(
-            &self.state,
-            self.signature.plan.clone(),
-            PlanEvent::StepUpdate(StepStatus::Succeed),
-        );
-        match &self.kind {
-            StepKind::Model(_) => self.on_model_complete(&content),
-            StepKind::Invocation(_) => self.on_invocation_complete(&content),
-            StepKind::Intent | StepKind::User(_) => {}
-        }
-    }
-
-    pub(super) fn fail_with_reason(&self, reason: String) {
-        Logger::error(format!(
-            "step {} failed: {reason} (task {})",
-            self.signature.id.0, self.signature.task.id.0
-        ));
-        self.complete_current();
-        Self::send_plan_event(
-            &self.state,
-            self.signature.plan.clone(),
-            PlanEvent::StepUpdate(StepStatus::Failed),
-        );
-    }
-
-    fn complete_current(&self) -> bool {
-        if !self.is_working() {
-            Logger::warning(format!(
-                "step {} completion ignored: step is not working (task {})",
-                self.signature.id.0, self.signature.task.id.0
-            ));
-            return false;
-        }
-        self.state.steps.complete(self.signature.id.clone());
-        true
-    }
-
-    fn is_working(&self) -> bool {
-        self.state
-            .steps
-            .working_list()
-            .iter()
-            .any(|step| step.signature.id == self.signature.id)
-    }
-
     fn on_cancel(&self) {
-        match &self.kind {
+        match &self.state.kind {
             StepKind::Invocation(InvocationStepKind::Invocation(request)) => {
-                self.dispatch_invocation(request.signature.clone(), InvocationEvent::Cancel);
+                Self::send_plan_event(
+                    &self.state,
+                    self.state.signature.plan.clone(),
+                    PlanEvent::Step(
+                        self.state.signature.clone(),
+                        StepEvent::Invocation(request.signature.clone(), InvocationEvent::Cancel),
+                    ),
+                );
             }
             StepKind::Model(_) => {
                 Logger::warning(format!(
                     "model step {} cancel requested, but model cancellation is not supported",
-                    self.signature.id.0
+                    &self.state.signature,
                 ));
                 self.fail_with_reason("model cancellation is not supported".to_owned());
             }
@@ -313,43 +321,64 @@ impl Step {
         }
     }
 
-    fn send_to_self(&self, event: StepEvent) {
-        if self.sender().send(event).is_err() {
-            Logger::warning(format!(
-                "step {} self event failed: worker stopped (task {})",
-                self.signature.id.0, self.signature.task.id.0
-            ));
-        }
-    }
-
-    pub(super) fn send_task_update(state: &TaskState, status: TaskStatus) {
+    pub(super) fn send_task_update(state: &StepState, status: TaskStatus) {
         if state
-            .task_tx
+            .access
+            .session_tx
             .send(SessionEvent::TaskUpdate(status))
             .is_err()
         {
             Logger::warning(format!(
-                "task {} update failed: task worker stopped",
-                state.signature.id.0
+                "task {} update failed: session worker stopped",
+                &state.access.signature,
             ));
         }
     }
 
-    pub(super) fn send_task_event(state: &TaskState, event: TaskEvent) {
+    pub(super) fn send_task_event(state: &StepState, event: TaskEvent) {
         if state
-            .task_tx
-            .send(SessionEvent::Task(state.signature.clone(), event))
+            .access
+            .session_tx
+            .send(SessionEvent::Task(state.access.signature.clone(), event))
             .is_err()
         {
             Logger::warning(format!(
-                "task {} event failed: task worker stopped",
-                state.signature.id.0
+                "task {} event failed: session worker stopped",
+                &state.access.signature,
             ));
         }
     }
 
-    fn send_plan_event(state: &TaskState, signature: PlanSignature, event: PlanEvent) {
+    fn send_plan_event(state: &StepState, signature: PlanSignature, event: PlanEvent) {
         Self::send_task_event(state, TaskEvent::Plan(signature, event));
+    }
+}
+
+pub(super) struct StepState {
+    pub(super) signature: StepSignature,
+    pub(super) description: String,
+    pub(super) kind: StepKind,
+    pub(super) access: TaskAccess,
+    pub(super) step_tx: tokio::mpsc::UnboundedSender<StepEvent>,
+    pub(super) step_rx: StdMutex<Option<tokio::mpsc::UnboundedReceiver<StepEvent>>>,
+}
+
+impl StepState {
+    fn new(
+        signature: StepSignature,
+        description: String,
+        kind: StepKind,
+        access: TaskAccess,
+    ) -> Self {
+        let (step_tx, step_rx) = build_async_channel();
+        Self {
+            signature,
+            description,
+            kind,
+            access,
+            step_tx,
+            step_rx: StdMutex::new(Some(step_rx)),
+        }
     }
 }
 
@@ -357,9 +386,9 @@ impl fmt::Debug for Step {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         formatter
             .debug_struct("Step")
-            .field("signature", &self.signature)
-            .field("description", &self.description)
-            .field("kind", &self.kind)
+            .field("signature", &self.state.signature)
+            .field("description", &self.state.description)
+            .field("kind", &self.state.kind)
             .finish_non_exhaustive()
     }
 }

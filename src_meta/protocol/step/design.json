@@ -4,8 +4,11 @@
     "path": "src/protocol/step",
     "name": "step",
     "purpose": "Owns step protocol contracts including step identity/signatures, step drafts/kinds, previews/results, step statuses, and step events that nest invocation and relay events.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "signature.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -35,12 +38,7 @@
           "lineStart": 3,
           "lineEnd": 12,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 3,
-              "lineEnd": 12
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -57,12 +55,7 @@
           "lineEnd": 17,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 8,
-              "lineEnd": 8
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -102,12 +95,7 @@
           "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 5,
-              "lineEnd": 5
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -123,12 +111,7 @@
           "lineEnd": 17,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 13,
-              "lineEnd": 13
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -144,12 +127,7 @@
           "lineEnd": 24,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 19,
-              "lineEnd": 19
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -165,12 +143,7 @@
           "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 26,
-              "lineEnd": 26
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -210,31 +183,59 @@
       "name": "StepSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/signature.rs",
-          "lineStart": 5,
-          "lineEnd": 11,
+          "lineStart": 7,
+          "lineEnd": 13,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 13
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/step/signature.rs",
-          "lineStart": 13,
-          "lineEnd": 22,
+          "lineStart": 15,
+          "lineEnd": 24,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 24
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/step/signature.rs",
-          "lineStart": 24,
-          "lineEnd": 28,
+          "lineStart": 26,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 26,
+              "lineEnd": 30
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/protocol/step/signature.rs",
+          "lineStart": 32,
+          "lineEnd": 36,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 32,
+              "lineEnd": 36
+            }
+          ]
         }
       ]
     },
@@ -249,12 +250,7 @@
           "lineStart": 3,
           "lineEnd": 10,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 3,
-              "lineEnd": 10
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

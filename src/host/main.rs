@@ -10,7 +10,8 @@ fn main() {
         }
     };
     connect_telemetry(&config);
-    let _session = HostSession::new(config.name);
+    let mut session = HostSession::new(config.name);
+    session.run();
     loop {
         std::thread::park();
     }

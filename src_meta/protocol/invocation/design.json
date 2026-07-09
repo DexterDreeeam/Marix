@@ -4,8 +4,12 @@
     "path": "src/protocol/invocation",
     "name": "invocation",
     "purpose": "Owns server-side invocation protocol contracts: invocation ids, signatures, requests, statuses, errors, and events that carry host execution events without host execution signatures.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "signature.rs",
+    "event.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -19,12 +23,7 @@
           "lineStart": 3,
           "lineEnd": 9,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 3,
-              "lineEnd": 9
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -33,20 +32,20 @@
       "name": "InvocationEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/event.rs",
           "lineStart": 5,
-          "lineEnd": 11,
+          "lineEnd": 10,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 5,
-              "lineEnd": 11
+              "lineEnd": 10
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -61,12 +60,7 @@
           "lineStart": 3,
           "lineEnd": 4,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 3,
-              "lineEnd": 4
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -74,12 +68,7 @@
           "lineStart": 6,
           "lineEnd": 10,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 6,
-              "lineEnd": 10
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -95,12 +84,7 @@
           "lineStart": 5,
           "lineEnd": 9,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 5,
-              "lineEnd": 9
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -109,46 +93,59 @@
       "name": "InvocationSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/signature.rs",
-          "lineStart": 5,
-          "lineEnd": 12,
+          "lineStart": 7,
+          "lineEnd": 14,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 5,
-              "lineEnd": 12
+              "lineStart": 7,
+              "lineEnd": 14
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/protocol/invocation/signature.rs",
-          "lineStart": 14,
-          "lineEnd": 29,
+          "lineStart": 16,
+          "lineEnd": 31,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 14,
-              "lineEnd": 29
+              "lineStart": 16,
+              "lineEnd": 31
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/protocol/invocation/signature.rs",
-          "lineStart": 31,
-          "lineEnd": 35,
+          "lineStart": 33,
+          "lineEnd": 37,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 31,
-              "lineEnd": 35
+              "lineStart": 33,
+              "lineEnd": 37
             }
-          ],
-          "modifiedLines": []
+          ]
+        },
+        {
+          "sourcePath": "src/protocol/invocation/signature.rs",
+          "lineStart": 39,
+          "lineEnd": 43,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 39,
+              "lineEnd": 43
+            }
+          ]
         }
       ]
     },
@@ -163,12 +160,7 @@
           "lineStart": 3,
           "lineEnd": 11,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 3,
-              "lineEnd": 11
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

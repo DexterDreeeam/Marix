@@ -4,47 +4,83 @@
     "path": "src/common/structure",
     "name": "structure",
     "purpose": "Owns shared structural utilities for the common crate. channel.rs defines local and TCP-backed remoc channel helpers: accept_channel resolves the bind address and expected token from config, binds the listener once, and accepts in a loop until one connection completes the transport handshake and presents the valid token within a 5-second per-connection timeout, abandoning connections that fail authentication, transport, or the timeout while continuing to accept, and returning early only on server-side setup, bind, or runtime failures; connect_channel resolves the connect address and token from config and makes a single attempt, surfacing ChannelError::Auth when the server rejects the token. It also defines the ChannelEndpoint client/host/telemetry channel-role selector and shared net endpoint wrappers. work_queue.rs defines the generic WorkQueue over working and completed maps, including borrowed access through with and clear() cleanup that empties both maps for host-disconnect session reset. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "channel.rs",
+    "mod.rs",
+    "work_queue.rs"
+  ],
   "childModules": [],
   "elements": [
+    {
+      "name": "NET_CHANNEL_BUFFER",
+      "type": "const",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 10,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HANDSHAKE_TIMEOUT",
+      "type": "const",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 11,
+          "lineEnd": 14,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 14
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "REJECT_FLUSH_GRACE",
+      "type": "const",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 15,
+          "lineEnd": 17,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 17
+            }
+          ]
+        }
+      ]
+    },
     {
       "name": "Sender",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 17,
-          "lineEnd": 17,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "Receiver",
-      "type": "type-alias",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 18,
-          "lineEnd": 18,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "NetSender",
-      "type": "type-alias",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -52,15 +88,20 @@
           "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 19,
+              "lineEnd": 19
+            }
+          ]
         }
       ]
     },
     {
-      "name": "NetReceiver",
+      "name": "Receiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -68,15 +109,20 @@
           "lineEnd": 20,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 20
+            }
+          ]
         }
       ]
     },
     {
-      "name": "SharedNetSender",
+      "name": "NetSender",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -84,15 +130,20 @@
           "lineEnd": 21,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 21,
+              "lineEnd": 21
+            }
+          ]
         }
       ]
     },
     {
-      "name": "SharedNetReceiver",
+      "name": "NetReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -100,7 +151,54 @@
           "lineEnd": 22,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 22
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SharedNetSender",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 23,
+          "lineEnd": 23,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 23
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SharedNetReceiver",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 24,
+          "lineEnd": 24,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 24,
+              "lineEnd": 24
+            }
+          ]
         }
       ]
     },
@@ -108,15 +206,20 @@
       "name": "ChannelError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 24,
-          "lineEnd": 35,
+          "lineStart": 26,
+          "lineEnd": 37,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 26,
+              "lineEnd": 37
+            }
+          ]
         }
       ]
     },
@@ -124,15 +227,20 @@
       "name": "ChannelEndpoint",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 37,
-          "lineEnd": 44,
+          "lineStart": 39,
+          "lineEnd": 46,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 39,
+              "lineEnd": 46
+            }
+          ]
         }
       ]
     },
@@ -140,15 +248,41 @@
       "name": "build_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 46,
-          "lineEnd": 48,
+          "lineStart": 48,
+          "lineEnd": 50,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 48,
+              "lineEnd": 50
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "build_async_channel",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 52,
+          "lineEnd": 57,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 52,
+              "lineEnd": 57
+            }
+          ]
         }
       ]
     },
@@ -156,15 +290,20 @@
       "name": "accept_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 50,
-          "lineEnd": 104,
+          "lineStart": 59,
+          "lineEnd": 113,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 59,
+              "lineEnd": 113
+            }
+          ]
         }
       ]
     },
@@ -172,15 +311,20 @@
       "name": "connect_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 106,
-          "lineEnd": 161,
+          "lineStart": 115,
+          "lineEnd": 170,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 115,
+              "lineEnd": 170
+            }
+          ]
         }
       ]
     },
@@ -188,18 +332,18 @@
       "name": "Handshake",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 172,
-          "lineEnd": 184,
+          "lineStart": 181,
+          "lineEnd": 193,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 172,
-              "lineEnd": 172
+              "lineStart": 181,
+              "lineEnd": 193
             }
           ]
         }
@@ -209,44 +353,107 @@
       "name": "ConnectionGuard",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 186,
-          "lineEnd": 192,
+          "lineStart": 195,
+          "lineEnd": 201,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 186,
-              "lineEnd": 186
+              "lineStart": 195,
+              "lineEnd": 201
             }
           ]
         },
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 194,
-          "lineEnd": 215,
+          "lineStart": 203,
+          "lineEnd": 224,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 194,
-              "lineEnd": 194
+              "lineStart": 203,
+              "lineEnd": 224
             }
           ]
         },
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 217,
-          "lineEnd": 223,
+          "lineStart": 226,
+          "lineEnd": 232,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 217,
-              "lineEnd": 217
+              "lineStart": 226,
+              "lineEnd": 232
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "accept_loop",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 234,
+          "lineEnd": 283,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 234,
+              "lineEnd": 283
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "server_handshake",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 285,
+          "lineEnd": 345,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 285,
+              "lineEnd": 345
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "connecter_handshake",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 347,
+          "lineEnd": 411,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 347,
+              "lineEnd": 411
             }
           ]
         }
@@ -256,7 +463,7 @@
       "name": "WorkQueue",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/work_queue.rs",
@@ -264,7 +471,25 @@
           "lineEnd": 7,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 4,
+              "lineEnd": 7
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/common/structure/work_queue.rs",
+          "lineStart": 9,
+          "lineEnd": 165,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 165
+            }
+          ]
         }
       ]
     }
