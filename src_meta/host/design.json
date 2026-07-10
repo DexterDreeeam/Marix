@@ -4,8 +4,11 @@
     "path": "src/host",
     "name": "host",
     "purpose": "Host crate namespace for HostSession and host-side executor dispatch/runtime exported through the executor module.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/host/execution",
@@ -311,7 +314,7 @@
       "name": "ExecutionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -355,13 +358,13 @@
         {
           "sourcePath": "src/host/execution/runtime.rs",
           "lineStart": 85,
-          "lineEnd": 160,
+          "lineEnd": 162,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 85,
-              "lineEnd": 160
+              "lineEnd": 162
             }
           ]
         }
@@ -371,7 +374,7 @@
       "name": "new",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -392,7 +395,7 @@
       "name": "run",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -413,7 +416,7 @@
       "name": "close",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -434,7 +437,7 @@
       "name": "dispatch",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -455,18 +458,18 @@
       "name": "execute",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
           "lineStart": 86,
-          "lineEnd": 96,
+          "lineEnd": 97,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 86,
-              "lineEnd": 96
+              "lineEnd": 97
             }
           ]
         }
@@ -476,18 +479,18 @@
       "name": "send_status",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
-          "lineStart": 98,
-          "lineEnd": 111,
+          "lineStart": 99,
+          "lineEnd": 112,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 98,
-              "lineEnd": 111
+              "lineStart": 99,
+              "lineEnd": 112
             }
           ]
         }
@@ -497,18 +500,18 @@
       "name": "send_processing",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
-          "lineStart": 113,
-          "lineEnd": 129,
+          "lineStart": 114,
+          "lineEnd": 130,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 113,
-              "lineEnd": 129
+              "lineStart": 114,
+              "lineEnd": 130
             }
           ]
         }
@@ -518,18 +521,18 @@
       "name": "on_cancel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
-          "lineStart": 131,
-          "lineEnd": 137,
+          "lineStart": 132,
+          "lineEnd": 139,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 131,
-              "lineEnd": 137
+              "lineStart": 132,
+              "lineEnd": 139
             }
           ]
         }
@@ -539,18 +542,18 @@
       "name": "send_server_event",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
-          "lineStart": 139,
-          "lineEnd": 159,
+          "lineStart": 141,
+          "lineEnd": 161,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 139,
-              "lineEnd": 159
+              "lineStart": 141,
+              "lineEnd": 161
             }
           ]
         }
@@ -808,12 +811,7 @@
           "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 12,
-              "lineEnd": 16
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -821,12 +819,7 @@
           "lineEnd": 27,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 18,
-              "lineEnd": 27
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -834,12 +827,7 @@
           "lineEnd": 68,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 29,
-              "lineEnd": 68
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -847,12 +835,7 @@
           "lineEnd": 121,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 72,
-              "lineEnd": 121
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -868,12 +851,7 @@
           "lineEnd": 26,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 19,
-              "lineEnd": 26
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -889,12 +867,7 @@
           "lineEnd": 49,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 30,
-              "lineEnd": 49
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -910,12 +883,7 @@
           "lineEnd": 55,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 51,
-              "lineEnd": 55
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -931,12 +899,7 @@
           "lineEnd": 67,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 57,
-              "lineEnd": 67
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -952,12 +915,7 @@
           "lineEnd": 95,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 73,
-              "lineEnd": 95
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -973,12 +931,7 @@
           "lineEnd": 120,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 97,
-              "lineEnd": 120
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },

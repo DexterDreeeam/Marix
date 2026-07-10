@@ -117,6 +117,7 @@ impl RuntimeAsync<InvocationEvent, InvocationError> for InvocationRuntime {
                     &self.state,
                     StepEvent::Update(StepletStatus::Canceled),
                 );
+                self.close();
                 Err(InvocationError::Canceled)
             }
         }
@@ -162,7 +163,16 @@ impl InvocationRuntime {
     }
 
     fn on_update(&self, status: ExecutionStatus) {
+        let close = matches!(
+            status,
+            StepletStatus::Canceled
+                | StepletStatus::Succeed { .. }
+                | StepletStatus::Failed
+        );
         Self::send_step_event(&self.state, StepEvent::Update(status));
+        if close {
+            self.close();
+        }
     }
 
     fn on_processing(&self, seq: usize, content: String) {

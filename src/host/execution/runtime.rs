@@ -93,6 +93,7 @@ impl ExecutionRuntime {
         let content = self.state.tool.execute(&self.state.request.input.content);
         self.send_processing(0, content);
         self.send_status(ExecutionStatus::Succeed { seq_count: 1 });
+        self.close();
     }
 
     pub(super) fn send_status(&self, status: ExecutionStatus) {
@@ -134,6 +135,7 @@ impl ExecutionRuntime {
             self.state.tool.name(),
         ));
         self.send_status(ExecutionStatus::Canceled);
+        self.close();
     }
 
     fn send_server_event(&self, event: SessionEvent) {

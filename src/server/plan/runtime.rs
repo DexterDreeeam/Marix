@@ -115,9 +115,10 @@ impl RuntimeAsync<PlanEvent, PlanError> for PlanRuntime {
                 ));
                 Ok(())
             }
-            PlanEvent::StepUpdate(status) => self.on_update(status),
+            PlanEvent::Update(status) => self.on_update(status),
             PlanEvent::Cancel => {
                 self.cancel_steps();
+                self.close();
                 Err(PlanError::Canceled)
             }
         }
@@ -135,6 +136,7 @@ impl PlanRuntime {
                         self.state.signature.clone(),
                         PlanStatus::Success,
                     ));
+                    self.close();
                 }
                 Ok(())
             }
@@ -143,6 +145,7 @@ impl PlanRuntime {
                     self.state.signature.clone(),
                     PlanStatus::Fail,
                 ));
+                self.close();
                 Ok(())
             }
             StepStatus::Created | StepStatus::Started => Ok(()),

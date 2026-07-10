@@ -84,6 +84,7 @@ impl RuntimeAsync<RelayEvent, RelayError> for RelayRuntime {
                     "relay {signature} model async request failed: {error}",
                 ));
                 Self::send_step_update(&self.state, StepletStatus::Failed);
+                self.close();
                 return;
             }
         };
@@ -140,6 +141,7 @@ impl RuntimeAsync<RelayEvent, RelayError> for RelayRuntime {
         match event {
             RelayEvent::Cancel => {
                 Self::send_step_update(&self.state, StepletStatus::Canceled);
+                self.close();
                 Err(RelayError::Canceled)
             }
         }
@@ -206,6 +208,7 @@ impl RelayRuntime {
                     seq_count: response.seq,
                 },
             );
+            self.close();
         }
 
         Ok(())

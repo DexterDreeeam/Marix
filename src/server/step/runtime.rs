@@ -276,7 +276,7 @@ impl StepRuntime {
             state.signature.task.clone(),
             TaskEvent::Plan(
                 state.signature.plan.clone(),
-                PlanEvent::StepUpdate(status),
+                PlanEvent::Update(status),
             ),
         );
         if state.access.session_tx.send(event).is_err() {
