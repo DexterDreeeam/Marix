@@ -4,8 +4,11 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Shared common crate root for reusable config loading with default CoreConfig fallback, server IP and handshake token resolution from plain config values, external re-export adapters, database telemetry logging, and structure utilities. It exposes WorkQueue cleanup support used by server host-disconnect session reset, and lib.rs re-exports serializable config system types Arch, Platform, and System alongside Config, ServerConfig, and related models, plus the Logger telemetry client with LogMessage, LogTag, and LoggingError.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "lib.rs"
+  ],
   "childModules": [
     {
       "path": "src/common/config",
@@ -111,6 +114,38 @@
           "sourcePath": "src/common/config/config.rs",
           "lineStart": 26,
           "lineEnd": 66,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "load",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 27,
+          "lineEnd": 42,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "mock",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 44,
+          "lineEnd": 65,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -606,6 +641,54 @@
       ]
     },
     {
+      "name": "from",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 339,
+          "lineEnd": 341,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 345,
+          "lineEnd": 347,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "fmt",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 351,
+          "lineEnd": 356,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 362,
+          "lineEnd": 369,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
       "name": "Platform",
       "type": "enum",
       "source_depth": 3,
@@ -662,6 +745,38 @@
       ]
     },
     {
+      "name": "new",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/sys.rs",
+          "lineStart": 27,
+          "lineEnd": 45,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "is_ubuntu_host",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/sys.rs",
+          "lineStart": 47,
+          "lineEnd": 55,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
       "name": "connect_remoc",
       "type": "function",
       "source_depth": 3,
@@ -711,6 +826,38 @@
           "sourcePath": "src/common/logging/error.rs",
           "lineStart": 38,
           "lineEnd": 38,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "from",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/error.rs",
+          "lineStart": 17,
+          "lineEnd": 19,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "fmt",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/error.rs",
+          "lineStart": 23,
+          "lineEnd": 35,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -782,6 +929,238 @@
       ]
     },
     {
+      "name": "host",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 22,
+          "lineEnd": 37,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "connect",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 39,
+          "lineEnd": 53,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "log",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 55,
+          "lineEnd": 58,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "warning",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 60,
+          "lineEnd": 63,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "error",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 65,
+          "lineEnd": 68,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "debug",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 70,
+          "lineEnd": 73,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "fn",
+      "type": "const",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 79,
+          "lineEnd": 83,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "emit",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 85,
+          "lineEnd": 89,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "report_error",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 91,
+          "lineEnd": 93,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "telemetry",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 95,
+          "lineEnd": 110,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "connect_sender",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 112,
+          "lineEnd": 134,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "MAX_ATTEMPTS",
+      "type": "const",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 115,
+          "lineEnd": 115,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "RETRY_BACKOFF",
+      "type": "const",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 116,
+          "lineEnd": 116,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "record",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 136,
+          "lineEnd": 142,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 223,
+          "lineEnd": 243,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
       "name": "Sink",
       "type": "enum",
       "source_depth": 3,
@@ -815,6 +1194,102 @@
           "sourcePath": "src/common/logging/logger.rs",
           "lineStart": 155,
           "lineEnd": 262,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "open",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 156,
+          "lineEnd": 168,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "database_directory",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 170,
+          "lineEnd": 179,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "database_file_name",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 181,
+          "lineEnd": 189,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "format_timestamp",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 191,
+          "lineEnd": 200,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "civil_from_days",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 202,
+          "lineEnd": 221,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "stored_count",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 245,
+          "lineEnd": 261,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -886,6 +1361,118 @@
       ]
     },
     {
+      "name": "new",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/message.rs",
+          "lineStart": 15,
+          "lineEnd": 22,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "info",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/message.rs",
+          "lineStart": 24,
+          "lineEnd": 26,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "warning",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/message.rs",
+          "lineStart": 28,
+          "lineEnd": 30,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "error",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/message.rs",
+          "lineStart": 32,
+          "lineEnd": 34,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "debug",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/message.rs",
+          "lineStart": 36,
+          "lineEnd": 38,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "stamp_arrival",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/message.rs",
+          "lineStart": 40,
+          "lineEnd": 42,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "now_ms",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/message.rs",
+          "lineStart": 48,
+          "lineEnd": 53,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
       "name": "LogTag",
       "type": "enum",
       "source_depth": 3,
@@ -905,7 +1492,7 @@
       "name": "NET_CHANNEL_BUFFER",
       "type": "const",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -926,7 +1513,7 @@
       "name": "HANDSHAKE_TIMEOUT",
       "type": "const",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -947,7 +1534,7 @@
       "name": "REJECT_FLUSH_GRACE",
       "type": "const",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -968,7 +1555,7 @@
       "name": "Sender",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -989,7 +1576,7 @@
       "name": "Receiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1010,7 +1597,7 @@
       "name": "NetSender",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1031,7 +1618,7 @@
       "name": "NetReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1049,10 +1636,10 @@
       ]
     },
     {
-      "name": "SharedNetSender",
+      "name": "AsyncSender",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1070,10 +1657,10 @@
       ]
     },
     {
-      "name": "SharedNetReceiver",
+      "name": "AsyncReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1091,21 +1678,63 @@
       ]
     },
     {
-      "name": "ChannelError",
-      "type": "enum",
+      "name": "SharedNetSender",
+      "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 25,
+          "lineEnd": 25,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SharedNetReceiver",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
           "lineStart": 26,
-          "lineEnd": 37,
+          "lineEnd": 26,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 26,
-              "lineEnd": 37
+              "lineEnd": 26
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ChannelError",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 28,
+          "lineEnd": 39,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 28,
+              "lineEnd": 39
             }
           ]
         }
@@ -1115,18 +1744,18 @@
       "name": "ChannelEndpoint",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 39,
-          "lineEnd": 46,
+          "lineStart": 41,
+          "lineEnd": 48,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 39,
-              "lineEnd": 46
+              "lineStart": 41,
+              "lineEnd": 48
             }
           ]
         }
@@ -1136,18 +1765,18 @@
       "name": "build_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 48,
-          "lineEnd": 50,
+          "lineStart": 50,
+          "lineEnd": 52,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 48,
-              "lineEnd": 50
+              "lineStart": 50,
+              "lineEnd": 52
             }
           ]
         }
@@ -1157,18 +1786,18 @@
       "name": "build_async_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 52,
-          "lineEnd": 57,
+          "lineStart": 54,
+          "lineEnd": 56,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 52,
-              "lineEnd": 57
+              "lineStart": 54,
+              "lineEnd": 56
             }
           ]
         }
@@ -1178,18 +1807,18 @@
       "name": "accept_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 59,
-          "lineEnd": 113,
+          "lineStart": 58,
+          "lineEnd": 112,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 59,
-              "lineEnd": 113
+              "lineStart": 58,
+              "lineEnd": 112
             }
           ]
         }
@@ -1199,18 +1828,18 @@
       "name": "connect_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 115,
-          "lineEnd": 170,
+          "lineStart": 114,
+          "lineEnd": 169,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 115,
-              "lineEnd": 170
+              "lineStart": 114,
+              "lineEnd": 169
             }
           ]
         }
@@ -1220,18 +1849,18 @@
       "name": "Handshake",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 181,
-          "lineEnd": 193,
+          "lineStart": 180,
+          "lineEnd": 192,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 181,
-              "lineEnd": 193
+              "lineStart": 180,
+              "lineEnd": 192
             }
           ]
         }
@@ -1241,44 +1870,128 @@
       "name": "ConnectionGuard",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 195,
-          "lineEnd": 201,
+          "lineStart": 194,
+          "lineEnd": 200,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 195,
-              "lineEnd": 201
+              "lineStart": 194,
+              "lineEnd": 200
             }
           ]
         },
         {
           "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 202,
+          "lineEnd": 223,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 202,
+              "lineEnd": 223
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 225,
+          "lineEnd": 231,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 225,
+              "lineEnd": 231
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "new",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
           "lineStart": 203,
-          "lineEnd": 224,
+          "lineEnd": 207,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 203,
-              "lineEnd": 224
+              "lineEnd": 207
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "name": "flush",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 209,
+          "lineEnd": 216,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 209,
+              "lineEnd": 216
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "disarm",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 218,
+          "lineEnd": 222,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 218,
+              "lineEnd": 222
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "drop",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
           "lineStart": 226,
-          "lineEnd": 232,
+          "lineEnd": 230,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 226,
-              "lineEnd": 232
+              "lineEnd": 230
             }
           ]
         }
@@ -1288,18 +2001,18 @@
       "name": "accept_loop",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 234,
-          "lineEnd": 283,
+          "lineStart": 233,
+          "lineEnd": 282,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 234,
-              "lineEnd": 283
+              "lineStart": 233,
+              "lineEnd": 282
             }
           ]
         }
@@ -1309,18 +2022,18 @@
       "name": "server_handshake",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 285,
-          "lineEnd": 345,
+          "lineStart": 284,
+          "lineEnd": 344,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 285,
-              "lineEnd": 345
+              "lineStart": 284,
+              "lineEnd": 344
             }
           ]
         }
@@ -1330,18 +2043,18 @@
       "name": "connecter_handshake",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 347,
-          "lineEnd": 411,
+          "lineStart": 346,
+          "lineEnd": 410,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 347,
-              "lineEnd": 411
+              "lineStart": 346,
+              "lineEnd": 410
             }
           ]
         }
@@ -1359,25 +2072,215 @@
           "lineEnd": 7,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 4,
-              "lineEnd": 7
-            }
-          ]
-        },
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "new",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
         {
           "sourcePath": "src/common/structure/work_queue.rs",
-          "lineStart": 9,
-          "lineEnd": 165,
+          "lineStart": 13,
+          "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 165
-            }
-          ]
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "complete_list",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/work_queue.rs",
+          "lineStart": 20,
+          "lineEnd": 30,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "working_list",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/work_queue.rs",
+          "lineStart": 32,
+          "lineEnd": 42,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "complete_size",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/work_queue.rs",
+          "lineStart": 44,
+          "lineEnd": 49,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "working_size",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/work_queue.rs",
+          "lineStart": 51,
+          "lineEnd": 56,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "size",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/work_queue.rs",
+          "lineStart": 58,
+          "lineEnd": 60,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "clear",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/work_queue.rs",
+          "lineStart": 62,
+          "lineEnd": 71,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "insert",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/work_queue.rs",
+          "lineStart": 73,
+          "lineEnd": 88,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "insert_or_update",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/work_queue.rs",
+          "lineStart": 90,
+          "lineEnd": 98,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "get",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/work_queue.rs",
+          "lineStart": 100,
+          "lineEnd": 119,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "with",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/work_queue.rs",
+          "lineStart": 121,
+          "lineEnd": 135,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "with_mut",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/work_queue.rs",
+          "lineStart": 137,
+          "lineEnd": 151,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "complete",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/work_queue.rs",
+          "lineStart": 153,
+          "lineEnd": 164,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     }

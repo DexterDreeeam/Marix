@@ -2,7 +2,9 @@ use std::collections::BTreeMap;
 use std::sync::Mutex as StdMutex;
 
 use marix_common::external::*;
-use marix_common::{Config, ModelBackend as ConfigModelBackend, build_async_channel};
+use marix_common::{
+    AsyncReceiver, AsyncSender, Config, ModelBackend as ConfigModelBackend, build_async_channel,
+};
 use marix_protocol::{RelayEvent, RelayRequest, RelaySignature};
 
 use crate::model::{DeepseekBackend, ModelBackend};
@@ -11,8 +13,8 @@ use crate::task::TaskAccess;
 pub(super) struct RelayState {
     pub(super) access: TaskAccess,
     pub(super) signature: RelaySignature,
-    pub(super) relay_tx: tokio::mpsc::UnboundedSender<RelayEvent>,
-    pub(super) relay_rx: StdMutex<Option<tokio::mpsc::UnboundedReceiver<RelayEvent>>>,
+    pub(super) relay_tx: AsyncSender<RelayEvent>,
+    pub(super) relay_rx: StdMutex<Option<AsyncReceiver<RelayEvent>>>,
     pub(super) model_backend: StdMutex<Box<dyn ModelBackend>>,
     pub(super) prompt: String,
     pub(super) output: StdMutex<BTreeMap<usize, String>>,

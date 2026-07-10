@@ -4,15 +4,19 @@
     "path": "src/server/model",
     "name": "model",
     "purpose": "Owns the server model backend abstraction. backend.rs defines the public ModelBackend trait, the crate-internal ModelBackendImpl trait, and a blanket impl that delegates request directly to ModelBackendImpl::request; backend_deepseek.rs implements DeepseekBackend as a config-driven streaming Deepseek chat-completions backend over reqwest with SSE parsing and a user-role single-message payload that preserves request.prompt as content; error.rs defines ModelBackendError with From conversions for io, serde_json, and reqwest errors plus a Display impl. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "backend.rs",
+    "backend_deepseek.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "ModelResponseReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
@@ -33,7 +37,7 @@
       "name": "ModelResponseAsyncReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
@@ -54,7 +58,7 @@
       "name": "ModelBackend",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
@@ -72,10 +76,104 @@
       ]
     },
     {
+      "name": "request",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/model/backend.rs",
+          "lineStart": 13,
+          "lineEnd": 16,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 13,
+              "lineEnd": 16
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/model/backend.rs",
+          "lineStart": 25,
+          "lineEnd": 28,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 28
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/model/backend.rs",
+          "lineStart": 57,
+          "lineEnd": 62,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 57,
+              "lineEnd": 62
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "request_async",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/model/backend.rs",
+          "lineStart": 18,
+          "lineEnd": 21,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 18,
+              "lineEnd": 21
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/model/backend.rs",
+          "lineStart": 30,
+          "lineEnd": 35,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 30,
+              "lineEnd": 35
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/model/backend.rs",
+          "lineStart": 64,
+          "lineEnd": 69,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 64,
+              "lineEnd": 69
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "ModelBackendImpl",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
@@ -96,7 +194,7 @@
       "name": "ModelRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
@@ -117,7 +215,7 @@
       "name": "ModelResponse",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
@@ -138,70 +236,91 @@
       "name": "DeepseekBackend",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 13,
-          "lineEnd": 18,
+          "lineStart": 14,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 13,
-              "lineEnd": 18
+              "lineStart": 14,
+              "lineEnd": 19
             }
           ]
         },
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 20,
+          "lineStart": 21,
+          "lineEnd": 33,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 21,
+              "lineEnd": 33
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/model/backend_deepseek.rs",
+          "lineStart": 41,
+          "lineEnd": 115,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 41,
+              "lineEnd": 115
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/model/backend_deepseek.rs",
+          "lineStart": 117,
+          "lineEnd": 277,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 117,
+              "lineEnd": 277
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/model/backend_deepseek.rs",
+          "lineStart": 291,
+          "lineEnd": 300,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 291,
+              "lineEnd": 300
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "new",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/model/backend_deepseek.rs",
+          "lineStart": 22,
           "lineEnd": 32,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 20,
+              "lineStart": 22,
               "lineEnd": 32
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 40,
-          "lineEnd": 114,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 40,
-              "lineEnd": 114
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 116,
-          "lineEnd": 276,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 116,
-              "lineEnd": 276
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 290,
-          "lineEnd": 299,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 290,
-              "lineEnd": 299
             }
           ]
         }
@@ -211,18 +330,233 @@
       "name": "ModelResponseSender",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 36,
+          "lineStart": 37,
+          "lineEnd": 39,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 37,
+              "lineEnd": 39
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "send_response",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/model/backend_deepseek.rs",
+          "lineStart": 38,
           "lineEnd": 38,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 36,
+              "lineStart": 38,
               "lineEnd": 38
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/model/backend_deepseek.rs",
+          "lineStart": 280,
+          "lineEnd": 282,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 280,
+              "lineEnd": 282
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/model/backend_deepseek.rs",
+          "lineStart": 286,
+          "lineEnd": 288,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 286,
+              "lineEnd": 288
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "request",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/model/backend_deepseek.rs",
+          "lineStart": 42,
+          "lineEnd": 84,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 42,
+              "lineEnd": 84
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "request_async",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/model/backend_deepseek.rs",
+          "lineStart": 86,
+          "lineEnd": 114,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 86,
+              "lineEnd": 114
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "request_async_stream",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/model/backend_deepseek.rs",
+          "lineStart": 118,
+          "lineEnd": 141,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 118,
+              "lineEnd": 141
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "stream_response",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/model/backend_deepseek.rs",
+          "lineStart": 143,
+          "lineEnd": 177,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 143,
+              "lineEnd": 177
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "stream_async_response",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/model/backend_deepseek.rs",
+          "lineStart": 179,
+          "lineEnd": 211,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 179,
+              "lineEnd": 211
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "take_next_sse_event",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/model/backend_deepseek.rs",
+          "lineStart": 213,
+          "lineEnd": 230,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 213,
+              "lineEnd": 230
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "handle_sse_event",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/model/backend_deepseek.rs",
+          "lineStart": 232,
+          "lineEnd": 276,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 232,
+              "lineEnd": 276
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fmt",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/model/backend_deepseek.rs",
+          "lineStart": 292,
+          "lineEnd": 299,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 292,
+              "lineEnd": 299
             }
           ]
         }
@@ -278,6 +612,54 @@
           "sourcePath": "src/server/model/error.rs",
           "lineStart": 46,
           "lineEnd": 46,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "from",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/model/error.rs",
+          "lineStart": 15,
+          "lineEnd": 17,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/error.rs",
+          "lineStart": 21,
+          "lineEnd": 23,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/error.rs",
+          "lineStart": 27,
+          "lineEnd": 29,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "fmt",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/model/error.rs",
+          "lineStart": 33,
+          "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

@@ -1,13 +1,13 @@
 use std::fmt;
 
-use marix_common::Receiver;
+use marix_common::{AsyncReceiver, Receiver};
 use marix_common::external::*;
 use marix_protocol::StepSignature;
 
 use super::error::ModelBackendError;
 
 pub type ModelResponseReceiver = Receiver<ModelResponse>;
-pub type ModelResponseAsyncReceiver = tokio::mpsc::UnboundedReceiver<ModelResponse>;
+pub type ModelResponseAsyncReceiver = AsyncReceiver<ModelResponse>;
 
 pub trait ModelBackend: fmt::Debug + Send {
     fn request(

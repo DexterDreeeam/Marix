@@ -28,6 +28,10 @@ impl ExecutionRuntime {
 impl Runtime<ExecutionEvent, ExecutionError> for ExecutionRuntime {
     fn run(&self) {
         self.execute();
+        Logger::debug(format!(
+            "execution {} runtime loop starting",
+            &self.state.request.signature,
+        ));
         loop {
             select! {
                 recv(&self.close_rx) -> _ => {
@@ -51,6 +55,10 @@ impl Runtime<ExecutionEvent, ExecutionError> for ExecutionRuntime {
                 }
             }
         }
+        Logger::debug(format!(
+            "execution {} runtime loop stopped",
+            &self.state.request.signature,
+        ));
     }
 
     fn close(&self) {

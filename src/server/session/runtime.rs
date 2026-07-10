@@ -35,6 +35,7 @@ impl Runtime<SessionEvent, Infallible> for SessionRuntime {
     fn run(&self) {
         self.spawn_client_worker();
         self.spawn_host_worker();
+        Logger::debug("core session runtime loop starting");
         loop {
             select! {
                 recv(&self.close_rx) -> _ => break,
@@ -48,6 +49,7 @@ impl Runtime<SessionEvent, Infallible> for SessionRuntime {
                 }
             }
         }
+        Logger::debug("core session runtime loop stopped");
     }
 
     fn close(&self) {
@@ -198,14 +200,19 @@ impl SessionRuntime {
     }
 
     fn dispatch_task(&self, signature: &TaskSignature, event: TaskEvent) {
-        let event_name = format!("{event:?}");
+        let mut event = Some(event);
         let Some(()) = self.state.tasks.with(signature, |task| {
             task.lock()
                 .unwrap_or_else(|error| error.into_inner())
-                .dispatch(event)
+                .dispatch(event.take().unwrap_or_else(|| {
+                    unreachable!("task event already dispatched")
+                }))
         }) else {
+            let event = event.unwrap_or_else(|| {
+                unreachable!("task event dispatched without a task")
+            });
             Logger::warning(format!(
-                "session could not dispatch event {event_name}: task {signature} not found",
+                "session could not dispatch event {event:?}: task {signature} not found",
             ));
             return;
         };

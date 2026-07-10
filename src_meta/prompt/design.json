@@ -4,14 +4,60 @@
     "path": "src/prompt",
     "name": "prompt",
     "purpose": "Owns prompt templates used by model-facing steps, including raw strict JSON response requirements, no-Markdown-fence output constraints, single-string tool and model input guidance, flat model-facing PlanDraft step objects, and answer-only Initial and Analysis JSON for requests that are already answerable.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/prompt/step",
       "name": "step",
-      "purpose": "Owns step model prompt templates for Initial and Analysis. Both emit the flat model-facing PlanDraft shape with tool/model run_steps and intent pending_steps, or an answer-only JSON object when the request is already answerable."
+      "purpose": "Owns step prompt templates including AnalysisPrompt, InitialPrompt."
     }
   ],
-  "elements": []
+  "elements": [
+    {
+      "name": "AnalysisPrompt",
+      "type": "prompt",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/prompt/step/Analysis.prompt",
+          "lineStart": 1,
+          "lineEnd": 58,
+          "language": "prompt",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 58
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "InitialPrompt",
+      "type": "prompt",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/prompt/step/Initial.prompt",
+          "lineStart": 1,
+          "lineEnd": 56,
+          "language": "prompt",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 56
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

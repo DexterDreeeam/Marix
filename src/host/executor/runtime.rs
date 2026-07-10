@@ -28,6 +28,7 @@ impl ExecutorRuntime {
 
 impl Runtime<ExecutorEvent, Infallible> for ExecutorRuntime {
     fn run(&self) {
+        Logger::debug("host executor runtime loop starting");
         loop {
             select! {
                 recv(&self.close_rx) -> _ => {
@@ -44,6 +45,7 @@ impl Runtime<ExecutorEvent, Infallible> for ExecutorRuntime {
                 }
             }
         }
+        Logger::debug("host executor runtime loop stopped");
     }
 
     fn close(&self) {
@@ -75,16 +77,23 @@ impl Runtime<ExecutorEvent, Infallible> for ExecutorRuntime {
 
 impl ExecutorRuntime {
     fn dispatch_execution(&self, signature: ExecutionSignature, event: ExecutionEvent) {
-        let event_name = format!("{event:?}");
+        let mut event = Some(event);
         match self
             .state
             .executions
-            .with(&signature, |execution| execution.dispatch(event))
+            .with(&signature, |execution| {
+                execution.dispatch(event.take().unwrap_or_else(|| {
+                    unreachable!("execution event already dispatched")
+                }))
+            })
         {
             Some(()) => {}
             None => {
+                let event = event.unwrap_or_else(|| {
+                    unreachable!("execution event dispatched without an execution")
+                });
                 Logger::warning(format!(
-                    "execution {} event {event_name} not routed: execution not found",
+                    "execution {} event {event:?} not routed: execution not found",
                     &signature,
                 ));
             }

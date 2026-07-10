@@ -3,100 +3,214 @@
   "module": {
     "path": "src/server/invocation",
     "name": "invocation",
-    "purpose": "Owns the server-side Invocation subject and InvocationHub storage boundary for invocation tracking; behavior is intentionally left as design stubs in this interface pass.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the invocation module definitions including Invocation, clone, new, signature.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "invocation.rs",
+    "mod.rs",
+    "runtime.rs",
+    "state.rs"
+  ],
+  "deleted": [
+    "hub.rs"
+  ],
   "childModules": [],
   "elements": [
     {
-      "name": "InvocationHub",
+      "name": "Invocation",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
-          "sourcePath": "src/server/invocation/hub.rs",
-          "lineStart": 10,
-          "lineEnd": 12,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 12
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/invocation/hub.rs",
+          "sourcePath": "src/server/invocation/invocation.rs",
           "lineStart": 14,
-          "lineEnd": 51,
+          "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 14,
-              "lineEnd": 51
+              "lineEnd": 16
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/invocation/invocation.rs",
+          "lineStart": 18,
+          "lineEnd": 24,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 18,
+              "lineEnd": 24
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/invocation/invocation.rs",
+          "lineStart": 26,
+          "lineEnd": 38,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 26,
+              "lineEnd": 38
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/invocation/invocation.rs",
+          "lineStart": 40,
+          "lineEnd": 56,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 40,
+              "lineEnd": 56
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/invocation/invocation.rs",
+          "lineStart": 58,
+          "lineEnd": 66,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 58,
+              "lineEnd": 66
             }
           ]
         }
       ]
     },
     {
-      "name": "Invocation",
-      "type": "struct",
+      "name": "clone",
+      "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/invocation.rs",
-          "lineStart": 11,
-          "lineEnd": 13,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 11,
-              "lineEnd": 13
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/invocation/invocation.rs",
-          "lineStart": 15,
+          "lineStart": 19,
           "lineEnd": 23,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 15,
+              "lineStart": 19,
               "lineEnd": 23
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "name": "new",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
         {
           "sourcePath": "src/server/invocation/invocation.rs",
-          "lineStart": 25,
-          "lineEnd": 41,
+          "lineStart": 27,
+          "lineEnd": 33,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 25,
-              "lineEnd": 41
+              "lineStart": 27,
+              "lineEnd": 33
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "name": "signature",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
         {
           "sourcePath": "src/server/invocation/invocation.rs",
-          "lineStart": 43,
-          "lineEnd": 51,
+          "lineStart": 35,
+          "lineEnd": 37,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 43,
-              "lineEnd": 51
+              "lineStart": 35,
+              "lineEnd": 37
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "start",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/invocation/invocation.rs",
+          "lineStart": 41,
+          "lineEnd": 46,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 41,
+              "lineEnd": 46
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "dispatch",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/invocation/invocation.rs",
+          "lineStart": 48,
+          "lineEnd": 55,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 48,
+              "lineEnd": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fmt",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/invocation/invocation.rs",
+          "lineStart": 59,
+          "lineEnd": 65,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 59,
+              "lineEnd": 65
             }
           ]
         }
@@ -106,59 +220,269 @@
       "name": "InvocationRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/runtime.rs",
           "lineStart": 14,
           "lineEnd": 19,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 14,
               "lineEnd": 19
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/server/invocation/runtime.rs",
           "lineStart": 21,
           "lineEnd": 36,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 21,
               "lineEnd": 36
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/server/invocation/runtime.rs",
           "lineStart": 38,
-          "lineEnd": 105,
+          "lineEnd": 113,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 38,
-              "lineEnd": 105
+              "lineEnd": 113
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 109,
-          "lineEnd": 235,
+          "lineStart": 117,
+          "lineEnd": 243,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 109,
-              "lineEnd": 235
+              "lineStart": 117,
+              "lineEnd": 243
             }
-          ],
-          "modifiedLines": []
+          ]
+        }
+      ]
+    },
+    {
+      "name": "new",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/invocation/runtime.rs",
+          "lineStart": 22,
+          "lineEnd": 35,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 35
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "run",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/invocation/runtime.rs",
+          "lineStart": 39,
+          "lineEnd": 89,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 39,
+              "lineEnd": 89
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "close",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/invocation/runtime.rs",
+          "lineStart": 91,
+          "lineEnd": 98,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 91,
+              "lineEnd": 98
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "dispatch",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/invocation/runtime.rs",
+          "lineStart": 100,
+          "lineEnd": 112,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 100,
+              "lineEnd": 112
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "create_execution",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/invocation/runtime.rs",
+          "lineStart": 118,
+          "lineEnd": 133,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 118,
+              "lineEnd": 133
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "cancel_execution",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/invocation/runtime.rs",
+          "lineStart": 135,
+          "lineEnd": 151,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 135,
+              "lineEnd": 151
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "on_update",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/invocation/runtime.rs",
+          "lineStart": 153,
+          "lineEnd": 192,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 153,
+              "lineEnd": 192
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "send_step_event",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/invocation/runtime.rs",
+          "lineStart": 194,
+          "lineEnd": 211,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 194,
+              "lineEnd": 211
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "send_executor_event",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/invocation/runtime.rs",
+          "lineStart": 213,
+          "lineEnd": 226,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 213,
+              "lineEnd": 226
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "is_complete",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/invocation/runtime.rs",
+          "lineStart": 228,
+          "lineEnd": 242,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 228,
+              "lineEnd": 242
+            }
+          ]
         }
       ]
     },
@@ -166,33 +490,54 @@
       "name": "InvocationState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/state.rs",
           "lineStart": 12,
           "lineEnd": 21,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 12,
               "lineEnd": 21
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/server/invocation/state.rs",
           "lineStart": 23,
           "lineEnd": 41,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 23,
               "lineEnd": 41
             }
-          ],
-          "modifiedLines": []
+          ]
+        }
+      ]
+    },
+    {
+      "name": "new",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/invocation/state.rs",
+          "lineStart": 24,
+          "lineEnd": 40,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 24,
+              "lineEnd": 40
+            }
+          ]
         }
       ]
     }

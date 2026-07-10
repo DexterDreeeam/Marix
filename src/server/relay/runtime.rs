@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
 use marix_common::external::*;
-use marix_common::{Logger, build_async_channel};
+use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
 use marix_protocol::{
     PlanEvent, RelayError, RelayEvent, RelayStatus, RuntimeAsync, SessionEvent, StepEvent,
     TaskEvent,
@@ -13,9 +13,9 @@ use crate::model::{ModelRequest, ModelResponse};
 
 pub(super) struct RelayRuntime {
     state: Arc<RelayState>,
-    relay_rx: StdMutex<Option<tokio::mpsc::UnboundedReceiver<RelayEvent>>>,
-    close_tx: tokio::mpsc::UnboundedSender<()>,
-    close_rx: StdMutex<Option<tokio::mpsc::UnboundedReceiver<()>>>,
+    relay_rx: StdMutex<Option<AsyncReceiver<RelayEvent>>>,
+    close_tx: AsyncSender<()>,
+    close_rx: StdMutex<Option<AsyncReceiver<()>>>,
 }
 
 impl RelayRuntime {
@@ -102,6 +102,10 @@ impl RuntimeAsync<RelayEvent, RelayError> for RelayRuntime {
             }
         };
         Self::send_step_event(&self.state, RelayStatus::Started);
+        Logger::debug(format!(
+            "relay {} runtime loop starting",
+            &self.state.signature,
+        ));
         loop {
             self::tokio::select! {
                 _ = close_rx.recv() => break,
@@ -131,6 +135,10 @@ impl RuntimeAsync<RelayEvent, RelayError> for RelayRuntime {
                 }
             }
         }
+        Logger::debug(format!(
+            "relay {} runtime loop stopped",
+            &self.state.signature,
+        ));
     }
 
     fn close(&self) {

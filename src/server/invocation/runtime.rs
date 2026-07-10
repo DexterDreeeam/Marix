@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
 use marix_common::external::*;
-use marix_common::{Logger, build_async_channel};
+use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
 use marix_protocol::{
     ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, ExecutorEvent,
     InvocationError, InvocationEvent, InvocationStatus, PlanEvent, RuntimeAsync, SessionEvent,
@@ -13,9 +13,9 @@ use super::state::InvocationState;
 
 pub(super) struct InvocationRuntime {
     state: Arc<InvocationState>,
-    invocation_rx: StdMutex<Option<tokio::mpsc::UnboundedReceiver<InvocationEvent>>>,
-    close_tx: tokio::mpsc::UnboundedSender<()>,
-    close_rx: StdMutex<Option<tokio::mpsc::UnboundedReceiver<()>>>,
+    invocation_rx: StdMutex<Option<AsyncReceiver<InvocationEvent>>>,
+    close_tx: AsyncSender<()>,
+    close_rx: StdMutex<Option<AsyncReceiver<()>>>,
 }
 
 impl InvocationRuntime {
@@ -61,6 +61,10 @@ impl RuntimeAsync<InvocationEvent, InvocationError> for InvocationRuntime {
             ));
             return;
         };
+        Logger::debug(format!(
+            "invocation {} runtime loop starting",
+            &self.state.signature,
+        ));
         loop {
             self::tokio::select! {
                 _ = close_rx.recv() => break,
@@ -78,6 +82,10 @@ impl RuntimeAsync<InvocationEvent, InvocationError> for InvocationRuntime {
                 }
             }
         }
+        Logger::debug(format!(
+            "invocation {} runtime loop stopped",
+            &self.state.signature,
+        ));
     }
 
     fn close(&self) {

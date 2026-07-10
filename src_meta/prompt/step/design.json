@@ -3,54 +3,54 @@
   "module": {
     "path": "src/prompt/step",
     "name": "step",
-    "purpose": "Owns step model prompt templates for Initial and Analysis. Both emit the flat model-facing PlanDraft shape: run_steps contain step objects with name, kind, description, and input for tool or model work; pending_steps contain intent objects with name, kind, and description and no required input; either step can instead return an answer-only JSON object, and all output is raw strict JSON without Markdown fences.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns step prompt templates including AnalysisPrompt, InitialPrompt.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "Analysis.prompt",
+    "Initial.prompt"
+  ],
   "childModules": [],
   "elements": [
     {
-      "name": "InitialPrompt",
+      "name": "AnalysisPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
-          "sourcePath": "src/prompt/step/Initial.prompt",
+          "sourcePath": "src/prompt/step/Analysis.prompt",
           "lineStart": 1,
-          "lineEnd": 55,
+          "lineEnd": 58,
           "language": "prompt",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 11,
-              "lineEnd": 15
-            },
-            {
-              "lineStart": 30,
-              "lineEnd": 55
+              "lineStart": 1,
+              "lineEnd": 58
             }
           ]
         }
       ]
     },
     {
-      "name": "AnalysisPrompt",
+      "name": "InitialPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
-          "sourcePath": "src/prompt/step/Analysis.prompt",
+          "sourcePath": "src/prompt/step/Initial.prompt",
           "lineStart": 1,
-          "lineEnd": 57,
+          "lineEnd": 56,
           "language": "prompt",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 1,
-              "lineEnd": 57
+              "lineEnd": 56
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     }

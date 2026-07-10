@@ -9,16 +9,19 @@ Input variables:
 - Available tools: {{#Tools}}
 
 Model-facing plan format (parsed directly as protocol PlanDraft):
-- Every step `kind` must be exactly one of `tool`, `model`, or `intent`.
-- A tool step needs `name`, `kind`, `description`, and `input`. The `name` is one of the tools listed in {{#Tools}}. The `input` value must be a single string, never an object or array. If a tool needs structured input, put compact JSON text inside that single string. The system creates the execution signature; never emit signatures or ids.
-- A model step needs `name`, `kind`, `description`, and `input`. Use `Initial` or `Analysis` as the model name. The `input` value must be a single string in the form `model-name,tool-name-1,tool-name-2`.
-- An intent step is only for work that cannot be made concrete yet. It needs at least `name`, `kind`, and `description`; it does not need `input`.
+- Top-level fields must be exactly `description`, `background`, `call`, `model`, `future`, and `expected_result`.
+- `call` is the list of tool-call steps to run before the model step. A tool step needs `name`, `description`, and `input`. The `name` is one of the tools listed in {{#Tools}}. The `input` value must be a single string, never an object or array. If a tool needs structured input, put compact JSON text inside that single string. The system creates the execution signature; never emit signatures or ids.
+- `model` is the required model step to run after `call` finishes. It needs `name`, `description`, and `input`; set `name` to `Analysis`.
+- `model.input` must contain only a comma-separated list of `call` step names, which are tool names, such as `<tool-name-1>,<tool-name-2>`. It must not include `Analysis`, prefixes, prose, JSON, or any explanatory text. If there are no `call` steps, `model.input` must be the empty string.
+- `future` is the list of intent steps for future work that cannot be expanded yet. An intent step needs `name` and `description`; it does not need `input`.
 
 Requirements:
 1. Identify the user's goal, constraints, and any missing information.
-2. Prefer concrete run_steps when enough information is available.
-3. Use pending_steps only when a future step depends on results that are not available yet.
+2. Prefer concrete `call` tool steps when enough information is available.
+3. Use `future` only when a future step depends on results that are not available yet.
 4. Keep descriptions short and operational.
+5. Set `background` to a compact context summary of the user's final goal and any useful prior context. Remove repetition.
+6. When returning a plan, you must return exactly one top-level `model` step; do not put this model step inside `call`.
 
 Return raw strict JSON. Do not wrap it in Markdown fences and do not add any text before or after the JSON.
 
@@ -30,24 +33,22 @@ If the request can be answered without running any step, return this shape:
 Otherwise return this model-facing plan shape:
 {
   "description": "Short description of the whole plan.",
-  "run_steps": [
+  "background": "Concise context summary for the plan.",
+  "call": [
     {
       "name": "<tool_name>",
-      "kind": "tool",
-      "description": "Concrete step description.",
+      "description": "Concrete tool-call step description.",
       "input": "single-string parameter"
-    },
-    {
-      "name": "<model_name>",
-      "kind": "model",
-      "description": "Model request description.",
-      "input": "model-name,tool-name-1,tool-name-2"
     }
   ],
-  "pending_steps": [
+  "model": {
+    "name": "Analysis",
+    "description": "Analyze the completed call output and decide the next response.",
+    "input": "<tool_name>"
+  },
+  "future": [
     {
       "name": "<intent_name>",
-      "kind": "intent",
       "description": "Why this step cannot be fully specified yet."
     }
   ],

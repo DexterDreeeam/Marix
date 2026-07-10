@@ -3,29 +3,131 @@
   "module": {
     "path": "src/server/task",
     "name": "task",
-    "purpose": "Owns server task runtime and TaskState. TaskState holds InvocationHub, RelayHub, PlanHub, and step storage while implementation event routing remains deferred.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the task module definitions including TaskAccess, new, insert_invocation, insert_relay.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "access.rs",
+    "runtime.rs",
+    "state.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "TaskAccess",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/access.rs",
-          "lineStart": 10,
-          "lineEnd": 17,
+          "lineStart": 17,
+          "lineEnd": 28,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 10,
-              "lineEnd": 17
+              "lineStart": 17,
+              "lineEnd": 28
             }
-          ],
-          "modifiedLines": []
+          ]
+        },
+        {
+          "sourcePath": "src/server/task/access.rs",
+          "lineStart": 30,
+          "lineEnd": 94,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 30,
+              "lineEnd": 94
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "new",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/access.rs",
+          "lineStart": 31,
+          "lineEnd": 58,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 31,
+              "lineEnd": 58
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "insert_invocation",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/access.rs",
+          "lineStart": 60,
+          "lineEnd": 71,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 60,
+              "lineEnd": 71
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "insert_relay",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/access.rs",
+          "lineStart": 73,
+          "lineEnd": 84,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 73,
+              "lineEnd": 84
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "insert_plan",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/access.rs",
+          "lineStart": 86,
+          "lineEnd": 93,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 86,
+              "lineEnd": 93
+            }
+          ]
         }
       ]
     },
@@ -33,59 +135,458 @@
       "name": "TaskRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/runtime.rs",
           "lineStart": 18,
           "lineEnd": 23,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 18,
               "lineEnd": 23
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/server/task/runtime.rs",
           "lineStart": 25,
           "lineEnd": 40,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 25,
               "lineEnd": 40
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/server/task/runtime.rs",
           "lineStart": 42,
-          "lineEnd": 115,
+          "lineEnd": 145,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 42,
-              "lineEnd": 115
+              "lineEnd": 145
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/server/task/runtime.rs",
-          "lineStart": 119,
-          "lineEnd": 559,
+          "lineStart": 149,
+          "lineEnd": 479,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 119,
-              "lineEnd": 559
+              "lineStart": 149,
+              "lineEnd": 479
             }
-          ],
-          "modifiedLines": []
+          ]
+        }
+      ]
+    },
+    {
+      "name": "new",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/runtime.rs",
+          "lineStart": 26,
+          "lineEnd": 39,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 26,
+              "lineEnd": 39
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "run",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/runtime.rs",
+          "lineStart": 43,
+          "lineEnd": 109,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 43,
+              "lineEnd": 109
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "close",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/runtime.rs",
+          "lineStart": 111,
+          "lineEnd": 118,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 111,
+              "lineEnd": 118
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "dispatch",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/runtime.rs",
+          "lineStart": 120,
+          "lineEnd": 144,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 120,
+              "lineEnd": 144
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "take_task_rx",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/runtime.rs",
+          "lineStart": 150,
+          "lineEnd": 155,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 150,
+              "lineEnd": 155
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "take_close_rx",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/runtime.rs",
+          "lineStart": 157,
+          "lineEnd": 162,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 157,
+              "lineEnd": 162
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "create_plan",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/runtime.rs",
+          "lineStart": 164,
+          "lineEnd": 196,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 164,
+              "lineEnd": 196
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fail_plan_create",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/runtime.rs",
+          "lineStart": 198,
+          "lineEnd": 202,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 198,
+              "lineEnd": 202
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "start_plan_step",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/runtime.rs",
+          "lineStart": 204,
+          "lineEnd": 235,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 204,
+              "lineEnd": 235
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "dispatch_step_create_event",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/runtime.rs",
+          "lineStart": 237,
+          "lineEnd": 285,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 237,
+              "lineEnd": 285
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "build_model_prompt",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/runtime.rs",
+          "lineStart": 287,
+          "lineEnd": 317,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 287,
+              "lineEnd": 317
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "stringify_plans",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/runtime.rs",
+          "lineStart": 319,
+          "lineEnd": 323,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 319,
+              "lineEnd": 323
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "dispatch_plan",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/runtime.rs",
+          "lineStart": 325,
+          "lineEnd": 354,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 325,
+              "lineEnd": 354
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "dispatch_step",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/runtime.rs",
+          "lineStart": 356,
+          "lineEnd": 388,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 356,
+              "lineEnd": 388
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "dispatch_invocation",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/runtime.rs",
+          "lineStart": 390,
+          "lineEnd": 412,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 390,
+              "lineEnd": 412
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "dispatch_relay",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/runtime.rs",
+          "lineStart": 414,
+          "lineEnd": 436,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 414,
+              "lineEnd": 436
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "on_plan_update",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/runtime.rs",
+          "lineStart": 438,
+          "lineEnd": 452,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 438,
+              "lineEnd": 452
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "cancel_task",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/runtime.rs",
+          "lineStart": 454,
+          "lineEnd": 463,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 454,
+              "lineEnd": 463
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "send_session_status",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/runtime.rs",
+          "lineStart": 465,
+          "lineEnd": 478,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 465,
+              "lineEnd": 478
+            }
+          ]
         }
       ]
     },
@@ -93,44 +594,86 @@
       "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/state.rs",
-          "lineStart": 16,
-          "lineEnd": 24,
+          "lineStart": 19,
+          "lineEnd": 27,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 16,
-              "lineEnd": 24
+              "lineStart": 19,
+              "lineEnd": 27
             }
           ]
         },
         {
           "sourcePath": "src/server/task/state.rs",
-          "lineStart": 26,
-          "lineEnd": 56,
+          "lineStart": 29,
+          "lineEnd": 61,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 26,
-              "lineEnd": 56
+              "lineStart": 29,
+              "lineEnd": 61
             }
           ]
         },
         {
           "sourcePath": "src/server/task/state.rs",
-          "lineStart": 60,
-          "lineEnd": 67,
+          "lineStart": 65,
+          "lineEnd": 72,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 60,
-              "lineEnd": 67
+              "lineStart": 65,
+              "lineEnd": 72
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "new",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/state.rs",
+          "lineStart": 30,
+          "lineEnd": 60,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 30,
+              "lineEnd": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fmt",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/state.rs",
+          "lineStart": 66,
+          "lineEnd": 71,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 66,
+              "lineEnd": 71
             }
           ]
         }
@@ -148,12 +691,7 @@
           "lineEnd": 15,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 13,
-              "lineEnd": 15
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/task/task.rs",
@@ -161,12 +699,7 @@
           "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 43
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/task/task.rs",
@@ -174,12 +707,71 @@
           "lineEnd": 63,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 45,
-              "lineEnd": 63
-            }
-          ]
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "new",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/task.rs",
+          "lineStart": 18,
+          "lineEnd": 31,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "preview",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/task.rs",
+          "lineStart": 33,
+          "lineEnd": 42,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "start",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/task.rs",
+          "lineStart": 46,
+          "lineEnd": 53,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "dispatch",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/task/task.rs",
+          "lineStart": 55,
+          "lineEnd": 62,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     }

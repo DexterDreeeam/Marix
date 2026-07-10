@@ -4,7 +4,9 @@ use crate::external::*;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PlanDraft {
     pub description: String,
-    pub run_steps: Vec<StepDraft>,
-    pub pending_steps: Vec<StepDraft>,
+    pub background: String,
+    pub call: Vec<StepDraft>,
+    pub model: StepDraft,
+    pub future: Vec<StepDraft>,
     pub expected_result: String,
 }

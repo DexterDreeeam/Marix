@@ -2,7 +2,10 @@ use std::fmt;
 use std::sync::Arc;
 
 use marix_common::Logger;
-use marix_protocol::{Actor, InvocationEvent, InvocationRequest, InvocationStatus, RuntimeAsync};
+use marix_protocol::{
+    Actor, InvocationEvent, InvocationRequest, InvocationSignature, InvocationStatus,
+    RuntimeAsync,
+};
 
 use super::runtime::InvocationRuntime;
 use super::state::InvocationState;
@@ -12,6 +15,14 @@ pub struct Invocation {
     state: Arc<InvocationState>,
 }
 
+impl Clone for Invocation {
+    fn clone(&self) -> Self {
+        Self {
+            state: Arc::clone(&self.state),
+        }
+    }
+}
+
 impl Invocation {
     pub fn new(access: TaskAccess, request: InvocationRequest) -> Self {
         let signature = request.signature.clone();
@@ -19,6 +30,10 @@ impl Invocation {
         let invocation = Self { state };
         InvocationRuntime::send_step_update(&invocation.state, InvocationStatus::Created);
         invocation
+    }
+
+    pub(crate) fn signature(&self) -> &InvocationSignature {
+        &self.state.signature
     }
 }
 

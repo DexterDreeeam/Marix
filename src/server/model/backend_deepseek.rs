@@ -4,7 +4,8 @@ use std::thread;
 
 use marix_common::external::*;
 use marix_common::{
-    Config, DeepseekConfig, Logger, Receiver, Sender, build_async_channel, build_channel,
+    AsyncSender, Config, DeepseekConfig, Logger, Receiver, Sender,
+    build_async_channel, build_channel,
 };
 
 use super::backend::ModelBackendImpl;
@@ -118,7 +119,7 @@ impl DeepseekBackend {
         client: reqwest::Client,
         config: DeepseekConfig,
         payload: serde_json::Value,
-        sender: tokio::mpsc::UnboundedSender<ModelResponse>,
+        sender: AsyncSender<ModelResponse>,
     ) -> Result<(), ModelBackendError> {
         let mut response = client
             .post(config.endpoint.trim())
@@ -177,7 +178,7 @@ impl DeepseekBackend {
 
     async fn stream_async_response(
         response: &mut reqwest::Response,
-        sender: &tokio::mpsc::UnboundedSender<ModelResponse>,
+        sender: &AsyncSender<ModelResponse>,
     ) -> Result<(), ModelBackendError> {
         let mut pending = String::new();
         let mut seq_count = 0;
@@ -281,7 +282,7 @@ impl ModelResponseSender for Sender<ModelResponse> {
     }
 }
 
-impl ModelResponseSender for tokio::mpsc::UnboundedSender<ModelResponse> {
+impl ModelResponseSender for AsyncSender<ModelResponse> {
     fn send_response(&self, response: ModelResponse) -> bool {
         self.send(response).is_ok()
     }
