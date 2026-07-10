@@ -4,16 +4,14 @@ use std::sync::Mutex as StdMutex;
 use marix_common::external::*;
 use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
 use marix_protocol::{
-    Actor, InvocationEvent, InvocationSignature, InvocationStepKind, ModelStepKind, PlanDraft,
-    PlanEvent, PlanSignature, PlanStatus, RelayEvent, RelayRequest, RelaySignature, RuntimeAsync,
-    SessionEvent, StepEvent, StepKind, StepSignature, StepStatus, TaskError, TaskEvent,
+    Actor, Answer, InvocationEvent, InvocationSignature, PlanDraft, PlanEvent,
+    PlanSignature, PlanStatus, RelayEvent, RelaySignature, RuntimeAsync,
+    SessionEvent, StepEvent, StepSignature, TaskError, TaskEvent, TaskResult,
     TaskStatus,
 };
 
 use super::TaskState;
-use crate::plan::{Plan, PlanStringify, initial_plan};
-use crate::prompt::{AnalysisPrompt, InitialPrompt, Prompt};
-use crate::step::Step;
+use crate::plan::{Plan, initial_plan};
 
 pub struct TaskRuntime {
     state: Arc<TaskState>,
@@ -45,14 +43,24 @@ impl RuntimeAsync<TaskEvent, TaskError> for TaskRuntime {
         let access = &self.state.access;
         Logger::log(format!("task {} started", &access.signature));
         self.create_plan(initial_plan(access.user_request.clone()));
-        let Some(mut task_rx) = self.take_task_rx() else {
+        let Some(mut task_rx) = self
+            .task_rx
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .take()
+        else {
             Logger::warning(format!(
                 "task {} runtime stopping: event receiver unavailable",
                 &self.state.access.signature,
             ));
             return;
         };
-        let Some(mut close_rx) = self.take_close_rx() else {
+        let Some(mut close_rx) = self
+            .close_rx
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .take()
+        else {
             Logger::warning(format!(
                 "task {} runtime stopping: close receiver unavailable",
                 &self.state.access.signature,
@@ -77,17 +85,8 @@ impl RuntimeAsync<TaskEvent, TaskError> for TaskRuntime {
                         TaskEvent::PlanCreate(draft) => {
                             self.create_plan(draft);
                         }
-                        TaskEvent::PlanUpdate(status) => {
-                            let failed = matches!(status, PlanStatus::Fail);
-                            self.on_plan_update(status);
-                            if failed {
-                                Logger::debug(format!(
-                                    "task {} runtime stopping: {:?}",
-                                    &self.state.access.signature,
-                                    TaskError::PlanFailed,
-                                ));
-                                break;
-                            }
+                        TaskEvent::Update(signature, status) => {
+                            self.on_plan_update(signature, status);
                         }
                         TaskEvent::Cancel => {
                             self.cancel_task();
@@ -117,209 +116,43 @@ impl RuntimeAsync<TaskEvent, TaskError> for TaskRuntime {
         }
     }
 
-    fn dispatch(&self, event: TaskEvent) -> Result<(), TaskError> {
-        match event {
-            TaskEvent::Plan(signature, event) => {
-                self.dispatch_plan(signature, event);
-                Ok(())
-            }
-            TaskEvent::PlanCreate(draft) => {
-                self.create_plan(draft);
-                Ok(())
-            }
-            TaskEvent::PlanUpdate(status) => {
-                let failed = matches!(status, PlanStatus::Fail);
-                self.on_plan_update(status);
-                if failed {
-                    Err(TaskError::PlanFailed)
-                } else {
-                    Ok(())
-                }
-            }
-            TaskEvent::Cancel => {
-                self.cancel_task();
-                Err(TaskError::Canceled)
-            }
-        }
-    }
 }
 
 // -- Private -- //
 
 impl TaskRuntime {
-    fn take_task_rx(&self) -> Option<AsyncReceiver<TaskEvent>> {
-        self.task_rx
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .take()
-    }
-
-    fn take_close_rx(&self) -> Option<AsyncReceiver<()>> {
-        self.close_rx
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .take()
-    }
-
     fn create_plan(&self, draft: PlanDraft) {
         let access = &self.state.access;
         let signature = PlanSignature::new(
             access.signature.clone(),
             "plan".to_owned(),
         );
-        let plan = match Plan::from_draft(access.clone(), signature, draft) {
+        let mut plan = match Plan::from_draft(access.clone(), signature, draft) {
             Ok(plan) => plan,
             Err(error) => {
-                self.fail_plan_create(format!(
+                let reason = format!(
                     "failed to create task plan: {error:?}",
+                );
+                Logger::warning(format!(
+                    "{reason} (task {})",
+                    &access.signature,
                 ));
+                self.send_session_status(TaskStatus::Failed { reason });
                 return;
             }
         };
-        let call = plan.state.call.clone();
-        let model = plan.state.model.clone();
-        let start_model = call.is_empty();
         if let Err(error) = access.insert_plan(plan.clone()) {
-            self.fail_plan_create(format!(
+            let reason = format!(
                 "failed to insert task plan: {error:?}",
-            ));
-            return;
-        }
-        let mut worker = plan;
-        worker.start();
-        for step in &call {
-            self.start_plan_step(step);
-        }
-        if start_model {
-            self.start_plan_step(&model);
-        }
-    }
-
-    fn fail_plan_create(&self, reason: String) {
-        let access = &self.state.access;
-        Logger::warning(format!("{reason} (task {})", &access.signature));
-        self.send_session_status(TaskStatus::Failed { reason });
-    }
-
-    fn start_plan_step(&self, step: &Step) {
-        if self.state.steps.with(step.signature(), |_| ()).is_some() {
-            Logger::warning(format!(
-                "step {} start ignored: step already exists (task {})",
-                step.signature(),
-                &step.signature().task,
-            ));
-            return;
-        }
-        if self.state.steps.size() >= 10 {
-            Logger::warning(format!(
-                "step {} rejected: task step limit exceeded (task {})",
-                step.signature(),
-                &step.signature().task,
-            ));
-            self.dispatch_plan(
-                step.signature().plan.clone(),
-                PlanEvent::StepUpdate(StepStatus::Failed),
             );
+            Logger::warning(format!(
+                "{reason} (task {})",
+                &access.signature,
+            ));
+            self.send_session_status(TaskStatus::Failed { reason });
             return;
         }
-        self.state
-            .steps
-            .insert_or_update(step.signature().clone(), step.clone());
-        let mut worker = step.clone();
-        worker.start();
-        self.dispatch_plan(
-            step.signature().plan.clone(),
-            PlanEvent::StepUpdate(StepStatus::Created),
-        );
-        self.dispatch_step_create_event(step);
-    }
-
-    fn dispatch_step_create_event(&self, step: &Step) {
-        match step.kind() {
-            StepKind::Model(_) => {
-                let signature = RelaySignature::new(
-                    self.state.access.signature.clone(),
-                    step.signature().plan.clone(),
-                    step.signature().clone(),
-                    step.signature().name.clone(),
-                );
-                step.dispatch(StepEvent::RelayCreate(RelayRequest {
-                    signature,
-                    prompt: self.build_model_prompt(step),
-                }));
-            }
-            StepKind::Invocation(InvocationStepKind::Invocation(request)) => {
-                step.dispatch(StepEvent::InvocationCreate(request.clone()));
-            }
-            StepKind::Invocation(InvocationStepKind::Cancel) => {
-                Logger::warning(format!(
-                    "step {} failed: invocation cancel step has no target",
-                    step.signature(),
-                ));
-                self.dispatch_plan(
-                    step.signature().plan.clone(),
-                    PlanEvent::StepUpdate(StepStatus::Failed),
-                );
-            }
-            StepKind::Invocation(InvocationStepKind::Kill) => {
-                Logger::warning(format!(
-                    "step {} failed: invocation kill is not supported",
-                    step.signature(),
-                ));
-                self.dispatch_plan(
-                    step.signature().plan.clone(),
-                    PlanEvent::StepUpdate(StepStatus::Failed),
-                );
-            }
-            StepKind::Intent | StepKind::User(_) => {
-                Logger::warning(format!(
-                    "step {} failed: task step kind is not supported yet",
-                    step.signature(),
-                ));
-                self.dispatch_plan(
-                    step.signature().plan.clone(),
-                    PlanEvent::StepUpdate(StepStatus::Failed),
-                );
-            }
-        }
-    }
-
-    fn build_model_prompt(&self, step: &Step) -> String {
-        let access = &self.state.access;
-        match step.kind() {
-            StepKind::Model(ModelStepKind::Initial) => {
-                let session_context = access
-                    .session_context
-                    .lock()
-                    .unwrap_or_else(|error| error.into_inner())
-                    .snapshot();
-                InitialPrompt::new(access.user_request.clone(), session_context)
-                    .prompt()
-            }
-            StepKind::Model(ModelStepKind::Analysis) => {
-                let session_context = access
-                    .session_context
-                    .lock()
-                    .unwrap_or_else(|error| error.into_inner())
-                    .snapshot();
-                let plan_stringify = self.stringify_plans();
-                AnalysisPrompt::new(
-                    access.user_request.clone(),
-                    step.description().to_owned(),
-                    plan_stringify.current_plan_text(),
-                    plan_stringify.pending_intentions_text(),
-                    session_context,
-                )
-                .prompt()
-            }
-            _ => access.user_request.clone(),
-        }
-    }
-
-    fn stringify_plans(&self) -> PlanStringify {
-        let mut plans = self.state.plans.working_list();
-        plans.extend(self.state.plans.complete_list());
-        PlanStringify::new(plans)
+        plan.start();
     }
 
     fn dispatch_plan(&self, signature: PlanSignature, event: PlanEvent) {
@@ -435,20 +268,72 @@ impl TaskRuntime {
         }
     }
 
-    fn on_plan_update(&self, status: PlanStatus) {
+    fn on_plan_update(&self, signature: PlanSignature, status: PlanStatus) {
         match status {
             PlanStatus::Success => {
                 Logger::debug(format!(
-                    "task {} plan completed",
-                    &self.state.access.signature
+                    "task {} plan {} completed",
+                    &self.state.access.signature, &signature,
                 ));
+                self.on_plan_succeed(signature);
             }
             PlanStatus::Fail => {
+                Logger::debug(format!(
+                    "task {} runtime stopping: {:?}",
+                    &self.state.access.signature,
+                    TaskError::PlanFailed,
+                ));
                 self.send_session_status(TaskStatus::Failed {
                     reason: "plan failed".to_owned(),
                 });
+                self.close();
             }
         }
+    }
+
+    fn on_plan_succeed(&self, signature: PlanSignature) {
+        let Some(model_step) = self.state.plans.with(&signature, |plan| {
+            plan.state.model.clone()
+        }) else {
+            Logger::warning(format!(
+                "task {} plan {} success ignored: plan not found",
+                &self.state.access.signature, &signature,
+            ));
+            self.close();
+            return;
+        };
+
+        let content = model_step.output();
+        match serde_json::from_str::<PlanDraft>(&content) {
+            Ok(plan_draft) => {
+                self.create_plan(plan_draft);
+                return;
+            }
+            Err(plan_error) => match serde_json::from_str::<Answer>(&content) {
+                Ok(answer) => {
+                    self.send_session_status(TaskStatus::Succeed(
+                        TaskResult {
+                            content: answer.answer,
+                        },
+                    ));
+                }
+                Err(answer_error) => {
+                    let reason = format!(
+                        "plan output did not parse as answer or plan draft: \
+                         answer parse error: {answer_error}; \
+                         plan draft parse error: {plan_error}",
+                    );
+                    Logger::warning(format!(
+                        "task {} plan {} failed: {reason}",
+                        &self.state.access.signature, &signature,
+                    ));
+                    self.send_session_status(TaskStatus::Failed {
+                        reason,
+                    });
+                }
+            },
+        }
+        self.close();
     }
 
     fn cancel_task(&self) {

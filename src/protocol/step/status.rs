@@ -8,3 +8,12 @@ pub enum StepStatus {
     Succeed,
     Failed,
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum StepletStatus {
+    Created,
+    Started,
+    Canceled,
+    Succeed { seq_count: usize },
+    Failed,
+}

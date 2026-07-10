@@ -4,9 +4,9 @@ use std::sync::Mutex as StdMutex;
 use marix_common::external::*;
 use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
 use marix_protocol::{
-    Actor, InvocationEvent, InvocationRequest, InvocationStatus, InvocationStepKind,
-    PlanEvent, RelayRequest, RelayStatus, RuntimeAsync, SessionEvent, StepError,
-    StepEvent, StepKind, StepSignature, StepStatus, TaskEvent,
+    Actor, InvocationRequest, InvocationStepKind, PlanEvent, RelayRequest,
+    RuntimeAsync, SessionEvent, StepError, StepEvent, StepKind, StepSignature,
+    StepStatus, StepletStatus, TaskEvent,
 };
 
 use super::state::StepState;
@@ -40,7 +40,6 @@ impl StepRuntime {
 
 impl RuntimeAsync<StepEvent, StepError> for StepRuntime {
     async fn run(&self) {
-        Self::send_step_update(&self.state, StepStatus::Started);
         let Some(mut step_rx) = self
             .step_rx
             .lock()
@@ -115,10 +114,6 @@ impl RuntimeAsync<StepEvent, StepError> for StepRuntime {
                 self.create_invocation(request);
                 Ok(())
             }
-            StepEvent::InvocationUpdate(status) => {
-                self.on_invocation_update(status);
-                Ok(())
-            }
             StepEvent::Relay(signature, event) => {
                 Logger::error(format!(
                     "step {} received invalid relay event for {}",
@@ -131,8 +126,12 @@ impl RuntimeAsync<StepEvent, StepError> for StepRuntime {
                 self.create_relay(request);
                 Ok(())
             }
-            StepEvent::RelayUpdate(status) => {
-                self.on_relay_update(status);
+            StepEvent::Update(status) => {
+                self.on_update(status);
+                Ok(())
+            }
+            StepEvent::Processing { seq, content } => {
+                self.on_processing(seq, content);
                 Ok(())
             }
             StepEvent::Cancel => {
@@ -150,86 +149,59 @@ impl StepRuntime {
         &self.state.signature
     }
 
-    fn complete(&self, _content: String) {
-        Self::send_step_update(&self.state, StepStatus::Succeed);
+    fn on_update(&self, status: StepletStatus) {
+        match status {
+            StepletStatus::Created => {
+                Logger::debug(format!(
+                    "step {} steplet created (task {})",
+                    self.signature(),
+                    &self.signature().task,
+                ));
+                self.set_status(StepStatus::Created);
+            }
+            StepletStatus::Started => {
+                Logger::debug(format!(
+                    "step {} steplet started (task {})",
+                    self.signature(),
+                    &self.signature().task,
+                ));
+                    }
+            StepletStatus::Canceled => {
+                Logger::warning(format!(
+                    "step {} steplet canceled (task {})",
+                    self.signature(),
+                    &self.signature().task,
+                ));
+                self.set_status(StepStatus::Canceled);
+                self.close();
+            }
+            StepletStatus::Succeed { seq_count } => {
+                *self
+                    .state
+                    .final_signal
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner()) = Some(seq_count);
+                self.set_status(StepStatus::Succeed);
+                self.close();
+            }
+            StepletStatus::Failed => {
+                self.set_status(StepStatus::Failed);
+                self.close();
+            }
+        }
     }
 
-    fn fail(&self, reason: String) {
-        Logger::error(format!(
-            "step {} failed: {reason} (task {})",
-            &self.state.signature, &self.state.signature.task,
+    fn on_processing(&self, seq: usize, content: String) {
+        self.state
+            .output
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .insert(seq, content);
+        Logger::debug(format!(
+            "step {} steplet processing (task {})",
+            self.signature(),
+            &self.signature().task,
         ));
-        Self::send_step_update(&self.state, StepStatus::Failed);
-    }
-
-    fn on_invocation_update(&self, status: InvocationStatus) {
-        match status {
-            InvocationStatus::Created => {
-                Logger::debug(format!(
-                    "step {} invocation created (task {})",
-                    self.signature(),
-                    &self.signature().task,
-                ));
-            }
-            InvocationStatus::Started => {
-                Logger::debug(format!(
-                    "step {} invocation started (task {})",
-                    self.signature(),
-                    &self.signature().task,
-                ));
-            }
-            InvocationStatus::Processing { .. } => {
-                Logger::debug(format!(
-                    "step {} invocation update (task {})",
-                    self.signature(),
-                    &self.signature().task,
-                ));
-            }
-            InvocationStatus::Canceled => {
-                self.fail("invocation canceled".to_owned());
-            }
-            InvocationStatus::Succeed { .. } => {
-                self.complete(String::new());
-            }
-            InvocationStatus::Failed => {
-                self.fail("invocation failed".to_owned());
-            }
-        }
-    }
-
-    fn on_relay_update(&self, status: RelayStatus) {
-        match status {
-            RelayStatus::Created => {
-                Logger::debug(format!(
-                    "step {} relay created (task {})",
-                    self.signature(),
-                    &self.signature().task,
-                ));
-            }
-            RelayStatus::Started => {
-                Logger::debug(format!(
-                    "step {} relay started (task {})",
-                    self.signature(),
-                    &self.signature().task,
-                ));
-            }
-            RelayStatus::Processing { .. } => {
-                Logger::debug(format!(
-                    "step {} relay update (task {})",
-                    self.signature(),
-                    &self.signature().task,
-                ));
-            }
-            RelayStatus::Canceled => {
-                self.fail("relay canceled".to_owned());
-            }
-            RelayStatus::Succeed { .. } => {
-                self.complete(String::new());
-            }
-            RelayStatus::Failed => {
-                self.fail("relay failed".to_owned());
-            }
-        }
     }
 
     fn create_invocation(&self, request: InvocationRequest) {
@@ -242,9 +214,7 @@ impl StepRuntime {
         }
         let invocation = Invocation::new(self.state.access.clone(), request);
         if self.state.access.insert_invocation(invocation.clone()) {
-            let mut worker = invocation;
-            worker.start();
-            worker.dispatch(InvocationEvent::ExecutionCreate);
+            invocation.start();
         }
     }
 
@@ -258,8 +228,7 @@ impl StepRuntime {
         }
         let relay = Relay::new(self.state.access.clone(), request);
         if self.state.access.insert_relay(relay.clone()) {
-            let mut worker = relay;
-            worker.start();
+            relay.start();
         }
     }
 
@@ -270,20 +239,36 @@ impl StepRuntime {
                     "step {} canceled without forwarding invocation cancel to {}",
                     &self.state.signature, &request.signature,
                 ));
-                Self::send_step_update(&self.state, StepStatus::Canceled);
+                self.set_status(StepStatus::Canceled);
+                self.close();
             }
             StepKind::Model(_) => {
                 Logger::warning(format!(
                     "model step {} cancel requested, but model cancellation is not supported",
                     &self.state.signature,
                 ));
-                self.fail("model cancellation is not supported".to_owned());
+                Logger::error(format!(
+                    "step {} failed: model cancellation is not supported (task {})",
+                    &self.state.signature, &self.state.signature.task,
+                ));
+                self.set_status(StepStatus::Failed);
+                self.close();
             }
             StepKind::Intent | StepKind::User(_) | StepKind::Invocation(_) => {
                 Logger::warning(format!("step {} canceled", &self.state.signature));
-                Self::send_step_update(&self.state, StepStatus::Canceled);
+                self.set_status(StepStatus::Canceled);
+                self.close();
             }
         }
+    }
+
+    fn set_status(&self, status: StepStatus) {
+        *self
+            .state
+            .status
+            .lock()
+            .unwrap_or_else(|error| error.into_inner()) = status;
+        Self::send_step_update(&self.state, status);
     }
 
     fn send_step_update(state: &StepState, status: StepStatus) {

@@ -4,8 +4,11 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Owns host-side tool registry, tool previews, Executor session-event dispatch, and execution runtime worker storage/routing diagnostics.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "runtime.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -212,7 +215,7 @@
       "name": "ExecutorRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -243,26 +246,26 @@
         {
           "sourcePath": "src/host/executor/runtime.rs",
           "lineStart": 29,
-          "lineEnd": 74,
+          "lineEnd": 68,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 29,
-              "lineEnd": 74
+              "lineEnd": 68
             }
           ]
         },
         {
           "sourcePath": "src/host/executor/runtime.rs",
-          "lineStart": 78,
-          "lineEnd": 127,
+          "lineStart": 72,
+          "lineEnd": 121,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 78,
-              "lineEnd": 127
+              "lineStart": 72,
+              "lineEnd": 121
             }
           ]
         }
@@ -272,7 +275,7 @@
       "name": "new",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -293,7 +296,7 @@
       "name": "run",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -314,7 +317,7 @@
       "name": "close",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -335,18 +338,18 @@
       "name": "dispatch",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
           "lineStart": 57,
-          "lineEnd": 73,
+          "lineEnd": 67,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 57,
-              "lineEnd": 73
+              "lineEnd": 67
             }
           ]
         }
@@ -356,18 +359,18 @@
       "name": "dispatch_execution",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
-          "lineStart": 79,
-          "lineEnd": 101,
+          "lineStart": 73,
+          "lineEnd": 95,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 79,
-              "lineEnd": 101
+              "lineStart": 73,
+              "lineEnd": 95
             }
           ]
         }
@@ -377,18 +380,18 @@
       "name": "create_execution",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
-          "lineStart": 103,
-          "lineEnd": 126,
+          "lineStart": 97,
+          "lineEnd": 120,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 103,
-              "lineEnd": 126
+              "lineStart": 97,
+              "lineEnd": 120
             }
           ]
         }

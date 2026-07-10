@@ -62,12 +62,6 @@ impl Runtime<ExecutorEvent, Infallible> for ExecutorRuntime {
             ExecutorEvent::ExecutionCreate(request) => {
                 self.create_execution(request);
             }
-            ExecutorEvent::ExecutionUpdate(signature, status) => {
-                Logger::warning(format!(
-                    "execution {} update {status:?} ignored: executions send directly to server",
-                    &signature,
-                ));
-            }
         }
         Ok(())
     }

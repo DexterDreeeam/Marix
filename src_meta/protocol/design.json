@@ -4,8 +4,12 @@
     "path": "src/protocol",
     "name": "protocol",
     "purpose": "Owns marix-protocol crate definitions and namespace exports for hierarchical session, task, plan, step, invocation, executor, relay, host execution, tool, and shared signature/status/error contracts.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "lib.rs",
+    "mod.rs"
+  ],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -493,17 +497,22 @@
     },
     {
       "name": "ExecutionStatus",
-      "type": "enum",
+      "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/status.rs",
           "lineStart": 3,
-          "lineEnd": 11,
+          "lineEnd": 3,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 3
+            }
+          ]
         }
       ]
     },
@@ -511,15 +520,20 @@
       "name": "ExecutorEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/executor/event.rs",
           "lineStart": 5,
-          "lineEnd": 10,
+          "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 9
+            }
+          ]
         }
       ]
     },
@@ -543,15 +557,20 @@
       "name": "InvocationEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/event.rs",
           "lineStart": 5,
-          "lineEnd": 10,
+          "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 11
+            }
+          ]
         }
       ]
     },
@@ -700,22 +719,6 @@
       ]
     },
     {
-      "name": "InvocationStatus",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/invocation/status.rs",
-          "lineStart": 3,
-          "lineEnd": 11,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
       "name": "Answer",
       "type": "struct",
       "source_depth": 3,
@@ -743,12 +746,7 @@
           "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 4,
-              "lineEnd": 12
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -780,12 +778,7 @@
           "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 5,
-              "lineEnd": 10
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -1110,22 +1103,6 @@
       ]
     },
     {
-      "name": "RelayStatus",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/relay/status.rs",
-          "lineStart": 3,
-          "lineEnd": 11,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
       "name": "SessionEvent",
       "type": "enum",
       "source_depth": 3,
@@ -1177,7 +1154,7 @@
       "name": "StepEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/event.rs",
@@ -1185,7 +1162,12 @@
           "lineEnd": 17,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 17
+            }
+          ]
         }
       ]
     },
@@ -1417,7 +1399,7 @@
       "name": "StepStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/status.rs",
@@ -1425,7 +1407,33 @@
           "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "StepletStatus",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/step/status.rs",
+          "lineStart": 12,
+          "lineEnd": 19,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 19
+            }
+          ]
         }
       ]
     },
@@ -1449,7 +1457,7 @@
       "name": "TaskEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/event.rs",
@@ -1457,7 +1465,12 @@
           "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 11
+            }
+          ]
         }
       ]
     },

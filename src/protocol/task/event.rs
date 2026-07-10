@@ -6,6 +6,6 @@ use crate::{PlanDraft, PlanEvent, PlanSignature, PlanStatus};
 pub enum TaskEvent {
     Plan(PlanSignature, PlanEvent),
     PlanCreate(PlanDraft),
-    PlanUpdate(PlanStatus),
+    Update(PlanSignature, PlanStatus),
     Cancel,
 }

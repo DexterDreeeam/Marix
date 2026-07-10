@@ -16,4 +16,4 @@ pub use kind::{InvocationStepKind, ModelStepKind, StepKind, UserStepKind};
 pub use preview::StepPreview;
 pub use result::StepResult;
 pub use signature::StepSignature;
-pub use status::StepStatus;
+pub use status::{StepStatus, StepletStatus};

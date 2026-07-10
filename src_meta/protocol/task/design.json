@@ -4,8 +4,11 @@
     "path": "src/protocol/task",
     "name": "task",
     "purpose": "Owns task protocol contracts including task identity/signatures, task requests, previews/results, task status, task errors, and task events that nest plan events.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "event.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -28,7 +31,7 @@
       "name": "TaskEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/event.rs",
@@ -36,7 +39,12 @@
           "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 11
+            }
+          ]
         }
       ]
     },
@@ -58,6 +66,22 @@
           "sourcePath": "src/protocol/task/id.rs",
           "lineStart": 6,
           "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "new",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/task/id.rs",
+          "lineStart": 7,
+          "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -92,12 +116,7 @@
           "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 5,
-              "lineEnd": 9
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -145,12 +164,7 @@
           "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 6,
-              "lineEnd": 10
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/task/signature.rs",
@@ -158,12 +172,7 @@
           "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 12,
-              "lineEnd": 19
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/task/signature.rs",
@@ -171,12 +180,7 @@
           "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 21,
-              "lineEnd": 25
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/task/signature.rs",
@@ -184,12 +188,55 @@
           "lineEnd": 31,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 27,
-              "lineEnd": 31
-            }
-          ]
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "new",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/task/signature.rs",
+          "lineStart": 13,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "id",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/task/signature.rs",
+          "lineStart": 22,
+          "lineEnd": 24,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "fmt",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/task/signature.rs",
+          "lineStart": 28,
+          "lineEnd": 30,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },

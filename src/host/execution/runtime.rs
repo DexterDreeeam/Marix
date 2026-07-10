@@ -91,7 +91,7 @@ impl ExecutionRuntime {
             &self.state.request.signature,
         ));
         let content = self.state.tool.execute(&self.state.request.input.content);
-        self.send_status(ExecutionStatus::Processing { seq: 0, content });
+        self.send_processing(0, content);
         self.send_status(ExecutionStatus::Succeed { seq_count: 1 });
     }
 
@@ -103,7 +103,25 @@ impl ExecutionRuntime {
                 invocation.plan.clone(),
                 PlanEvent::Step(
                     invocation.step.clone(),
-                    StepEvent::Invocation(invocation, InvocationEvent::ExecutionUpdate(status)),
+                    StepEvent::Invocation(invocation, InvocationEvent::Update(status)),
+                ),
+            ),
+        );
+        self.send_server_event(event);
+    }
+
+    pub(super) fn send_processing(&self, seq: usize, content: String) {
+        let invocation = self.state.request.signature.invocation.clone();
+        let event = SessionEvent::Task(
+            invocation.task.clone(),
+            TaskEvent::Plan(
+                invocation.plan.clone(),
+                PlanEvent::Step(
+                    invocation.step.clone(),
+                    StepEvent::Invocation(
+                        invocation,
+                        InvocationEvent::Processing { seq, content },
+                    ),
                 ),
             ),
         );

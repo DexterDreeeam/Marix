@@ -29,6 +29,16 @@ where
             .collect()
     }
 
+    pub fn list(&self) -> Vec<V>
+    where
+        V: Clone,
+    {
+        self.working_list()
+            .into_iter()
+            .chain(self.complete_list())
+            .collect()
+    }
+
     pub fn working_list(&self) -> Vec<V>
     where
         V: Clone,

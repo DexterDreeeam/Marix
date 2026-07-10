@@ -240,7 +240,6 @@ impl SessionRuntime {
             event,
             SessionEvent::Executor(ExecutorEvent::Execution(_, _))
                 | SessionEvent::Executor(ExecutorEvent::ExecutionCreate(_))
-                | SessionEvent::Executor(ExecutorEvent::ExecutionUpdate(_, _))
         ) {
             Logger::warning("core session ignored non-executor host event");
             return;

@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use marix_common::Logger;
 use marix_protocol::{
-    Actor, RelayEvent, RelayRequest, RelaySignature, RelayStatus, RuntimeAsync,
+    Actor, RelayEvent, RelayRequest, RelaySignature, RuntimeAsync, StepletStatus,
 };
 
 use super::runtime::RelayRuntime;
@@ -27,7 +27,7 @@ impl Relay {
         let signature = request.signature.clone();
         let state = Arc::new(RelayState::new(access, signature, request));
         let relay = Self { state };
-        RelayRuntime::send_step_event(&relay.state, RelayStatus::Created);
+        RelayRuntime::send_step_update(&relay.state, StepletStatus::Created);
         relay
     }
 

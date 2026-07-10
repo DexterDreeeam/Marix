@@ -4,8 +4,11 @@
     "path": "src/host",
     "name": "host",
     "purpose": "Host crate namespace for HostSession and host-side executor dispatch/runtime exported through the executor module.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/host/execution",
@@ -311,7 +314,7 @@
       "name": "ExecutionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -355,13 +358,13 @@
         {
           "sourcePath": "src/host/execution/runtime.rs",
           "lineStart": 85,
-          "lineEnd": 142,
+          "lineEnd": 160,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 85,
-              "lineEnd": 142
+              "lineEnd": 160
             }
           ]
         }
@@ -371,7 +374,7 @@
       "name": "new",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -392,7 +395,7 @@
       "name": "run",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -413,7 +416,7 @@
       "name": "close",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -434,7 +437,7 @@
       "name": "dispatch",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -455,7 +458,7 @@
       "name": "execute",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -476,7 +479,7 @@
       "name": "send_status",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -494,21 +497,42 @@
       ]
     },
     {
-      "name": "on_cancel",
+      "name": "send_processing",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
           "lineStart": 113,
-          "lineEnd": 119,
+          "lineEnd": 129,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 113,
-              "lineEnd": 119
+              "lineEnd": 129
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "on_cancel",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/host/execution/runtime.rs",
+          "lineStart": 131,
+          "lineEnd": 137,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 131,
+              "lineEnd": 137
             }
           ]
         }
@@ -518,18 +542,18 @@
       "name": "send_server_event",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
-          "lineStart": 121,
-          "lineEnd": 141,
+          "lineStart": 139,
+          "lineEnd": 159,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 121,
-              "lineEnd": 141
+              "lineStart": 139,
+              "lineEnd": 159
             }
           ]
         }
@@ -779,7 +803,7 @@
       "name": "ExecutorRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -810,26 +834,26 @@
         {
           "sourcePath": "src/host/executor/runtime.rs",
           "lineStart": 29,
-          "lineEnd": 74,
+          "lineEnd": 68,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 29,
-              "lineEnd": 74
+              "lineEnd": 68
             }
           ]
         },
         {
           "sourcePath": "src/host/executor/runtime.rs",
-          "lineStart": 78,
-          "lineEnd": 127,
+          "lineStart": 72,
+          "lineEnd": 121,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 78,
-              "lineEnd": 127
+              "lineStart": 72,
+              "lineEnd": 121
             }
           ]
         }
@@ -839,7 +863,7 @@
       "name": "new",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -860,7 +884,7 @@
       "name": "run",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -881,7 +905,7 @@
       "name": "close",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -902,18 +926,18 @@
       "name": "dispatch",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
           "lineStart": 57,
-          "lineEnd": 73,
+          "lineEnd": 67,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 57,
-              "lineEnd": 73
+              "lineEnd": 67
             }
           ]
         }
@@ -923,18 +947,18 @@
       "name": "dispatch_execution",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
-          "lineStart": 79,
-          "lineEnd": 101,
+          "lineStart": 73,
+          "lineEnd": 95,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 79,
-              "lineEnd": 101
+              "lineStart": 73,
+              "lineEnd": 95
             }
           ]
         }
@@ -944,18 +968,18 @@
       "name": "create_execution",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
-          "lineStart": 103,
-          "lineEnd": 126,
+          "lineStart": 97,
+          "lineEnd": 120,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 103,
-              "lineEnd": 126
+              "lineStart": 97,
+              "lineEnd": 120
             }
           ]
         }

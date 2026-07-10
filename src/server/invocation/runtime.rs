@@ -5,8 +5,8 @@ use marix_common::external::*;
 use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
 use marix_protocol::{
     ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, ExecutorEvent,
-    InvocationError, InvocationEvent, InvocationStatus, PlanEvent, RuntimeAsync, SessionEvent,
-    StepEvent, TaskEvent,
+    InvocationError, InvocationEvent, PlanEvent, RuntimeAsync, SessionEvent, StepEvent,
+    StepletStatus, TaskEvent,
 };
 
 use super::state::InvocationState;
@@ -103,9 +103,20 @@ impl RuntimeAsync<InvocationEvent, InvocationError> for InvocationRuntime {
                 self.create_execution();
                 Ok(())
             }
-            InvocationEvent::ExecutionUpdate(status) => self.on_update(status),
+            InvocationEvent::Update(status) => {
+                self.on_update(status);
+                Ok(())
+            }
+            InvocationEvent::Processing { seq, content } => {
+                self.on_processing(seq, content);
+                Ok(())
+            }
             InvocationEvent::Cancel => {
                 self.cancel_execution();
+                Self::send_step_event(
+                    &self.state,
+                    StepEvent::Update(StepletStatus::Canceled),
+                );
                 Err(InvocationError::Canceled)
             }
         }
@@ -150,62 +161,34 @@ impl InvocationRuntime {
         }
     }
 
-    fn on_update(&self, status: ExecutionStatus) -> Result<(), InvocationError> {
-        let mut succeed_seq_count = None;
-        match status {
-            ExecutionStatus::Created | ExecutionStatus::Started => {}
-            ExecutionStatus::Processing { seq, content } => {
-                self.state
-                    .output
-                    .lock()
-                    .unwrap_or_else(|error| error.into_inner())
-                    .insert(seq, content.clone());
-                self.send_step_event(InvocationStatus::Processing { seq, content });
-            }
-            ExecutionStatus::Canceled => return Err(InvocationError::ExecutionCanceled),
-            ExecutionStatus::Succeed { seq_count } => {
-                succeed_seq_count = Some(seq_count);
-                *self
-                    .state
-                    .final_signal
-                    .lock()
-                    .unwrap_or_else(|error| error.into_inner()) = Some(seq_count);
-            }
-            ExecutionStatus::Failed => return Err(InvocationError::ExecutionFailed),
-        }
-
-        if !Self::is_complete(&self.state) {
-            return Ok(());
-        }
-
-        let Some(seq_count) = succeed_seq_count.or_else(|| {
-            *self
-                .state
-                .final_signal
-                .lock()
-                .unwrap_or_else(|error| error.into_inner())
-        }) else {
-            return Ok(());
-        };
-        self.send_step_event(InvocationStatus::Succeed { seq_count });
-        Ok(())
+    fn on_update(&self, status: ExecutionStatus) {
+        Self::send_step_event(&self.state, StepEvent::Update(status));
     }
 
-    fn send_step_event(&self, status: InvocationStatus) {
+    fn on_processing(&self, seq: usize, content: String) {
+        self.state
+            .output
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .insert(seq, content.clone());
+        Self::send_step_event(
+            &self.state,
+            StepEvent::Processing { seq, content },
+        );
+    }
+
+    fn send_step_event(state: &InvocationState, event: StepEvent) {
         let event = SessionEvent::Task(
-            self.state.signature.task.clone(),
+            state.signature.task.clone(),
             TaskEvent::Plan(
-                self.state.signature.plan.clone(),
-                PlanEvent::Step(
-                    self.state.signature.step.clone(),
-                    StepEvent::InvocationUpdate(status),
-                ),
+                state.signature.plan.clone(),
+                PlanEvent::Step(state.signature.step.clone(), event),
             ),
         );
-        if self.state.access.session_tx.send(event).is_err() {
+        if state.access.session_tx.send(event).is_err() {
             Logger::warning(format!(
                 "invocation {} step event failed: session worker stopped",
-                &self.state.signature,
+                &state.signature,
             ));
         }
     }
@@ -223,21 +206,5 @@ impl InvocationRuntime {
                 &self.state.signature,
             ));
         }
-    }
-
-    fn is_complete(state: &InvocationState) -> bool {
-        let final_signal = *state
-            .final_signal
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
-        let Some(count) = final_signal else {
-            return false;
-        };
-        state
-            .output
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .len()
-            == count
     }
 }

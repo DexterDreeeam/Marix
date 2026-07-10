@@ -131,12 +131,18 @@ impl PlanRuntime {
         match status {
             StepStatus::Succeed => {
                 if self.is_complete() {
-                    self.send_task_event(TaskEvent::PlanUpdate(PlanStatus::Success));
+                    self.send_task_event(TaskEvent::Update(
+                        self.state.signature.clone(),
+                        PlanStatus::Success,
+                    ));
                 }
                 Ok(())
             }
             StepStatus::Canceled | StepStatus::Failed => {
-                self.send_task_event(TaskEvent::PlanUpdate(PlanStatus::Fail));
+                self.send_task_event(TaskEvent::Update(
+                    self.state.signature.clone(),
+                    PlanStatus::Fail,
+                ));
                 Ok(())
             }
             StepStatus::Created | StepStatus::Started => Ok(()),
