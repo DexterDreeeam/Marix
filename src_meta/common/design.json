@@ -4,11 +4,8 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Shared common crate root for reusable config loading with default CoreConfig fallback, server IP and handshake token resolution from plain config values, external re-export adapters, database telemetry logging, and structure utilities. It exposes WorkQueue cleanup support used by server host-disconnect session reset, and lib.rs re-exports serializable config system types Arch, Platform, and System alongside Config, ServerConfig, and related models, plus the Logger telemetry client with LogMessage, LogTag, and LoggingError.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "lib.rs"
-  ],
   "childModules": [
     {
       "path": "src/common/config",
@@ -1492,7 +1489,7 @@
       "name": "NET_CHANNEL_BUFFER",
       "type": "const",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1513,7 +1510,7 @@
       "name": "HANDSHAKE_TIMEOUT",
       "type": "const",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1534,7 +1531,7 @@
       "name": "REJECT_FLUSH_GRACE",
       "type": "const",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1555,7 +1552,7 @@
       "name": "Sender",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1576,7 +1573,7 @@
       "name": "Receiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1597,7 +1594,7 @@
       "name": "NetSender",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1618,7 +1615,7 @@
       "name": "NetReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1639,7 +1636,7 @@
       "name": "AsyncSender",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1660,7 +1657,7 @@
       "name": "AsyncReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1681,7 +1678,7 @@
       "name": "SharedNetSender",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1702,7 +1699,7 @@
       "name": "SharedNetReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1723,7 +1720,7 @@
       "name": "ChannelError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1744,7 +1741,7 @@
       "name": "ChannelEndpoint",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1765,7 +1762,7 @@
       "name": "build_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1786,7 +1783,7 @@
       "name": "build_async_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1807,7 +1804,7 @@
       "name": "accept_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1828,7 +1825,7 @@
       "name": "connect_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1849,7 +1846,7 @@
       "name": "Handshake",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1870,7 +1867,7 @@
       "name": "ConnectionGuard",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1917,7 +1914,7 @@
       "name": "new",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1938,7 +1935,7 @@
       "name": "flush",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1959,7 +1956,7 @@
       "name": "disarm",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1980,7 +1977,7 @@
       "name": "drop",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -2001,7 +1998,7 @@
       "name": "accept_loop",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -2022,7 +2019,7 @@
       "name": "server_handshake",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -2043,7 +2040,7 @@
       "name": "connecter_handshake",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
