@@ -4,8 +4,11 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Shared common crate root for reusable config loading with default CoreConfig fallback, server IP and handshake token resolution from plain config values, external re-export adapters, database telemetry logging, and structure utilities. It exposes WorkQueue cleanup support used by server host-disconnect session reset, and lib.rs re-exports serializable config system types Arch, Platform, and System alongside Config, ServerConfig, and related models, plus the Logger telemetry client with LogMessage, LogTag, and LoggingError.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/common/config",
@@ -1601,7 +1604,7 @@
       "name": "AsyncSender",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1609,7 +1612,12 @@
           "lineEnd": 23,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 23
+            }
+          ]
         }
       ]
     },
@@ -1617,7 +1625,7 @@
       "name": "AsyncReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1625,7 +1633,12 @@
           "lineEnd": 24,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 24,
+              "lineEnd": 24
+            }
+          ]
         }
       ]
     },
@@ -1713,7 +1726,7 @@
       "name": "build_async_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -1721,7 +1734,12 @@
           "lineEnd": 56,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 55,
+              "lineEnd": 55
+            }
+          ]
         }
       ]
     },
@@ -1789,16 +1807,16 @@
         },
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 202,
-          "lineEnd": 223,
+          "lineStart": 194,
+          "lineEnd": 200,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 225,
-          "lineEnd": 231,
+          "lineStart": 194,
+          "lineEnd": 200,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

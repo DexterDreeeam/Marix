@@ -212,7 +212,7 @@ impl StepRuntime {
             ));
             return;
         }
-        let invocation = Invocation::new(self.state.access.clone(), request);
+        let mut invocation = Invocation::new(self.state.access.clone(), request);
         if self.state.access.insert_invocation(invocation.clone()) {
             invocation.start();
         }
@@ -226,7 +226,7 @@ impl StepRuntime {
             ));
             return;
         }
-        let relay = Relay::new(self.state.access.clone(), request);
+        let mut relay = Relay::new(self.state.access.clone(), request);
         if self.state.access.insert_relay(relay.clone()) {
             relay.start();
         }
@@ -267,7 +267,7 @@ impl StepRuntime {
             .state
             .status
             .lock()
-            .unwrap_or_else(|error| error.into_inner()) = status;
+            .unwrap_or_else(|error| error.into_inner()) = status.clone();
         Self::send_step_update(&self.state, status);
     }
 

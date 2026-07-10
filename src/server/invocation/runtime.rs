@@ -187,7 +187,7 @@ impl InvocationRuntime {
         );
     }
 
-    fn send_step_event(state: &InvocationState, event: StepEvent) {
+    pub(super) fn send_step_event(state: &InvocationState, event: StepEvent) {
         let event = SessionEvent::Task(
             state.signature.task.clone(),
             TaskEvent::Plan(

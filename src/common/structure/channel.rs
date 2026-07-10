@@ -20,8 +20,8 @@ pub type Sender<T> = crossbeam_channel::Sender<T>;
 pub type Receiver<T> = crossbeam_channel::Receiver<T>;
 pub type NetSender<T> = remoc::rch::mpsc::Sender<T>;
 pub type NetReceiver<T> = remoc::rch::mpsc::Receiver<T>;
-pub type AsyncSender<T> = tokio::mpsc::UnboundedSender<T>;
-pub type AsyncReceiver<T> = tokio::mpsc::UnboundedReceiver<T>;
+pub type AsyncSender<T> = tokio::sync::mpsc::UnboundedSender<T>;
+pub type AsyncReceiver<T> = tokio::sync::mpsc::UnboundedReceiver<T>;
 pub type SharedNetSender<T> = Arc<Mutex<Option<NetSender<T>>>>;
 pub type SharedNetReceiver<T> = Arc<Mutex<Option<NetReceiver<T>>>>;
 
@@ -52,7 +52,7 @@ pub fn build_channel<T>() -> (Sender<T>, Receiver<T>) {
 }
 
 pub fn build_async_channel<T>() -> (AsyncSender<T>, AsyncReceiver<T>) {
-    tokio::mpsc::unbounded_channel()
+    tokio::sync::mpsc::unbounded_channel()
 }
 
 /// Accept an inbound connection for the logical channel selected by

@@ -4,15 +4,19 @@
     "path": "src/server/invocation",
     "name": "invocation",
     "purpose": "Owns the invocation module definitions including Invocation, clone, new, signature.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "invocation.rs",
+    "runtime.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "Invocation",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/invocation.rs",
@@ -24,32 +28,32 @@
         },
         {
           "sourcePath": "src/server/invocation/invocation.rs",
-          "lineStart": 18,
-          "lineEnd": 24,
+          "lineStart": 14,
+          "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/invocation/invocation.rs",
-          "lineStart": 26,
-          "lineEnd": 41,
+          "lineStart": 14,
+          "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/invocation/invocation.rs",
-          "lineStart": 43,
-          "lineEnd": 59,
+          "lineStart": 14,
+          "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/invocation/invocation.rs",
-          "lineStart": 61,
-          "lineEnd": 69,
+          "lineStart": 14,
+          "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -76,7 +80,7 @@
       "name": "new",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/invocation.rs",
@@ -84,7 +88,12 @@
           "lineEnd": 36,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 31,
+              "lineEnd": 33
+            }
+          ]
         }
       ]
     },
@@ -156,7 +165,7 @@
       "name": "InvocationRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/runtime.rs",
@@ -164,51 +173,31 @@
           "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 19
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 21,
-          "lineEnd": 36,
+          "lineStart": 14,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 21,
-              "lineEnd": 36
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 38,
-          "lineEnd": 125,
+          "lineStart": 14,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 38,
-              "lineEnd": 125
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 129,
-          "lineEnd": 220,
+          "lineStart": 14,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 129,
-              "lineEnd": 220
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -384,7 +373,7 @@
       "name": "send_step_event",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/runtime.rs",
@@ -395,7 +384,7 @@
           "modifiedLines": [
             {
               "lineStart": 190,
-              "lineEnd": 204
+              "lineEnd": 190
             }
           ]
         }

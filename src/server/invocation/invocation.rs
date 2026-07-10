@@ -4,7 +4,7 @@ use std::sync::Arc;
 use marix_common::Logger;
 use marix_protocol::{
     Actor, InvocationEvent, InvocationRequest, InvocationSignature, RuntimeAsync,
-    StepletStatus,
+    StepEvent, StepletStatus,
 };
 
 use super::runtime::InvocationRuntime;
@@ -28,9 +28,9 @@ impl Invocation {
         let signature = request.signature.clone();
         let state = Arc::new(InvocationState::new(access, signature, request));
         let invocation = Self { state };
-        InvocationRuntime::send_step_update(
+        InvocationRuntime::send_step_event(
             &invocation.state,
-            StepletStatus::Created,
+            StepEvent::Update(StepletStatus::Created),
         );
         invocation
     }

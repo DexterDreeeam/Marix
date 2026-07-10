@@ -78,25 +78,12 @@ impl RuntimeAsync<TaskEvent, TaskError> for TaskRuntime {
                     let Some(event) = event else {
                         break;
                     };
-                    match event {
-                        TaskEvent::Plan(signature, event) => {
-                            self.dispatch_plan(signature, event);
-                        }
-                        TaskEvent::PlanCreate(draft) => {
-                            self.create_plan(draft);
-                        }
-                        TaskEvent::Update(signature, status) => {
-                            self.on_plan_update(signature, status);
-                        }
-                        TaskEvent::Cancel => {
-                            self.cancel_task();
-                            Logger::debug(format!(
-                                "task {} runtime stopping: {:?}",
-                                &self.state.access.signature,
-                                TaskError::Canceled,
-                            ));
-                            break;
-                        }
+                    if let Err(error) = self.dispatch(event) {
+                        Logger::debug(format!(
+                            "task {} runtime stopping: {error:?}",
+                            &self.state.access.signature,
+                        ));
+                        break;
                     }
                 }
             }
@@ -116,6 +103,26 @@ impl RuntimeAsync<TaskEvent, TaskError> for TaskRuntime {
         }
     }
 
+    fn dispatch(&self, event: TaskEvent) -> Result<(), TaskError> {
+        match event {
+            TaskEvent::Plan(signature, event) => {
+                self.dispatch_plan(signature, event);
+                Ok(())
+            }
+            TaskEvent::PlanCreate(draft) => {
+                self.create_plan(draft);
+                Ok(())
+            }
+            TaskEvent::Update(signature, status) => {
+                self.on_plan_update(signature, status);
+                Ok(())
+            }
+            TaskEvent::Cancel => {
+                self.cancel_task();
+                Err(TaskError::Canceled)
+            }
+        }
+    }
 }
 
 // -- Private -- //

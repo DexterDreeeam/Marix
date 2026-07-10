@@ -320,3 +320,18 @@ t\\ through these constructors.
 - 2026-07-09: Relay self-notification no longer uses protocol `RelayEvent::Update`. `src/protocol/relay/event.rs` is external-control only (currently `Cancel`); `src/server/relay/runtime.rs` keeps a runtime-private async `ModelResponse` channel for backend stream chunks. `ModelResponse` is now a struct `{ content, seq, complete }`: content chunks carry `complete=false` and complete frames carry empty content with `seq` equal to the chunk count.`
 - 2026-07-09: Model backend async stream API is designed in `src/server/model/backend.rs` without using `async fn` on `ModelBackend`, preserving `Box<dyn ModelBackend>` dyn-compatibility for RelayState. Public aliases are `ModelResponseReceiver` for the existing crossbeam receiver and `ModelResponseAsyncReceiver` for the Tokio unbounded receiver; the blanket `ModelBackend` impl forwards `request_async` to `ModelBackendImpl::request_async`, whose default body is a design stub `panic!("not implemented")`.
 - 2026-07-09: Deepseek async streaming in `src/server/model/backend_deepseek.rs` uses `build_async_channel()` and a spawned Tokio task around async `reqwest::Client`; shared SSE parsing emits the same `ModelResponse { content, seq, complete }` sequence as the blocking path and logs async stream failures instead of inventing failed responses. Relay now consumes the backend async receiver directly in `src/server/relay/runtime.rs`, so it should not keep a relay-local model response channel or request worker thread.
+- 2026-07-10: `build_async_channel()` in
+  `src/common/structure/channel.rs` must use `tokio::sync::mpsc`
+  (`UnboundedSender`, `UnboundedReceiver`, `unbounded_channel`);
+  Tokio does not expose `mpsc` at `tokio::mpsc` with the current
+  dependency features. `RuntimeAsync` implementors, including
+  `src/server/task/runtime.rs`, must provide `dispatch` even when
+  `run` owns the receive loop. `src/server/invocation/runtime.rs`
+  keeps a `pub(super)` `send_step_update` helper because
+  `Invocation::new` emits Created status through the runtime helper.
+
+- 2026-07-10: Invocation Created status is emitted directly through
+  `InvocationRuntime::send_step_event(..., StepEvent::Update(...))`;
+  `send_step_update` is intentionally absent. `send_step_event` is
+  `pub(super)` so `invocation.rs` can call the shared event path. Relay's
+  `send_step_update` helper remains separate and unchanged.
