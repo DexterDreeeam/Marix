@@ -4,13 +4,8 @@
     "path": "src/protocol/step",
     "name": "step",
     "purpose": "Owns step protocol contracts including step identity/signatures, step drafts/kinds, previews/results, step statuses, and step events that nest invocation and relay events.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "event.rs",
-    "mod.rs",
-    "status.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -49,7 +44,7 @@
       "name": "StepEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/event.rs",
@@ -294,7 +289,7 @@
       "name": "StepStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/status.rs",
@@ -315,7 +310,7 @@
       "name": "StepletStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/status.rs",
