@@ -17,11 +17,11 @@ Own deployment tasks for the current Marix software. Coordinate the three deploy
 - Resolve credentials from `.credential/*.txt` (see below); never print or commit secrets.
 - Report deployment target, files changed or copied, commands run, and final status.
 
-## Local build requirement
+## Build and endpoint deployment requirements
 
-- Build every final binary on the local machine; deployment endpoints only receive completed artifacts and must never run `cargo build`.
-- By default, build Server release binaries on the local Windows machine for `x86_64-unknown-linux-gnu` with Zig and `cargo-zigbuild`; do not build them in WSL or on the Ubuntu endpoint.
-- Build Host, Client, and any required Tools release binaries with the local Windows Rust toolchain.
+- Build Server release binaries natively on the Ubuntu server with its installed Rust toolchain. Upload only a sanitized current-source package for the build; exclude `.git`, `target`, `.credential`, generated deployment configs, and temporary caches.
+- Build Host, Client, and any required Tools release binaries on the local Windows machine with the local Windows Rust toolchain.
+- Deployment endpoints receive only what their role requires: the Ubuntu Server build directory receives sanitized Server source and the Server runtime receives the completed Server artifact and runtime resources; the VM Host and local Client receive completed Windows artifacts and runtime resources and must never run `cargo build`.
 
 ## Credential resolution at deploy time
 

@@ -1,3 +1,4 @@
+use marix_common::external::*;
 use marix_protocol::{
     InvocationRequest, InvocationSignature, InvocationStepKind, ModelStepKind, PlanError,
     RelayRequest, RelaySignature, StepDraft, StepKind, StepSignature, ToolInputSchema,
@@ -70,7 +71,7 @@ pub(super) fn model_request(
                 )
                 .prompt()),
                 ModelStepKind::Analysis => {
-                    let execution_output = state
+                    let input = state
                         .input
                         .lock()
                         .unwrap_or_else(|error| error.into_inner())
@@ -81,11 +82,20 @@ pub(super) fn model_request(
                                 &state.signature,
                             )
                         })?;
+                    let input: serde_json::Value =
+                        serde_json::from_str(&input).map_err(|error| {
+                            format!(
+                                "analysis model step {} input is invalid JSON: {error}",
+                                &state.signature,
+                            )
+                        })?;
+                    let background = analysis_input_string(&input, "background", &state.signature)?;
+                    let call_output =
+                        analysis_input_string(&input, "call_output", &state.signature)?;
                     Ok(AnalysisPrompt::new(
                         state.access.user_request.clone(),
-                        execution_output,
-                        String::new(),
-                        String::new(),
+                        background,
+                        call_output,
                         session_context,
                     )
                     .prompt())
@@ -110,4 +120,22 @@ pub(super) fn model_request(
         state.signature.name.clone(),
     );
     Ok(RelayRequest { signature, prompt })
+}
+
+// -- Private -- //
+
+fn analysis_input_string(
+    input: &serde_json::Value,
+    field: &str,
+    signature: &StepSignature,
+) -> Result<String, String> {
+    let object = input
+        .as_object()
+        .ok_or_else(|| format!("analysis model step {signature} input must be a JSON object"))?;
+    let value = object.get(field).ok_or_else(|| {
+        format!("analysis model step {signature} input field `{field}` is missing")
+    })?;
+    value.as_str().map(str::to_owned).ok_or_else(|| {
+        format!("analysis model step {signature} input field `{field}` must be a string")
+    })
 }

@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/plan",
     "name": "plan",
-    "purpose": "Owns server-side plan creation, step orchestration, model-driven analysis, completion checks, and result stringification.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns server-side plan creation and step orchestration, including model-input JSON built from plan background and completed call output before the model step starts.",
+    "changeStatus": "modified"
   },
+  "modified": ["helper.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -16,14 +17,14 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/helper.rs",
-          "lineStart": 5,
-          "lineEnd": 19,
+          "lineStart": 6,
+          "lineEnd": 20,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 11,
-              "lineEnd": 11
+              "lineStart": 12,
+              "lineEnd": 12
             }
           ]
         }
@@ -37,13 +38,34 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/helper.rs",
-          "lineStart": 21,
-          "lineEnd": 27,
+          "lineStart": 22,
+          "lineEnd": 28,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 21,
-              "lineEnd": 27
+              "lineStart": 22,
+              "lineEnd": 28
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "model_input",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/plan/helper.rs",
+          "lineStart": 30,
+          "lineEnd": 36,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 30,
+              "lineEnd": 36
             }
           ],
           "modifiedLines": []
@@ -218,7 +240,7 @@
       "name": "PlanRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",
@@ -241,58 +263,27 @@
           "lineStart": 38,
           "lineEnd": 125,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 66,
-              "lineEnd": 66
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 113,
-              "lineEnd": 113
-            },
-            {
-              "lineStart": 117,
-              "lineEnd": 117
-            }
-          ]
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/plan/runtime.rs",
           "lineStart": 129,
           "lineEnd": 261,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 186,
-              "lineEnd": 186
-            },
-            {
-              "lineStart": 197,
-              "lineEnd": 203
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 130,
-              "lineEnd": 163
+              "lineStart": 175,
+              "lineEnd": 176
             },
             {
-              "lineStart": 165,
-              "lineEnd": 180
-            },
-            {
-              "lineStart": 188,
-              "lineEnd": 195
+              "lineStart": 199,
+              "lineEnd": 204
             },
             {
               "lineStart": 220,
-              "lineEnd": 243
-            },
-            {
-              "lineStart": 251,
-              "lineEnd": 251
+              "lineEnd": 231
             }
           ]
         }
@@ -390,35 +381,18 @@
       "name": "on_update",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",
           "lineStart": 149,
           "lineEnd": 197,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 186,
-              "lineEnd": 186
-            },
-            {
-              "lineStart": 197,
-              "lineEnd": 197
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 149,
-              "lineEnd": 163
-            },
-            {
-              "lineStart": 165,
-              "lineEnd": 180
-            },
-            {
-              "lineStart": 188,
-              "lineEnd": 195
+              "lineStart": 175,
+              "lineEnd": 176
             }
           ]
         }
@@ -440,27 +414,6 @@
             {
               "lineStart": 206,
               "lineEnd": 218
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "is_complete",
-      "type": "function",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 220,
-          "lineEnd": 244,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 220,
-              "lineEnd": 243
             }
           ]
         }

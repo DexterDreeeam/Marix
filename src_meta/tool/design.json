@@ -3,14 +3,15 @@
   "module": {
     "path": "src/tool",
     "name": "tool",
-    "purpose": "Top-level marix-tool crate (lib marix_tool) that defines the per-tool ToolProgram interface and compiles one executable per native tool program. Cargo.toml now depends on marix-protocol, and ToolProgram uses marix_protocol::ToolPreview.",
-    "changeStatus": "unchanged"
+    "purpose": "Top-level marix-tool crate defining ToolProgram and six feature-gated native tool executables, including the OsEnv system-environment tool.",
+    "changeStatus": "modified"
   },
+  "modified": ["Cargo.toml"],
   "childModules": [
     {
       "path": "src/tool/native",
       "name": "native",
-      "purpose": "Concrete native tool programs grouped by category: filesystem tools under file/ and shell command execution under shell/. Native previews wrap schema constants in typed ToolInputSchema/ToolOutputSchema content wrappers and invoke() implementations perform real IO and return JSON results."
+      "purpose": "Groups built-in filesystem, shell, and system-environment tools; concrete previews expose snake_case protocol names and typed input/output schemas."
     }
   ],
   "elements": [

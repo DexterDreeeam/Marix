@@ -8,7 +8,7 @@ use crate::ToolProgram;
 pub struct ReadFile;
 
 impl ReadFile {
-    const NAME: &'static str = "native_read_file";
+    const NAME: &'static str = "read_file";
     const DESCRIPTION: &'static str = "Read a UTF-8 text file from the local file system.";
     const INPUT_SCHEMA: &'static str = r#"{"type":"object","properties":{"path":{"type":"string"}},"required":["path"],"additionalProperties":false}"#;
     const OUTPUT_SCHEMA: &'static str = r#"{"type":"object","properties":{"content":{"type":"string"}},"required":["content"],"additionalProperties":false}"#;

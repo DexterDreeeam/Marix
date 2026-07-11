@@ -2,31 +2,29 @@ use std::fs;
 use std::path::Path;
 
 use marix_common::Config;
+use marix_common::external::*;
 
 use crate::prompt::{Prompt, render_template};
 use crate::session::SessionContext;
 
 pub struct AnalysisPrompt {
-    pub request_brief: String,
-    pub execution_output: String,
-    pub current_plan: String,
-    pub pending_intentions: String,
+    pub request: String,
+    pub background: String,
+    pub call_output: String,
     pub session_context: SessionContext,
 }
 
 impl AnalysisPrompt {
     pub fn new(
-        request_brief: String,
-        execution_output: String,
-        current_plan: String,
-        pending_intentions: String,
+        request: String,
+        background: String,
+        call_output: String,
         session_context: SessionContext,
     ) -> Self {
         Self {
-            request_brief,
-            execution_output,
-            current_plan,
-            pending_intentions,
+            request,
+            background,
+            call_output,
             session_context,
         }
     }
@@ -49,11 +47,10 @@ impl Prompt for AnalysisPrompt {
         render_template(
             &Self::load("Analysis"),
             &[
-                ("RequestBrief", self.request_brief.clone()),
-                ("ExecutionOutput", self.execution_output.clone()),
-                ("CurrentPlan", self.current_plan.clone()),
-                ("PendingIntentions", self.pending_intentions.clone()),
                 ("Tools", self.tools_text()),
+                ("Request", self.request.clone()),
+                ("Background", self.background.clone()),
+                ("CallOutput", self.call_output.clone()),
             ],
         )
     }
@@ -63,19 +60,7 @@ impl Prompt for AnalysisPrompt {
 
 impl AnalysisPrompt {
     fn tools_text(&self) -> String {
-        self.session_context
-            .tools
-            .iter()
-            .map(|tool| {
-                format!(
-                    "- {}: {}\n  input: {}\n  output: {}",
-                    tool.name,
-                    tool.description,
-                    tool.schema.input.content,
-                    tool.schema.output.content
-                )
-            })
-            .collect::<Vec<_>>()
-            .join("\n")
+        serde_json::to_string(&self.session_context.tools)
+            .unwrap_or_else(|error| panic!("failed to serialize prompt tools: {error}"))
     }
 }

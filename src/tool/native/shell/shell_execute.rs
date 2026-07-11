@@ -8,7 +8,7 @@ use crate::ToolProgram;
 pub struct ShellExecute;
 
 impl ShellExecute {
-    const NAME: &'static str = "native_shell_execute";
+    const NAME: &'static str = "shell_execute";
     const DESCRIPTION: &'static str =
         "Run a native command through the current operating system shell.";
     const INPUT_SCHEMA: &'static str = r#"{"type":"object","properties":{"command":{"type":"string"},"cwd":{"type":"string"},"timeout_ms":{"type":"integer","minimum":1}},"required":["command"],"additionalProperties":false}"#;

@@ -466,3 +466,49 @@ connecter to protect this distinction.
   `step/helper.rs::model_request` reads only that input. It no longer obtains
   Plans through `TaskAccess` or uses `PlanStringify`; the Analysis prompt's
   current-plan and pending-intentions strings are empty.
+- 2026-07-11: `native_os_env` is owned by
+  `src/tool/native/sys/os_env.rs`, selected by the `os_env` feature and
+  `marix_tool_os_env` bin. It accepts only an empty object (or empty CLI
+  input), returns a fixed nested system/user/path allowlist with nullable
+  missing values, and never enumerates environment variables. Unix user
+  folders only parse `user-dirs.dirs` with `$HOME`/`${HOME}` substitution;
+  no shell syntax is executed and missing folders use HOME-based fallbacks.
+- 2026-07-11: Native tool protocol names are defined only by each
+  `src/tool/native/**` implementation's `NAME` constant and flow into
+  `ToolPreview.name`. They intentionally omit the historical `native_`
+  prefix, while feature names, module/file names, and `marix_tool_*` bin
+  names remain unchanged.
+- 2026-07-11: `Initial.prompt` and `Analysis.prompt` define every `call`
+  array as parallel independent work: each tool input must be concrete when
+  the Plan is emitted and cannot reference sibling output. Result-dependent
+  actions remain `future` intents until a later Analysis Plan has real values;
+  Initial resolves an unknown Desktop path with `os_env` before list/read.
+  Analysis retries a failed action only when diagnostic output supplies a
+  concrete correction, and never repeats the identical failed call.
+- 2026-07-12: `src/prompt/step/Analysis.prompt` keeps each of its five render
+  variables to one interpolation. Its compact decision contract permits an
+  Answer only for fully satisfied requests; incomplete work and correctable
+  failed calls produce a PlanDraft with independent, concrete `call` inputs
+  and result-dependent actions deferred to `future` or a later Plan.
+- 2026-07-12 (supersedes the Analysis-input note above): Plan-to-Analysis
+  input is compact JSON containing `PlanState.background` and rendered
+  `call_output`. `step/helper.rs` validates both as strings via
+  `serde_json::Value`; `AnalysisPrompt` renders only Tools, Request,
+  Background, and CallOutput, while `InitialPrompt` renders only Tools and
+  Request.
+- 2026-07-12: `Initial.prompt` and `Analysis.prompt` now share one four-part
+  skeleton and each renders Tools, Request, Background, and CallOutput once;
+  Initial supplies empty strings for the latter two. Both prompt structs
+  serialize `SessionContext.tools` directly with `serde_json::to_string`, so
+  the rendered value is an array and serialization panics are converted by
+  `step/helper.rs::model_request` into explicit prompt-construction failures.
+- 2026-07-12: `src/prompt/step/Initial.prompt` and `Analysis.prompt` keep
+  identical literal skeletons: the single Rules block precedes the first of
+  four separators, retains its eight behavioral rules, and ends with the
+  strict two-schema rule. Tools, Request, Background, and CallOutput each
+  occur once after the schema separators.
+- 2026-07-12 (supersedes the prompt-opening note above): `Initial.prompt`
+  and `Analysis.prompt` use the same continuous decision contract before the
+  first separator. It selects exactly one answer or tool-call schema, keeps
+  parallel inputs independently executable, defers dependencies to `future`,
+  and flows directly into the unchanged shared schema/input skeleton.

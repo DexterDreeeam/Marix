@@ -4,8 +4,9 @@
     "path": "src",
     "name": "src",
     "purpose": "Workspace source root for Marix Rust crates and prompt sources; direct child modules are crate packages for protocol, common, server, client, host, tool, and prompts.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/client",
@@ -45,7 +46,7 @@
     {
       "path": "src/tool",
       "name": "tool",
-      "purpose": "Top-level marix-tool crate (lib marix_tool) that defines the per-tool ToolProgram interface and compiles one executable per native tool program. Cargo.toml now depends on marix-protocol, and ToolProgram uses marix_protocol::ToolPreview."
+      "purpose": "Top-level marix-tool crate defining ToolProgram and six feature-gated native tool executables, including the OsEnv system-environment tool."
     }
   ],
   "elements": [

@@ -3,16 +3,17 @@
   "module": {
     "path": "src/tool/native/file",
     "name": "file",
-    "purpose": "Filesystem native tool programs. Each file defines one unit-struct tool implementing ToolProgram; preview() builds marix-protocol ToolPreview/ToolSchema values with ToolInputSchema and ToolOutputSchema content wrappers, while invoke() still uses marix_common::external::serde_json for JSON parsing/serialization and performs the filesystem work.",
-    "changeStatus": "unchanged"
+    "purpose": "Provides ReadFile, WriteFile, ListDirectory, and SearchText filesystem tools with snake_case protocol names, typed schemas, and JSON invocation results.",
+    "changeStatus": "modified"
   },
+  "modified": ["list_directory.rs", "read_file.rs", "search_text.rs", "write_file.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "ReadFile",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/file/read_file.rs",
@@ -28,7 +29,12 @@
           "lineEnd": 15,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 11
+            }
+          ]
         },
         {
           "sourcePath": "src/tool/native/file/read_file.rs",
@@ -44,7 +50,7 @@
       "name": "WriteFile",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/file/write_file.rs",
@@ -60,7 +66,12 @@
           "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 12
+            }
+          ]
         },
         {
           "sourcePath": "src/tool/native/file/write_file.rs",
@@ -76,7 +87,7 @@
       "name": "ListDirectory",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/file/list_directory.rs",
@@ -92,7 +103,12 @@
           "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 12
+            }
+          ]
         },
         {
           "sourcePath": "src/tool/native/file/list_directory.rs",
@@ -108,7 +124,7 @@
       "name": "SearchText",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/file/search_text.rs",
@@ -124,7 +140,12 @@
           "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 12
+            }
+          ]
         },
         {
           "sourcePath": "src/tool/native/file/search_text.rs",

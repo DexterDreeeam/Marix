@@ -17,6 +17,7 @@ write_file = []
 list_directory = []
 search_text = []
 shell_execute = []
+os_env = []
 
 [[bin]]
 name = "marix_tool_read_file"
@@ -42,3 +43,8 @@ required-features = ["search_text"]
 name = "marix_tool_shell_execute"
 path = "tool_main.rs"
 required-features = ["shell_execute"]
+
+[[bin]]
+name = "marix_tool_os_env"
+path = "tool_main.rs"
+required-features = ["os_env"]

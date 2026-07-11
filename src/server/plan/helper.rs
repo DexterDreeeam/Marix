@@ -1,3 +1,4 @@
+use marix_common::external::*;
 use marix_protocol::{PlanDraft, StepDraft};
 
 use crate::step::Step;
@@ -24,4 +25,12 @@ pub(super) fn call_output(steps: &[Step]) -> String {
         .map(|step| format!("- {}: {}", step.signature().name, step.output()))
         .collect::<Vec<_>>()
         .join("\n")
+}
+
+pub(super) fn model_input(background: &str, steps: &[Step]) -> String {
+    self::serde_json::json!({
+        "background": background,
+        "call_output": call_output(steps),
+    })
+    .to_string()
 }

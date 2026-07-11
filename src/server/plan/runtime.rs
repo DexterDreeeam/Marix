@@ -8,7 +8,7 @@ use marix_protocol::{
     StepSignature, StepStatus, TaskEvent,
 };
 
-use super::helper::call_output;
+use super::helper::model_input;
 use super::state::PlanState;
 
 pub(super) struct PlanRuntime {
@@ -219,7 +219,7 @@ impl PlanRuntime {
 
     fn start_model(&self) {
         let mut step = self.state.model.clone();
-        let input = call_output(&self.state.call);
+        let input = model_input(&self.state.background, &self.state.call);
         step.set_input(input);
         if !self.state.access.insert_step(step.clone()) {
             self.fail_plan(format!(

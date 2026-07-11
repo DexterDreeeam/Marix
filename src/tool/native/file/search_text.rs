@@ -9,7 +9,7 @@ use crate::ToolProgram;
 pub struct SearchText;
 
 impl SearchText {
-    const NAME: &'static str = "native_search_text";
+    const NAME: &'static str = "search_text";
     const DESCRIPTION: &'static str = "Search text under a local directory or file path.";
     const INPUT_SCHEMA: &'static str = r#"{"type":"object","properties":{"path":{"type":"string"},"query":{"type":"string"},"case_sensitive":{"type":"boolean"}},"required":["path","query"],"additionalProperties":false}"#;
     const OUTPUT_SCHEMA: &'static str = r#"{"type":"object","properties":{"matches":{"type":"array","items":{"type":"object","properties":{"path":{"type":"string"},"line":{"type":"integer"},"text":{"type":"string"}}}}},"required":["matches"],"additionalProperties":false}"#;
