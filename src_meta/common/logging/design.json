@@ -4,9 +4,8 @@
     "path": "src/common/logging",
     "name": "logging",
     "purpose": "Owns process telemetry logging with config-selected local redb storage or authenticated remote streaming, including server-side multi-client collection and timestamped per-process databases.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["logger.rs"],
   "childModules": [],
   "elements": [
     {
@@ -53,7 +52,7 @@
       "name": "Logger",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
@@ -126,7 +125,7 @@
       "name": "Store",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",

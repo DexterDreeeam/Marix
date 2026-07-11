@@ -4,9 +4,8 @@
     "path": "src/client",
     "name": "client",
     "purpose": "Owns the client library and CLI-facing session API, including resilient server reconnects, task create/cancel messages, and conversion of task status updates into ClientEvent output.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["session.rs"],
   "childModules": [
     {
       "path": "src/client/app",
@@ -61,7 +60,7 @@
       "name": "ClientSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
@@ -186,7 +185,7 @@
       "name": "IDLE_TIMEOUT",
       "type": "const",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/main.rs",
@@ -223,7 +222,7 @@
       "name": "main",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/main.rs",
@@ -261,7 +260,7 @@
       "name": "run_oneshot",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/main.rs",
@@ -286,7 +285,7 @@
       "name": "run_interactive",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/main.rs",
@@ -327,7 +326,7 @@
       "name": "drain_events",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/main.rs",

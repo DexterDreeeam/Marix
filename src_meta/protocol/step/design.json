@@ -4,16 +4,15 @@
     "path": "src/protocol/step",
     "name": "step",
     "purpose": "Owns step protocol contracts, including draft kind assignment, step identity/kinds/events/status, previews/results, and nested invocation and relay events.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["draft.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "StepDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/draft.rs",
@@ -34,7 +33,7 @@
       "name": "parse",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/draft.rs",

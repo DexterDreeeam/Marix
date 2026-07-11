@@ -4,9 +4,8 @@
     "path": "src/common/structure",
     "name": "structure",
     "purpose": "Owns shared channel and work-queue structures, including authenticated remoc transport, wildcard IPv4 server listeners, configured client endpoints, handshake timeouts, and reusable queue cleanup.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["channel.rs", "mod.rs"],
   "childModules": [],
   "elements": [
     {
@@ -268,7 +267,7 @@
       "name": "accept_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
