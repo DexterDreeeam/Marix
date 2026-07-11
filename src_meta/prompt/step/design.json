@@ -4,16 +4,15 @@
     "path": "src/prompt/step",
     "name": "step",
     "purpose": "Defines Initial and Analysis model-step templates that return a localized answer when possible or schedule independent parallel tool calls using strict raw JSON.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["Analysis.prompt", "Initial.prompt"],
   "childModules": [],
   "elements": [
     {
       "name": "AnalysisPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Analysis.prompt",
@@ -34,7 +33,7 @@
       "name": "InitialPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Initial.prompt",

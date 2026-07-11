@@ -4,9 +4,8 @@
     "path": "src/server/plan",
     "name": "plan",
     "purpose": "Owns server-side plan creation and step orchestration, including model-input JSON built from plan background and completed call output before the model step starts.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["helper.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -55,7 +54,7 @@
       "name": "model_input",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/helper.rs",
@@ -240,7 +239,7 @@
       "name": "PlanRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",
@@ -381,7 +380,7 @@
       "name": "on_update",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",

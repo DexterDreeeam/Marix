@@ -4,9 +4,8 @@
     "path": "src/server",
     "name": "server",
     "purpose": "Owns server task, plan, and step orchestration, including model-step prompt construction from request context and completed tool-call output.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["."],
   "childModules": [
     {
       "path": "src/server/invocation",
@@ -1051,7 +1050,7 @@
       "name": "model_input",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/helper.rs",
@@ -1236,7 +1235,7 @@
       "name": "PlanRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",
@@ -1377,7 +1376,7 @@
       "name": "on_update",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",
@@ -1691,7 +1690,7 @@
       "name": "AnalysisPrompt",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/analysis.rs",
@@ -1751,7 +1750,7 @@
       "name": "new",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/analysis.rs",
@@ -1788,7 +1787,7 @@
       "name": "prompt",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/analysis.rs",
@@ -1809,7 +1808,7 @@
       "name": "tools_text",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/analysis.rs",
@@ -1830,7 +1829,7 @@
       "name": "InitialPrompt",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/initial.rs",
@@ -1890,7 +1889,7 @@
       "name": "new",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/initial.rs",
@@ -1927,7 +1926,7 @@
       "name": "prompt",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/initial.rs",
@@ -1948,7 +1947,7 @@
       "name": "tools_text",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/initial.rs",
@@ -3245,7 +3244,7 @@
       "name": "model_request",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/helper.rs",
