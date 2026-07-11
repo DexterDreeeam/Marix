@@ -6,4 +6,5 @@ use crate::{ExecutionEvent, ExecutionRequest, ExecutionSignature};
 pub enum ExecutorEvent {
     Execution(ExecutionSignature, ExecutionEvent),
     ExecutionCreate(ExecutionRequest),
+    ToolQuery,
 }

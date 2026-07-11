@@ -19,35 +19,44 @@ pub struct Logger {
 }
 
 impl Logger {
-    /// Starts the telemetry logger server and records this process's own
-    /// telemetry directly to the local database. Server-only.
+    /// Records this server process's telemetry in a local database and, when
+    /// remote logging is configured, accepts telemetry from other processes.
     ///
     /// The bind address and handshake token are resolved from configuration
     /// by [`accept_channel`]; each accepted client connection is served by its
     /// own receive worker, so telemetry from multiple processes is recorded
     /// concurrently.
     pub fn host() -> Result<(), LoggingError> {
-        let store = Store::open()?;
+        let config = Config::load().map_err(LoggingError::Config)?;
+        let store = Store::open(&config, StoreRole::Server)?;
         LOGGER
             .sink
             .set(Sink::Local(store))
             .map_err(|_| LoggingError::AlreadyConfigured)?;
-        thread::spawn(accept_loop);
+        if config.logging.remote {
+            thread::spawn(accept_loop);
+        }
         Ok(())
     }
 
-    /// Connects this process to a telemetry logger server. Later telemetry is
-    /// streamed to that server over the authenticated channel transport.
+    /// Configures this process to stream telemetry to the server or record it
+    /// in a local database, according to the logging configuration.
     ///
     /// The connect address and handshake token are resolved from
     /// configuration by [`connect_channel`]. The connect is retried a few
     /// times, since the server may not yet be listening or may be briefly
     /// rebinding between accepted connections.
     pub fn connect() -> Result<(), LoggingError> {
-        let sender = Self::connect_sender()?;
+        let config = Config::load().map_err(LoggingError::Config)?;
+        let sink = if config.logging.remote {
+            let sender = Self::connect_sender()?;
+            Sink::Remote(Mutex::new(sender))
+        } else {
+            Sink::Local(Store::open(&config, StoreRole::Runtime)?)
+        };
         LOGGER
             .sink
-            .set(Sink::Remote(Mutex::new(sender)))
+            .set(sink)
             .map_err(|_| LoggingError::AlreadyConfigured)?;
         Ok(())
     }
@@ -142,6 +151,11 @@ impl Logger {
     }
 }
 
+enum StoreRole {
+    Runtime,
+    Server,
+}
+
 enum Sink {
     Local(Store),
     Remote(Mutex<NetSender<LogMessage>>),
@@ -153,9 +167,8 @@ struct Store {
 }
 
 impl Store {
-    fn open() -> Result<Self, LoggingError> {
-        let config = Config::load().map_err(LoggingError::Config)?;
-        let directory = Self::database_directory(&config);
+    fn open(config: &Config, role: StoreRole) -> Result<Self, LoggingError> {
+        let directory = Self::database_directory(config, role);
         std::fs::create_dir_all(&directory)?;
         let path = directory.join(Self::database_file_name());
         let database =
@@ -167,25 +180,33 @@ impl Store {
         })
     }
 
-    /// Directory that holds telemetry databases: the server's resolved marix
-    /// path (falling back to the shared marix path) plus a `log` child.
-    fn database_directory(config: &Config) -> PathBuf {
-        let base = config
-            .runtime
-            .marix_path_server
-            .as_deref()
-            .unwrap_or(config.runtime.marix_path.as_str());
+    /// Directory that holds telemetry databases under the process's resolved
+    /// runtime path. Servers prefer their role-specific runtime path.
+    fn database_directory(config: &Config, role: StoreRole) -> PathBuf {
+        let base = match role {
+            StoreRole::Runtime => config.runtime.marix_path.as_str(),
+            StoreRole::Server => config
+                .runtime
+                .marix_path_server
+                .as_deref()
+                .unwrap_or(config.runtime.marix_path.as_str()),
+        };
         PathBuf::from(base).join("log")
     }
 
     /// A fresh timestamped database file name, so each server start records
-    /// into its own database rather than appending to a shared one.
+    /// into its own database rather than appending to a shared one. The
+    /// process ID prevents concurrent local processes from sharing a file.
     fn database_file_name() -> String {
         let seconds = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .map(|elapsed| elapsed.as_secs())
             .unwrap_or(0);
-        format!("telemetry-{}.redb", Self::format_timestamp(seconds))
+        format!(
+            "telemetry-{}-{}.redb",
+            Self::format_timestamp(seconds),
+            std::process::id()
+        )
     }
 
     /// Formats a Unix second count as a `YYYYMMDD-HHMMSS` UTC stamp without

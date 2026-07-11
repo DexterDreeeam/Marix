@@ -4,6 +4,7 @@ use std::sync::Arc;
 use marix_common::Logger;
 use marix_protocol::{
     Actor, PlanError, PlanSignature, RuntimeAsync, StepDraft, StepEvent, StepKind, StepSignature,
+    StepStatus,
 };
 
 use super::helper::step_kind;
@@ -57,6 +58,22 @@ impl Step {
 
     pub(crate) fn kind(&self) -> &StepKind {
         &self.state.kind
+    }
+
+    pub fn status(&self) -> StepStatus {
+        self.state
+            .status
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clone()
+    }
+
+    pub fn set_input(&self, input: String) {
+        *self
+            .state
+            .input
+            .lock()
+            .unwrap_or_else(|error| error.into_inner()) = Some(input);
     }
 
     pub(crate) fn output(&self) -> String {

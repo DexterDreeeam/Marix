@@ -2,6 +2,7 @@ use std::sync::Arc;
 use std::sync::OnceLock;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
+use std::time::Duration;
 
 use marix_common::{
     ChannelEndpoint, Logger, NetReceiver, Receiver, Sender, SharedNetSender, build_channel,
@@ -14,6 +15,9 @@ use marix_protocol::{
 use crate::ClientEvent;
 
 static SOURCE_NAME: OnceLock<String> = OnceLock::new();
+
+const CONNECT_RETRY_DELAY: Duration = Duration::from_millis(200);
+const CONNECT_DIAGNOSTIC_INTERVAL: u64 = 25;
 
 pub struct ClientSession {
     state: Arc<ClientSessionState>,
@@ -44,21 +48,26 @@ impl ClientSession {
     }
 
     pub fn create_task(&self, request: String) {
-        Logger::log("client submitting task request");
         let signature = TaskSignature::new("task".to_owned());
-        self.send_to_server(SessionEvent::TaskCreate(TaskRequest {
+        if self.send_to_server(SessionEvent::TaskCreate(TaskRequest {
             signature,
             content: request,
-        }));
+        })) {
+            Logger::log("client submitted task request");
+        }
     }
 
     pub fn cancel_task(&self, task_id: TaskId) {
-        Logger::log(format!("client canceling task {}", task_id.0));
+        let task_id_for_log = task_id.0.clone();
         let signature = TaskSignature {
             name: String::new(),
             id: task_id,
         };
-        self.send_to_server(SessionEvent::Task(signature, TaskEvent::Cancel));
+        if self.send_to_server(SessionEvent::Task(signature, TaskEvent::Cancel)) {
+            Logger::log(format!(
+                "client submitted cancellation for task {task_id_for_log}"
+            ));
+        }
     }
 
     pub fn receiver(&self) -> &Receiver<ClientEvent> {
@@ -76,18 +85,39 @@ impl ClientSession {
 impl ClientSession {
     fn spawn_worker(state: Arc<ClientSessionState>) -> JoinHandle<()> {
         std::thread::spawn(move || {
+            let mut failed_attempts = 0_u64;
             while !state.shutdown.load(Ordering::Relaxed) {
-                let Ok((net_tx, net_rx)) =
-                    connect_channel::<SessionMessage>(ChannelEndpoint::Client)
-                else {
-                    continue;
-                };
+                let (net_tx, net_rx) =
+                    match connect_channel::<SessionMessage>(ChannelEndpoint::Client) {
+                        Ok(channel) => channel,
+                        Err(error) => {
+                            failed_attempts = failed_attempts.saturating_add(1);
+                            if failed_attempts == 1
+                                || failed_attempts % CONNECT_DIAGNOSTIC_INTERVAL == 0
+                            {
+                                Logger::warning(format!(
+                                    "client connection attempt \
+                                     {failed_attempts} failed: {error:?}"
+                                ));
+                            }
+                            std::thread::sleep(CONNECT_RETRY_DELAY);
+                            continue;
+                        }
+                    };
+                failed_attempts = 0;
+                if state.shutdown.load(Ordering::Relaxed) {
+                    break;
+                }
                 Logger::log("client connected to server core");
                 *state
                     .server_tx
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
                 Self::worker(net_rx, &state.user_tx, &state.shutdown);
+                *state
+                    .server_tx
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner()) = None;
             }
         })
     }
@@ -113,16 +143,36 @@ impl ClientSession {
         });
     }
 
-    fn send_to_server(&self, event: SessionEvent) {
-        if let Some(sender) = self
-            .state
-            .server_tx
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .as_mut()
-        {
-            let _ = sender.try_send(Self::package_message(event));
+    fn send_to_server(&self, event: SessionEvent) -> bool {
+        let result = {
+            let sender = self
+                .state
+                .server_tx
+                .lock()
+                .unwrap_or_else(|error| error.into_inner());
+            match sender.as_ref() {
+                Some(sender) => sender
+                    .try_send(Self::package_message(event))
+                    .map(|_| ())
+                    .map_err(|error| {
+                        format!(
+                            "client failed to send message to server core: \
+                             {error}"
+                        )
+                    }),
+                None => Err("client cannot send message: server connection is \
+                     unavailable"
+                    .to_owned()),
+            }
+        };
+        if let Err(message) = result {
+            Logger::error(message.clone());
+            if let Err(error) = self.state.user_tx.send(Self::done_event("", Some(message))) {
+                Logger::error(format!("client failed to report send failure: {error}"));
+            }
+            return false;
         }
+        true
     }
 
     fn to_client_event(event: SessionEvent) -> Option<ClientEvent> {
@@ -139,6 +189,10 @@ impl ClientSession {
             }
             SessionEvent::TaskUpdate(TaskStatus::Started) => {
                 Some(Self::common_event("", "task started".to_owned()))
+            }
+            SessionEvent::ExecutorTools(_) => {
+                Logger::warning("client session ignored executor tools event");
+                None
             }
             _ => None,
         }

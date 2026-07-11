@@ -3,23 +3,50 @@
   "module": {
     "path": "src/protocol/step",
     "name": "step",
-    "purpose": "Owns step protocol contracts including step identity/signatures, step drafts/kinds, previews/results, step statuses, and step events that nest invocation and relay events.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns step protocol contracts, including draft kind assignment, step identity/kinds/events/status, previews/results, and nested invocation and relay events.",
+    "changeStatus": "modified"
   },
+  "modified": ["draft.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "StepDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/draft.rs",
           "lineStart": 3,
-          "lineEnd": 10,
+          "lineEnd": 11,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 6
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "parse",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/step/draft.rs",
+          "lineStart": 14,
+          "lineEnd": 17,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 17
+            }
+          ],
           "modifiedLines": []
         }
       ]

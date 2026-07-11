@@ -4,8 +4,7 @@ use std::sync::Mutex as StdMutex;
 use marix_common::external::*;
 use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
 use marix_protocol::{
-    PlanEvent, RelayError, RelayEvent, RuntimeAsync, SessionEvent, StepEvent,
-    StepletStatus,
+    PlanEvent, RelayError, RelayEvent, RuntimeAsync, SessionEvent, StepEvent, StepletStatus,
     TaskEvent,
 };
 
@@ -27,14 +26,15 @@ impl RelayRuntime {
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .take();
-        Self {
+        let runtime = Self {
             state,
             relay_rx: StdMutex::new(relay_rx),
             close_tx,
             close_rx: StdMutex::new(Some(close_rx)),
-        }
+        };
+        runtime.send_step_event(StepEvent::Update(StepletStatus::Created));
+        runtime
     }
-
 }
 
 impl RuntimeAsync<RelayEvent, RelayError> for RelayRuntime {
@@ -83,12 +83,12 @@ impl RuntimeAsync<RelayEvent, RelayError> for RelayRuntime {
                 Logger::error(format!(
                     "relay {signature} model async request failed: {error}",
                 ));
-                Self::send_step_update(&self.state, StepletStatus::Failed);
+                self.send_step_event(StepEvent::Update(StepletStatus::Failed));
                 self.close();
                 return;
             }
         };
-        Self::send_step_update(&self.state, StepletStatus::Started);
+        self.send_step_event(StepEvent::Update(StepletStatus::Started));
         Logger::debug(format!(
             "relay {} runtime loop starting",
             &self.state.signature,
@@ -140,7 +140,7 @@ impl RuntimeAsync<RelayEvent, RelayError> for RelayRuntime {
     fn dispatch(&self, event: RelayEvent) -> Result<(), RelayError> {
         match event {
             RelayEvent::Cancel => {
-                Self::send_step_update(&self.state, StepletStatus::Canceled);
+                self.send_step_event(StepEvent::Update(StepletStatus::Canceled));
                 self.close();
                 Err(RelayError::Canceled)
             }
@@ -151,32 +151,18 @@ impl RuntimeAsync<RelayEvent, RelayError> for RelayRuntime {
 // -- Private -- //
 
 impl RelayRuntime {
-    pub(super) fn send_step_update(
-        state: &RelayState,
-        status: StepletStatus,
-    ) {
-        Self::send_step_event(state, StepEvent::Update(status));
-    }
-
-    fn send_step_processing(state: &RelayState, seq: usize, content: String) {
-        Self::send_step_event(
-            state,
-            StepEvent::Processing { seq, content },
-        );
-    }
-
-    fn send_step_event(state: &RelayState, event: StepEvent) {
+    fn send_step_event(&self, event: StepEvent) {
         let event = SessionEvent::Task(
-            state.signature.task.clone(),
+            self.state.signature.task.clone(),
             TaskEvent::Plan(
-                state.signature.plan.clone(),
-                PlanEvent::Step(state.signature.step.clone(), event),
+                self.state.signature.plan.clone(),
+                PlanEvent::Step(self.state.signature.step.clone(), event),
             ),
         );
-        if state.access.session_tx.send(event).is_err() {
+        if self.state.access.session_tx.send(event).is_err() {
             Logger::warning(format!(
                 "relay {} step event failed: session worker stopped",
-                &state.signature,
+                &self.state.signature,
             ));
         }
     }
@@ -188,11 +174,10 @@ impl RelayRuntime {
                 .lock()
                 .unwrap_or_else(|error| error.into_inner())
                 .insert(response.seq, response.content.clone());
-            Self::send_step_processing(
-                &self.state,
-                response.seq,
-                response.content,
-            );
+            self.send_step_event(StepEvent::Processing {
+                seq: response.seq,
+                content: response.content,
+            });
             return Ok(());
         }
 
@@ -202,12 +187,9 @@ impl RelayRuntime {
             .lock()
             .unwrap_or_else(|error| error.into_inner()) = Some(response.seq);
         if Self::is_complete(&self.state) {
-            Self::send_step_update(
-                &self.state,
-                StepletStatus::Succeed {
-                    seq_count: response.seq,
-                },
-            );
+            self.send_step_event(StepEvent::Update(StepletStatus::Succeed {
+                seq_count: response.seq,
+            }));
             self.close();
         }
 

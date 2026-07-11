@@ -4,8 +4,9 @@
     "path": "src/protocol/invocation",
     "name": "invocation",
     "purpose": "Owns server-side invocation protocol contracts: invocation ids, signatures, requests, statuses, errors, and events that carry host execution events without host execution signatures.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["event.rs"],
   "childModules": [],
   "elements": [
     {
@@ -28,20 +29,15 @@
       "name": "InvocationEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/event.rs",
           "lineStart": 5,
-          "lineEnd": 11,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 5,
-              "lineEnd": 11
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },

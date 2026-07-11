@@ -1,8 +1,8 @@
 pub(crate) mod helper;
 pub mod plan;
 pub(super) mod runtime;
-pub mod stringify;
 pub(super) mod state;
+pub mod stringify;
 
 pub(crate) use helper::initial_plan;
 pub use plan::Plan;

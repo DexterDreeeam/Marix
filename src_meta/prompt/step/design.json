@@ -4,15 +4,16 @@
     "path": "src/prompt/step",
     "name": "step",
     "purpose": "Owns step prompt templates including AnalysisPrompt, InitialPrompt.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["Analysis.prompt", "Initial.prompt"],
   "childModules": [],
   "elements": [
     {
       "name": "AnalysisPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Analysis.prompt",
@@ -22,8 +23,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 1,
-              "lineEnd": 58
+              "lineStart": 21,
+              "lineEnd": 21
             }
           ]
         }
@@ -33,7 +34,7 @@
       "name": "InitialPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Initial.prompt",
@@ -43,8 +44,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 1,
-              "lineEnd": 56
+              "lineStart": 11,
+              "lineEnd": 11
             }
           ]
         }

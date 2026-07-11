@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::thread;
 
 use marix_common::{Logger, SharedNetSender};
-use marix_protocol::{Actor, ExecutorEvent, Runtime, SessionMessage, ToolPreview};
+use marix_protocol::{Actor, ExecutorEvent, Runtime, SessionMessage};
 
 use super::runtime::ExecutorRuntime;
 use super::state::ExecutorState;
@@ -16,10 +16,6 @@ impl Executor {
         Self {
             state: Arc::new(ExecutorState::new(server_tx)),
         }
-    }
-
-    pub fn preview(&self) -> Vec<ToolPreview> {
-        self.state.registry.preview()
     }
 }
 

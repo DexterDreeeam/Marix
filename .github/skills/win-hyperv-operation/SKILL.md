@@ -18,7 +18,7 @@ Do not change source code unless the user explicitly asks for a code change. Do 
 - Target Hyper-V VM: `Marix_TestVm`. Reuse it when it already exists; otherwise provision it fully unattended (see **Zero-Touch VM Provisioning**) — no manual steps inside the guest.
 - `Marix_TestVm` is the only valid target VM for Marix operations. Never substitute another existing VM name; if this VM cannot be found, verified, or provisioned because host permissions are insufficient, report the operation as blocked.
 - Guest Service Interface is enabled and supports `Copy-VMFile` from host to guest.
-- Guest login credentials are fixed: username `marix-client`, password `123`. PowerShell Direct builds a `PSCredential` from these.
+- Guest login credentials are fixed: username `marixagent`, password `123`. PowerShell Direct builds a `PSCredential` from these.
 - All Hyper-V host artifacts (Windows ISO, VHD, provisioning work files) live under `C:\marix\hyperv\`.
 - Client deployment inside the guest lives under `C:\MarixClient\`:
   - CLI client -> `C:\MarixClient\Cli\`
@@ -32,7 +32,7 @@ Do not change source code unless the user explicitly asks for a code change. Do 
 - Verify VM state with Hyper-V cmdlets such as `Get-VM` and `Get-VMIntegrationService`.
 - Copy deployment files into the guest with `Copy-VMFile`, placing each client under its `C:\MarixClient\` subfolder (`Cli`, `Web`, or `App`).
 - Use PowerShell Direct for guest command execution:
-  - build a `PSCredential` from the fixed `marix-client` / `123` credentials,
+  - build a `PSCredential` from the fixed `marixagent` / `123` credentials,
   - call `Invoke-Command -VMName Marix_TestVm -Credential $credential -ScriptBlock { ... }`.
 - If an operation fails, distinguish between:
   - Hyper-V host or permission issues,
@@ -42,7 +42,7 @@ Do not change source code unless the user explicitly asks for a code change. Do 
 
 ## Zero-Touch VM Provisioning
 
-Creating the VM is fully hands-off — the skill obtains the Windows ISO itself and installs unattended; never ask the user to place files, sign into the guest, or run anything inside it. Windows is installed from an `Autounattend.xml` answer file that creates the fixed `marix-client` local administrator account this skill uses for PowerShell Direct. PowerShell Direct rides the Hyper-V VMBus, so the guest needs no network, NIC, WinRM, or SSH; the moment Windows finishes installing, the host can control the VM.
+Creating the VM is fully hands-off — the skill obtains the Windows ISO itself and installs unattended; never ask the user to place files, sign into the guest, or run anything inside it. Windows is installed from an `Autounattend.xml` answer file that creates the fixed `marixagent` local administrator account this skill uses for PowerShell Direct. PowerShell Direct rides the Hyper-V VMBus, so the guest needs no network, NIC, WinRM, or SSH; the moment Windows finishes installing, the host can control the VM.
 
 Prerequisites:
 
@@ -71,7 +71,7 @@ if (-not (Test-Path -LiteralPath $winIso)) {
 }
 
 # 1. Fixed guest admin account this skill connects with.
-$guestUser = "marix-client"
+$guestUser = "marixagent"
 $guestPass = "123"
 
 # 2. Answer file: Gen2/UEFI partitions, accept EULA, skip OOBE, create the admin, allow scripts.
@@ -197,7 +197,7 @@ Copy-VMFile -Name Marix_TestVm -FileSource Host -SourcePath $hostPath -Destinati
 Credential construction pattern (fixed credentials):
 
 ```powershell
-$credential = [pscredential]::new("marix-client", (ConvertTo-SecureString "123" -AsPlainText -Force))
+$credential = [pscredential]::new("marixagent", (ConvertTo-SecureString "123" -AsPlainText -Force))
 ```
 
 Deploy a client into the guest (example — CLI; use `Web` or `App` for the other clients):

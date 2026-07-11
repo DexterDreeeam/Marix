@@ -4,30 +4,88 @@
     "path": "src/client/cli",
     "name": "cli",
     "purpose": "Contains the marix-client-cli command-line binary entrypoint. The CLI accepts exactly --interactive or --oneshot \"request\", drains signature-aware ClientEvent output, prints Common messages and optional Done messages, and exits oneshot on Done completion. It connects the telemetry Logger over the authenticated channel transport before starting the ClientSession.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["main.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "marix-client-cli",
       "type": "bin",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/main.rs",
           "lineStart": 1,
-          "lineEnd": 108,
+          "lineEnd": 150,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 34,
-              "lineEnd": 34
+              "lineStart": 45,
+              "lineEnd": 45
             },
             {
-              "lineStart": 66,
-              "lineEnd": 66
+              "lineStart": 144,
+              "lineEnd": 149
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 2,
+              "lineEnd": 2
+            },
+            {
+              "lineStart": 7,
+              "lineEnd": 7
+            },
+            {
+              "lineStart": 34,
+              "lineEnd": 39
+            },
+            {
+              "lineStart": 42,
+              "lineEnd": 42
+            },
+            {
+              "lineStart": 47,
+              "lineEnd": 55
+            },
+            {
+              "lineStart": 59,
+              "lineEnd": 62
+            },
+            {
+              "lineStart": 67,
+              "lineEnd": 67
+            },
+            {
+              "lineStart": 69,
+              "lineEnd": 69
+            },
+            {
+              "lineStart": 72,
+              "lineEnd": 72
+            },
+            {
+              "lineStart": 87,
+              "lineEnd": 89
+            },
+            {
+              "lineStart": 99,
+              "lineEnd": 113
+            },
+            {
+              "lineStart": 116,
+              "lineEnd": 124
+            },
+            {
+              "lineStart": 136,
+              "lineEnd": 136
+            },
+            {
+              "lineStart": 139,
+              "lineEnd": 139
             }
           ]
         }

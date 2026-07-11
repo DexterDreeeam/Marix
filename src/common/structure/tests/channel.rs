@@ -34,6 +34,9 @@ marix_path = "."
 interactive = false
 request_timeout_ms = 1000
 
+[logging]
+remote = false
+
 [server]
 enabled = true
 ip = "127.0.0.1"
@@ -72,10 +75,13 @@ fn ensure_base_config() {
 /// `Config::load()` calls (inside `accept_channel`/`connect_channel`)
 /// observe this config.
 fn install_config(token: &str, client_port: u16) {
+    install_config_with_ip(token, client_port, "127.0.0.1");
+}
+
+fn install_config_with_ip(token: &str, client_port: u16, ip: &str) {
     ensure_base_config();
-    let overlay = format!(
-        "[server]\nip = \"127.0.0.1\"\nauth_token = \"{token}\"\nclient_port = {client_port}"
-    );
+    let overlay =
+        format!("[server]\nip = \"{ip}\"\nauth_token = \"{token}\"\nclient_port = {client_port}");
     Config::mock(&[overlay.as_str()]).expect("install mock config");
 }
 
@@ -125,6 +131,33 @@ fn golden_path_round_trip() {
     assert_eq!(
         recv_message(&mut client_rx, Duration::from_secs(5)).as_deref(),
         Some("pong"),
+    );
+}
+
+#[test]
+fn server_listener_ignores_configured_server_ip() {
+    let _guard = TEST_GUARD.lock().unwrap_or_else(|error| error.into_inner());
+    install_config_with_ip("bind-token", 34115, "192.0.2.1");
+
+    let accept = std::thread::spawn(|| accept_channel::<String>(ChannelEndpoint::Client));
+    // Let the server load the remote, non-local IP before changing the
+    // client configuration to the local address used for the connection.
+    std::thread::sleep(Duration::from_millis(300));
+
+    install_config("bind-token", 34115);
+    let (client_tx, _client_rx) =
+        connect_channel::<String>(ChannelEndpoint::Client).expect("connect");
+    let (_server_tx, mut server_rx) = accept
+        .join()
+        .expect("accept thread panicked")
+        .expect("accept succeeds on wildcard bind");
+
+    client_tx
+        .try_send("wildcard".to_owned())
+        .expect("client send");
+    assert_eq!(
+        recv_message(&mut server_rx, Duration::from_secs(5)).as_deref(),
+        Some("wildcard"),
     );
 }
 

@@ -3,11 +3,13 @@ use std::sync::Arc;
 
 use marix_common::{Logger, Receiver, Sender, build_channel, select};
 use marix_protocol::{
-    Actor, ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutorEvent, Runtime,
+    Actor, ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutorEvent, InvocationEvent,
+    PlanEvent, Runtime, SessionEvent, StepEvent, StepletStatus, TaskEvent,
 };
 
 use super::state::ExecutorState;
 use crate::execution::Execution;
+use crate::session::HostSession;
 
 pub struct ExecutorRuntime {
     state: Arc<ExecutorState>,
@@ -28,6 +30,8 @@ impl ExecutorRuntime {
 
 impl Runtime<ExecutorEvent, Infallible> for ExecutorRuntime {
     fn run(&self) {
+        Logger::debug("host executor starting: registering executor tools");
+        self.send_executor_tools();
         Logger::debug("host executor runtime loop starting");
         loop {
             select! {
@@ -62,6 +66,9 @@ impl Runtime<ExecutorEvent, Infallible> for ExecutorRuntime {
             ExecutorEvent::ExecutionCreate(request) => {
                 self.create_execution(request);
             }
+            ExecutorEvent::ToolQuery => {
+                self.send_executor_tools();
+            }
         }
         Ok(())
     }
@@ -72,15 +79,13 @@ impl Runtime<ExecutorEvent, Infallible> for ExecutorRuntime {
 impl ExecutorRuntime {
     fn dispatch_execution(&self, signature: ExecutionSignature, event: ExecutionEvent) {
         let mut event = Some(event);
-        match self
-            .state
-            .executions
-            .with(&signature, |execution| {
-                execution.dispatch(event.take().unwrap_or_else(|| {
-                    unreachable!("execution event already dispatched")
-                }))
-            })
-        {
+        match self.state.executions.with(&signature, |execution| {
+            execution.dispatch(
+                event
+                    .take()
+                    .unwrap_or_else(|| unreachable!("execution event already dispatched")),
+            )
+        }) {
             Some(()) => {}
             None => {
                 let event = event.unwrap_or_else(|| {
@@ -100,6 +105,7 @@ impl ExecutorRuntime {
                 "execution {} create failed: tool '{}' not found",
                 &request.signature, request.signature.name,
             ));
+            self.send_unknown_tool_failure(&request);
             return;
         };
         let signature = request.signature.clone();
@@ -117,5 +123,55 @@ impl ExecutorRuntime {
         self.state
             .executions
             .with_mut(&signature, |execution| execution.start());
+    }
+
+    fn send_executor_tools(&self) {
+        let tools = self.state.registry.preview();
+        let tool_count = tools.len();
+        Logger::debug(format!("executor tools queued with {tool_count} tool(s)"));
+        match self.send_server_event(SessionEvent::ExecutorTools(tools)) {
+            Ok(()) => Logger::debug(format!("executor tools sent with {tool_count} tool(s)")),
+            Err(error) => Logger::warning(format!("executor tools send failed: {error}")),
+        }
+    }
+
+    fn send_unknown_tool_failure(&self, request: &ExecutionRequest) {
+        let invocation = request.signature.invocation.clone();
+        let event = SessionEvent::Task(
+            invocation.task.clone(),
+            TaskEvent::Plan(
+                invocation.plan.clone(),
+                PlanEvent::Step(
+                    invocation.step.clone(),
+                    StepEvent::Invocation(
+                        invocation,
+                        InvocationEvent::Update(StepletStatus::Failed),
+                    ),
+                ),
+            ),
+        );
+        if let Err(error) = self.send_server_event(event) {
+            Logger::warning(format!(
+                "execution {} unknown-tool failure could not be sent: \
+                 {error}",
+                &request.signature,
+            ));
+        }
+    }
+
+    fn send_server_event(&self, event: SessionEvent) -> Result<(), String> {
+        let message = HostSession::package_message(event);
+        let mut server_tx = self
+            .state
+            .server_tx
+            .lock()
+            .unwrap_or_else(|error| error.into_inner());
+        let Some(sender) = server_tx.as_mut() else {
+            return Err("server is disconnected".to_owned());
+        };
+        sender
+            .try_send(message)
+            .map(|_| ())
+            .map_err(|error| error.to_string())
     }
 }

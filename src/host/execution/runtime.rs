@@ -119,10 +119,7 @@ impl ExecutionRuntime {
                 invocation.plan.clone(),
                 PlanEvent::Step(
                     invocation.step.clone(),
-                    StepEvent::Invocation(
-                        invocation,
-                        InvocationEvent::Processing { seq, content },
-                    ),
+                    StepEvent::Invocation(invocation, InvocationEvent::Processing { seq, content }),
                 ),
             ),
         );

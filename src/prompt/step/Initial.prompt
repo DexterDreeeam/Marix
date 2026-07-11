@@ -8,7 +8,7 @@ Input variables:
 - Context: {{#IF {{#NoPreviewTask}} | This is the first task in the session. | Previous task previews: {{#Context}}}}
 - Available tools: {{#Tools}}
 
-Model-facing plan format (parsed directly as protocol PlanDraft):
+Model-facing plan format (converted into protocol PlanDraft):
 - Top-level fields must be exactly `description`, `background`, `call`, `model`, `future`, and `expected_result`.
 - `call` is the list of tool-call steps to run before the model step. A tool step needs `name`, `description`, and `input`. The `name` is one of the tools listed in {{#Tools}}. The `input` value must be a single string, never an object or array. If a tool needs structured input, put compact JSON text inside that single string. The system creates the execution signature; never emit signatures or ids.
 - `model` is the required model step to run after `call` finishes. It needs `name`, `description`, and `input`; set `name` to `Analysis`.

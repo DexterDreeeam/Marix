@@ -26,12 +26,14 @@ impl InvocationRuntime {
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .take();
-        Self {
+        let runtime = Self {
             state,
             invocation_rx: StdMutex::new(invocation_rx),
             close_tx,
             close_rx: StdMutex::new(Some(close_rx)),
-        }
+        };
+        runtime.send_step_event(StepEvent::Update(StepletStatus::Created));
+        runtime
     }
 }
 
@@ -65,6 +67,7 @@ impl RuntimeAsync<InvocationEvent, InvocationError> for InvocationRuntime {
             "invocation {} runtime loop starting",
             &self.state.signature,
         ));
+        self.create_execution();
         loop {
             self::tokio::select! {
                 _ = close_rx.recv() => break,
@@ -99,10 +102,6 @@ impl RuntimeAsync<InvocationEvent, InvocationError> for InvocationRuntime {
 
     fn dispatch(&self, event: InvocationEvent) -> Result<(), InvocationError> {
         match event {
-            InvocationEvent::ExecutionCreate => {
-                self.create_execution();
-                Ok(())
-            }
             InvocationEvent::Update(status) => {
                 self.on_update(status);
                 Ok(())
@@ -113,10 +112,7 @@ impl RuntimeAsync<InvocationEvent, InvocationError> for InvocationRuntime {
             }
             InvocationEvent::Cancel => {
                 self.cancel_execution();
-                Self::send_step_event(
-                    &self.state,
-                    StepEvent::Update(StepletStatus::Canceled),
-                );
+                self.send_step_event(StepEvent::Update(StepletStatus::Canceled));
                 self.close();
                 Err(InvocationError::Canceled)
             }
@@ -165,11 +161,9 @@ impl InvocationRuntime {
     fn on_update(&self, status: ExecutionStatus) {
         let close = matches!(
             status,
-            StepletStatus::Canceled
-                | StepletStatus::Succeed { .. }
-                | StepletStatus::Failed
+            StepletStatus::Canceled | StepletStatus::Succeed { .. } | StepletStatus::Failed
         );
-        Self::send_step_event(&self.state, StepEvent::Update(status));
+        self.send_step_event(StepEvent::Update(status));
         if close {
             self.close();
         }
@@ -181,24 +175,21 @@ impl InvocationRuntime {
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .insert(seq, content.clone());
-        Self::send_step_event(
-            &self.state,
-            StepEvent::Processing { seq, content },
-        );
+        self.send_step_event(StepEvent::Processing { seq, content });
     }
 
-    pub(super) fn send_step_event(state: &InvocationState, event: StepEvent) {
+    fn send_step_event(&self, event: StepEvent) {
         let event = SessionEvent::Task(
-            state.signature.task.clone(),
+            self.state.signature.task.clone(),
             TaskEvent::Plan(
-                state.signature.plan.clone(),
-                PlanEvent::Step(state.signature.step.clone(), event),
+                self.state.signature.plan.clone(),
+                PlanEvent::Step(self.state.signature.step.clone(), event),
             ),
         );
-        if state.access.session_tx.send(event).is_err() {
+        if self.state.access.session_tx.send(event).is_err() {
             Logger::warning(format!(
                 "invocation {} step event failed: session worker stopped",
-                &state.signature,
+                &self.state.signature,
             ));
         }
     }

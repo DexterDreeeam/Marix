@@ -1,14 +1,14 @@
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
-use std::sync::atomic::Ordering;
 
 use marix_common::external::*;
 use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
 use marix_protocol::{
-    Actor, PlanError, PlanEvent, PlanStatus, RuntimeAsync, SessionEvent,
-    StepEvent, StepStatus, TaskEvent,
+    Actor, PlanError, PlanEvent, PlanStatus, RuntimeAsync, SessionEvent, StepEvent, StepKind,
+    StepSignature, StepStatus, TaskEvent,
 };
 
+use super::helper::call_output;
 use super::state::PlanState;
 
 pub(super) struct PlanRuntime {
@@ -63,6 +63,7 @@ impl RuntimeAsync<PlanEvent, PlanError> for PlanRuntime {
             ));
             return;
         };
+        self.start_steps();
         let signature = &self.state.signature;
         Logger::debug(format!(
             "plan {} runtime loop starting (task {})",
@@ -109,13 +110,11 @@ impl RuntimeAsync<PlanEvent, PlanError> for PlanRuntime {
                 let plan_signature = &self.state.signature;
                 Logger::error(format!(
                     "plan {} received unsupported step event {event:?} for {} (task {})",
-                    plan_signature,
-                    &signature,
-                    &signature.task,
+                    plan_signature, &signature, &signature.task,
                 ));
                 Ok(())
             }
-            PlanEvent::Update(status) => self.on_update(status),
+            PlanEvent::Update(signature, status) => self.on_update(signature, status),
             PlanEvent::Cancel => {
                 self.cancel_steps();
                 self.close();
@@ -128,28 +127,80 @@ impl RuntimeAsync<PlanEvent, PlanError> for PlanRuntime {
 // -- Private -- //
 
 impl PlanRuntime {
-    fn on_update(&self, status: StepStatus) -> Result<(), PlanError> {
+    fn start_steps(&self) {
+        if self.state.call.is_empty() {
+            self.start_model();
+            return;
+        }
+
+        for step in &self.state.call {
+            let mut step = step.clone();
+            if !self.state.access.insert_step(step.clone()) {
+                self.fail_plan(format!(
+                    "call step {} could not be inserted",
+                    step.signature(),
+                ));
+                return;
+            }
+            step.start();
+        }
+    }
+
+    fn on_update(&self, signature: StepSignature, status: StepStatus) -> Result<(), PlanError> {
+        let step = self
+            .state
+            .call
+            .iter()
+            .find(|step| step.signature() == &signature)
+            .or_else(|| (self.state.model.signature() == &signature).then_some(&self.state.model));
+        let Some(step) = step else {
+            Logger::warning(format!(
+                "plan {} ignored update from unknown step {} (task {})",
+                &self.state.signature, &signature, &self.state.signature.task,
+            ));
+            return Ok(());
+        };
+
         match status {
-            StepStatus::Succeed => {
-                if self.is_complete() {
+            StepStatus::Canceled | StepStatus::Failed => {
+                self.fail_plan(format!(
+                    "step {} ended with status {status:?}",
+                    step.signature(),
+                ));
+                Ok(())
+            }
+            StepStatus::Created | StepStatus::Started => Ok(()),
+            StepStatus::Succeed => match step.kind() {
+                StepKind::Invocation(_) => {
+                    if self.calls_complete() {
+                        self.start_model();
+                    }
+                    Ok(())
+                }
+                StepKind::Model(_) => {
                     self.send_task_event(TaskEvent::Update(
                         self.state.signature.clone(),
                         PlanStatus::Success,
                     ));
                     self.close();
+                    Ok(())
                 }
-                Ok(())
-            }
-            StepStatus::Canceled | StepStatus::Failed => {
-                self.send_task_event(TaskEvent::Update(
-                    self.state.signature.clone(),
-                    PlanStatus::Fail,
-                ));
-                self.close();
-                Ok(())
-            }
-            StepStatus::Created | StepStatus::Started => Ok(()),
+                kind => {
+                    self.fail_plan(format!(
+                        "step {} succeeded with unsupported kind {kind:?}",
+                        step.signature(),
+                    ));
+                    Ok(())
+                }
+            },
         }
+    }
+
+    fn calls_complete(&self) -> bool {
+        self.state
+            .call
+            .iter()
+            .all(|step| step.status() == StepStatus::Succeed)
     }
 
     fn cancel_steps(&self) {
@@ -166,14 +217,30 @@ impl PlanRuntime {
         ));
     }
 
-    fn is_complete(&self) -> bool {
-        let total_steps = self.state.call.len() + 1;
-        let completed_steps = self
-            .state
-            .completed_steps
-            .fetch_add(1, Ordering::Relaxed)
-            + 1;
-        completed_steps >= total_steps
+    fn start_model(&self) {
+        let mut step = self.state.model.clone();
+        let input = call_output(&self.state.call);
+        step.set_input(input);
+        if !self.state.access.insert_step(step.clone()) {
+            self.fail_plan(format!(
+                "model step {} could not be inserted",
+                step.signature(),
+            ));
+            return;
+        }
+        step.start();
+    }
+
+    fn fail_plan(&self, reason: String) {
+        Logger::error(format!(
+            "plan {} failed: {reason} (task {})",
+            &self.state.signature, &self.state.signature.task,
+        ));
+        self.send_task_event(TaskEvent::Update(
+            self.state.signature.clone(),
+            PlanStatus::Fail,
+        ));
+        self.close();
     }
 
     fn send_task_event(&self, event: TaskEvent) {
@@ -181,10 +248,7 @@ impl PlanRuntime {
             .state
             .access
             .session_tx
-            .send(SessionEvent::Task(
-                self.state.signature.task.clone(),
-                event,
-            ))
+            .send(SessionEvent::Task(self.state.signature.task.clone(), event))
             .is_err()
         {
             let signature = &self.state.signature;

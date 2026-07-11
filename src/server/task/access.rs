@@ -41,9 +41,7 @@ impl TaskAccess {
         let rt = tokio::Builder::new_current_thread()
             .enable_all()
             .build()
-            .unwrap_or_else(|error| {
-                panic!("failed to build task runtime: {error}")
-            });
+            .unwrap_or_else(|error| panic!("failed to build task runtime: {error}"));
         Self {
             session_context,
             session_tx,
@@ -80,6 +78,19 @@ impl TaskAccess {
             return false;
         }
         self.relays.insert(signature, relay);
+        true
+    }
+
+    pub(crate) fn insert_step(&self, step: Step) -> bool {
+        let signature = step.signature().clone();
+        if self.steps.with(&signature, |_| ()).is_some() {
+            Logger::warning(format!(
+                "step {} create ignored: step already exists",
+                &signature,
+            ));
+            return false;
+        }
+        self.steps.insert(signature, step);
         true
     }
 

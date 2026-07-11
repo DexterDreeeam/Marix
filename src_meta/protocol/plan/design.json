@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/plan",
     "name": "plan",
-    "purpose": "Owns plan protocol contracts including plan identity/signatures, plan drafts, plan events that carry step status updates, plan statuses, errors, and model answer payloads.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns plan protocol contracts, including JSON plan-draft parsing and step-kind normalization, plan identity/events/status, errors, and model answer payloads.",
+    "changeStatus": "modified"
   },
+  "modified": ["draft.rs", "event.rs"],
   "childModules": [],
   "elements": [
     {
@@ -41,6 +42,27 @@
       ]
     },
     {
+      "name": "parse",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/plan/draft.rs",
+          "lineStart": 15,
+          "lineEnd": 29,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 29
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
       "name": "PlanError",
       "type": "enum",
       "source_depth": 3,
@@ -60,7 +82,7 @@
       "name": "PlanEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/event.rs",
@@ -70,8 +92,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 5,
-              "lineEnd": 10
+              "lineStart": 8,
+              "lineEnd": 8
             }
           ]
         }

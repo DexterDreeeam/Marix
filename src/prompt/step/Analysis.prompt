@@ -18,7 +18,7 @@ Decide between two outcomes:
 
 2. Next step. Only if the request genuinely cannot be answered yet and another concrete action is required, return the model-facing plan shape below. Set the plan `background` field to the compact context summary.
 
-Model-facing plan format (parsed directly as protocol PlanDraft):
+Model-facing plan format (converted into protocol PlanDraft):
 - Top-level fields must be exactly `description`, `background`, `call`, `model`, `future`, and `expected_result`.
 - `call` is the list of tool-call steps to run before the model step. A tool step needs `name`, `description`, and `input`. The `name` is one of the tools listed in {{#Tools}}. The `input` value must be a single string, never an object or array. If a tool needs structured input, put compact JSON text inside that single string. The system creates the execution signature; never emit signatures or ids. Do not repeat a tool call that already produced the needed output.
 - `model` is the required model step to run after `call` finishes. It needs `name`, `description`, and `input`; set `name` to `Analysis`.

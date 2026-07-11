@@ -4,10 +4,9 @@ use std::sync::Mutex as StdMutex;
 use marix_common::external::*;
 use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
 use marix_protocol::{
-    Actor, Answer, InvocationEvent, InvocationSignature, PlanDraft, PlanEvent,
-    PlanSignature, PlanStatus, RelayEvent, RelaySignature, RuntimeAsync,
-    SessionEvent, StepEvent, StepSignature, TaskError, TaskEvent, TaskResult,
-    TaskStatus,
+    Actor, Answer, InvocationEvent, InvocationSignature, PlanDraft, PlanEvent, PlanSignature,
+    PlanStatus, RelayEvent, RelaySignature, RuntimeAsync, SessionEvent, StepEvent, StepSignature,
+    TaskError, TaskEvent, TaskResult, TaskStatus,
 };
 
 use super::TaskState;
@@ -130,32 +129,19 @@ impl RuntimeAsync<TaskEvent, TaskError> for TaskRuntime {
 impl TaskRuntime {
     fn create_plan(&self, draft: PlanDraft) {
         let access = &self.state.access;
-        let signature = PlanSignature::new(
-            access.signature.clone(),
-            "plan".to_owned(),
-        );
+        let signature = PlanSignature::new(access.signature.clone(), "plan".to_owned());
         let mut plan = match Plan::from_draft(access.clone(), signature, draft) {
             Ok(plan) => plan,
             Err(error) => {
-                let reason = format!(
-                    "failed to create task plan: {error:?}",
-                );
-                Logger::warning(format!(
-                    "{reason} (task {})",
-                    &access.signature,
-                ));
+                let reason = format!("failed to create task plan: {error:?}",);
+                Logger::warning(format!("{reason} (task {})", &access.signature,));
                 self.send_session_status(TaskStatus::Failed { reason });
                 return;
             }
         };
         if let Err(error) = access.insert_plan(plan.clone()) {
-            let reason = format!(
-                "failed to insert task plan: {error:?}",
-            );
-            Logger::warning(format!(
-                "{reason} (task {})",
-                &access.signature,
-            ));
+            let reason = format!("failed to insert task plan: {error:?}",);
+            Logger::warning(format!("{reason} (task {})", &access.signature,));
             self.send_session_status(TaskStatus::Failed { reason });
             return;
         }
@@ -169,15 +155,13 @@ impl TaskRuntime {
             }
             event => {
                 let mut event = Some(event);
-                match self
-                    .state
-                    .plans
-                    .with(&signature, |plan| {
-                        plan.dispatch(event.take().unwrap_or_else(|| {
-                            unreachable!("plan event already dispatched")
-                        }))
-                    })
-                {
+                match self.state.plans.with(&signature, |plan| {
+                    plan.dispatch(
+                        event
+                            .take()
+                            .unwrap_or_else(|| unreachable!("plan event already dispatched")),
+                    )
+                }) {
                     Some(()) => {}
                     None => {
                         let event = event.unwrap_or_else(|| {
@@ -203,15 +187,13 @@ impl TaskRuntime {
             }
             event => {
                 let mut event = Some(event);
-                match self
-                    .state
-                    .steps
-                    .with(&signature, |step| {
-                        step.dispatch(event.take().unwrap_or_else(|| {
-                            unreachable!("step event already dispatched")
-                        }))
-                    })
-                {
+                match self.state.steps.with(&signature, |step| {
+                    step.dispatch(
+                        event
+                            .take()
+                            .unwrap_or_else(|| unreachable!("step event already dispatched")),
+                    )
+                }) {
                     Some(()) => {}
                     None => {
                         let event = event.unwrap_or_else(|| {
@@ -229,15 +211,13 @@ impl TaskRuntime {
 
     fn dispatch_invocation(&self, signature: InvocationSignature, event: InvocationEvent) {
         let mut event = Some(event);
-        match self
-            .state
-            .invocations
-            .with(&signature, |invocation| {
-                invocation.dispatch(event.take().unwrap_or_else(|| {
-                    unreachable!("invocation event already dispatched")
-                }))
-            })
-        {
+        match self.state.invocations.with(&signature, |invocation| {
+            invocation.dispatch(
+                event
+                    .take()
+                    .unwrap_or_else(|| unreachable!("invocation event already dispatched")),
+            )
+        }) {
             Some(()) => {}
             None => {
                 let event = event.unwrap_or_else(|| {
@@ -253,20 +233,17 @@ impl TaskRuntime {
 
     fn dispatch_relay(&self, signature: RelaySignature, event: RelayEvent) {
         let mut event = Some(event);
-        match self
-            .state
-            .relays
-            .with(&signature, |relay| {
-                relay.dispatch(event.take().unwrap_or_else(|| {
-                    unreachable!("relay event already dispatched")
-                }))
-            })
-        {
+        match self.state.relays.with(&signature, |relay| {
+            relay.dispatch(
+                event
+                    .take()
+                    .unwrap_or_else(|| unreachable!("relay event already dispatched")),
+            )
+        }) {
             Some(()) => {}
             None => {
-                let event = event.unwrap_or_else(|| {
-                    unreachable!("relay event dispatched without a relay")
-                });
+                let event =
+                    event.unwrap_or_else(|| unreachable!("relay event dispatched without a relay"));
                 Logger::warning(format!(
                     "relay {} event {event:?} not dispatched: relay not found",
                     &signature,
@@ -299,9 +276,11 @@ impl TaskRuntime {
     }
 
     fn on_plan_succeed(&self, signature: PlanSignature) {
-        let Some(model_step) = self.state.plans.with(&signature, |plan| {
-            plan.state.model.clone()
-        }) else {
+        let Some(model_step) = self
+            .state
+            .plans
+            .with(&signature, |plan| plan.state.model.clone())
+        else {
             Logger::warning(format!(
                 "task {} plan {} success ignored: plan not found",
                 &self.state.access.signature, &signature,
@@ -311,18 +290,27 @@ impl TaskRuntime {
         };
 
         let content = model_step.output();
-        match serde_json::from_str::<PlanDraft>(&content) {
+        match PlanDraft::parse(&content) {
             Ok(plan_draft) => {
+                Logger::debug(format!(
+                    "task {} plan {} parsed model plan draft: {} call steps, {} future steps",
+                    &self.state.access.signature,
+                    &signature,
+                    plan_draft.call.len(),
+                    plan_draft.future.len(),
+                ));
                 self.create_plan(plan_draft);
                 return;
             }
             Err(plan_error) => match serde_json::from_str::<Answer>(&content) {
                 Ok(answer) => {
-                    self.send_session_status(TaskStatus::Succeed(
-                        TaskResult {
-                            content: answer.answer,
-                        },
+                    Logger::debug(format!(
+                        "task {} plan {} parsed model answer",
+                        &self.state.access.signature, &signature,
                     ));
+                    self.send_session_status(TaskStatus::Succeed(TaskResult {
+                        content: answer.answer,
+                    }));
                 }
                 Err(answer_error) => {
                     let reason = format!(
@@ -334,9 +322,7 @@ impl TaskRuntime {
                         "task {} plan {} failed: {reason}",
                         &self.state.access.signature, &signature,
                     ));
-                    self.send_session_status(TaskStatus::Failed {
-                        reason,
-                    });
+                    self.send_session_status(TaskStatus::Failed { reason });
                 }
             },
         }

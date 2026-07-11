@@ -51,7 +51,7 @@ impl HostSession {
     fn spawn_worker(state: Arc<HostSessionState>) -> JoinHandle<()> {
         std::thread::spawn(move || {
             let mut executor = Executor::new(Arc::clone(&state.server_tx));
-            executor.start();
+            let mut executor_started = false;
             while !state.shutdown.load(Ordering::Relaxed) {
                 let Ok((net_tx, net_rx)) = connect_channel::<SessionMessage>(ChannelEndpoint::Host)
                 else {
@@ -62,7 +62,15 @@ impl HostSession {
                     .server_tx
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
+                if !executor_started {
+                    executor.start();
+                    executor_started = true;
+                }
                 Self::worker(net_rx, &executor, &state.shutdown);
+                *state
+                    .server_tx
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner()) = None;
             }
         })
     }

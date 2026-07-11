@@ -4,8 +4,8 @@ use std::thread;
 
 use marix_common::external::*;
 use marix_common::{
-    AsyncSender, Config, DeepseekConfig, Logger, Receiver, Sender,
-    build_async_channel, build_channel,
+    AsyncSender, Config, DeepseekConfig, Logger, Receiver, Sender, build_async_channel,
+    build_channel,
 };
 
 use super::backend::ModelBackendImpl;

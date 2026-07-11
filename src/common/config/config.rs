@@ -18,6 +18,7 @@ pub struct Config {
     pub runtime: RuntimeConfig,
     pub core: CoreConfig,
     pub client: ClientConfig,
+    pub logging: LoggingConfig,
     pub server: ServerConfig,
     pub model: ModelConfig,
     pub tool: ToolConfig,
@@ -110,6 +111,12 @@ pub struct ClientConfig {
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
+pub struct LoggingConfig {
+    pub remote: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ServerConfig {
     pub enabled: bool,
     pub ip: String,
@@ -154,6 +161,7 @@ struct RawConfig {
     runtime: RuntimeConfig,
     core: Option<CoreConfig>,
     client: ClientConfig,
+    logging: LoggingConfig,
     server: RawServerConfig,
     model: RawModelConfig,
     tool: ToolConfig,
@@ -217,6 +225,7 @@ fn build_config(content: &str, repo_root: &Path) -> Result<Config, ConfigError> 
         runtime,
         core: raw_config.core.unwrap_or_else(default_core_config),
         client: raw_config.client,
+        logging: raw_config.logging,
         server: ServerConfig {
             enabled: raw_config.server.enabled,
             ip: raw_config.server.ip,

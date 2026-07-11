@@ -17,6 +17,12 @@ Own deployment tasks for the current Marix software. Coordinate the three deploy
 - Resolve credentials from `.credential/*.txt` (see below); never print or commit secrets.
 - Report deployment target, files changed or copied, commands run, and final status.
 
+## Local build requirement
+
+- Build every final binary on the local machine; deployment endpoints only receive completed artifacts and must never run `cargo build`.
+- By default, build Server release binaries on the local Windows machine for `x86_64-unknown-linux-gnu` with Zig and `cargo-zigbuild`; do not build them in WSL or on the Ubuntu endpoint.
+- Build Host, Client, and any required Tools release binaries with the local Windows Rust toolchain.
+
 ## Credential resolution at deploy time
 
 `config.toml` is a deploy template. It references credentials with `{{NAME}}` placeholders that map to `.credential/<NAME>.txt` — for example `ip = "{{SERVER_IP}}"` -> `.credential/SERVER_IP.txt`, and `client_port = {{SERVER_PORT_CLIENT}}` -> `.credential/SERVER_PORT_CLIENT.txt`. When deploying, resolve every `{{NAME}}` placeholder by reading the matching credential file and substituting its value into the config written to the target. String placeholders are quoted in the template (`"{{NAME}}"`) and numeric placeholders (ports) are unquoted — substitute the raw file contents in place so the result stays valid TOML.

@@ -1,7 +1,7 @@
 use std::fmt;
 
-use marix_common::{AsyncReceiver, Receiver};
 use marix_common::external::*;
+use marix_common::{AsyncReceiver, Receiver};
 use marix_protocol::StepSignature;
 
 use super::error::ModelBackendError;

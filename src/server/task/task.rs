@@ -1,5 +1,6 @@
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
+use std::thread;
 
 use marix_common::{Logger, Sender};
 use marix_protocol::{
@@ -46,9 +47,10 @@ impl Actor<Task, TaskEvent> for Task {
     fn start(&mut self) {
         let rt = Arc::clone(&self.state.access.rt);
         let state = Arc::clone(&self.state);
-        drop(rt.spawn(async move {
-            let task_runtime = TaskRuntime::new(state);
-            task_runtime.run().await;
+        drop(thread::spawn(move || {
+            rt.block_on(async move {
+                TaskRuntime::new(state).run().await;
+            });
         }));
     }
 

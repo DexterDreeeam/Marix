@@ -1,10 +1,10 @@
 use std::io::{self, BufRead, Write};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use marix_client::{ClientEvent, ClientSession};
 use marix_common::{Config, Logger};
 
-const IDLE_TIMEOUT: Duration = Duration::from_secs(120);
+const CONNECTION_POLL_INTERVAL: Duration = Duration::from_millis(25);
 
 enum ClientMode {
     Interactive,
@@ -31,33 +31,45 @@ fn main() {
     };
     match Logger::connect() {
         Ok(()) => {
-            Logger::log(format!("client '{}' connected to telemetry", config.name));
+            let status = if config.logging.remote {
+                "connected to telemetry"
+            } else {
+                "local logging configured"
+            };
+            Logger::log(format!("client '{}' {status}", config.name));
         }
         Err(error) => {
-            eprintln!("telemetry logger unavailable, continuing without it: {error}");
+            eprintln!("logger unavailable, continuing without it: {error}");
         }
     }
+    let request_timeout = Duration::from_millis(config.client.request_timeout_ms);
     let mut session = ClientSession::new(config.name);
-    for _ in 0..100 {
-        if session.is_connected() {
-            break;
-        }
-        std::thread::sleep(Duration::from_millis(50));
+    if !wait_for_connection(&session, request_timeout) {
+        let message = format!(
+            "client connection timed out after {} ms",
+            request_timeout.as_millis()
+        );
+        Logger::error(message.clone());
+        eprintln!("{message}");
+        session.close();
+        return;
     }
 
     match mode {
-        ClientMode::Interactive => run_interactive(&session),
-        ClientMode::Oneshot(request) => run_oneshot(&session, &request),
+        ClientMode::Interactive => run_interactive(&session, request_timeout),
+        ClientMode::Oneshot(request) => {
+            run_oneshot(&session, &request, request_timeout);
+        }
     }
     session.close();
 }
 
-fn run_oneshot(session: &ClientSession, request: &str) {
+fn run_oneshot(session: &ClientSession, request: &str, request_timeout: Duration) -> bool {
     session.create_task(request.to_owned());
-    drain_events(session);
+    drain_events(session, request_timeout)
 }
 
-fn run_interactive(session: &ClientSession) {
+fn run_interactive(session: &ClientSession, request_timeout: Duration) {
     let stdin = io::stdin();
     for line in stdin.lock().lines() {
         let prompt = match line {
@@ -72,7 +84,9 @@ fn run_interactive(session: &ClientSession) {
         if prompt.is_empty() {
             continue;
         }
-        run_oneshot(session, prompt);
+        if !run_oneshot(session, prompt, request_timeout) {
+            return;
+        }
     }
 }
 
@@ -82,10 +96,32 @@ fn print_help() {
     println!("  marix-client-cli --oneshot \"request\"");
 }
 
-fn drain_events(session: &ClientSession) {
+fn wait_for_connection(session: &ClientSession, timeout: Duration) -> bool {
+    let started = Instant::now();
+    loop {
+        if session.is_connected() {
+            return true;
+        }
+        let remaining = timeout.saturating_sub(started.elapsed());
+        if remaining.is_zero() {
+            return false;
+        }
+        std::thread::sleep(remaining.min(CONNECTION_POLL_INTERVAL));
+    }
+}
+
+fn drain_events(session: &ClientSession, request_timeout: Duration) -> bool {
     let receiver = session.receiver();
     let mut printed = false;
-    while let Ok(event) = receiver.recv_timeout(IDLE_TIMEOUT) {
+    let started = Instant::now();
+    let completed = loop {
+        let remaining = request_timeout.saturating_sub(started.elapsed());
+        if remaining.is_zero() {
+            break false;
+        }
+        let Ok(event) = receiver.recv_timeout(remaining) else {
+            break false;
+        };
         match event {
             ClientEvent::Common { message, .. } => {
                 print!("{message}");
@@ -97,12 +133,18 @@ fn drain_events(session: &ClientSession) {
                     print!("{message}");
                     printed = true;
                 }
-                break;
+                break true;
             }
         }
-    }
+    };
     if printed {
         println!();
         let _ = io::stdout().flush();
     }
+    if !completed {
+        const MESSAGE: &str = "task response timed out";
+        Logger::error(MESSAGE);
+        eprintln!("{MESSAGE}");
+    }
+    completed
 }

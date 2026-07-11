@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Owns marix-protocol crate definitions and namespace exports for hierarchical session, task, plan, step, invocation, executor, relay, host execution, tool, and shared signature/status/error contracts.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the hierarchical protocol contracts for sessions, tasks, plans, steps, invocations, relays, executors, host executions, tools, signatures, statuses, and errors.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -30,7 +31,7 @@
     {
       "path": "src/protocol/plan",
       "name": "plan",
-      "purpose": "Owns plan protocol contracts including plan identity/signatures, plan drafts, plan events that carry step status updates, plan statuses, errors, and model answer payloads."
+      "purpose": "Owns plan protocol contracts, including JSON plan-draft parsing and step-kind normalization, plan identity/events/status, errors, and model answer payloads."
     },
     {
       "path": "src/protocol/relay",
@@ -45,7 +46,7 @@
     {
       "path": "src/protocol/step",
       "name": "step",
-      "purpose": "Owns step protocol contracts including step identity/signatures, step drafts/kinds, previews/results, step statuses, and step events that nest invocation and relay events."
+      "purpose": "Owns step protocol contracts, including draft kind assignment, step identity/kinds/events/status, previews/results, and nested invocation and relay events."
     },
     {
       "path": "src/protocol/task",
@@ -511,14 +512,19 @@
       "name": "ExecutorEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/executor/event.rs",
           "lineStart": 5,
-          "lineEnd": 9,
+          "lineEnd": 10,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 9
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -543,12 +549,12 @@
       "name": "InvocationEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/event.rs",
           "lineStart": 5,
-          "lineEnd": 11,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -732,6 +738,27 @@
       ]
     },
     {
+      "name": "parse",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/plan/draft.rs",
+          "lineStart": 15,
+          "lineEnd": 29,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 29
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
       "name": "PlanError",
       "type": "enum",
       "source_depth": 3,
@@ -751,7 +778,7 @@
       "name": "PlanEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/event.rs",
@@ -761,8 +788,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 5,
-              "lineEnd": 10
+              "lineStart": 8,
+              "lineEnd": 8
             }
           ]
         }
@@ -1092,14 +1119,19 @@
       "name": "SessionEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/session/event.rs",
           "lineStart": 5,
-          "lineEnd": 11,
+          "lineEnd": 12,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 10
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -1108,14 +1140,40 @@
       "name": "StepDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/draft.rs",
           "lineStart": 3,
-          "lineEnd": 10,
+          "lineEnd": 11,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 6
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "parse",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/step/draft.rs",
+          "lineStart": 14,
+          "lineEnd": 17,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 17
+            }
+          ],
           "modifiedLines": []
         }
       ]

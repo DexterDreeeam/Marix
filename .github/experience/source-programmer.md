@@ -335,3 +335,134 @@ t\\ through these constructors.
   `send_step_update` is intentionally absent. `send_step_event` is
   `pub(super)` so `invocation.rs` can call the shared event path. Relay's
   `send_step_update` helper remains separate and unchanged.
+2026-07-10: `accept_channel` must bind its server endpoints to the IPv4
+wildcard address independently of `config.server.ip`; `connect_channel`
+continues to resolve the configured server IP. The channel tests use a
+remote reserved address for the listener and then remock localhost for the
+connecter to protect this distinction.
+- 2026-07-10: Logging mode is owned by `Config.logging.remote`.
+  `Logger::connect()` uses the telemetry channel only when true and otherwise
+  opens a local redb store under `<runtime.marix_path>/log`. `Logger::host()`
+  always records locally under
+  `<runtime.marix_path_server-or-marix_path>/log`, and starts the telemetry
+  accept loop only when remote logging is enabled. Local database filenames
+  include the process ID to avoid concurrent process collisions.
+- 2026-07-10: Client CLI connection and task-response waits both use
+  `Config.client.request_timeout_ms`; connection readiness is polled in 25ms
+  slices and zero means immediate timeout. `ClientSession::send_to_server`
+  reports missing/broken transport through both `Logger::error` and a
+  `ClientEvent::Done`, after releasing the sender mutex. Its worker retries
+  failed connects with 200ms backoff and logs only the first and each 25th
+  failure; task submission is logged only after `try_send` succeeds.
+- 2026-07-11: `TaskAccess.rt` remains a Tokio current-thread runtime, so
+  `Task::start` must move its cloned `Arc<Runtime>` and `Arc<TaskState>` to a
+  dedicated std thread and call `rt.block_on(TaskRuntime::run())` there. This
+  continuously drives task work plus nested Plan/Step/Invocation/Relay
+  `rt.spawn` jobs without blocking the synchronous SessionRuntime dispatcher;
+  the 2026-07-09 note prohibiting task-loop `block_on` is superseded.
+- 2026-07-11: Plan child orchestration belongs to
+  `server/plan/runtime.rs`: register each call/model Step through
+  `TaskAccess::insert_step` before starting it, dispatch InvocationCreate for
+  call Steps, then start the model exactly at `completed_steps == call.len()`.
+  Empty-call plans start the model immediately. Model Relay prompts are built
+  in PlanRuntime from the user request, ordered call outputs, PlanStringify,
+  and a SessionContext snapshot; future Intent Steps remain prompt-only.
+- 2026-07-11: Model output plan parsing belongs to
+  `protocol/plan/draft.rs`: `PlanDraft::parse` deserializes the protocol
+  structure directly, then normalizes call/model/future steps to
+  `tool`/`model`/`intent` through `StepDraft::parse`. `StepDraft.kind`
+  defaults during serde input and positional semantics overwrite any model
+  value. The synthetic first model step is named `Initial` so PlanRuntime
+  selects InitialPrompt; generated follow-up model steps remain `Analysis`.
+- 2026-07-11: `Invocation::start` is the execution-create boundary: after
+  spawning `InvocationRuntime`, it dispatches one buffered
+  `InvocationEvent::ExecutionCreate`, guarded by private atomic start state.
+  `StepRuntime` only inserts and starts the invocation. Host
+  `ExecutionRuntime::execute` already emits `Created` then `Started`, which
+  returns through invocation updates; no second startup event belongs in the
+  step layer.
+- 2026-07-11: Unknown tools in `host/executor/runtime.rs` must return nested
+  `InvocationEvent::Update(StepletStatus::Failed)` through
+  `request.signature.invocation`; logging and returning alone strands the
+  server invocation.
+- 2026-07-11: Host tool discovery is executor-owned. After each connection,
+  `HostSession` dispatches `ExecutorEvent::ToolQuery`; `ExecutorRuntime`
+  previews its registry and sends `SessionEvent::ExecutorTools`, which
+  `SessionRuntime` installs into `SessionContext.tools`. Registration-state
+  handling is superseded by the later server-session routing note.
+- 2026-07-11: The preceding host tool-discovery startup detail is superseded:
+  `HostSession` stores the first connected `net_tx` before starting its
+  executor, and a worker-private guard prevents executor restarts on reconnect.
+  `ExecutorRuntime::run` registers tools once at startup through
+  `send_executor_tools`; `ExecutorEvent::ToolQuery` remains dispatchable for
+  compatibility but has no active dispatch caller.
+- 2026-07-11: `HostSession::worker` dispatches only
+  `SessionEvent::Executor`; every other session event, including
+  `ExecutorTools`, follows the common unsupported-event warning path.
+- 2026-07-11: Server session uses `SessionContext.tools` itself as executor
+  registration state, so an empty list rejects task creation. Client ingress
+  handles `TaskCreate` and `Task` directly through the same private helpers as
+  actor dispatch; all other client variants are unsupported. Host ingress
+  continues to enqueue session events.
+- 2026-07-11: Server session ingress routing is unified. `SessionRuntime` is
+  cloneable through its shared `Arc<SessionState>` and cloned close channel
+  endpoints; the client, host, and session receive loops all call that same
+  runtime's `Runtime::dispatch` directly. Client/host workers must not match
+  event variants or relay events through `SessionState.session_tx`; connection
+  setup, receiver storage, context reset, and host disconnect cleanup remain
+  worker lifecycle responsibilities.
+- 2026-07-11: `server/task/runtime.rs` must retain
+  `marix_common::external::*` after draft parsing moves to protocol because it
+  still uses the released `tokio` and `serde_json` namespaces. It no longer
+  needs a direct serde derive dependency.
+- 2026-07-11: Relay status and processing notifications call
+  `RelayRuntime::send_step_event` directly; the `send_step_update` and
+  `send_step_processing` wrappers are intentionally absent. The event helper
+  is `pub(super)` only so `Relay::new` can emit `Created` across sibling
+  modules.
+- 2026-07-11: `PlanEvent::Update` identifies its originating
+  `StepSignature`; `PlanRuntime` resolves that signature before acting and
+  ignores unknown updates. Call completion is status-derived with
+  `call.iter().all(|step| step.status() == StepStatus::Succeed)`, so empty
+  call sets are complete, invocation success can start the model, and only
+  model success reports `TaskEvent::Update(..., PlanStatus::Success)`.
+- 2026-07-11: Startup follows the ownership chain
+  `PlanRuntime -> StepRuntime -> Invocation/Relay`. `PlanRuntime` only inserts
+  and starts Steps. `StepRuntime::run` takes both runtime receivers before
+  dispatching `StepKind` and creating its Invocation or Relay. Child `Created`
+  events are buffered on `step_rx` until initialization enters the select
+  loop; initialization failures fail the Step and return without starting the
+  loop. Analysis prompt construction clones its current Plan through
+  `TaskAccess::plan`.
+- 2026-07-11: Model Relay request construction is owned by
+  `src/server/step/helper.rs::model_request`; `StepRuntime` only calls it and
+  creates the returned Relay. The helper preserves session-context snapshots,
+  current-Plan lookup/stringification, prompt panic conversion, and Relay
+  signature construction as one responsibility.
+- 2026-07-11: `SessionRuntime` task creation, task dispatch, and client-event
+  sending are instance helpers over its shared `self.state`; dispatch and
+  task-creation failure paths call `self.create_task`, `self.dispatch_task`,
+  and `self.send_client_event` directly rather than static state-parameter
+  wrappers.
+- 2026-07-11 (supersedes the Relay event-helper note above): Relay `Created`
+  emission belongs to `RelayRuntime::new`, after the complete runtime instance
+  is constructed. `Relay::new` only constructs the Relay, and the private
+  instance helper `send_step_event(&self, event)` owns access to runtime state
+  for all Relay status and processing notifications.
+- 2026-07-11 (supersedes the Invocation startup-boundary note above):
+  Invocation now mirrors Relay lifecycle ownership. `InvocationRuntime::new`
+  emits `Created` through its private instance `send_step_event`, and
+  `InvocationRuntime::run` creates the execution after taking both receivers
+  and before entering its event loop. `Invocation` only owns shared state and
+  starts the runtime; `InvocationEvent` contains only host updates,
+  processing output, and cancellation.
+- 2026-07-11: `PlanRuntime::run` owns Step startup. It takes both `plan_rx`
+  and `close_rx` before calling its private `start_steps`, so startup-emitted
+  Step updates and close signals remain buffered for the runtime loop.
+- 2026-07-11: Analysis model input now crosses the Plan→Step boundary through
+  clone-shared `StepState.input: Mutex<Option<String>>`. `PlanRuntime` renders
+  ordered call output in `plan/helper.rs` as `- {step name}: {step.output()}`
+  lines, calls `Step::set_input` before insertion/start, and
+  `step/helper.rs::model_request` reads only that input. It no longer obtains
+  Plans through `TaskAccess` or uses `PlanStringify`; the Analysis prompt's
+  current-plan and pending-intentions strings are empty.

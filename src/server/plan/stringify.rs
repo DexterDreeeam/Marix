@@ -53,10 +53,7 @@ impl PlanStringify {
         ));
         lines.push("future:".to_owned());
         lines.extend(plan.state.future.iter().map(Self::step_text));
-        lines.push(format!(
-            "expected_result: {}",
-            &plan.state.expected_result
-        ));
+        lines.push(format!("expected_result: {}", &plan.state.expected_result));
         lines.join("\n")
     }
 
@@ -74,9 +71,7 @@ impl PlanStringify {
     fn format_step_text(text: StepText, description: &str) -> String {
         let mut fields = format!(
             "- name: {}\n  kind: {}\n  description: {}",
-            text.name,
-            text.kind,
-            description
+            text.name, text.kind, description
         );
         if let Some(input) = text.input {
             fields.push_str(&format!("\n  input: {input}"));

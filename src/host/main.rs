@@ -9,7 +9,7 @@ fn main() {
             std::process::exit(1);
         }
     };
-    connect_telemetry(&config);
+    configure_logging(&config);
     let mut session = HostSession::new(config.name);
     session.run();
     loop {
@@ -19,16 +19,20 @@ fn main() {
 
 // -- Private -- //
 
-/// Connects telemetry on a best-effort basis. Telemetry is a diagnostic side
-/// channel, so an unreachable or misconfigured server must not stop the host
-/// from serving executions.
-fn connect_telemetry(config: &Config) {
+/// Configures logging on a best-effort basis. Diagnostics must not stop the
+/// host from serving executions.
+fn configure_logging(config: &Config) {
     match Logger::connect() {
         Ok(()) => {
-            Logger::log(format!("host '{}' connected to telemetry", config.name));
+            let status = if config.logging.remote {
+                "connected to telemetry"
+            } else {
+                "local logging configured"
+            };
+            Logger::log(format!("host '{}' {status}", config.name));
         }
         Err(error) => {
-            eprintln!("telemetry logger unavailable, continuing without it: {error}");
+            eprintln!("logger unavailable, continuing without it: {error}");
         }
     }
 }

@@ -8,12 +8,13 @@ use marix_common::{
 };
 use marix_protocol::{
     Actor, ExecutorEvent, Runtime, SessionEvent, SessionMessage, TaskEvent, TaskRequest,
-    TaskSignature, TaskStatus,
+    TaskSignature, TaskStatus, ToolPreview,
 };
 
 use super::{Session, SessionContext, SessionState};
 use crate::task::Task;
 
+#[derive(Clone)]
 pub struct SessionRuntime {
     state: Arc<SessionState>,
     close_tx: Sender<()>,
@@ -69,6 +70,9 @@ impl Runtime<SessionEvent, Infallible> for SessionRuntime {
             SessionEvent::TaskUpdate(_) => {
                 self.send_client_event(event);
             }
+            SessionEvent::ExecutorTools(tools) => {
+                self.register_executor_tools(tools.clone());
+            }
             SessionEvent::Executor(event) => {
                 self.send_host_event(SessionEvent::Executor(event.clone()));
             }
@@ -81,56 +85,61 @@ impl Runtime<SessionEvent, Infallible> for SessionRuntime {
 
 impl SessionRuntime {
     fn spawn_client_worker(&self) {
-        let state = Arc::clone(&self.state);
+        let runtime = self.clone();
         drop(thread::spawn(move || {
             loop {
                 let Ok((tx, rx)) = accept_channel::<SessionMessage>(ChannelEndpoint::Client) else {
                     continue;
                 };
                 Logger::log("client channel connected");
-                *state
+                *runtime
+                    .state
                     .client_tx
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(tx);
-                *state
+                *runtime
+                    .state
                     .client_rx
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(rx);
-                Self::client_worker(Arc::clone(&state));
+                runtime.client_worker();
             }
         }));
     }
 
     fn spawn_host_worker(&self) {
-        let state = Arc::clone(&self.state);
+        let runtime = self.clone();
         drop(thread::spawn(move || {
             loop {
                 let Ok((tx, rx)) = accept_channel::<SessionMessage>(ChannelEndpoint::Host) else {
                     continue;
                 };
                 Logger::log("host channel connected");
-                *state
+                *runtime
+                    .state
                     .host_tx
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(tx);
-                *state
+                *runtime
+                    .state
                     .host_rx
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(rx);
-                Self::reset_context(&state);
-                Self::host_worker(Arc::clone(&state));
-                Self::host_disconnect(&state);
+                Self::reset_context(&runtime.state);
+                runtime.host_worker();
+                Self::host_disconnect(&runtime.state);
             }
         }));
     }
 
-    fn client_worker(state: Arc<SessionState>) {
-        let runtime = tokio::runtime::Builder::new_current_thread()
+    fn client_worker(&self) {
+        let rt = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
             .unwrap_or_else(|error| panic!("failed to build client event runtime: {error}"));
-        runtime.block_on(async move {
-            let Some(mut rx) = state
+        rt.block_on(async {
+            let Some(mut rx) = self
+                .state
                 .client_rx
                 .lock()
                 .unwrap_or_else(|error| error.into_inner())
@@ -139,20 +148,21 @@ impl SessionRuntime {
                 return;
             };
             while let Ok(Some(message)) = rx.recv().await {
-                if state.session_tx.send(message.event).is_err() {
-                    Logger::warning("session event enqueue failed: session worker stopped");
+                if let Err(error) = self.dispatch(message.event) {
+                    match error {}
                 }
             }
         });
     }
 
-    fn host_worker(state: Arc<SessionState>) {
-        let runtime = tokio::runtime::Builder::new_current_thread()
+    fn host_worker(&self) {
+        let rt = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
             .unwrap_or_else(|error| panic!("failed to build host event runtime: {error}"));
-        runtime.block_on(async move {
-            let Some(mut rx) = state
+        rt.block_on(async {
+            let Some(mut rx) = self
+                .state
                 .host_rx
                 .lock()
                 .unwrap_or_else(|error| error.into_inner())
@@ -161,8 +171,8 @@ impl SessionRuntime {
                 return;
             };
             while let Ok(Some(message)) = rx.recv().await {
-                if state.session_tx.send(message.event).is_err() {
-                    Logger::warning("session event enqueue failed: session worker stopped");
+                if let Err(error) = self.dispatch(message.event) {
+                    match error {}
                 }
             }
         });
@@ -178,6 +188,19 @@ impl SessionRuntime {
             .is_none()
         {
             let reason = "host not connected".to_string();
+            Logger::warning(format!("task {signature} rejected: {reason}"));
+            self.send_client_event(SessionEvent::TaskUpdate(TaskStatus::Failed { reason }));
+            return;
+        }
+        if self
+            .state
+            .context
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .tools
+            .is_empty()
+        {
+            let reason = "executor tools not registered".to_string();
             Logger::warning(format!("task {signature} rejected: {reason}"));
             self.send_client_event(SessionEvent::TaskUpdate(TaskStatus::Failed { reason }));
             return;
@@ -204,18 +227,40 @@ impl SessionRuntime {
         let Some(()) = self.state.tasks.with(signature, |task| {
             task.lock()
                 .unwrap_or_else(|error| error.into_inner())
-                .dispatch(event.take().unwrap_or_else(|| {
-                    unreachable!("task event already dispatched")
-                }))
+                .dispatch(
+                    event
+                        .take()
+                        .unwrap_or_else(|| unreachable!("task event already dispatched")),
+                )
         }) else {
-            let event = event.unwrap_or_else(|| {
-                unreachable!("task event dispatched without a task")
-            });
+            let event =
+                event.unwrap_or_else(|| unreachable!("task event dispatched without a task"));
             Logger::warning(format!(
                 "session could not dispatch event {event:?}: task {signature} not found",
             ));
             return;
         };
+    }
+
+    fn register_executor_tools(&self, tools: Vec<ToolPreview>) {
+        let tool_count = tools.len();
+        let host_tx = self
+            .state
+            .host_tx
+            .lock()
+            .unwrap_or_else(|error| error.into_inner());
+        if host_tx.is_none() {
+            Logger::warning("core session ignored executor tools: host disconnected");
+            return;
+        }
+        self.state
+            .context
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .tools = tools;
+        Logger::debug(format!(
+            "core session installed {tool_count} executor tool(s)"
+        ));
     }
 
     fn send_client_event(&self, event: SessionEvent) {

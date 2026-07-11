@@ -3,9 +3,10 @@
   "module": {
     "path": "src/common/logging",
     "name": "logging",
-    "purpose": "Common database telemetry logging module. tag.rs defines the serializable LogTag severity enum (Info, Warning, Error, Debug); message.rs defines the serializable LogMessage record carrying a tag, message text, and emit/arrival millisecond timestamps with tagged constructors and a crate-visible arrival stamp; error.rs defines the LoggingError enum with config, I/O, database, serialization, channel, already-configured, and not-hosting variants; logger.rs owns the Logger telemetry client that either hosts a telemetry server accepting authenticated remoc channel connections and persisting messages under the server Marix path to a fresh per-start timestamped local redb database, serving each accepted connection with its own receive worker, or connects to a remote server and streams LogMessage records over the authenticated channel transport with retry.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns process telemetry logging with config-selected local redb storage or authenticated remote streaming, including server-side multi-client collection and timestamped per-process databases.",
+    "changeStatus": "modified"
   },
+  "modified": ["logger.rs"],
   "childModules": [],
   "elements": [
     {
@@ -52,7 +53,7 @@
       "name": "Logger",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
@@ -65,40 +66,43 @@
         {
           "sourcePath": "src/common/logging/logger.rs",
           "lineStart": 21,
-          "lineEnd": 74,
+          "lineEnd": 83,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 56,
-              "lineEnd": 57
+              "lineStart": 22,
+              "lineEnd": 23
             },
             {
-              "lineStart": 61,
-              "lineEnd": 62
+              "lineStart": 30,
+              "lineEnd": 31
             },
             {
-              "lineStart": 66,
-              "lineEnd": 67
+              "lineStart": 36,
+              "lineEnd": 38
             },
             {
-              "lineStart": 71,
-              "lineEnd": 72
+              "lineStart": 42,
+              "lineEnd": 43
+            },
+            {
+              "lineStart": 50,
+              "lineEnd": 56
+            },
+            {
+              "lineStart": 59,
+              "lineEnd": 59
             }
           ]
         },
         {
           "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 78,
-          "lineEnd": 143,
+          "lineStart": 87,
+          "lineEnd": 152,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 85,
-              "lineEnd": 94
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -110,8 +114,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 145,
-          "lineEnd": 148,
+          "lineStart": 159,
+          "lineEnd": 162,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -122,23 +126,40 @@
       "name": "Store",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 150,
-          "lineEnd": 153,
+          "lineStart": 164,
+          "lineEnd": 167,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 155,
-          "lineEnd": 262,
+          "lineStart": 169,
+          "lineEnd": 283,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 170,
+              "lineEnd": 171
+            },
+            {
+              "lineStart": 183,
+              "lineEnd": 193
+            },
+            {
+              "lineStart": 198,
+              "lineEnd": 199
+            },
+            {
+              "lineStart": 205,
+              "lineEnd": 209
+            }
+          ]
         }
       ]
     },

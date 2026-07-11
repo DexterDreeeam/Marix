@@ -1,4 +1,4 @@
-use std::net::SocketAddr;
+use std::net::{Ipv4Addr, SocketAddr};
 use std::sync::{Arc, Mutex, mpsc as std_mpsc};
 use std::thread;
 use std::time::Duration;
@@ -8,6 +8,8 @@ use crate::config::Config;
 pub use crossbeam_channel::select;
 
 const NET_CHANNEL_BUFFER: usize = 16;
+/// Wildcard address used by server listeners on every local IPv4 interface.
+const SERVER_BIND_IP: Ipv4Addr = Ipv4Addr::UNSPECIFIED;
 /// How long the server waits, after a TCP connection is accepted, for
 /// that connection to complete the transport handshake and present a
 /// valid token before the attempt is abandoned.
@@ -59,8 +61,8 @@ pub fn build_async_channel<T>() -> (AsyncSender<T>, AsyncReceiver<T>) {
 /// `endpoint`, returning the channel pair for the first connection that
 /// both establishes and passes the shared-secret handshake.
 ///
-/// The bind address (the node IP plus the port matching `endpoint`)
-/// and the expected handshake token are resolved from the loaded
+/// The wildcard bind address (with the port matching `endpoint`) and
+/// the expected handshake token are resolved from the loaded
 /// configuration inside this function; there is no caller-provided
 /// address or token.
 ///
@@ -87,9 +89,7 @@ where
         ChannelEndpoint::Host => config.server.host_port,
         ChannelEndpoint::Telemetry => config.server.telemetry_port,
     };
-    let address: SocketAddr = format!("{}:{}", config.server.ip, port)
-        .parse::<SocketAddr>()
-        .map_err(|error| ChannelError::Setup(error.to_string()))?;
+    let address = SocketAddr::from((SERVER_BIND_IP, port));
     let token = config.server.auth_token;
 
     let (setup_tx, setup_rx) = std_mpsc::channel();

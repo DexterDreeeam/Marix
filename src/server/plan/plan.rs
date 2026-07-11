@@ -1,11 +1,8 @@
 use std::fmt;
 use std::sync::Arc;
 
-use marix_common::external::*;
 use marix_common::Logger;
-use marix_protocol::{
-    Actor, PlanDraft, PlanError, PlanEvent, PlanSignature, RuntimeAsync,
-};
+use marix_protocol::{Actor, PlanDraft, PlanError, PlanEvent, PlanSignature, RuntimeAsync};
 
 use super::runtime::PlanRuntime;
 use super::state::PlanState;
@@ -59,11 +56,7 @@ impl Plan {
             .into_iter()
             .map(|draft| Step::from_draft(access.clone(), &signature, draft))
             .collect::<Result<Vec<_>, _>>()?;
-        let model = Step::from_draft(
-            access.clone(),
-            &signature,
-            draft.model,
-        )?;
+        let model = Step::from_draft(access.clone(), &signature, draft.model)?;
         let future = draft
             .future
             .into_iter()
@@ -95,8 +88,7 @@ impl Actor<Plan, PlanEvent> for Plan {
             let event = error.0;
             Logger::warning(format!(
                 "plan {} event {event:?} dispatch failed: worker stopped (task {})",
-                &self.state.signature,
-                &self.state.signature.task,
+                &self.state.signature, &self.state.signature.task,
             ));
         }
     }

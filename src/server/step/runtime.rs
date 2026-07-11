@@ -4,11 +4,12 @@ use std::sync::Mutex as StdMutex;
 use marix_common::external::*;
 use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
 use marix_protocol::{
-    Actor, InvocationRequest, InvocationStepKind, PlanEvent, RelayRequest,
-    RuntimeAsync, SessionEvent, StepError, StepEvent, StepKind, StepSignature,
-    StepStatus, StepletStatus, TaskEvent,
+    Actor, InvocationRequest, InvocationStepKind, PlanEvent, RelayRequest, RuntimeAsync,
+    SessionEvent, StepError, StepEvent, StepKind, StepSignature, StepStatus, StepletStatus,
+    TaskEvent,
 };
 
+use super::helper::model_request;
 use super::state::StepState;
 use crate::invocation::Invocation;
 use crate::relay::Relay;
@@ -35,7 +36,6 @@ impl StepRuntime {
             close_rx: StdMutex::new(Some(close_rx)),
         }
     }
-
 }
 
 impl RuntimeAsync<StepEvent, StepError> for StepRuntime {
@@ -64,6 +64,25 @@ impl RuntimeAsync<StepEvent, StepError> for StepRuntime {
             ));
             return;
         };
+        match &self.state.kind {
+            StepKind::Invocation(InvocationStepKind::Invocation(request)) => {
+                self.create_invocation(request.clone());
+            }
+            StepKind::Model(model_kind) => {
+                let request = match model_request(&self.state, model_kind.clone()) {
+                    Ok(request) => request,
+                    Err(reason) => {
+                        self.fail_step(reason);
+                        return;
+                    }
+                };
+                self.create_relay(request);
+            }
+            kind => {
+                self.fail_step(format!("unsupported start kind {kind:?}"));
+                return;
+            }
+        }
         Logger::debug(format!(
             "step {} runtime loop starting (task {})",
             &self.state.signature, &self.state.signature.task,
@@ -165,7 +184,8 @@ impl StepRuntime {
                     self.signature(),
                     &self.signature().task,
                 ));
-                    }
+                self.set_status(StepStatus::Started);
+            }
             StepletStatus::Canceled => {
                 Logger::warning(format!(
                     "step {} steplet canceled (task {})",
@@ -232,6 +252,15 @@ impl StepRuntime {
         }
     }
 
+    fn fail_step(&self, reason: String) {
+        Logger::error(format!(
+            "step {} failed: {reason} (task {})",
+            &self.state.signature, &self.state.signature.task,
+        ));
+        self.set_status(StepStatus::Failed);
+        self.close();
+    }
+
     fn on_cancel(&self) {
         match &self.state.kind {
             StepKind::Invocation(InvocationStepKind::Invocation(request)) => {
@@ -276,7 +305,7 @@ impl StepRuntime {
             state.signature.task.clone(),
             TaskEvent::Plan(
                 state.signature.plan.clone(),
-                PlanEvent::Update(status),
+                PlanEvent::Update(state.signature.clone(), status),
             ),
         );
         if state.access.session_tx.send(event).is_err() {
