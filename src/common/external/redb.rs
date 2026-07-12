@@ -1,1 +1,3 @@
-pub use ::redb::{Database, ReadableTableMetadata, TableDefinition};
+pub use ::redb::{
+    Database, ReadableDatabase, ReadableTable, ReadableTableMetadata, TableDefinition,
+};

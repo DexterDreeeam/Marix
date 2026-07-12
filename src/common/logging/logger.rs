@@ -1,12 +1,14 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::{Mutex, OnceLock};
+use std::sync::{Mutex, OnceLock, RwLock};
 use std::thread;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use crate::config::Config;
-use crate::external::redb::{Database, ReadableTableMetadata, TableDefinition};
-use crate::external::serde_json;
+use crate::external::redb::{
+    Database, ReadableDatabase, ReadableTable, ReadableTableMetadata, TableDefinition,
+};
+use crate::external::{serde_json, uuid};
 use crate::logging::{LogMessage, LogTag, LoggingError};
 use crate::structure::{ChannelEndpoint, NetReceiver, NetSender, accept_channel, connect_channel};
 
@@ -16,11 +18,12 @@ static LOGGER: Logger = Logger::new();
 
 pub struct Logger {
     sink: OnceLock<Sink>,
+    session_id: RwLock<Option<uuid::Uuid>>,
 }
 
 impl Logger {
-    /// Records this server process's telemetry in a local database and, when
-    /// remote logging is configured, accepts telemetry from other processes.
+    /// Records telemetry in a local database and accepts telemetry from other
+    /// processes.
     ///
     /// The bind address and handshake token are resolved from configuration
     /// by [`accept_channel`]; each accepted client connection is served by its
@@ -31,11 +34,9 @@ impl Logger {
         let store = Store::open(&config, StoreRole::Server)?;
         LOGGER
             .sink
-            .set(Sink::Local(store))
+            .set(Sink::Host(store))
             .map_err(|_| LoggingError::AlreadyConfigured)?;
-        if config.logging.remote {
-            thread::spawn(accept_loop);
-        }
+        thread::spawn(accept_loop);
         Ok(())
     }
 
@@ -61,6 +62,14 @@ impl Logger {
         Ok(())
     }
 
+    /// Sets the session identifier attached to future telemetry messages.
+    pub fn set_id(id: uuid::Uuid) {
+        *LOGGER
+            .session_id
+            .write()
+            .unwrap_or_else(|error| error.into_inner()) = Some(id);
+    }
+
     /// Emits an info-tagged telemetry message.
     pub fn log(message: impl Into<String>) {
         LOGGER.emit(LogTag::Info, message.into());
@@ -80,6 +89,83 @@ impl Logger {
     pub fn debug(message: impl Into<String>) {
         LOGGER.emit(LogTag::Debug, message.into());
     }
+
+    /// Returns every telemetry message recorded by this process's host
+    /// store, in ascending record-insertion order. Only available when this
+    /// process is hosting a store via [`Logger::host`] — a
+    /// [`Logger::connect`] runtime-local store is deliberately not
+    /// queryable. Used by `crate::logging::query` to answer session/log
+    /// queries.
+    pub(super) fn local_log() -> Result<Vec<LogMessage>, LoggingError> {
+        host_store(LOGGER.sink.get())?.read_all()
+    }
+}
+
+/// A telemetry store backed by a redb database, used both to record
+/// incoming messages and to answer read-only session/log queries.
+pub(super) struct Store {
+    database: Database,
+    next_id: AtomicU64,
+}
+
+impl Store {
+    /// Opens (creating if absent) the redb database at `path`, restoring the
+    /// next record id from the table's current length so ids keep
+    /// increasing across restarts of a persisted database file.
+    pub(super) fn open_at(path: &Path) -> Result<Self, LoggingError> {
+        let database =
+            Database::create(path).map_err(|error| LoggingError::Database(error.to_string()))?;
+        let next_id = Self::stored_count(&database)?;
+        Ok(Self {
+            database,
+            next_id: AtomicU64::new(next_id),
+        })
+    }
+
+    /// Reads every recorded message in a single read transaction, in
+    /// ascending record-id (insertion) order.
+    pub(super) fn read_all(&self) -> Result<Vec<LogMessage>, LoggingError> {
+        let read_txn = self
+            .database
+            .begin_read()
+            .map_err(|error| LoggingError::Database(error.to_string()))?;
+        let table = read_txn
+            .open_table(TELEMETRY_TABLE)
+            .map_err(|error| LoggingError::Database(error.to_string()))?;
+        let mut messages = Vec::new();
+        for entry in table
+            .iter()
+            .map_err(|error| LoggingError::Database(error.to_string()))?
+        {
+            let (_key, value) = entry.map_err(|error| LoggingError::Database(error.to_string()))?;
+            let message: LogMessage = serde_json::from_slice(value.value())
+                .map_err(|error| LoggingError::Serialization(error.to_string()))?;
+            messages.push(message);
+        }
+        Ok(messages)
+    }
+
+    pub(super) fn record(&self, message: &LogMessage) -> Result<(), LoggingError> {
+        let id = self.next_id.fetch_add(1, Ordering::Relaxed);
+        let bytes = serde_json::to_vec(message)
+            .map_err(|error| LoggingError::Serialization(error.to_string()))?;
+        let write = self
+            .database
+            .begin_write()
+            .map_err(|error| LoggingError::Database(error.to_string()))?;
+        {
+            let mut table = write
+                .open_table(TELEMETRY_TABLE)
+                .map_err(|error| LoggingError::Database(error.to_string()))?;
+            table
+                .insert(id, bytes.as_slice())
+                .map_err(|error| LoggingError::Database(error.to_string()))?;
+        }
+        write
+            .commit()
+            .map_err(|error| LoggingError::Database(error.to_string()))?;
+        Ok(())
+    }
 }
 
 // -- Private -- //
@@ -88,6 +174,7 @@ impl Logger {
     const fn new() -> Self {
         Self {
             sink: OnceLock::new(),
+            session_id: RwLock::new(None),
         }
     }
 
@@ -102,9 +189,13 @@ impl Logger {
     }
 
     fn telemetry(&self, tag: LogTag, message: String) -> Result<(), LoggingError> {
-        let message = LogMessage::new(tag, message);
+        let mut message = LogMessage::new(tag, message);
+        message.session_id = *self
+            .session_id
+            .read()
+            .unwrap_or_else(|error| error.into_inner());
         match self.sink.get() {
-            Some(Sink::Local(_)) => self.record(message),
+            Some(Sink::Host(_)) | Some(Sink::Local(_)) => self.record(message),
             Some(Sink::Remote(sender)) => {
                 let guard = sender
                     .lock()
@@ -145,7 +236,7 @@ impl Logger {
     fn record(&self, mut message: LogMessage) -> Result<(), LoggingError> {
         message.stamp_arrival();
         match self.sink.get() {
-            Some(Sink::Local(store)) => store.record(&message),
+            Some(Sink::Host(store)) | Some(Sink::Local(store)) => store.record(&message),
             _ => Err(LoggingError::NotHosting),
         }
     }
@@ -157,13 +248,21 @@ enum StoreRole {
 }
 
 enum Sink {
+    Host(Store),
     Local(Store),
     Remote(Mutex<NetSender<LogMessage>>),
 }
 
-struct Store {
-    database: Database,
-    next_id: AtomicU64,
+/// Selects the queryable store from a resolved sink: only a
+/// [`Sink::Host`] store (installed by [`Logger::host`]) is queryable. A
+/// [`Sink::Local`] store (installed by [`Logger::connect`] when
+/// `logging.remote` is `false`), a [`Sink::Remote`] sink, and an
+/// unconfigured logger all report [`LoggingError::NotHosting`].
+fn host_store(sink: Option<&Sink>) -> Result<&Store, LoggingError> {
+    match sink {
+        Some(Sink::Host(store)) => Ok(store),
+        _ => Err(LoggingError::NotHosting),
+    }
 }
 
 impl Store {
@@ -171,13 +270,7 @@ impl Store {
         let directory = Self::database_directory(config, role);
         std::fs::create_dir_all(&directory)?;
         let path = directory.join(Self::database_file_name());
-        let database =
-            Database::create(&path).map_err(|error| LoggingError::Database(error.to_string()))?;
-        let next_id = Self::stored_count(&database)?;
-        Ok(Self {
-            database,
-            next_id: AtomicU64::new(next_id),
-        })
+        Self::open_at(&path)
     }
 
     /// Directory that holds telemetry databases under the process's resolved
@@ -241,28 +334,6 @@ impl Store {
         (year, month, day)
     }
 
-    fn record(&self, message: &LogMessage) -> Result<(), LoggingError> {
-        let id = self.next_id.fetch_add(1, Ordering::Relaxed);
-        let bytes = serde_json::to_vec(message)
-            .map_err(|error| LoggingError::Serialization(error.to_string()))?;
-        let write = self
-            .database
-            .begin_write()
-            .map_err(|error| LoggingError::Database(error.to_string()))?;
-        {
-            let mut table = write
-                .open_table(TELEMETRY_TABLE)
-                .map_err(|error| LoggingError::Database(error.to_string()))?;
-            table
-                .insert(id, bytes.as_slice())
-                .map_err(|error| LoggingError::Database(error.to_string()))?;
-        }
-        write
-            .commit()
-            .map_err(|error| LoggingError::Database(error.to_string()))?;
-        Ok(())
-    }
-
     fn stored_count(database: &Database) -> Result<u64, LoggingError> {
         let write = database
             .begin_write()
@@ -316,4 +387,36 @@ fn worker(mut net_rx: NetReceiver<LogMessage>) {
             }
         }
     });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Sink, Store, host_store};
+    use crate::external::uuid;
+    use crate::logging::LoggingError;
+
+    /// Opens a fresh, uniquely-named redb database under the OS temp
+    /// directory, independent of the process-global `LOGGER`, so this test
+    /// never touches shared state and stays parallel-safe.
+    fn temp_store() -> Store {
+        let path = std::env::temp_dir().join(format!(
+            "marix-logging-logger-test-{}.redb",
+            uuid::Uuid::new_v4()
+        ));
+        Store::open_at(&path).expect("open temp store")
+    }
+
+    #[test]
+    fn host_store_permits_only_the_host_sink() {
+        let host_sink = Sink::Host(temp_store());
+        assert!(host_store(Some(&host_sink)).is_ok());
+
+        let local_sink = Sink::Local(temp_store());
+        assert!(matches!(
+            host_store(Some(&local_sink)),
+            Err(LoggingError::NotHosting)
+        ));
+
+        assert!(matches!(host_store(None), Err(LoggingError::NotHosting)));
+    }
 }

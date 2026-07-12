@@ -1,0 +1,16 @@
+[package]
+name = "marix-server-telemetry"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+axum = "0.8"
+marix-common = { path = "../common" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["macros", "net", "rt-multi-thread"] }
+uuid = "1"
+
+[[bin]]
+name = "marix-server-telemetry"
+path = "main.rs"

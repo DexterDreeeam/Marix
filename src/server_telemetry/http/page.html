@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Marix Telemetry</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0f1115;
+    --panel: #161a21;
+    --panel-alt: #1c212b;
+    --border: #262c37;
+    --text: #e6e9ef;
+    --muted: #8b93a3;
+    --accent: #4d8dff;
+    --info: #4d8dff;
+    --warning: #e0a83e;
+    --error: #e5484d;
+    --debug: #8b93a3;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+  }
+  #app {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    width: 100vw;
+  }
+  #sessions {
+    width: 280px;
+    min-width: 200px;
+    max-width: 40vw;
+    border-right: 1px solid var(--border);
+    background: var(--panel);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #sessions h1 {
+    font-size: 15px;
+    margin: 0;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-weight: 600;
+  }
+  #session-list {
+    list-style: none;
+    margin: 0;
+    padding: 6px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  #session-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  #session-list li:hover {
+    background: var(--panel-alt);
+    color: var(--text);
+  }
+  #session-list li.selected {
+    background: var(--accent);
+    color: #fff;
+  }
+  #session-list .session-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  #session-list .copy-btn {
+    flex: none;
+    border: none;
+    background: transparent;
+    color: inherit;
+    opacity: 0.6;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+  #session-list .copy-btn:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.12);
+  }
+  #main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  #toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+    flex-wrap: wrap;
+  }
+  #toolbar select, #toolbar input {
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  #toolbar input[type="text"] {
+    flex: 1;
+    min-width: 160px;
+  }
+  #status-banner {
+    padding: 8px 16px;
+    font-size: 13px;
+    display: none;
+  }
+  #status-banner.error {
+    display: block;
+    background: rgba(229, 72, 77, 0.15);
+    color: var(--error);
+    border-bottom: 1px solid var(--border);
+  }
+  #log-area {
+    flex: 1;
+    overflow: auto;
+    padding: 0 16px 16px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead th {
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    text-align: left;
+    color: var(--muted);
+    font-weight: 600;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody td {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  td.message-cell {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  td.session-cell, td.time-cell {
+    white-space: nowrap;
+    color: var(--muted);
+  }
+  .tag-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #0f1115;
+  }
+  .tag-info { background: var(--info); color: #04122d; }
+  .tag-warning { background: var(--warning); color: #2a1c00; }
+  .tag-error { background: var(--error); color: #2b0505; }
+  .tag-debug { background: var(--debug); color: #0f1115; }
+  #empty-state, #initial-loading, #no-sessions-state {
+    padding: 24px 4px;
+    color: var(--muted);
+  }
+  @media (max-width: 720px) {
+    #app { flex-direction: column; }
+    #sessions {
+      width: 100%;
+      max-width: none;
+      max-height: 30vh;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="sessions">
+    <h1>Sessions</h1>
+    <ul id="session-list"></ul>
+  </aside>
+  <main id="main">
+    <div id="toolbar">
+      <select id="tag-filter">
+        <option value="">All tags</option>
+        <option value="Info">Info</option>
+        <option value="Warning">Warning</option>
+        <option value="Error">Error</option>
+        <option value="Debug">Debug</option>
+      </select>
+      <input id="keyword-filter" type="text" placeholder="Filter by keyword…" />
+    </div>
+    <div id="status-banner"></div>
+    <div id="log-area">
+      <div id="initial-loading">Loading…</div>
+      <table id="log-table" style="display: none;">
+        <thead>
+          <tr>
+            <th>Emit</th>
+            <th>Arrival</th>
+            <th>Tag</th>
+            <th>Session</th>
+            <th>Message</th>
+          </tr>
+        </thead>
+        <tbody id="log-body"></tbody>
+      </table>
+      <div id="empty-state" style="display: none;">No log entries match the current filters.</div>
+      <div id="no-sessions-state" style="display: none;">No sessions available.</div>
+    </div>
+  </main>
+</div>
+<script>
+(function () {
+  "use strict";
+
+  var state = {
+    sessions: [],
+    selectedSession: undefined, // undefined = not chosen yet
+    tag: "",
+    keyword: "",
+    loadToken: 0,
+  };
+
+  var sessionListEl = document.getElementById("session-list");
+  var tagFilterEl = document.getElementById("tag-filter");
+  var keywordFilterEl = document.getElementById("keyword-filter");
+  var statusBannerEl = document.getElementById("status-banner");
+  var logTableEl = document.getElementById("log-table");
+  var logBodyEl = document.getElementById("log-body");
+  var emptyStateEl = document.getElementById("empty-state");
+  var initialLoadingEl = document.getElementById("initial-loading");
+  var noSessionsEl = document.getElementById("no-sessions-state");
+
+  // Exactly one of these is ever visible at a time: "loading" only until the
+  // first sessions/logs response lands, "no-sessions" when there is no
+  // session to show logs for, "empty" when a session has zero matching log
+  // entries, and "table" when there are rows to render.
+  function setLogAreaState(mode) {
+    initialLoadingEl.style.display = mode === "loading" ? "block" : "none";
+    noSessionsEl.style.display = mode === "no-sessions" ? "block" : "none";
+    emptyStateEl.style.display = mode === "empty" ? "block" : "none";
+    logTableEl.style.display = mode === "table" ? "table" : "none";
+  }
+
+  function showError(message) {
+    statusBannerEl.textContent = message;
+    statusBannerEl.className = "error";
+  }
+
+  function clearError() {
+    statusBannerEl.textContent = "";
+    statusBannerEl.className = "";
+  }
+
+  function sessionKey(session) {
+    return session === null ? "unassigned" : session;
+  }
+
+  function truncate(id) {
+    if (id.length <= 12) {
+      return id;
+    }
+    return id.slice(0, 8) + "…";
+  }
+
+  function fetchJSON(url) {
+    return fetch(url, { headers: { Accept: "application/json" } }).then(function (response) {
+      return response.text().then(function (text) {
+        var payload = null;
+        try {
+          payload = text ? JSON.parse(text) : null;
+        } catch (parseError) {
+          payload = null;
+        }
+        if (!response.ok) {
+          var message =
+            (payload && payload.error) || "request failed (" + response.status + ")";
+          var error = new Error(message);
+          error.status = response.status;
+          throw error;
+        }
+        return payload;
+      });
+    });
+  }
+
+  function renderSessions() {
+    var fragment = document.createDocumentFragment();
+    state.sessions.forEach(function (session) {
+      var item = document.createElement("li");
+      var key = sessionKey(session);
+      if (key === sessionKey(state.selectedSession)) {
+        item.className = "selected";
+      }
+
+      var label = document.createElement("span");
+      label.className = "session-label";
+      if (session === null) {
+        label.textContent = "Unassigned";
+        item.title = "Unassigned";
+      } else {
+        label.textContent = truncate(session);
+        item.title = session;
+      }
+      item.appendChild(label);
+
+      if (session !== null) {
+        var copyBtn = document.createElement("button");
+        copyBtn.className = "copy-btn";
+        copyBtn.type = "button";
+        copyBtn.title = "Copy full session id";
+        copyBtn.textContent = "⧉";
+        copyBtn.addEventListener("click", function (event) {
+          event.stopPropagation();
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(session);
+          }
+        });
+        item.appendChild(copyBtn);
+      }
+
+      item.addEventListener("click", function () {
+        selectSession(session);
+      });
+      fragment.appendChild(item);
+    });
+
+    // Swap in one assignment: no interim empty list, so no visible flicker.
+    sessionListEl.textContent = "";
+    sessionListEl.appendChild(fragment);
+  }
+
+  function selectSession(session) {
+    var key = sessionKey(session);
+    if (state.selectedSession !== undefined && sessionKey(state.selectedSession) === key) {
+      return;
+    }
+    state.selectedSession = session;
+    renderSessions();
+    loadLogs();
+  }
+
+  function loadSessions() {
+    return fetchJSON("/api/sessions").then(function (sessions) {
+      state.sessions = sessions || [];
+      if (state.sessions.length === 0) {
+        state.selectedSession = undefined;
+        renderSessions();
+        logBodyEl.textContent = "";
+        setLogAreaState("no-sessions");
+        return false;
+      }
+      if (state.selectedSession === undefined) {
+        state.selectedSession = state.sessions[0];
+        renderSessions();
+        return true;
+      }
+      var stillPresent = state.sessions.some(function (session) {
+        return sessionKey(session) === sessionKey(state.selectedSession);
+      });
+      if (!stillPresent) {
+        state.selectedSession = state.sessions[0];
+        renderSessions();
+        return true;
+      }
+      renderSessions();
+      return false;
+    });
+  }
+
+  function tagBadgeClass(tag) {
+    switch (tag) {
+      case "Info":
+        return "tag-info";
+      case "Warning":
+        return "tag-warning";
+      case "Error":
+        return "tag-error";
+      case "Debug":
+        return "tag-debug";
+      default:
+        return "tag-debug";
+    }
+  }
+
+  function formatTimestamp(ms) {
+    if (!ms) {
+      return "–";
+    }
+    var date = new Date(ms);
+    if (isNaN(date.getTime())) {
+      return String(ms);
+    }
+    return date.toLocaleString();
+  }
+
+  function renderLogs(messages) {
+    var fragment = document.createDocumentFragment();
+    messages.forEach(function (entry) {
+      var row = document.createElement("tr");
+
+      var emitCell = document.createElement("td");
+      emitCell.className = "time-cell";
+      emitCell.textContent = formatTimestamp(entry.emit_ts);
+      row.appendChild(emitCell);
+
+      var arrivalCell = document.createElement("td");
+      arrivalCell.className = "time-cell";
+      arrivalCell.textContent = formatTimestamp(entry.arrival_ts);
+      row.appendChild(arrivalCell);
+
+      var tagCell = document.createElement("td");
+      var badge = document.createElement("span");
+      badge.className = "tag-badge " + tagBadgeClass(entry.tag);
+      badge.textContent = entry.tag;
+      tagCell.appendChild(badge);
+      row.appendChild(tagCell);
+
+      var sessionCell = document.createElement("td");
+      sessionCell.className = "session-cell";
+      if (entry.session_id === null || entry.session_id === undefined) {
+        sessionCell.textContent = "Unassigned";
+      } else {
+        sessionCell.textContent = truncate(entry.session_id);
+        sessionCell.title = entry.session_id;
+      }
+      row.appendChild(sessionCell);
+
+      var messageCell = document.createElement("td");
+      messageCell.className = "message-cell";
+      messageCell.textContent = entry.message;
+      row.appendChild(messageCell);
+
+      fragment.appendChild(row);
+    });
+
+    // Build off-DOM, then swap in a single assignment so the table never
+    // shows a blank/interim state during a background refresh.
+    logBodyEl.textContent = "";
+    logBodyEl.appendChild(fragment);
+
+    setLogAreaState(messages.length === 0 ? "empty" : "table");
+  }
+
+  function buildLogsUrl() {
+    if (state.selectedSession === undefined) {
+      return null;
+    }
+    var sessionParam =
+      state.selectedSession === null ? "unassigned" : state.selectedSession;
+    var url = "/api/logs?session_id=" + encodeURIComponent(sessionParam);
+    if (state.tag) {
+      url += "&tag=" + encodeURIComponent(state.tag);
+    }
+    if (state.keyword && state.keyword.trim() !== "") {
+      url += "&keyword=" + encodeURIComponent(state.keyword.trim());
+    }
+    return url;
+  }
+
+  function loadLogs() {
+    var url = buildLogsUrl();
+    if (!url) {
+      return Promise.resolve();
+    }
+    var token = ++state.loadToken;
+    return fetchJSON(url)
+      .then(function (messages) {
+        if (token !== state.loadToken) {
+          return; // a newer request superseded this one
+        }
+        clearError();
+        renderLogs(messages || []);
+      })
+      .catch(function (error) {
+        if (token !== state.loadToken) {
+          return;
+        }
+        showError("Failed to load logs: " + error.message);
+      });
+  }
+
+  function refreshAll() {
+    loadSessions()
+      .then(function () {
+        return loadLogs();
+      })
+      .catch(function (error) {
+        showError("Failed to load sessions: " + error.message);
+      });
+  }
+
+  var keywordDebounce = null;
+  keywordFilterEl.addEventListener("input", function () {
+    state.keyword = keywordFilterEl.value;
+    if (keywordDebounce) {
+      clearTimeout(keywordDebounce);
+    }
+    keywordDebounce = setTimeout(function () {
+      loadLogs();
+    }, 250);
+  });
+
+  tagFilterEl.addEventListener("change", function () {
+    state.tag = tagFilterEl.value;
+    loadLogs();
+  });
+
+  refreshAll();
+  setInterval(refreshAll, 2000);
+})();
+</script>
+</body>
+</html>

@@ -7,6 +7,7 @@ use crate::logging::LogTag;
 pub struct LogMessage {
     pub tag: LogTag,
     pub message: String,
+    pub session_id: Option<uuid::Uuid>,
     pub emit_ts: u64,
     pub arrival_ts: u64,
 }
@@ -16,6 +17,7 @@ impl LogMessage {
         Self {
             tag,
             message: message.into(),
+            session_id: None,
             emit_ts: Self::now_ms(),
             arrival_ts: 0,
         }

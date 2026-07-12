@@ -177,6 +177,11 @@ impl ClientSession {
 
     fn to_client_event(event: SessionEvent) -> Option<ClientEvent> {
         match event {
+            SessionEvent::SessionId(id) => {
+                Logger::set_id(id);
+                Logger::log("client session id updated");
+                None
+            }
             SessionEvent::TaskUpdate(TaskStatus::Succeed(result)) => {
                 Some(Self::done_event("", Some(result.content)))
             }

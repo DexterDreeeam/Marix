@@ -61,6 +61,9 @@ impl Runtime<SessionEvent, Infallible> for SessionRuntime {
 
     fn dispatch(&self, event: SessionEvent) -> Result<(), Infallible> {
         match &event {
+            SessionEvent::SessionId(_) => {
+                Logger::warning("core session received unsupported session id event");
+            }
             SessionEvent::TaskCreate(request) => {
                 self.create_task(request.clone());
             }
@@ -91,6 +94,12 @@ impl SessionRuntime {
                 let Ok((tx, rx)) = accept_channel::<SessionMessage>(ChannelEndpoint::Client) else {
                     continue;
                 };
+                if let Err(error) = tx.try_send(Session::package_message(SessionEvent::SessionId(
+                    runtime.state.session_id,
+                ))) {
+                    Logger::warning(format!("client channel session id send failed: {error}"));
+                    continue;
+                }
                 Logger::log("client channel connected");
                 *runtime
                     .state
@@ -114,6 +123,12 @@ impl SessionRuntime {
                 let Ok((tx, rx)) = accept_channel::<SessionMessage>(ChannelEndpoint::Host) else {
                     continue;
                 };
+                if let Err(error) = tx.try_send(Session::package_message(SessionEvent::SessionId(
+                    runtime.state.session_id,
+                ))) {
+                    Logger::warning(format!("host channel session id send failed: {error}"));
+                    continue;
+                }
                 Logger::log("host channel connected");
                 *runtime
                     .state

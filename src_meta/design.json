@@ -3,14 +3,18 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Workspace source root for Marix Rust crates and prompt sources; direct child modules are crate packages for protocol, common, server, client, host, tool, and prompts.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines the Marix Rust workspace and its client, host, server, standalone telemetry collector, protocol, prompt, common, target, and tool packages.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "Cargo.lock",
+    "Cargo.toml"
+  ],
   "childModules": [
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Owns the client library and CLI-facing session API, including resilient server reconnects, task create/cancel messages, and conversion of task status updates into ClientEvent output."
+      "purpose": "Owns the client API and CLI session transport, installing optional SessionId correlation metadata while preserving immediate channel readiness."
     },
     {
       "path": "src/common",
@@ -20,7 +24,7 @@
     {
       "path": "src/host",
       "name": "host",
-      "purpose": "Owns host session connectivity and host-side executor/execution routing between server events and registered tools."
+      "purpose": "Owns host execution and its resilient server session, installing optional SessionId correlation metadata without gating channel readiness."
     },
     {
       "path": "src/prompt",
@@ -35,7 +39,7 @@
     {
       "path": "src/server",
       "name": "server",
-      "purpose": "Owns server session routing and task/plan/step orchestration, including model relays, host invocations, prompt construction, and hierarchical protocol event flow."
+      "purpose": "Runs the server core, connects it to the independent telemetry collector, and owns task/session/model orchestration."
     },
     {
       "path": "src/target",
@@ -46,6 +50,11 @@
       "path": "src/tool",
       "name": "tool",
       "purpose": "Top-level marix-tool crate defining ToolProgram and six feature-gated native tool executables, including the OsEnv system-environment tool."
+    },
+    {
+      "path": "src/server_telemetry",
+      "name": "server_telemetry",
+      "purpose": "Runs the standalone telemetry collector and its self-hosted HTTP log viewer."
     }
   ],
   "elements": [
@@ -85,7 +94,7 @@
       "name": "ClientSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
@@ -101,58 +110,20 @@
           "lineEnd": 81,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 52,
-              "lineEnd": 52
-            },
-            {
-              "lineStart": 55,
-              "lineEnd": 57
-            },
-            {
-              "lineStart": 61,
-              "lineEnd": 61
-            },
-            {
-              "lineStart": 66,
-              "lineEnd": 70
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/client/session.rs",
           "lineStart": 85,
-          "lineEnd": 214,
+          "lineEnd": 219,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 88,
-              "lineEnd": 88
-            },
-            {
-              "lineStart": 117,
-              "lineEnd": 120
-            },
-            {
-              "lineStart": 175,
-              "lineEnd": 175
-            },
-            {
-              "lineStart": 192,
-              "lineEnd": 195
+              "lineStart": 180,
+              "lineEnd": 184
             }
           ],
-          "modifiedLines": [
-            {
-              "lineStart": 90,
-              "lineEnd": 110
-            },
-            {
-              "lineStart": 146,
-              "lineEnd": 173
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -172,8 +143,8 @@
         },
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 224,
-          "lineEnd": 232,
+          "lineStart": 229,
+          "lineEnd": 237,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -224,16 +195,7 @@
           "lineEnd": 58,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 52,
-              "lineEnd": 52
-            },
-            {
-              "lineStart": 55,
-              "lineEnd": 57
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -249,16 +211,7 @@
           "lineEnd": 71,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 61,
-              "lineEnd": 61
-            },
-            {
-              "lineStart": 66,
-              "lineEnd": 70
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -305,22 +258,8 @@
           "lineStart": 86,
           "lineEnd": 123,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 88,
-              "lineEnd": 88
-            },
-            {
-              "lineStart": 117,
-              "lineEnd": 120
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 90,
-              "lineEnd": 110
-            }
-          ]
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -351,18 +290,8 @@
           "lineStart": 146,
           "lineEnd": 176,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 175,
-              "lineEnd": 175
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 146,
-              "lineEnd": 173
-            }
-          ]
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -370,17 +299,17 @@
       "name": "to_client_event",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
           "lineStart": 178,
-          "lineEnd": 199,
+          "lineEnd": 204,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 192,
-              "lineEnd": 195
+              "lineStart": 180,
+              "lineEnd": 184
             }
           ],
           "modifiedLines": []
@@ -395,8 +324,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 201,
-          "lineEnd": 206,
+          "lineStart": 206,
+          "lineEnd": 211,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -411,8 +340,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 208,
-          "lineEnd": 213,
+          "lineStart": 213,
+          "lineEnd": 218,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -427,16 +356,16 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 216,
-          "lineEnd": 221,
+          "lineStart": 221,
+          "lineEnd": 226,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 223,
-          "lineEnd": 233,
+          "lineStart": 228,
+          "lineEnd": 238,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -513,7 +442,7 @@
       "name": "HostSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/session.rs",
@@ -534,24 +463,15 @@
         {
           "sourcePath": "src/host/session.rs",
           "lineStart": 50,
-          "lineEnd": 105,
+          "lineEnd": 109,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 65,
-              "lineEnd": 68
-            },
-            {
-              "lineStart": 70,
-              "lineEnd": 73
+              "lineStart": 90,
+              "lineEnd": 93
             }
           ],
-          "modifiedLines": [
-            {
-              "lineStart": 54,
-              "lineEnd": 54
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -571,8 +491,8 @@
         },
         {
           "sourcePath": "src/host/session.rs",
-          "lineStart": 113,
-          "lineEnd": 118,
+          "lineStart": 117,
+          "lineEnd": 122,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -638,22 +558,8 @@
           "lineStart": 51,
           "lineEnd": 76,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 65,
-              "lineEnd": 68
-            },
-            {
-              "lineStart": 70,
-              "lineEnd": 73
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 54,
-              "lineEnd": 54
-            }
-          ]
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -661,14 +567,19 @@
       "name": "worker",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/session.rs",
           "lineStart": 78,
-          "lineEnd": 104,
+          "lineEnd": 108,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 90,
+              "lineEnd": 93
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -681,16 +592,16 @@
       "codeSegments": [
         {
           "sourcePath": "src/host/session.rs",
-          "lineStart": 107,
-          "lineEnd": 110,
+          "lineStart": 111,
+          "lineEnd": 114,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/session.rs",
-          "lineStart": 112,
-          "lineEnd": 119,
+          "lineStart": 116,
+          "lineEnd": 123,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -957,22 +868,18 @@
       "name": "main",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/main.rs",
           "lineStart": 5,
-          "lineEnd": 35,
+          "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 18,
-              "lineEnd": 18
-            },
-            {
-              "lineStart": 21,
-              "lineEnd": 28
+              "lineStart": 17,
+              "lineEnd": 30
             }
           ]
         }
@@ -1054,6 +961,27 @@
           "lineEnd": 6,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "marix-server-telemetry",
+      "type": "bin",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/main.rs",
+          "lineStart": 5,
+          "lineEnd": 29,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 29
+            }
+          ],
           "modifiedLines": []
         }
       ]

@@ -3,9 +3,12 @@
   "module": {
     "path": "src/client",
     "name": "client",
-    "purpose": "Owns the client library and CLI-facing session API, including resilient server reconnects, task create/cancel messages, and conversion of task status updates into ClientEvent output.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the client API and CLI session transport, installing optional SessionId correlation metadata while preserving immediate channel readiness.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "session.rs"
+  ],
   "childModules": [
     {
       "path": "src/client/app",
@@ -47,12 +50,7 @@
           "lineEnd": 17,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 17
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -60,7 +58,7 @@
       "name": "ClientSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
@@ -76,58 +74,20 @@
           "lineEnd": 81,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 52,
-              "lineEnd": 52
-            },
-            {
-              "lineStart": 55,
-              "lineEnd": 57
-            },
-            {
-              "lineStart": 61,
-              "lineEnd": 61
-            },
-            {
-              "lineStart": 66,
-              "lineEnd": 70
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/client/session.rs",
           "lineStart": 85,
-          "lineEnd": 214,
+          "lineEnd": 219,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 88,
-              "lineEnd": 88
-            },
-            {
-              "lineStart": 117,
-              "lineEnd": 120
-            },
-            {
-              "lineStart": 175,
-              "lineEnd": 175
-            },
-            {
-              "lineStart": 192,
-              "lineEnd": 195
+              "lineStart": 180,
+              "lineEnd": 184
             }
           ],
-          "modifiedLines": [
-            {
-              "lineStart": 90,
-              "lineEnd": 110
-            },
-            {
-              "lineStart": 146,
-              "lineEnd": 173
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -139,29 +99,19 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 216,
-          "lineEnd": 221,
+          "lineStart": 221,
+          "lineEnd": 226,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 216,
-              "lineEnd": 221
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 223,
-          "lineEnd": 233,
+          "lineStart": 228,
+          "lineEnd": 238,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 223,
-              "lineEnd": 233
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },

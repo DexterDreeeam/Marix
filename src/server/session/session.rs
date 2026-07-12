@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::sync::OnceLock;
 use std::thread;
 
-use marix_common::Logger;
+use marix_common::{Logger, external::uuid};
 use marix_protocol::{Actor, Runtime, SessionEvent, SessionMessage};
 
 use super::{SessionRuntime, SessionState};
@@ -15,10 +15,13 @@ pub struct Session {
 
 impl Session {
     pub fn new(name: String) -> Self {
-        Logger::log(format!("core session '{name}' initializing"));
         let _ = SOURCE_NAME.set(name);
         let state = Arc::new(SessionState::new());
         Self { state }
+    }
+
+    pub fn session_id(&self) -> uuid::Uuid {
+        self.state.session_id
     }
 
     pub fn package_message(event: SessionEvent) -> SessionMessage {

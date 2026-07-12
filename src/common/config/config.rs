@@ -124,6 +124,7 @@ pub struct ServerConfig {
     pub client_port: u16,
     pub host_port: u16,
     pub telemetry_port: u16,
+    pub telemetry_http_port: u16,
     pub max_turns: u32,
 }
 
@@ -176,6 +177,7 @@ struct RawServerConfig {
     client_port: u16,
     host_port: u16,
     telemetry_port: u16,
+    telemetry_http_port: u16,
     max_turns: u32,
 }
 
@@ -233,6 +235,7 @@ fn build_config(content: &str, repo_root: &Path) -> Result<Config, ConfigError> 
             client_port: raw_config.server.client_port,
             host_port: raw_config.server.host_port,
             telemetry_port: raw_config.server.telemetry_port,
+            telemetry_http_port: raw_config.server.telemetry_http_port,
             max_turns: raw_config.server.max_turns,
         },
         model: ModelConfig {

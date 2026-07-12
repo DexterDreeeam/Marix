@@ -3,9 +3,11 @@
   "module": {
     "path": "src/common/external",
     "name": "external",
-    "purpose": "Now-public third-party library namespace wrappers that let downstream crates route third-party access through common::external while single ownership stays in common; includes image, redb embedded-database, remoc connection, reqwest, serde, serde_json, tokio, and toml helpers.",
-    "changeStatus": "unchanged"
+    "purpose": "Re-exports approved third-party namespaces and traits for common, including UUID generation and redb read/query support.",
+    "changeStatus": "modified"
   },
+  "added": ["uuid.rs"],
+  "modified": ["mod.rs","redb.rs"],
   "childModules": [],
   "elements": [
     {

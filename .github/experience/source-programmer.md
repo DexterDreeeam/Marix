@@ -525,3 +525,259 @@ connecter to protect this distinction.
   then narrowly retries after doubling single backslashes only inside exact
   `path`/`cwd` string fields. Existing `\\`/`\"` escapes and every non-path
   field remain untouched; all six native tools share this parser.
+- 2026-07-12: Telemetry collection is a separate workspace binary,
+  `marix-server-telemetry`; `Logger::host()` always accepts authenticated
+  telemetry connections, while `Logger::connect()` alone uses
+  `logging.remote` to choose remote transport or a runtime-local redb store.
+- 2026-07-12: A server owns one UUID for its process lifetime. It installs the
+  UUID in `Logger`, stores it in `SessionState`, and sends
+  `SessionEvent::SessionId` as the first post-handshake message. Host/client
+  connection readiness is deferred until that first control message is
+  received and installed in their logger.
+- 2026-07-12: `Logger` keeps its optional session UUID in a poison-tolerant
+  `RwLock`; every `LogMessage` snapshots it at emission, so local and remote
+  sinks serialize the same session metadata.
+- 2026-07-12: Server session UUID ownership lives in `SessionState::new()`,
+  which generates the UUID internally. `Session::session_id()` exposes the
+  copyable UUID so `server/main.rs` can configure `Logger` before emitting the
+  first status and session-initialization logs.
+- 2026-07-12 (supersedes the host/client readiness note above): Host and
+  client consider the core channel connected as soon as `connect_channel`
+  succeeds. `SessionEvent::SessionId` is optional logging correlation metadata
+  handled in the normal receive loop; it need not be first or present, and
+  pre-ID logs retain `session_id: None`.
+- 2026-07-12 (telemetry query API + HTTP page): `ServerConfig`/`RawServerConfig`
+  gained `telemetry_http_port: u16` (a new field alongside the existing
+  `telemetry_port`), mapped 1:1 in `build_config`. It is deliberately NOT a
+  `ChannelEndpoint` — the raw remoc telemetry channel (`telemetry_port`) is
+  unrelated wire protocol from the new plain-HTTP status page
+  (`telemetry_http_port`), bound directly in `server_telemetry` via
+  `tokio::net::TcpListener`, not through `structure::channel`.
+- 2026-07-12: Added `src/common/logging/query.rs` (`pub mod query;` in
+  `logging/mod.rs`) with a SECOND `impl Logger` block providing
+  `session_list()/session_log_list()/session_log_filter()`. This required
+  exactly one new `pub(super) fn Logger::local_log()` (returns the local
+  store's full message history) plus promoting the previously-fully-private
+  `Store` struct/`open_at`/`read_all`/`record` to `pub(super)` in
+  `logging/logger.rs` — `pub(super)` on an item defined in the `logging::logger`
+  submodule is visible to `logging` AND every descendant module, including the
+  sibling `logging::query`, which is the whole trick for cross-file access
+  inside one Cargo package without widening the crate's real public API.
+  `Store::open_at(path: &Path)` was extracted out of the pre-existing
+  `Store::open(config, role)` so tests can build an isolated redb file
+  directly, bypassing `Config`/the process-global `LOGGER` OnceLock entirely.
+- 2026-07-12: redb 4.1 read access needs `ReadableDatabase` (for
+  `Database::begin_read()`, a trait method — `begin_write()` stays inherent so
+  it worked before without it) and `ReadableTable` (for `.iter()`, a trait
+  default method; `ReadableTableMetadata` alone only gives `.len()`). Added
+  both to `common/external/redb.rs`'s existing re-export line. Row shape is
+  `Result<(AccessGuard<K>, AccessGuard<V>)>`; get bytes via
+  `value.value()` (needs the `ReadableTable`-provided iterator item type, not
+  a method on `ReadableTableMetadata`).
+- 2026-07-12: The query semantics that matched the spec exactly: `session_list`
+  puts `None` (unassigned) first when any unassigned message exists, then
+  every `Some(uuid)` session ordered by that session's EARLIEST `emit_ts`
+  descending (newest-first), ties broken by ascending UUID string.
+  `session_log_list`/`session_log_filter` return one session's messages
+  ascending by `emit_ts`; since `Store::read_all` yields rows in ascending
+  redb key (= record-insertion) order and `Vec::sort_by_key` is stable, a
+  plain `.sort_by_key(|m| m.emit_ts)` after filtering gives "ties keep
+  insertion/record order" for free — no explicit record-id field needed on
+  `LogMessage`. Keyword filtering trims + treats blank as "no filter", then
+  does `.to_lowercase()` on both sides for Unicode-aware case-insensitive
+  `contains` (good enough for e.g. "ÜBER"/"über"; no full Unicode
+  case-folding library was added).
+- 2026-07-12 (testing pattern, no `Config`/global `LOGGER` involved): Because
+  `Store::open_at` takes a raw path with no `Config` dependency, unit tests in
+  `logging/query.rs` open a FRESH `Store` per test at
+  `std::env::temp_dir().join(format!("...{}.redb", uuid::Uuid::new_v4()))`
+  (unique per test, no `TEST_GUARD`/serialization needed, unlike the
+  `Config`-driven `structure/tests/channel.rs` pattern) and call
+  `store.record(...)` + `store.read_all()` directly — never touching the
+  process-global `LOGGER` `OnceLock`, so these tests are fully parallel-safe
+  and don't interfere with any other test that might call `Logger::host()`.
+- 2026-07-12 (new leaf package: `marix-server-telemetry` HTTP status page):
+  Added `axum = "0.8"` (default features: `json`+`query`+`tokio`+`http1` are
+  enough; no `tower-http`/CORS layer added on purpose — same-origin only) +
+  `tokio`(`macros`,`net`,`rt-multi-thread`) + `serde`(`derive`) + `serde_json`
+  + `uuid` directly to `server_telemetry/Cargo.toml`. Since `marix-common`
+  itself has no reason to depend on axum, the "route third-party crates
+  through wrappers" rule was satisfied the same way `marix-protocol` does it:
+  a package-root `external/mod.rs` with whole-crate re-exports
+  (`pub use axum;`, `pub use serde_json;`, `pub use tokio;`, `pub use uuid;`,
+  plus `pub use serde::Deserialize;` since only the derive macro is named
+  directly), NOT under `common/external/`. Every `http/*.rs` file does
+  `use crate::external::*;` then references `axum::Json`,
+  `axum::extract::Query`, `axum::http::StatusCode`,
+  `axum::response::{IntoResponse, Response}`, `axum::routing::get`,
+  `tokio::net::TcpListener`, `tokio::runtime::Builder`, `uuid::Uuid`,
+  `serde_json::json!` fully-qualified — mirrors every `protocol/*.rs` file's
+  `use crate::external::*;` + `uuid::Uuid`/`serde_json::from_str` style
+  exactly. `IntoResponse` is imported directly (`use axum::response::
+  IntoResponse;`) since it is a trait needed for `.into_response()` method
+  resolution, same rationale as re-exporting `Serialize`/`Deserialize` by
+  name instead of just the `serde` module.
+- 2026-07-12: `server_telemetry/http/mod.rs` only has `mod
+  error;/handlers;/router;/server;` + `pub(crate) use server::serve;` (and
+  `error::HttpError` is NOT re-exported from `mod.rs` — nothing outside
+  `http` needs to name it, `main.rs` only calls `http::serve(port)`).
+  Sibling private submodules (`error`, `handlers`, `router`, `server`) can
+  still reference each other via `crate::http::error::HttpError` etc. even
+  though `mod error;` itself has no `pub` — module-privacy only blocks access
+  from OUTSIDE the parent `http` module, not from other children of the same
+  parent. `server_telemetry` has NO `[lib]` target (bin-only), so `pub(crate)`
+  inside it is already the crate's entire "public API" surface — there is
+  nothing to leak to another crate regardless of the visibility keyword used.
+- 2026-07-12 (axum smoke-testing without a bound real port): `server.rs`
+  splits `serve(port)` into `build_runtime` + `bind(port)` (real
+  `TcpListener::bind`) + `serve_listener(listener)` (the actual
+  `axum::serve(...).await` loop, which also logs "HTTP listening on port N"
+  using the LISTENER's actual bound port, so `port=0` test binds still log a
+  believable message). Tests call `bind(0)` (OS-assigned ephemeral port —
+  this is what "random listener, no real/fixed port" means in this codebase)
+  then `tokio::spawn(serve_listener(listener))` inside a
+  `#[tokio::test(flavor = "multi_thread", worker_threads = 2)]` test, and
+  drive real HTTP/1.1 requests with a ~40-line hand-rolled `TcpStream` GET
+  helper (`Connection: close` + read-to-EOF) instead of adding an HTTP client
+  dependency just for tests. GOTCHA (Windows): binding `0.0.0.0:0` and then
+  trying to `TcpStream::connect` to the literal address from
+  `listener.local_addr()` (`0.0.0.0:PORT`) fails with `AddrNotAvailable` (os
+  error 10049) — connecting TO the wildcard address is invalid on Windows;
+  the test must swap in `127.0.0.1` with the bound port
+  (`SocketAddr::from(([127,0,0,1], local_addr.port()))`) before connecting,
+  even though the server itself bound `0.0.0.0`.
+- 2026-07-12 (hosting `Logger` inside `server_telemetry`'s own test binary):
+  The HTTP handlers for `/api/sessions`/`/api/logs` need `Logger::host()` to
+  have succeeded (else every request 500s with `NotHosting`). Test setup
+  writes its own temp-dir TOML fixture (same `RawConfig` shape as
+  `structure/tests/channel.rs`'s, now with `telemetry_http_port` too), points
+  `MARIX_CONFIG` at it, and calls `Logger::host()` — all inside a
+  `static INIT: std::sync::Once` guarded closure so it runs exactly once for
+  the whole test binary (the `LOGGER` `OnceLock`/`Config` cache are
+  process-global; a second `Logger::host()` call would only return
+  `AlreadyConfigured`, harmless but wasteful). Set `[server]` ports to `0`
+  in the fixture too (the raw telemetry accept-loop it spawns just binds an
+  ephemeral port in the background and is otherwise irrelevant to the HTTP
+  smoke tests).
+- 2026-07-12 (HTTP error-body hygiene): `/api/logs`/`/api/sessions` map every
+  `LoggingError` (which can embed real filesystem paths, e.g. `Database`
+  variant messages) to a fixed, generic `{"error":"internal server error"}`
+  500 body — the real error detail is only ever passed to
+  `Logger::error(format!(...))` (recorded in the local telemetry store, never
+  in the HTTP response). `400`s for bad `session_id`/`tag` use fixed static
+  strings (`"invalid session_id"`/`"invalid tag"`/`"missing session_id"`)
+  rather than echoing the caller's raw query value back, to avoid reflecting
+  arbitrary client input into a response body.
+- 2026-07-12 (contract fix: only `Logger::host()` is queryable): The prior
+  `Sink::Local(Store)` was reused by BOTH `Logger::host()` and
+  `Logger::connect()`'s non-remote branch, so `local_log()`'s
+  `Some(Sink::Local(store)) => store.read_all()` wrongly let an ordinary
+  `connect()`-only runtime answer session/log queries too. Split the enum
+  into `Sink::Host(Store)` (set only by `host()`) and `Sink::Local(Store)`
+  (set only by `connect()`'s non-remote branch); `record()`/`telemetry()`
+  still accept `Host` and `Local` identically (both sides keep recording
+  their own process's messages), but the new private free fn
+  `host_store(sink: Option<&Sink>) -> Result<&Store, LoggingError>` matches
+  ONLY `Sink::Host` and is the sole thing `local_log()` calls — `Local`,
+  `Remote`, and unconfigured all fall through its `_` arm to `NotHosting`.
+  Extracting the match into its own fn (rather than inlining it in
+  `local_log`) let a `#[cfg(test)] mod tests` at the bottom of
+  `logger.rs` unit-test the match table directly against
+  `Sink::Host(temp_store())`/`Sink::Local(temp_store())`/`None` built via the
+  already-`pub(super)` `Store::open_at`, with ZERO use of the process-global
+  `LOGGER` `OnceLock` — same "own temp redb file per test, no shared state"
+  trick as `logging/query.rs`'s tests. This is the general pattern for
+  testing `OnceLock`/global-singleton match logic in this codebase: pull the
+  match arms into a small private fn taking the enum by value/reference, and
+  unit-test that fn directly instead of trying to reset or race the global.
+- 2026-07-12 (visibility-narrowing gotcha in bin-only crates):
+  `pub(super)` inside a bin crate submodule ONLY reaches that module's
+  direct parent and the parent's OTHER descendants — it does NOT reach back
+  up past the parent to the crate root/`main.rs`, even though `main.rs` is
+  itself an ancestor of every module. Tried narrowing
+  `server_telemetry/http`'s `pub(crate) fn serve`/`pub(crate) use
+  server::serve` (in `http/server.rs`/`http/mod.rs`) to `pub(super)` since
+  the task asked for narrowest visibility; `cargo check` failed with E0364
+  (private and cannot be re-exported) because `main.rs` calls
+  `http::serve(...)` from the crate root, which is an ANCESTOR of `http`,
+  not a descendant of `http`'s parent. Also had to keep `HttpError`
+  `pub(crate)` for the same reason — it appears in `serve`'s `Result<(),
+  HttpError>` return type, and a function's visibility can never exceed the
+  visibility of types in its own signature (E0603/"more private than" once
+  attempted). Everything ELSE in that module narrowed cleanly to
+  `pub(super)` (`router::build`, all three `handlers::{root,sessions,logs}`
+  fns, `handlers::LogsQuery`) because their only callers (`server.rs`,
+  `router.rs`) are siblings/descendants of `http`, never the crate root.
+  Rule of thumb: only items reachable directly from `main.rs`/the crate root
+  need `pub(crate)` in a bin-only crate; everything reachable solely from
+  sibling submodules can go to `pub(super)`.
+- 2026-07-12 (final polish, package-root `external/mod.rs` was wrong location):
+  the earlier "new leaf package" entry above put the axum/serde/tokio/uuid
+  re-export wrapper at `server_telemetry/external/mod.rs` (package root,
+  mirroring `marix-protocol`'s pattern), but the actual requirement for THIS
+  crate was narrower: "HTTP server and page code must all live under
+  `server_telemetry/http/`". Moved the wrapper to
+  `server_telemetry/http/external.rs` (private `mod external;` declared in
+  `http/mod.rs`, alongside `error`/`handlers`/`router`/`server`), deleted the
+  package-root `external/` dir entirely, and dropped `main.rs`'s `mod
+  external;` (main.rs has zero axum/serde/tokio/uuid usage — only `Config`/
+  `Logger` — so it needs no wrapper access at all). `handlers.rs`/`router.rs`/
+  `server.rs` all switched their glob import from `use crate::external::*;`
+  to `use crate::http::external::*;` — matches this package's existing
+  sibling-reference style (`server.rs` already did `use
+  crate::http::error::HttpError;`/`use crate::http::router;` rather than
+  `use super::...`). General rule for a bin-only crate: when a third-party
+  wrapper is used ONLY by one feature subtree (here, all axum/serde_json/
+  tokio/uuid usage is HTTP-only), put `external.rs` inside that subtree's own
+  module directory, not at the crate root — package-root placement is only
+  right when multiple sibling subtrees would need it.
+- 2026-07-12 (page.html empty-session-list bug): `/api/sessions` returning
+  `[]` used to leave `#initial-loading` (`Loading…`) visible forever, because
+  `loadSessions()` only ever reassigned `state.selectedSession` inside `if
+  (... && state.sessions.length > 0)` branches — an empty list fell through
+  every branch untouched and `loadLogs()` never got a `selectedSession` to
+  build a URL from, so `renderLogs()` (the only code that hid
+  `#initial-loading`) was never called. Fixed by adding an explicit
+  `state.sessions.length === 0` branch at the TOP of `loadSessions()` that
+  resets `state.selectedSession = undefined`, clears `#log-body`, and calls a
+  new `setLogAreaState("no-sessions")` helper — added 4th HTML state div
+  `#no-sessions-state` (`No sessions available.`, `display: none` inline,
+  grouped into the existing `#empty-state, #initial-loading` CSS selector).
+  `setLogAreaState(mode)` is a single function taking `"loading" |
+  "no-sessions" | "empty" | "table"` that toggles ALL FOUR
+  loading/no-sessions/empty/table elements' `display` together (replacing the
+  old ad hoc two-line toggle inside `renderLogs`) — this is now the ONLY place
+  that touches those four elements' visibility, so there is no way for two of
+  them to be visible at once. Because this branch returns before the
+  `stillPresent` check, the "selected session disappeared AND new list is
+  empty" case the task called out is automatically covered by the same empty
+  branch (no separate code path needed) — the old `!stillPresent &&
+  state.sessions.length > 0` guard could also drop its `length > 0` half since
+  by that point in the function the empty-list case has already returned.
+- 2026-07-12 (HTTP root smoke test hardening): `root_route_serves_html_page`
+  in `http/server.rs`'s `#[cfg(test)]` block previously only asserted
+  `body.contains("<html")`; strengthened to also assert
+  `body.contains(r#"id="session-list""#)` /
+  `r#"id="tag-filter""#` / `r#"id="keyword-filter""#"` so the smoke test
+  actually fails if `page.html`'s session list or tag/keyword filter markup
+  ever regresses, not just if the file stops being HTML at all.
+- 2026-07-12 (`/api/logs?tag=` contract fix — blank tag means "all tags", not
+  400): `handlers::logs`'s `LogsQuery.tag` used to feed `query.tag.as_deref()`
+  straight into `parse_tag` whenever `Some(_)`, so `tag=` (present-but-empty,
+  which the query-string frontend/JS actually sends for "no tag filter") hit
+  the `_ => Err("invalid tag")` arm and returned 400 — wrong per the outward
+  contract `tag=<Info|Warning|Error|Debug|empty>`. Fixed by trimming first
+  (`query.tag.as_deref().map(str::trim)`) and only calling `parse_tag` when
+  the trimmed string is non-empty; missing key OR blank/whitespace-only value
+  both collapse to `None` ("all tags"), matching the existing
+  `keyword`-blank-means-no-filter precedent one line below it in the same fn.
+  A non-empty-but-unrecognized tag still 400s via the same `parse_tag`
+  "invalid tag" error. The `tag.is_none() && keyword.is_none()` branch
+  (`Logger::session_log_list` vs `Logger::session_log_filter`) needed NO
+  change — it already worked correctly once `tag` collapses to `None` for
+  blank input. Added a `server.rs` smoke-test assertion
+  (`/api/logs?session_id=unassigned&tag=` → 200 + valid JSON array) right next
+  to the existing bad-tag-400 case in `logs_route_rejects_invalid_session_and_tag`
+  (kept in the same test fn since it's the same query-family, just didn't
+  rename the fn). No public API surface changed — `LogsQuery`'s fields and
+  `logs`'s signature are untouched; this was purely internal parsing logic.

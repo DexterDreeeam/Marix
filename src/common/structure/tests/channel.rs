@@ -44,6 +44,7 @@ auth_token = "base-token"
 client_port = 39000
 host_port = 39001
 telemetry_port = 39002
+telemetry_http_port = 39003
 max_turns = 8
 
 [model]

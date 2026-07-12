@@ -3,9 +3,12 @@
   "module": {
     "path": "src/host",
     "name": "host",
-    "purpose": "Owns host session connectivity and host-side executor/execution routing between server events and registered tools.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns host execution and its resilient server session, installing optional SessionId correlation metadata without gating channel readiness.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "session.rs"
+  ],
   "childModules": [
     {
       "path": "src/host/execution",
@@ -89,7 +92,7 @@
       "name": "HostSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/session.rs",
@@ -110,24 +113,15 @@
         {
           "sourcePath": "src/host/session.rs",
           "lineStart": 50,
-          "lineEnd": 105,
+          "lineEnd": 109,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 65,
-              "lineEnd": 68
-            },
-            {
-              "lineStart": 70,
-              "lineEnd": 73
+              "lineStart": 90,
+              "lineEnd": 93
             }
           ],
-          "modifiedLines": [
-            {
-              "lineStart": 54,
-              "lineEnd": 54
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -147,8 +141,8 @@
         },
         {
           "sourcePath": "src/host/session.rs",
-          "lineStart": 113,
-          "lineEnd": 118,
+          "lineStart": 117,
+          "lineEnd": 122,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -214,22 +208,8 @@
           "lineStart": 51,
           "lineEnd": 76,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 65,
-              "lineEnd": 68
-            },
-            {
-              "lineStart": 70,
-              "lineEnd": 73
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 54,
-              "lineEnd": 54
-            }
-          ]
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -237,14 +217,19 @@
       "name": "worker",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/session.rs",
           "lineStart": 78,
-          "lineEnd": 104,
+          "lineEnd": 108,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 90,
+              "lineEnd": 93
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -257,16 +242,16 @@
       "codeSegments": [
         {
           "sourcePath": "src/host/session.rs",
-          "lineStart": 107,
-          "lineEnd": 110,
+          "lineStart": 111,
+          "lineEnd": 114,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/session.rs",
-          "lineStart": 112,
-          "lineEnd": 119,
+          "lineStart": 116,
+          "lineEnd": 123,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

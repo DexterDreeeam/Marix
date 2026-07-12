@@ -2,6 +2,7 @@ use std::sync::{Arc, Mutex as StdMutex};
 
 use marix_common::{
     Receiver, Sender, SharedNetReceiver, SharedNetSender, System, WorkQueue, build_channel,
+    external::uuid,
 };
 use marix_protocol::{SessionEvent, SessionMessage, TaskSignature};
 
@@ -9,6 +10,7 @@ use crate::session::SessionContext;
 use crate::task::Task;
 
 pub struct SessionState {
+    pub session_id: uuid::Uuid,
     pub context: Arc<StdMutex<SessionContext>>,
     pub host_sys: StdMutex<Option<System>>,
     pub tasks: WorkQueue<TaskSignature, Arc<StdMutex<Task>>>,
@@ -24,6 +26,7 @@ impl SessionState {
     pub fn new() -> Self {
         let (session_tx, session_rx) = build_channel();
         Self {
+            session_id: uuid::Uuid::new_v4(),
             context: Arc::new(StdMutex::new(SessionContext {
                 system: None,
                 tasks: Vec::new(),

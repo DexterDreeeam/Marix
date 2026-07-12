@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Owns the hierarchical protocol contracts for sessions, tasks, plans, steps, invocations, relays, executors, host executions, tools, signatures, statuses, and errors.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns shared actor/runtime contracts and serialized execution, session, task, plan, step, invocation, relay, executor, and tool protocols.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -40,7 +41,7 @@
     {
       "path": "src/protocol/session",
       "name": "session",
-      "purpose": "Owns the SessionEvent protocol enum for top-level task creation, task updates, and nested task events."
+      "purpose": "Owns the top-level SessionEvent envelope, including optional UUID correlation metadata and task/executor traffic."
     },
     {
       "path": "src/protocol/step",
@@ -1118,17 +1119,17 @@
       "name": "SessionEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/session/event.rs",
           "lineStart": 5,
-          "lineEnd": 12,
+          "lineEnd": 13,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 10,
-              "lineEnd": 10
+              "lineStart": 7,
+              "lineEnd": 7
             }
           ],
           "modifiedLines": []

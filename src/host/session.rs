@@ -87,6 +87,10 @@ impl HostSession {
         runtime.block_on(async move {
             while let Ok(Some(message)) = server_rx.recv().await {
                 match message.event {
+                    SessionEvent::SessionId(id) => {
+                        Logger::set_id(id);
+                        Logger::log("host session id updated");
+                    }
                     SessionEvent::Executor(event) => {
                         executor.dispatch(event);
                     }

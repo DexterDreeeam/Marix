@@ -6,5 +6,6 @@ pub mod serde;
 pub mod serde_json;
 pub mod tokio;
 pub mod toml;
+pub mod uuid;
 
 pub use self::serde::{Deserialize, Serialize};
