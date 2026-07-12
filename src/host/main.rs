@@ -1,4 +1,4 @@
-use marix_common::{Config, Logger};
+use marix_common::{Config, LogSource, Logger};
 use marix_host::HostSession;
 
 fn main() {
@@ -22,7 +22,7 @@ fn main() {
 /// Configures logging on a best-effort basis. Diagnostics must not stop the
 /// host from serving executions.
 fn configure_logging(config: &Config) {
-    match Logger::connect() {
+    match Logger::connect(LogSource::Host) {
         Ok(()) => {
             let status = if config.logging.remote {
                 "connected to telemetry"

@@ -3,12 +3,10 @@
   "module": {
     "path": "src/host",
     "name": "host",
-    "purpose": "Owns host execution and its resilient server session, installing optional SessionId correlation metadata without gating channel readiness.",
+    "purpose": "Owns host execution and its resilient server session, configuring host-sourced telemetry without gating channel readiness.",
     "changeStatus": "modified"
   },
-  "modified": [
-    "session.rs"
-  ],
+  "modified": ["session.rs", "main.rs"],
   "childModules": [
     {
       "path": "src/host/execution",
@@ -26,7 +24,7 @@
       "name": "main",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/main.rs",
@@ -44,10 +42,10 @@
       ]
     },
     {
-      "name": "connect_telemetry",
+      "name": "configure_logging",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/main.rs",
@@ -57,16 +55,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 22,
-              "lineEnd": 24
-            },
-            {
-              "lineStart": 27,
-              "lineEnd": 32
-            },
-            {
-              "lineStart": 35,
-              "lineEnd": 35
+              "lineStart": 24,
+              "lineEnd": 25
             }
           ]
         }

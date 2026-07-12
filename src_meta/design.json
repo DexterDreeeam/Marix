@@ -3,13 +3,10 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Defines the Marix Rust workspace and its client, host, server, standalone telemetry collector, protocol, prompt, common, target, and tool packages.",
+    "purpose": "Defines the Marix Rust workspace and its client, host, server, source-aware telemetry, protocol, prompt, common, target, and tool packages.",
     "changeStatus": "modified"
   },
-  "modified": [
-    "Cargo.lock",
-    "Cargo.toml"
-  ],
+  "modified": ["Cargo.lock", "Cargo.toml"],
   "childModules": [
     {
       "path": "src/client",
@@ -19,12 +16,12 @@
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Shared common crate root for configuration, local-or-remote telemetry, authenticated wildcard-listener channels, reusable structures, and external adapters."
+      "purpose": "Owns shared configuration, third-party wrappers, source- and session-aware telemetry with persistent migration/query support, and reusable transport structures."
     },
     {
       "path": "src/host",
       "name": "host",
-      "purpose": "Owns host execution and its resilient server session, installing optional SessionId correlation metadata without gating channel readiness."
+      "purpose": "Owns host execution and its resilient server session, configuring host-sourced telemetry without gating channel readiness."
     },
     {
       "path": "src/prompt",
@@ -39,7 +36,7 @@
     {
       "path": "src/server",
       "name": "server",
-      "purpose": "Runs the server core, connects it to the independent telemetry collector, and owns task/session/model orchestration."
+      "purpose": "Runs the server core with server-sourced telemetry and owns task, session, model, and ordered relay orchestration."
     },
     {
       "path": "src/target",
@@ -376,7 +373,7 @@
       "name": "main",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/main.rs",
@@ -394,10 +391,10 @@
       ]
     },
     {
-      "name": "connect_telemetry",
+      "name": "configure_logging",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/main.rs",
@@ -407,16 +404,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 22,
-              "lineEnd": 24
-            },
-            {
-              "lineStart": 27,
-              "lineEnd": 32
-            },
-            {
-              "lineStart": 35,
-              "lineEnd": 35
+              "lineStart": 24,
+              "lineEnd": 25
             }
           ]
         }

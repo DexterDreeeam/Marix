@@ -8,14 +8,17 @@
     const snapshot = captureOverviewReloadState();
     const previousState = captureOverviewDataState();
     try {
+      clearTelemetryPortalState();
       if (typeof hideActiveReloadBanner === "function") hideActiveReloadBanner();
       if (typeof hideCodePopover === "function") hideCodePopover();
       setLoadingVisible(true);
 
       const dataSource = options.dataSource || await resolveOverviewReloadSource();
+      clearTelemetryPortalState(dataSource.kind);
       setLoadingVisible(true);
       setLoadingMessage(dataSource.kind === DATA_SOURCE_LOCAL ? t("loadingOverview") : t("buildingOverview"));
       await loadOverviewDataFromSource(dataSource);
+      await prepareTelemetryPortal(activeDataSource, localRootHandle);
       reconcileOverviewSelectionAfterReload(snapshot, options);
       if (options.bindEventsAfterLoad) bindEvents();
       await renderOverviewAfterDataReload(snapshot);
@@ -31,6 +34,7 @@
     } catch (error) {
       logOverviewError("overview data reload failed", error);
       restoreOverviewDataState(previousState);
+      await prepareTelemetryPortal(activeDataSource, localRootHandle);
       if (manifest) {
         await renderOverviewAfterDataReload(snapshot);
       } else {

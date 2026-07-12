@@ -68,6 +68,7 @@ impl RuntimeAsync<RelayEvent, RelayError> for RelayRuntime {
             prompt: self.state.prompt.clone(),
         };
         let signature = self.state.signature.clone();
+        Logger::log(format!("[Model Relay] Prompt:\n{}", request.prompt));
         Logger::debug(format!("relay {signature} model async request started"));
         let responses = {
             let mut backend = self
@@ -181,12 +182,28 @@ impl RelayRuntime {
             return Ok(());
         }
 
-        *self
-            .state
-            .final_signal
-            .lock()
-            .unwrap_or_else(|error| error.into_inner()) = Some(response.seq);
-        if Self::is_complete(&self.state) {
+        let first_complete = {
+            let mut final_signal = self
+                .state
+                .final_signal
+                .lock()
+                .unwrap_or_else(|error| error.into_inner());
+            let first_complete = final_signal.is_none();
+            *final_signal = Some(response.seq);
+            first_complete
+        };
+        let is_complete = Self::is_complete(&self.state);
+        if first_complete {
+            if !is_complete {
+                Logger::warning(format!(
+                    "relay {} model completed before all chunks arrived; \
+                     expected {}, current output may be incomplete",
+                    &self.state.signature, response.seq,
+                ));
+            }
+            Logger::log(format!("[Model Relay] Output:\n{}", self.state.output(),));
+        }
+        if is_complete {
             self.send_step_event(StepEvent::Update(StepletStatus::Succeed {
                 seq_count: response.seq,
             }));

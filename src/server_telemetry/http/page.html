@@ -18,6 +18,9 @@
     --warning: #e0a83e;
     --error: #e5484d;
     --debug: #8b93a3;
+    --source-host: #d2a8ff;
+    --source-client: #56d4dd;
+    --source-server: #7ee787;
   }
   * { box-sizing: border-box; }
   html, body {
@@ -33,18 +36,25 @@
     flex-direction: row;
     height: 100vh;
     width: 100vw;
+    overflow: hidden;
   }
   #sessions {
-    width: 280px;
-    min-width: 200px;
-    max-width: 40vw;
-    border-right: 1px solid var(--border);
+    flex: 0 0 16px;
+    width: 16px;
+    min-width: 0;
+    border-right: 1px solid var(--accent);
     background: var(--panel);
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: width 240ms ease, flex-basis 240ms ease;
+  }
+  #sessions:hover, #sessions:focus-within {
+    flex-basis: 216px;
+    width: 216px;
   }
   #sessions h1 {
+    width: 216px;
     font-size: 15px;
     margin: 0;
     padding: 14px 16px;
@@ -52,7 +62,19 @@
     color: var(--text);
     font-weight: 600;
   }
+  #sessions h1, #session-list {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 160ms ease;
+  }
+  #sessions:hover h1, #sessions:hover #session-list,
+  #sessions:focus-within h1, #sessions:focus-within #session-list {
+    opacity: 1;
+    pointer-events: auto;
+    transition-delay: 60ms;
+  }
   #session-list {
+    width: 216px;
     list-style: none;
     margin: 0;
     padding: 6px;
@@ -74,35 +96,26 @@
     background: var(--panel-alt);
     color: var(--text);
   }
+  #session-list li:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
   #session-list li.selected {
     background: var(--accent);
     color: #fff;
   }
   #session-list .session-label {
-    overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
   }
-  #session-list .copy-btn {
-    flex: none;
-    border: none;
-    background: transparent;
-    color: inherit;
-    opacity: 0.6;
-    cursor: pointer;
-    font-size: 13px;
-    padding: 2px 4px;
-    border-radius: 4px;
-  }
-  #session-list .copy-btn:hover {
-    opacity: 1;
-    background: rgba(255, 255, 255, 0.12);
-  }
   #main {
-    flex: 1;
+    flex: 1 1 auto;
+    width: auto;
+    margin-left: 0;
     display: flex;
     flex-direction: column;
     min-width: 0;
+    min-height: 0;
+    overflow: hidden;
   }
   #toolbar {
     display: flex;
@@ -138,6 +151,7 @@
   }
   #log-area {
     flex: 1;
+    min-height: 0;
     overflow: auto;
     padding: 0 16px 16px;
   }
@@ -161,14 +175,75 @@
     border-bottom: 1px solid var(--border);
     vertical-align: top;
   }
+  tbody tr {
+    transition: background-color 140ms ease;
+  }
+  tbody tr:hover, tbody tr:focus-within {
+    background: var(--panel-alt);
+  }
+  thead th:nth-child(-n+3),
+  tbody td:nth-child(-n+3) {
+    width: 1%;
+    padding-left: 7px;
+    padding-right: 7px;
+    white-space: nowrap;
+  }
+  thead th:nth-child(2),
+  tbody td:nth-child(2) {
+    text-align: center;
+  }
   td.message-cell {
     white-space: pre-wrap;
     word-break: break-word;
+    cursor: pointer;
+    transition: background-color 160ms ease;
   }
-  td.session-cell, td.time-cell {
+  td.message-cell:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+  td.message-cell.copied {
+    background: rgba(77, 141, 255, 0.18);
+  }
+  #copy-toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 100;
+    padding: 10px 16px;
+    border: 1px solid rgba(230, 233, 239, 0.24);
+    border-radius: 8px;
+    background: rgba(230, 233, 239, 0.15);
+    color: var(--text);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.24);
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0.96);
+    transition: opacity 160ms ease, transform 160ms ease;
+  }
+  #copy-toast.visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  td.time-cell {
     white-space: nowrap;
     color: var(--muted);
   }
+  .source-badge {
+    display: inline-flex;
+    width: 24px;
+    height: 24px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    color: #0f1115;
+  }
+  .source-host { background: var(--source-host); }
+  .source-client { background: var(--source-client); }
+  .source-server { background: var(--source-server); }
   .tag-badge {
     display: inline-block;
     padding: 2px 8px;
@@ -188,11 +263,33 @@
   @media (max-width: 720px) {
     #app { flex-direction: column; }
     #sessions {
+      flex: 0 0 auto;
       width: 100%;
+      min-width: 0;
       max-width: none;
       max-height: 30vh;
       border-right: none;
       border-bottom: 1px solid var(--border);
+      transition: none;
+    }
+    #sessions:hover, #sessions:focus-within {
+      flex-basis: auto;
+      width: 100%;
+    }
+    #sessions h1, #session-list {
+      width: 100%;
+      opacity: 1;
+      pointer-events: auto;
+      transition: none;
+    }
+    #main {
+      width: 100%;
+      margin-left: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #sessions, #sessions h1, #session-list, tbody tr, td.message-cell, #copy-toast {
+      transition: none;
     }
   }
 </style>
@@ -221,9 +318,8 @@
         <thead>
           <tr>
             <th>Emit</th>
-            <th>Arrival</th>
+            <th>Source</th>
             <th>Tag</th>
-            <th>Session</th>
             <th>Message</th>
           </tr>
         </thead>
@@ -234,6 +330,7 @@
     </div>
   </main>
 </div>
+<div id="copy-toast" role="status" aria-live="polite">Content Copied</div>
 <script>
 (function () {
   "use strict";
@@ -255,6 +352,8 @@
   var emptyStateEl = document.getElementById("empty-state");
   var initialLoadingEl = document.getElementById("initial-loading");
   var noSessionsEl = document.getElementById("no-sessions-state");
+  var copyToastEl = document.getElementById("copy-toast");
+  var copyToastTimer = null;
 
   // Exactly one of these is ever visible at a time: "loading" only until the
   // first sessions/logs response lands, "no-sessions" when there is no
@@ -277,15 +376,15 @@
     statusBannerEl.className = "";
   }
 
-  function sessionKey(session) {
-    return session === null ? "unassigned" : session;
+  function sessionKey(sessionId) {
+    return sessionId === null ? "unknown" : sessionId;
   }
 
-  function truncate(id) {
-    if (id.length <= 12) {
-      return id;
-    }
-    return id.slice(0, 8) + "…";
+  function fallbackSessionId(sessions) {
+    var ordinary = sessions.find(function (session) {
+      return session.id !== null;
+    });
+    return (ordinary || sessions[0]).id;
   }
 
   function fetchJSON(url) {
@@ -313,39 +412,31 @@
     var fragment = document.createDocumentFragment();
     state.sessions.forEach(function (session) {
       var item = document.createElement("li");
-      var key = sessionKey(session);
+      var key = sessionKey(session.id);
       if (key === sessionKey(state.selectedSession)) {
         item.className = "selected";
       }
+      item.tabIndex = 0;
+      item.setAttribute("role", "button");
 
       var label = document.createElement("span");
       label.className = "session-label";
-      if (session === null) {
-        label.textContent = "Unassigned";
-        item.title = "Unassigned";
+      if (session.id === null) {
+        label.textContent = "Unknown";
       } else {
-        label.textContent = truncate(session);
-        item.title = session;
+        label.textContent = formatTimestamp(session.emit_ts);
       }
+      item.title = label.textContent;
       item.appendChild(label);
 
-      if (session !== null) {
-        var copyBtn = document.createElement("button");
-        copyBtn.className = "copy-btn";
-        copyBtn.type = "button";
-        copyBtn.title = "Copy full session id";
-        copyBtn.textContent = "⧉";
-        copyBtn.addEventListener("click", function (event) {
-          event.stopPropagation();
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(session);
-          }
-        });
-        item.appendChild(copyBtn);
-      }
-
       item.addEventListener("click", function () {
-        selectSession(session);
+        selectSession(session.id);
+      });
+      item.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          selectSession(session.id);
+        }
       });
       fragment.appendChild(item);
     });
@@ -355,12 +446,12 @@
     sessionListEl.appendChild(fragment);
   }
 
-  function selectSession(session) {
-    var key = sessionKey(session);
+  function selectSession(sessionId) {
+    var key = sessionKey(sessionId);
     if (state.selectedSession !== undefined && sessionKey(state.selectedSession) === key) {
       return;
     }
-    state.selectedSession = session;
+    state.selectedSession = sessionId;
     renderSessions();
     loadLogs();
   }
@@ -376,15 +467,15 @@
         return false;
       }
       if (state.selectedSession === undefined) {
-        state.selectedSession = state.sessions[0];
+        state.selectedSession = fallbackSessionId(state.sessions);
         renderSessions();
         return true;
       }
       var stillPresent = state.sessions.some(function (session) {
-        return sessionKey(session) === sessionKey(state.selectedSession);
+        return sessionKey(session.id) === sessionKey(state.selectedSession);
       });
       if (!stillPresent) {
-        state.selectedSession = state.sessions[0];
+        state.selectedSession = fallbackSessionId(state.sessions);
         renderSessions();
         return true;
       }
@@ -408,8 +499,27 @@
     }
   }
 
+  function normalizedSource(source) {
+    switch (source) {
+      case "Host":
+      case "Client":
+      case "Server":
+        return source;
+      default:
+        return "Server";
+    }
+  }
+
+  function sourceBadgeClass(source) {
+    return "source-" + source.toLowerCase();
+  }
+
+  function sourceInitial(source) {
+    return source.charAt(0);
+  }
+
   function formatTimestamp(ms) {
-    if (!ms) {
+    if (ms === null || ms === undefined) {
       return "–";
     }
     var date = new Date(ms);
@@ -417,6 +527,38 @@
       return String(ms);
     }
     return date.toLocaleString();
+  }
+
+  function showCopyToast() {
+    if (copyToastTimer !== null) {
+      clearTimeout(copyToastTimer);
+    }
+    copyToastEl.classList.add("visible");
+    copyToastTimer = setTimeout(function () {
+      copyToastEl.classList.remove("visible");
+      copyToastTimer = null;
+    }, 1050);
+  }
+
+  function copyMessage(cell, message) {
+    if (!navigator.clipboard || !navigator.clipboard.writeText) {
+      return;
+    }
+    try {
+      Promise.resolve(navigator.clipboard.writeText(message))
+        .then(function () {
+          cell.classList.add("copied");
+          cell.title = "Copied";
+          showCopyToast();
+          setTimeout(function () {
+            cell.classList.remove("copied");
+            cell.title = "Click to copy message";
+          }, 700);
+        })
+        .catch(function () {});
+    } catch (error) {
+      // Clipboard access can fail outside a secure context.
+    }
   }
 
   function renderLogs(messages) {
@@ -429,10 +571,14 @@
       emitCell.textContent = formatTimestamp(entry.emit_ts);
       row.appendChild(emitCell);
 
-      var arrivalCell = document.createElement("td");
-      arrivalCell.className = "time-cell";
-      arrivalCell.textContent = formatTimestamp(entry.arrival_ts);
-      row.appendChild(arrivalCell);
+      var source = normalizedSource(entry.source);
+      var sourceCell = document.createElement("td");
+      var sourceBadge = document.createElement("span");
+      sourceBadge.className = "source-badge " + sourceBadgeClass(source);
+      sourceBadge.textContent = sourceInitial(source);
+      sourceBadge.title = source;
+      sourceCell.appendChild(sourceBadge);
+      row.appendChild(sourceCell);
 
       var tagCell = document.createElement("td");
       var badge = document.createElement("span");
@@ -441,19 +587,21 @@
       tagCell.appendChild(badge);
       row.appendChild(tagCell);
 
-      var sessionCell = document.createElement("td");
-      sessionCell.className = "session-cell";
-      if (entry.session_id === null || entry.session_id === undefined) {
-        sessionCell.textContent = "Unassigned";
-      } else {
-        sessionCell.textContent = truncate(entry.session_id);
-        sessionCell.title = entry.session_id;
-      }
-      row.appendChild(sessionCell);
-
       var messageCell = document.createElement("td");
       messageCell.className = "message-cell";
+      messageCell.tabIndex = 0;
+      messageCell.setAttribute("role", "button");
+      messageCell.title = "Click to copy message";
       messageCell.textContent = entry.message;
+      messageCell.addEventListener("click", function () {
+        copyMessage(messageCell, entry.message);
+      });
+      messageCell.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          copyMessage(messageCell, entry.message);
+        }
+      });
       row.appendChild(messageCell);
 
       fragment.appendChild(row);
@@ -472,7 +620,7 @@
       return null;
     }
     var sessionParam =
-      state.selectedSession === null ? "unassigned" : state.selectedSession;
+      state.selectedSession === null ? "unknown" : state.selectedSession;
     var url = "/api/logs?session_id=" + encodeURIComponent(sessionParam);
     if (state.tag) {
       url += "&tag=" + encodeURIComponent(state.tag);

@@ -1,4 +1,4 @@
-use marix_common::{Config, Logger};
+use marix_common::{Config, LogSource, Logger};
 use marix_protocol::Actor;
 use marix_server::Session;
 
@@ -16,7 +16,7 @@ fn main() {
     }
     let mut session = Session::new(config.name.clone());
     Logger::set_id(session.session_id());
-    if let Err(error) = Logger::connect() {
+    if let Err(error) = Logger::connect(LogSource::Server) {
         eprintln!("failed to configure logger: {error}");
         std::process::exit(1);
     }

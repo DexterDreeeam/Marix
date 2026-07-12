@@ -3,7 +3,7 @@
   "module": {
     "path": "src/server_telemetry",
     "name": "server_telemetry",
-    "purpose": "Runs the standalone telemetry collector and its self-hosted HTTP log viewer.",
+    "purpose": "Runs the standalone telemetry collector and its self-hosted session browser.",
     "changeStatus": "added"
   },
   "added": ["."],
@@ -11,7 +11,7 @@
     {
       "path": "src/server_telemetry/http",
       "name": "http",
-      "purpose": "Serves the self-hosted telemetry HTML page and JSON session/log query routes."
+      "purpose": "Serves the self-hosted telemetry session browser and JSON session/log query routes."
     }
   ],
   "elements": [
@@ -113,12 +113,12 @@
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
           "lineStart": 18,
-          "lineEnd": 31,
+          "lineEnd": 26,
           "language": "rust",
           "addedLines": [
             {
               "lineStart": 18,
-              "lineEnd": 31
+              "lineEnd": 26
             }
           ],
           "modifiedLines": []
@@ -133,13 +133,13 @@
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
-          "lineStart": 33,
-          "lineEnd": 38,
+          "lineStart": 28,
+          "lineEnd": 33,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 33,
-              "lineEnd": 38
+              "lineStart": 28,
+              "lineEnd": 33
             }
           ],
           "modifiedLines": []
@@ -154,26 +154,26 @@
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
-          "lineStart": 40,
-          "lineEnd": 76,
+          "lineStart": 35,
+          "lineEnd": 71,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 40,
-              "lineEnd": 76
+              "lineStart": 35,
+              "lineEnd": 71
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
-          "lineStart": 80,
-          "lineEnd": 117,
+          "lineStart": 75,
+          "lineEnd": 112,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 80,
-              "lineEnd": 117
+              "lineStart": 75,
+              "lineEnd": 112
             }
           ],
           "modifiedLines": []
@@ -244,12 +244,12 @@
         {
           "sourcePath": "src/server_telemetry/http/page.html",
           "lineStart": 1,
-          "lineEnd": 539,
+          "lineEnd": 687,
           "language": "html",
           "addedLines": [
             {
               "lineStart": 1,
-              "lineEnd": 539
+              "lineEnd": 687
             }
           ],
           "modifiedLines": []

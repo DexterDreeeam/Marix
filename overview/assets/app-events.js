@@ -20,6 +20,8 @@
       applyLanguage();
     });
 
+    document.getElementById("btn-telemetry-portal").addEventListener("click", openTelemetryPortal);
+
     document.getElementById("btn-reset-data-source").addEventListener("click", () => {
       resetDataSourceChoice();
     });

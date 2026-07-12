@@ -2,21 +2,24 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Mutex, OnceLock, RwLock};
 use std::thread;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::Duration;
 
 use crate::config::Config;
 use crate::external::redb::{
     Database, ReadableDatabase, ReadableTable, ReadableTableMetadata, TableDefinition,
 };
 use crate::external::{serde_json, uuid};
-use crate::logging::{LogMessage, LogTag, LoggingError};
+use crate::logging::{LogMessage, LogSource, LogTag, LoggingError};
 use crate::structure::{ChannelEndpoint, NetReceiver, NetSender, accept_channel, connect_channel};
 
 const TELEMETRY_TABLE: TableDefinition<u64, &[u8]> = TableDefinition::new("telemetry");
+const TELEMETRY_FILE_NAME: &str = "telemetry.redb";
 
 static LOGGER: Logger = Logger::new();
 
 pub struct Logger {
+    configuration: Mutex<()>,
+    source: OnceLock<LogSource>,
     sink: OnceLock<Sink>,
     session_id: RwLock<Option<uuid::Uuid>>,
 }
@@ -30,12 +33,11 @@ impl Logger {
     /// own receive worker, so telemetry from multiple processes is recorded
     /// concurrently.
     pub fn host() -> Result<(), LoggingError> {
-        let config = Config::load().map_err(LoggingError::Config)?;
-        let store = Store::open(&config, StoreRole::Server)?;
-        LOGGER
-            .sink
-            .set(Sink::Host(store))
-            .map_err(|_| LoggingError::AlreadyConfigured)?;
+        LOGGER.configure(LogSource::Server, || {
+            let config = Config::load().map_err(LoggingError::Config)?;
+            let store = Store::open(&config, StoreRole::Server)?;
+            Ok(Sink::Host(store))
+        })?;
         thread::spawn(accept_loop);
         Ok(())
     }
@@ -47,19 +49,16 @@ impl Logger {
     /// configuration by [`connect_channel`]. The connect is retried a few
     /// times, since the server may not yet be listening or may be briefly
     /// rebinding between accepted connections.
-    pub fn connect() -> Result<(), LoggingError> {
-        let config = Config::load().map_err(LoggingError::Config)?;
-        let sink = if config.logging.remote {
-            let sender = Self::connect_sender()?;
-            Sink::Remote(Mutex::new(sender))
-        } else {
-            Sink::Local(Store::open(&config, StoreRole::Runtime)?)
-        };
-        LOGGER
-            .sink
-            .set(sink)
-            .map_err(|_| LoggingError::AlreadyConfigured)?;
-        Ok(())
+    pub fn connect(source: LogSource) -> Result<(), LoggingError> {
+        LOGGER.configure(source, || {
+            let config = Config::load().map_err(LoggingError::Config)?;
+            if config.logging.remote {
+                let sender = Self::connect_sender()?;
+                Ok(Sink::Remote(Mutex::new(sender)))
+            } else {
+                Ok(Sink::Local(Store::open(&config, StoreRole::Runtime)?))
+            }
+        })
     }
 
     /// Sets the session identifier attached to future telemetry messages.
@@ -109,9 +108,8 @@ pub(super) struct Store {
 }
 
 impl Store {
-    /// Opens (creating if absent) the redb database at `path`, restoring the
-    /// next record id from the table's current length so ids keep
-    /// increasing across restarts of a persisted database file.
+    /// Opens the redb database at `path` for persistent append, creating it
+    /// when absent and restoring the next record id from the existing table.
     pub(super) fn open_at(path: &Path) -> Result<Self, LoggingError> {
         let database =
             Database::create(path).map_err(|error| LoggingError::Database(error.to_string()))?;
@@ -173,9 +171,33 @@ impl Store {
 impl Logger {
     const fn new() -> Self {
         Self {
+            configuration: Mutex::new(()),
+            source: OnceLock::new(),
             sink: OnceLock::new(),
             session_id: RwLock::new(None),
         }
+    }
+
+    fn configure(
+        &self,
+        source: LogSource,
+        create_sink: impl FnOnce() -> Result<Sink, LoggingError>,
+    ) -> Result<(), LoggingError> {
+        let _configuration = self
+            .configuration
+            .lock()
+            .unwrap_or_else(|error| error.into_inner());
+        if self.source.get().is_some() || self.sink.get().is_some() {
+            return Err(LoggingError::AlreadyConfigured);
+        }
+
+        let sink = create_sink()?;
+        self.source
+            .set(source)
+            .map_err(|_| LoggingError::AlreadyConfigured)?;
+        self.sink
+            .set(sink)
+            .map_err(|_| LoggingError::AlreadyConfigured)
     }
 
     fn emit(&self, tag: LogTag, message: String) {
@@ -189,7 +211,11 @@ impl Logger {
     }
 
     fn telemetry(&self, tag: LogTag, message: String) -> Result<(), LoggingError> {
+        let Some(source) = self.source.get().copied() else {
+            return Ok(());
+        };
         let mut message = LogMessage::new(tag, message);
+        message.source = source;
         message.session_id = *self
             .session_id
             .read()
@@ -266,11 +292,26 @@ fn host_store(sink: Option<&Sink>) -> Result<&Store, LoggingError> {
 }
 
 impl Store {
+    /// Opens the role-specific persistent `telemetry.redb`. When the fixed
+    /// database does not exist, legacy timestamped databases are imported
+    /// atomically in filename and record order without deleting them.
     fn open(config: &Config, role: StoreRole) -> Result<Self, LoggingError> {
         let directory = Self::database_directory(config, role);
+        Self::open_directory(&directory)
+    }
+
+    fn open_directory(directory: &Path) -> Result<Self, LoggingError> {
         std::fs::create_dir_all(&directory)?;
-        let path = directory.join(Self::database_file_name());
-        Self::open_at(&path)
+        let path = directory.join(TELEMETRY_FILE_NAME);
+        if path.exists() {
+            return Self::open_at(&path);
+        }
+
+        let legacy_paths = Self::legacy_database_paths(directory)?;
+        if legacy_paths.is_empty() {
+            return Self::open_at(&path);
+        }
+        Self::migrate_legacy(&path, &legacy_paths)
     }
 
     /// Directory that holds telemetry databases under the process's resolved
@@ -287,51 +328,63 @@ impl Store {
         PathBuf::from(base).join("log")
     }
 
-    /// A fresh timestamped database file name, so each server start records
-    /// into its own database rather than appending to a shared one. The
-    /// process ID prevents concurrent local processes from sharing a file.
-    fn database_file_name() -> String {
-        let seconds = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .map(|elapsed| elapsed.as_secs())
-            .unwrap_or(0);
-        format!(
-            "telemetry-{}-{}.redb",
-            Self::format_timestamp(seconds),
-            std::process::id()
-        )
+    fn legacy_database_paths(directory: &Path) -> Result<Vec<PathBuf>, LoggingError> {
+        let mut paths = Vec::new();
+        for entry in std::fs::read_dir(directory)? {
+            let entry = entry?;
+            if !entry.file_type()?.is_file() {
+                continue;
+            }
+            let file_name = entry.file_name();
+            let Some(file_name) = file_name.to_str() else {
+                continue;
+            };
+            if file_name.starts_with("telemetry-") && file_name.ends_with(".redb") {
+                paths.push(entry.path());
+            }
+        }
+        paths.sort();
+        Ok(paths)
     }
 
-    /// Formats a Unix second count as a `YYYYMMDD-HHMMSS` UTC stamp without
-    /// pulling in an external date/time dependency.
-    fn format_timestamp(seconds: u64) -> String {
-        let time_of_day = seconds % 86_400;
-        let hour = time_of_day / 3_600;
-        let minute = (time_of_day % 3_600) / 60;
-        let second = time_of_day % 60;
-        let (year, month, day) = Self::civil_from_days((seconds / 86_400) as i64);
-        format!("{year:04}{month:02}{day:02}-{hour:02}{minute:02}{second:02}")
+    fn migrate_legacy(path: &Path, legacy_paths: &[PathBuf]) -> Result<Self, LoggingError> {
+        let temporary_path = path.with_file_name(format!(
+            "{TELEMETRY_FILE_NAME}.migrating-{}-{}",
+            std::process::id(),
+            uuid::Uuid::new_v4(),
+        ));
+        let migration = (|| {
+            let migrated = Self::open_at(&temporary_path)?;
+            for legacy_path in legacy_paths {
+                for message in Self::read_at(legacy_path)? {
+                    migrated.record(&message)?;
+                }
+            }
+            drop(migrated);
+            std::fs::rename(&temporary_path, path)?;
+            Self::open_at(path)
+        })();
+
+        match migration {
+            Ok(store) => Ok(store),
+            Err(error) => match std::fs::remove_file(&temporary_path) {
+                Ok(()) => Err(error),
+                Err(cleanup) if cleanup.kind() == std::io::ErrorKind::NotFound => Err(error),
+                Err(cleanup) => Err(LoggingError::Io(format!(
+                    "{error}; failed to remove migration database: {cleanup}",
+                ))),
+            },
+        }
     }
 
-    /// Converts a day count since the Unix epoch into a `(year, month, day)`
-    /// Gregorian date using Howard Hinnant's civil-from-days algorithm.
-    fn civil_from_days(days: i64) -> (i64, u32, u32) {
-        let z = days + 719_468;
-        let era = if z >= 0 { z } else { z - 146_096 } / 146_097;
-        let day_of_era = z - era * 146_097;
-        let year_of_era =
-            (day_of_era - day_of_era / 1_460 + day_of_era / 36_524 - day_of_era / 146_096) / 365;
-        let year = year_of_era + era * 400;
-        let day_of_year = day_of_era - (365 * year_of_era + year_of_era / 4 - year_of_era / 100);
-        let month_position = (5 * day_of_year + 2) / 153;
-        let day = (day_of_year - (153 * month_position + 2) / 5 + 1) as u32;
-        let month = (if month_position < 10 {
-            month_position + 3
-        } else {
-            month_position - 9
-        }) as u32;
-        let year = year + if month <= 2 { 1 } else { 0 };
-        (year, month, day)
+    fn read_at(path: &Path) -> Result<Vec<LogMessage>, LoggingError> {
+        let database =
+            Database::open(path).map_err(|error| LoggingError::Database(error.to_string()))?;
+        let store = Self {
+            database,
+            next_id: AtomicU64::new(0),
+        };
+        store.read_all()
     }
 
     fn stored_count(database: &Database) -> Result<u64, LoggingError> {
@@ -390,33 +443,5 @@ fn worker(mut net_rx: NetReceiver<LogMessage>) {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::{Sink, Store, host_store};
-    use crate::external::uuid;
-    use crate::logging::LoggingError;
-
-    /// Opens a fresh, uniquely-named redb database under the OS temp
-    /// directory, independent of the process-global `LOGGER`, so this test
-    /// never touches shared state and stays parallel-safe.
-    fn temp_store() -> Store {
-        let path = std::env::temp_dir().join(format!(
-            "marix-logging-logger-test-{}.redb",
-            uuid::Uuid::new_v4()
-        ));
-        Store::open_at(&path).expect("open temp store")
-    }
-
-    #[test]
-    fn host_store_permits_only_the_host_sink() {
-        let host_sink = Sink::Host(temp_store());
-        assert!(host_store(Some(&host_sink)).is_ok());
-
-        let local_sink = Sink::Local(temp_store());
-        assert!(matches!(
-            host_store(Some(&local_sink)),
-            Err(LoggingError::NotHosting)
-        ));
-
-        assert!(matches!(host_store(None), Err(LoggingError::NotHosting)));
-    }
-}
+#[path = "logger_tests.rs"]
+mod tests;

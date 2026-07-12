@@ -114,6 +114,7 @@
   }
 
   async function clearCachedDataSource() {
+    clearTelemetryPortalState();
     localStorage.removeItem(STORAGE_KEYS.dataSource);
     await clearCachedLocalSource();
   }

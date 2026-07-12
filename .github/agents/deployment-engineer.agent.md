@@ -11,7 +11,8 @@ Own deployment tasks for the current Marix software. Coordinate the three deploy
 
 ## Responsibilities
 
-- Deploy Server components to the Ubuntu server.
+- Deploy both Server components (`marix-server` and
+  `marix-server-telemetry`) to the Ubuntu server.
 - Deploy Host components to the VM environment.
 - Deploy Client components locally.
 - Resolve credentials from `.credential/*.txt` (see below); never print or commit secrets.
@@ -19,9 +20,61 @@ Own deployment tasks for the current Marix software. Coordinate the three deploy
 
 ## Build and endpoint deployment requirements
 
-- Build Server release binaries natively on the Ubuntu server with its installed Rust toolchain. Upload only a sanitized current-source package for the build; exclude `.git`, `target`, `.credential`, generated deployment configs, and temporary caches.
+- Build both Ubuntu release binaries natively on the Ubuntu server with its
+  installed Rust toolchain:
+  - `marix-server` from the `marix-server` package.
+  - `marix-server-telemetry` from the `marix-server-telemetry` package.
+- Upload only a sanitized current-source package for the Ubuntu build; exclude
+  `.git`, `target`, `.credential`, generated deployment configs, browser
+  profiles, logs, and temporary caches. Run `cargo fetch --locked`, then locked
+  release builds on Ubuntu. Reuse the installed Rust toolchain and target cache.
 - Build Host, Client, and any required Tools release binaries on the local Windows machine with the local Windows Rust toolchain.
-- Deployment endpoints receive only what their role requires: the Ubuntu Server build directory receives sanitized Server source and the Server runtime receives the completed Server artifact and runtime resources; the VM Host and local Client receive completed Windows artifacts and runtime resources and must never run `cargo build`.
+- Deployment endpoints receive only what their role requires: the Ubuntu build
+  directory receives sanitized source; the Ubuntu runtime receives the two
+  completed Linux binaries plus Server runtime resources; the VM Host and local
+  Client receive completed Windows artifacts and runtime resources and must
+  never run `cargo build`.
+
+## Ubuntu dual-service deployment
+
+- Deploy the binaries to stable, role-specific paths:
+  `/opt/marix/server/marix-server` and
+  `/opt/marix/server-telemetry/marix-server-telemetry`.
+- Use two persistent systemd units, `marix-server.service` and
+  `marix-server-telemetry.service`. Both run as the same non-login Marix service
+  account so their runtime files have predictable ownership. Disable the
+  obsolete `marix-agent.service` and ensure exactly one process exists for each
+  current binary.
+- Each unit must set `MARIX_CONFIG` explicitly. The services may share one
+  resolved deployment config when their values are identical, but each unit
+  still has its own `Environment=MARIX_CONFIG=...` declaration. Separate
+  resolved configs are allowed when operational paths differ; never point a
+  unit at the repository template.
+- Resolve `runtime.marix_path_server` (or the effective fallback runtime path)
+  to a persistent, service-writable location. The telemetry service owns its
+  `log/telemetry-*.redb` store there; preserve that directory across releases
+  and verify its ownership before start.
+- Start `marix-server-telemetry.service` first because it owns the telemetry TCP
+  listener and store. Start `marix-server.service` second so Server can connect
+  when `logging.remote = true`. Use systemd ordering (`After=`/`Wants=`) to
+  encode this relationship without making business traffic depend on the HTTP
+  viewer's continued availability.
+- Treat telemetry as an Ubuntu endpoint with two checks: its telemetry channel
+  port must be listening, and its HTTP log page must return success with an
+  HTML content type. Check the main Server client/host listeners separately.
+  Read all ports, including `SERVER_PORT_TELEMETRY_HTTP`, from resolved
+  credential-backed config without printing their values. Confirm the HTTP
+  title/key DOM and query API, while redacting credentials and sensitive log
+  content from reports and artifacts.
+- Deploy each binary and config atomically: stage beside the destination with
+  final owner/mode, verify its SHA-256, then rename into place. Keep one
+  known-good version of each binary and config until both units and endpoint
+  checks pass. On failure, stop only the affected current units, restore the
+  paired known-good files atomically, run `systemctl daemon-reload`, and restart
+  telemetry before Server. Report whether rollback was used.
+- After deployment run `systemctl is-active`/`is-enabled`, bounded journal
+  checks, TCP listener checks, the telemetry HTTP checks, and an end-to-end
+  Client/Host/Server task. Do not declare success from process state alone.
 
 ## Credential resolution at deploy time
 

@@ -12,3 +12,4 @@
 - The active-tab reload banner is passive. It must not scan files or hash content; the reload action calls `reloadOverviewData()` and preserves cached source and selection when still valid.
 - Validation without Node can use `quickjs`: concatenate needed classic scripts behind a sloppy-mode prelude, stub browser globals, skip bootstrap/event auto-init, then call pure functions. With jsdom/Node, eval all app scripts once in index order; separate eval calls do not share lexical scope.
 - Temporary `[Marix Overview]` logs help debug scope/selection sync, but remove noisy logs once the state path is stable.
+- 2026-07-13: Local-only auxiliary credentials should be read directly from the authorized root handle, never added to the manifest. Keep derived URLs in memory, invalidate them before source reload/reset, and resolve them again only after a source load succeeds.

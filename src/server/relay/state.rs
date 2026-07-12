@@ -22,6 +22,15 @@ pub(super) struct RelayState {
 }
 
 impl RelayState {
+    pub fn output(&self) -> String {
+        self.output
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .values()
+            .cloned()
+            .collect()
+    }
+
     pub(super) fn new(
         access: TaskAccess,
         signature: RelaySignature,

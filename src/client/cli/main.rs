@@ -2,7 +2,7 @@ use std::io::{self, BufRead, Write};
 use std::time::{Duration, Instant};
 
 use marix_client::{ClientEvent, ClientSession};
-use marix_common::{Config, Logger};
+use marix_common::{Config, LogSource, Logger};
 
 const CONNECTION_POLL_INTERVAL: Duration = Duration::from_millis(25);
 
@@ -29,7 +29,7 @@ fn main() {
             std::process::exit(1);
         }
     };
-    match Logger::connect() {
+    match Logger::connect(LogSource::Client) {
         Ok(()) => {
             let status = if config.logging.remote {
                 "connected to telemetry"

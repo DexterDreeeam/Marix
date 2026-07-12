@@ -49,12 +49,14 @@
       const dataSource = await resolveDataSourceChoice();
       activeDataSource = dataSource.kind;
       localRootHandle = dataSource.handle || null;
+      clearTelemetryPortalState(activeDataSource);
       setLoadingVisible(true);
       setLoadingMessage(activeDataSource === DATA_SOURCE_LOCAL ? t("loadingOverview") : t("buildingOverview"));
       logOverview("initializing dynamic overview");
       manifest = activeDataSource === DATA_SOURCE_LOCAL
         ? await buildManifestFromLocal(localRootHandle)
         : await buildManifestFromGitHub();
+      await prepareTelemetryPortal(activeDataSource, localRootHandle);
       logOverview("manifest ready", {
         source: activeDataSource,
         files: Object.keys(manifest.files || {}).length,
@@ -188,10 +190,12 @@
     }
     updateToolButton("btn-star-map-view", "starMapView", overviewMode === "star");
     updateActionButton("btn-language", "languageTool");
+    updateActionButton("btn-telemetry-portal", getTelemetryPortalLabelKey());
     updateActionButton("btn-collapse-all", "collapseAllTool");
     updateActionButton("btn-workflow-star-map", "workflowTool");
     updateActionButton("btn-reset-star-map", "resetView");
     updateActionButton("btn-reset-data-source", "resetDataSourceTool");
+    updateTelemetryPortalButton();
     updateTreeFilterButton();
     updateDataSourceDependentControls();
     if (typeof refreshActiveReloadBannerLanguage === "function") refreshActiveReloadBannerLanguage();
@@ -434,6 +438,7 @@
 
   async function resetDataSourceChoice() {
     if (typeof hideActiveReloadBanner === "function") hideActiveReloadBanner();
+    clearTelemetryPortalState();
     await clearCachedDataSource();
     localStorage.removeItem(STORAGE_KEYS.currentFile);
     localStorage.removeItem(STORAGE_KEYS.scopePath);

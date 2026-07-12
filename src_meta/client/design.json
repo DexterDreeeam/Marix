@@ -3,12 +3,10 @@
   "module": {
     "path": "src/client",
     "name": "client",
-    "purpose": "Owns the client API and CLI session transport, installing optional SessionId correlation metadata while preserving immediate channel readiness.",
+    "purpose": "Owns the client API, session transport, and source-aware CLI telemetry while preserving immediate channel readiness.",
     "changeStatus": "modified"
   },
-  "modified": [
-    "session.rs"
-  ],
+  "modified": ["session.rs"],
   "childModules": [
     {
       "path": "src/client/app",
@@ -18,7 +16,7 @@
     {
       "path": "src/client/cli",
       "name": "cli",
-      "purpose": "Contains the marix-client-cli command-line binary entrypoint. The CLI accepts exactly --interactive or --oneshot \"request\", drains signature-aware ClientEvent output, prints Common messages and optional Done messages, and exits oneshot on Done completion. It connects the telemetry Logger over the authenticated channel transport before starting the ClientSession."
+      "purpose": "Contains the marix-client-cli binary, configuring source-aware client telemetry before running interactive or one-shot sessions."
     }
   ],
   "elements": [
@@ -132,179 +130,25 @@
       ]
     },
     {
-      "name": "IDLE_TIMEOUT",
-      "type": "const",
+      "name": "marix-client-cli",
+      "type": "bin",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/main.rs",
-          "lineStart": 7,
-          "lineEnd": 7,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 7,
-              "lineEnd": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "ClientMode",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/client/cli/main.rs",
-          "lineStart": 9,
-          "lineEnd": 12,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "main",
-      "type": "function",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/client/cli/main.rs",
-          "lineStart": 14,
-          "lineEnd": 65,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 45,
-              "lineEnd": 45
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 34,
-              "lineEnd": 39
-            },
-            {
-              "lineStart": 42,
-              "lineEnd": 42
-            },
-            {
-              "lineStart": 47,
-              "lineEnd": 55
-            },
-            {
-              "lineStart": 59,
-              "lineEnd": 62
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "run_oneshot",
-      "type": "function",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/client/cli/main.rs",
-          "lineStart": 67,
-          "lineEnd": 70,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 67,
-              "lineEnd": 67
-            },
-            {
-              "lineStart": 69,
-              "lineEnd": 69
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "run_interactive",
-      "type": "function",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/client/cli/main.rs",
-          "lineStart": 72,
-          "lineEnd": 91,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 72,
-              "lineEnd": 72
-            },
-            {
-              "lineStart": 87,
-              "lineEnd": 89
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "print_help",
-      "type": "function",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/client/cli/main.rs",
-          "lineStart": 93,
-          "lineEnd": 97,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "drain_events",
-      "type": "function",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/client/cli/main.rs",
-          "lineStart": 113,
+          "lineStart": 1,
           "lineEnd": 150,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 144,
-              "lineEnd": 149
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 113,
-              "lineEnd": 113
+              "lineStart": 5,
+              "lineEnd": 5
             },
             {
-              "lineStart": 116,
-              "lineEnd": 124
-            },
-            {
-              "lineStart": 136,
-              "lineEnd": 136
-            },
-            {
-              "lineStart": 139,
-              "lineEnd": 139
+              "lineStart": 32,
+              "lineEnd": 32
             }
           ]
         }

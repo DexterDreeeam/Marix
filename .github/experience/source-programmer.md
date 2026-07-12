@@ -781,3 +781,53 @@ connecter to protect this distinction.
   (kept in the same test fn since it's the same query-family, just didn't
   rename the fn). No public API surface changed — `LogsQuery`'s fields and
   `logs`'s signature are untouched; this was purely internal parsing logic.
+- 2026-07-12 (telemetry source ownership): `LogSource` lives in
+  `common/logging/source.rs` and is re-exported from both `logging` and
+  `marix_common`; its serde variants are `Host`/`Client`/`Server`, and
+  `Default` is `Server` so redb JSON written before the `LogMessage.source`
+  field existed still deserializes. `Logger` stores source and sink in
+  separate `OnceLock`s but serializes setup with a configuration mutex:
+  `host()` installs `Server`, while client/host/server callers pass their
+  explicit source to `connect(LogSource)`. Emission stamps the configured
+  source before remote send; collector `record` still changes only arrival
+  time, preserving the emitter's source.
+- 2026-07-12 (telemetry session summaries): `Logger::session_list()` returns
+  `Vec<LogSession>` from `common/logging/session.rs`, where each summary has
+  `id: Option<Uuid>` and the minimum `emit_ts` for that id. The unknown
+  (`None`) summary is always first; identified summaries sort by minimum
+  emit time descending and then UUID string ascending. `/api/sessions`
+  serializes these summaries directly, and `/api/logs` uses `unknown` while
+  retaining `unassigned` as a legacy input alias.
+- 2026-07-12 (telemetry page session contract): `page.html` treats sessions
+  as `{id, emit_ts}` objects, keeps API ordering, and chooses the first
+  identified summary on initial load or selection loss (falling back to
+  Unknown). Session labels expose only earliest emit time, while the log
+  table is `Emit/Source/Tag/Message`; source badges fall back to Server and
+  message cells provide mouse and keyboard clipboard interaction.
+- 2026-07-12 (telemetry table sizing): `server_telemetry/http/page.html`
+  keeps automatic table layout and makes the first three columns
+  content-sized with `nth-child(-n+3)`, `width: 1%`, and `white-space:
+  nowrap`; this leaves Message to absorb the remaining width without
+  locale-dependent fixed widths. Source is centered, and only the compact
+  columns reduce horizontal cell padding.
+- 2026-07-13: Relay model observability uses Info messages beginning exactly
+  `[Model Relay] Prompt:\n` and `[Model Relay] Output:\n`. `RelayState::output`
+  locks its `BTreeMap<usize, String>` and concatenates values in sequence-key
+  order; a premature complete signal logs a Warning and the partial output.
+- 2026-07-13: Logging stores append to one role-directory
+  `<marix-path>/log/telemetry.redb`. Only when that file is absent,
+  `Store::open` imports `telemetry-*.redb` in filename and record order into a
+  unique same-directory temporary redb, drops it, and atomically renames it;
+  legacy files remain and later opens never re-import them.
+- 2026-07-13: Session log queries are newest-first: descending `emit_ts`, with
+  equal timestamps in reverse record-insertion order. Because `read_all`
+  supplies insertion order, the implementation uses stable ascending sort
+  followed by `reverse`; the telemetry page renders the API array unchanged.
+- 2026-07-13 (telemetry portal interaction layout): desktop `page.html` keeps
+  `#sessions` in `#app`'s flex flow and transitions both `width` and
+  `flex-basis` from 16px to 216px over 240ms; `#main` is a min-width-zero flex
+  child, so its left edge tracks the sidebar throughout the animation rather
+  than being covered. At <=720px the sidebar is full-width with transitions
+  disabled. Log-row hover/focus uses `--panel-alt`; successful message copies
+  also show one fixed center `Content Copied` status toast whose single
+  1050ms timer is reset by consecutive mouse or keyboard copies.

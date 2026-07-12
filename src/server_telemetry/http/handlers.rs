@@ -15,17 +15,12 @@ pub(super) async fn root() -> axum::response::Response {
         .into_response()
 }
 
-/// `GET /api/sessions`: every distinct session id known to the local
-/// telemetry store, `null` first for unassigned messages if present.
+/// `GET /api/sessions`: every distinct session and its earliest emit time.
+/// The unknown session is first when present; identified sessions follow
+/// from newest to oldest earliest emit time.
 pub(super) async fn sessions() -> axum::response::Response {
     match Logger::session_list() {
-        Ok(sessions) => {
-            let payload: Vec<Option<String>> = sessions
-                .into_iter()
-                .map(|session_id| session_id.map(|id| id.to_string()))
-                .collect();
-            axum::Json(payload).into_response()
-        }
+        Ok(sessions) => axum::Json(sessions).into_response(),
         Err(error) => query_error_response(error),
     }
 }
@@ -37,9 +32,9 @@ pub(super) struct LogsQuery {
     keyword: Option<String>,
 }
 
-/// `GET /api/logs`: `session_id` is required (a UUID string or the literal
-/// `unassigned`); `tag` and `keyword` are optional narrowing filters. A
-/// missing or blank `tag` (after trimming) means "all tags"; a non-blank
+/// `GET /api/logs`: `session_id` is required (a UUID string or `unknown`;
+/// legacy `unassigned` is also accepted). `tag` and `keyword` are optional
+/// narrowing filters. A missing or blank `tag` means "all tags"; a non-blank
 /// `tag` is parsed case-insensitively and rejected with `400` if invalid.
 pub(super) async fn logs(
     axum::extract::Query(query): axum::extract::Query<LogsQuery>,
@@ -78,7 +73,7 @@ pub(super) async fn logs(
 // -- Private -- //
 
 fn parse_session_id(raw: &str) -> Result<Option<uuid::Uuid>, &'static str> {
-    if raw == "unassigned" {
+    if raw == "unknown" || raw == "unassigned" {
         return Ok(None);
     }
     uuid::Uuid::parse_str(raw)

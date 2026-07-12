@@ -8,7 +8,7 @@ pub use config::{
     ModelConfig, Platform, RuntimeConfig, RuntimeEnvironment, RuntimeMode, ServerConfig, System,
     ToolConfig,
 };
-pub use logging::{LogMessage, LogTag, Logger, LoggingError};
+pub use logging::{LogMessage, LogSession, LogSource, LogTag, Logger, LoggingError};
 pub use structure::WorkQueue;
 pub use structure::{
     AsyncReceiver, AsyncSender, ChannelEndpoint, ChannelError, NetReceiver, NetSender, Receiver,

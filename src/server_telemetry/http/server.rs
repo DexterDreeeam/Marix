@@ -203,6 +203,14 @@ directory = "tool"
         let parsed: serde_json::Value =
             serde_json::from_str(&body).expect("sessions body is valid JSON");
         assert!(parsed.is_array(), "expected a JSON array, got: {body}");
+        assert!(
+            parsed
+                .as_array()
+                .into_iter()
+                .flatten()
+                .all(|session| { session.get("id").is_some() && session.get("emit_ts").is_some() }),
+            "expected session summary objects, got: {body}"
+        );
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -223,14 +231,14 @@ directory = "tool"
         assert_eq!(bad_uuid_status, 400);
 
         let (bad_tag_status, _) = tokio::task::spawn_blocking(move || {
-            http_get(address, "/api/logs?session_id=unassigned&tag=bogus")
+            http_get(address, "/api/logs?session_id=unknown&tag=bogus")
         })
         .await
         .expect("blocking http_get");
         assert_eq!(bad_tag_status, 400);
 
         let (empty_tag_status, empty_tag_body) = tokio::task::spawn_blocking(move || {
-            http_get(address, "/api/logs?session_id=unassigned&tag=")
+            http_get(address, "/api/logs?session_id=unknown&tag=")
         })
         .await
         .expect("blocking http_get");

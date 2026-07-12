@@ -1,23 +1,21 @@
 use crate::external::uuid;
 use crate::logging::logger::Logger;
-use crate::logging::{LogMessage, LogTag, LoggingError};
+use crate::logging::{LogMessage, LogSession, LogTag, LoggingError};
 
 impl Logger {
-    /// Distinct session identifiers that appear anywhere in the local
-    /// store. `None` (unassigned messages) is listed first when present,
-    /// followed by every session ordered by that session's earliest
-    /// `emit_ts`, newest first; ties are broken by the session's UUID
-    /// string. Only available while this process is hosting a local store
-    /// via [`Logger::host`].
-    pub fn session_list() -> Result<Vec<Option<uuid::Uuid>>, LoggingError> {
+    /// Distinct sessions and their earliest emit timestamps. The unknown
+    /// session is listed first when present, followed by identified sessions
+    /// ordered by earliest `emit_ts`, newest first. Ties are broken by UUID.
+    /// Only available while this process is hosting via [`Logger::host`].
+    pub fn session_list() -> Result<Vec<LogSession>, LoggingError> {
         let messages = Self::local_log()?;
         Ok(distinct_sessions(&messages))
     }
 
-    /// Every message recorded for one session (`None` selects unassigned
-    /// messages), in ascending `emit_ts` order with ties broken by record
-    /// (insertion) order. Only available while this process is hosting a
-    /// local store via [`Logger::host`].
+    /// Every message recorded for one session (`None` selects unknown
+    /// messages), in descending `emit_ts` order with ties broken by newest
+    /// record (insertion) first. Only available while this process is hosting
+    /// a local store via [`Logger::host`].
     pub fn session_log_list(
         session_id: Option<uuid::Uuid>,
     ) -> Result<Vec<LogMessage>, LoggingError> {
@@ -41,13 +39,17 @@ impl Logger {
 
 // -- Private -- //
 
-fn distinct_sessions(messages: &[LogMessage]) -> Vec<Option<uuid::Uuid>> {
-    let mut has_unassigned = false;
+fn distinct_sessions(messages: &[LogMessage]) -> Vec<LogSession> {
+    let mut unknown_emit_ts = None;
     let mut earliest_by_session: std::collections::HashMap<uuid::Uuid, u64> =
         std::collections::HashMap::new();
     for message in messages {
         match message.session_id {
-            None => has_unassigned = true,
+            None => {
+                unknown_emit_ts = Some(unknown_emit_ts.map_or(message.emit_ts, |earliest: u64| {
+                    earliest.min(message.emit_ts)
+                }));
+            }
             Some(id) => {
                 earliest_by_session
                     .entry(id)
@@ -66,17 +68,21 @@ fn distinct_sessions(messages: &[LogMessage]) -> Vec<Option<uuid::Uuid>> {
     });
 
     let mut result = Vec::with_capacity(sessions.len() + 1);
-    if has_unassigned {
-        result.push(None);
+    if let Some(emit_ts) = unknown_emit_ts {
+        result.push(LogSession { id: None, emit_ts });
     }
-    result.extend(sessions.into_iter().map(|(id, _earliest)| Some(id)));
+    result.extend(sessions.into_iter().map(|(id, emit_ts)| LogSession {
+        id: Some(id),
+        emit_ts,
+    }));
     result
 }
 
 /// Filters `messages` down to one session, optionally narrowed by `tag`
-/// and/or `keyword`, then returns them in ascending `emit_ts` order (ties
-/// keep the original record-insertion order, since `messages` arrives in
-/// that order from [`Logger::local_log`] and `sort_by_key` is stable).
+/// and/or `keyword`, then returns them in descending `emit_ts` order (ties
+/// put newer records first). `messages` arrives in insertion order from
+/// [`Logger::local_log`], so a stable ascending sort followed by reversal
+/// produces both descending orderings.
 fn select_logs(
     messages: Vec<LogMessage>,
     session_id: Option<uuid::Uuid>,
@@ -99,6 +105,7 @@ fn select_logs(
         })
         .collect();
     selected.sort_by_key(|message| message.emit_ts);
+    selected.reverse();
     selected
 }
 
@@ -107,7 +114,7 @@ mod tests {
     use super::{distinct_sessions, select_logs};
     use crate::external::uuid;
     use crate::logging::logger::Store;
-    use crate::logging::{LogMessage, LogTag};
+    use crate::logging::{LogMessage, LogSession, LogTag};
 
     /// Opens a fresh, uniquely-named redb database under the OS temp
     /// directory. Each test gets its own file, so no test shares or
@@ -133,14 +140,23 @@ mod tests {
     }
 
     #[test]
-    fn session_list_reports_unassigned_first_when_present() {
+    fn session_list_reports_unknown_first_when_present() {
         let store = temp_store();
         store
             .record(&message(None, LogTag::Info, 100, "boot"))
             .expect("record");
+        store
+            .record(&message(None, LogTag::Info, 50, "earlier"))
+            .expect("record");
 
         let messages = store.read_all().expect("read_all");
-        assert_eq!(distinct_sessions(&messages), vec![None]);
+        assert_eq!(
+            distinct_sessions(&messages),
+            vec![LogSession {
+                id: None,
+                emit_ts: 50,
+            }]
+        );
     }
 
     #[test]
@@ -155,13 +171,26 @@ mod tests {
             .record(&message(Some(newer), LogTag::Info, 200, "b"))
             .expect("record");
         store
-            .record(&message(None, LogTag::Info, 50, "unassigned"))
+            .record(&message(None, LogTag::Info, 50, "unknown"))
             .expect("record");
 
         let messages = store.read_all().expect("read_all");
         assert_eq!(
             distinct_sessions(&messages),
-            vec![None, Some(newer), Some(older)],
+            vec![
+                LogSession {
+                    id: None,
+                    emit_ts: 50,
+                },
+                LogSession {
+                    id: Some(newer),
+                    emit_ts: 200,
+                },
+                LogSession {
+                    id: Some(older),
+                    emit_ts: 100,
+                },
+            ],
         );
     }
 
@@ -183,11 +212,23 @@ mod tests {
             .expect("record");
 
         let messages = store.read_all().expect("read_all");
-        assert_eq!(distinct_sessions(&messages), vec![Some(low), Some(high)]);
+        assert_eq!(
+            distinct_sessions(&messages),
+            vec![
+                LogSession {
+                    id: Some(low),
+                    emit_ts: 100,
+                },
+                LogSession {
+                    id: Some(high),
+                    emit_ts: 100,
+                },
+            ]
+        );
     }
 
     #[test]
-    fn session_log_list_sorts_by_emit_ts_then_record_order() {
+    fn session_log_list_sorts_newest_emit_and_record_first() {
         let store = temp_store();
         let session = uuid::Uuid::new_v4();
         store
@@ -206,9 +247,7 @@ mod tests {
         let messages = store.read_all().expect("read_all");
         let selected = select_logs(messages, Some(session), None, None);
         let texts: Vec<&str> = selected.iter().map(|m| m.message.as_str()).collect();
-        // Ties at emit_ts 100 keep insertion order: "first-a" before
-        // "first-b", since that is the order they were recorded in.
-        assert_eq!(texts, vec!["first-a", "first-b", "second", "third"]);
+        assert_eq!(texts, vec!["third", "second", "first-b", "first-a"]);
     }
 
     #[test]
