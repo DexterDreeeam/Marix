@@ -4,10 +4,8 @@
     "path": "src/common/logging",
     "name": "logging",
     "purpose": "Owns source- and session-aware process telemetry, configurable local or authenticated remote sinks, fixed-database legacy migration, and reverse-chronological session queries.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": ["logger_tests.rs", "query.rs", "session.rs", "source.rs"],
-  "modified": ["logger.rs", "message.rs", "mod.rs"],
   "childModules": [],
   "elements": [
     {
@@ -54,7 +52,7 @@
       "name": "Logger",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
@@ -161,7 +159,7 @@
       "name": "Store",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
@@ -237,7 +235,7 @@
       "name": "LogMessage",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/message.rs",
@@ -287,7 +285,7 @@
       "name": "LogSession",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/session.rs",
@@ -308,7 +306,7 @@
       "name": "LogSource",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/source.rs",

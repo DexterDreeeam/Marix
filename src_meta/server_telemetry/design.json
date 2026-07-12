@@ -4,9 +4,8 @@
     "path": "src/server_telemetry",
     "name": "server_telemetry",
     "purpose": "Runs the standalone telemetry collector and its self-hosted session browser.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": ["."],
   "childModules": [
     {
       "path": "src/server_telemetry/http",
@@ -19,7 +18,7 @@
       "name": "marix-server-telemetry",
       "type": "bin",
       "source_depth": 2,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/main.rs",
@@ -40,7 +39,7 @@
       "name": "HttpError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/error.rs",
@@ -87,7 +86,7 @@
       "name": "root",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
@@ -108,7 +107,7 @@
       "name": "sessions",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
@@ -129,7 +128,7 @@
       "name": "LogsQuery",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
@@ -150,7 +149,7 @@
       "name": "logs",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
@@ -184,7 +183,7 @@
       "name": "build",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/router.rs",
@@ -205,7 +204,7 @@
       "name": "serve",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/server.rs",
@@ -239,7 +238,7 @@
       "name": "TelemetryPage",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/page.html",

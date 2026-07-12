@@ -4,9 +4,8 @@
     "path": "src/host",
     "name": "host",
     "purpose": "Owns host execution and its resilient server session, configuring host-sourced telemetry without gating channel readiness.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["session.rs", "main.rs"],
   "childModules": [
     {
       "path": "src/host/execution",
@@ -24,7 +23,7 @@
       "name": "main",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/main.rs",
@@ -45,7 +44,7 @@
       "name": "configure_logging",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/main.rs",
@@ -82,7 +81,7 @@
       "name": "HostSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/session.rs",
@@ -207,7 +206,7 @@
       "name": "worker",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/session.rs",

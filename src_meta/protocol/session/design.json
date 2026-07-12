@@ -4,16 +4,15 @@
     "path": "src/protocol/session",
     "name": "session",
     "purpose": "Owns the top-level SessionEvent envelope, including optional UUID correlation metadata and task/executor traffic.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["event.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "SessionEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/session/event.rs",

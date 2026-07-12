@@ -4,16 +4,15 @@
     "path": "src/server_telemetry/http",
     "name": "http",
     "purpose": "Serves the self-hosted telemetry session browser and JSON session/log query routes.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": ["."],
   "childModules": [],
   "elements": [
     {
       "name": "HttpError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/error.rs",
@@ -60,7 +59,7 @@
       "name": "root",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
@@ -81,7 +80,7 @@
       "name": "sessions",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
@@ -102,7 +101,7 @@
       "name": "LogsQuery",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
@@ -123,7 +122,7 @@
       "name": "logs",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
@@ -157,7 +156,7 @@
       "name": "build",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/router.rs",
@@ -178,7 +177,7 @@
       "name": "serve",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/server.rs",
@@ -212,7 +211,7 @@
       "name": "TelemetryPage",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/page.html",
