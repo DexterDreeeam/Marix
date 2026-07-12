@@ -3,14 +3,15 @@
   "module": {
     "path": "src/prompt",
     "name": "prompt",
-    "purpose": "Defines Initial and Analysis model-step templates that return a localized answer when possible or schedule independent parallel tool calls using strict raw JSON.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines Initial and Analysis step prompts that enforce raw strict JSON, exact answer/tool-call schemas, localized answers, independent parallel calls with escaped JSON-string inputs, and deferred dependent work.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/prompt/step",
       "name": "step",
-      "purpose": "Defines Initial and Analysis model-step templates that return a localized answer when possible or schedule independent parallel tool calls using strict raw JSON."
+      "purpose": "Defines Initial and Analysis step prompts that enforce raw strict JSON, exact answer/tool-call schemas, localized answers, independent parallel calls with escaped JSON-string inputs, and deferred dependent work."
     }
   ],
   "elements": [
@@ -18,18 +19,18 @@
       "name": "AnalysisPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Analysis.prompt",
           "lineStart": 1,
-          "lineEnd": 27,
+          "lineEnd": 28,
           "language": "prompt",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 1,
-              "lineEnd": 27
+              "lineEnd": 28
             }
           ]
         }
@@ -39,18 +40,18 @@
       "name": "InitialPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Initial.prompt",
           "lineStart": 1,
-          "lineEnd": 27,
+          "lineEnd": 28,
           "language": "prompt",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 1,
-              "lineEnd": 27
+              "lineEnd": 28
             }
           ]
         }

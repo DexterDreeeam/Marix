@@ -3,9 +3,10 @@ use std::env;
 use std::fs;
 use std::path::{Component, Path, PathBuf};
 
-use marix_common::external::serde_json::{Value, from_str, json, to_string};
+use marix_common::external::serde_json::{Value, json, to_string};
 use marix_protocol::{ToolInputSchema, ToolOutputSchema, ToolPreview, ToolSchema};
 
+use super::super::parse_input;
 use crate::ToolProgram;
 
 const NAME: &str = "os_env";
@@ -53,7 +54,7 @@ impl ToolProgram for OsEnv {
 
     fn invoke(&self, call: &str) -> String {
         let source = if call.trim().is_empty() { "{}" } else { call };
-        let input: Value = match from_str(source) {
+        let input: Value = match parse_input(source) {
             Ok(value) => value,
             Err(error) => {
                 return Self::failure(format!("invalid input: {error}"));

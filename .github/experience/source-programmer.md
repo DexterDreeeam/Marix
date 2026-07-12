@@ -512,3 +512,16 @@ connecter to protect this distinction.
   first separator. It selects exactly one answer or tool-call schema, keeps
   parallel inputs independently executable, defers dependencies to `future`,
   and flows directly into the unchanged shared schema/input skeleton.
+- 2026-07-12: `src/prompt/step/Initial.prompt` and `Analysis.prompt` require
+  tool `input` payloads to survive two JSON parses. Inner JSON special
+  characters are escaped for the outer response, Windows backslashes use
+  double-layer escaping, and forward-slash Windows paths are preferred when
+  accepted. Correctable tool errors must produce a non-identical retry rather
+  than an answer.
+- 2026-07-12 (supersedes the Windows/error rules above): Both step prompts
+  retain only the generic nested-JSON escaping contract; Windows path escaping
+  and mandatory retry-on-error guidance are handled outside the prompt.
+  `tool/native/mod.rs::parse_input` first preserves standard JSON semantics,
+  then narrowly retries after doubling single backslashes only inside exact
+  `path`/`cwd` string fields. Existing `\\`/`\"` escapes and every non-path
+  field remain untouched; all six native tools share this parser.

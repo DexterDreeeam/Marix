@@ -3,6 +3,7 @@ Use the information below to either answer the user's request or request exactly
 Return raw strict JSON only, with no Markdown fences, surrounding text, or extra fields. Choose exactly one of the two schemas below:
 - Use the answer schema only when the request is fully satisfied, and write the answer in the user's language.
 - Otherwise use the tool-call schema. Every `call` runs independently in parallel, so each `input` must be a concrete, executable JSON-encoded string with no placeholders or references to other calls.
+- `input` itself is a JSON string containing JSON. All JSON special characters in the inner payload must be escaped for the outer response JSON.
 - Move work that depends on another tool result to a later round and describe it in `future`.
 - Every `call.name` must come from the available tools.
 - Keep `model.name` as `"Analysis"`; set `model.input` to only the comma-separated `call.name` values, or `""` when `call` is empty.

@@ -1,8 +1,9 @@
 use std::process::Command;
 
-use marix_common::external::serde_json::{Value, from_str, json, to_string};
+use marix_common::external::serde_json::{Value, json, to_string};
 use marix_protocol::{ToolInputSchema, ToolOutputSchema, ToolPreview, ToolSchema};
 
+use super::super::parse_input;
 use crate::ToolProgram;
 
 pub struct ShellExecute;
@@ -32,7 +33,7 @@ impl ToolProgram for ShellExecute {
     }
 
     fn invoke(&self, call: &str) -> String {
-        let input: Value = match from_str(call) {
+        let input: Value = match parse_input(call) {
             Ok(value) => value,
             Err(error) => return failure(format!("invalid input: {error}")),
         };

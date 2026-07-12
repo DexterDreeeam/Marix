@@ -3,45 +3,46 @@
   "module": {
     "path": "src/tool/native/shell",
     "name": "shell",
-    "purpose": "Provides ShellExecute with the shell_execute protocol name, typed command schemas, and operating-system shell execution.",
-    "changeStatus": "unchanged"
+    "purpose": "Provides ShellExecute with typed command schemas, operating-system shell execution, and compatible parsing for Windows cwd backslashes.",
+    "changeStatus": "modified"
   },
+  "modified": ["shell_execute.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "ShellExecute",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/shell_execute.rs",
-          "lineStart": 8,
-          "lineEnd": 8,
+          "lineStart": 9,
+          "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/tool/native/shell/shell_execute.rs",
-          "lineStart": 10,
-          "lineEnd": 16,
+          "lineStart": 11,
+          "lineEnd": 17,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/tool/native/shell/shell_execute.rs",
+          "lineStart": 19,
+          "lineEnd": 65,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 11,
-              "lineEnd": 11
+              "lineStart": 36,
+              "lineEnd": 36
             }
           ]
-        },
-        {
-          "sourcePath": "src/tool/native/shell/shell_execute.rs",
-          "lineStart": 18,
-          "lineEnd": 64,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
         }
       ]
     }
