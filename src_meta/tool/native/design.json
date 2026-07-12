@@ -4,9 +4,8 @@
     "path": "src/tool/native",
     "name": "native",
     "purpose": "Groups six built-in filesystem, shell, and system-environment tools and supplies shared JSON input parsing that repairs unescaped Windows path and cwd backslashes.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["mod.rs"],
   "childModules": [
     {
       "path": "src/tool/native/file",
@@ -29,7 +28,7 @@
       "name": "ReadFile",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/file/read_file.rs",
@@ -79,7 +78,7 @@
       "name": "WriteFile",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/file/write_file.rs",
@@ -129,7 +128,7 @@
       "name": "ListDirectory",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/file/list_directory.rs",
@@ -179,7 +178,7 @@
       "name": "SearchText",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/file/search_text.rs",
@@ -229,7 +228,7 @@
       "name": "ShellExecute",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/shell_execute.rs",
@@ -279,7 +278,7 @@
       "name": "OsEnv",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/sys/os_env.rs",

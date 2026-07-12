@@ -4,9 +4,8 @@
     "path": "src/prompt",
     "name": "prompt",
     "purpose": "Defines Initial and Analysis step prompts that enforce raw strict JSON, exact answer/tool-call schemas, localized answers, independent parallel calls with escaped JSON-string inputs, and deferred dependent work.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["."],
   "childModules": [
     {
       "path": "src/prompt/step",
@@ -19,7 +18,7 @@
       "name": "AnalysisPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Analysis.prompt",
@@ -40,7 +39,7 @@
       "name": "InitialPrompt",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/prompt/step/Initial.prompt",
