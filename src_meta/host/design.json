@@ -4,9 +4,8 @@
     "path": "src/host",
     "name": "host",
     "purpose": "Owns Host connectivity, remote-first telemetry with file fallback, execution lifecycle, and Server-directed tool registration.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["main.rs"],
   "childModules": [
     {
       "path": "src/host/execution",
@@ -40,7 +39,7 @@
       "name": "configure_logging",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/main.rs",
@@ -311,7 +310,7 @@
       "name": "ExecutorRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",

@@ -4,9 +4,8 @@
     "path": "src/server",
     "name": "server",
     "purpose": "Runs the server core with remote-first telemetry fallback and owns session-driven task, prompt, and Host orchestration.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [".", "main.rs"],
   "childModules": [
     {
       "path": "src/server/invocation",
@@ -54,7 +53,7 @@
       "name": "main",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/main.rs",
@@ -1023,7 +1022,7 @@
       "name": "SessionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/runtime.rs",
