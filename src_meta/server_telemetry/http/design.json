@@ -4,10 +4,8 @@
     "path": "src/server_telemetry/http",
     "name": "http",
     "purpose": "Serves the telemetry session browser with recursive nested-value formatting, favicon assets, and JSON query routes.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": ["favicon.svg"],
-  "modified": ["handlers.rs", "page.html", "router.rs"],
   "childModules": [],
   "elements": [
     {
@@ -82,7 +80,7 @@
       "name": "favicon",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
@@ -166,7 +164,7 @@
       "name": "build",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/router.rs",

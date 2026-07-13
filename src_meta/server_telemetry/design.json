@@ -4,9 +4,8 @@
     "path": "src/server_telemetry",
     "name": "server_telemetry",
     "purpose": "Runs the standalone telemetry collector and its recursive, favicon-enabled HTTP session browser.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["."],
   "childModules": [
     {
       "path": "src/server_telemetry/http",
@@ -108,7 +107,7 @@
       "name": "favicon",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
@@ -192,7 +191,7 @@
       "name": "build",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/router.rs",
