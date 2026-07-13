@@ -3,14 +3,15 @@
   "module": {
     "path": "src/server_telemetry",
     "name": "server_telemetry",
-    "purpose": "Runs the standalone telemetry collector and its self-hosted session browser with right-click log actions and wrapped formatting.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs the standalone telemetry collector and its recursive, favicon-enabled HTTP session browser.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/server_telemetry/http",
       "name": "http",
-      "purpose": "Serves the self-hosted telemetry session browser with accessible navigation, right-click log actions, wrapped formatting, and JSON query routes."
+      "purpose": "Serves the telemetry session browser with recursive nested-value formatting, favicon assets, and JSON query routes."
     }
   ],
   "elements": [
@@ -90,13 +91,34 @@
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
-          "lineStart": 8,
-          "lineEnd": 16,
+          "lineStart": 9,
+          "lineEnd": 17,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 8,
-              "lineEnd": 16
+              "lineStart": 9,
+              "lineEnd": 17
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "favicon",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/http/handlers.rs",
+          "lineStart": 19,
+          "lineEnd": 26,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 19,
+              "lineEnd": 26
             }
           ],
           "modifiedLines": []
@@ -111,13 +133,13 @@
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
-          "lineStart": 18,
-          "lineEnd": 26,
+          "lineStart": 28,
+          "lineEnd": 36,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 18,
-              "lineEnd": 26
+              "lineStart": 28,
+              "lineEnd": 36
             }
           ],
           "modifiedLines": []
@@ -132,13 +154,13 @@
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
-          "lineStart": 28,
-          "lineEnd": 33,
+          "lineStart": 38,
+          "lineEnd": 43,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 28,
-              "lineEnd": 33
+              "lineStart": 38,
+              "lineEnd": 43
             }
           ],
           "modifiedLines": []
@@ -153,26 +175,13 @@
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
-          "lineStart": 35,
-          "lineEnd": 71,
+          "lineStart": 45,
+          "lineEnd": 81,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 35,
-              "lineEnd": 71
-            }
-          ],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server_telemetry/http/handlers.rs",
-          "lineStart": 75,
-          "lineEnd": 112,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 75,
-              "lineEnd": 112
+              "lineStart": 45,
+              "lineEnd": 81
             }
           ],
           "modifiedLines": []
@@ -183,17 +192,17 @@
       "name": "build",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/router.rs",
           "lineStart": 4,
-          "lineEnd": 9,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 4,
-              "lineEnd": 9
+              "lineStart": 7,
+              "lineEnd": 7
             }
           ],
           "modifiedLines": []

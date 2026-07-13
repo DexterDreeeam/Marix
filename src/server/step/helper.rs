@@ -1,7 +1,7 @@
 use marix_common::external::*;
 use marix_protocol::{
     InvocationRequest, InvocationSignature, InvocationStepKind, ModelStepKind, PlanError,
-    RelayRequest, RelaySignature, StepDraft, StepKind, StepSignature, ToolInputSchema,
+    RelayRequest, RelaySignature, StepDraft, StepKind, StepSignature,
 };
 
 use super::state::StepState;
@@ -20,9 +20,7 @@ pub(super) fn step_kind(
                     signature.clone(),
                     draft.name.clone(),
                 ),
-                input: ToolInputSchema {
-                    content: draft.input.clone(),
-                },
+                input: draft.input.clone(),
             },
         ))),
         "intent" => Ok(StepKind::Intent),

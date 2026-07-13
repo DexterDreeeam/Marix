@@ -3,19 +3,20 @@
   "module": {
     "path": "src/host",
     "name": "host",
-    "purpose": "Owns Host connectivity, remote-first telemetry with file fallback, execution lifecycle, and Server-directed tool registration.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns Host connectivity, execution lifecycle, flattened processing events, and string-backed tool registration.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/host/execution",
       "name": "execution",
-      "purpose": "Owns the execution source module under src/host/execution."
+      "purpose": "Runs host tool executions and emits lifecycle events with flattened processing content."
     },
     {
       "path": "src/host/executor",
       "name": "executor",
-      "purpose": "Responds to Server tool queries and routes execution work."
+      "purpose": "Owns host executor lifecycle, tool registration, preview loading, and string-backed tool invocation."
     }
   ],
   "elements": [
@@ -169,7 +170,7 @@
       "name": "ExecutionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -203,8 +204,12 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 122,
-              "lineEnd": 122
+              "lineStart": 93,
+              "lineEnd": 94
+            },
+            {
+              "lineStart": 114,
+              "lineEnd": 126
             }
           ]
         }
@@ -374,7 +379,7 @@
       "name": "Tool",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/tool.rs",
@@ -387,10 +392,15 @@
         {
           "sourcePath": "src/host/executor/tool.rs",
           "lineStart": 12,
-          "lineEnd": 54,
+          "lineEnd": 46,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 38,
+              "lineEnd": 45
+            }
+          ]
         }
       ]
     }

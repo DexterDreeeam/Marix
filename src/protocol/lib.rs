@@ -36,4 +36,4 @@ pub use task::{
     TaskError, TaskEvent, TaskId, TaskPreview, TaskRequest, TaskRequestBrief, TaskResult,
     TaskSignature, TaskStatus,
 };
-pub use tool::{ToolInputSchema, ToolOutputSchema, ToolPreview, ToolSchema};
+pub use tool::{ToolInputSchema, ToolOutputSchema, ToolPreview};

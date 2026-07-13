@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/plan",
     "name": "plan",
-    "purpose": "Owns server-side plan creation and step orchestration, including model-input JSON built from plan background and completed call output before the model step starts.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns server-side plan creation, step orchestration, and prompt-oriented rendering of flattened invocation input.",
+    "changeStatus": "modified"
   },
+  "modified": ["stringify.rs"],
   "childModules": [],
   "elements": [
     {
@@ -210,7 +211,7 @@
       "name": "PlanStringify",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/stringify.rs",
@@ -236,12 +237,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 56,
-              "lineEnd": 56
-            },
-            {
-              "lineStart": 74,
-              "lineEnd": 74
+              "lineStart": 98,
+              "lineEnd": 98
             }
           ]
         }

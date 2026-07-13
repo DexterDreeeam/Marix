@@ -2,7 +2,7 @@ use std::fs;
 use std::path::Path;
 
 use marix_common::external::serde_json::{Value, json, to_string};
-use marix_protocol::{ToolInputSchema, ToolOutputSchema, ToolPreview, ToolSchema};
+use marix_protocol::ToolPreview;
 
 use super::super::parse_input;
 use crate::ToolProgram;
@@ -13,7 +13,6 @@ impl SearchText {
     const NAME: &'static str = "search_text";
     const DESCRIPTION: &'static str = "Search text under a local directory or file path.";
     const INPUT_SCHEMA: &'static str = r#"{"type":"object","properties":{"path":{"type":"string"},"query":{"type":"string"},"case_sensitive":{"type":"boolean"}},"required":["path","query"],"additionalProperties":false}"#;
-    const OUTPUT_SCHEMA: &'static str = r#"{"type":"object","properties":{"matches":{"type":"array","items":{"type":"object","properties":{"path":{"type":"string"},"line":{"type":"integer"},"text":{"type":"string"}}}}},"required":["matches"],"additionalProperties":false}"#;
 }
 
 impl ToolProgram for SearchText {
@@ -21,14 +20,7 @@ impl ToolProgram for SearchText {
         ToolPreview {
             name: Self::NAME.to_owned(),
             description: Self::DESCRIPTION.to_owned(),
-            schema: ToolSchema {
-                input: ToolInputSchema {
-                    content: Self::INPUT_SCHEMA.to_owned(),
-                },
-                output: ToolOutputSchema {
-                    content: Self::OUTPUT_SCHEMA.to_owned(),
-                },
-            },
+            input: Self::INPUT_SCHEMA.to_owned(),
         }
     }
 

@@ -95,7 +95,7 @@ impl PlanStringify {
             StepKind::Invocation(InvocationStepKind::Invocation(request)) => StepText {
                 name: request.signature.name.clone(),
                 kind: "tool",
-                input: Some(request.input.content.clone()),
+                input: Some(request.input.clone()),
             },
             StepKind::Invocation(InvocationStepKind::Cancel) => StepText {
                 name: "cancel".to_owned(),

@@ -1,7 +1,7 @@
 use std::fs;
 
 use marix_common::external::serde_json::{Value, json, to_string};
-use marix_protocol::{ToolInputSchema, ToolOutputSchema, ToolPreview, ToolSchema};
+use marix_protocol::ToolPreview;
 
 use super::super::parse_input;
 use crate::ToolProgram;
@@ -12,7 +12,6 @@ impl ReadFile {
     const NAME: &'static str = "read_file";
     const DESCRIPTION: &'static str = "Read a UTF-8 text file from the local file system.";
     const INPUT_SCHEMA: &'static str = r#"{"type":"object","properties":{"path":{"type":"string"}},"required":["path"],"additionalProperties":false}"#;
-    const OUTPUT_SCHEMA: &'static str = r#"{"type":"object","properties":{"content":{"type":"string"}},"required":["content"],"additionalProperties":false}"#;
 }
 
 impl ToolProgram for ReadFile {
@@ -20,14 +19,7 @@ impl ToolProgram for ReadFile {
         ToolPreview {
             name: Self::NAME.to_owned(),
             description: Self::DESCRIPTION.to_owned(),
-            schema: ToolSchema {
-                input: ToolInputSchema {
-                    content: Self::INPUT_SCHEMA.to_owned(),
-                },
-                output: ToolOutputSchema {
-                    content: Self::OUTPUT_SCHEMA.to_owned(),
-                },
-            },
+            input: Self::INPUT_SCHEMA.to_owned(),
         }
     }
 

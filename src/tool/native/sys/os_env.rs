@@ -4,7 +4,7 @@ use std::fs;
 use std::path::{Component, Path, PathBuf};
 
 use marix_common::external::serde_json::{Value, json, to_string};
-use marix_protocol::{ToolInputSchema, ToolOutputSchema, ToolPreview, ToolSchema};
+use marix_protocol::ToolPreview;
 
 use super::super::parse_input;
 use crate::ToolProgram;
@@ -13,26 +13,6 @@ const NAME: &str = "os_env";
 const DESCRIPTION: &str = "Report a safe, allowlisted view of the local system environment.";
 const INPUT_SCHEMA: &str =
     concat!(r#"{"type":"object","properties":{},"additionalProperties":false}"#,);
-const OUTPUT_SCHEMA: &str = concat!(
-    r#"{"type":"object","properties":{"system":{"type":"object","#,
-    r#""properties":{"os":{"type":"string"},"family":{"type":"string"},"#,
-    r#""arch":{"type":"string"},"hostname":{"type":["string","null"]}},"#,
-    r#""required":["os","family","arch","hostname"],"#,
-    r#""additionalProperties":false},"user":{"type":"object","#,
-    r#""properties":{"username":{"type":["string","null"]},"#,
-    r#""profile":{"type":["string","null"]}},"#,
-    r#""required":["username","profile"],"additionalProperties":false},"#,
-    r#""paths":{"type":"object","properties":{"current":{"type":["string","#,
-    r#""null"]},"temp":{"type":["string","null"]},"desktop":{"type":["string","#,
-    r#""null"]},"documents":{"type":["string","null"]},"downloads":{"type":["#,
-    r#""string","null"]},"app_data":{"type":["string","null"]},"#,
-    r#""local_app_data":{"type":["string","null"]},"public":{"type":["string","#,
-    r#""null"]},"program_data":{"type":["string","null"]}},"required":["#,
-    r#""current","temp","desktop","documents","downloads","app_data","#,
-    r#""local_app_data","public","program_data"],"additionalProperties":false},"#,
-    r#""error":{"type":"string"}},"additionalProperties":false,"oneOf":[{"#,
-    r#""required":["system","user","paths"]},{"required":["error"]}]}"#,
-);
 
 pub struct OsEnv;
 
@@ -41,14 +21,7 @@ impl ToolProgram for OsEnv {
         ToolPreview {
             name: NAME.to_owned(),
             description: DESCRIPTION.to_owned(),
-            schema: ToolSchema {
-                input: ToolInputSchema {
-                    content: INPUT_SCHEMA.to_owned(),
-                },
-                output: ToolOutputSchema {
-                    content: OUTPUT_SCHEMA.to_owned(),
-                },
-            },
+            input: INPUT_SCHEMA.to_owned(),
         }
     }
 

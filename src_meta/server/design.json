@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server",
     "name": "server",
-    "purpose": "Runs the server core with remote-first telemetry fallback and owns session-driven task, prompt, and Host orchestration.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs server orchestration with flattened step/tool content, prompt construction, and session lifecycle management.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/server/invocation",
@@ -20,7 +21,7 @@
     {
       "path": "src/server/plan",
       "name": "plan",
-      "purpose": "Owns server-side plan creation and step orchestration, including model-input JSON built from plan background and completed call output before the model step starts."
+      "purpose": "Owns server-side plan creation, step orchestration, and prompt-oriented rendering of flattened invocation input."
     },
     {
       "path": "src/server/prompt",
@@ -40,7 +41,7 @@
     {
       "path": "src/server/step",
       "name": "step",
-      "purpose": "Owns server-side step dispatch and common parameter-driven model prompt construction across template kinds."
+      "purpose": "Owns server-side step dispatch, flattened invocation input handling, and parameter-driven model prompt construction."
     },
     {
       "path": "src/server/task",
@@ -660,7 +661,7 @@
       "name": "PlanStringify",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/stringify.rs",
@@ -686,12 +687,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 56,
-              "lineEnd": 56
-            },
-            {
-              "lineStart": 74,
-              "lineEnd": 74
+              "lineStart": 98,
+              "lineEnd": 98
             }
           ]
         }
@@ -811,15 +808,20 @@
       "name": "step_kind",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/helper.rs",
           "lineStart": 10,
-          "lineEnd": 32,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 23
+            }
+          ]
         }
       ]
     },
@@ -831,14 +833,14 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/step/helper.rs",
-          "lineStart": 55,
-          "lineEnd": 150,
+          "lineStart": 53,
+          "lineEnd": 148,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 59,
-              "lineEnd": 130
+              "lineStart": 57,
+              "lineEnd": 128
             }
           ]
         }

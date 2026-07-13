@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Owns shared actor/runtime contracts and serialized execution, session, task, plan, step, invocation, relay, executor, and tool protocols.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns shared actor/runtime contracts and serialized execution, session, task, plan, step, invocation, relay, executor, and string-backed tool protocols.",
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs", "mod.rs"],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -55,7 +56,7 @@
     {
       "path": "src/protocol/tool",
       "name": "tool",
-      "purpose": "Owns tool protocol metadata contracts split into ToolSchema, ToolInputSchema, ToolOutputSchema, and ToolPreview models with JSON conversion helpers."
+      "purpose": "Defines string-backed tool input/output schema aliases and input-only tool previews with JSON conversion helpers."
     }
   ],
   "elements": [
@@ -1172,7 +1173,7 @@
       "name": "ToolPreview",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/tool/preview.rs",
@@ -1182,8 +1183,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 5,
-              "lineEnd": 9
+              "lineStart": 8,
+              "lineEnd": 8
             }
           ]
         },
@@ -1198,58 +1199,44 @@
       ]
     },
     {
-      "name": "ToolSchema",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/tool/schema.rs",
-          "lineStart": 3,
-          "lineEnd": 7,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/protocol/tool/schema.rs",
-          "lineStart": 19,
-          "lineEnd": 27,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
       "name": "ToolInputSchema",
-      "type": "struct",
+      "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/tool/schema.rs",
-          "lineStart": 9,
-          "lineEnd": 12,
+          "lineStart": 1,
+          "lineEnd": 1,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 1
+            }
+          ]
         }
       ]
     },
     {
       "name": "ToolOutputSchema",
-      "type": "struct",
+      "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/tool/schema.rs",
-          "lineStart": 14,
-          "lineEnd": 17,
+          "lineStart": 2,
+          "lineEnd": 2,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 2,
+              "lineEnd": 2
+            }
+          ]
         }
       ]
     }

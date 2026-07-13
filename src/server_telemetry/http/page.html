@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Marix Telemetry</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <style>
   :root {
     color-scheme: dark;
@@ -332,6 +333,9 @@
     word-break: break-word;
   }
   .formatted-json {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
     max-width: 100%;
     margin: 12px 0;
     overflow-x: hidden;
@@ -343,6 +347,24 @@
     white-space: pre-wrap;
     overflow-wrap: anywhere;
     word-break: break-word;
+  }
+  .json-code, .json-line {
+    min-width: 0;
+    max-width: 100%;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  .nested-json {
+    width: auto;
+    margin: 6px 0 6px clamp(6px, 1.2vw, 12px);
+    padding: 10px 10px 10px 12px;
+    border-width: 0 0 0 2px;
+    border-radius: 0 6px 6px 0;
+    background: #0e1420;
+  }
+  .nested-json.nested-depth-even {
+    background: #101827;
   }
   .json-key { color: #8ab4ff; }
   .json-string { color: #7ee787; }
@@ -445,6 +467,10 @@
     }
     #format-message-modal {
       max-height: 92vh;
+    }
+    .nested-json {
+      margin-left: 6px;
+      padding: 8px 8px 8px 7px;
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -969,23 +995,66 @@
     return value !== null && typeof value === "object";
   }
 
-  function parseJsonCandidate(candidate) {
-    try {
-      var directValue = JSON.parse(candidate);
-      return isJsonContainer(directValue) ? directValue : null;
-    } catch (directError) {
-      if (candidate.indexOf("\\\"") === -1) {
-        return null;
+  var c_maxNestedJsonDepth = 32;
+
+  function decodeEscapedJsonBody(value) {
+    var _body = "";
+    for (var _index = 0; _index < value.length; _index += 1) {
+      var _character = value[_index];
+      if (
+        _character === "\"" &&
+        countPrecedingBackslashes(value, _index) % 2 === 0
+      ) {
+        _body += "\\\"";
+      } else if (_character.charCodeAt(0) < 0x20) {
+        _body += JSON.stringify(_character).slice(1, -1);
+      } else {
+        _body += _character;
       }
     }
 
     try {
-      var decoded = JSON.parse("\"" + candidate + "\"");
-      var decodedValue = JSON.parse(decoded);
-      return isJsonContainer(decodedValue) ? decodedValue : null;
-    } catch (escapedError) {
+      return JSON.parse("\"" + _body + "\"");
+    } catch (_decodeError) {
       return null;
     }
+  }
+
+  function parseNestedJsonString(value) {
+    if (typeof value !== "string") {
+      return null;
+    }
+
+    var _current = value;
+    for (var _depth = 0; _depth < c_maxNestedJsonDepth; _depth += 1) {
+      var _candidate = _current.trim();
+      if (_candidate.length === 0) {
+        return null;
+      }
+
+      var _parsed;
+      try {
+        _parsed = JSON.parse(_candidate);
+      } catch (_parseError) {
+        _parsed = decodeEscapedJsonBody(_candidate);
+        if (_parsed === null) {
+          return null;
+        }
+      }
+
+      if (isJsonContainer(_parsed)) {
+        return _parsed;
+      }
+      if (typeof _parsed !== "string" || _parsed === _candidate) {
+        return null;
+      }
+      _current = _parsed;
+    }
+    return null;
+  }
+
+  function parseJsonCandidate(candidate) {
+    return parseNestedJsonString(candidate);
   }
 
   function extractFormattedSegments(message) {
@@ -1033,37 +1102,118 @@
     return segments;
   }
 
-  function appendHighlightedJson(container, value) {
-    var prettyJson = JSON.stringify(value, null, 2);
-    var tokenPattern =
-      /"(?:\\(?:["\\/bfnrt]|u[0-9a-fA-F]{4})|[^"\\])*"|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?|\b(?:true|false|null)\b/g;
-    var textStart = 0;
-    var match;
-    while ((match = tokenPattern.exec(prettyJson)) !== null) {
-      if (match.index > textStart) {
-        container.appendChild(
-          document.createTextNode(prettyJson.slice(textStart, match.index))
-        );
-      }
-      var token = match[0];
-      var tokenEl = document.createElement("span");
-      if (token[0] === "\"") {
-        var suffix = prettyJson.slice(tokenPattern.lastIndex);
-        tokenEl.className = /^\s*:/.test(suffix) ? "json-key" : "json-string";
-      } else if (token === "true" || token === "false") {
-        tokenEl.className = "json-boolean";
-      } else if (token === "null") {
-        tokenEl.className = "json-null";
-      } else {
-        tokenEl.className = "json-number";
-      }
-      tokenEl.textContent = token;
-      container.appendChild(tokenEl);
-      textStart = tokenPattern.lastIndex;
+  function appendJsonToken(container, text, className) {
+    var _token = document.createElement("span");
+    _token.className = className;
+    _token.textContent = text;
+    container.appendChild(_token);
+  }
+
+  function appendJsonLine(container, indent) {
+    var _line = document.createElement("div");
+    _line.className = "json-line";
+    _line.appendChild(document.createTextNode("  ".repeat(indent)));
+    container.appendChild(_line);
+    return _line;
+  }
+
+  function appendJsonScalar(container, value) {
+    var _className;
+    if (typeof value === "string") {
+      _className = "json-string";
+    } else if (typeof value === "number") {
+      _className = "json-number";
+    } else if (typeof value === "boolean") {
+      _className = "json-boolean";
+    } else {
+      _className = "json-null";
     }
-    if (textStart < prettyJson.length) {
-      container.appendChild(document.createTextNode(prettyJson.slice(textStart)));
+    appendJsonToken(container, JSON.stringify(value), _className);
+  }
+
+  function appendJsonPrefix(container, key) {
+    if (key === null) {
+      return;
     }
+    appendJsonToken(container, JSON.stringify(key), "json-key");
+    container.appendChild(document.createTextNode(": "));
+  }
+
+  function appendJsonValue(
+    container,
+    value,
+    indent,
+    key,
+    trailingComma,
+    sectionDepth
+  ) {
+    var _nestedValue =
+      typeof value === "string" && sectionDepth < c_maxNestedJsonDepth
+        ? parseNestedJsonString(value)
+        : null;
+    if (_nestedValue) {
+      if (key !== null) {
+        var _keyLine = appendJsonLine(container, indent);
+        appendJsonPrefix(_keyLine, key);
+      }
+      container.appendChild(
+        createJsonSection(_nestedValue, sectionDepth + 1, trailingComma)
+      );
+      return;
+    }
+
+    var _line = appendJsonLine(container, indent);
+    appendJsonPrefix(_line, key);
+    if (!isJsonContainer(value)) {
+      appendJsonScalar(_line, value);
+      if (trailingComma) {
+        _line.appendChild(document.createTextNode(","));
+      }
+      return;
+    }
+
+    var _isArray = Array.isArray(value);
+    _line.appendChild(document.createTextNode(_isArray ? "[" : "{"));
+    var _entries = _isArray
+      ? value.map(function (_item) {
+          return [null, _item];
+        })
+      : Object.keys(value).map(function (_key) {
+          return [_key, value[_key]];
+        });
+    _entries.forEach(function (_entry, _index) {
+      appendJsonValue(
+        container,
+        _entry[1],
+        indent + 1,
+        _entry[0],
+        _index < _entries.length - 1,
+        sectionDepth
+      );
+    });
+    var _closingLine = appendJsonLine(container, indent);
+    _closingLine.appendChild(document.createTextNode(_isArray ? "]" : "}"));
+    if (trailingComma) {
+      _closingLine.appendChild(document.createTextNode(","));
+    }
+  }
+
+  function createJsonSection(value, depth, trailingComma) {
+    var _section = document.createElement("div");
+    _section.className = "formatted-json";
+    _section.dataset.jsonDepth = String(depth);
+    if (depth > 0) {
+      _section.classList.add("nested-json");
+      _section.classList.add(
+        depth % 2 === 0 ? "nested-depth-even" : "nested-depth-odd"
+      );
+    }
+
+    var _code = document.createElement("div");
+    _code.className = "json-code";
+    appendJsonValue(_code, value, 0, null, trailingComma, depth);
+    _section.appendChild(_code);
+    return _section;
   }
 
   function renderFormattedMessage(message) {
@@ -1076,10 +1226,7 @@
         modalEditorEl.appendChild(textEl);
         return;
       }
-      var jsonEl = document.createElement("pre");
-      jsonEl.className = "formatted-json";
-      appendHighlightedJson(jsonEl, segment.value);
-      modalEditorEl.appendChild(jsonEl);
+      modalEditorEl.appendChild(createJsonSection(segment.value, 0, false));
     });
   }
 

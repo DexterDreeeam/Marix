@@ -1,11 +1,11 @@
-use crate::ToolSchema;
+use crate::ToolInputSchema;
 use crate::external::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ToolPreview {
     pub name: String,
     pub description: String,
-    pub schema: ToolSchema,
+    pub input: ToolInputSchema,
 }
 
 impl ToolPreview {

@@ -3,9 +3,10 @@
   "module": {
     "path": "src/host/executor",
     "name": "executor",
-    "purpose": "Owns host executor lifecycle, responding to Server tool queries and routing execution work.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns host executor lifecycle, tool registration, preview loading, and string-backed tool invocation.",
+    "changeStatus": "modified"
   },
+  "modified": ["tool.rs"],
   "childModules": [],
   "elements": [
     {
@@ -148,7 +149,7 @@
       "name": "Tool",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/tool.rs",
@@ -161,10 +162,15 @@
         {
           "sourcePath": "src/host/executor/tool.rs",
           "lineStart": 12,
-          "lineEnd": 54,
+          "lineEnd": 46,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 38,
+              "lineEnd": 45
+            }
+          ]
         }
       ]
     }

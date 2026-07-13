@@ -3,24 +3,25 @@
   "module": {
     "path": "src/tool/native",
     "name": "native",
-    "purpose": "Groups six built-in filesystem, shell, and system-environment tools and supplies shared JSON input parsing that repairs unescaped Windows path and cwd backslashes.",
-    "changeStatus": "unchanged"
+    "purpose": "Groups six built-in tools with input-only previews and shared compatible JSON input parsing.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/tool/native/file",
       "name": "file",
-      "purpose": "Provides four filesystem tools that accept strict JSON and use the native compatibility parser for unescaped Windows path backslashes."
+      "purpose": "Provides four filesystem tools with input-only previews and compatible parsing for unescaped Windows path backslashes."
     },
     {
       "path": "src/tool/native/shell",
       "name": "shell",
-      "purpose": "Provides ShellExecute with typed command schemas, operating-system shell execution, and compatible parsing for Windows cwd backslashes."
+      "purpose": "Provides ShellExecute with an input-only preview, operating-system shell execution, and compatible Windows cwd parsing."
     },
     {
       "path": "src/tool/native/sys",
       "name": "sys",
-      "purpose": "Provides OsEnv, a safe allowlisted environment report that accepts strict JSON through the native compatibility parser."
+      "purpose": "Provides OsEnv with an input-only preview and a safe allowlisted environment report."
     }
   ],
   "elements": [
@@ -28,7 +29,7 @@
       "name": "ReadFile",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/file/read_file.rs",
@@ -41,21 +42,21 @@
         {
           "sourcePath": "src/tool/native/file/read_file.rs",
           "lineStart": 11,
-          "lineEnd": 16,
+          "lineEnd": 15,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/tool/native/file/read_file.rs",
-          "lineStart": 18,
-          "lineEnd": 47,
+          "lineStart": 17,
+          "lineEnd": 39,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 35,
-              "lineEnd": 35
+              "lineStart": 18,
+              "lineEnd": 24
             }
           ]
         }
@@ -65,7 +66,7 @@
       "name": "WriteFile",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/file/write_file.rs",
@@ -78,21 +79,21 @@
         {
           "sourcePath": "src/tool/native/file/write_file.rs",
           "lineStart": 12,
-          "lineEnd": 17,
+          "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/tool/native/file/write_file.rs",
-          "lineStart": 19,
-          "lineEnd": 64,
+          "lineStart": 18,
+          "lineEnd": 56,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 36,
-              "lineEnd": 36
+              "lineStart": 19,
+              "lineEnd": 25
             }
           ]
         }
@@ -102,7 +103,7 @@
       "name": "ListDirectory",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/file/list_directory.rs",
@@ -115,21 +116,21 @@
         {
           "sourcePath": "src/tool/native/file/list_directory.rs",
           "lineStart": 12,
-          "lineEnd": 17,
+          "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/tool/native/file/list_directory.rs",
-          "lineStart": 19,
-          "lineEnd": 53,
+          "lineStart": 18,
+          "lineEnd": 45,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 36,
-              "lineEnd": 36
+              "lineStart": 19,
+              "lineEnd": 25
             }
           ]
         }
@@ -139,7 +140,7 @@
       "name": "SearchText",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/file/search_text.rs",
@@ -152,21 +153,21 @@
         {
           "sourcePath": "src/tool/native/file/search_text.rs",
           "lineStart": 12,
-          "lineEnd": 17,
+          "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/tool/native/file/search_text.rs",
-          "lineStart": 19,
-          "lineEnd": 56,
+          "lineStart": 18,
+          "lineEnd": 48,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 36,
-              "lineEnd": 36
+              "lineStart": 19,
+              "lineEnd": 25
             }
           ]
         }
@@ -176,7 +177,7 @@
       "name": "ShellExecute",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/shell_execute.rs",
@@ -189,21 +190,21 @@
         {
           "sourcePath": "src/tool/native/shell/shell_execute.rs",
           "lineStart": 11,
-          "lineEnd": 17,
+          "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/tool/native/shell/shell_execute.rs",
-          "lineStart": 19,
-          "lineEnd": 65,
+          "lineStart": 18,
+          "lineEnd": 57,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 36,
-              "lineEnd": 36
+              "lineStart": 19,
+              "lineEnd": 25
             }
           ]
         }
@@ -213,33 +214,33 @@
       "name": "OsEnv",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/sys/os_env.rs",
-          "lineStart": 37,
-          "lineEnd": 37,
+          "lineStart": 17,
+          "lineEnd": 17,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/tool/native/sys/os_env.rs",
-          "lineStart": 39,
-          "lineEnd": 74,
+          "lineStart": 19,
+          "lineEnd": 47,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 57,
-              "lineEnd": 57
+              "lineStart": 20,
+              "lineEnd": 25
             }
           ]
         },
         {
           "sourcePath": "src/tool/native/sys/os_env.rs",
-          "lineStart": 91,
-          "lineEnd": 314,
+          "lineStart": 64,
+          "lineEnd": 287,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

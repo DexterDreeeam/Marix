@@ -3,24 +3,30 @@
   "module": {
     "path": "src/server/step",
     "name": "step",
-    "purpose": "Owns server-side step dispatch and common parameter-driven model prompt construction across template kinds.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns server-side step dispatch, flattened invocation input handling, and parameter-driven model prompt construction.",
+    "changeStatus": "modified"
   },
+  "modified": ["helper.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "step_kind",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/helper.rs",
           "lineStart": 10,
-          "lineEnd": 32,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 23
+            }
+          ]
         }
       ]
     },
@@ -32,14 +38,14 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/step/helper.rs",
-          "lineStart": 55,
-          "lineEnd": 150,
+          "lineStart": 53,
+          "lineEnd": 148,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 59,
-              "lineEnd": 130
+              "lineStart": 57,
+              "lineEnd": 128
             }
           ]
         }

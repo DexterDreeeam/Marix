@@ -3,9 +3,10 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Defines the Marix Rust workspace and its client, host, server, source-aware telemetry, protocol, common, and tool packages.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and tool packages.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/client",
@@ -25,7 +26,7 @@
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "Owns the hierarchical protocol contracts for sessions, tasks, plans, steps, invocations, relays, executors, host executions, tools, signatures, statuses, and errors."
+      "purpose": "Owns shared actor/runtime contracts and serialized execution, session, task, plan, step, invocation, relay, executor, and string-backed tool protocols."
     },
     {
       "path": "src/server",

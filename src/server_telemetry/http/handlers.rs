@@ -4,6 +4,7 @@ use marix_common::{LogTag, Logger, LoggingError};
 use crate::http::external::*;
 
 const PAGE_HTML: &str = include_str!("page.html");
+const FAVICON_SVG: &str = include_str!("favicon.svg");
 
 /// Serves the single-file telemetry page.
 pub(super) async fn root() -> axum::response::Response {
@@ -11,6 +12,15 @@ pub(super) async fn root() -> axum::response::Response {
         axum::http::StatusCode::OK,
         [(axum::http::header::CONTENT_TYPE, "text/html; charset=utf-8")],
         PAGE_HTML,
+    )
+        .into_response()
+}
+
+pub(super) async fn favicon() -> axum::response::Response {
+    (
+        axum::http::StatusCode::OK,
+        [(axum::http::header::CONTENT_TYPE, "image/svg+xml")],
+        FAVICON_SVG,
     )
         .into_response()
 }

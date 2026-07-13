@@ -3,42 +3,43 @@
   "module": {
     "path": "src/tool/native/sys",
     "name": "sys",
-    "purpose": "Provides OsEnv, a safe allowlisted environment report that accepts strict JSON through the native compatibility parser.",
-    "changeStatus": "unchanged"
+    "purpose": "Provides OsEnv with an input-only preview and a safe allowlisted environment report.",
+    "changeStatus": "modified"
   },
+  "modified": ["os_env.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "OsEnv",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/sys/os_env.rs",
-          "lineStart": 37,
-          "lineEnd": 37,
+          "lineStart": 17,
+          "lineEnd": 17,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/tool/native/sys/os_env.rs",
-          "lineStart": 39,
-          "lineEnd": 74,
+          "lineStart": 19,
+          "lineEnd": 47,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 57,
-              "lineEnd": 57
+              "lineStart": 20,
+              "lineEnd": 25
             }
           ]
         },
         {
           "sourcePath": "src/tool/native/sys/os_env.rs",
-          "lineStart": 91,
-          "lineEnd": 314,
+          "lineStart": 64,
+          "lineEnd": 287,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

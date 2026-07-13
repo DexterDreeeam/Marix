@@ -920,3 +920,18 @@ connecter to protect this distinction.
   append. Each connect run removes stale fallback output before attempting
   telemetry. Only `Logger::host` uses redb, at
   `<marix_path_server-or-marix_path>/log/telemetry.redb`.
+- 2026-07-13 (telemetry recursive JSON formatting):
+  `server_telemetry/http/page.html` decodes JSON-valued strings with bounded
+  standard `JSON.parse` passes plus a safely quoted escaped-body fallback.
+  Its structured renderer uses nested `.formatted-json` div sections with
+  `data-json-depth` rather than block elements inside `pre`; depth 32 remains
+  a highlighted string to bound hostile recursive content.
+- 2026-07-14 (tool protocol schema boundary): `protocol::ToolInputSchema` and
+  `ToolOutputSchema` are direct `String` aliases. `ToolPreview` advertises only
+  its input schema string, while invocation/execution requests carry input
+  payload strings directly. Native tool result JSON remains unchanged but no
+  output schema is exposed through previews or host `Tool` accessors.
+- 2026-07-14: Telemetry Portal favicon is owned by
+  `src/server_telemetry/http/favicon.svg`, embedded with `include_str!` in
+  `handlers.rs`, and served as `image/svg+xml` from `GET /favicon.svg`. It
+  mirrors `overview/assets/favicon.svg` except for the dark-red rect fill.

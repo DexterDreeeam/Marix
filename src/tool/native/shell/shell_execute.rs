@@ -1,7 +1,7 @@
 use std::process::Command;
 
 use marix_common::external::serde_json::{Value, json, to_string};
-use marix_protocol::{ToolInputSchema, ToolOutputSchema, ToolPreview, ToolSchema};
+use marix_protocol::ToolPreview;
 
 use super::super::parse_input;
 use crate::ToolProgram;
@@ -13,7 +13,6 @@ impl ShellExecute {
     const DESCRIPTION: &'static str =
         "Run a native command through the current operating system shell.";
     const INPUT_SCHEMA: &'static str = r#"{"type":"object","properties":{"command":{"type":"string"},"cwd":{"type":"string"},"timeout_ms":{"type":"integer","minimum":1}},"required":["command"],"additionalProperties":false}"#;
-    const OUTPUT_SCHEMA: &'static str = r#"{"type":"object","properties":{"exit_code":{"type":"integer"},"stdout":{"type":"string"},"stderr":{"type":"string"}},"required":["exit_code"],"additionalProperties":false}"#;
 }
 
 impl ToolProgram for ShellExecute {
@@ -21,14 +20,7 @@ impl ToolProgram for ShellExecute {
         ToolPreview {
             name: Self::NAME.to_owned(),
             description: Self::DESCRIPTION.to_owned(),
-            schema: ToolSchema {
-                input: ToolInputSchema {
-                    content: Self::INPUT_SCHEMA.to_owned(),
-                },
-                output: ToolOutputSchema {
-                    content: Self::OUTPUT_SCHEMA.to_owned(),
-                },
-            },
+            input: Self::INPUT_SCHEMA.to_owned(),
         }
     }
 

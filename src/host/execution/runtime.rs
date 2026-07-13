@@ -90,7 +90,7 @@ impl ExecutionRuntime {
             "execution {} started",
             &self.state.request.signature,
         ));
-        let content = self.state.tool.execute(&self.state.request.input.content);
+        let content = self.state.tool.execute(&self.state.request.input);
         self.send_processing(0, content);
         self.send_status(ExecutionStatus::Succeed { seq_count: 1 });
         self.close();

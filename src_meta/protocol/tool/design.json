@@ -3,64 +3,51 @@
   "module": {
     "path": "src/protocol/tool",
     "name": "tool",
-    "purpose": "Owns tool protocol metadata contracts split into ToolSchema, ToolInputSchema, ToolOutputSchema, and ToolPreview models with JSON conversion helpers.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines string-backed tool input/output schema aliases and input-only tool previews with JSON conversion helpers.",
+    "changeStatus": "modified"
   },
+  "modified": ["schema.rs", "preview.rs", "mod.rs"],
   "childModules": [],
   "elements": [
     {
-      "name": "ToolSchema",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/tool/schema.rs",
-          "lineStart": 3,
-          "lineEnd": 7,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/protocol/tool/schema.rs",
-          "lineStart": 19,
-          "lineEnd": 27,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
       "name": "ToolInputSchema",
-      "type": "struct",
+      "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/tool/schema.rs",
-          "lineStart": 9,
-          "lineEnd": 12,
+          "lineStart": 1,
+          "lineEnd": 1,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 1
+            }
+          ]
         }
       ]
     },
     {
       "name": "ToolOutputSchema",
-      "type": "struct",
+      "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/tool/schema.rs",
-          "lineStart": 14,
-          "lineEnd": 17,
+          "lineStart": 2,
+          "lineEnd": 2,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 2,
+              "lineEnd": 2
+            }
+          ]
         }
       ]
     },
@@ -68,7 +55,7 @@
       "name": "ToolPreview",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/tool/preview.rs",
@@ -78,8 +65,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 5,
-              "lineEnd": 9
+              "lineStart": 8,
+              "lineEnd": 8
             }
           ]
         },

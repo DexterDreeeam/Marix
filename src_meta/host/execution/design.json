@@ -3,9 +3,10 @@
   "module": {
     "path": "src/host/execution",
     "name": "execution",
-    "purpose": "Owns the execution source module under src/host/execution.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs host tool executions and emits lifecycle events with flattened processing content.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -44,7 +45,7 @@
       "name": "ExecutionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -78,8 +79,12 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 122,
-              "lineEnd": 122
+              "lineStart": 93,
+              "lineEnd": 94
+            },
+            {
+              "lineStart": 114,
+              "lineEnd": 126
             }
           ]
         }

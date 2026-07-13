@@ -2,7 +2,7 @@ use std::fs;
 use std::path::Path;
 
 use marix_common::external::serde_json::{Value, json, to_string};
-use marix_protocol::{ToolInputSchema, ToolOutputSchema, ToolPreview, ToolSchema};
+use marix_protocol::ToolPreview;
 
 use super::super::parse_input;
 use crate::ToolProgram;
@@ -13,7 +13,6 @@ impl ListDirectory {
     const NAME: &'static str = "list_directory";
     const DESCRIPTION: &'static str = "List entries under a local directory.";
     const INPUT_SCHEMA: &'static str = r#"{"type":"object","properties":{"path":{"type":"string"},"recursive":{"type":"boolean"}},"required":["path"],"additionalProperties":false}"#;
-    const OUTPUT_SCHEMA: &'static str = r#"{"type":"object","properties":{"entries":{"type":"array","items":{"type":"string"}}},"required":["entries"],"additionalProperties":false}"#;
 }
 
 impl ToolProgram for ListDirectory {
@@ -21,14 +20,7 @@ impl ToolProgram for ListDirectory {
         ToolPreview {
             name: Self::NAME.to_owned(),
             description: Self::DESCRIPTION.to_owned(),
-            schema: ToolSchema {
-                input: ToolInputSchema {
-                    content: Self::INPUT_SCHEMA.to_owned(),
-                },
-                output: ToolOutputSchema {
-                    content: Self::OUTPUT_SCHEMA.to_owned(),
-                },
-            },
+            input: Self::INPUT_SCHEMA.to_owned(),
         }
     }
 
