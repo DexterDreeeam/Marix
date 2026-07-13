@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server_telemetry/http",
     "name": "http",
-    "purpose": "Serves the self-hosted telemetry session browser and JSON session/log query routes.",
-    "changeStatus": "unchanged"
+    "purpose": "Serves the self-hosted telemetry session browser with responsive navigation, resilient log-message copying, and JSON session/log query routes.",
+    "changeStatus": "modified"
   },
+  "modified": ["page.html"],
   "childModules": [],
   "elements": [
     {
@@ -211,20 +212,41 @@
       "name": "TelemetryPage",
       "type": "prompt",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/page.html",
           "lineStart": 1,
-          "lineEnd": 687,
+          "lineEnd": 738,
           "language": "html",
           "addedLines": [
             {
-              "lineStart": 1,
-              "lineEnd": 687
+              "lineStart": 543,
+              "lineEnd": 592
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 68,
+              "lineEnd": 68
+            },
+            {
+              "lineStart": 74,
+              "lineEnd": 74
+            },
+            {
+              "lineStart": 595,
+              "lineEnd": 597
+            },
+            {
+              "lineStart": 605,
+              "lineEnd": 612
+            }
+          ]
         }
       ]
     }

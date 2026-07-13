@@ -825,9 +825,15 @@ connecter to protect this distinction.
   followed by `reverse`; the telemetry page renders the API array unchanged.
 - 2026-07-13 (telemetry portal interaction layout): desktop `page.html` keeps
   `#sessions` in `#app`'s flex flow and transitions both `width` and
-  `flex-basis` from 16px to 216px over 240ms; `#main` is a min-width-zero flex
+  `flex-basis` from 16px to 216px over 140ms; `#main` is a min-width-zero flex
   child, so its left edge tracks the sidebar throughout the animation rather
   than being covered. At <=720px the sidebar is full-width with transitions
   disabled. Log-row hover/focus uses `--panel-alt`; successful message copies
   also show one fixed center `Content Copied` status toast whose single
   1050ms timer is reset by consecutive mouse or keyboard copies.
+- 2026-07-13 (telemetry clipboard fallback): `server_telemetry/http/page.html`
+  preserves `entry.message` verbatim through both clipboard paths. It prefers
+  `navigator.clipboard.writeText`, then falls back on rejection or absence to
+  a temporary selected readonly textarea plus `document.execCommand("copy")`;
+  copied styling and the center toast are success-only, while total failure is
+  surfaced through the existing status banner.

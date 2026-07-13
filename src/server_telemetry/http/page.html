@@ -47,7 +47,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    transition: width 240ms ease, flex-basis 240ms ease;
+    transition: width 140ms ease-out, flex-basis 140ms ease-out;
   }
   #sessions:hover, #sessions:focus-within {
     flex-basis: 216px;
@@ -65,13 +65,13 @@
   #sessions h1, #session-list {
     opacity: 0;
     pointer-events: none;
-    transition: opacity 160ms ease;
+    transition: opacity 90ms ease;
   }
   #sessions:hover h1, #sessions:hover #session-list,
   #sessions:focus-within h1, #sessions:focus-within #session-list {
     opacity: 1;
     pointer-events: auto;
-    transition-delay: 60ms;
+    transition-delay: 35ms;
   }
   #session-list {
     width: 216px;
@@ -540,13 +540,61 @@
     }, 1050);
   }
 
-  function copyMessage(cell, message) {
-    if (!navigator.clipboard || !navigator.clipboard.writeText) {
-      return;
-    }
+  function copyTextWithExecCommand(message) {
+    var previousFocus = document.activeElement;
+    var textarea = document.createElement("textarea");
+    textarea.value = message;
+    textarea.readOnly = true;
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    textarea.style.top = "0";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+
     try {
-      Promise.resolve(navigator.clipboard.writeText(message))
-        .then(function () {
+      textarea.select();
+      textarea.setSelectionRange(0, textarea.value.length);
+      return document.execCommand("copy") === true;
+    } catch (error) {
+      return false;
+    } finally {
+      textarea.remove();
+      if (previousFocus && typeof previousFocus.focus === "function") {
+        try {
+          previousFocus.focus({ preventScroll: true });
+        } catch (focusError) {
+          try {
+            previousFocus.focus();
+          } catch (fallbackFocusError) {
+            // Focus restoration is best-effort and must not change copy success.
+          }
+        }
+      }
+    }
+  }
+
+  function writeClipboardText(message) {
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+      try {
+        return Promise.resolve(navigator.clipboard.writeText(message)).then(
+          function () {
+            return true;
+          },
+          function () {
+            return copyTextWithExecCommand(message);
+          }
+        );
+      } catch (error) {
+        return Promise.resolve(copyTextWithExecCommand(message));
+      }
+    }
+    return Promise.resolve(copyTextWithExecCommand(message));
+  }
+
+  function copyMessage(cell, message) {
+    writeClipboardText(message).then(
+      function (copied) {
+        if (copied) {
           cell.classList.add("copied");
           cell.title = "Copied";
           showCopyToast();
@@ -554,11 +602,14 @@
             cell.classList.remove("copied");
             cell.title = "Click to copy message";
           }, 700);
-        })
-        .catch(function () {});
-    } catch (error) {
-      // Clipboard access can fail outside a secure context.
-    }
+          return;
+        }
+        showError("Failed to copy message.");
+      },
+      function () {
+        showError("Failed to copy message.");
+      }
+    );
   }
 
   function renderLogs(messages) {
