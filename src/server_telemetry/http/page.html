@@ -205,6 +205,132 @@
   td.message-cell.copied {
     background: rgba(77, 141, 255, 0.18);
   }
+  #log-context-menu {
+    position: fixed;
+    z-index: 300;
+    min-width: 168px;
+    max-width: calc(100vw - 16px);
+    padding: 5px;
+    border: 1px solid rgba(230, 233, 239, 0.18);
+    border-radius: 7px;
+    background: var(--panel-alt);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+  }
+  #log-context-menu[hidden],
+  #format-message-backdrop[hidden] {
+    display: none;
+  }
+  #format-message-action {
+    width: 100%;
+    border: 0;
+    border-radius: 5px;
+    padding: 8px 10px;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  #format-message-action:hover,
+  #format-message-action:focus-visible {
+    background: rgba(77, 141, 255, 0.18);
+    outline: none;
+  }
+  body.modal-open {
+    overflow: hidden;
+  }
+  #format-message-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(4, 6, 10, 0.76);
+    animation: modal-backdrop-in 140ms ease-out;
+  }
+  #format-message-modal {
+    display: flex;
+    width: min(1000px, 100%);
+    max-height: 85vh;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgba(230, 233, 239, 0.2);
+    border-radius: 10px;
+    background: var(--panel);
+    box-shadow: 0 24px 72px rgba(0, 0, 0, 0.58);
+    animation: modal-window-in 140ms ease-out;
+  }
+  #format-message-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  #format-message-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  #format-message-close {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    background: var(--panel-alt);
+    color: var(--text);
+    font: inherit;
+    cursor: pointer;
+  }
+  #format-message-close:hover,
+  #format-message-close:focus-visible {
+    border-color: var(--accent);
+    outline: 2px solid rgba(77, 141, 255, 0.35);
+    outline-offset: 1px;
+  }
+  #format-message-editor {
+    min-height: 180px;
+    overflow: auto;
+    padding: 18px;
+    background: #0c0f14;
+    color: var(--text);
+    font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  #format-message-editor:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -3px;
+  }
+  .formatted-text {
+    white-space: pre-wrap;
+  }
+  .formatted-json {
+    margin: 12px 0;
+    overflow-x: auto;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #111722;
+    color: var(--text);
+    white-space: pre;
+  }
+  .json-key { color: #8ab4ff; }
+  .json-string { color: #7ee787; }
+  .json-number { color: #f2a65a; }
+  .json-boolean, .json-null { color: #d2a8ff; }
+  @keyframes modal-backdrop-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes modal-window-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
   #copy-toast {
     position: fixed;
     top: 50%;
@@ -286,10 +412,18 @@
       width: 100%;
       margin-left: 0;
     }
+    #format-message-backdrop {
+      padding: 12px;
+    }
+    #format-message-modal {
+      max-height: 92vh;
+    }
   }
   @media (prefers-reduced-motion: reduce) {
-    #sessions, #sessions h1, #session-list, tbody tr, td.message-cell, #copy-toast {
+    #sessions, #sessions h1, #session-list, tbody tr, td.message-cell, #copy-toast,
+    #format-message-backdrop, #format-message-modal {
       transition: none;
+      animation: none;
     }
   }
 </style>
@@ -330,6 +464,28 @@
     </div>
   </main>
 </div>
+<div id="log-context-menu" role="menu" hidden>
+  <button id="format-message-action" type="button" role="menuitem">Format message</button>
+</div>
+<div id="format-message-backdrop" aria-hidden="true" hidden>
+  <section
+    id="format-message-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="format-message-title"
+  >
+    <header id="format-message-header">
+      <h2 id="format-message-title">Format message</h2>
+      <button id="format-message-close" type="button">Close</button>
+    </header>
+    <div
+      id="format-message-editor"
+      role="region"
+      aria-label="Formatted log message"
+      tabindex="0"
+    ></div>
+  </section>
+</div>
 <div id="copy-toast" role="status" aria-live="polite">Content Copied</div>
 <script>
 (function () {
@@ -341,8 +497,14 @@
     tag: "",
     keyword: "",
     loadToken: 0,
+    sessionItems: new Map(),
+    logRows: new Map(),
+    contextMenu: null,
+    modalOpen: false,
+    modalPreviousFocus: null,
   };
 
+  var appEl = document.getElementById("app");
   var sessionListEl = document.getElementById("session-list");
   var tagFilterEl = document.getElementById("tag-filter");
   var keywordFilterEl = document.getElementById("keyword-filter");
@@ -353,6 +515,12 @@
   var initialLoadingEl = document.getElementById("initial-loading");
   var noSessionsEl = document.getElementById("no-sessions-state");
   var copyToastEl = document.getElementById("copy-toast");
+  var contextMenuEl = document.getElementById("log-context-menu");
+  var formatMessageActionEl = document.getElementById("format-message-action");
+  var modalBackdropEl = document.getElementById("format-message-backdrop");
+  var modalEl = document.getElementById("format-message-modal");
+  var modalCloseEl = document.getElementById("format-message-close");
+  var modalEditorEl = document.getElementById("format-message-editor");
   var copyToastTimer = null;
 
   // Exactly one of these is ever visible at a time: "loading" only until the
@@ -408,45 +576,68 @@
     });
   }
 
-  function renderSessions() {
-    var fragment = document.createDocumentFragment();
-    state.sessions.forEach(function (session) {
-      var item = document.createElement("li");
-      var key = sessionKey(session.id);
-      if (key === sessionKey(state.selectedSession)) {
-        item.className = "selected";
-      }
-      item.tabIndex = 0;
-      item.setAttribute("role", "button");
+  function createSessionItem(session) {
+    var item = document.createElement("li");
+    item.tabIndex = 0;
+    item.setAttribute("role", "button");
 
-      var label = document.createElement("span");
-      label.className = "session-label";
-      if (session.id === null) {
-        label.textContent = "Unknown";
-      } else {
-        label.textContent = formatTimestamp(session.emit_ts);
-      }
-      item.title = label.textContent;
-      item.appendChild(label);
+    var label = document.createElement("span");
+    label.className = "session-label";
+    item.appendChild(label);
 
-      item.addEventListener("click", function () {
+    item.addEventListener("click", function () {
+      selectSession(session.id);
+    });
+    item.addEventListener("keydown", function (event) {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
         selectSession(session.id);
-      });
-      item.addEventListener("keydown", function (event) {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          selectSession(session.id);
-        }
-      });
-      fragment.appendChild(item);
+      }
+    });
+    return item;
+  }
+
+  function renderSessions() {
+    var nextItems = new Map();
+    state.sessions.forEach(function (session) {
+      var key = sessionKey(session.id);
+      var item = state.sessionItems.get(key);
+      if (!item) {
+        item = createSessionItem(session);
+      }
+
+      item.classList.toggle(
+        "selected",
+        key === sessionKey(state.selectedSession)
+      );
+      var label = item.querySelector(".session-label");
+      var labelText =
+        session.id === null ? "Unknown" : formatTimestamp(session.emit_ts);
+      if (label.textContent !== labelText) {
+        label.textContent = labelText;
+        item.title = labelText;
+      }
+      nextItems.set(key, item);
     });
 
-    // Swap in one assignment: no interim empty list, so no visible flicker.
-    sessionListEl.textContent = "";
-    sessionListEl.appendChild(fragment);
+    Array.from(nextItems.values()).forEach(function (item, index) {
+      var currentItem = sessionListEl.children[index] || null;
+      if (currentItem !== item) {
+        sessionListEl.insertBefore(item, currentItem);
+      }
+    });
+    state.sessionItems.forEach(function (item, key) {
+      if (!nextItems.has(key)) {
+        item.remove();
+      }
+    });
+    state.sessionItems = nextItems;
   }
 
   function selectSession(sessionId) {
+    if (state.modalOpen) {
+      return;
+    }
     var key = sessionKey(sessionId);
     if (state.selectedSession !== undefined && sessionKey(state.selectedSession) === key) {
       return;
@@ -458,11 +649,14 @@
 
   function loadSessions() {
     return fetchJSON("/api/sessions").then(function (sessions) {
+      if (state.modalOpen) {
+        return false;
+      }
       state.sessions = sessions || [];
       if (state.sessions.length === 0) {
         state.selectedSession = undefined;
         renderSessions();
-        logBodyEl.textContent = "";
+        renderLogs([]);
         setLogAreaState("no-sessions");
         return false;
       }
@@ -612,56 +806,370 @@
     );
   }
 
-  function renderLogs(messages) {
-    var fragment = document.createDocumentFragment();
-    messages.forEach(function (entry) {
-      var row = document.createElement("tr");
+  function stableLogField(value) {
+    if (value === null) {
+      return "null";
+    }
+    return typeof value + ":" + String(JSON.stringify(value));
+  }
 
-      var emitCell = document.createElement("td");
-      emitCell.className = "time-cell";
-      emitCell.textContent = formatTimestamp(entry.emit_ts);
-      row.appendChild(emitCell);
+  function logSignature(entry) {
+    return JSON.stringify([
+      stableLogField(entry.session_id),
+      stableLogField(entry.session),
+      stableLogField(entry.source),
+      stableLogField(entry.tag),
+      stableLogField(entry.message),
+      stableLogField(entry.emit_ts),
+      stableLogField(entry.arrival_ts),
+    ]);
+  }
 
-      var source = normalizedSource(entry.source);
-      var sourceCell = document.createElement("td");
-      var sourceBadge = document.createElement("span");
-      sourceBadge.className = "source-badge " + sourceBadgeClass(source);
-      sourceBadge.textContent = sourceInitial(source);
-      sourceBadge.title = source;
-      sourceCell.appendChild(sourceBadge);
-      row.appendChild(sourceCell);
+  function logKey(entry, occurrences) {
+    var signature = logSignature(entry);
+    var occurrence = occurrences.get(signature) || 0;
+    occurrences.set(signature, occurrence + 1);
+    return signature + "#" + occurrence;
+  }
 
-      var tagCell = document.createElement("td");
-      var badge = document.createElement("span");
-      badge.className = "tag-badge " + tagBadgeClass(entry.tag);
-      badge.textContent = entry.tag;
-      tagCell.appendChild(badge);
-      row.appendChild(tagCell);
+  function closeContextMenu(restoreFocus) {
+    if (!state.contextMenu) {
+      return;
+    }
+    var row = state.contextMenu.row;
+    state.contextMenu = null;
+    contextMenuEl.hidden = true;
+    contextMenuEl.style.left = "";
+    contextMenuEl.style.top = "";
+    if (restoreFocus && row.isConnected) {
+      row.querySelector(".message-cell").focus({ preventScroll: true });
+    }
+  }
 
-      var messageCell = document.createElement("td");
-      messageCell.className = "message-cell";
-      messageCell.tabIndex = 0;
-      messageCell.setAttribute("role", "button");
-      messageCell.title = "Click to copy message";
-      messageCell.textContent = entry.message;
-      messageCell.addEventListener("click", function () {
-        copyMessage(messageCell, entry.message);
-      });
-      messageCell.addEventListener("keydown", function (event) {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          copyMessage(messageCell, entry.message);
+  function openContextMenu(event, key, row, message) {
+    event.preventDefault();
+    if (state.modalOpen) {
+      return;
+    }
+
+    closeContextMenu(false);
+    state.contextMenu = {
+      key: key,
+      row: row,
+      message: message,
+    };
+    contextMenuEl.hidden = false;
+    contextMenuEl.style.visibility = "hidden";
+    contextMenuEl.style.left = "0";
+    contextMenuEl.style.top = "0";
+
+    var bounds = contextMenuEl.getBoundingClientRect();
+    var margin = 8;
+    var left = Math.max(
+      margin,
+      Math.min(event.clientX, window.innerWidth - bounds.width - margin)
+    );
+    var top = Math.max(
+      margin,
+      Math.min(event.clientY, window.innerHeight - bounds.height - margin)
+    );
+    contextMenuEl.style.left = left + "px";
+    contextMenuEl.style.top = top + "px";
+    contextMenuEl.style.visibility = "";
+    formatMessageActionEl.focus({ preventScroll: true });
+  }
+
+  function countPrecedingBackslashes(text, index) {
+    var count = 0;
+    for (var cursor = index - 1; cursor >= 0 && text[cursor] === "\\"; cursor -= 1) {
+      count += 1;
+    }
+    return count;
+  }
+
+  function findBalancedJsonCandidate(message, start) {
+    var opening = message[start];
+    var expectedClose = opening === "{" ? "}" : opening === "[" ? "]" : null;
+    if (!expectedClose) {
+      return null;
+    }
+
+    var stack = [expectedClose];
+    var stringMode = null;
+    var inString = false;
+    for (var index = start + 1; index < message.length; index += 1) {
+      var character = message[index];
+      if (character === "\"") {
+        var slashCount = countPrecedingBackslashes(message, index);
+        if (stringMode === null) {
+          stringMode = slashCount % 2 === 1 ? "escaped" : "direct";
+          inString = true;
+        } else if (stringMode === "direct" && slashCount % 2 === 0) {
+          inString = !inString;
+        } else if (stringMode === "escaped" && slashCount % 4 === 1) {
+          inString = !inString;
         }
-      });
-      row.appendChild(messageCell);
+        continue;
+      }
+      if (inString) {
+        continue;
+      }
+      if (character === "{" || character === "[") {
+        stack.push(character === "{" ? "}" : "]");
+        continue;
+      }
+      if (character !== "}" && character !== "]") {
+        continue;
+      }
+      if (stack[stack.length - 1] !== character) {
+        return {
+          candidate: message.slice(start, index + 1),
+          end: index,
+        };
+      }
+      stack.pop();
+      if (stack.length === 0) {
+        return {
+          candidate: message.slice(start, index + 1),
+          end: index,
+        };
+      }
+    }
+    return null;
+  }
 
-      fragment.appendChild(row);
+  function isJsonContainer(value) {
+    return value !== null && typeof value === "object";
+  }
+
+  function parseJsonCandidate(candidate) {
+    try {
+      var directValue = JSON.parse(candidate);
+      return isJsonContainer(directValue) ? directValue : null;
+    } catch (directError) {
+      if (candidate.indexOf("\\\"") === -1) {
+        return null;
+      }
+    }
+
+    try {
+      var decoded = JSON.parse("\"" + candidate + "\"");
+      var decodedValue = JSON.parse(decoded);
+      return isJsonContainer(decodedValue) ? decodedValue : null;
+    } catch (escapedError) {
+      return null;
+    }
+  }
+
+  function extractFormattedSegments(message) {
+    var segments = [];
+    var textStart = 0;
+    var searchStart = 0;
+    while (searchStart < message.length) {
+      var objectStart = message.indexOf("{", searchStart);
+      var arrayStart = message.indexOf("[", searchStart);
+      var candidateStart;
+      if (objectStart === -1) {
+        candidateStart = arrayStart;
+      } else if (arrayStart === -1) {
+        candidateStart = objectStart;
+      } else {
+        candidateStart = Math.min(objectStart, arrayStart);
+      }
+      if (candidateStart === -1) {
+        break;
+      }
+
+      var balanced = findBalancedJsonCandidate(message, candidateStart);
+      if (!balanced) {
+        searchStart = candidateStart + 1;
+        continue;
+      }
+      var value = parseJsonCandidate(balanced.candidate);
+      if (!value) {
+        searchStart = candidateStart + 1;
+        continue;
+      }
+      if (candidateStart > textStart) {
+        segments.push({
+          kind: "text",
+          text: message.slice(textStart, candidateStart),
+        });
+      }
+      segments.push({ kind: "json", value: value });
+      textStart = balanced.end + 1;
+      searchStart = balanced.end + 1;
+    }
+    if (textStart < message.length || segments.length === 0) {
+      segments.push({ kind: "text", text: message.slice(textStart) });
+    }
+    return segments;
+  }
+
+  function appendHighlightedJson(container, value) {
+    var prettyJson = JSON.stringify(value, null, 2);
+    var tokenPattern =
+      /"(?:\\(?:["\\/bfnrt]|u[0-9a-fA-F]{4})|[^"\\])*"|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?|\b(?:true|false|null)\b/g;
+    var textStart = 0;
+    var match;
+    while ((match = tokenPattern.exec(prettyJson)) !== null) {
+      if (match.index > textStart) {
+        container.appendChild(
+          document.createTextNode(prettyJson.slice(textStart, match.index))
+        );
+      }
+      var token = match[0];
+      var tokenEl = document.createElement("span");
+      if (token[0] === "\"") {
+        var suffix = prettyJson.slice(tokenPattern.lastIndex);
+        tokenEl.className = /^\s*:/.test(suffix) ? "json-key" : "json-string";
+      } else if (token === "true" || token === "false") {
+        tokenEl.className = "json-boolean";
+      } else if (token === "null") {
+        tokenEl.className = "json-null";
+      } else {
+        tokenEl.className = "json-number";
+      }
+      tokenEl.textContent = token;
+      container.appendChild(tokenEl);
+      textStart = tokenPattern.lastIndex;
+    }
+    if (textStart < prettyJson.length) {
+      container.appendChild(document.createTextNode(prettyJson.slice(textStart)));
+    }
+  }
+
+  function renderFormattedMessage(message) {
+    modalEditorEl.textContent = "";
+    extractFormattedSegments(message).forEach(function (segment) {
+      if (segment.kind === "text") {
+        var textEl = document.createElement("span");
+        textEl.className = "formatted-text";
+        textEl.textContent = segment.text;
+        modalEditorEl.appendChild(textEl);
+        return;
+      }
+      var jsonEl = document.createElement("pre");
+      jsonEl.className = "formatted-json";
+      appendHighlightedJson(jsonEl, segment.value);
+      modalEditorEl.appendChild(jsonEl);
+    });
+  }
+
+  function openFormatMessage(message, row) {
+    state.modalOpen = true;
+    state.modalPreviousFocus =
+      row.querySelector(".message-cell") || document.activeElement;
+    closeContextMenu(false);
+    renderFormattedMessage(message);
+    appEl.setAttribute("inert", "");
+    appEl.setAttribute("aria-hidden", "true");
+    document.body.classList.add("modal-open");
+    modalBackdropEl.hidden = false;
+    modalBackdropEl.setAttribute("aria-hidden", "false");
+    modalCloseEl.focus({ preventScroll: true });
+  }
+
+  function closeFormatMessage() {
+    if (!state.modalOpen) {
+      return;
+    }
+    state.modalOpen = false;
+    modalBackdropEl.hidden = true;
+    modalBackdropEl.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
+    appEl.removeAttribute("inert");
+    appEl.removeAttribute("aria-hidden");
+    modalEditorEl.textContent = "";
+    var previousFocus = state.modalPreviousFocus;
+    state.modalPreviousFocus = null;
+    if (previousFocus && previousFocus.isConnected) {
+      previousFocus.focus({ preventScroll: true });
+    }
+    refreshAll();
+  }
+
+  function activateFormatMessage() {
+    if (!state.contextMenu) {
+      return;
+    }
+    openFormatMessage(state.contextMenu.message, state.contextMenu.row);
+  }
+
+  function createLogRow(entry, key) {
+    var row = document.createElement("tr");
+
+    var emitCell = document.createElement("td");
+    emitCell.className = "time-cell";
+    emitCell.textContent = formatTimestamp(entry.emit_ts);
+    row.appendChild(emitCell);
+
+    var source = normalizedSource(entry.source);
+    var sourceCell = document.createElement("td");
+    var sourceBadge = document.createElement("span");
+    sourceBadge.className = "source-badge " + sourceBadgeClass(source);
+    sourceBadge.textContent = sourceInitial(source);
+    sourceBadge.title = source;
+    sourceCell.appendChild(sourceBadge);
+    row.appendChild(sourceCell);
+
+    var tagCell = document.createElement("td");
+    var badge = document.createElement("span");
+    badge.className = "tag-badge " + tagBadgeClass(entry.tag);
+    badge.textContent = entry.tag;
+    tagCell.appendChild(badge);
+    row.appendChild(tagCell);
+
+    var messageCell = document.createElement("td");
+    messageCell.className = "message-cell";
+    messageCell.tabIndex = 0;
+    messageCell.setAttribute("role", "button");
+    messageCell.title = "Click to copy message";
+    messageCell.textContent = entry.message;
+    messageCell.addEventListener("click", function () {
+      copyMessage(messageCell, entry.message);
+    });
+    messageCell.addEventListener("keydown", function (event) {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        copyMessage(messageCell, entry.message);
+      }
+    });
+    row.appendChild(messageCell);
+
+    row.addEventListener("contextmenu", function (event) {
+      openContextMenu(event, key, row, entry.message);
+    });
+    return row;
+  }
+
+  function renderLogs(messages) {
+    var occurrences = new Map();
+    var nextRows = new Map();
+    messages.forEach(function (entry) {
+      var key = logKey(entry, occurrences);
+      var row = state.logRows.get(key);
+      if (!row) {
+        row = createLogRow(entry, key);
+      }
+      nextRows.set(key, row);
     });
 
-    // Build off-DOM, then swap in a single assignment so the table never
-    // shows a blank/interim state during a background refresh.
-    logBodyEl.textContent = "";
-    logBodyEl.appendChild(fragment);
+    Array.from(nextRows.values()).forEach(function (row, index) {
+      var currentRow = logBodyEl.children[index] || null;
+      if (currentRow !== row) {
+        logBodyEl.insertBefore(row, currentRow);
+      }
+    });
+    state.logRows.forEach(function (row, key) {
+      if (!nextRows.has(key)) {
+        row.remove();
+      }
+    });
+    if (state.contextMenu && !nextRows.has(state.contextMenu.key)) {
+      closeContextMenu(false);
+    }
+    state.logRows = nextRows;
 
     setLogAreaState(messages.length === 0 ? "empty" : "table");
   }
@@ -683,6 +1191,9 @@
   }
 
   function loadLogs() {
+    if (state.modalOpen) {
+      return Promise.resolve();
+    }
     var url = buildLogsUrl();
     if (!url) {
       return Promise.resolve();
@@ -690,14 +1201,14 @@
     var token = ++state.loadToken;
     return fetchJSON(url)
       .then(function (messages) {
-        if (token !== state.loadToken) {
+        if (state.modalOpen || token !== state.loadToken) {
           return; // a newer request superseded this one
         }
         clearError();
         renderLogs(messages || []);
       })
       .catch(function (error) {
-        if (token !== state.loadToken) {
+        if (state.modalOpen || token !== state.loadToken) {
           return;
         }
         showError("Failed to load logs: " + error.message);
@@ -705,12 +1216,17 @@
   }
 
   function refreshAll() {
-    loadSessions()
+    if (state.modalOpen) {
+      return Promise.resolve();
+    }
+    return loadSessions()
       .then(function () {
         return loadLogs();
       })
       .catch(function (error) {
-        showError("Failed to load sessions: " + error.message);
+        if (!state.modalOpen) {
+          showError("Failed to load sessions: " + error.message);
+        }
       });
   }
 
@@ -728,6 +1244,61 @@
   tagFilterEl.addEventListener("change", function () {
     state.tag = tagFilterEl.value;
     loadLogs();
+  });
+
+  formatMessageActionEl.addEventListener("click", function () {
+    activateFormatMessage();
+  });
+  formatMessageActionEl.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      activateFormatMessage();
+    }
+  });
+  modalCloseEl.addEventListener("click", closeFormatMessage);
+  modalEl.addEventListener("keydown", function (event) {
+    if (event.key !== "Tab") {
+      return;
+    }
+    var focusable = [modalCloseEl, modalEditorEl];
+    var currentIndex = focusable.indexOf(document.activeElement);
+    if (event.shiftKey && currentIndex <= 0) {
+      event.preventDefault();
+      modalEditorEl.focus();
+    } else if (!event.shiftKey && currentIndex === focusable.length - 1) {
+      event.preventDefault();
+      modalCloseEl.focus();
+    } else if (currentIndex === -1) {
+      event.preventDefault();
+      modalCloseEl.focus();
+    }
+  });
+  document.addEventListener("pointerdown", function (event) {
+    if (state.contextMenu && !contextMenuEl.contains(event.target)) {
+      closeContextMenu(false);
+    }
+  });
+  document.addEventListener("keydown", function (event) {
+    if (event.key !== "Escape") {
+      return;
+    }
+    if (state.modalOpen) {
+      event.preventDefault();
+      closeFormatMessage();
+    } else if (state.contextMenu) {
+      event.preventDefault();
+      closeContextMenu(true);
+    }
+  });
+  window.addEventListener(
+    "scroll",
+    function () {
+      closeContextMenu(false);
+    },
+    true
+  );
+  window.addEventListener("resize", function () {
+    closeContextMenu(false);
   });
 
   refreshAll();

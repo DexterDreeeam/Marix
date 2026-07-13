@@ -6,7 +6,10 @@
     "purpose": "Serves the self-hosted telemetry session browser with responsive navigation, resilient log-message copying, and JSON session/log query routes.",
     "changeStatus": "modified"
   },
-  "modified": ["page.html"],
+  "modified": [
+    "page.html",
+    "server.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -178,19 +181,14 @@
       "name": "serve",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/server.rs",
           "lineStart": 7,
           "lineEnd": 16,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 7,
-              "lineEnd": 16
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -198,12 +196,7 @@
           "lineStart": 20,
           "lineEnd": 50,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 20,
-              "lineEnd": 50
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -217,7 +210,7 @@
         {
           "sourcePath": "src/server_telemetry/http/page.html",
           "lineStart": 1,
-          "lineEnd": 738,
+          "lineEnd": 1309,
           "language": "html",
           "addedLines": [
             {

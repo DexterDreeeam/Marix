@@ -187,6 +187,14 @@ directory = "tool"
             body.contains(r#"id="keyword-filter""#),
             "missing keyword filter element, body was: {body}"
         );
+        assert!(
+            body.contains(r#"id="log-context-menu""#),
+            "missing log context menu, body was: {body}"
+        );
+        assert!(
+            body.contains(r#"id="format-message-modal""#),
+            "missing format message modal, body was: {body}"
+        );
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

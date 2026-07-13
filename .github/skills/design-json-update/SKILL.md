@@ -132,7 +132,7 @@ Omit empty status arrays. `childModules` entries must not contain `changeStatus`
 - `elements` contains one entry per concrete outward-facing definition owned by this module layer and by its direct child modules (one layer down). Do not include definitions from deeper descendant modules.
 - Include traits, structs, enums, functions, type aliases, constants, statics, classes, globals, and prompt/bin entries that users can inspect.
 - Treat `pub`, `pub(crate)`, `pub(super)`, and `pub(in ...)` as outward-facing.
-- Fully private functions/methods are not standalone elements. Fold them into the owning public element as extra `codeSegments` when they are relevant.
+- `function` elements are module-scope free functions only. Keep methods, including trait methods, in the owning type's `codeSegments`; omit them when the owner is not represented.
 - A private struct or enum may be an element only when it genuinely coordinates module behavior.
 - Do not include import/export wiring: `mod`, `pub mod`, `pub use`, private helper wiring, or package metadata.
 - Do not include Cargo manifests as elements; they can affect module purpose but are not selectable source elements.
@@ -177,7 +177,7 @@ Omit empty status arrays. `childModules` entries must not contain `changeStatus`
 
 - File rename: put the new direct filename in `renamed`, repoint affected `sourcePath` values, and mark elements `modified` only if their body also changed.
 - Type or identifier rename: rename the element in place; never keep the old element or add a duplicate. Use `renamed` or `modified`, and highlight the declaration line.
-- Private method rename: do not use file-level `renamed`; mark the owning element `modified` and highlight the relevant definition/call sites when they are in owned segments.
+- Method rename: do not use file-level `renamed` or create a function element; mark the owning struct, enum, trait, or class element `modified` and highlight the relevant definition/call sites when they are in owned segments.
 - Flat-file to folder split: put the old direct file in the parent's `deleted` only if it existed before, add the child to `childModules`, and create the child `design.json` with `module.changeStatus: "added"`, `added: ["."]`, and moved elements as `added`.
 - Moved type: represent it as `added` in the new owner and absent from the old owner. Do not fabricate deleted folder metadata.
 - Added-then-modified within one tag window remains `added` until the next reset.
@@ -220,7 +220,8 @@ After updating:
 6. Confirm every element has `name`, `type`, `source_depth`, `changeStatus`, and `codeSegments`.
 7. Confirm `codeSegments` ranges and highlight ranges are in bounds for their current source files.
 8. Confirm unchanged elements in modified files remain `unchanged` when their own segments did not change.
-9. Report any deliberate omissions, ambiguous statuses, or validation limitations.
+9. Confirm every `function` element is module-scope; methods appear only in the owning type's `codeSegments`.
+10. Report any deliberate omissions, ambiguous statuses, or validation limitations.
 
 ## Reporting
 

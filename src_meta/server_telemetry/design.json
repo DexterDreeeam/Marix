@@ -6,7 +6,9 @@
     "purpose": "Runs the standalone telemetry collector and its self-hosted session browser with responsive navigation and resilient log-message copying.",
     "changeStatus": "modified"
   },
-  "modified": ["."],
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/server_telemetry/http",
@@ -26,7 +28,12 @@
           "lineStart": 5,
           "lineEnd": 29,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 29
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -200,19 +207,14 @@
       "name": "serve",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/server.rs",
           "lineStart": 7,
           "lineEnd": 16,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 7,
-              "lineEnd": 16
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -220,12 +222,7 @@
           "lineStart": 20,
           "lineEnd": 50,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 20,
-              "lineEnd": 50
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -239,7 +236,7 @@
         {
           "sourcePath": "src/server_telemetry/http/page.html",
           "lineStart": 1,
-          "lineEnd": 738,
+          "lineEnd": 1309,
           "language": "html",
           "addedLines": [
             {

@@ -837,3 +837,15 @@ connecter to protect this distinction.
   a temporary selected readonly textarea plus `document.execCommand("copy")`;
   copied styling and the center toast are success-only, while total failure is
   surfaced through the existing status banner.
+- 2026-07-13 (telemetry portal stable DOM): `page.html` now keys log rows from
+  `session_id`/`session`/`source`/`tag`/`message`/`emit_ts`/`arrival_ts` plus a
+  per-signature occurrence index. Refreshes retain unchanged `<tr>` instances
+  and only insert, reorder, or remove rows; session `<li>` nodes use the same
+  reconciliation pattern. This preserves row hover, focus, copied state, and
+  an open context menu across the two-second refresh.
+- 2026-07-13 (telemetry message formatting): the portal's `Format message`
+  modal freezes refresh through `state.modalOpen`, `inert`, and body scroll
+  locking. Embedded JSON extraction balances nested braces while respecting
+  direct or literal-escaped JSON strings, retries later opening delimiters
+  after malformed candidates, and renders all untrusted text and highlighted
+  JSON tokens exclusively with `textContent`/text nodes.
