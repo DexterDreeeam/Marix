@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server",
     "name": "server",
-    "purpose": "Runs the server core with server-sourced telemetry and owns task, session, model, and ordered relay orchestration.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs the server core with server-sourced telemetry and owns task, session, model, prompt, step, and ordered relay orchestration.",
+    "changeStatus": "modified"
   },
+  "modified": [".", "Cargo.toml", "lib.rs"],
   "childModules": [
     {
       "path": "src/server/invocation",
@@ -25,7 +26,7 @@
     {
       "path": "src/server/prompt",
       "name": "prompt",
-      "purpose": "Defines prompt rendering plus InitialPrompt and AnalysisPrompt construction from the request, background, call output, and serialized session tool previews."
+      "purpose": "Owns regex-sliced prompt template loading, reusable module expansion, deferred parameter injection, and typed single-pass rendering."
     },
     {
       "path": "src/server/relay",
@@ -40,7 +41,7 @@
     {
       "path": "src/server/step",
       "name": "step",
-      "purpose": "Owns server-side step dispatch and model request construction, including strict Analysis input JSON extraction for background and call output."
+      "purpose": "Owns server-side step dispatch and common parameter-driven model prompt construction across template kinds."
     },
     {
       "path": "src/server/task",
@@ -714,169 +715,46 @@
       ]
     },
     {
-      "name": "AnalysisPrompt",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/prompt/analysis.rs",
-          "lineStart": 10,
-          "lineEnd": 15,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 15
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/prompt/analysis.rs",
-          "lineStart": 17,
-          "lineEnd": 31,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 31
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/prompt/analysis.rs",
-          "lineStart": 33,
-          "lineEnd": 57,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 46,
-              "lineEnd": 56
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/prompt/analysis.rs",
-          "lineStart": 61,
-          "lineEnd": 66,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 61,
-              "lineEnd": 65
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "InitialPrompt",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/prompt/initial.rs",
-          "lineStart": 10,
-          "lineEnd": 13,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 13
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/prompt/initial.rs",
-          "lineStart": 15,
-          "lineEnd": 22,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 15,
-              "lineEnd": 22
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/prompt/initial.rs",
-          "lineStart": 24,
-          "lineEnd": 48,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 37,
-              "lineEnd": 46
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/prompt/initial.rs",
-          "lineStart": 52,
-          "lineEnd": 57,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 52,
-              "lineEnd": 56
-            }
-          ]
-        }
-      ]
-    },
-    {
       "name": "Prompt",
-      "type": "trait",
+      "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/prompt.rs",
-          "lineStart": 1,
-          "lineEnd": 5,
+          "lineStart": 18,
+          "lineEnd": 21,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "render_template",
-      "type": "function",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
+          "modifiedLines": [
+            {
+              "lineStart": 18,
+              "lineEnd": 21
+            }
+          ]
+        },
         {
           "sourcePath": "src/server/prompt/prompt.rs",
-          "lineStart": 7,
-          "lineEnd": 9,
+          "lineStart": 23,
+          "lineEnd": 83,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 7,
-              "lineEnd": 9
+              "lineStart": 23,
+              "lineEnd": 83
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/prompt/prompt.rs",
-          "lineStart": 11,
-          "lineEnd": 102,
+          "lineStart": 87,
+          "lineEnd": 209,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 11,
-              "lineEnd": 102
+              "lineStart": 87,
+              "lineEnd": 209
             }
           ],
           "modifiedLines": []
@@ -884,15 +762,47 @@
       ]
     },
     {
-      "name": "render_conditionals",
+      "name": "PromptError",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/prompt/error.rs",
+          "lineStart": 3,
+          "lineEnd": 6,
+          "language": "rust",
+          "addedLines": [{"lineStart": 3, "lineEnd": 6}],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/prompt/error.rs",
+          "lineStart": 8,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [{"lineStart": 8, "lineEnd": 18}],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/prompt/error.rs",
+          "lineStart": 20,
+          "lineEnd": 20,
+          "language": "rust",
+          "addedLines": [{"lineStart": 20, "lineEnd": 20}],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "step_kind",
       "type": "function",
       "source_depth": 3,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
-          "sourcePath": "src/server/prompt/prompt.rs",
-          "lineStart": 11,
-          "lineEnd": 31,
+          "sourcePath": "src/server/step/helper.rs",
+          "lineStart": 10,
+          "lineEnd": 32,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -900,66 +810,23 @@
       ]
     },
     {
-      "name": "render_variables",
+      "name": "model_request",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
-          "sourcePath": "src/server/prompt/prompt.rs",
-          "lineStart": 33,
-          "lineEnd": 39,
+          "sourcePath": "src/server/step/helper.rs",
+          "lineStart": 55,
+          "lineEnd": 150,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "find_block_end",
-      "type": "function",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/prompt/prompt.rs",
-          "lineStart": 41,
-          "lineEnd": 62,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "split_if_block",
-      "type": "function",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/prompt/prompt.rs",
-          "lineStart": 64,
-          "lineEnd": 94,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "is_truthy",
-      "type": "function",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/prompt/prompt.rs",
-          "lineStart": 96,
-          "lineEnd": 102,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 59,
+              "lineEnd": 130
+            }
+          ]
         }
       ]
     },
@@ -1272,104 +1139,6 @@
             {
               "lineStart": 29,
               "lineEnd": 29
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "step_kind",
-      "type": "function",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/step/helper.rs",
-          "lineStart": 10,
-          "lineEnd": 32,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "model_step_kind",
-      "type": "function",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/step/helper.rs",
-          "lineStart": 34,
-          "lineEnd": 41,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "parse_model_step_name",
-      "type": "function",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/step/helper.rs",
-          "lineStart": 43,
-          "lineEnd": 49,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "input_model_name",
-      "type": "function",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/step/helper.rs",
-          "lineStart": 51,
-          "lineEnd": 53,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "model_request",
-      "type": "function",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/step/helper.rs",
-          "lineStart": 55,
-          "lineEnd": 123,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 73,
-              "lineEnd": 101
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/step/helper.rs",
-          "lineStart": 127,
-          "lineEnd": 141,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 127,
-              "lineEnd": 141
             }
           ],
           "modifiedLines": []

@@ -130,7 +130,7 @@ Omit empty status arrays. `childModules` entries must not contain `changeStatus`
 ## Element Rules
 
 - `elements` contains one entry per concrete outward-facing definition owned by this module layer and by its direct child modules (one layer down). Do not include definitions from deeper descendant modules.
-- Include traits, structs, enums, functions, type aliases, constants, statics, classes, globals, and prompt/bin entries that users can inspect.
+- Build `elements` only from Rust source files (`*.rs`).
 - Treat `pub`, `pub(crate)`, `pub(super)`, and `pub(in ...)` as outward-facing.
 - `function` elements are module-scope free functions only. Keep methods, including trait methods, in the owning type's `codeSegments`; omit them when the owner is not represented.
 - A private struct or enum may be an element only when it genuinely coordinates module behavior.
@@ -138,7 +138,7 @@ Omit empty status arrays. `childModules` entries must not contain `changeStatus`
 - Do not include Cargo manifests as elements; they can affect module purpose but are not selectable source elements.
 - Do not expose single-field tuple wrappers unless they have meaningful behavior beyond wrapping.
 - Create one element per definition. Do not combine names with `/`, commas, or summary labels.
-- Use semantic `type` values: `trait`, `struct`, `enum`, `type-alias`, `const`, `static`, `function`, `class`, `global`, `prompt`, or `bin`.
+- Use semantic `type` values: `trait`, `struct`, `enum`, `type-alias`, `const`, `static`, `function`, `class`, `global`, or `bin`.
 - Every element includes only `name`, `type`, `source_depth`, `changeStatus`, and `codeSegments`.
 - `source_depth` is the number of segments in the element's own source folder path: `src` = 1, `src/common` = 2, `src/common/config` = 3. Own-layer elements match this module's `module.path` depth; direct child module elements are one level deeper. A `design.json` therefore holds only elements at the module's depth and one level below.
 - Do not store signatures or copied source code in metadata.
@@ -218,7 +218,7 @@ After updating:
 4. Confirm `childModules` entries do not contain `changeStatus`.
 5. Confirm top-level status arrays list only `"."` or direct current-folder filenames.
 6. Confirm every element has `name`, `type`, `source_depth`, `changeStatus`, and `codeSegments`.
-7. Confirm `codeSegments` ranges and highlight ranges are in bounds for their current source files.
+7. Confirm every `codeSegments[].sourcePath` is a Rust source file and all ranges are in bounds.
 8. Confirm unchanged elements in modified files remain `unchanged` when their own segments did not change.
 9. Confirm every `function` element is module-scope; methods appear only in the owning type's `codeSegments`.
 10. Report any deliberate omissions, ambiguous statuses, or validation limitations.

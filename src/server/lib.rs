@@ -13,7 +13,7 @@ pub use model::{
     ModelResponseAsyncReceiver, ModelResponseReceiver,
 };
 pub use plan::{Plan, PlanStringify};
-pub use prompt::{InitialPrompt, Prompt};
+pub use prompt::{Prompt, PromptError};
 pub use relay::Relay;
 pub use session::{Session, SessionContext, SessionRuntime, SessionState};
 pub use step::Step;

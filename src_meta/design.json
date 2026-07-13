@@ -3,9 +3,10 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Defines the Marix Rust workspace and its client, host, server, source-aware telemetry, protocol, prompt, common, and tool packages.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines the Marix Rust workspace and its client, host, server, source-aware telemetry, protocol, common, and tool packages.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/client",
@@ -23,11 +24,6 @@
       "purpose": "Owns host execution and its resilient server session, configuring host-sourced telemetry without gating channel readiness."
     },
     {
-      "path": "src/prompt",
-      "name": "prompt",
-      "purpose": "Owns prompt templates used by model-facing steps, including raw strict JSON response requirements, no-Markdown-fence output constraints, single-string tool and model input guidance, flat model-facing PlanDraft step objects, and answer-only Initial and Analysis JSON for requests that are already answerable."
-    },
-    {
       "path": "src/protocol",
       "name": "protocol",
       "purpose": "Owns the hierarchical protocol contracts for sessions, tasks, plans, steps, invocations, relays, executors, host executions, tools, signatures, statuses, and errors."
@@ -35,7 +31,7 @@
     {
       "path": "src/server",
       "name": "server",
-      "purpose": "Runs the server core with server-sourced telemetry and owns task, session, model, and ordered relay orchestration."
+      "purpose": "Runs the server core with server-sourced telemetry and owns task, session, model, prompt, step, and ordered relay orchestration."
     },
     {
       "path": "src/tool",

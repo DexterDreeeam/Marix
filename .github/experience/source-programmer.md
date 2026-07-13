@@ -849,3 +849,29 @@ connecter to protect this distinction.
   direct or literal-escaped JSON strings, retries later opening delimiters
   after malformed candidates, and renders all untrusted text and highlighted
   JSON tokens exclusively with `textContent`/text nodes.
+- 2026-07-13 (prompt module ownership): Server prompt resources live under
+  `src/server/prompt/template/`. `Prompt::load` accepts safe simple template
+  and module identifiers, expands one module layer, and removes each module's
+  final line ending so the root template owns inter-module spacing.
+  `Prompt::parameters` validates and deduplicates `{{#name}}` in first-seen
+  order; `step/helper.rs` injects all required model inputs and rejects any
+  remaining names before constructing `RelayRequest`.
+- 2026-07-13 (prompt injection semantics): `Prompt` keeps expanded template
+  content immutable and stores injections separately. `parameters` scans only
+  that content and excludes injected names; `prompt` renders its markers in
+  one left-to-right pass, so marker-shaped text inside injected values remains
+  literal and is never recursively expanded.
+- 2026-07-13 (supersedes prompt injection storage above): Server `Prompt`
+  slices expanded templates into alternating text and complete parameter-marker
+  strings, while its injection map owns every unique parameter as
+  `Option<String>`. `parameters` always reports all names in first-seen slice
+  order; `inject` only updates the map; `prompt` rejects pending entries with
+  `PromptError::MissingParameters` before one-pass rendering. Module and
+  parameter recognition uses cached regexes, and duplicate module reads are
+  cached during expansion.
+- 2026-07-13 (model prompt parameter binding): `step/helper.rs::model_request`
+  branches on `ModelStepKind` only to select the template name, then binds every
+  `Prompt::parameters` entry through one name-based loop. Optional step input is
+  parsed as JSON at most once; `background` and `call_output` default to empty
+  only when input is absent, while unsupported parameters and malformed fields
+  fail explicitly.

@@ -3,55 +3,67 @@
   "module": {
     "path": "src/server/prompt",
     "name": "prompt",
-    "purpose": "Defines prompt rendering plus InitialPrompt and AnalysisPrompt construction from the request, background, call output, and serialized session tool previews.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns regex-sliced prompt template loading, reusable module expansion, deferred parameter injection, and typed single-pass rendering.",
+    "changeStatus": "modified"
   },
-  "childModules": [],
+  "added": ["error.rs"],
+  "modified": [
+    "mod.rs",
+    "prompt.rs"
+  ],
+  "deleted": [
+    "analysis.rs",
+    "initial.rs"
+  ],
+  "childModules": [
+    {
+      "path": "src/server/prompt/template",
+      "name": "template",
+      "purpose": "Defines Initial and Analysis prompt compositions and the reusable prompt fragments they include."
+    }
+  ],
   "elements": [
     {
       "name": "Prompt",
-      "type": "trait",
+      "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/prompt.rs",
-          "lineStart": 1,
-          "lineEnd": 5,
+          "lineStart": 18,
+          "lineEnd": 21,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "render_template",
-      "type": "function",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
+          "modifiedLines": [
+            {
+              "lineStart": 18,
+              "lineEnd": 21
+            }
+          ]
+        },
         {
           "sourcePath": "src/server/prompt/prompt.rs",
-          "lineStart": 7,
-          "lineEnd": 9,
+          "lineStart": 23,
+          "lineEnd": 83,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 7,
-              "lineEnd": 9
+              "lineStart": 23,
+              "lineEnd": 83
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/prompt/prompt.rs",
-          "lineStart": 11,
-          "lineEnd": 102,
+          "lineStart": 87,
+          "lineEnd": 209,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 11,
-              "lineEnd": 102
+              "lineStart": 87,
+              "lineEnd": 209
             }
           ],
           "modifiedLines": []
@@ -59,122 +71,34 @@
       ]
     },
     {
-      "name": "InitialPrompt",
-      "type": "struct",
+      "name": "PromptError",
+      "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/server/prompt/initial.rs",
-          "lineStart": 10,
-          "lineEnd": 13,
+          "sourcePath": "src/server/prompt/error.rs",
+          "lineStart": 3,
+          "lineEnd": 6,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 13
-            }
-          ]
+          "addedLines": [{"lineStart": 3, "lineEnd": 6}],
+          "modifiedLines": []
         },
         {
-          "sourcePath": "src/server/prompt/initial.rs",
-          "lineStart": 15,
-          "lineEnd": 22,
+          "sourcePath": "src/server/prompt/error.rs",
+          "lineStart": 8,
+          "lineEnd": 18,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 15,
-              "lineEnd": 22
-            }
-          ]
+          "addedLines": [{"lineStart": 8, "lineEnd": 18}],
+          "modifiedLines": []
         },
         {
-          "sourcePath": "src/server/prompt/initial.rs",
-          "lineStart": 24,
-          "lineEnd": 48,
+          "sourcePath": "src/server/prompt/error.rs",
+          "lineStart": 20,
+          "lineEnd": 20,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 37,
-              "lineEnd": 46
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/prompt/initial.rs",
-          "lineStart": 52,
-          "lineEnd": 57,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 52,
-              "lineEnd": 56
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "AnalysisPrompt",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/prompt/analysis.rs",
-          "lineStart": 10,
-          "lineEnd": 15,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 15
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/prompt/analysis.rs",
-          "lineStart": 17,
-          "lineEnd": 31,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 31
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/prompt/analysis.rs",
-          "lineStart": 33,
-          "lineEnd": 57,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 46,
-              "lineEnd": 56
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/prompt/analysis.rs",
-          "lineStart": 61,
-          "lineEnd": 66,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 61,
-              "lineEnd": 65
-            }
-          ]
+          "addedLines": [{"lineStart": 20, "lineEnd": 20}],
+          "modifiedLines": []
         }
       ]
     }

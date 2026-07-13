@@ -10,19 +10,7 @@ Return raw strict JSON only, with no Markdown fences, surrounding text, or extra
 - Preserve in `background` any context needed in later rounds.
 
 Strictly follow one of the two return schemas below.
-==========
 When the current information can answer the user's request:
 {"answer":"..."}
-==========
 When extra information from tools is needed to answer the user:
 {"description":"...","background":"...","call":[{"name":"...","description":"...","input":"..."}],"model":{"name":"Analysis","description":"...","input":"..."},"future":[{"name":"...","description":"..."}],"expected_result":"..."}
-==========
-Tools available in the user's environment:
-{{#Tools}}
-User's request:
-{{#Request}}
-Context for the user's request:
-{{#Background}}
-Output from previous tool calls:
-{{#CallOutput}}
-==========

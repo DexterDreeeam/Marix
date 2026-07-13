@@ -1,102 +1,209 @@
-pub trait Prompt {
-    fn load(name: &str) -> String;
+use std::collections::HashMap;
+use std::fs;
+use std::path::Path;
+use std::sync::OnceLock;
 
-    fn prompt(&self) -> String;
+use marix_common::{Config, external::*};
+
+use super::PromptError;
+
+const MODULE_OPENING: &str = "[[#";
+const MODULE_MARKER_PATTERN: &str = r"\[\[#([A-Za-z0-9_]+?)\]\]";
+const PARAMETER_OPENING: &str = "{{#";
+const PARAMETER_MARKER_PATTERN: &str = r"\{\{#([A-Za-z0-9_]+?)\}\}";
+
+static MODULE_MARKER: OnceLock<regex::Regex> = OnceLock::new();
+static PARAMETER_MARKER: OnceLock<regex::Regex> = OnceLock::new();
+
+pub struct Prompt {
+    slices: Vec<String>,
+    injections: HashMap<String, Option<String>>,
 }
 
-pub fn render_template(template: &str, variables: &[(&str, String)]) -> String {
-    render_variables(&render_conditionals(template, variables), variables)
-}
-
-fn render_conditionals(template: &str, variables: &[(&str, String)]) -> String {
-    let mut output = template.to_owned();
-    while let Some(start) = output.find("{{#IF") {
-        let Some(end) = find_block_end(&output, start) else {
-            break;
-        };
-        let block = &output[start + "{{#IF".len()..end];
-        let Some((condition, accepted, rejected)) = split_if_block(block) else {
-            break;
-        };
-        let condition = render_variables(condition.trim(), variables);
-        let selected = if is_truthy(&condition) {
-            accepted.trim()
-        } else {
-            rejected.trim()
-        }
-        .to_owned();
-        output.replace_range(start..end + "}}".len(), &selected);
+impl Prompt {
+    pub fn load(name: &str) -> Self {
+        Self::assert_identifier("template", name);
+        let config = Config::load()
+            .unwrap_or_else(|error| panic!("failed to load config for prompt `{name}`: {error}"));
+        let directory = Path::new(&config.runtime.marix_path)
+            .join("src")
+            .join("server")
+            .join("prompt")
+            .join("template");
+        let path = directory.join(format!("{name}.prompt"));
+        let template = Self::read(&path, "template");
+        let content = Self::expand_modules(&template, &directory);
+        let (slices, injections) = Self::slice_marker(content);
+        Self { slices, injections }
     }
-    output
-}
 
-fn render_variables(template: &str, variables: &[(&str, String)]) -> String {
-    let mut output = template.to_owned();
-    for (name, value) in variables {
-        output = output.replace(&format!("{{{{#{name}}}}}"), value);
-    }
-    output
-}
-
-fn find_block_end(text: &str, start: usize) -> Option<usize> {
-    let mut depth = 0usize;
-    let mut index = start;
-    while index < text.len() {
-        let rest = &text[index..];
-        if rest.starts_with("{{") {
-            depth += 1;
-            index += 2;
-            continue;
-        }
-        if rest.starts_with("}}") {
-            depth = depth.checked_sub(1)?;
-            if depth == 0 {
-                return Some(index);
+    pub fn parameters(&self) -> Vec<String> {
+        let mut parameters = Vec::new();
+        for slice in &self.slices {
+            if let Some(name) = Self::parameter_name(slice)
+                && !parameters.iter().any(|parameter| parameter == name)
+            {
+                parameters.push(name.to_owned());
             }
-            index += 2;
-            continue;
         }
-        index += 1;
+        parameters
     }
-    None
-}
 
-fn split_if_block(block: &str) -> Option<(&str, &str, &str)> {
-    let mut parts = Vec::new();
-    let mut depth = 0usize;
-    let mut segment_start = 0usize;
-    let bytes = block.as_bytes();
-    let mut index = 0usize;
-    while index < bytes.len() {
-        let rest = &block[index..];
-        if rest.starts_with("{{") {
-            depth += 1;
-            index += 2;
-            continue;
+    pub fn inject(&mut self, parameter: String, value: String) {
+        Self::assert_identifier("parameter", &parameter);
+        if let Some(injection) = self.injections.get_mut(&parameter) {
+            *injection = Some(value);
         }
-        if rest.starts_with("}}") {
-            depth = depth.checked_sub(1)?;
-            index += 2;
-            continue;
-        }
-        if bytes[index] == b'|' && depth == 0 {
-            parts.push(&block[segment_start..index]);
-            segment_start = index + 1;
-        }
-        index += 1;
     }
-    parts.push(&block[segment_start..]);
-    if parts.len() == 3 {
-        Some((parts[0], parts[1], parts[2]))
-    } else {
-        None
+
+    pub fn prompt(&self) -> Result<String, PromptError> {
+        let missing = self
+            .parameters()
+            .into_iter()
+            .filter(|parameter| !matches!(self.injections.get(parameter), Some(Some(_))))
+            .collect::<Vec<_>>();
+        if !missing.is_empty() {
+            return Err(PromptError::MissingParameters(missing));
+        }
+
+        let capacity = self.slices.iter().map(String::len).sum();
+        let mut prompt = String::with_capacity(capacity);
+        for slice in &self.slices {
+            if let Some(name) = Self::parameter_name(slice) {
+                let Some(value) = self.injections.get(name).and_then(Option::as_ref) else {
+                    return Err(PromptError::MissingParameters(vec![name.to_owned()]));
+                };
+                prompt.push_str(value);
+            } else {
+                prompt.push_str(slice);
+            }
+        }
+        Ok(prompt)
     }
 }
 
-fn is_truthy(value: &str) -> bool {
-    let value = value.trim();
-    !value.is_empty()
-        && !value.eq_ignore_ascii_case("false")
-        && !value.eq_ignore_ascii_case("none")
-        && value != "0"
+// -- Private -- //
+
+impl Prompt {
+    fn expand_modules(template: &str, directory: &Path) -> String {
+        let mut modules = HashMap::new();
+        let content = Self::module_marker()
+            .replace_all(template, |captures: &regex::Captures<'_>| {
+                let name = captures
+                    .get(1)
+                    .map(|capture| capture.as_str())
+                    .unwrap_or_else(|| panic!("module marker regex did not capture a name"));
+                modules
+                    .entry(name.to_owned())
+                    .or_insert_with(|| {
+                        let path = directory.join("module").join(format!("{name}.prompt"));
+                        let module = Self::read(&path, "module");
+                        if module.contains(MODULE_OPENING) {
+                            panic!(
+                                "nested module marker in prompt module {} \
+                                     is not supported",
+                                path.display()
+                            );
+                        }
+                        Self::without_final_line_ending(&module).to_owned()
+                    })
+                    .clone()
+            })
+            .into_owned();
+        if content.contains(MODULE_OPENING) {
+            panic!(
+                "malformed module marker: expected `[[#name]]` with an \
+                 ASCII alphanumeric or underscore name"
+            );
+        }
+        content
+    }
+
+    fn slice_marker(content: String) -> (Vec<String>, HashMap<String, Option<String>>) {
+        let mut slices = Vec::new();
+        let mut injections = HashMap::new();
+        let mut previous_end = 0;
+        for captures in Self::parameter_marker().captures_iter(&content) {
+            let marker = captures
+                .get(0)
+                .unwrap_or_else(|| panic!("parameter marker regex did not capture a marker"));
+            let name = captures
+                .get(1)
+                .map(|capture| capture.as_str())
+                .unwrap_or_else(|| panic!("parameter marker regex did not capture a name"));
+            Self::push_text_slice(
+                &mut slices,
+                &content[previous_end..marker.start()],
+                previous_end,
+            );
+            slices.push(marker.as_str().to_owned());
+            injections.entry(name.to_owned()).or_insert(None);
+            previous_end = marker.end();
+        }
+        Self::push_text_slice(&mut slices, &content[previous_end..], previous_end);
+        (slices, injections)
+    }
+
+    fn push_text_slice(slices: &mut Vec<String>, text: &str, offset: usize) {
+        if let Some(relative_start) = text.find(PARAMETER_OPENING) {
+            let start = offset + relative_start;
+            panic!(
+                "malformed parameter marker at byte {start}: expected \
+                 `{{{{#name}}}}` with an ASCII alphanumeric or underscore name"
+            );
+        }
+        if !text.is_empty() {
+            slices.push(text.to_owned());
+        }
+    }
+
+    fn parameter_name(slice: &str) -> Option<&str> {
+        let captures = Self::parameter_marker().captures(slice)?;
+        let marker = captures.get(0)?;
+        if marker.start() == 0 && marker.end() == slice.len() {
+            captures.get(1).map(|capture| capture.as_str())
+        } else {
+            None
+        }
+    }
+
+    fn module_marker() -> &'static regex::Regex {
+        MODULE_MARKER.get_or_init(|| {
+            regex::Regex::new(MODULE_MARKER_PATTERN)
+                .unwrap_or_else(|error| panic!("invalid module marker regex: {error}"))
+        })
+    }
+
+    fn parameter_marker() -> &'static regex::Regex {
+        PARAMETER_MARKER.get_or_init(|| {
+            regex::Regex::new(PARAMETER_MARKER_PATTERN)
+                .unwrap_or_else(|error| panic!("invalid parameter marker regex: {error}"))
+        })
+    }
+
+    fn assert_identifier(kind: &str, name: &str) {
+        if name.is_empty()
+            || !name
+                .bytes()
+                .all(|byte| byte.is_ascii_alphanumeric() || byte == b'_')
+        {
+            panic!(
+                "invalid {kind} name `{name}`: expected only ASCII \
+                 letters, digits, or underscore"
+            );
+        }
+    }
+
+    fn read(path: &Path, kind: &str) -> String {
+        fs::read_to_string(path).unwrap_or_else(|error| {
+            panic!("failed to read prompt {kind} {}: {error}", path.display())
+        })
+    }
+
+    fn without_final_line_ending(content: &str) -> &str {
+        content
+            .strip_suffix("\r\n")
+            .or_else(|| content.strip_suffix('\n'))
+            .unwrap_or(content)
+    }
 }

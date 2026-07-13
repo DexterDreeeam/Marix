@@ -5,7 +5,7 @@ use marix_protocol::{
 };
 
 use super::state::StepState;
-use crate::prompt::{AnalysisPrompt, InitialPrompt, Prompt};
+use crate::prompt::Prompt;
 
 pub(super) fn step_kind(
     signature: &StepSignature,
@@ -31,7 +31,7 @@ pub(super) fn step_kind(
     }
 }
 
-pub(super) fn model_step_kind(draft: &StepDraft) -> Result<ModelStepKind, PlanError> {
+fn model_step_kind(draft: &StepDraft) -> Result<ModelStepKind, PlanError> {
     parse_model_step_name(&draft.name)
         .or_else(|| parse_model_step_name(input_model_name(&draft.input)))
         .ok_or_else(|| PlanError::InvalidModelStep {
@@ -40,7 +40,7 @@ pub(super) fn model_step_kind(draft: &StepDraft) -> Result<ModelStepKind, PlanEr
         })
 }
 
-pub(super) fn parse_model_step_name(name: &str) -> Option<ModelStepKind> {
+fn parse_model_step_name(name: &str) -> Option<ModelStepKind> {
     match name.trim() {
         "Initial" | "initial" => Some(ModelStepKind::Initial),
         "Analysis" | "analysis" => Some(ModelStepKind::Analysis),
@@ -48,7 +48,7 @@ pub(super) fn parse_model_step_name(name: &str) -> Option<ModelStepKind> {
     }
 }
 
-pub(super) fn input_model_name(input: &str) -> &str {
+fn input_model_name(input: &str) -> &str {
     input.split(',').next().unwrap_or_default().trim()
 }
 
@@ -58,49 +58,76 @@ pub(super) fn model_request(
 ) -> Result<RelayRequest, String> {
     let prompt = std::panic::catch_unwind(std::panic::AssertUnwindSafe(
         || -> Result<String, String> {
+            let name = match model_kind {
+                ModelStepKind::Initial => "Initial",
+                ModelStepKind::Analysis => "Analysis",
+            };
+            let mut prompt = Prompt::load(name);
             let session_context = state
                 .access
                 .session_context
                 .lock()
                 .unwrap_or_else(|error| error.into_inner())
                 .snapshot();
-            match model_kind {
-                ModelStepKind::Initial => Ok(InitialPrompt::new(
-                    state.access.user_request.clone(),
-                    session_context,
-                )
-                .prompt()),
-                ModelStepKind::Analysis => {
-                    let input = state
-                        .input
-                        .lock()
-                        .unwrap_or_else(|error| error.into_inner())
-                        .clone()
-                        .ok_or_else(|| {
-                            format!(
-                                "analysis model step {} input is unavailable",
-                                &state.signature,
-                            )
-                        })?;
-                    let input: serde_json::Value =
-                        serde_json::from_str(&input).map_err(|error| {
-                            format!(
-                                "analysis model step {} input is invalid JSON: {error}",
-                                &state.signature,
-                            )
-                        })?;
-                    let background = analysis_input_string(&input, "background", &state.signature)?;
-                    let call_output =
-                        analysis_input_string(&input, "call_output", &state.signature)?;
-                    Ok(AnalysisPrompt::new(
-                        state.access.user_request.clone(),
-                        background,
-                        call_output,
-                        session_context,
-                    )
-                    .prompt())
-                }
+            let user_request = state.access.user_request.clone();
+            let input = state
+                .input
+                .lock()
+                .unwrap_or_else(|error| error.into_inner())
+                .clone()
+                .map(|input| {
+                    serde_json::from_str::<serde_json::Value>(&input).map_err(|error| {
+                        format!(
+                            "model step {} input is invalid JSON: {error}",
+                            &state.signature,
+                        )
+                    })
+                })
+                .transpose()?;
+
+            for parameter in prompt.parameters() {
+                let value = match parameter.as_str() {
+                    "tools" => {
+                        serde_json::to_string(&session_context.tools).unwrap_or_else(|error| {
+                            panic!("failed to serialize prompt tools: {error}")
+                        })
+                    }
+                    "user_request" => user_request.clone(),
+                    "background" | "call_output" => match input.as_ref() {
+                        None => String::new(),
+                        Some(input) => {
+                            let object = input.as_object().ok_or_else(|| {
+                                format!(
+                                    "model step {} input must be a JSON object",
+                                    &state.signature,
+                                )
+                            })?;
+                            let value = object.get(&parameter).ok_or_else(|| {
+                                format!(
+                                    "model step {} input field `{parameter}` is missing",
+                                    &state.signature,
+                                )
+                            })?;
+                            value.as_str().map(str::to_owned).ok_or_else(|| {
+                                format!(
+                                    "model step {} input field `{parameter}` must be a string",
+                                    &state.signature,
+                                )
+                            })?
+                        }
+                    },
+                    _ => {
+                        return Err(format!(
+                            "prompt `{name}` requires unsupported parameter `{parameter}`"
+                        ));
+                    }
+                };
+                prompt.inject(parameter, value);
             }
+
+            prompt
+                .prompt()
+                .map_err(|error| format!("prompt `{name}` rendering failed: {error}"))
         },
     ))
     .map_err(|payload| {
@@ -120,22 +147,4 @@ pub(super) fn model_request(
         state.signature.name.clone(),
     );
     Ok(RelayRequest { signature, prompt })
-}
-
-// -- Private -- //
-
-fn analysis_input_string(
-    input: &serde_json::Value,
-    field: &str,
-    signature: &StepSignature,
-) -> Result<String, String> {
-    let object = input
-        .as_object()
-        .ok_or_else(|| format!("analysis model step {signature} input must be a JSON object"))?;
-    let value = object.get(field).ok_or_else(|| {
-        format!("analysis model step {signature} input field `{field}` is missing")
-    })?;
-    value.as_str().map(str::to_owned).ok_or_else(|| {
-        format!("analysis model step {signature} input field `{field}` must be a string")
-    })
 }

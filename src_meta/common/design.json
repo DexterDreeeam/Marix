@@ -4,8 +4,9 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Owns shared configuration, third-party wrappers, source- and session-aware telemetry with persistent migration/query support, and reusable transport structures.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [".", "Cargo.toml"],
   "childModules": [
     {
       "path": "src/common/config",
@@ -15,7 +16,7 @@
     {
       "path": "src/common/external",
       "name": "external",
-      "purpose": "Re-exports approved third-party namespaces and traits for common, including UUID generation and redb read/query support."
+      "purpose": "Re-exports approved third-party namespaces and traits for common, including regex, UUID generation, and redb read/query support."
     },
     {
       "path": "src/common/logging",

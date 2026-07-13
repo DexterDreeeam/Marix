@@ -28,6 +28,7 @@ Own deployment tasks for the current Marix software. Coordinate the three deploy
   `.git`, `target`, `.credential`, generated deployment configs, browser
   profiles, logs, and temporary caches. Run `cargo fetch --locked`, then locked
   release builds on Ubuntu. Reuse the installed Rust toolchain and target cache.
+- Deploy `marix-server` by copying `src/server/prompt/template/` to `<runtime.marix_path>/src/server/prompt/template/` with hierarchy preserved; `marix-server-telemetry` does not need these templates.
 - Build Host, Client, and any required Tools release binaries on the local Windows machine with the local Windows Rust toolchain.
 - Deployment endpoints receive only what their role requires: the Ubuntu build
   directory receives sanitized source; the Ubuntu runtime receives the two
