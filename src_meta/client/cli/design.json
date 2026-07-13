@@ -3,27 +3,28 @@
   "module": {
     "path": "src/client/cli",
     "name": "cli",
-    "purpose": "Contains the marix-client-cli binary, configuring source-aware client telemetry before running interactive or one-shot sessions.",
-    "changeStatus": "unchanged"
+    "purpose": "Contains the one-shot and interactive Client CLI with remote-first telemetry and silent task-start status handling.",
+    "changeStatus": "modified"
   },
+  "modified": ["main.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "marix-client-cli",
       "type": "bin",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/main.rs",
           "lineStart": 14,
-          "lineEnd": 65,
+          "lineEnd": 60,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 32,
-              "lineEnd": 32
+              "lineStart": 25,
+              "lineEnd": 40
             }
           ]
         }

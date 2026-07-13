@@ -875,3 +875,48 @@ connecter to protect this distinction.
   parsed as JSON at most once; `background` and `call_output` default to empty
   only when input is absent, while unsupported parameters and malformed fields
   fail explicitly.
+- 2026-07-13 (supersedes telemetry portal interaction notes above): Desktop
+  `page.html` keeps the 16px sidebar in flex flow but uses a 36px transparent
+  `#sessions::after` hover target; an inner overflow-hidden content wrapper
+  prevents collapsed or transitioning session content from leaking visually.
+  Log messages no longer expose hover/click copy affordances. Copy is the first
+  right-click menu action and reports success only through the shared toast.
+  The format modal, editor, text segments, and highlighted JSON all hide
+  horizontal overflow and wrap long tokens while preserving JSON indentation.
+- 2026-07-13 (config discovery): `src/common/config/config.rs` resolves the
+  non-empty `MARIX_CONFIG` override first; otherwise it loads `config.toml`
+  beside `std::env::current_exe()`. Discovery never probes the process working
+  directory or falls back when executable-path resolution fails. The resolved
+  path still owns repository-root and runtime-relative-path interpretation.
+- 2026-07-13 (supersedes the inactive reconnect query note above): Host
+  reconnects must install the new `net_tx` in `HostSessionState.server_tx`
+  before dispatching `ExecutorEvent::ToolQuery`. The first connection starts
+  `ExecutorRuntime`, whose startup path sends tools once; only later
+  connections query the already-running executor so a restarted server can
+  rebuild `SessionContext.tools`.
+- 2026-07-13 (supersedes the reconnect query note immediately above): Tool
+  registration is server-driven on every host connection. After accepting an
+  authenticated host channel, `SessionRuntime` sends `SessionId` followed by
+  `ExecutorEvent::ToolQuery`, and only registers the channel after both sends
+  succeed. `HostSession` installs its new server sender and starts `Executor`
+  only once; it never self-dispatches the query. `ExecutorRuntime` sends tools
+  only in response to `ToolQuery`, not at startup.
+## 2026-07-13
+
+- `common::config::LoggingConfig` is the direct `RawConfig.logging`
+  type; its `remote` field uses a field-level serde default of `true`,
+  while an explicit `remote = false` remains authoritative.
+- `client::session::to_client_event` intentionally consumes
+  `TaskStatus::Started` without producing a `ClientEvent` or warning; `Created`
+  and terminal task-status mappings remain user-visible.
+- 2026-07-13 (supersedes logging-mode notes): `Config` and `RawConfig` no
+  longer contain a logging section or `LoggingConfig`; legacy `[logging]`
+  input is rejected by `deny_unknown_fields`. Non-host `Logger::connect`
+  always tries telemetry after removing the executable-sibling `marix.log`.
+  Initial connection failure creates a fresh fallback, and the first later
+  send failure permanently switches the sink to that file.
+- 2026-07-13: The executable-sibling `marix.log` fallback is JSON Lines with
+  one complete `LogMessage` per line and an immediate flush after every
+  append. Each connect run removes stale fallback output before attempting
+  telemetry. Only `Logger::host` uses redb, at
+  `<marix_path_server-or-marix_path>/log/telemetry.redb`.

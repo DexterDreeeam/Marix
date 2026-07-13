@@ -129,6 +129,12 @@ impl SessionRuntime {
                     Logger::warning(format!("host channel session id send failed: {error}"));
                     continue;
                 }
+                if let Err(error) = tx.try_send(Session::package_message(SessionEvent::Executor(
+                    ExecutorEvent::ToolQuery,
+                ))) {
+                    Logger::warning(format!("host channel tool query send failed: {error}"));
+                    continue;
+                }
                 Logger::log("host channel connected");
                 *runtime
                     .state

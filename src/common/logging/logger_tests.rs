@@ -1,5 +1,5 @@
-use super::{Sink, Store, host_store};
-use crate::external::uuid;
+use super::{LogFile, Sink, Store, host_store};
+use crate::external::{serde_json, uuid};
 use crate::logging::{LogMessage, LogTag, LoggingError};
 
 fn temp_directory() -> std::path::PathBuf {
@@ -28,15 +28,48 @@ fn host_store_permits_only_the_host_sink() {
     let host_sink = Sink::Host(Store::open_directory(&directory).expect("open host store"));
     assert!(host_store(Some(&host_sink)).is_ok());
 
-    let local_directory = temp_directory();
-    let local_sink =
-        Sink::Local(Store::open_directory(&local_directory).expect("open local store"));
+    let file_sink =
+        Sink::File(LogFile::create(&directory.join("marix.log")).expect("open fallback log"));
     assert!(matches!(
-        host_store(Some(&local_sink)),
+        host_store(Some(&file_sink)),
         Err(LoggingError::NotHosting)
     ));
 
     assert!(matches!(host_store(None), Err(LoggingError::NotHosting)));
+}
+
+#[test]
+fn log_file_appends_json_lines_and_truncates_on_create() {
+    let directory = temp_directory();
+    let path = directory.join("marix.log");
+    let mut file = LogFile::create(&path).expect("create fallback log");
+    file.append(&message("first")).expect("append first");
+    file.append(&message("second")).expect("append second");
+    drop(file);
+
+    let content = std::fs::read_to_string(&path).expect("read fallback log");
+    let messages: Vec<LogMessage> = content
+        .lines()
+        .map(|line| serde_json::from_str(line).expect("deserialize JSON line"))
+        .collect();
+    let texts: Vec<&str> = messages
+        .iter()
+        .map(|entry| entry.message.as_str())
+        .collect();
+    assert_eq!(texts, vec!["first", "second"]);
+    assert!(messages.iter().all(|entry| entry.arrival_ts == 0));
+
+    let mut replaced = LogFile::create(&path).expect("truncate fallback log");
+    replaced
+        .append(&message("replacement"))
+        .expect("append replacement");
+    drop(replaced);
+
+    let content = std::fs::read_to_string(&path).expect("read replaced log");
+    let lines: Vec<&str> = content.lines().collect();
+    assert_eq!(lines.len(), 1);
+    let replacement: LogMessage = serde_json::from_str(lines[0]).expect("deserialize replacement");
+    assert_eq!(replacement.message, "replacement");
 }
 
 #[test]

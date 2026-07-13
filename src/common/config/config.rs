@@ -6,9 +6,8 @@ use std::sync::RwLock;
 use super::sys::System;
 use crate::external::*;
 
-pub const CONFIG_FILE: &str = "src/config.toml";
+pub const CONFIG_FILE: &str = "config.toml";
 const CONFIG_ENV_VAR: &str = "MARIX_CONFIG";
-const DEPLOYED_CONFIG_FILE: &str = "config.toml";
 static CONFIG_CACHE: RwLock<Option<Result<Config, String>>> = RwLock::new(None);
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -18,7 +17,6 @@ pub struct Config {
     pub runtime: RuntimeConfig,
     pub core: CoreConfig,
     pub client: ClientConfig,
-    pub logging: LoggingConfig,
     pub server: ServerConfig,
     pub model: ModelConfig,
     pub tool: ToolConfig,
@@ -34,7 +32,9 @@ impl Config {
             return cached.clone();
         }
 
-        let computed = load_config(&config_path()).map_err(|error| error.to_string());
+        let computed = config_path()
+            .and_then(|path| load_config(&path))
+            .map_err(|error| error.to_string());
         CONFIG_CACHE
             .write()
             .unwrap_or_else(|error| error.into_inner())
@@ -48,7 +48,7 @@ impl Config {
     /// return it, and returns it. Intended for tests.
     pub fn mock(overrides: &[&str]) -> Result<Self, String> {
         Self::load()?;
-        let path = config_path();
+        let path = config_path().map_err(|error| error.to_string())?;
         let repo_root = repository_root_for_config(&path);
         let content = std::fs::read_to_string(&path).map_err(|error| error.to_string())?;
         let mut table: toml::Table = toml::from_str(&content).map_err(|error| error.to_string())?;
@@ -111,12 +111,6 @@ pub struct ClientConfig {
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct LoggingConfig {
-    pub remote: bool,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
-#[serde(deny_unknown_fields)]
 pub struct ServerConfig {
     pub enabled: bool,
     pub ip: String,
@@ -162,7 +156,6 @@ struct RawConfig {
     runtime: RuntimeConfig,
     core: Option<CoreConfig>,
     client: ClientConfig,
-    logging: LoggingConfig,
     server: RawServerConfig,
     model: RawModelConfig,
     tool: ToolConfig,
@@ -196,17 +189,30 @@ struct RawDeepseekConfig {
     api_key: String,
 }
 
-fn config_path() -> PathBuf {
+fn config_path() -> Result<PathBuf, ConfigError> {
     if let Some(path) = env::var_os(CONFIG_ENV_VAR).filter(|value| !value.is_empty()) {
-        return PathBuf::from(path);
+        return Ok(PathBuf::from(path));
     }
 
-    let source_config = PathBuf::from(CONFIG_FILE);
-    if source_config.is_file() {
-        return source_config;
-    }
-
-    PathBuf::from(DEPLOYED_CONFIG_FILE)
+    let executable = env::current_exe().map_err(|error| {
+        std::io::Error::new(
+            error.kind(),
+            format!("failed to resolve current executable path: {error}"),
+        )
+    })?;
+    let parent = executable
+        .parent()
+        .filter(|parent| !parent.as_os_str().is_empty())
+        .ok_or_else(|| {
+            std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                format!(
+                    "current executable path '{}' has no parent directory",
+                    executable.display()
+                ),
+            )
+        })?;
+    Ok(parent.join(CONFIG_FILE))
 }
 
 fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
@@ -227,7 +233,6 @@ fn build_config(content: &str, repo_root: &Path) -> Result<Config, ConfigError> 
         runtime,
         core: raw_config.core.unwrap_or_else(default_core_config),
         client: raw_config.client,
-        logging: raw_config.logging,
         server: ServerConfig {
             enabled: raw_config.server.enabled,
             ip: raw_config.server.ip,

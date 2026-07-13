@@ -39,6 +39,8 @@
     overflow: hidden;
   }
   #sessions {
+    position: relative;
+    z-index: 1;
     flex: 0 0 16px;
     width: 16px;
     min-width: 0;
@@ -46,12 +48,31 @@
     background: var(--panel);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: visible;
     transition: width 140ms ease-out, flex-basis 140ms ease-out;
+  }
+  #sessions::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 36px;
+    background: transparent;
   }
   #sessions:hover, #sessions:focus-within {
     flex-basis: 216px;
     width: 216px;
+  }
+  #sessions:hover::after, #sessions:focus-within::after {
+    pointer-events: none;
+  }
+  #session-content {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
   }
   #sessions h1 {
     width: 216px;
@@ -175,12 +196,6 @@
     border-bottom: 1px solid var(--border);
     vertical-align: top;
   }
-  tbody tr {
-    transition: background-color 140ms ease;
-  }
-  tbody tr:hover, tbody tr:focus-within {
-    background: var(--panel-alt);
-  }
   thead th:nth-child(-n+3),
   tbody td:nth-child(-n+3) {
     width: 1%;
@@ -195,15 +210,6 @@
   td.message-cell {
     white-space: pre-wrap;
     word-break: break-word;
-    cursor: pointer;
-    transition: background-color 160ms ease;
-  }
-  td.message-cell:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: -2px;
-  }
-  td.message-cell.copied {
-    background: rgba(77, 141, 255, 0.18);
   }
   #log-context-menu {
     position: fixed;
@@ -220,7 +226,7 @@
   #format-message-backdrop[hidden] {
     display: none;
   }
-  #format-message-action {
+  #log-context-menu button {
     width: 100%;
     border: 0;
     border-radius: 5px;
@@ -231,8 +237,8 @@
     text-align: left;
     cursor: pointer;
   }
-  #format-message-action:hover,
-  #format-message-action:focus-visible {
+  #log-context-menu button:hover,
+  #log-context-menu button:focus-visible {
     background: rgba(77, 141, 255, 0.18);
     outline: none;
   }
@@ -244,8 +250,10 @@
     inset: 0;
     z-index: 500;
     display: flex;
+    min-width: 0;
     align-items: center;
     justify-content: center;
+    overflow-x: hidden;
     padding: 24px;
     background: rgba(4, 6, 10, 0.76);
     animation: modal-backdrop-in 140ms ease-out;
@@ -253,9 +261,12 @@
   #format-message-modal {
     display: flex;
     width: min(1000px, 100%);
+    min-width: 0;
+    max-width: 100%;
     max-height: 85vh;
     flex-direction: column;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: hidden;
     border: 1px solid rgba(230, 233, 239, 0.2);
     border-radius: 10px;
     background: var(--panel);
@@ -264,6 +275,7 @@
   }
   #format-message-header {
     display: flex;
+    min-width: 0;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
@@ -271,9 +283,11 @@
     border-bottom: 1px solid var(--border);
   }
   #format-message-title {
+    min-width: 0;
     margin: 0;
     font-size: 16px;
     font-weight: 600;
+    overflow-wrap: anywhere;
   }
   #format-message-close {
     border: 1px solid var(--border);
@@ -291,8 +305,12 @@
     outline-offset: 1px;
   }
   #format-message-editor {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
     min-height: 180px;
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
     padding: 18px;
     background: #0c0f14;
     color: var(--text);
@@ -300,6 +318,7 @@
     font-size: 13px;
     line-height: 1.55;
     white-space: pre-wrap;
+    overflow-wrap: anywhere;
     word-break: break-word;
   }
   #format-message-editor:focus-visible {
@@ -307,17 +326,23 @@
     outline-offset: -3px;
   }
   .formatted-text {
+    max-width: 100%;
     white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
   .formatted-json {
+    max-width: 100%;
     margin: 12px 0;
-    overflow-x: auto;
+    overflow-x: hidden;
     padding: 14px;
     border: 1px solid var(--border);
     border-radius: 8px;
     background: #111722;
     color: var(--text);
-    white-space: pre;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
   .json-key { color: #8ab4ff; }
   .json-string { color: #7ee787; }
@@ -402,6 +427,9 @@
       flex-basis: auto;
       width: 100%;
     }
+    #sessions::after {
+      display: none;
+    }
     #sessions h1, #session-list {
       width: 100%;
       opacity: 1;
@@ -420,7 +448,7 @@
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    #sessions, #sessions h1, #session-list, tbody tr, td.message-cell, #copy-toast,
+    #sessions, #sessions h1, #session-list, #copy-toast,
     #format-message-backdrop, #format-message-modal {
       transition: none;
       animation: none;
@@ -431,8 +459,10 @@
 <body>
 <div id="app">
   <aside id="sessions">
-    <h1>Sessions</h1>
-    <ul id="session-list"></ul>
+    <div id="session-content">
+      <h1>Sessions</h1>
+      <ul id="session-list"></ul>
+    </div>
   </aside>
   <main id="main">
     <div id="toolbar">
@@ -465,6 +495,7 @@
   </main>
 </div>
 <div id="log-context-menu" role="menu" hidden>
+  <button id="copy-message-action" type="button" role="menuitem">Copy</button>
   <button id="format-message-action" type="button" role="menuitem">Format message</button>
 </div>
 <div id="format-message-backdrop" aria-hidden="true" hidden>
@@ -516,6 +547,7 @@
   var noSessionsEl = document.getElementById("no-sessions-state");
   var copyToastEl = document.getElementById("copy-toast");
   var contextMenuEl = document.getElementById("log-context-menu");
+  var copyMessageActionEl = document.getElementById("copy-message-action");
   var formatMessageActionEl = document.getElementById("format-message-action");
   var modalBackdropEl = document.getElementById("format-message-backdrop");
   var modalEl = document.getElementById("format-message-modal");
@@ -785,17 +817,11 @@
     return Promise.resolve(copyTextWithExecCommand(message));
   }
 
-  function copyMessage(cell, message) {
+  function copyMessage(message) {
     writeClipboardText(message).then(
       function (copied) {
         if (copied) {
-          cell.classList.add("copied");
-          cell.title = "Copied";
           showCopyToast();
-          setTimeout(function () {
-            cell.classList.remove("copied");
-            cell.title = "Click to copy message";
-          }, 700);
           return;
         }
         showError("Failed to copy message.");
@@ -836,13 +862,13 @@
     if (!state.contextMenu) {
       return;
     }
-    var row = state.contextMenu.row;
+    var previousFocus = state.contextMenu.previousFocus;
     state.contextMenu = null;
     contextMenuEl.hidden = true;
     contextMenuEl.style.left = "";
     contextMenuEl.style.top = "";
-    if (restoreFocus && row.isConnected) {
-      row.querySelector(".message-cell").focus({ preventScroll: true });
+    if (restoreFocus && previousFocus && previousFocus.isConnected) {
+      previousFocus.focus({ preventScroll: true });
     }
   }
 
@@ -857,6 +883,7 @@
       key: key,
       row: row,
       message: message,
+      previousFocus: document.activeElement,
     };
     contextMenuEl.hidden = false;
     contextMenuEl.style.visibility = "hidden";
@@ -876,7 +903,7 @@
     contextMenuEl.style.left = left + "px";
     contextMenuEl.style.top = top + "px";
     contextMenuEl.style.visibility = "";
-    formatMessageActionEl.focus({ preventScroll: true });
+    copyMessageActionEl.focus({ preventScroll: true });
   }
 
   function countPrecedingBackslashes(text, index) {
@@ -1059,7 +1086,7 @@
   function openFormatMessage(message, row) {
     state.modalOpen = true;
     state.modalPreviousFocus =
-      row.querySelector(".message-cell") || document.activeElement;
+      state.contextMenu.previousFocus || row.querySelector(".message-cell");
     closeContextMenu(false);
     renderFormattedMessage(message);
     appEl.setAttribute("inert", "");
@@ -1096,6 +1123,14 @@
     openFormatMessage(state.contextMenu.message, state.contextMenu.row);
   }
 
+  function activateCopyMessage() {
+    if (!state.contextMenu) {
+      return;
+    }
+    copyMessage(state.contextMenu.message);
+    closeContextMenu(true);
+  }
+
   function createLogRow(entry, key) {
     var row = document.createElement("tr");
 
@@ -1109,7 +1144,6 @@
     var sourceBadge = document.createElement("span");
     sourceBadge.className = "source-badge " + sourceBadgeClass(source);
     sourceBadge.textContent = sourceInitial(source);
-    sourceBadge.title = source;
     sourceCell.appendChild(sourceBadge);
     row.appendChild(sourceCell);
 
@@ -1122,19 +1156,7 @@
 
     var messageCell = document.createElement("td");
     messageCell.className = "message-cell";
-    messageCell.tabIndex = 0;
-    messageCell.setAttribute("role", "button");
-    messageCell.title = "Click to copy message";
     messageCell.textContent = entry.message;
-    messageCell.addEventListener("click", function () {
-      copyMessage(messageCell, entry.message);
-    });
-    messageCell.addEventListener("keydown", function (event) {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        copyMessage(messageCell, entry.message);
-      }
-    });
     row.appendChild(messageCell);
 
     row.addEventListener("contextmenu", function (event) {
@@ -1246,14 +1268,18 @@
     loadLogs();
   });
 
-  formatMessageActionEl.addEventListener("click", function () {
-    activateFormatMessage();
-  });
-  formatMessageActionEl.addEventListener("keydown", function (event) {
-    if (event.key === "Enter" || event.key === " ") {
+  [
+    [copyMessageActionEl, activateCopyMessage],
+    [formatMessageActionEl, activateFormatMessage],
+  ].forEach(function (action) {
+    action[0].addEventListener("click", action[1]);
+    action[0].addEventListener("keydown", function (event) {
+      if (event.key !== "Enter" && event.key !== " ") {
+        return;
+      }
       event.preventDefault();
-      activateFormatMessage();
-    }
+      action[1]();
+    });
   });
   modalCloseEl.addEventListener("click", closeFormatMessage);
   modalEl.addEventListener("keydown", function (event) {

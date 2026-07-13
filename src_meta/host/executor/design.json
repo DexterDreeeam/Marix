@@ -3,9 +3,10 @@
   "module": {
     "path": "src/host/executor",
     "name": "executor",
-    "purpose": "Owns host tool registration and previews, executor event dispatch, execution lifecycle routing, tool discovery responses, and unknown-tool failure reporting.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns host executor lifecycle, responding to Server tool queries and routing execution work.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -84,7 +85,7 @@
       "name": "ExecutorRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -105,41 +106,18 @@
         {
           "sourcePath": "src/host/executor/runtime.rs",
           "lineStart": 31,
-          "lineEnd": 75,
+          "lineEnd": 73,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 33,
-              "lineEnd": 34
-            },
-            {
-              "lineStart": 69,
-              "lineEnd": 71
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/runtime.rs",
-          "lineStart": 79,
-          "lineEnd": 177,
+          "lineStart": 77,
+          "lineEnd": 175,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 108,
-              "lineEnd": 108
-            },
-            {
-              "lineStart": 127,
-              "lineEnd": 176
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 82,
-              "lineEnd": 88
-            }
-          ]
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },

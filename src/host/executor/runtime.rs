@@ -30,8 +30,6 @@ impl ExecutorRuntime {
 
 impl Runtime<ExecutorEvent, Infallible> for ExecutorRuntime {
     fn run(&self) {
-        Logger::debug("host executor starting: registering executor tools");
-        self.send_executor_tools();
         Logger::debug("host executor runtime loop starting");
         loop {
             select! {

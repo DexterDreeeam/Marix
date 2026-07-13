@@ -3,9 +3,10 @@
   "module": {
     "path": "src/common/logging",
     "name": "logging",
-    "purpose": "Owns source- and session-aware process telemetry, configurable local or authenticated remote sinks, fixed-database legacy migration, and reverse-chronological session queries.",
-    "changeStatus": "unchanged"
+    "purpose": "Provides remote-first process telemetry, executable-sibling JSONL fallback, collector redb storage, and session queries.",
+    "changeStatus": "modified"
   },
+  "modified": ["logger.rs", "logger_tests.rs"],
   "childModules": [],
   "elements": [
     {
@@ -52,80 +53,59 @@
       "name": "Logger",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 20,
-          "lineEnd": 25,
+          "lineStart": 23,
+          "lineEnd": 28,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 28
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 30,
+          "lineEnd": 106,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 30,
+              "lineEnd": 68
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 170,
+          "lineEnd": 310,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 170,
+              "lineEnd": 310
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 312,
+          "lineEnd": 349,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 22,
-              "lineEnd": 22
-            },
-            {
-              "lineStart": 24,
-              "lineEnd": 24
+              "lineStart": 312,
+              "lineEnd": 349
             }
           ],
           "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 27,
-          "lineEnd": 101,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 64,
-              "lineEnd": 70
-            },
-            {
-              "lineStart": 92,
-              "lineEnd": 100
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 35,
-              "lineEnd": 40
-            },
-            {
-              "lineStart": 52,
-              "lineEnd": 62
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 171,
-          "lineEnd": 269,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 175,
-              "lineEnd": 175
-            },
-            {
-              "lineStart": 181,
-              "lineEnd": 201
-            },
-            {
-              "lineStart": 214,
-              "lineEnd": 222
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 213,
-              "lineEnd": 213
-            },
-            {
-              "lineStart": 223,
-              "lineEnd": 235
-            }
-          ]
         },
         {
           "sourcePath": "src/common/logging/query.rs",
@@ -146,47 +126,44 @@
       "name": "Store",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 103,
-          "lineEnd": 108,
+          "lineStart": 108,
+          "lineEnd": 111,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 110,
-          "lineEnd": 167,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 294,
-          "lineEnd": 407,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 303,
-              "lineEnd": 315
-            },
-            {
-              "lineStart": 331,
-              "lineEnd": 388
-            }
-          ],
           "modifiedLines": [
             {
-              "lineStart": 294,
-              "lineEnd": 301
-            },
+              "lineStart": 108,
+              "lineEnd": 111
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 113,
+          "lineEnd": 166,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 317,
-              "lineEnd": 329
+              "lineStart": 113,
+              "lineEnd": 166
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/common/logging/logger.rs",
+          "lineStart": 358,
+          "lineEnd": 463,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 358,
+              "lineEnd": 384
             }
           ]
         }

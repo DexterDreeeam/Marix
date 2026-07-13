@@ -3,9 +3,10 @@
   "module": {
     "path": "src/client",
     "name": "client",
-    "purpose": "Owns the client API, session transport, and source-aware CLI telemetry while preserving immediate channel readiness.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns Client session transport, user-facing task output, and remote-first telemetry with file fallback.",
+    "changeStatus": "modified"
   },
+  "modified": ["session.rs"],
   "childModules": [
     {
       "path": "src/client/app",
@@ -15,7 +16,7 @@
     {
       "path": "src/client/cli",
       "name": "cli",
-      "purpose": "Contains the marix-client-cli binary, configuring source-aware client telemetry before running interactive or one-shot sessions."
+      "purpose": "Runs one-shot and interactive Client sessions with remote-first telemetry."
     }
   ],
   "elements": [
@@ -55,7 +56,7 @@
       "name": "ClientSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
@@ -76,7 +77,7 @@
         {
           "sourcePath": "src/client/session.rs",
           "lineStart": 85,
-          "lineEnd": 219,
+          "lineEnd": 217,
           "language": "rust",
           "addedLines": [
             {
@@ -84,7 +85,12 @@
               "lineEnd": 184
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 195,
+              "lineEnd": 195
+            }
+          ]
         }
       ]
     },
@@ -96,16 +102,16 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 221,
-          "lineEnd": 226,
+          "lineStart": 219,
+          "lineEnd": 224,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 228,
-          "lineEnd": 238,
+          "lineStart": 226,
+          "lineEnd": 236,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -132,18 +138,18 @@
       "name": "marix-client-cli",
       "type": "bin",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/main.rs",
           "lineStart": 14,
-          "lineEnd": 65,
+          "lineEnd": 60,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 32,
-              "lineEnd": 32
+              "lineStart": 25,
+              "lineEnd": 40
             }
           ]
         }

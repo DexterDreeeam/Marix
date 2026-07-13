@@ -4,13 +4,14 @@
     "path": "src",
     "name": "src",
     "purpose": "Defines the Marix Rust workspace and its client, host, server, source-aware telemetry, protocol, common, and tool packages.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Owns the client API and CLI session transport, installing optional SessionId correlation metadata while preserving immediate channel readiness."
+      "purpose": "Owns Client session transport, user-facing task output, and remote-first telemetry with file fallback."
     },
     {
       "path": "src/common",
@@ -20,7 +21,7 @@
     {
       "path": "src/host",
       "name": "host",
-      "purpose": "Owns host execution and its resilient server session, configuring host-sourced telemetry without gating channel readiness."
+      "purpose": "Owns Host connectivity, remote-first telemetry with file fallback, execution lifecycle, and Server-directed tool registration."
     },
     {
       "path": "src/protocol",
@@ -30,7 +31,7 @@
     {
       "path": "src/server",
       "name": "server",
-      "purpose": "Runs the server core with server-sourced telemetry and owns task, session, model, prompt, step, and ordered relay orchestration."
+      "purpose": "Runs the server core with remote-first telemetry fallback and session-driven orchestration."
     },
     {
       "path": "src/tool",
@@ -80,7 +81,7 @@
       "name": "ClientSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
@@ -101,7 +102,7 @@
         {
           "sourcePath": "src/client/session.rs",
           "lineStart": 85,
-          "lineEnd": 219,
+          "lineEnd": 217,
           "language": "rust",
           "addedLines": [
             {
@@ -109,7 +110,12 @@
               "lineEnd": 184
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 195,
+              "lineEnd": 195
+            }
+          ]
         }
       ]
     },
@@ -121,16 +127,16 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 221,
-          "lineEnd": 226,
+          "lineStart": 219,
+          "lineEnd": 224,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 228,
-          "lineEnd": 238,
+          "lineStart": 226,
+          "lineEnd": 236,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -149,12 +155,7 @@
           "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 12,
-              "lineEnd": 12
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -162,18 +163,18 @@
       "name": "configure_logging",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/main.rs",
           "lineStart": 22,
-          "lineEnd": 38,
+          "lineEnd": 33,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 24,
-              "lineEnd": 25
+              "lineStart": 22,
+              "lineEnd": 33
             }
           ]
         }
@@ -364,18 +365,18 @@
       "name": "main",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/main.rs",
           "lineStart": 5,
-          "lineEnd": 34,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 17,
-              "lineEnd": 30
+              "lineEnd": 23
             }
           ]
         }

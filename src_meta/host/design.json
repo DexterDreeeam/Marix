@@ -3,9 +3,10 @@
   "module": {
     "path": "src/host",
     "name": "host",
-    "purpose": "Owns host execution and its resilient server session, configuring host-sourced telemetry without gating channel readiness.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns Host connectivity, remote-first telemetry with file fallback, execution lifecycle, and Server-directed tool registration.",
+    "changeStatus": "modified"
   },
+  "modified": ["main.rs"],
   "childModules": [
     {
       "path": "src/host/execution",
@@ -15,7 +16,7 @@
     {
       "path": "src/host/executor",
       "name": "executor",
-      "purpose": "Owns host tool registration and previews, executor event dispatch, execution lifecycle routing, tool discovery responses, and unknown-tool failure reporting."
+      "purpose": "Responds to Server tool queries and routes execution work."
     }
   ],
   "elements": [
@@ -31,12 +32,7 @@
           "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 12,
-              "lineEnd": 12
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -44,18 +40,18 @@
       "name": "configure_logging",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/main.rs",
           "lineStart": 22,
-          "lineEnd": 38,
+          "lineEnd": 33,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 24,
-              "lineEnd": 25
+              "lineStart": 22,
+              "lineEnd": 33
             }
           ]
         }
@@ -315,7 +311,7 @@
       "name": "ExecutorRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -336,41 +332,18 @@
         {
           "sourcePath": "src/host/executor/runtime.rs",
           "lineStart": 31,
-          "lineEnd": 75,
+          "lineEnd": 73,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 33,
-              "lineEnd": 34
-            },
-            {
-              "lineStart": 69,
-              "lineEnd": 71
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/runtime.rs",
-          "lineStart": 79,
-          "lineEnd": 177,
+          "lineStart": 77,
+          "lineEnd": 175,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 108,
-              "lineEnd": 108
-            },
-            {
-              "lineStart": 127,
-              "lineEnd": 176
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 82,
-              "lineEnd": 88
-            }
-          ]
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },

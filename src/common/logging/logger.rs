@@ -1,3 +1,5 @@
+use std::fs::{File, OpenOptions};
+use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Mutex, OnceLock, RwLock};
@@ -14,54 +16,57 @@ use crate::structure::{ChannelEndpoint, NetReceiver, NetSender, accept_channel, 
 
 const TELEMETRY_TABLE: TableDefinition<u64, &[u8]> = TableDefinition::new("telemetry");
 const TELEMETRY_FILE_NAME: &str = "telemetry.redb";
+const FALLBACK_LOG_FILE_NAME: &str = "marix.log";
 
 static LOGGER: Logger = Logger::new();
 
 pub struct Logger {
     configuration: Mutex<()>,
     source: OnceLock<LogSource>,
-    sink: OnceLock<Sink>,
+    sink: OnceLock<Mutex<Sink>>,
     session_id: RwLock<Option<uuid::Uuid>>,
 }
 
 impl Logger {
-    /// Records telemetry in a local database and accepts telemetry from other
-    /// processes.
-    ///
-    /// The bind address and handshake token are resolved from configuration
-    /// by [`accept_channel`]; each accepted client connection is served by its
-    /// own receive worker, so telemetry from multiple processes is recorded
-    /// concurrently.
+    /// Records local and remote telemetry in the host redb store.
     pub fn host() -> Result<(), LoggingError> {
         LOGGER.configure(LogSource::Server, || {
             let config = Config::load().map_err(LoggingError::Config)?;
-            let store = Store::open(&config, StoreRole::Server)?;
+            let store = Store::open(&config)?;
             Ok(Sink::Host(store))
         })?;
         thread::spawn(accept_loop);
         Ok(())
     }
 
-    /// Configures this process to stream telemetry to the server or record it
-    /// in a local database, according to the logging configuration.
+    /// Configures this process to stream telemetry to the server, falling back
+    /// to a JSON Lines file beside the executable when unavailable.
     ///
-    /// The connect address and handshake token are resolved from
-    /// configuration by [`connect_channel`]. The connect is retried a few
-    /// times, since the server may not yet be listening or may be briefly
-    /// rebinding between accepted connections.
+    /// The connect is retried briefly because the server may not be listening
+    /// yet or may be rebinding between accepted connections.
     pub fn connect(source: LogSource) -> Result<(), LoggingError> {
         LOGGER.configure(source, || {
-            let config = Config::load().map_err(LoggingError::Config)?;
-            if config.logging.remote {
-                let sender = Self::connect_sender()?;
-                Ok(Sink::Remote(Mutex::new(sender)))
-            } else {
-                Ok(Sink::Local(Store::open(&config, StoreRole::Runtime)?))
+            let fallback_path = Self::fallback_log_path()?;
+            match std::fs::remove_file(&fallback_path) {
+                Ok(()) => {}
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+                Err(error) => {
+                    return Err(LoggingError::Io(format!(
+                        "failed to remove previous fallback log '{}': {error}",
+                        fallback_path.display()
+                    )));
+                }
+            }
+            match Self::connect_sender() {
+                Ok(sender) => Ok(Sink::Remote {
+                    sender,
+                    fallback_path,
+                }),
+                Err(_) => Ok(Sink::File(LogFile::create(&fallback_path)?)),
             }
         })
     }
 
-    /// Sets the session identifier attached to future telemetry messages.
     pub fn set_id(id: uuid::Uuid) {
         *LOGGER
             .session_id
@@ -69,47 +74,43 @@ impl Logger {
             .unwrap_or_else(|error| error.into_inner()) = Some(id);
     }
 
-    /// Emits an info-tagged telemetry message.
     pub fn log(message: impl Into<String>) {
         LOGGER.emit(LogTag::Info, message.into());
     }
 
-    /// Emits a warning-tagged telemetry message.
     pub fn warning(message: impl Into<String>) {
         LOGGER.emit(LogTag::Warning, message.into());
     }
 
-    /// Emits an error-tagged telemetry message.
     pub fn error(message: impl Into<String>) {
         LOGGER.emit(LogTag::Error, message.into());
     }
 
-    /// Emits a debug-tagged telemetry message.
     pub fn debug(message: impl Into<String>) {
         LOGGER.emit(LogTag::Debug, message.into());
     }
 
-    /// Returns every telemetry message recorded by this process's host
-    /// store, in ascending record-insertion order. Only available when this
-    /// process is hosting a store via [`Logger::host`] — a
-    /// [`Logger::connect`] runtime-local store is deliberately not
-    /// queryable. Used by `crate::logging::query` to answer session/log
-    /// queries.
+    /// Returns every telemetry message recorded by this process's host store,
+    /// in ascending record-insertion order. Only available when this process
+    /// is hosting a store via [`Logger::host`]. Used by
+    /// `crate::logging::query` to answer session/log queries.
     pub(super) fn local_log() -> Result<Vec<LogMessage>, LoggingError> {
-        host_store(LOGGER.sink.get())?.read_all()
+        let Some(sink) = LOGGER.sink.get() else {
+            return Err(LoggingError::NotHosting);
+        };
+        let sink = sink
+            .lock()
+            .map_err(|error| LoggingError::Io(error.to_string()))?;
+        host_store(Some(&sink))?.read_all()
     }
 }
 
-/// A telemetry store backed by a redb database, used both to record
-/// incoming messages and to answer read-only session/log queries.
 pub(super) struct Store {
     database: Database,
     next_id: AtomicU64,
 }
 
 impl Store {
-    /// Opens the redb database at `path` for persistent append, creating it
-    /// when absent and restoring the next record id from the existing table.
     pub(super) fn open_at(path: &Path) -> Result<Self, LoggingError> {
         let database =
             Database::create(path).map_err(|error| LoggingError::Database(error.to_string()))?;
@@ -120,8 +121,6 @@ impl Store {
         })
     }
 
-    /// Reads every recorded message in a single read transaction, in
-    /// ascending record-id (insertion) order.
     pub(super) fn read_all(&self) -> Result<Vec<LogMessage>, LoggingError> {
         let read_txn = self
             .database
@@ -196,7 +195,7 @@ impl Logger {
             .set(source)
             .map_err(|_| LoggingError::AlreadyConfigured)?;
         self.sink
-            .set(sink)
+            .set(Mutex::new(sink))
             .map_err(|_| LoggingError::AlreadyConfigured)
     }
 
@@ -220,19 +219,55 @@ impl Logger {
             .session_id
             .read()
             .unwrap_or_else(|error| error.into_inner());
-        match self.sink.get() {
-            Some(Sink::Host(_)) | Some(Sink::Local(_)) => self.record(message),
-            Some(Sink::Remote(sender)) => {
-                let guard = sender
-                    .lock()
-                    .map_err(|error| LoggingError::Io(error.to_string()))?;
-                guard
-                    .try_send(message)
-                    .map_err(|error| LoggingError::Channel(error.to_string()))?;
-                Ok(())
+        let Some(sink) = self.sink.get() else {
+            return Ok(());
+        };
+        let mut sink = sink
+            .lock()
+            .map_err(|error| LoggingError::Io(error.to_string()))?;
+        let mut replacement = None;
+        let result = match &mut *sink {
+            Sink::Host(store) => {
+                message.stamp_arrival();
+                store.record(&message)
             }
-            None => Ok(()),
+            Sink::File(file) => file.append(&message),
+            Sink::Remote {
+                sender,
+                fallback_path,
+            } => {
+                if sender.try_send(message.clone()).is_ok() {
+                    Ok(())
+                } else {
+                    let mut file = LogFile::create(fallback_path)?;
+                    file.append(&message)?;
+                    replacement = Some(Sink::File(file));
+                    Ok(())
+                }
+            }
+        };
+        if let Some(new_sink) = replacement {
+            *sink = new_sink;
         }
+        result
+    }
+
+    fn fallback_log_path() -> Result<PathBuf, LoggingError> {
+        let executable = std::env::current_exe().map_err(|error| {
+            LoggingError::Io(format!(
+                "failed to resolve current executable path for fallback log: {error}"
+            ))
+        })?;
+        let parent = executable
+            .parent()
+            .filter(|parent| !parent.as_os_str().is_empty())
+            .ok_or_else(|| {
+                LoggingError::Io(format!(
+                    "current executable path '{}' has no parent directory for fallback log",
+                    executable.display()
+                ))
+            })?;
+        Ok(parent.join(FALLBACK_LOG_FILE_NAME))
     }
 
     /// Connects the telemetry channel, retrying a few times so a not-yet-ready
@@ -261,29 +296,58 @@ impl Logger {
 
     fn record(&self, mut message: LogMessage) -> Result<(), LoggingError> {
         message.stamp_arrival();
-        match self.sink.get() {
-            Some(Sink::Host(store)) | Some(Sink::Local(store)) => store.record(&message),
-            _ => Err(LoggingError::NotHosting),
+        let Some(sink) = self.sink.get() else {
+            return Err(LoggingError::NotHosting);
+        };
+        let sink = sink
+            .lock()
+            .map_err(|error| LoggingError::Io(error.to_string()))?;
+        match &*sink {
+            Sink::Host(store) => store.record(&message),
+            Sink::Remote { .. } | Sink::File(_) => Err(LoggingError::NotHosting),
         }
     }
 }
 
-enum StoreRole {
-    Runtime,
-    Server,
-}
-
 enum Sink {
     Host(Store),
-    Local(Store),
-    Remote(Mutex<NetSender<LogMessage>>),
+    Remote {
+        sender: NetSender<LogMessage>,
+        fallback_path: PathBuf,
+    },
+    File(LogFile),
 }
 
-/// Selects the queryable store from a resolved sink: only a
-/// [`Sink::Host`] store (installed by [`Logger::host`]) is queryable. A
-/// [`Sink::Local`] store (installed by [`Logger::connect`] when
-/// `logging.remote` is `false`), a [`Sink::Remote`] sink, and an
-/// unconfigured logger all report [`LoggingError::NotHosting`].
+struct LogFile {
+    file: File,
+}
+
+impl LogFile {
+    fn create(path: &Path) -> Result<Self, LoggingError> {
+        let file = OpenOptions::new()
+            .create(true)
+            .write(true)
+            .truncate(true)
+            .open(path)
+            .map_err(|error| {
+                LoggingError::Io(format!(
+                    "failed to create fallback log '{}': {error}",
+                    path.display()
+                ))
+            })?;
+        Ok(Self { file })
+    }
+
+    fn append(&mut self, message: &LogMessage) -> Result<(), LoggingError> {
+        let bytes = serde_json::to_vec(message)
+            .map_err(|error| LoggingError::Serialization(error.to_string()))?;
+        self.file.write_all(&bytes)?;
+        self.file.write_all(b"\n")?;
+        self.file.flush()?;
+        Ok(())
+    }
+}
+
 fn host_store(sink: Option<&Sink>) -> Result<&Store, LoggingError> {
     match sink {
         Some(Sink::Host(store)) => Ok(store),
@@ -292,11 +356,8 @@ fn host_store(sink: Option<&Sink>) -> Result<&Store, LoggingError> {
 }
 
 impl Store {
-    /// Opens the role-specific persistent `telemetry.redb`. When the fixed
-    /// database does not exist, legacy timestamped databases are imported
-    /// atomically in filename and record order without deleting them.
-    fn open(config: &Config, role: StoreRole) -> Result<Self, LoggingError> {
-        let directory = Self::database_directory(config, role);
+    fn open(config: &Config) -> Result<Self, LoggingError> {
+        let directory = Self::database_directory(config);
         Self::open_directory(&directory)
     }
 
@@ -314,17 +375,12 @@ impl Store {
         Self::migrate_legacy(&path, &legacy_paths)
     }
 
-    /// Directory that holds telemetry databases under the process's resolved
-    /// runtime path. Servers prefer their role-specific runtime path.
-    fn database_directory(config: &Config, role: StoreRole) -> PathBuf {
-        let base = match role {
-            StoreRole::Runtime => config.runtime.marix_path.as_str(),
-            StoreRole::Server => config
-                .runtime
-                .marix_path_server
-                .as_deref()
-                .unwrap_or(config.runtime.marix_path.as_str()),
-        };
+    fn database_directory(config: &Config) -> PathBuf {
+        let base = config
+            .runtime
+            .marix_path_server
+            .as_deref()
+            .unwrap_or(config.runtime.marix_path.as_str());
         PathBuf::from(base).join("log")
     }
 
@@ -406,10 +462,7 @@ impl Store {
     }
 }
 
-/// Accepts telemetry connections in a loop, serving each accepted connection
-/// with its own receive worker. A failed accept (e.g. a bind race between
-/// connections or a rejected handshake) is retried after a short pause rather
-/// than aborting the loop, since telemetry is best-effort.
+/// Accepts telemetry connections and gives each one a receive worker.
 fn accept_loop() {
     loop {
         match accept_channel::<LogMessage>(ChannelEndpoint::Telemetry) {
@@ -423,8 +476,6 @@ fn accept_loop() {
     }
 }
 
-/// Records every telemetry message received on a single accepted connection,
-/// stamping arrival time and writing it to the local store.
 fn worker(mut net_rx: NetReceiver<LogMessage>) {
     let runtime = match tokio::runtime::Builder::new_current_thread()
         .enable_all()

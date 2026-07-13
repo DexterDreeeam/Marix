@@ -24,12 +24,7 @@ fn main() {
 fn configure_logging(config: &Config) {
     match Logger::connect(LogSource::Host) {
         Ok(()) => {
-            let status = if config.logging.remote {
-                "connected to telemetry"
-            } else {
-                "local logging configured"
-            };
-            Logger::log(format!("host '{}' {status}", config.name));
+            Logger::log(format!("host '{}' logging configured", config.name));
         }
         Err(error) => {
             eprintln!("logger unavailable, continuing without it: {error}");

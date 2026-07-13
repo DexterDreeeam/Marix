@@ -30,6 +30,14 @@ Own deployment tasks for the current Marix software. Coordinate the three deploy
   release builds on Ubuntu. Reuse the installed Rust toolchain and target cache.
 - Deploy `marix-server` by copying `src/server/prompt/template/` to `<runtime.marix_path>/src/server/prompt/template/` with hierarchy preserved; `marix-server-telemetry` does not need these templates.
 - Build Host, Client, and any required Tools release binaries on the local Windows machine with the local Windows Rust toolchain.
+- Normal startup loads `config.toml` from each executable's parent directory;
+  retain `MARIX_CONFIG` only as an explicit override. Deploy an independently
+  resolved sibling `config.toml` beside the Host executable on the VM and the
+  Client executable locally. Standalone Tools binaries that read Config follow
+  the same rule when needed.
+- Resolve every deployed config independently from the root `config.toml`
+  template and credentials. Copy a separate config to each executable directory
+  even when resolved values are identical.
 - Deployment endpoints receive only what their role requires: the Ubuntu build
   directory receives sanitized source; the Ubuntu runtime receives the two
   completed Linux binaries plus Server runtime resources; the VM Host and local
@@ -38,19 +46,19 @@ Own deployment tasks for the current Marix software. Coordinate the three deploy
 
 ## Ubuntu dual-service deployment
 
-- Deploy the binaries to stable, role-specific paths:
-  `/opt/marix/server/marix-server` and
-  `/opt/marix/server-telemetry/marix-server-telemetry`.
+- Deploy each binary and its independently resolved sibling config to stable,
+  role-specific paths: `/opt/marix/server/marix-server` with
+  `/opt/marix/server/config.toml`, and
+  `/opt/marix/server-telemetry/marix-server-telemetry` with
+  `/opt/marix/server-telemetry/config.toml`.
 - Use two persistent systemd units, `marix-server.service` and
   `marix-server-telemetry.service`. Both run as the same non-login Marix service
   account so their runtime files have predictable ownership. Disable the
   obsolete `marix-agent.service` and ensure exactly one process exists for each
   current binary.
-- Each unit must set `MARIX_CONFIG` explicitly. The services may share one
-  resolved deployment config when their values are identical, but each unit
-  still has its own `Environment=MARIX_CONFIG=...` declaration. Separate
-  resolved configs are allowed when operational paths differ; never point a
-  unit at the repository template.
+- Normally, systemd must not set `MARIX_CONFIG`; each service loads its sibling
+  `config.toml`. Set `MARIX_CONFIG` only for an explicit override, and never
+  point it at the repository template.
 - Resolve `runtime.marix_path_server` (or the effective fallback runtime path)
   to a persistent, service-writable location. The telemetry service owns its
   `log/telemetry-*.redb` store there; preserve that directory across releases
@@ -67,12 +75,12 @@ Own deployment tasks for the current Marix software. Coordinate the three deploy
   credential-backed config without printing their values. Confirm the HTTP
   title/key DOM and query API, while redacting credentials and sensitive log
   content from reports and artifacts.
-- Deploy each binary and config atomically: stage beside the destination with
-  final owner/mode, verify its SHA-256, then rename into place. Keep one
-  known-good version of each binary and config until both units and endpoint
-  checks pass. On failure, stop only the affected current units, restore the
-  paired known-good files atomically, run `systemctl daemon-reload`, and restart
-  telemetry before Server. Report whether rollback was used.
+- Treat each binary and its sibling config as a paired atomic release: stage
+  both beside the destination with final owner/mode, verify their SHA-256, then
+  rename them into place. Keep one paired known-good version until both units
+  and endpoint checks pass. On failure, stop only the affected current units,
+  restore the paired known-good files atomically, run `systemctl daemon-reload`,
+  and restart telemetry before Server. Report whether rollback was used.
 - After deployment run `systemctl is-active`/`is-enabled`, bounded journal
   checks, TCP listener checks, the telemetry HTTP checks, and an end-to-end
   Client/Host/Server task. Do not declare success from process state alone.

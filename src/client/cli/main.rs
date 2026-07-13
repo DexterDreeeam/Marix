@@ -31,12 +31,7 @@ fn main() {
     };
     match Logger::connect(LogSource::Client) {
         Ok(()) => {
-            let status = if config.logging.remote {
-                "connected to telemetry"
-            } else {
-                "local logging configured"
-            };
-            Logger::log(format!("client '{}' {status}", config.name));
+            Logger::log(format!("client '{}' logging configured", config.name));
         }
         Err(error) => {
             eprintln!("logger unavailable, continuing without it: {error}");

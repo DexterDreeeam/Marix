@@ -20,11 +20,7 @@ fn main() {
         eprintln!("failed to configure logger: {error}");
         std::process::exit(1);
     }
-    if config.logging.remote {
-        Logger::log(format!("server '{}' connected to telemetry", config.name));
-    } else {
-        Logger::log(format!("server '{}' local logging configured", config.name));
-    }
+    Logger::log(format!("server '{}' logging configured", config.name));
     Logger::log(format!("core session '{}' initializing", config.name));
     Logger::log(format!("server core '{}' starting", config.name));
     session.start();

@@ -34,9 +34,6 @@ marix_path = "."
 interactive = false
 request_timeout_ms = 1000
 
-[logging]
-remote = false
-
 [server]
 enabled = true
 ip = "127.0.0.1"

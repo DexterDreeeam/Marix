@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server_telemetry/http",
     "name": "http",
-    "purpose": "Serves the self-hosted telemetry session browser with responsive navigation, resilient log-message copying, and JSON session/log query routes.",
-    "changeStatus": "unchanged"
+    "purpose": "Serves the self-hosted telemetry session browser with accessible navigation, right-click log actions, wrapped formatting, and JSON query routes.",
+    "changeStatus": "modified"
   },
+  "modified": ["page.html", "server.rs"],
   "childModules": [],
   "elements": [
     {

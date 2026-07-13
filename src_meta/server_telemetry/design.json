@@ -3,14 +3,15 @@
   "module": {
     "path": "src/server_telemetry",
     "name": "server_telemetry",
-    "purpose": "Runs the standalone telemetry collector and its self-hosted session browser with responsive navigation and resilient log-message copying.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs the standalone telemetry collector and its self-hosted session browser with right-click log actions and wrapped formatting.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/server_telemetry/http",
       "name": "http",
-      "purpose": "Serves the self-hosted telemetry session browser with responsive navigation, resilient log-message copying, and JSON session/log query routes."
+      "purpose": "Serves the self-hosted telemetry session browser with accessible navigation, right-click log actions, wrapped formatting, and JSON query routes."
     }
   ],
   "elements": [

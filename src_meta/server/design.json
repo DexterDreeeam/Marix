@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server",
     "name": "server",
-    "purpose": "Runs the server core with server-sourced telemetry and owns task, session, model, prompt, step, and ordered relay orchestration.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs the server core with remote-first telemetry fallback and owns session-driven task, prompt, and Host orchestration.",
+    "changeStatus": "modified"
   },
+  "modified": [".", "main.rs"],
   "childModules": [
     {
       "path": "src/server/invocation",
@@ -53,18 +54,18 @@
       "name": "main",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/main.rs",
           "lineStart": 5,
-          "lineEnd": 34,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 17,
-              "lineEnd": 30
+              "lineEnd": 23
             }
           ]
         }
@@ -1022,7 +1023,7 @@
       "name": "SessionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/runtime.rs",
@@ -1045,27 +1046,18 @@
           "lineStart": 35,
           "lineEnd": 85,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 64,
-              "lineEnd": 66
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/session/runtime.rs",
           "lineStart": 89,
-          "lineEnd": 358,
+          "lineEnd": 364,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 97,
-              "lineEnd": 102
-            },
-            {
-              "lineStart": 126,
-              "lineEnd": 131
+              "lineStart": 132,
+              "lineEnd": 137
             }
           ],
           "modifiedLines": []
