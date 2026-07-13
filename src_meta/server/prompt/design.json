@@ -4,17 +4,8 @@
     "path": "src/server/prompt",
     "name": "prompt",
     "purpose": "Owns regex-sliced prompt template loading, reusable module expansion, deferred parameter injection, and typed single-pass rendering.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": ["error.rs"],
-  "modified": [
-    "mod.rs",
-    "prompt.rs"
-  ],
-  "deleted": [
-    "analysis.rs",
-    "initial.rs"
-  ],
   "childModules": [
     {
       "path": "src/server/prompt/template",
@@ -27,7 +18,7 @@
       "name": "Prompt",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/prompt.rs",
@@ -74,7 +65,7 @@
       "name": "PromptError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/error.rs",

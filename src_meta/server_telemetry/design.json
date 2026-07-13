@@ -4,11 +4,8 @@
     "path": "src/server_telemetry",
     "name": "server_telemetry",
     "purpose": "Runs the standalone telemetry collector and its self-hosted session browser with responsive navigation and resilient log-message copying.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "."
-  ],
   "childModules": [
     {
       "path": "src/server_telemetry/http",
@@ -21,7 +18,7 @@
       "name": "marix-server-telemetry",
       "type": "bin",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/main.rs",
@@ -207,7 +204,7 @@
       "name": "serve",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/server.rs",

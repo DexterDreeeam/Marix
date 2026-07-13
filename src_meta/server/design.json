@@ -4,9 +4,8 @@
     "path": "src/server",
     "name": "server",
     "purpose": "Runs the server core with server-sourced telemetry and owns task, session, model, prompt, step, and ordered relay orchestration.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [".", "Cargo.toml", "lib.rs"],
   "childModules": [
     {
       "path": "src/server/invocation",
@@ -718,7 +717,7 @@
       "name": "Prompt",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/prompt.rs",
@@ -765,14 +764,19 @@
       "name": "PromptError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/error.rs",
           "lineStart": 3,
           "lineEnd": 6,
           "language": "rust",
-          "addedLines": [{"lineStart": 3, "lineEnd": 6}],
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 6
+            }
+          ],
           "modifiedLines": []
         },
         {
@@ -780,7 +784,12 @@
           "lineStart": 8,
           "lineEnd": 18,
           "language": "rust",
-          "addedLines": [{"lineStart": 8, "lineEnd": 18}],
+          "addedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 18
+            }
+          ],
           "modifiedLines": []
         },
         {
@@ -788,7 +797,12 @@
           "lineStart": 20,
           "lineEnd": 20,
           "language": "rust",
-          "addedLines": [{"lineStart": 20, "lineEnd": 20}],
+          "addedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 20
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -813,7 +827,7 @@
       "name": "model_request",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/helper.rs",
