@@ -1,5 +1,8 @@
 # Cline Coding Agent 研究
 
+> 研究日期：2026-07-14
+> 消息编排证据固定到 `ab68fd7f34e563c82d223592fbf61c74cfd8804e`；较早的架构综述内容保留作背景。
+
 ## 1. 来源、活跃度、技术栈与性质
 
 | 项目 | 内容 |
@@ -363,5 +366,71 @@ Cline 扩展层分为：
 | 并发编辑冲突 | 多 session/agent 同时编辑文件需额外锁/merge 策略 |
 | 复杂 watcher | 文件化扩展好用，但 watcher、reconcile、cache 会带来一致性问题 |
 | approval UX | 过多审批影响自动化；过少审批风险高 |
+
+## 17. 消息编排（固定 commit `ab68fd7`）
+
+本节补充源码固定的消息循环证据。所有链接使用 [`cline/cline@ab68fd7f34e563c82d223592fbf61c74cfd8804e`](https://github.com/cline/cline/commit/ab68fd7f34e563c82d223592fbf61c74cfd8804e)。另见横向文档 [agent-message-orchestration.cn.md](agent-message-orchestration.cn.md)。
+
+### 17.1 五层消息
+
+Cline 路径为 `SessionRuntime → AgentRuntime → Gateway/Vercel AI SDK → provider wire`，区分五层：
+
+1. `ClineMessage`：UI `ask/say/reasoning/checkpoint`，不直接发模型。
+2. `MessageWithMetadata`：持久化 history，role 为 user/assistant，tool result 采用 user block。
+3. runtime `AgentMessage`：user/assistant/tool，包含 tool-call/tool-result/reasoning parts。
+4. AI SDK prompt：system/user/assistant/tool。
+5. provider wire。
+
+见 [`messages.ts#L121-L156`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/shared/src/llms/messages.ts#L121-L156)、[`agent-message-codec.ts#L13-L132`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/core/src/runtime/config/agent-message-codec.ts#L13-L132)。
+
+### 17.2 循环、prompt 与初始 task
+
+主循环每轮 clone 完整 state messages，连同 system prompt 和 tool schemas 调用模型；流结束后保存一个完整 assistant message，再执行所有 calls、追加 tool messages，然后继续。见 [`agent-runtime.ts#L570-L832`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/agents/src/agent-runtime.ts#L570-L832)。
+
+初始 task 先进入 `ConversationStore`，再以完整 transcript seed 新的 runtime；调用 `runtime.run("")` 避免重复追加首条 user。见 [`session-runtime-orchestrator.ts#L722-L828`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/core/src/runtime/orchestration/session-runtime-orchestrator.ts#L722-L828)。system prompt 由 IDE、workspace、mode、provider、platform、preferred language、plan-mode 约束及 workspace rules 动态构建。见 [`cline-session-factory.ts#L643-L682`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/apps/vscode/src/sdk/cline-session-factory.ts#L643-L682)、[`cline.ts#L74-L117`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/shared/src/prompt/cline.ts#L74-L117)。
+
+模型流中的 text、reasoning 和 tool-call delta 会分别累积；arguments 可分片，最终才形成一个有序的完整 assistant message。见 [`agent-runtime.ts#L848-L1005`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/agents/src/agent-runtime.ts#L848-L1005)。
+
+### 17.3 Native 工具、并行与结果 codec
+
+当前标准路径用 provider-native JSON Schema tools，不是从 assistant 文本解析 XML。模型可一次输出多个 calls；默认 host 串行，`maxParallelToolCalls>=2` 时用 `Promise.all` 并行，结果保持原调用顺序。见 [`agent-runtime.ts#L1136-L1154`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/agents/src/agent-runtime.ts#L1136-L1154)。
+
+runtime 每个 result 为 `role:"tool"` 并带 `toolCallId`；持久化时转成 `role:"user"` 的 `tool_result` block。AI SDK adapter 再映射为 OpenAI Responses `function_call_output`、Anthropic user `tool_result` 或 Gemini user `functionResponse`。见 [`ai-sdk.ts#L260-L390`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/llms/src/providers/ai-sdk.ts#L260-L390)。
+
+### 17.4 Context 投影与 child session
+
+API projection 会截断过大单 tool result/文件/assistant text；可选 compaction 在 token threshold 前运行，保存 “摘要投影 + canonical tail”，不永久删除原始 transcript。见 [`message-builder.ts#L28-L40`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/core/src/session/services/message-builder.ts#L28-L40)、[`compaction.ts#L311-L608`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/core/src/extensions/context/compaction.ts#L311-L608)。
+
+`spawn_agent` 作为普通 tool 创建独立 `SessionRuntime` 和 system/history，parent 同步等待并把 child 最终值作为普通 tool result。见 [`spawn-agent-tool.ts#L117-L203`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/core/src/extensions/tools/team/spawn-agent-tool.ts#L117-L203)。
+
+### 17.5 两轮序列
+
+```text
+Request 1:
+  system S
+  messages [user U1]
+  tools JSON schemas
+
+Assistant runtime message:
+  [reasoning?, text?, tool-call(call_1), tool-call(call_2)]
+
+Host:
+  default sequential, optionally parallel
+  role=tool result(call_1)
+  role=tool result(call_2)
+
+Request 2:
+  system S
+  messages [U1, full assistant, tool results]
+
+Persisted form:
+  tool messages codec 为 user.tool_result blocks
+```
+
+### 17.6 证据限制与当前 Marix 借鉴
+
+本节的消息循环结论只适用于固定 SHA 下的 SDK/monorepo 路径，不能证明所有旧版 Cline、遗留 extension 路径或 provider gateway 都使用相同 envelope。只有固定 AI SDK adapter 明确展示的映射才作为 provider wire 事实。
+
+Marix 可借鉴其 UI event、持久 transcript、规范化 runtime message 与 provider wire payload 的分层。工具 input schema 面向模型；result codec 与 host details 则应归于执行和审计边界。
 
 ---

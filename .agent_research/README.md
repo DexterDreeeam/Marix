@@ -12,6 +12,10 @@ This directory collects source-level research notes for leading open-source agen
 | OpenCode | [English](opencode.md) / [中文](opencode.cn.md) |
 | Goose | [English](goose.md) / [中文](goose.cn.md) |
 | Continue | [English](continue.md) / [中文](continue.cn.md) |
+| Pi | [English](pi.md) / [中文](pi.cn.md) |
+| OpenAI Codex CLI | [English](codex-cli.md) / [中文](codex-cli.cn.md) |
+| Google Gemini CLI | [English](gemini-cli.md) / [中文](gemini-cli.cn.md) |
+| Claude Code (official evidence boundary) | [English](claude-code.md) / [中文](claude-code.cn.md) |
 
 ## Agent frameworks and platforms
 
@@ -31,6 +35,12 @@ This directory collects source-level research notes for leading open-source agen
 | Xiaomi MiMo Code | [English](mimo-code.md) / [中文](mimo-code.cn.md) |
 | browser-use | [English](browser-use.md) / [中文](browser-use.cn.md) |
 | Claude Code from Source | [English](claude-code-from-source.md) / [中文](claude-code-from-source.cn.md) |
+
+## Cross-cutting comparisons
+
+| Topic | Research notes |
+|---|---|
+| Model message orchestration (how agents split system/user/assistant/tool messages, resend history, and map to provider wire formats) | [English](agent-message-orchestration.md) / [中文](agent-message-orchestration.cn.md) |
 
 ## Common comparison dimensions
 

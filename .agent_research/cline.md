@@ -1,5 +1,8 @@
 # Cline Coding Agent Research
 
+> Research date: 2026-07-14
+> Message-orchestration evidence is pinned to `ab68fd7f34e563c82d223592fbf61c74cfd8804e`; older architectural overview material is retained for context.
+
 ## 1. Source, activity, technical stack, and nature
 
 Primary material: the completed external `coding-agent-research` output, cross-checked against upstream repository files.
@@ -225,3 +228,69 @@ Recommended paths for architecture review:
 | Watcher complexity | File-based extension loading can suffer cache and consistency bugs |
 | Approval UX tension | Too many prompts reduce automation; too few increase risk |
 | Over-hooking | Hooks can make behavior hard to reason about if they mutate prompts, tools, and policy invisibly |
+
+## 17. Message orchestration (pinned commit `ab68fd7`)
+
+This section adds source-pinned message-loop evidence. All links use [`cline/cline@ab68fd7f34e563c82d223592fbf61c74cfd8804e`](https://github.com/cline/cline/commit/ab68fd7f34e563c82d223592fbf61c74cfd8804e). See also the cross-cutting note [agent-message-orchestration.md](agent-message-orchestration.md).
+
+### 17.1 Five message layers
+
+Cline's path is `SessionRuntime → AgentRuntime → Gateway/Vercel AI SDK → provider wire`, and distinguishes five layers:
+
+1. `ClineMessage`: UI `ask/say/reasoning/checkpoint`; not model input.
+2. `MessageWithMetadata`: persistent history with user/assistant roles and user-style tool-result blocks.
+3. Runtime `AgentMessage`: user/assistant/tool with tool-call, tool-result, and reasoning parts.
+4. AI SDK prompt: system/user/assistant/tool.
+5. Provider wire.
+
+See [`messages.ts#L121-L156`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/shared/src/llms/messages.ts#L121-L156) and [`agent-message-codec.ts#L13-L132`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/core/src/runtime/config/agent-message-codec.ts#L13-L132).
+
+### 17.2 Loop, prompt, and initial task
+
+Every loop iteration clones complete state messages and sends them with the system prompt and tool schemas. A complete assistant message is stored after streaming, all calls execute, tool messages are appended, and the loop continues. See [`agent-runtime.ts#L570-L832`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/agents/src/agent-runtime.ts#L570-L832).
+
+The initial task enters `ConversationStore`, then seeds a new runtime from the full transcript; the orchestrator calls `runtime.run("")` to avoid appending the first user message twice. See [`session-runtime-orchestrator.ts#L722-L828`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/core/src/runtime/orchestration/session-runtime-orchestrator.ts#L722-L828). The system prompt is assembled from IDE, workspace, mode, provider, platform, preferred language, plan-mode constraints, and workspace rules. See [`cline-session-factory.ts#L643-L682`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/apps/vscode/src/sdk/cline-session-factory.ts#L643-L682) and [`cline.ts#L74-L117`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/shared/src/prompt/cline.ts#L74-L117).
+
+Text, reasoning, and tool-call stream deltas accumulate separately; arguments can arrive in fragments, and only the completed stream becomes one ordered assistant message. See [`agent-runtime.ts#L848-L1005`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/agents/src/agent-runtime.ts#L848-L1005).
+
+### 17.3 Native tools, parallelism, and result codec
+
+The current standard path uses provider-native JSON Schema tools, not XML parsed from assistant text. The model may emit several calls. Host execution is sequential by default and uses `Promise.all` when `maxParallelToolCalls>=2`, while preserving original call order. See [`agent-runtime.ts#L1136-L1154`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/agents/src/agent-runtime.ts#L1136-L1154).
+
+Each runtime result is `role:"tool"` with a `toolCallId`; persistence converts it to a `role:"user"` `tool_result` block. AI SDK adapters then produce OpenAI Responses `function_call_output`, Anthropic user `tool_result`, or Gemini user `functionResponse`. See [`ai-sdk.ts#L260-L390`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/llms/src/providers/ai-sdk.ts#L260-L390).
+
+### 17.4 Context projection and child session
+
+The API projection truncates oversized individual results, files, and assistant text. Optional compaction stores a summary projection plus canonical tail instead of permanently deleting the original transcript. See [`message-builder.ts#L28-L40`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/core/src/session/services/message-builder.ts#L28-L40) and [`compaction.ts#L311-L608`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/core/src/extensions/context/compaction.ts#L311-L608).
+
+`spawn_agent` is a normal tool that creates a separate `SessionRuntime` with its own system/history. The parent waits and receives the child's final value as a normal tool result. See [`spawn-agent-tool.ts#L117-L203`](https://github.com/cline/cline/blob/ab68fd7f34e563c82d223592fbf61c74cfd8804e/sdk/packages/core/src/extensions/tools/team/spawn-agent-tool.ts#L117-L203).
+
+### 17.5 Two-step sequence
+
+```text
+Request 1:
+  system S
+  messages [user U1]
+  tools JSON schemas
+
+Assistant runtime message:
+  [reasoning?, text?, tool-call(call_1), tool-call(call_2)]
+
+Host:
+  sequential by default, optionally parallel
+  role=tool result(call_1)
+  role=tool result(call_2)
+
+Request 2:
+  system S
+  messages [U1, complete assistant, tool results]
+
+Persistent form:
+  tool messages become user.tool_result blocks
+```
+
+### 17.6 Evidence limitations and current Marix implications
+
+The message-loop claims in this section apply to the pinned SDK/monorepo path. They do not prove that every older Cline release, legacy extension path, or provider gateway uses the same envelopes. Provider wire details are stated only where the pinned AI SDK adapter makes the mapping visible.
+
+For Marix, preserve Cline's separation between UI events, durable transcript records, normalized runtime messages, and provider wire payloads. Keep tool input schemas model-facing while treating result codecs and host details as execution/audit concerns.

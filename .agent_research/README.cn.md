@@ -12,6 +12,10 @@
 | OpenCode | [English](opencode.md) / [中文](opencode.cn.md) |
 | Goose | [English](goose.md) / [中文](goose.cn.md) |
 | Continue | [English](continue.md) / [中文](continue.cn.md) |
+| Pi | [English](pi.md) / [中文](pi.cn.md) |
+| OpenAI Codex CLI | [English](codex-cli.md) / [中文](codex-cli.cn.md) |
+| Google Gemini CLI | [English](gemini-cli.md) / [中文](gemini-cli.cn.md) |
+| Claude Code（官方证据边界） | [English](claude-code.md) / [中文](claude-code.cn.md) |
 
 ## Agent frameworks and platforms
 
@@ -31,6 +35,12 @@
 | Xiaomi MiMo Code | [English](mimo-code.md) / [中文](mimo-code.cn.md) |
 | browser-use | [English](browser-use.md) / [中文](browser-use.cn.md) |
 | Claude Code from Source | [English](claude-code-from-source.md) / [中文](claude-code-from-source.cn.md) |
+
+## 跨系统横向比较
+
+| 主题 | 研究笔记 |
+|---|---|
+| 模型消息编排（Agent 如何划分 system/user/assistant/tool 消息、重发 history 并映射到 provider wire） | [English](agent-message-orchestration.md) / [中文](agent-message-orchestration.cn.md) |
 
 ## 统一比较维度
 

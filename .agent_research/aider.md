@@ -1,5 +1,8 @@
 # Aider Coding Agent Research
 
+> Research date: 2026-07-14
+> Message-orchestration evidence is pinned to `5dc9490bb35f9729ef2c95d00a19ccd30c26339c`; older architectural overview material is retained for context.
+
 ## 1. Source, activity, technical stack, and nature
 
 Primary material: the completed external `coding-agent-research` output and the upstream repository/source files listed in this document.
@@ -277,3 +280,56 @@ Recommended paths for architecture review:
 | Weak replay model | Audit depends on Git and logs, not structured events |
 | Limited concurrency | Not designed for multiple agents or sessions editing together |
 | Auto-commit overreach | Automatic commits are convenient but can hide unreviewed changes if defaults are too aggressive |
+
+## 17. Message orchestration (pinned commit `5dc9490`)
+
+This section adds source-pinned evidence that Aider's normal coding loop uses **prompt-defined structured edit text**, not provider-native tools. All links use [`Aider-AI/aider@5dc9490bb35f9729ef2c95d00a19ccd30c26339c`](https://github.com/Aider-AI/aider/commit/5dc9490bb35f9729ef2c95d00a19ccd30c26339c). See also the cross-cutting note [agent-message-orchestration.md](agent-message-orchestration.md).
+
+### 17.1 Prompt, history, and no-tools path
+
+`cur_messages` stores the active user task and reflection retries; `done_messages` stores completed tasks. Each request is rebuilt as `system → examples → readonly → repo map → done → current chat files → cur → reminder` and sent in full through LiteLLM. See [`chat_chunks.py#L16-L55`](https://github.com/Aider-AI/aider/blob/5dc9490bb35f9729ef2c95d00a19ccd30c26339c/aider/coders/chat_chunks.py#L16-L55) and [`base_coder.py#L1419-L1466`](https://github.com/Aider-AI/aider/blob/5dc9490bb35f9729ef2c95d00a19ccd30c26339c/aider/coders/base_coder.py#L1419-L1466).
+
+The coder builds a format-specific system prompt. `EditBlockCoder`, for example, requires SEARCH/REPLACE text that a local parser applies. See [`editblock_prompts.py#L7-L30`](https://github.com/Aider-AI/aider/blob/5dc9490bb35f9729ef2c95d00a19ccd30c26339c/aider/coders/editblock_prompts.py#L7-L30) and [`editblock_coder.py#L15-L41`](https://github.com/Aider-AI/aider/blob/5dc9490bb35f9729ef2c95d00a19ccd30c26339c/aider/coders/editblock_coder.py#L15-L41).
+
+Normal `Coder.functions=None`. Tools are sent only for nonstandard/legacy coders that set functions, and the function coder is commented out of the current registry. See [`base_coder.py#L88-L102`](https://github.com/Aider-AI/aider/blob/5dc9490bb35f9729ef2c95d00a19ccd30c26339c/aider/coders/base_coder.py#L88-L102) and [`coders/__init__.py#L16-L34`](https://github.com/Aider-AI/aider/blob/5dc9490bb35f9729ef2c95d00a19ccd30c26339c/aider/coders/__init__.py#L16-L34).
+
+### 17.2 Provider quirks
+
+Providers share a LiteLLM boundary, but prompts are not always identical. Some OpenAI reasoning models disable the system role, so Aider sends system content as user content followed by assistant `"Ok."`. Anthropic models can place ephemeral cache control at several prompt boundaries, and some Sonnet reminders are appended to the final user message. See [`models.py#L470-L491`](https://github.com/Aider-AI/aider/blob/5dc9490bb35f9729ef2c95d00a19ccd30c26339c/aider/models.py#L470-L491) and [`chat_chunks.py#L28-L55`](https://github.com/Aider-AI/aider/blob/5dc9490bb35f9729ef2c95d00a19ccd30c26339c/aider/coders/chat_chunks.py#L28-L55). Normal output comes from assistant `content`; adapter-provided reasoning can be displayed separately, but the edit parser still consumes content.
+
+### 17.3 Reflection, summarization, and architect composition
+
+Parse/application errors become synthetic user reflection messages in `cur_messages` and trigger another full request; they are not tool results. Completed current messages move into done history. The summarizer compresses only older done history while preserving a recent tail, and the repo map has an independent token budget. See [`history.py#L33-L123`](https://github.com/Aider-AI/aider/blob/5dc9490bb35f9729ef2c95d00a19ccd30c26339c/aider/history.py#L33-L123).
+
+Architect mode creates a new editor Coder and submits the architect plan as its first user message. It is sequential planner→editor composition, not a general child-agent runtime. See [`architect_coder.py#L11-L48`](https://github.com/Aider-AI/aider/blob/5dc9490bb35f9729ef2c95d00a19ccd30c26339c/aider/coders/architect_coder.py#L11-L48).
+
+### 17.4 Two-step sequence
+
+```text
+Request 1:
+  messages [system/edit rules, examples, repo map, files, user U1]
+  no tools
+
+Assistant A1:
+  text + SEARCH/REPLACE blocks
+
+Host:
+  parse/apply locally
+
+If parsing fails, Request 2:
+  complete rebuilt context
+  + user U1
+  + assistant A1
+  + synthetic user parse error/reflection
+
+Assistant A1-fixed:
+  corrected edit text
+```
+
+### 17.5 Parallel policy, evidence limitations, and current Marix implications
+
+Parallel native-tool execution is not applicable to Aider's normal path: it sends no native tool batch, then parses and applies one assistant edit response in the host. This does not establish a general concurrency policy for optional commands or nonstandard coders.
+
+The findings apply to the pinned coder registry and prompt assembly. Some nonstandard or legacy coders can set `functions`, so “no native tools” must not be generalized to every possible Aider extension.
+
+For Marix, keep prompt-defined editing as a deliberate alternative to native tools. Represent it as assistant output followed by a host application/audit event, not as a fabricated provider tool call or tool-result message.
