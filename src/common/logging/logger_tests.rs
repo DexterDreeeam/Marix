@@ -1,5 +1,6 @@
 use super::{LogFile, Sink, Store, host_store};
 use crate::external::{serde_json, uuid};
+use crate::logging::store::HostStore;
 use crate::logging::{LogMessage, LogTag, LoggingError};
 
 fn temp_directory() -> std::path::PathBuf {
@@ -25,7 +26,8 @@ fn write_legacy(path: &std::path::Path, texts: &[&str]) {
 #[test]
 fn host_store_permits_only_the_host_sink() {
     let directory = temp_directory();
-    let host_sink = Sink::Host(Store::open_directory(&directory).expect("open host store"));
+    let store = Store::open_directory(&directory).expect("open host store");
+    let host_sink = Sink::Host(HostStore::new(store).expect("start host writer"));
     assert!(host_store(Some(&host_sink)).is_ok());
 
     let file_sink =

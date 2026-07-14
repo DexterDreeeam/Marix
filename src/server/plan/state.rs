@@ -1,4 +1,5 @@
 use std::sync::Mutex as StdMutex;
+use std::sync::atomic::AtomicBool;
 
 use marix_common::{AsyncReceiver, AsyncSender, build_async_channel};
 use marix_protocol::{PlanEvent, PlanSignature};
@@ -13,6 +14,7 @@ pub(crate) struct PlanState {
     pub(crate) background: String,
     pub(crate) call: Vec<Step>,
     pub(crate) model: Step,
+    pub(crate) model_once: AtomicBool,
     pub(crate) future: Vec<Step>,
     pub(crate) expected_result: String,
     pub(crate) plan_tx: AsyncSender<PlanEvent>,
@@ -38,6 +40,7 @@ impl PlanState {
             background,
             call,
             model,
+            model_once: AtomicBool::new(false),
             future,
             expected_result,
             plan_tx,

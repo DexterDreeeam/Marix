@@ -1,3 +1,4 @@
 pub use ::redb::{
-    Database, ReadableDatabase, ReadableTable, ReadableTableMetadata, TableDefinition,
+    Database, ReadTransaction, ReadableDatabase, ReadableTable, ReadableTableMetadata, Table,
+    TableDefinition, TableHandle,
 };

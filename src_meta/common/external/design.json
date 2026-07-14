@@ -3,9 +3,10 @@
   "module": {
     "path": "src/common/external",
     "name": "external",
-    "purpose": "Re-exports approved third-party namespaces and traits for common, including regex, UUID generation, and redb read/query support.",
-    "changeStatus": "unchanged"
+    "purpose": "Re-exports approved third-party namespaces and traits for common, including redb database, transaction, table, and metadata APIs.",
+    "changeStatus": "modified"
   },
+  "modified": ["redb.rs"],
   "childModules": [],
   "elements": [
     {

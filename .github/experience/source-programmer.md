@@ -935,3 +935,44 @@ connecter to protect this distinction.
   `src/server_telemetry/http/favicon.svg`, embedded with `include_str!` in
   `handlers.rs`, and served as `image/svg+xml` from `GET /favicon.svg`. It
   mirrors `overview/assets/favicon.svg` except for the dark-red rect fill.
+- 2026-07-14 (Plan model start invariant): `server::plan::PlanState.model_once`
+  is the shared atomic gate for `PlanRuntime::start_model`. The first caller
+  owns model setup, insertion, and start (including genuine insertion
+  failure); later sequential or concurrent callers log and return without
+  emitting a false plan failure.
+- 2026-07-14 (indexed telemetry persistence):
+  `common/logging/store/schema.rs` keeps `telemetry` as the sole primary
+  `u64 -> LogMessage JSON` table and atomically maintains schema metadata,
+  Unknown-aware session metadata, descending session/time and
+  session/tag/time indexes, and fixed-width session/trigram/id keys. Opening a
+  store rebuilds missing, version-stale, count-stale, or next-id-stale indexes
+  from the untouched primary table in one redb transaction.
+- 2026-07-14 (telemetry writer and query boundary):
+  `common/logging/store/writer.rs` merges all host and remote producers through
+  one bounded 4096-request queue, acknowledges each record after a 15ms-or-100
+  record transaction, and puts a flush barrier before every read. Public
+  queries return 240-character summaries in pages of 200 by default (500
+  maximum), use timestamp/id cursors or record-id high-water marks, and fetch
+  exact messages only through `Logger::log_record`.
+- 2026-07-14 (telemetry portal loading model):
+  `server_telemetry/http/telemetry.js` independently refreshes sessions every
+  10s and incrementally polls logs every 2s, aborts stale filter/session
+  requests, and keeps at most 120 fixed-height log rows connected. Copy and
+  recursive formatting fetch and cache full records lazily; ordinary rendering
+  uses summary previews only.
+- 2026-07-14 (bounded telemetry indexing and queries): Schema version 2 adds a
+  transactionally maintained session/record-id index. Rebuilds stream primary
+  messages through all indexes inside one redb write transaction; paged reads
+  walk descending time indexes and point-check trigram postings before JSON
+  decoding, while incremental reads range only session IDs above the watermark.
+- 2026-07-14 (supersedes version-2 trigram query notes): Telemetry schema
+  version 3 orders each session/component posting by inverted emit timestamp
+  then inverted record ID. Long-keyword pages range one driver posting,
+  point-check remaining trigrams before JSON decoding, and apply exact
+  lowercase substring/tag checks afterward. Incremental ID ranges decode each
+  bounded candidate first so membership keys use its persisted emit timestamp.
+- 2026-07-14 (telemetry session metadata): Schema version 4 stores each
+  `telemetry_sessions` value as four big-endian `u64` fields: earliest and
+  latest emit timestamps, checked record count, and greatest record ID.
+  `SessionMetadata` validates fixed length, nonzero count, and timestamp order;
+  v3 opens rebuild the typed table from the primary stream in one transaction.

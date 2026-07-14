@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/plan",
     "name": "plan",
-    "purpose": "Owns server-side plan creation, step orchestration, and prompt-oriented rendering of flattened invocation input.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns server-side plan creation, idempotent model-step startup, step orchestration, and prompt-oriented rendering of flattened invocation input.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs", "state.rs"],
   "childModules": [],
   "elements": [
     {
@@ -133,50 +134,42 @@
       "name": "PlanRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 14,
-          "lineEnd": 19,
+          "lineStart": 15,
+          "lineEnd": 20,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 21,
-          "lineEnd": 36,
+          "lineStart": 22,
+          "lineEnd": 37,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 38,
-          "lineEnd": 125,
+          "lineStart": 39,
+          "lineEnd": 126,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 129,
-          "lineEnd": 261,
+          "lineStart": 130,
+          "lineEnd": 270,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 175,
-              "lineEnd": 176
-            },
-            {
-              "lineStart": 199,
-              "lineEnd": 204
-            },
-            {
-              "lineStart": 220,
-              "lineEnd": 231
+              "lineStart": 221,
+              "lineEnd": 241
             }
           ]
         }
@@ -186,23 +179,33 @@
       "name": "PlanState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/state.rs",
-          "lineStart": 9,
-          "lineEnd": 20,
+          "lineStart": 10,
+          "lineEnd": 22,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 17
+            }
+          ]
         },
         {
           "sourcePath": "src/server/plan/state.rs",
-          "lineStart": 22,
-          "lineEnd": 47,
+          "lineStart": 24,
+          "lineEnd": 50,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 43,
+              "lineEnd": 43
+            }
+          ]
         }
       ]
     },

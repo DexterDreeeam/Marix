@@ -4,8 +4,9 @@
     "path": "src",
     "name": "src",
     "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and tool packages.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["Cargo.lock"],
   "childModules": [
     {
       "path": "src/client",
@@ -15,7 +16,7 @@
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Owns shared configuration, third-party wrappers, source- and session-aware telemetry with persistent migration/query support, and reusable transport structures."
+      "purpose": "Owns shared configuration, approved external wrappers, indexed and batched telemetry storage and query APIs, and reusable transport structures."
     },
     {
       "path": "src/host",
@@ -30,7 +31,7 @@
     {
       "path": "src/server",
       "name": "server",
-      "purpose": "Runs the server core with remote-first telemetry fallback and session-driven orchestration."
+      "purpose": "Runs server orchestration with flattened step and tool content, prompt construction, idempotent model-step startup, and session lifecycle management."
     },
     {
       "path": "src/tool",
@@ -40,7 +41,7 @@
     {
       "path": "src/server_telemetry",
       "name": "server_telemetry",
-      "purpose": "Runs the standalone telemetry collector and its self-hosted HTTP log viewer."
+      "purpose": "Runs the standalone telemetry collector and compressed HTTP browser with paged summaries and full-record retrieval."
     }
   ],
   "elements": [

@@ -3,9 +3,11 @@
   "module": {
     "path": "src/server_telemetry/http",
     "name": "http",
-    "purpose": "Serves the telemetry session browser with recursive nested-value formatting, favicon assets, and JSON query routes.",
-    "changeStatus": "unchanged"
+    "purpose": "Serves compressed telemetry browser assets plus paged summary and full-record JSON endpoints.",
+    "changeStatus": "modified"
   },
+  "added": ["page.css", "telemetry-data.js", "telemetry-format.js", "telemetry-message.js", "telemetry.js"],
+  "modified": ["external.rs", "handlers.rs", "page.html", "router.rs", "server.rs"],
   "childModules": [],
   "elements": [
     {
@@ -59,20 +61,20 @@
       "name": "root",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
-          "lineStart": 9,
-          "lineEnd": 17,
+          "lineStart": 16,
+          "lineEnd": 18,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 9,
-              "lineEnd": 17
+              "lineStart": 16,
+              "lineEnd": 18
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -80,17 +82,122 @@
       "name": "favicon",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
-          "lineStart": 19,
+          "lineStart": 20,
+          "lineEnd": 22,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 22
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "stylesheet",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/http/handlers.rs",
+          "lineStart": 24,
           "lineEnd": 26,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 19,
+              "lineStart": 24,
               "lineEnd": 26
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "data_script",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/http/handlers.rs",
+          "lineStart": 28,
+          "lineEnd": 30,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 28,
+              "lineEnd": 30
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "format_script",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/http/handlers.rs",
+          "lineStart": 32,
+          "lineEnd": 34,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 32,
+              "lineEnd": 34
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "message_script",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/http/handlers.rs",
+          "lineStart": 36,
+          "lineEnd": 38,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 36,
+              "lineEnd": 38
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "script",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/http/handlers.rs",
+          "lineStart": 40,
+          "lineEnd": 42,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 40,
+              "lineEnd": 42
             }
           ],
           "modifiedLines": []
@@ -105,15 +212,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
-          "lineStart": 28,
-          "lineEnd": 36,
+          "lineStart": 44,
+          "lineEnd": 50,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 28,
-              "lineEnd": 36
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -122,20 +224,20 @@
       "name": "LogsQuery",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
-          "lineStart": 38,
-          "lineEnd": 43,
+          "lineStart": 52,
+          "lineEnd": 60,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 38,
-              "lineEnd": 43
+              "lineStart": 52,
+              "lineEnd": 60
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -143,17 +245,38 @@
       "name": "logs",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/handlers.rs",
-          "lineStart": 45,
-          "lineEnd": 81,
+          "lineStart": 62,
+          "lineEnd": 104,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 62,
+              "lineEnd": 104
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "log_record",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/http/handlers.rs",
+          "lineStart": 106,
+          "lineEnd": 119,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 45,
-              "lineEnd": 81
+              "lineStart": 106,
+              "lineEnd": 119
             }
           ],
           "modifiedLines": []
@@ -164,20 +287,20 @@
       "name": "build",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/http/router.rs",
           "lineStart": 4,
-          "lineEnd": 10,
+          "lineEnd": 26,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 7,
-              "lineEnd": 7
+              "lineStart": 4,
+              "lineEnd": 26
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },

@@ -1,5 +1,6 @@
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
+use std::sync::atomic::Ordering;
 
 use marix_common::external::*;
 use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
@@ -218,6 +219,14 @@ impl PlanRuntime {
     }
 
     fn start_model(&self) {
+        if self.state.model_once.swap(true, Ordering::AcqRel) {
+            Logger::debug(format!(
+                "plan {} ignored duplicate model start (task {})",
+                &self.state.signature, &self.state.signature.task,
+            ));
+            return;
+        }
+
         let mut step = self.state.model.clone();
         let input = model_input(&self.state.background, &self.state.call);
         step.set_input(input);

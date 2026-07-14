@@ -1,37 +1,51 @@
 use axum::response::IntoResponse;
-use marix_common::{LogTag, Logger, LoggingError};
+use marix_common::{LogPageQuery, LogTag, Logger, LoggingError};
 
 use crate::http::external::*;
 
 const PAGE_HTML: &str = include_str!("page.html");
+const PAGE_CSS: &str = include_str!("page.css");
+const DATA_SCRIPT: &str = include_str!("telemetry-data.js");
+const FORMAT_SCRIPT: &str = include_str!("telemetry-format.js");
+const MESSAGE_SCRIPT: &str = include_str!("telemetry-message.js");
+const PAGE_SCRIPT: &str = include_str!("telemetry.js");
 const FAVICON_SVG: &str = include_str!("favicon.svg");
+const DEFAULT_LIMIT: usize = 200;
+const MAX_LIMIT: usize = 500;
 
-/// Serves the single-file telemetry page.
 pub(super) async fn root() -> axum::response::Response {
-    (
-        axum::http::StatusCode::OK,
-        [(axum::http::header::CONTENT_TYPE, "text/html; charset=utf-8")],
-        PAGE_HTML,
-    )
-        .into_response()
+    static_response("text/html; charset=utf-8", PAGE_HTML)
 }
 
 pub(super) async fn favicon() -> axum::response::Response {
-    (
-        axum::http::StatusCode::OK,
-        [(axum::http::header::CONTENT_TYPE, "image/svg+xml")],
-        FAVICON_SVG,
-    )
-        .into_response()
+    static_response("image/svg+xml", FAVICON_SVG)
 }
 
-/// `GET /api/sessions`: every distinct session and its earliest emit time.
-/// The unknown session is first when present; identified sessions follow
-/// from newest to oldest earliest emit time.
+pub(super) async fn stylesheet() -> axum::response::Response {
+    static_response("text/css; charset=utf-8", PAGE_CSS)
+}
+
+pub(super) async fn data_script() -> axum::response::Response {
+    static_response("text/javascript; charset=utf-8", DATA_SCRIPT)
+}
+
+pub(super) async fn format_script() -> axum::response::Response {
+    static_response("text/javascript; charset=utf-8", FORMAT_SCRIPT)
+}
+
+pub(super) async fn message_script() -> axum::response::Response {
+    static_response("text/javascript; charset=utf-8", MESSAGE_SCRIPT)
+}
+
+pub(super) async fn script() -> axum::response::Response {
+    static_response("text/javascript; charset=utf-8", PAGE_SCRIPT)
+}
+
 pub(super) async fn sessions() -> axum::response::Response {
-    match Logger::session_list() {
-        Ok(sessions) => axum::Json(sessions).into_response(),
-        Err(error) => query_error_response(error),
+    match tokio::task::spawn_blocking(Logger::session_list).await {
+        Ok(Ok(sessions)) => axum::Json(sessions).into_response(),
+        Ok(Err(error)) => query_error_response(error),
+        Err(error) => blocking_error_response(error),
     }
 }
 
@@ -40,49 +54,83 @@ pub(super) struct LogsQuery {
     session_id: Option<String>,
     tag: Option<String>,
     keyword: Option<String>,
+    limit: Option<usize>,
+    before: Option<String>,
+    after_id: Option<u64>,
 }
 
-/// `GET /api/logs`: `session_id` is required (a UUID string or `unknown`;
-/// legacy `unassigned` is also accepted). `tag` and `keyword` are optional
-/// narrowing filters. A missing or blank `tag` means "all tags"; a non-blank
-/// `tag` is parsed case-insensitively and rejected with `400` if invalid.
 pub(super) async fn logs(
     axum::extract::Query(query): axum::extract::Query<LogsQuery>,
 ) -> axum::response::Response {
-    let raw_session_id = match query.session_id {
+    let raw_session_id = match query.session_id.as_deref() {
         Some(value) => value,
         None => return bad_request("missing session_id"),
     };
-    let session_id = match parse_session_id(&raw_session_id) {
+    let session_id = match parse_session_id(raw_session_id) {
         Ok(session_id) => session_id,
         Err(message) => return bad_request(message),
     };
     let tag = match query.tag.as_deref().map(str::trim) {
-        Some(trimmed) if !trimmed.is_empty() => match parse_tag(trimmed) {
+        Some(value) if !value.is_empty() => match parse_tag(value) {
             Ok(tag) => Some(tag),
             Err(message) => return bad_request(message),
         },
         _ => None,
     };
-    let keyword = query
-        .keyword
-        .as_deref()
-        .filter(|value| !value.trim().is_empty());
-
-    let result = if tag.is_none() && keyword.is_none() {
-        Logger::session_log_list(session_id)
-    } else {
-        Logger::session_log_filter(session_id, tag, keyword)
+    let limit = query.limit.unwrap_or(DEFAULT_LIMIT);
+    if limit == 0 || limit > MAX_LIMIT {
+        return bad_request("limit must be between 1 and 500");
+    }
+    if query.before.is_some() && query.after_id.is_some() {
+        return bad_request("before and after_id are mutually exclusive");
+    }
+    let request = LogPageQuery {
+        session_id,
+        tag,
+        keyword: query
+            .keyword
+            .map(|value| value.trim().to_owned())
+            .filter(|value| !value.is_empty()),
+        limit,
+        before: query.before,
+        after_record_id: query.after_id,
     };
-    match result {
-        Ok(messages) => axum::Json(messages).into_response(),
-        Err(error) => query_error_response(error),
+
+    match tokio::task::spawn_blocking(move || Logger::log_page(request)).await {
+        Ok(Ok(page)) => axum::Json(page).into_response(),
+        Ok(Err(error)) => query_error_response(error),
+        Err(error) => blocking_error_response(error),
+    }
+}
+
+pub(super) async fn log_record(
+    axum::extract::Path(id): axum::extract::Path<u64>,
+) -> axum::response::Response {
+    match tokio::task::spawn_blocking(move || Logger::log_record(id)).await {
+        Ok(Ok(Some(record))) => axum::Json(record).into_response(),
+        Ok(Ok(None)) => (
+            axum::http::StatusCode::NOT_FOUND,
+            axum::Json(serde_json::json!({ "error": "log record not found" })),
+        )
+            .into_response(),
+        Ok(Err(error)) => query_error_response(error),
+        Err(error) => blocking_error_response(error),
     }
 }
 
 // -- Private -- //
 
+fn static_response(content_type: &'static str, body: &'static str) -> axum::response::Response {
+    (
+        axum::http::StatusCode::OK,
+        [(axum::http::header::CONTENT_TYPE, content_type)],
+        body,
+    )
+        .into_response()
+}
+
 fn parse_session_id(raw: &str) -> Result<Option<uuid::Uuid>, &'static str> {
+    let raw = raw.trim();
     if raw == "unknown" || raw == "unassigned" {
         return Ok(None);
     }
@@ -109,11 +157,20 @@ fn bad_request(message: &str) -> axum::response::Response {
         .into_response()
 }
 
-/// Maps any local-store query failure to a generic `500`, logging the real
-/// cause (which may include file paths) only to the local telemetry log,
-/// never in the HTTP response body.
 fn query_error_response(error: LoggingError) -> axum::response::Response {
+    if let LoggingError::InvalidQuery(message) = error {
+        return bad_request(&message);
+    }
     Logger::error(format!("telemetry query failed: {error}"));
+    internal_error()
+}
+
+fn blocking_error_response(error: tokio::task::JoinError) -> axum::response::Response {
+    Logger::error(format!("telemetry blocking query failed: {error}"));
+    internal_error()
+}
+
+fn internal_error() -> axum::response::Response {
     (
         axum::http::StatusCode::INTERNAL_SERVER_ERROR,
         axum::Json(serde_json::json!({ "error": "internal server error" })),

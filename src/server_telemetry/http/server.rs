@@ -192,6 +192,10 @@ directory = "tool"
             body.contains(r#"id="format-message-modal""#),
             "missing format message modal, body was: {body}"
         );
+        assert!(
+            body.contains(r#"src="/telemetry.js""#),
+            "missing telemetry module script, body was: {body}"
+        );
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -251,11 +255,66 @@ directory = "tool"
         let parsed: serde_json::Value =
             serde_json::from_str(&empty_tag_body).expect("logs body is valid JSON");
         assert!(
-            parsed.is_array(),
-            "expected a JSON array, got: {empty_tag_body}"
+            parsed.get("items").is_some_and(serde_json::Value::is_array)
+                && parsed.get("next_cursor").is_some()
+                && parsed.get("latest_record_id").is_some(),
+            "expected a JSON log page, got: {empty_tag_body}"
         );
 
+        let (conflict_status, _) = tokio::task::spawn_blocking(move || {
+            http_get(
+                address,
+                "/api/logs?session_id=unknown&before=00000000000000000000000000000000&after_id=0",
+            )
+        })
+        .await
+        .expect("blocking http_get");
+        assert_eq!(conflict_status, 400);
+
+        let (limit_status, _) = tokio::task::spawn_blocking(move || {
+            http_get(address, "/api/logs?session_id=unknown&limit=501")
+        })
+        .await
+        .expect("blocking http_get");
+        assert_eq!(limit_status, 400);
+
         handle.abort();
+    }
+
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    async fn full_log_route_returns_record_or_not_found() {
+        let (address, handle) = spawn_test_server().await;
+        Logger::log("full route fixture");
+
+        let (page_status, page_body) = tokio::task::spawn_blocking(move || {
+            http_get(address, "/api/logs?session_id=unknown&limit=1")
+        })
+        .await
+        .expect("blocking page request");
+        assert_eq!(page_status, 200);
+        let page: serde_json::Value =
+            serde_json::from_str(&page_body).expect("page body is valid JSON");
+        let id = page["items"][0]["id"]
+            .as_u64()
+            .expect("page contains a record id");
+        let path = format!("/api/logs/{id}");
+        let (record_status, record_body) =
+            tokio::task::spawn_blocking(move || http_get(address, &path))
+                .await
+                .expect("blocking full record request");
+        assert_eq!(record_status, 200);
+        let record: serde_json::Value =
+            serde_json::from_str(&record_body).expect("record body is valid JSON");
+        assert_eq!(record["id"].as_u64(), Some(id));
+        assert!(record["message"].is_string());
+
+        let (missing_status, _) = tokio::task::spawn_blocking(move || {
+            http_get(address, "/api/logs/18446744073709551615")
+        })
+        .await
+        .expect("blocking missing record request");
+        handle.abort();
+        assert_eq!(missing_status, 404);
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
