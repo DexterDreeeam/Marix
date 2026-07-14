@@ -3,15 +3,16 @@
   "module": {
     "path": "src/server_telemetry",
     "name": "server_telemetry",
-    "purpose": "Runs the standalone telemetry collector and compressed HTTP browser with paged summaries and full-record retrieval.",
+    "purpose": "Runs the standalone telemetry collector and its paginated HTTP API while serving browser assets from the static http folder.",
     "changeStatus": "modified"
   },
-  "modified": ["Cargo.toml"],
+  "modified": ["Cargo.toml", "main.rs"],
+  "renamed": ["error.rs", "external.rs", "handlers.rs", "router.rs", "server.rs"],
   "childModules": [
     {
       "path": "src/server_telemetry/http",
       "name": "http",
-      "purpose": "Serves compressed telemetry browser assets plus paged summary and full-record JSON endpoints."
+      "purpose": "Contains only the telemetry browser HTML, CSS, JavaScript, and favicon assets."
     }
   ],
   "elements": [
@@ -19,31 +20,35 @@
       "name": "marix-server-telemetry",
       "type": "bin",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/main.rs",
-          "lineStart": 5,
-          "lineEnd": 29,
+          "lineStart": 9,
+          "lineEnd": 33,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 5,
+              "lineStart": 9,
+              "lineEnd": 10
+            },
+            {
+              "lineStart": 29,
               "lineEnd": 29
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
     {
       "name": "HttpError",
       "type": "enum",
-      "source_depth": 3,
+      "source_depth": 2,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
-          "sourcePath": "src/server_telemetry/http/error.rs",
+          "sourcePath": "src/server_telemetry/error.rs",
           "lineStart": 3,
           "lineEnd": 8,
           "language": "rust",
@@ -56,7 +61,7 @@
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/server_telemetry/http/error.rs",
+          "sourcePath": "src/server_telemetry/error.rs",
           "lineStart": 12,
           "lineEnd": 20,
           "language": "rust",
@@ -69,7 +74,7 @@
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/server_telemetry/http/error.rs",
+          "sourcePath": "src/server_telemetry/error.rs",
           "lineStart": 22,
           "lineEnd": 22,
           "language": "rust",
@@ -86,11 +91,11 @@
     {
       "name": "root",
       "type": "function",
-      "source_depth": 3,
+      "source_depth": 2,
       "changeStatus": "modified",
       "codeSegments": [
         {
-          "sourcePath": "src/server_telemetry/http/handlers.rs",
+          "sourcePath": "src/server_telemetry/handlers.rs",
           "lineStart": 16,
           "lineEnd": 18,
           "language": "rust",
@@ -107,11 +112,11 @@
     {
       "name": "favicon",
       "type": "function",
-      "source_depth": 3,
+      "source_depth": 2,
       "changeStatus": "modified",
       "codeSegments": [
         {
-          "sourcePath": "src/server_telemetry/http/handlers.rs",
+          "sourcePath": "src/server_telemetry/handlers.rs",
           "lineStart": 20,
           "lineEnd": 22,
           "language": "rust",
@@ -128,11 +133,11 @@
     {
       "name": "stylesheet",
       "type": "function",
-      "source_depth": 3,
+      "source_depth": 2,
       "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/server_telemetry/http/handlers.rs",
+          "sourcePath": "src/server_telemetry/handlers.rs",
           "lineStart": 24,
           "lineEnd": 26,
           "language": "rust",
@@ -149,11 +154,11 @@
     {
       "name": "data_script",
       "type": "function",
-      "source_depth": 3,
+      "source_depth": 2,
       "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/server_telemetry/http/handlers.rs",
+          "sourcePath": "src/server_telemetry/handlers.rs",
           "lineStart": 28,
           "lineEnd": 30,
           "language": "rust",
@@ -170,11 +175,11 @@
     {
       "name": "format_script",
       "type": "function",
-      "source_depth": 3,
+      "source_depth": 2,
       "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/server_telemetry/http/handlers.rs",
+          "sourcePath": "src/server_telemetry/handlers.rs",
           "lineStart": 32,
           "lineEnd": 34,
           "language": "rust",
@@ -191,11 +196,11 @@
     {
       "name": "message_script",
       "type": "function",
-      "source_depth": 3,
+      "source_depth": 2,
       "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/server_telemetry/http/handlers.rs",
+          "sourcePath": "src/server_telemetry/handlers.rs",
           "lineStart": 36,
           "lineEnd": 38,
           "language": "rust",
@@ -212,11 +217,11 @@
     {
       "name": "script",
       "type": "function",
-      "source_depth": 3,
+      "source_depth": 2,
       "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/server_telemetry/http/handlers.rs",
+          "sourcePath": "src/server_telemetry/handlers.rs",
           "lineStart": 40,
           "lineEnd": 42,
           "language": "rust",
@@ -233,11 +238,11 @@
     {
       "name": "sessions",
       "type": "function",
-      "source_depth": 3,
+      "source_depth": 2,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
-          "sourcePath": "src/server_telemetry/http/handlers.rs",
+          "sourcePath": "src/server_telemetry/handlers.rs",
           "lineStart": 44,
           "lineEnd": 50,
           "language": "rust",
@@ -249,11 +254,11 @@
     {
       "name": "LogsQuery",
       "type": "struct",
-      "source_depth": 3,
+      "source_depth": 2,
       "changeStatus": "modified",
       "codeSegments": [
         {
-          "sourcePath": "src/server_telemetry/http/handlers.rs",
+          "sourcePath": "src/server_telemetry/handlers.rs",
           "lineStart": 52,
           "lineEnd": 60,
           "language": "rust",
@@ -270,11 +275,11 @@
     {
       "name": "logs",
       "type": "function",
-      "source_depth": 3,
+      "source_depth": 2,
       "changeStatus": "modified",
       "codeSegments": [
         {
-          "sourcePath": "src/server_telemetry/http/handlers.rs",
+          "sourcePath": "src/server_telemetry/handlers.rs",
           "lineStart": 62,
           "lineEnd": 104,
           "language": "rust",
@@ -291,11 +296,11 @@
     {
       "name": "log_record",
       "type": "function",
-      "source_depth": 3,
+      "source_depth": 2,
       "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/server_telemetry/http/handlers.rs",
+          "sourcePath": "src/server_telemetry/handlers.rs",
           "lineStart": 106,
           "lineEnd": 119,
           "language": "rust",
@@ -312,11 +317,11 @@
     {
       "name": "build",
       "type": "function",
-      "source_depth": 3,
+      "source_depth": 2,
       "changeStatus": "modified",
       "codeSegments": [
         {
-          "sourcePath": "src/server_telemetry/http/router.rs",
+          "sourcePath": "src/server_telemetry/router.rs",
           "lineStart": 4,
           "lineEnd": 26,
           "language": "rust",
@@ -333,11 +338,11 @@
     {
       "name": "serve",
       "type": "function",
-      "source_depth": 3,
+      "source_depth": 2,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
-          "sourcePath": "src/server_telemetry/http/server.rs",
+          "sourcePath": "src/server_telemetry/server.rs",
           "lineStart": 7,
           "lineEnd": 16,
           "language": "rust",
@@ -345,7 +350,7 @@
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/server_telemetry/http/server.rs",
+          "sourcePath": "src/server_telemetry/server.rs",
           "lineStart": 20,
           "lineEnd": 50,
           "language": "rust",

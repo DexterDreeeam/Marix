@@ -1,5 +1,5 @@
-use crate::http::external::*;
-use crate::http::handlers;
+use crate::external::*;
+use crate::handlers;
 
 pub(super) fn build() -> axum::Router {
     axum::Router::new()

@@ -976,3 +976,7 @@ connecter to protect this distinction.
   latest emit timestamps, checked record count, and greatest record ID.
   `SessionMetadata` validates fixed length, nonzero count, and timestamp order;
   v3 opens rebuild the typed table from the primary stream in one transaction.
+- 2026-07-14 (telemetry package layout): `server_telemetry` owns its Rust
+  modules directly beside `main.rs`; `http/` contains only embedded static
+  assets. Root handlers use `include_str!("http/...")`, while `main.rs` calls
+  `server::serve` directly.

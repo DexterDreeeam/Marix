@@ -6,7 +6,7 @@
     "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and tool packages.",
     "changeStatus": "modified"
   },
-  "modified": ["Cargo.lock"],
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/client",
@@ -41,7 +41,7 @@
     {
       "path": "src/server_telemetry",
       "name": "server_telemetry",
-      "purpose": "Runs the standalone telemetry collector and compressed HTTP browser with paged summaries and full-record retrieval."
+      "purpose": "Runs the standalone telemetry collector and its paginated HTTP API while serving browser assets from the static http folder."
     }
   ],
   "elements": [
@@ -434,19 +434,341 @@
       "name": "marix-server-telemetry",
       "type": "bin",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/main.rs",
-          "lineStart": 5,
-          "lineEnd": 29,
+          "lineStart": 9,
+          "lineEnd": 33,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 10
+            },
+            {
+              "lineStart": 29,
+              "lineEnd": 29
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HttpError",
+      "type": "enum",
+      "source_depth": 2,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/error.rs",
+          "lineStart": 3,
+          "lineEnd": 8,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 5,
-              "lineEnd": 29
+              "lineStart": 3,
+              "lineEnd": 8
             }
           ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server_telemetry/error.rs",
+          "lineStart": 12,
+          "lineEnd": 20,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 20
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server_telemetry/error.rs",
+          "lineStart": 22,
+          "lineEnd": 22,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 22
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "root",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/handlers.rs",
+          "lineStart": 16,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 16,
+              "lineEnd": 18
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "favicon",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/handlers.rs",
+          "lineStart": 20,
+          "lineEnd": 22,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 22
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "stylesheet",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/handlers.rs",
+          "lineStart": 24,
+          "lineEnd": 26,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 24,
+              "lineEnd": 26
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "data_script",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/handlers.rs",
+          "lineStart": 28,
+          "lineEnd": 30,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 28,
+              "lineEnd": 30
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "format_script",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/handlers.rs",
+          "lineStart": 32,
+          "lineEnd": 34,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 32,
+              "lineEnd": 34
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "message_script",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/handlers.rs",
+          "lineStart": 36,
+          "lineEnd": 38,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 36,
+              "lineEnd": 38
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "script",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/handlers.rs",
+          "lineStart": 40,
+          "lineEnd": 42,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 40,
+              "lineEnd": 42
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "sessions",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/handlers.rs",
+          "lineStart": 44,
+          "lineEnd": 50,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "LogsQuery",
+      "type": "struct",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/handlers.rs",
+          "lineStart": 52,
+          "lineEnd": 60,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 52,
+              "lineEnd": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "logs",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/handlers.rs",
+          "lineStart": 62,
+          "lineEnd": 104,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 62,
+              "lineEnd": 104
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "log_record",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/handlers.rs",
+          "lineStart": 106,
+          "lineEnd": 119,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 106,
+              "lineEnd": 119
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "build",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/router.rs",
+          "lineStart": 4,
+          "lineEnd": 26,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 4,
+              "lineEnd": 26
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "serve",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server_telemetry/server.rs",
+          "lineStart": 7,
+          "lineEnd": 16,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server_telemetry/server.rs",
+          "lineStart": 20,
+          "lineEnd": 50,
+          "language": "rust",
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

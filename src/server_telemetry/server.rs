@@ -1,8 +1,8 @@
 use marix_common::Logger;
 
-use crate::http::error::HttpError;
-use crate::http::external::*;
-use crate::http::router;
+use crate::error::HttpError;
+use crate::external::*;
+use crate::router;
 
 /// Binds `0.0.0.0:port` and serves the telemetry HTTP app, blocking the
 /// calling thread. Returns an error immediately on bind failure, before
@@ -162,15 +162,21 @@ directory = "tool"
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-    async fn root_route_serves_html_page() {
+    async fn static_routes_serve_page_and_white_favicon() {
         let (address, handle) = spawn_test_server().await;
 
         let (status, body) = tokio::task::spawn_blocking(move || http_get(address, "/"))
             .await
             .expect("blocking http_get");
+        let (favicon_status, favicon_body) =
+            tokio::task::spawn_blocking(move || http_get(address, "/favicon.svg"))
+                .await
+                .expect("blocking favicon request");
 
         handle.abort();
         assert_eq!(status, 200);
+        assert_eq!(favicon_status, 200);
+        assert!(favicon_body.contains("#ffffff"));
         assert!(body.contains("<html"), "body was: {body}");
         assert!(
             body.contains(r#"id="session-list""#),

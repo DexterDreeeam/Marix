@@ -1,4 +1,8 @@
-mod http;
+mod error;
+mod external;
+mod handlers;
+mod router;
+mod server;
 
 use marix_common::{Config, Logger};
 
@@ -22,7 +26,7 @@ fn main() {
         "server telemetry collector listening on port {}",
         config.server.telemetry_port
     ));
-    if let Err(error) = http::serve(config.server.telemetry_http_port) {
+    if let Err(error) = server::serve(config.server.telemetry_http_port) {
         eprintln!("failed to start telemetry HTTP server: {error}");
         std::process::exit(1);
     }

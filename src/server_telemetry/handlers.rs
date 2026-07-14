@@ -1,15 +1,15 @@
 use axum::response::IntoResponse;
 use marix_common::{LogPageQuery, LogTag, Logger, LoggingError};
 
-use crate::http::external::*;
+use crate::external::*;
 
-const PAGE_HTML: &str = include_str!("page.html");
-const PAGE_CSS: &str = include_str!("page.css");
-const DATA_SCRIPT: &str = include_str!("telemetry-data.js");
-const FORMAT_SCRIPT: &str = include_str!("telemetry-format.js");
-const MESSAGE_SCRIPT: &str = include_str!("telemetry-message.js");
-const PAGE_SCRIPT: &str = include_str!("telemetry.js");
-const FAVICON_SVG: &str = include_str!("favicon.svg");
+const PAGE_HTML: &str = include_str!("http/page.html");
+const PAGE_CSS: &str = include_str!("http/page.css");
+const DATA_SCRIPT: &str = include_str!("http/telemetry-data.js");
+const FORMAT_SCRIPT: &str = include_str!("http/telemetry-format.js");
+const MESSAGE_SCRIPT: &str = include_str!("http/telemetry-message.js");
+const PAGE_SCRIPT: &str = include_str!("http/telemetry.js");
+const FAVICON_SVG: &str = include_str!("http/favicon.svg");
 const DEFAULT_LIMIT: usize = 200;
 const MAX_LIMIT: usize = 500;
 
