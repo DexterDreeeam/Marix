@@ -4,16 +4,15 @@
     "path": "src/common/logging/store",
     "name": "store",
     "purpose": "Implements redb schema indexing, paged reads, and bounded batch writes for telemetry storage.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": [".", "reader.rs", "schema.rs", "tests.rs", "writer.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "HostStore",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/writer.rs",
@@ -47,7 +46,7 @@
       "name": "StoreWriter",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/writer.rs",
@@ -94,7 +93,7 @@
       "name": "WriteRequest",
       "type": "enum",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/writer.rs",
@@ -115,7 +114,7 @@
       "name": "BATCH_SIZE",
       "type": "const",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/writer.rs",
@@ -136,7 +135,7 @@
       "name": "BATCH_WINDOW",
       "type": "const",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/writer.rs",
@@ -157,7 +156,7 @@
       "name": "TELEMETRY_TABLE",
       "type": "const",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
@@ -178,7 +177,7 @@
       "name": "METADATA_TABLE",
       "type": "const",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
@@ -199,7 +198,7 @@
       "name": "SESSION_TABLE",
       "type": "const",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
@@ -220,7 +219,7 @@
       "name": "SESSION_TIME_INDEX",
       "type": "const",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
@@ -241,7 +240,7 @@
       "name": "SESSION_TAG_TIME_INDEX",
       "type": "const",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
@@ -262,7 +261,7 @@
       "name": "TRIGRAM_INDEX",
       "type": "const",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
@@ -283,7 +282,7 @@
       "name": "SCHEMA_VERSION",
       "type": "const",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
@@ -304,7 +303,7 @@
       "name": "META_SCHEMA_VERSION",
       "type": "const",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
@@ -325,7 +324,7 @@
       "name": "META_INDEXED_COUNT",
       "type": "const",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
@@ -346,7 +345,7 @@
       "name": "META_NEXT_RECORD_ID",
       "type": "const",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
@@ -367,7 +366,7 @@
       "name": "session_key",
       "type": "function",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
@@ -388,7 +387,7 @@
       "name": "decode_session_key",
       "type": "function",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
@@ -409,7 +408,7 @@
       "name": "session_time_key",
       "type": "function",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
@@ -430,7 +429,7 @@
       "name": "session_tag_time_key",
       "type": "function",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
@@ -451,7 +450,7 @@
       "name": "trigram_components",
       "type": "function",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
@@ -472,7 +471,7 @@
       "name": "trigram_key",
       "type": "function",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
@@ -493,7 +492,7 @@
       "name": "prefix_bounds",
       "type": "function",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
@@ -514,7 +513,7 @@
       "name": "session_index_len",
       "type": "function",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
