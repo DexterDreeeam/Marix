@@ -4,18 +4,15 @@
     "path": "src/protocol/plan",
     "name": "plan",
     "purpose": "Defines nested plan drafts, verdicts, ResultKind-classified terminal results, identities, boxed owning-intent signatures, a Created/Running/Complete lifecycle whose Complete status carries the result, errors, child-intent and relay updates, and cancellation.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": ["result.rs"],
-  "modified": ["draft.rs", "error.rs", "event.rs", "mod.rs", "signature.rs", "status.rs"],
-  "deleted": ["answer.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "PlanDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/draft.rs",
@@ -49,7 +46,7 @@
       "name": "PlanVerdict",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/draft.rs",
@@ -83,7 +80,7 @@
       "name": "PlanError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/error.rs",
@@ -104,7 +101,7 @@
       "name": "PlanEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/event.rs",
@@ -149,7 +146,7 @@
       "name": "PlanResultKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/result.rs",
@@ -170,7 +167,7 @@
       "name": "PlanResult",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/result.rs",
@@ -191,7 +188,7 @@
       "name": "PlanSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/signature.rs",
@@ -251,7 +248,7 @@
       "name": "PlanStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/status.rs",

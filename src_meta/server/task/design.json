@@ -4,17 +4,15 @@
     "path": "src/server/task",
     "name": "task",
     "purpose": "Owns task-scoped actor registries and routing: TaskAccess keeps registries private and exposes intent and relay result lookups, while TaskRuntime routes actor events and starts registered intents on IntentStart.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": ["routing.rs"],
-  "modified": ["access.rs", "mod.rs", "runtime.rs", "state.rs", "task.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "TaskAccess",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/access.rs",
@@ -70,7 +68,7 @@
       "name": "TaskRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/runtime.rs",
@@ -143,7 +141,7 @@
       "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/state.rs",
@@ -177,7 +175,7 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/task.rs",

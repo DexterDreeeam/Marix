@@ -4,16 +4,15 @@
     "path": "src/server/relay",
     "name": "relay",
     "purpose": "Owns asynchronous model relay execution, ordered output aggregation, terminal status handling, and direct task routing to its intent.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["mod.rs", "relay.rs", "runtime.rs", "state.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Relay",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/relay.rs",
@@ -86,7 +85,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
@@ -133,7 +132,7 @@
       "name": "RelayState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/state.rs",

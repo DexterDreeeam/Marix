@@ -4,17 +4,15 @@
     "path": "src/protocol/relay",
     "name": "relay",
     "purpose": "Defines relay requests, identities, signatures, lifecycle statuses, errors, and cancellation events for sequenced model output.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": ["status.rs"],
-  "modified": ["error.rs", "event.rs", "mod.rs", "signature.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "RelayError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/error.rs",
@@ -35,7 +33,7 @@
       "name": "RelayEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/event.rs",
@@ -96,7 +94,7 @@
       "name": "RelaySignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/signature.rs",
@@ -156,7 +154,7 @@
       "name": "RelayStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/status.rs",

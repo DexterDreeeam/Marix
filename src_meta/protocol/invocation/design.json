@@ -4,17 +4,15 @@
     "path": "src/protocol/invocation",
     "name": "invocation",
     "purpose": "Defines invocation drafts and requests, identities, signatures, lifecycle statuses, errors, and managed execution update and processing events.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": ["status.rs"],
-  "modified": ["error.rs", "event.rs", "mod.rs", "request.rs", "signature.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "InvocationError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/error.rs",
@@ -35,7 +33,7 @@
       "name": "InvocationEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/event.rs",
@@ -80,7 +78,7 @@
       "name": "InvocationDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/request.rs",
@@ -101,7 +99,7 @@
       "name": "InvocationRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/request.rs",
@@ -122,7 +120,7 @@
       "name": "InvocationSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/signature.rs",
@@ -182,7 +180,7 @@
       "name": "InvocationStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/status.rs",

@@ -4,17 +4,15 @@
     "path": "src/server/step",
     "name": "step",
     "purpose": "Owns invocation-group execution, ignores nonterminal updates, validates registered terminal results, aggregates outputs, and routes completion directly to its intent.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["mod.rs", "runtime.rs", "state.rs", "step.rs"],
-  "deleted": ["helper.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "StepRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/runtime.rs",
@@ -61,7 +59,7 @@
       "name": "StepState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/state.rs",
@@ -95,7 +93,7 @@
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/step.rs",

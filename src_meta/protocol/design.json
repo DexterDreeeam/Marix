@@ -4,9 +4,8 @@
     "path": "src/protocol",
     "name": "protocol",
     "purpose": "Defines serialized actor workflow contracts, ResultKind-classified terminal results, lifecycle events including explicit intent starts, cancellation, and lineage-aware signatures across protocol modules.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["lib.rs", "mod.rs", "."],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -285,7 +284,7 @@
       "name": "ExecutionStatus",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/status.rs",
@@ -327,7 +326,7 @@
       "name": "IntentDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
@@ -348,7 +347,7 @@
       "name": "IntentVerdict",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
@@ -382,7 +381,7 @@
       "name": "IntentError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/error.rs",
@@ -403,7 +402,7 @@
       "name": "IntentEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/event.rs",
@@ -424,7 +423,7 @@
       "name": "IntentId",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/id.rs",
@@ -458,7 +457,7 @@
       "name": "IntentResultKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/result.rs",
@@ -479,7 +478,7 @@
       "name": "IntentResult",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/result.rs",
@@ -500,7 +499,7 @@
       "name": "IntentSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/signature.rs",
@@ -560,7 +559,7 @@
       "name": "IntentStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/status.rs",
@@ -594,7 +593,7 @@
       "name": "InvocationError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/error.rs",
@@ -615,7 +614,7 @@
       "name": "InvocationEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/event.rs",
@@ -660,7 +659,7 @@
       "name": "InvocationDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/request.rs",
@@ -681,7 +680,7 @@
       "name": "InvocationRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/request.rs",
@@ -702,7 +701,7 @@
       "name": "InvocationSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/signature.rs",
@@ -762,7 +761,7 @@
       "name": "InvocationStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/status.rs",
@@ -796,7 +795,7 @@
       "name": "PlanDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/draft.rs",
@@ -830,7 +829,7 @@
       "name": "PlanVerdict",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/draft.rs",
@@ -864,7 +863,7 @@
       "name": "PlanError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/error.rs",
@@ -885,7 +884,7 @@
       "name": "PlanEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/event.rs",
@@ -930,7 +929,7 @@
       "name": "PlanResultKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/result.rs",
@@ -951,7 +950,7 @@
       "name": "PlanResult",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/result.rs",
@@ -972,7 +971,7 @@
       "name": "PlanSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/signature.rs",
@@ -1032,7 +1031,7 @@
       "name": "PlanStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/status.rs",
@@ -1066,7 +1065,7 @@
       "name": "RelayError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/error.rs",
@@ -1087,7 +1086,7 @@
       "name": "RelayEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/event.rs",
@@ -1148,7 +1147,7 @@
       "name": "RelaySignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/signature.rs",
@@ -1208,7 +1207,7 @@
       "name": "RelayStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/status.rs",
@@ -1263,7 +1262,7 @@
       "name": "StepDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/draft.rs",
@@ -1284,7 +1283,7 @@
       "name": "StepError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/error.rs",
@@ -1305,7 +1304,7 @@
       "name": "StepEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/event.rs",
@@ -1350,7 +1349,7 @@
       "name": "StepResultKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/result.rs",
@@ -1371,7 +1370,7 @@
       "name": "StepResult",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/result.rs",
@@ -1392,7 +1391,7 @@
       "name": "StepSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/signature.rs",
@@ -1452,7 +1451,7 @@
       "name": "StepStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/status.rs",
@@ -1486,7 +1485,7 @@
       "name": "TaskError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/error.rs",
@@ -1507,7 +1506,7 @@
       "name": "TaskEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/event.rs",

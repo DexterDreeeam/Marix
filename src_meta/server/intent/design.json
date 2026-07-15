@@ -4,18 +4,15 @@
     "path": "src/server/intent",
     "name": "intent",
     "purpose": "Owns intent lifecycle orchestration: state retains task access, child steps, an optional plan, status, and event channels, while runtime reads relay results through TaskAccess, creates steps or plans, and publishes terminal results.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": ["."],
-  "modified": ["workflow.rs", "runtime.rs", "mod.rs", "intent.rs", "state.rs"],
-  "deleted": ["helper.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Intent",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/intent.rs",
@@ -62,7 +59,7 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",
@@ -122,7 +119,7 @@
       "name": "IntentState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/state.rs",

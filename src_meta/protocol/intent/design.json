@@ -4,17 +4,15 @@
     "path": "src/protocol/intent",
     "name": "intent",
     "purpose": "Defines intent drafts, verdicts, ResultKind-classified terminal results, identities, lineage-aware signatures, a Created/Running/Complete lifecycle whose Complete status carries the result, errors, child plan/step/relay updates, and cancellation.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": ["."],
-  "modified": ["mod.rs", "result.rs", "status.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "IntentDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
@@ -35,7 +33,7 @@
       "name": "IntentVerdict",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
@@ -69,7 +67,7 @@
       "name": "IntentError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/error.rs",
@@ -90,7 +88,7 @@
       "name": "IntentEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/event.rs",
@@ -111,7 +109,7 @@
       "name": "IntentId",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/id.rs",
@@ -145,7 +143,7 @@
       "name": "IntentResultKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/result.rs",
@@ -166,7 +164,7 @@
       "name": "IntentResult",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/result.rs",
@@ -187,7 +185,7 @@
       "name": "IntentSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/signature.rs",
@@ -247,7 +245,7 @@
       "name": "IntentStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/status.rs",

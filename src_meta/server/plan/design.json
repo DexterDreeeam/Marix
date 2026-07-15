@@ -4,18 +4,15 @@
     "path": "src/server/plan",
     "name": "plan",
     "purpose": "Owns sequential child-intent execution and reconstruction: state stores current intent signatures, accumulated failure history, status, and event channels, while runtime reads results through TaskAccess, starts the first incomplete intent, evaluates failures through a relay, replaces reconstructed intent sets, and finishes directly on success or infeasibility.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["mod.rs", "plan.rs", "runtime.rs", "state.rs"],
-  "renamed": ["result.rs"],
-  "deleted": ["stringify.rs", "helper.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Plan",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/plan.rs",
@@ -62,7 +59,7 @@
       "name": "PlanRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",
@@ -135,7 +132,7 @@
       "name": "PlanState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/state.rs",
