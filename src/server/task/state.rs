@@ -1,15 +1,17 @@
-use std::fmt;
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
-use marix_common::external::*;
-use marix_common::{AsyncReceiver, AsyncSender, Sender, WorkQueue, build_async_channel};
+use marix_common::{
+    AsyncReceiver, AsyncSender, Sender, WorkQueue, build_async_channel,
+};
 use marix_protocol::{
-    InvocationSignature, PlanSignature, RelaySignature, SessionEvent, StepSignature, TaskEvent,
-    TaskSignature,
+    IntentSignature, InvocationSignature, PlanSignature,
+    RelaySignature, SessionEvent, StepSignature, TaskEvent,
+    TaskResult, TaskSignature, TaskStatus,
 };
 
 use super::TaskAccess;
+use crate::intent::Intent;
 use crate::invocation::Invocation;
 use crate::plan::Plan;
 use crate::relay::Relay;
@@ -17,56 +19,58 @@ use crate::session::SessionContext;
 use crate::step::Step;
 
 pub struct TaskState {
-    pub access: TaskAccess,
+    pub access: Arc<TaskAccess>,
+    pub intents: Arc<WorkQueue<IntentSignature, Intent>>,
     pub plans: Arc<WorkQueue<PlanSignature, Plan>>,
+    pub steps: Arc<WorkQueue<StepSignature, Step>>,
     pub invocations: Arc<WorkQueue<InvocationSignature, Invocation>>,
     pub relays: Arc<WorkQueue<RelaySignature, Relay>>,
-    pub steps: Arc<WorkQueue<StepSignature, Step>>,
+    pub root: IntentSignature,
+    pub status: StdMutex<TaskStatus>,
+    pub result: StdMutex<Option<TaskResult>>,
     pub task_tx: AsyncSender<TaskEvent>,
     pub task_rx: StdMutex<Option<AsyncReceiver<TaskEvent>>>,
 }
 
+// -- Private -- //
+
 impl TaskState {
-    pub fn new(
+    pub(crate) fn new(
         session_context: Arc<StdMutex<SessionContext>>,
         signature: TaskSignature,
+        root: IntentSignature,
         user_request: String,
         session_tx: Sender<SessionEvent>,
     ) -> Self {
-        let (task_tx, task_rx) = build_async_channel();
+        let intents = Arc::new(WorkQueue::new());
         let plans = Arc::new(WorkQueue::new());
+        let steps = Arc::new(WorkQueue::new());
         let invocations = Arc::new(WorkQueue::new());
         let relays = Arc::new(WorkQueue::new());
-        let steps = Arc::new(WorkQueue::new());
         let access = TaskAccess::new(
             session_context,
             session_tx,
             signature,
             user_request,
+            Arc::clone(&intents),
             Arc::clone(&plans),
+            Arc::clone(&steps),
             Arc::clone(&invocations),
             Arc::clone(&relays),
-            Arc::clone(&steps),
         );
+        let (task_tx, task_rx) = build_async_channel();
         Self {
             access,
+            intents,
             plans,
+            steps,
             invocations,
             relays,
-            steps,
+            root,
+            status: StdMutex::new(TaskStatus::Created),
+            result: StdMutex::new(None),
             task_tx,
             task_rx: StdMutex::new(Some(task_rx)),
         }
-    }
-}
-
-// -- Private -- //
-
-impl fmt::Debug for TaskState {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter
-            .debug_struct("TaskState")
-            .field("signature", &self.access.signature)
-            .finish_non_exhaustive()
     }
 }

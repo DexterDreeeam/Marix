@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/server/intent",
+    "name": "intent",
+    "purpose": "Owns intent lifecycle orchestration: state retains task access, child steps, an optional plan, status, and event channels, while runtime reads relay results through TaskAccess, creates steps or plans, and publishes terminal results.",
+    "changeStatus": "added"
+  },
+  "added": ["."],
+  "modified": ["workflow.rs", "runtime.rs", "mod.rs", "intent.rs", "state.rs"],
+  "deleted": ["helper.rs"],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "Intent",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/intent/intent.rs",
+          "lineStart": 9,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 12
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/intent/intent.rs",
+          "lineStart": 14,
+          "lineEnd": 45,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 45
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/intent/intent.rs",
+          "lineStart": 49,
+          "lineEnd": 58,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 49,
+              "lineEnd": 58
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "IntentRuntime",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/intent/runtime.rs",
+          "lineStart": 17,
+          "lineEnd": 21,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 21
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/intent/runtime.rs",
+          "lineStart": 23,
+          "lineEnd": 82,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 82
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/intent/runtime.rs",
+          "lineStart": 86,
+          "lineEnd": 412,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 86,
+              "lineEnd": 412
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/intent/workflow.rs",
+          "lineStart": 12,
+          "lineEnd": 97,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 97
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "IntentState",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/intent/state.rs",
+          "lineStart": 12,
+          "lineEnd": 21,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 21
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/intent/state.rs",
+          "lineStart": 25,
+          "lineEnd": 43,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 43
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

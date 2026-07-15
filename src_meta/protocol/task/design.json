@@ -3,24 +3,33 @@
   "module": {
     "path": "src/protocol/task",
     "name": "task",
-    "purpose": "Owns task protocol contracts including task identity/signatures, task requests, previews/results, task status, task errors, and task events that nest plan events.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines task requests, results, identities, signatures, statuses, errors, actor event envelopes with explicit intent starts, intent completion updates, and cancellation.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "error.rs",
+    "event.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "TaskError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/error.rs",
           "lineStart": 3,
-          "lineEnd": 9,
+          "lineEnd": 7,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 7
+            }
+          ]
         }
       ]
     },
@@ -28,18 +37,27 @@
       "name": "TaskEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/event.rs",
-          "lineStart": 5,
-          "lineEnd": 11,
+          "lineStart": 9,
+          "lineEnd": 19,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 12
+            }
+          ],
           "modifiedLines": [
             {
-              "lineStart": 5,
+              "lineStart": 9,
               "lineEnd": 11
+            },
+            {
+              "lineStart": 13,
+              "lineEnd": 19
             }
           ]
         }

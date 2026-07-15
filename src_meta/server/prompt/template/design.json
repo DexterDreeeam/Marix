@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/prompt/template",
     "name": "template",
-    "purpose": "Defines Initial and Analysis prompt compositions and the reusable prompt fragments they include.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines initial analysis, intent-verdict, and plan-reconstruction prompt compositions and their reusable fragments.",
+    "changeStatus": "modified"
   },
+  "added": ["IntentVerdict.prompt", "PlanReconstruction.prompt"],
   "childModules": [
     {
       "path": "src/server/prompt/template/module",

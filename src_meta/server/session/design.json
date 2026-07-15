@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/session",
     "name": "session",
-    "purpose": "Owns Server session routing and initializes authenticated Host connections with SessionId and ToolQuery control events.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns server session routing, authenticated Host initialization, root intent construction with no parent plan, and nested workflow event delivery.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -36,7 +37,7 @@
       "name": "SessionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/runtime.rs",
@@ -44,7 +45,12 @@
           "lineEnd": 22,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 22
+            }
+          ]
         },
         {
           "sourcePath": "src/server/session/runtime.rs",
@@ -52,7 +58,12 @@
           "lineEnd": 33,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 24,
+              "lineEnd": 33
+            }
+          ]
         },
         {
           "sourcePath": "src/server/session/runtime.rs",
@@ -60,36 +71,25 @@
           "lineEnd": 85,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 35,
+              "lineEnd": 85
+            }
+          ]
         },
         {
           "sourcePath": "src/server/session/runtime.rs",
           "lineStart": 89,
-          "lineEnd": 364,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 132,
-              "lineEnd": 137
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "SOURCE_NAME",
-      "type": "static",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/session/session.rs",
-          "lineStart": 10,
-          "lineEnd": 10,
+          "lineEnd": 368,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 89,
+              "lineEnd": 368
+            }
+          ]
         }
       ]
     },

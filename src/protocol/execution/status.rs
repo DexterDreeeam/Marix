@@ -1,3 +1,3 @@
-use crate::StepletStatus;
+use crate::InvocationStatus;
 
-pub type ExecutionStatus = StepletStatus;
+pub type ExecutionStatus = InvocationStatus;

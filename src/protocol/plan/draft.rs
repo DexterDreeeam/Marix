@@ -1,30 +1,32 @@
-use crate::StepDraft;
+use crate::IntentDraft;
 use crate::external::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PlanDraft {
-    pub description: String,
-    pub background: String,
-    pub call: Vec<StepDraft>,
-    pub model: StepDraft,
-    pub future: Vec<StepDraft>,
-    pub expected_result: String,
+    pub intents: Vec<IntentDraft>,
 }
 
 impl PlanDraft {
     pub fn parse(content: &str) -> Result<Self, serde_json::Error> {
-        let mut draft = serde_json::from_str::<Self>(content)?;
-        draft.call = draft
-            .call
-            .into_iter()
-            .map(|draft| draft.parse("tool"))
-            .collect();
-        draft.model = draft.model.parse("model");
-        draft.future = draft
-            .future
-            .into_iter()
-            .map(|draft| draft.parse("intent"))
-            .collect();
-        Ok(draft)
+        serde_json::from_str(content)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(
+    tag = "type",
+    content = "value",
+    rename_all = "snake_case",
+    deny_unknown_fields
+)]
+pub enum PlanVerdict {
+    Replacement(PlanDraft),
+    Infeasible { reason: String },
+}
+
+impl PlanVerdict {
+    pub fn parse(content: &str) -> Result<Self, serde_json::Error> {
+        serde_json::from_str(content)
     }
 }

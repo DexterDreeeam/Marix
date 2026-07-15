@@ -1,11 +1,19 @@
 use crate::external::*;
 
-use crate::{PlanDraft, PlanEvent, PlanSignature, PlanStatus};
+use crate::{
+    IntentEvent, IntentSignature, IntentStatus, InvocationEvent,
+    InvocationSignature, PlanEvent, PlanSignature, RelayEvent,
+    RelaySignature, StepEvent, StepSignature,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TaskEvent {
+    Intent(IntentSignature, IntentEvent),
+    IntentStart(IntentSignature),
     Plan(PlanSignature, PlanEvent),
-    PlanCreate(PlanDraft),
-    Update(PlanSignature, PlanStatus),
+    Step(StepSignature, StepEvent),
+    Invocation(InvocationSignature, InvocationEvent),
+    Relay(RelaySignature, RelayEvent),
+    Update(IntentSignature, IntentStatus),
     Cancel,
 }

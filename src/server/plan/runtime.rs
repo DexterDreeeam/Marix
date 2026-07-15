@@ -1,75 +1,54 @@
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
-use std::sync::atomic::Ordering;
 
 use marix_common::external::*;
 use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
 use marix_protocol::{
-    Actor, PlanError, PlanEvent, PlanStatus, RuntimeAsync, SessionEvent, StepEvent, StepKind,
-    StepSignature, StepStatus, TaskEvent,
+    IntentResultKind, IntentSignature, IntentStatus, PlanDraft,
+    PlanEvent, PlanResult, PlanResultKind, PlanStatus, PlanVerdict,
+    RelayRequest, RelaySignature, RelayStatus, SessionEvent, TaskEvent,
 };
 
-use super::helper::model_input;
-use super::state::PlanState;
+use super::PlanState;
+use crate::intent::Intent;
+use crate::relay::Relay;
 
-pub(super) struct PlanRuntime {
-    state: Arc<PlanState>,
-    plan_rx: StdMutex<Option<AsyncReceiver<PlanEvent>>>,
-    close_tx: AsyncSender<()>,
+pub struct PlanRuntime {
+    pub(super) state: Arc<PlanState>,
+    pub(super) close_tx: AsyncSender<()>,
     close_rx: StdMutex<Option<AsyncReceiver<()>>>,
 }
 
 impl PlanRuntime {
-    pub(super) fn new(state: Arc<PlanState>) -> Self {
-        let (close_tx, close_rx) = build_async_channel();
-        let plan_rx = state
-            .plan_rx
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .take();
-        Self {
-            state,
-            plan_rx: StdMutex::new(plan_rx),
-            close_tx,
-            close_rx: StdMutex::new(Some(close_rx)),
-        }
-    }
-}
-
-impl RuntimeAsync<PlanEvent, PlanError> for PlanRuntime {
-    async fn run(&self) {
+    pub async fn run(&self) {
         let Some(mut plan_rx) = self
+            .state
             .plan_rx
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .take()
         else {
-            let signature = &self.state.signature;
             Logger::warning(format!(
-                "plan {} runtime stopping: event receiver unavailable (task {})",
-                signature, &signature.task,
+                "plan {} start ignored: already running",
+                &self.state.signature,
             ));
             return;
         };
+        self.set_status(PlanStatus::Running);
+        self.advance();
         let Some(mut close_rx) = self
             .close_rx
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .take()
         else {
-            let signature = &self.state.signature;
-            Logger::warning(format!(
-                "plan {} runtime stopping: close receiver unavailable (task {})",
-                signature, &signature.task,
-            ));
+            self.finish(
+                PlanResultKind::Failed,
+                "plan close receiver unavailable".to_owned(),
+            );
             return;
         };
-        self.start_steps();
-        let signature = &self.state.signature;
-        Logger::debug(format!(
-            "plan {} runtime loop starting (task {})",
-            signature, &signature.task,
-        ));
+
         loop {
             self::tokio::select! {
                 _ = close_rx.recv() => break,
@@ -77,49 +56,22 @@ impl RuntimeAsync<PlanEvent, PlanError> for PlanRuntime {
                     let Some(event) = event else {
                         break;
                     };
-                    if let Err(error) = self.dispatch(event) {
-                        let signature = &self.state.signature;
-                        Logger::debug(format!(
-                            "plan {} runtime stopping: {error:?} (task {})",
-                            signature, &signature.task,
-                        ));
-                        break;
-                    }
+                    self.dispatch(event);
                 }
             }
         }
-        let signature = &self.state.signature;
-        Logger::debug(format!(
-            "plan {} runtime loop stopped (task {})",
-            signature, &signature.task,
-        ));
     }
 
-    fn close(&self) {
-        if let Err(error) = self.close_tx.send(()) {
-            let signature = &self.state.signature;
-            Logger::warning(format!(
-                "plan {} close signal failed: {error} (task {})",
-                signature, &signature.task,
-            ));
-        }
-    }
-
-    fn dispatch(&self, event: PlanEvent) -> Result<(), PlanError> {
+    pub fn dispatch(&self, event: PlanEvent) {
         match event {
-            PlanEvent::Step(signature, event) => {
-                let plan_signature = &self.state.signature;
-                Logger::error(format!(
-                    "plan {} received unsupported step event {event:?} for {} (task {})",
-                    plan_signature, &signature, &signature.task,
-                ));
-                Ok(())
+            PlanEvent::Update(signature, status) => {
+                self.on_intent_update(signature, status);
             }
-            PlanEvent::Update(signature, status) => self.on_update(signature, status),
+            PlanEvent::RelayUpdate(signature, status) => {
+                self.on_relay_update(signature, status);
+            }
             PlanEvent::Cancel => {
-                self.cancel_steps();
-                self.close();
-                Err(PlanError::Canceled)
+                self.cancel("plan canceled".to_owned());
             }
         }
     }
@@ -128,143 +80,273 @@ impl RuntimeAsync<PlanEvent, PlanError> for PlanRuntime {
 // -- Private -- //
 
 impl PlanRuntime {
-    fn start_steps(&self) {
-        if self.state.call.is_empty() {
-            self.start_model();
+    pub(crate) fn new(state: Arc<PlanState>) -> Self {
+        let (close_tx, close_rx) = build_async_channel();
+        Self {
+            state,
+            close_tx,
+            close_rx: StdMutex::new(Some(close_rx)),
+        }
+    }
+
+    fn advance(&self) {
+        let intents = self
+            .state
+            .intents
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clone();
+        let mut latest_output = String::new();
+        for signature in intents {
+            let Some(result) = self.state.access.get_result(&signature) else {
+                if let Err(reason) = self.start_intent(&signature) {
+                    self.finish(PlanResultKind::Failed, reason);
+                }
+                return;
+            };
+            match result.kind {
+                IntentResultKind::Succeed => {
+                    latest_output = result.output;
+                }
+                IntentResultKind::Infeasible
+                | IntentResultKind::Canceled
+                | IntentResultKind::Failed => return,
+            }
+        }
+        self.finish(PlanResultKind::Succeed, latest_output);
+    }
+
+    fn on_intent_update(
+        &self,
+        signature: IntentSignature,
+        status: IntentStatus,
+    ) {
+        if self.status().is_terminal() {
+            Logger::error(format!(
+                "plan {} received child intent {signature} update \
+                 {status:?} after completion",
+                &self.state.signature,
+            ));
             return;
         }
+        let IntentStatus::Complete(result) = status else {
+            return;
+        };
+        let contains_intent = self
+            .state
+            .intents
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .contains(&signature);
+        if !contains_intent {
+            self.finish(
+                PlanResultKind::Failed,
+                format!("plan child intent {signature} not found"),
+            );
+            return;
+        }
+        match result.kind {
+            IntentResultKind::Succeed => self.advance(),
+            IntentResultKind::Infeasible => {
+                self.verdict(
+                    PlanResultKind::Infeasible,
+                    result.output,
+                );
+            }
+            IntentResultKind::Canceled => self.cancel(result.output),
+            IntentResultKind::Failed => {
+                self.verdict(PlanResultKind::Failed, result.output);
+            }
+        }
+    }
 
-        for step in &self.state.call {
-            let mut step = step.clone();
-            if !self.state.access.insert_step(step.clone()) {
-                self.fail_plan(format!(
-                    "call step {} could not be inserted",
-                    step.signature(),
-                ));
+    fn start_intent(
+        &self,
+        signature: &IntentSignature,
+    ) -> Result<(), String> {
+        let event = SessionEvent::Task(
+            self.state.access.signature.clone(),
+            TaskEvent::IntentStart(signature.clone()),
+        );
+        self.state.access.session_tx.send(event).map_err(|_| {
+            format!(
+                "plan child intent {signature} start failed: session stopped"
+            )
+        })
+    }
+
+    fn verdict(&self, kind: PlanResultKind, output: String) {
+        let request = RelayRequest {
+            signature: RelaySignature::new(
+                self.state.signature.intent.as_ref().clone(),
+                "plan-verdict".to_owned(),
+            ),
+            prompt: format!("{kind:?}: {output}"),
+        };
+        let relay = match Relay::new(
+            Arc::clone(&self.state.access),
+            request,
+        ) {
+            Ok(relay) => relay,
+            Err(reason) => {
+                self.finish(PlanResultKind::Failed, reason);
                 return;
             }
-            step.start();
-        }
-    }
-
-    fn on_update(&self, signature: StepSignature, status: StepStatus) -> Result<(), PlanError> {
-        let step = self
-            .state
-            .call
-            .iter()
-            .find(|step| step.signature() == &signature)
-            .or_else(|| (self.state.model.signature() == &signature).then_some(&self.state.model));
-        let Some(step) = step else {
-            Logger::warning(format!(
-                "plan {} ignored update from unknown step {} (task {})",
-                &self.state.signature, &signature, &self.state.signature.task,
-            ));
-            return Ok(());
         };
+        if !self.state.access.insert_relay(relay.clone()) {
+            self.finish(
+                PlanResultKind::Failed,
+                format!(
+                    "plan verdict relay {} already exists",
+                    &relay.state.signature,
+                ),
+            );
+            return;
+        }
+        relay.start();
+    }
 
+    fn on_relay_update(
+        &self,
+        signature: RelaySignature,
+        status: RelayStatus,
+    ) {
+        if self.status().is_terminal() {
+            Logger::error(format!(
+                "plan {} received relay {signature} update {status:?} \
+                 after completion",
+                &self.state.signature,
+            ));
+            return;
+        }
+        if !status.is_terminal() {
+            return;
+        }
         match status {
-            StepStatus::Canceled | StepStatus::Failed => {
-                self.fail_plan(format!(
-                    "step {} ended with status {status:?}",
-                    step.signature(),
-                ));
-                Ok(())
-            }
-            StepStatus::Created | StepStatus::Started => Ok(()),
-            StepStatus::Succeed => match step.kind() {
-                StepKind::Invocation(_) => {
-                    if self.calls_complete() {
-                        self.start_model();
+            RelayStatus::Succeed { .. } => {
+                let Some(output) = self
+                    .state
+                    .access
+                    .get_relay_result(&signature)
+                else {
+                    self.finish(
+                        PlanResultKind::Failed,
+                        format!(
+                            "plan relay {signature} succeeded without output"
+                        ),
+                    );
+                    return;
+                };
+                match PlanVerdict::parse(&output) {
+                    Ok(PlanVerdict::Replacement(draft)) => {
+                        if let Err(reason) = self.reconstruct(draft) {
+                            self.finish(PlanResultKind::Failed, reason);
+                        }
                     }
-                    Ok(())
+                    Ok(PlanVerdict::Infeasible { reason }) => {
+                        self.finish(PlanResultKind::Infeasible, reason);
+                    }
+                    Err(error) => {
+                        self.finish(
+                            PlanResultKind::Failed,
+                            format!(
+                                "plan verdict from relay {signature} is \
+                                 malformed: {error}"
+                            ),
+                        );
+                    }
                 }
-                StepKind::Model(_) => {
-                    self.send_task_event(TaskEvent::Update(
-                        self.state.signature.clone(),
-                        PlanStatus::Success,
-                    ));
-                    self.close();
-                    Ok(())
-                }
-                kind => {
-                    self.fail_plan(format!(
-                        "step {} succeeded with unsupported kind {kind:?}",
-                        step.signature(),
-                    ));
-                    Ok(())
-                }
-            },
+            }
+            RelayStatus::Failed => {
+                self.finish(
+                    PlanResultKind::Failed,
+                    format!("plan relay {signature} failed"),
+                );
+            }
+            RelayStatus::Canceled => {
+                self.cancel("plan reconstruction canceled".to_owned());
+            }
+            RelayStatus::Created | RelayStatus::Started => {}
         }
     }
 
-    fn calls_complete(&self) -> bool {
-        self.state
-            .call
-            .iter()
-            .all(|step| step.status() == StepStatus::Succeed)
-    }
-
-    fn cancel_steps(&self) {
-        for step in &self.state.call {
-            self.send_task_event(TaskEvent::Plan(
-                self.state.signature.clone(),
-                PlanEvent::Step(step.signature().clone(), StepEvent::Cancel),
-            ));
-        }
-        let step = &self.state.model;
-        self.send_task_event(TaskEvent::Plan(
-            self.state.signature.clone(),
-            PlanEvent::Step(step.signature().clone(), StepEvent::Cancel),
-        ));
-    }
-
-    fn start_model(&self) {
-        if self.state.model_once.swap(true, Ordering::AcqRel) {
-            Logger::debug(format!(
-                "plan {} ignored duplicate model start (task {})",
-                &self.state.signature, &self.state.signature.task,
-            ));
-            return;
-        }
-
-        let mut step = self.state.model.clone();
-        let input = model_input(&self.state.background, &self.state.call);
-        step.set_input(input);
-        if !self.state.access.insert_step(step.clone()) {
-            self.fail_plan(format!(
-                "model step {} could not be inserted",
-                step.signature(),
-            ));
-            return;
-        }
-        step.start();
-    }
-
-    fn fail_plan(&self, reason: String) {
-        Logger::error(format!(
-            "plan {} failed: {reason} (task {})",
-            &self.state.signature, &self.state.signature.task,
-        ));
-        self.send_task_event(TaskEvent::Update(
-            self.state.signature.clone(),
-            PlanStatus::Fail,
-        ));
-        self.close();
-    }
-
-    fn send_task_event(&self, event: TaskEvent) {
-        if self
+    fn reconstruct(&self, draft: PlanDraft) -> Result<(), String> {
+        let current_intents = self
             .state
-            .access
-            .session_tx
-            .send(SessionEvent::Task(self.state.signature.task.clone(), event))
-            .is_err()
-        {
-            let signature = &self.state.signature;
-            Logger::warning(format!(
-                "plan {} update failed: session worker stopped (task {})",
-                signature, &signature.task,
-            ));
+            .intents
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clone();
+        let mut failure = None;
+        for signature in &current_intents {
+            let Some(result) = self.state.access.get_result(signature) else {
+                continue;
+            };
+            let kind = match result.kind {
+                IntentResultKind::Succeed => continue,
+                IntentResultKind::Infeasible => {
+                    PlanResultKind::Infeasible
+                }
+                IntentResultKind::Failed => PlanResultKind::Failed,
+                IntentResultKind::Canceled => PlanResultKind::Canceled,
+            };
+            failure = Some(PlanResult {
+                kind,
+                output: result.output,
+            });
+            break;
         }
+        let failure = failure.ok_or_else(|| {
+            "plan reconstruction has no failed intent result".to_owned()
+        })?;
+        let failure_count = {
+            let mut failures = self
+                .state
+                .failures
+                .lock()
+                .unwrap_or_else(|error| error.into_inner());
+            failures.push(failure);
+            failures.len()
+        };
+        if draft.intents.is_empty() {
+            return Err(
+                "plan reconstruction must contain a child intent".to_owned()
+            );
+        }
+        for (index, intent) in draft.intents.iter().enumerate() {
+            if intent.content.trim().is_empty() {
+                return Err(format!(
+                    "plan reconstruction child intent {} has empty content",
+                    index + 1,
+                ));
+            }
+        }
+
+        let mut signatures = Vec::with_capacity(draft.intents.len());
+        for (index, draft) in draft.intents.into_iter().enumerate() {
+            let signature = IntentSignature::new(
+                self.state.access.signature.clone(),
+                Some(self.state.signature.clone()),
+                format!("intent-r{failure_count}-{}", index + 1),
+            );
+            let intent = Intent::new(
+                Arc::clone(&self.state.access),
+                signature.clone(),
+                draft.content,
+            );
+            if !self.state.access.insert_intent(intent) {
+                return Err(format!(
+                    "plan reconstruction child intent {signature} is duplicated"
+                ));
+            }
+            signatures.push(signature);
+        }
+        *self
+            .state
+            .intents
+            .lock()
+            .unwrap_or_else(|error| error.into_inner()) = signatures;
+        self.advance();
+        Ok(())
     }
 }

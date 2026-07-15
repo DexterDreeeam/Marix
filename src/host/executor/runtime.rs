@@ -3,8 +3,8 @@ use std::sync::Arc;
 
 use marix_common::{Logger, Receiver, Sender, build_channel, select};
 use marix_protocol::{
-    Actor, ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutorEvent, InvocationEvent,
-    PlanEvent, Runtime, SessionEvent, StepEvent, StepletStatus, TaskEvent,
+    Actor, ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, ExecutorEvent,
+    InvocationEvent, Runtime, SessionEvent, TaskEvent,
 };
 
 use super::state::ExecutorState;
@@ -134,17 +134,15 @@ impl ExecutorRuntime {
     }
 
     fn send_unknown_tool_failure(&self, request: &ExecutionRequest) {
-        let invocation = request.signature.invocation.clone();
+        let execution = request.signature.clone();
+        let invocation = execution.invocation.clone();
         let event = SessionEvent::Task(
-            invocation.task.clone(),
-            TaskEvent::Plan(
-                invocation.plan.clone(),
-                PlanEvent::Step(
-                    invocation.step.clone(),
-                    StepEvent::Invocation(
-                        invocation,
-                        InvocationEvent::Update(StepletStatus::Failed),
-                    ),
+            invocation.step.intent.task.clone(),
+            TaskEvent::Invocation(
+                invocation,
+                InvocationEvent::Update(
+                    execution,
+                    ExecutionStatus::Failed,
                 ),
             ),
         );

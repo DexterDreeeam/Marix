@@ -4,63 +4,17 @@
     "path": "src/server/prompt",
     "name": "prompt",
     "purpose": "Owns regex-sliced prompt template loading, reusable module expansion, deferred parameter injection, and typed single-pass rendering.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/server/prompt/template",
       "name": "template",
-      "purpose": "Defines Initial and Analysis prompt compositions and the reusable prompt fragments they include."
+      "purpose": "Defines initial analysis, intent-verdict, and plan-reconstruction prompt compositions and their reusable fragments."
     }
   ],
   "elements": [
-    {
-      "name": "Prompt",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/prompt/prompt.rs",
-          "lineStart": 18,
-          "lineEnd": 21,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 18,
-              "lineEnd": 21
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/prompt/prompt.rs",
-          "lineStart": 23,
-          "lineEnd": 83,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 23,
-              "lineEnd": 83
-            }
-          ],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/prompt/prompt.rs",
-          "lineStart": 87,
-          "lineEnd": 209,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 87,
-              "lineEnd": 209
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
     {
       "name": "PromptError",
       "type": "enum",
@@ -102,6 +56,53 @@
             {
               "lineStart": 20,
               "lineEnd": 20
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Prompt",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/prompt/prompt.rs",
+          "lineStart": 18,
+          "lineEnd": 21,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 18,
+              "lineEnd": 21
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/prompt/prompt.rs",
+          "lineStart": 23,
+          "lineEnd": 83,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 83
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/prompt/prompt.rs",
+          "lineStart": 87,
+          "lineEnd": 209,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 87,
+              "lineEnd": 209
             }
           ],
           "modifiedLines": []

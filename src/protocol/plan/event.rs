@@ -1,10 +1,10 @@
 use crate::external::*;
 
-use crate::{StepEvent, StepSignature, StepStatus};
+use crate::{IntentSignature, IntentStatus, RelaySignature, RelayStatus};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PlanEvent {
-    Step(StepSignature, StepEvent),
-    Update(StepSignature, StepStatus),
+    Update(IntentSignature, IntentStatus),
+    RelayUpdate(RelaySignature, RelayStatus),
     Cancel,
 }

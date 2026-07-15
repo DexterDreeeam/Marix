@@ -3,9 +3,12 @@
   "module": {
     "path": "src/host/execution",
     "name": "execution",
-    "purpose": "Runs host tool executions and emits lifecycle events with flattened processing content.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs host tool executions and emits direct task-level invocation update and sequenced-processing envelopes.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "runtime.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -44,7 +47,7 @@
       "name": "ExecutionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -52,7 +55,12 @@
           "lineEnd": 15,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 15
+            }
+          ]
         },
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -60,7 +68,12 @@
           "lineEnd": 26,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 26
+            }
+          ]
         },
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -68,7 +81,12 @@
           "lineEnd": 81,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 28,
+              "lineEnd": 81
+            }
+          ]
         },
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -78,12 +96,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 93,
-              "lineEnd": 94
-            },
-            {
-              "lineStart": 114,
-              "lineEnd": 126
+              "lineStart": 85,
+              "lineEnd": 159
             }
           ]
         }

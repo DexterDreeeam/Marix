@@ -3,47 +3,78 @@
   "module": {
     "path": "src/protocol/plan",
     "name": "plan",
-    "purpose": "Owns plan protocol contracts, including JSON plan-draft parsing and step-kind normalization, plan identity/events/status, errors, and model answer payloads.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines nested plan drafts, verdicts, ResultKind-classified terminal results, identities, boxed owning-intent signatures, a Created/Running/Complete lifecycle whose Complete status carries the result, errors, child-intent and relay updates, and cancellation.",
+    "changeStatus": "modified"
   },
+  "added": ["result.rs"],
+  "modified": ["draft.rs", "error.rs", "event.rs", "mod.rs", "signature.rs", "status.rs"],
+  "deleted": ["answer.rs"],
   "childModules": [],
   "elements": [
-    {
-      "name": "Answer",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/plan/answer.rs",
-          "lineStart": 3,
-          "lineEnd": 6,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
     {
       "name": "PlanDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/draft.rs",
           "lineStart": 4,
-          "lineEnd": 12,
+          "lineEnd": 8,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 4,
+              "lineEnd": 8
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/protocol/plan/draft.rs",
+          "lineStart": 10,
+          "lineEnd": 14,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 14
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PlanVerdict",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/plan/draft.rs",
+          "lineStart": 16,
+          "lineEnd": 26,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 16,
+              "lineEnd": 26
+            }
+          ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/plan/draft.rs",
-          "lineStart": 14,
-          "lineEnd": 30,
+          "lineStart": 28,
+          "lineEnd": 32,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 28,
+              "lineEnd": 32
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -52,15 +83,20 @@
       "name": "PlanError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/error.rs",
           "lineStart": 3,
-          "lineEnd": 11,
+          "lineEnd": 7,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 7
+            }
+          ]
         }
       ]
     },
@@ -68,7 +104,7 @@
       "name": "PlanEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/event.rs",
@@ -78,8 +114,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 8,
-              "lineEnd": 8
+              "lineStart": 5,
+              "lineEnd": 10
             }
           ]
         }
@@ -110,10 +146,52 @@
       ]
     },
     {
+      "name": "PlanResultKind",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/plan/result.rs",
+          "lineStart": 3,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 9
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "PlanResult",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/plan/result.rs",
+          "lineStart": 11,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "PlanSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/signature.rs",
@@ -121,7 +199,12 @@
           "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 11
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/plan/signature.rs",
@@ -129,7 +212,12 @@
           "lineEnd": 21,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 13,
+              "lineEnd": 21
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/plan/signature.rs",
@@ -137,7 +225,12 @@
           "lineEnd": 27,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 27
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/plan/signature.rs",
@@ -145,7 +238,12 @@
           "lineEnd": 33,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 29,
+              "lineEnd": 33
+            }
+          ]
         }
       ]
     },
@@ -153,15 +251,33 @@
       "name": "PlanStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/status.rs",
-          "lineStart": 3,
-          "lineEnd": 7,
+          "lineStart": 4,
+          "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 4,
+              "lineEnd": 9
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/protocol/plan/status.rs",
+          "lineStart": 11,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 15
+            }
+          ]
         }
       ]
     }

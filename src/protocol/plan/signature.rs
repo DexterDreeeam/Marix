@@ -1,19 +1,19 @@
 use std::fmt;
 
 use crate::external::*;
-use crate::{PlanId, Signature, TaskSignature};
+use crate::{IntentSignature, PlanId, Signature};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct PlanSignature {
-    pub task: TaskSignature,
+    pub intent: Box<IntentSignature>,
     pub id: PlanId,
     pub name: String,
 }
 
 impl PlanSignature {
-    pub fn new(task: TaskSignature, name: String) -> Self {
+    pub fn new(intent: IntentSignature, name: String) -> Self {
         Self {
-            task,
+            intent: Box::new(intent),
             id: PlanId::new(),
             name,
         }

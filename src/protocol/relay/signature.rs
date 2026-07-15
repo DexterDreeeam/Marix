@@ -2,29 +2,20 @@ use std::fmt;
 
 use crate::external::*;
 
-use crate::{PlanSignature, RelayId, Signature, StepSignature, TaskSignature};
+use crate::{IntentSignature, RelayId, Signature};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct RelaySignature {
-    pub task: TaskSignature,
-    pub plan: PlanSignature,
-    pub step: StepSignature,
-    pub relay_id: RelayId,
+    pub intent: IntentSignature,
+    pub id: RelayId,
     pub name: String,
 }
 
 impl RelaySignature {
-    pub fn new(
-        task: TaskSignature,
-        plan: PlanSignature,
-        step: StepSignature,
-        name: String,
-    ) -> Self {
+    pub fn new(intent: IntentSignature, name: String) -> Self {
         Self {
-            task,
-            plan,
-            step,
-            relay_id: RelayId::new(),
+            intent,
+            id: RelayId::new(),
             name,
         }
     }
@@ -32,12 +23,12 @@ impl RelaySignature {
 
 impl Signature for RelaySignature {
     fn id(&self) -> uuid::Uuid {
-        self.relay_id.0
+        self.id.0
     }
 }
 
 impl fmt::Display for RelaySignature {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(formatter, "{}", self.relay_id.0)
+        write!(formatter, "{}", self.id.0)
     }
 }

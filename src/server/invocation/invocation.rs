@@ -1,48 +1,61 @@
-use std::fmt;
 use std::sync::Arc;
 
 use marix_common::Logger;
-use marix_protocol::{
-    Actor, InvocationEvent, InvocationRequest, InvocationSignature, RuntimeAsync,
-};
+use marix_protocol::{InvocationEvent, InvocationRequest, InvocationStatus};
 
-use super::runtime::InvocationRuntime;
-use super::state::InvocationState;
+use super::{InvocationRuntime, InvocationState};
 use crate::task::TaskAccess;
 
+#[derive(Clone)]
 pub struct Invocation {
-    state: Arc<InvocationState>,
-}
-
-impl Clone for Invocation {
-    fn clone(&self) -> Self {
-        Self {
-            state: Arc::clone(&self.state),
-        }
-    }
+    pub access: Arc<TaskAccess>,
+    pub state: Arc<InvocationState>,
 }
 
 impl Invocation {
-    pub fn new(access: TaskAccess, request: InvocationRequest) -> Self {
-        let signature = request.signature.clone();
-        let state = Arc::new(InvocationState::new(access, signature, request));
-        Self { state }
+    pub fn status(&self) -> InvocationStatus {
+        self.state
+            .status
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clone()
     }
 
-    pub(crate) fn signature(&self) -> &InvocationSignature {
-        &self.state.signature
+    pub fn result(&self) -> Option<String> {
+        if !matches!(self.status(), InvocationStatus::Succeed { .. }) {
+            return None;
+        }
+        let count = self
+            .state
+            .final_signal
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .as_ref()
+            .copied()?;
+        let output = self
+            .state
+            .output
+            .lock()
+            .unwrap_or_else(|error| error.into_inner());
+        if (0..count).any(|seq| !output.contains_key(&seq)) {
+            return None;
+        }
+        Some(
+            (0..count)
+                .filter_map(|seq| output.get(&seq))
+                .cloned()
+                .collect(),
+        )
     }
-}
 
-impl Actor<Invocation, InvocationEvent> for Invocation {
-    fn start(&mut self) {
-        let runtime = InvocationRuntime::new(Arc::clone(&self.state));
-        drop(self.state.access.rt.spawn(async move {
+    pub fn start(&self) {
+        let runtime = InvocationRuntime::new(Arc::clone(&self.access), Arc::clone(&self.state));
+        drop(self.access.rt.spawn(async move {
             runtime.run().await;
         }));
     }
 
-    fn dispatch(&self, event: InvocationEvent) {
+    pub fn dispatch(&self, event: InvocationEvent) {
         if self.state.invocation_tx.send(event).is_err() {
             Logger::warning(format!(
                 "invocation {} event dispatch failed: worker stopped",
@@ -52,12 +65,15 @@ impl Actor<Invocation, InvocationEvent> for Invocation {
     }
 }
 
-impl fmt::Debug for Invocation {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter
-            .debug_struct("Invocation")
-            .field("signature", &self.state.signature)
-            .field("step", &self.state.signature.step)
-            .finish_non_exhaustive()
+// -- Private -- //
+
+impl Invocation {
+    pub(crate) fn new(access: Arc<TaskAccess>, request: InvocationRequest) -> Self {
+        let state = Arc::new(InvocationState::new(
+            Arc::clone(&access),
+            request.signature,
+            request.input,
+        ));
+        Self { access, state }
     }
 }

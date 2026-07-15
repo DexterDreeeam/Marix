@@ -3,40 +3,64 @@
   "module": {
     "path": "src/server/task",
     "name": "task",
-    "purpose": "Owns task lifecycle, shared access to plans, steps, invocations, and relays, plus runtime dispatch across hierarchical protocol events.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns task-scoped actor registries and routing: TaskAccess keeps registries private and exposes intent and relay result lookups, while TaskRuntime routes actor events and starts registered intents on IntentStart.",
+    "changeStatus": "modified"
   },
+  "added": ["routing.rs"],
+  "modified": ["access.rs", "mod.rs", "runtime.rs", "state.rs", "task.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "TaskAccess",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/access.rs",
-          "lineStart": 17,
-          "lineEnd": 28,
+          "lineStart": 18,
+          "lineEnd": 29,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 18,
+              "lineEnd": 29
+            }
+          ]
         },
         {
           "sourcePath": "src/server/task/access.rs",
-          "lineStart": 30,
-          "lineEnd": 105,
+          "lineStart": 33,
+          "lineEnd": 62,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 33,
+              "lineEnd": 62
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/task/access.rs",
+          "lineStart": 64,
+          "lineEnd": 130,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 84,
-              "lineEnd": 96
+              "lineStart": 65,
+              "lineEnd": 81
             }
           ],
           "modifiedLines": [
             {
-              "lineStart": 44,
-              "lineEnd": 44
+              "lineStart": 64,
+              "lineEnd": 64
+            },
+            {
+              "lineStart": 83,
+              "lineEnd": 130
             }
           ]
         }
@@ -46,38 +70,71 @@
       "name": "TaskRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/runtime.rs",
-          "lineStart": 15,
-          "lineEnd": 20,
+          "lineStart": 14,
+          "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 18
+            }
+          ]
         },
         {
           "sourcePath": "src/server/task/runtime.rs",
-          "lineStart": 22,
-          "lineEnd": 37,
+          "lineStart": 20,
+          "lineEnd": 74,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 74
+            }
+          ]
         },
         {
           "sourcePath": "src/server/task/runtime.rs",
-          "lineStart": 39,
-          "lineEnd": 125,
+          "lineStart": 78,
+          "lineEnd": 192,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 78,
+              "lineEnd": 192
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/task/routing.rs",
+          "lineStart": 9,
+          "lineEnd": 36,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 36
+            }
+          ],
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/server/task/runtime.rs",
-          "lineStart": 129,
-          "lineEnd": 357,
+          "sourcePath": "src/server/task/routing.rs",
+          "lineStart": 40,
+          "lineEnd": 145,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 40,
+              "lineEnd": 145
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -86,31 +143,33 @@
       "name": "TaskState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/state.rs",
-          "lineStart": 19,
-          "lineEnd": 27,
+          "lineStart": 21,
+          "lineEnd": 33,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 21,
+              "lineEnd": 33
+            }
+          ]
         },
         {
           "sourcePath": "src/server/task/state.rs",
-          "lineStart": 29,
-          "lineEnd": 61,
+          "lineStart": 37,
+          "lineEnd": 76,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/task/state.rs",
-          "lineStart": 65,
-          "lineEnd": 72,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 37,
+              "lineEnd": 76
+            }
+          ]
         }
       ]
     },
@@ -118,34 +177,71 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/task.rs",
-          "lineStart": 14,
+          "lineStart": 13,
           "lineEnd": 16,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "addedLines": [
+            {
+              "lineStart": 13,
+              "lineEnd": 13
+            },
+            {
+              "lineStart": 16,
+              "lineEnd": 16
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 15
+            }
+          ]
         },
         {
           "sourcePath": "src/server/task/task.rs",
           "lineStart": 18,
-          "lineEnd": 44,
+          "lineEnd": 51,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "addedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 51
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 19,
+              "lineEnd": 19
+            }
+          ]
         },
         {
           "sourcePath": "src/server/task/task.rs",
-          "lineStart": 46,
-          "lineEnd": 65,
+          "lineStart": 55,
+          "lineEnd": 71,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 55,
+              "lineEnd": 56
+            },
+            {
+              "lineStart": 59,
+              "lineEnd": 59
+            },
+            {
+              "lineStart": 66,
+              "lineEnd": 66
+            }
+          ],
           "modifiedLines": [
             {
-              "lineStart": 50,
-              "lineEnd": 53
+              "lineStart": 70,
+              "lineEnd": 71
             }
           ]
         }

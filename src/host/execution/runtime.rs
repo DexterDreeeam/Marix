@@ -4,8 +4,8 @@ use crate::execution::ExecutionState;
 use crate::session::HostSession;
 use marix_common::{Logger, Receiver, Sender, build_channel, select};
 use marix_protocol::{
-    ExecutionError, ExecutionEvent, ExecutionStatus, InvocationEvent, PlanEvent, Runtime,
-    SessionEvent, StepEvent, TaskEvent,
+    ExecutionError, ExecutionEvent, ExecutionStatus, InvocationEvent,
+    Runtime, SessionEvent, TaskEvent,
 };
 
 pub struct ExecutionRuntime {
@@ -97,30 +97,30 @@ impl ExecutionRuntime {
     }
 
     pub(super) fn send_status(&self, status: ExecutionStatus) {
-        let invocation = self.state.request.signature.invocation.clone();
+        let execution = self.state.request.signature.clone();
+        let invocation = execution.invocation.clone();
         let event = SessionEvent::Task(
-            invocation.task.clone(),
-            TaskEvent::Plan(
-                invocation.plan.clone(),
-                PlanEvent::Step(
-                    invocation.step.clone(),
-                    StepEvent::Invocation(invocation, InvocationEvent::Update(status)),
-                ),
+            invocation.step.intent.task.clone(),
+            TaskEvent::Invocation(
+                invocation,
+                InvocationEvent::Update(execution, status),
             ),
         );
         self.send_server_event(event);
     }
 
     pub(super) fn send_processing(&self, seq: usize, content: String) {
-        let invocation = self.state.request.signature.invocation.clone();
+        let execution = self.state.request.signature.clone();
+        let invocation = execution.invocation.clone();
         let event = SessionEvent::Task(
-            invocation.task.clone(),
-            TaskEvent::Plan(
-                invocation.plan.clone(),
-                PlanEvent::Step(
-                    invocation.step.clone(),
-                    StepEvent::Invocation(invocation, InvocationEvent::Processing { seq, content }),
-                ),
+            invocation.step.intent.task.clone(),
+            TaskEvent::Invocation(
+                invocation,
+                InvocationEvent::Processing {
+                    execution,
+                    seq,
+                    content,
+                },
             ),
         );
         self.send_server_event(event);

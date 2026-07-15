@@ -3,9 +3,10 @@
   "module": {
     "path": "src/common/structure",
     "name": "structure",
-    "purpose": "Owns shared channel and work-queue structures, including authenticated remoc transport, wildcard IPv4 server listeners, configured client endpoints, handshake timeouts, and reusable queue cleanup.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns shared channel and insertion-ordered work-queue structures, including authenticated transport, configured endpoints, handshake timeouts, atomic working/completed state, and ordered key/value snapshots.",
+    "changeStatus": "modified"
   },
+  "modified": ["work_queue.rs"],
   "childModules": [],
   "elements": [
     {
@@ -404,27 +405,74 @@
       "name": "WorkQueue",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/work_queue.rs",
           "lineStart": 4,
-          "lineEnd": 7,
+          "lineEnd": 6,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 4,
-              "lineEnd": 7
+              "lineEnd": 6
             }
           ]
         },
         {
           "sourcePath": "src/common/structure/work_queue.rs",
-          "lineStart": 9,
-          "lineEnd": 175,
+          "lineStart": 8,
+          "lineEnd": 218,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 61,
+              "lineEnd": 84
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 20
+            },
+            {
+              "lineStart": 22,
+              "lineEnd": 60
+            },
+            {
+              "lineStart": 85,
+              "lineEnd": 98
+            },
+            {
+              "lineStart": 100,
+              "lineEnd": 122
+            },
+            {
+              "lineStart": 124,
+              "lineEnd": 132
+            },
+            {
+              "lineStart": 134,
+              "lineEnd": 164
+            },
+            {
+              "lineStart": 166,
+              "lineEnd": 217
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/common/structure/work_queue.rs",
+          "lineStart": 222,
+          "lineEnd": 226,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 222,
+              "lineEnd": 226
+            }
+          ],
           "modifiedLines": []
         }
       ]

@@ -4,62 +4,69 @@ use std::thread;
 
 use marix_common::{Logger, Sender};
 use marix_protocol::{
-    Actor, RuntimeAsync, SessionEvent, TaskEvent, TaskPreview, TaskRequestBrief, TaskResult,
-    TaskSignature,
+    IntentSignature, SessionEvent, TaskEvent, TaskResult, TaskSignature, TaskStatus,
 };
 
+use super::{TaskRuntime, TaskState};
 use crate::session::SessionContext;
-use crate::task::{TaskRuntime, TaskState};
 
+#[derive(Clone)]
 pub struct Task {
-    state: Arc<TaskState>,
+    pub state: Arc<TaskState>,
 }
 
 impl Task {
-    pub fn new(
-        session_context: Arc<StdMutex<SessionContext>>,
-        signature: TaskSignature,
-        user_request: String,
-        session_tx: Sender<SessionEvent>,
-    ) -> Self {
-        let state = Arc::new(TaskState::new(
-            session_context,
-            signature,
-            user_request,
-            session_tx,
-        ));
-        Self { state }
+    pub fn status(&self) -> TaskStatus {
+        self.state
+            .status
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clone()
     }
 
-    pub fn preview(&self) -> TaskPreview {
-        TaskPreview {
-            request: TaskRequestBrief {
-                content: self.state.access.user_request.clone(),
-            },
-            result: TaskResult {
-                content: String::new(),
-            },
-        }
+    pub fn result(&self) -> Option<TaskResult> {
+        self.state
+            .result
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clone()
     }
-}
 
-impl Actor<Task, TaskEvent> for Task {
-    fn start(&mut self) {
+    pub fn start(&self) {
+        let runtime = TaskRuntime::new(Arc::clone(&self.state));
         let rt = Arc::clone(&self.state.access.rt);
-        let state = Arc::clone(&self.state);
         drop(thread::spawn(move || {
-            rt.block_on(async move {
-                TaskRuntime::new(state).run().await;
-            });
+            rt.block_on(runtime.run());
         }));
     }
 
-    fn dispatch(&self, event: TaskEvent) {
+    pub fn dispatch(&self, event: TaskEvent) {
         if self.state.task_tx.send(event).is_err() {
             Logger::warning(format!(
                 "task {} event dispatch failed: worker stopped",
                 &self.state.access.signature,
             ));
         }
+    }
+}
+
+// -- Private -- //
+
+impl Task {
+    pub(crate) fn new(
+        session_context: Arc<StdMutex<SessionContext>>,
+        signature: TaskSignature,
+        root: IntentSignature,
+        user_request: String,
+        session_tx: Sender<SessionEvent>,
+    ) -> Self {
+        let state = Arc::new(TaskState::new(
+            session_context,
+            signature,
+            root,
+            user_request,
+            session_tx,
+        ));
+        Self { state }
     }
 }

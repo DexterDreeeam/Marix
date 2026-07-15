@@ -5,40 +5,23 @@ use marix_common::external::*;
 use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
 use marix_protocol::{
     ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, ExecutorEvent,
-    InvocationError, InvocationEvent, PlanEvent, RuntimeAsync, SessionEvent, StepEvent,
-    StepletStatus, TaskEvent,
+    InvocationEvent, InvocationStatus, SessionEvent, StepEvent,
+    TaskEvent,
 };
 
-use super::state::InvocationState;
+use super::InvocationState;
+use crate::task::TaskAccess;
 
-pub(super) struct InvocationRuntime {
-    state: Arc<InvocationState>,
-    invocation_rx: StdMutex<Option<AsyncReceiver<InvocationEvent>>>,
-    close_tx: AsyncSender<()>,
-    close_rx: StdMutex<Option<AsyncReceiver<()>>>,
+pub struct InvocationRuntime {
+    pub access: Arc<TaskAccess>,
+    pub state: Arc<InvocationState>,
+    pub invocation_rx: StdMutex<Option<AsyncReceiver<InvocationEvent>>>,
+    pub close_tx: AsyncSender<()>,
+    pub close_rx: StdMutex<Option<AsyncReceiver<()>>>,
 }
 
 impl InvocationRuntime {
-    pub(super) fn new(state: Arc<InvocationState>) -> Self {
-        let (close_tx, close_rx) = build_async_channel();
-        let invocation_rx = state
-            .invocation_rx
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .take();
-        let runtime = Self {
-            state,
-            invocation_rx: StdMutex::new(invocation_rx),
-            close_tx,
-            close_rx: StdMutex::new(Some(close_rx)),
-        };
-        runtime.send_step_event(StepEvent::Update(StepletStatus::Created));
-        runtime
-    }
-}
-
-impl RuntimeAsync<InvocationEvent, InvocationError> for InvocationRuntime {
-    async fn run(&self) {
+    pub async fn run(&self) {
         let Some(mut invocation_rx) = self
             .invocation_rx
             .lock()
@@ -46,7 +29,7 @@ impl RuntimeAsync<InvocationEvent, InvocationError> for InvocationRuntime {
             .take()
         else {
             Logger::warning(format!(
-                "invocation {} runtime stopping: event receiver unavailable",
+                "invocation {} start ignored: already running",
                 &self.state.signature,
             ));
             return;
@@ -57,17 +40,11 @@ impl RuntimeAsync<InvocationEvent, InvocationError> for InvocationRuntime {
             .unwrap_or_else(|error| error.into_inner())
             .take()
         else {
-            Logger::warning(format!(
-                "invocation {} runtime stopping: close receiver unavailable",
-                &self.state.signature,
-            ));
+            self.system_failure("invocation close receiver unavailable".to_owned());
             return;
         };
-        Logger::debug(format!(
-            "invocation {} runtime loop starting",
-            &self.state.signature,
-        ));
         self.create_execution();
+
         loop {
             self::tokio::select! {
                 _ = close_rx.recv() => break,
@@ -75,47 +52,25 @@ impl RuntimeAsync<InvocationEvent, InvocationError> for InvocationRuntime {
                     let Some(event) = event else {
                         break;
                     };
-                    if let Err(error) = self.dispatch(event) {
-                        Logger::debug(format!(
-                            "invocation {} runtime stopping: {error:?}",
-                            &self.state.signature,
-                        ));
-                        break;
-                    }
+                    self.dispatch(event);
                 }
             }
         }
-        Logger::debug(format!(
-            "invocation {} runtime loop stopped",
-            &self.state.signature,
-        ));
     }
 
-    fn close(&self) {
-        if let Err(error) = self.close_tx.send(()) {
-            Logger::warning(format!(
-                "invocation {} close signal failed: {error}",
-                &self.state.signature,
-            ));
-        }
-    }
-
-    fn dispatch(&self, event: InvocationEvent) -> Result<(), InvocationError> {
+    pub fn dispatch(&self, event: InvocationEvent) {
         match event {
-            InvocationEvent::Update(status) => {
-                self.on_update(status);
-                Ok(())
+            InvocationEvent::Update(execution, status) => {
+                self.on_update(execution, status);
             }
-            InvocationEvent::Processing { seq, content } => {
-                self.on_processing(seq, content);
-                Ok(())
+            InvocationEvent::Processing {
+                execution,
+                seq,
+                content,
+            } => {
+                self.on_processing(execution, seq, content);
             }
-            InvocationEvent::Cancel => {
-                self.cancel_execution();
-                self.send_step_event(StepEvent::Update(StepletStatus::Canceled));
-                self.close();
-                Err(InvocationError::Canceled)
-            }
+            InvocationEvent::Cancel => self.cancel(),
         }
     }
 }
@@ -123,87 +78,210 @@ impl RuntimeAsync<InvocationEvent, InvocationError> for InvocationRuntime {
 // -- Private -- //
 
 impl InvocationRuntime {
+    pub(crate) fn new(access: Arc<TaskAccess>, state: Arc<InvocationState>) -> Self {
+        let (close_tx, close_rx) = build_async_channel();
+        let invocation_rx = state
+            .invocation_rx
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .take();
+        Self {
+            access,
+            state,
+            invocation_rx: StdMutex::new(invocation_rx),
+            close_tx,
+            close_rx: StdMutex::new(Some(close_rx)),
+        }
+    }
+
     fn create_execution(&self) {
-        let execution_signature = ExecutionSignature::new(
+        let signature = ExecutionSignature::new(
             self.state.signature.clone(),
             self.state.signature.name.clone(),
         );
-        let request = ExecutionRequest {
-            signature: execution_signature.clone(),
-            input: self.state.input.clone(),
-        };
         *self
             .state
             .execution_signature
             .lock()
-            .unwrap_or_else(|error| error.into_inner()) = Some(execution_signature);
-        self.send_executor_event(ExecutorEvent::ExecutionCreate(request));
+            .unwrap_or_else(|error| error.into_inner()) = Some(signature.clone());
+        if !self.send_executor_event(ExecutorEvent::ExecutionCreate(ExecutionRequest {
+            signature,
+            input: self.state.input.clone(),
+        })) {
+            self.system_failure("executor event send failed: session stopped".to_owned());
+        }
     }
 
-    fn cancel_execution(&self) {
-        let execution_signature = {
-            self.state
-                .execution_signature
-                .lock()
-                .unwrap_or_else(|error| error.into_inner())
-                .clone()
-        };
-        if let Some(signature) = execution_signature {
-            self.send_executor_event(ExecutorEvent::Execution(signature, ExecutionEvent::Cancel));
-        } else {
-            Logger::warning(format!(
-                "invocation {} cancel requested before execution create",
+    fn on_processing(&self, execution: ExecutionSignature, seq: usize, content: String) {
+        if self.status().is_terminal() {
+            Logger::error(format!(
+                "invocation {} received processing update from execution \
+                 {execution} after completion",
                 &self.state.signature,
             ));
+            return;
         }
-    }
-
-    fn on_update(&self, status: ExecutionStatus) {
-        let close = matches!(
-            status,
-            StepletStatus::Canceled | StepletStatus::Succeed { .. } | StepletStatus::Failed
-        );
-        self.send_step_event(StepEvent::Update(status));
-        if close {
-            self.close();
-        }
-    }
-
-    fn on_processing(&self, seq: usize, content: String) {
-        self.state
+        let mut output = self
+            .state
             .output
             .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .insert(seq, content.clone());
-        self.send_step_event(StepEvent::Processing { seq, content });
+            .unwrap_or_else(|error| error.into_inner());
+        if let Some(applied) = output.get(&seq) {
+            if applied != &content {
+                drop(output);
+                self.system_failure(format!(
+                    "execution {execution} sent conflicting output chunk \
+                     {seq}"
+                ));
+            }
+            return;
+        }
+        output.insert(seq, content);
     }
 
-    fn send_step_event(&self, event: StepEvent) {
+    fn on_update(&self, execution: ExecutionSignature, status: ExecutionStatus) {
+        if self.status().is_terminal() {
+            Logger::error(format!(
+                "invocation {} received execution {execution} update \
+                 {status:?} after completion",
+                &self.state.signature,
+            ));
+            return;
+        }
+        let status = Self::map_execution_status(status);
+        if !status.is_terminal() {
+            return;
+        }
+        if let InvocationStatus::Succeed { seq_count } = status {
+            let complete = {
+                let output = self
+                    .state
+                    .output
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner());
+                output.len() == seq_count && (0..seq_count).all(|seq| output.contains_key(&seq))
+            };
+            if !complete {
+                self.system_failure(format!(
+                    "invocation {} completed with missing output chunks; \
+                     expected {seq_count}",
+                    &self.state.signature,
+                ));
+                return;
+            }
+            *self
+                .state
+                .final_signal
+                .lock()
+                .unwrap_or_else(|error| error.into_inner()) = Some(seq_count);
+            self.set_status(InvocationStatus::Succeed { seq_count });
+            self.send_step_update(InvocationStatus::Succeed { seq_count });
+            self.close();
+            return;
+        }
+        self.set_status(status.clone());
+        self.send_step_update(status);
+        self.close();
+    }
+
+    fn cancel(&self) {
+        if self.status().is_terminal() {
+            return;
+        }
+        let execution = self
+            .state
+            .execution_signature
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clone();
+        if let Some(signature) = execution {
+            if !self
+                .send_executor_event(ExecutorEvent::Execution(signature, ExecutionEvent::Cancel))
+            {
+                self.system_failure("execution cancel send failed: session stopped".to_owned());
+                return;
+            }
+        }
+        self.set_status(InvocationStatus::Canceled);
+        self.send_step_update(InvocationStatus::Canceled);
+        self.close();
+    }
+
+    fn system_failure(&self, reason: String) {
+        if self.status().is_terminal() {
+            return;
+        }
+        Logger::error(format!(
+            "invocation {} failed: {reason}",
+            &self.state.signature,
+        ));
+        self.set_status(InvocationStatus::Failed);
+        self.send_step_update(InvocationStatus::Failed);
+        self.close();
+    }
+
+    fn status(&self) -> InvocationStatus {
+        self.state
+            .status
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clone()
+    }
+
+    fn set_status(&self, status: InvocationStatus) {
+        *self
+            .state
+            .status
+            .lock()
+            .unwrap_or_else(|error| error.into_inner()) = status;
+    }
+
+    fn map_execution_status(status: ExecutionStatus) -> InvocationStatus {
+        match status {
+            ExecutionStatus::Created => InvocationStatus::Created,
+            ExecutionStatus::Started => InvocationStatus::Started,
+            ExecutionStatus::Canceled => InvocationStatus::Canceled,
+            ExecutionStatus::Succeed { seq_count } => InvocationStatus::Succeed { seq_count },
+            ExecutionStatus::Failed => InvocationStatus::Failed,
+        }
+    }
+
+    fn send_step_update(&self, status: InvocationStatus) {
+        let step = self.state.signature.step.clone();
         let event = SessionEvent::Task(
-            self.state.signature.task.clone(),
-            TaskEvent::Plan(
-                self.state.signature.plan.clone(),
-                PlanEvent::Step(self.state.signature.step.clone(), event),
+            step.intent.task.clone(),
+            TaskEvent::Step(
+                step,
+                StepEvent::Update(
+                    self.state.signature.clone(),
+                    status,
+                ),
             ),
         );
-        if self.state.access.session_tx.send(event).is_err() {
+        if self.access.session_tx.send(event).is_err() {
             Logger::warning(format!(
-                "invocation {} step event failed: session worker stopped",
+                "invocation {} event send failed: session stopped",
                 &self.state.signature,
             ));
         }
     }
 
-    fn send_executor_event(&self, event: ExecutorEvent) {
+    fn send_executor_event(&self, event: ExecutorEvent) -> bool {
         if self
-            .state
             .access
             .session_tx
             .send(SessionEvent::Executor(event))
             .is_err()
         {
+            return false;
+        }
+        true
+    }
+
+    fn close(&self) {
+        if self.close_tx.send(()).is_err() {
             Logger::warning(format!(
-                "invocation {} executor event failed: session worker stopped",
+                "invocation {} close signal failed",
                 &self.state.signature,
             ));
         }

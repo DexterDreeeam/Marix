@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/execution",
     "name": "execution",
-    "purpose": "Owns host execution protocol contracts: execution requests, ids, signatures, statuses, errors, and cancellation events.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines execution requests, identities, signatures, errors, events, and the invocation-backed execution status alias.",
+    "changeStatus": "modified"
   },
+  "modified": ["status.rs"],
   "childModules": [],
   "elements": [
     {
@@ -124,7 +125,7 @@
       "name": "ExecutionStatus",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/status.rs",

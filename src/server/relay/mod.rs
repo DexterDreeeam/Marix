@@ -1,5 +1,7 @@
 pub mod relay;
-pub(super) mod runtime;
-pub(super) mod state;
+pub mod runtime;
+pub mod state;
 
 pub use relay::Relay;
+pub use runtime::RelayRuntime;
+pub use state::RelayState;

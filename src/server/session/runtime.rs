@@ -7,7 +7,7 @@ use marix_common::{
     ChannelEndpoint, Logger, Receiver, Sender, accept_channel, build_channel, select,
 };
 use marix_protocol::{
-    Actor, ExecutorEvent, Runtime, SessionEvent, SessionMessage, TaskEvent, TaskRequest,
+    ExecutorEvent, IntentSignature, Runtime, SessionEvent, SessionMessage, TaskEvent, TaskRequest,
     TaskSignature, TaskStatus, ToolPreview,
 };
 
@@ -227,9 +227,13 @@ impl SessionRuntime {
             return;
         }
         Logger::log(format!("task {signature} created"));
+        self.send_client_event(SessionEvent::TaskUpdate(TaskStatus::Created));
+        let root =
+            IntentSignature::new(signature.clone(), None, "root".to_owned());
         let task = Arc::new(StdMutex::new(Task::new(
             Arc::clone(&self.state.context),
             signature.clone(),
+            root,
             content,
             self.state.session_tx.clone(),
         )));

@@ -1,5 +1,7 @@
 pub mod invocation;
-pub(super) mod runtime;
-pub(super) mod state;
+pub mod runtime;
+pub mod state;
 
 pub use invocation::Invocation;
+pub use runtime::InvocationRuntime;
+pub use state::InvocationState;

@@ -1,65 +1,22 @@
-use std::fmt;
 use std::sync::Arc;
 
-use marix_common::Logger;
+use marix_common::{Logger, WorkQueue};
 use marix_protocol::{
-    Actor, PlanError, PlanSignature, RuntimeAsync, StepDraft, StepEvent, StepKind, StepSignature,
+    InvocationRequest, InvocationSignature, StepDraft, StepEvent, StepResult, StepSignature,
     StepStatus,
 };
 
-use super::helper::step_kind;
-use super::runtime::StepRuntime;
-use super::state::StepState;
+use super::{StepRuntime, StepState};
+use crate::invocation::Invocation;
 use crate::task::TaskAccess;
 
+#[derive(Clone)]
 pub struct Step {
-    state: Arc<StepState>,
-}
-
-impl Clone for Step {
-    fn clone(&self) -> Self {
-        Self {
-            state: Arc::clone(&self.state),
-        }
-    }
+    pub access: Arc<TaskAccess>,
+    pub state: Arc<StepState>,
 }
 
 impl Step {
-    pub fn new(
-        access: TaskAccess,
-        signature: StepSignature,
-        description: String,
-        kind: StepKind,
-    ) -> Self {
-        let step = Self {
-            state: Arc::new(StepState::new(signature, description, kind, access)),
-        };
-        step
-    }
-
-    pub(crate) fn from_draft(
-        access: TaskAccess,
-        plan: &PlanSignature,
-        draft: StepDraft,
-    ) -> Result<Self, PlanError> {
-        let signature =
-            StepSignature::new(access.signature.clone(), plan.clone(), draft.name.clone());
-        let kind = step_kind(&signature, &draft)?;
-        Ok(Self::new(access, signature, draft.description, kind))
-    }
-
-    pub(crate) fn signature(&self) -> &StepSignature {
-        &self.state.signature
-    }
-
-    pub(crate) fn description(&self) -> &str {
-        &self.state.description
-    }
-
-    pub(crate) fn kind(&self) -> &StepKind {
-        &self.state.kind
-    }
-
     pub fn status(&self) -> StepStatus {
         self.state
             .status
@@ -68,76 +25,68 @@ impl Step {
             .clone()
     }
 
-    pub fn set_input(&self, input: String) {
-        *self
-            .state
-            .input
-            .lock()
-            .unwrap_or_else(|error| error.into_inner()) = Some(input);
-    }
-
-    pub(crate) fn output(&self) -> String {
-        let final_signal = *self
-            .state
-            .final_signal
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
-        let output = self
-            .state
-            .output
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
-
-        let Some(seq_count) = final_signal else {
-            Logger::warning(format!(
-                "step {} output requested before final signal (task {})",
-                &self.state.signature, &self.state.signature.task,
-            ));
-            return output.values().cloned().collect();
-        };
-
-        let missing: Vec<_> = (0..seq_count)
-            .filter(|seq| !output.contains_key(seq))
-            .collect();
-        if !missing.is_empty() {
-            Logger::warning(format!(
-                "step {} output missing sequences {:?} (task {})",
-                &self.state.signature, missing, &self.state.signature.task,
-            ));
+    pub fn result(&self) -> Option<StepResult> {
+        match self.status() {
+            StepStatus::Complete(result) => Some(result),
+            StepStatus::Created | StepStatus::Running => None,
         }
-
-        (0..seq_count)
-            .filter_map(|seq| output.get(&seq))
-            .cloned()
-            .collect()
     }
-}
 
-impl Actor<Step, StepEvent> for Step {
-    fn start(&mut self) {
-        let runtime = StepRuntime::new(Arc::clone(&self.state));
-        drop(self.state.access.rt.spawn(async move {
+    pub fn start(&self) {
+        let runtime = StepRuntime::new(Arc::clone(&self.access), Arc::clone(&self.state));
+        drop(self.access.rt.spawn(async move {
             runtime.run().await;
         }));
     }
 
-    fn dispatch(&self, event: StepEvent) {
+    pub fn dispatch(&self, event: StepEvent) {
         if self.state.step_tx.send(event).is_err() {
             Logger::warning(format!(
-                "step {} event dispatch failed: worker stopped (task {})",
-                &self.state.signature, &self.state.signature.task,
+                "step {} event dispatch failed: worker stopped",
+                &self.state.signature,
             ));
         }
     }
 }
 
-impl fmt::Debug for Step {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter
-            .debug_struct("Step")
-            .field("signature", &self.state.signature)
-            .field("description", &self.state.description)
-            .field("kind", &self.state.kind)
-            .finish_non_exhaustive()
+// -- Private -- //
+
+impl Step {
+    pub(crate) fn from_draft(
+        access: Arc<TaskAccess>,
+        signature: StepSignature,
+        draft: StepDraft,
+    ) -> Result<Self, String> {
+        if draft
+            .invocations
+            .iter()
+            .any(|invocation| invocation.name.trim().is_empty())
+        {
+            return Err("step invocation name cannot be empty".to_owned());
+        }
+        let invocations = Arc::new(WorkQueue::new());
+        for invocation in draft.invocations {
+            let invocation_signature = InvocationSignature::new(
+                signature.clone(),
+                invocation.name,
+            );
+            let request = InvocationRequest {
+                signature: invocation_signature.clone(),
+                input: invocation.input,
+            };
+            let actor = Invocation::new(Arc::clone(&access), request);
+            if !access.insert_invocation(actor.clone()) {
+                return Err(format!(
+                    "invocation {invocation_signature} is duplicated"
+                ));
+            }
+            invocations.insert(invocation_signature, actor);
+        }
+        let state = Arc::new(StepState::new(
+            Arc::clone(&access),
+            signature,
+            invocations,
+        ));
+        Ok(Self { access, state })
     }
 }

@@ -3,24 +3,31 @@
   "module": {
     "path": "src/protocol/relay",
     "name": "relay",
-    "purpose": "Owns relay protocol contracts including relay identity/signatures, requests, statuses, errors, and relay cancellation events.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines relay requests, identities, signatures, lifecycle statuses, errors, and cancellation events for sequenced model output.",
+    "changeStatus": "modified"
   },
+  "added": ["status.rs"],
+  "modified": ["error.rs", "event.rs", "mod.rs", "signature.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "RelayError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/error.rs",
           "lineStart": 3,
-          "lineEnd": 6,
+          "lineEnd": 7,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 7
+            }
+          ]
         }
       ]
     },
@@ -28,7 +35,7 @@
       "name": "RelayEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/event.rs",
@@ -36,7 +43,12 @@
           "lineEnd": 6,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 6
+            }
+          ]
         }
       ]
     },
@@ -84,38 +96,92 @@
       "name": "RelaySignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/signature.rs",
           "lineStart": 7,
-          "lineEnd": 14,
+          "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 12
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/relay/signature.rs",
-          "lineStart": 16,
-          "lineEnd": 31,
+          "lineStart": 14,
+          "lineEnd": 22,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 22
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/relay/signature.rs",
-          "lineStart": 33,
-          "lineEnd": 37,
+          "lineStart": 24,
+          "lineEnd": 28,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 24,
+              "lineEnd": 28
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/relay/signature.rs",
-          "lineStart": 39,
-          "lineEnd": 43,
+          "lineStart": 30,
+          "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 30,
+              "lineEnd": 34
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "RelayStatus",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/relay/status.rs",
+          "lineStart": 3,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/relay/status.rs",
+          "lineStart": 12,
+          "lineEnd": 16,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 16
+            }
+          ],
           "modifiedLines": []
         }
       ]

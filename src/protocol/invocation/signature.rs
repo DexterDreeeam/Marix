@@ -2,29 +2,20 @@ use std::fmt;
 
 use crate::external::*;
 
-use crate::{InvocationId, PlanSignature, Signature, StepSignature, TaskSignature};
+use crate::{InvocationId, Signature, StepSignature};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct InvocationSignature {
-    pub task: TaskSignature,
-    pub plan: PlanSignature,
     pub step: StepSignature,
-    pub invocation_id: InvocationId,
+    pub id: InvocationId,
     pub name: String,
 }
 
 impl InvocationSignature {
-    pub fn new(
-        task: TaskSignature,
-        plan: PlanSignature,
-        step: StepSignature,
-        name: String,
-    ) -> Self {
+    pub fn new(step: StepSignature, name: String) -> Self {
         Self {
-            task,
-            plan,
             step,
-            invocation_id: InvocationId::new(),
+            id: InvocationId::new(),
             name,
         }
     }
@@ -32,12 +23,12 @@ impl InvocationSignature {
 
 impl Signature for InvocationSignature {
     fn id(&self) -> uuid::Uuid {
-        self.invocation_id.0
+        self.id.0
     }
 }
 
 impl fmt::Display for InvocationSignature {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(formatter, "{}", self.invocation_id.0)
+        write!(formatter, "{}", self.id.0)
     }
 }

@@ -1,41 +1,45 @@
 use std::collections::BTreeMap;
+use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
-use marix_common::external::*;
 use marix_common::{AsyncReceiver, AsyncSender, build_async_channel};
 use marix_protocol::{
-    ExecutionSignature, InvocationEvent, InvocationRequest, InvocationSignature, ToolInputSchema,
+    ExecutionSignature, InvocationEvent, InvocationSignature, InvocationStatus, ToolInputSchema,
 };
 
 use crate::task::TaskAccess;
 
-pub(super) struct InvocationState {
-    pub(super) access: TaskAccess,
-    pub(super) signature: InvocationSignature,
-    pub(super) invocation_tx: AsyncSender<InvocationEvent>,
-    pub(super) invocation_rx: StdMutex<Option<AsyncReceiver<InvocationEvent>>>,
-    pub(super) input: ToolInputSchema,
-    pub(super) execution_signature: StdMutex<Option<ExecutionSignature>>,
-    pub(super) output: StdMutex<BTreeMap<usize, String>>,
-    pub(super) final_signal: StdMutex<Option<usize>>,
+pub struct InvocationState {
+    pub access: Arc<TaskAccess>,
+    pub signature: InvocationSignature,
+    pub input: ToolInputSchema,
+    pub status: StdMutex<InvocationStatus>,
+    pub output: StdMutex<BTreeMap<usize, String>>,
+    pub final_signal: StdMutex<Option<usize>>,
+    pub execution_signature: StdMutex<Option<ExecutionSignature>>,
+    pub invocation_tx: AsyncSender<InvocationEvent>,
+    pub invocation_rx: StdMutex<Option<AsyncReceiver<InvocationEvent>>>,
 }
 
+// -- Private -- //
+
 impl InvocationState {
-    pub(super) fn new(
-        access: TaskAccess,
+    pub(crate) fn new(
+        access: Arc<TaskAccess>,
         signature: InvocationSignature,
-        request: InvocationRequest,
+        input: ToolInputSchema,
     ) -> Self {
         let (invocation_tx, invocation_rx) = build_async_channel();
         Self {
             access,
             signature,
-            invocation_tx,
-            invocation_rx: StdMutex::new(Some(invocation_rx)),
-            input: request.input,
-            execution_signature: StdMutex::new(None),
+            input,
+            status: StdMutex::new(InvocationStatus::Created),
             output: StdMutex::new(BTreeMap::new()),
             final_signal: StdMutex::new(None),
+            execution_signature: StdMutex::new(None),
+            invocation_tx,
+            invocation_rx: StdMutex::new(Some(invocation_rx)),
         }
     }
 }

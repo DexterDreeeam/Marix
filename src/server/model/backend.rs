@@ -1,8 +1,7 @@
 use std::fmt;
 
-use marix_common::external::*;
 use marix_common::{AsyncReceiver, Receiver};
-use marix_protocol::StepSignature;
+use marix_protocol::RelaySignature;
 
 use super::error::ModelBackendError;
 
@@ -37,7 +36,7 @@ pub(super) trait ModelBackendImpl: fmt::Debug + Send {
 
 #[derive(Debug, Clone)]
 pub struct ModelRequest {
-    pub step: StepSignature,
+    pub relay: RelaySignature,
     pub prompt: String,
 }
 

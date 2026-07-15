@@ -1,44 +1,39 @@
-use std::collections::BTreeMap;
+use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
-use marix_common::external::*;
-use marix_common::{AsyncReceiver, AsyncSender, build_async_channel};
-use marix_protocol::{StepEvent, StepKind, StepSignature, StepStatus};
+use marix_common::{AsyncReceiver, AsyncSender, WorkQueue, build_async_channel};
+use marix_protocol::{
+    InvocationSignature, StepEvent, StepSignature, StepStatus,
+};
 
+use crate::invocation::Invocation;
 use crate::task::TaskAccess;
 
-pub(super) struct StepState {
-    pub(super) signature: StepSignature,
-    pub(super) description: String,
-    pub(super) kind: StepKind,
-    pub(super) access: TaskAccess,
-    pub(super) step_tx: AsyncSender<StepEvent>,
-    pub(super) step_rx: StdMutex<Option<AsyncReceiver<StepEvent>>>,
-    pub(super) status: StdMutex<StepStatus>,
-    pub input: StdMutex<Option<String>>,
-    pub(super) output: StdMutex<BTreeMap<usize, String>>,
-    pub(super) final_signal: StdMutex<Option<usize>>,
+pub struct StepState {
+    pub access: Arc<TaskAccess>,
+    pub signature: StepSignature,
+    pub invocations: Arc<WorkQueue<InvocationSignature, Invocation>>,
+    pub status: StdMutex<StepStatus>,
+    pub step_tx: AsyncSender<StepEvent>,
+    pub step_rx: StdMutex<Option<AsyncReceiver<StepEvent>>>,
 }
 
+// -- Private -- //
+
 impl StepState {
-    pub(super) fn new(
+    pub(crate) fn new(
+        access: Arc<TaskAccess>,
         signature: StepSignature,
-        description: String,
-        kind: StepKind,
-        access: TaskAccess,
+        invocations: Arc<WorkQueue<InvocationSignature, Invocation>>,
     ) -> Self {
         let (step_tx, step_rx) = build_async_channel();
         Self {
-            signature,
-            description,
-            kind,
             access,
+            signature,
+            invocations,
+            status: StdMutex::new(StepStatus::Created),
             step_tx,
             step_rx: StdMutex::new(Some(step_rx)),
-            status: StdMutex::new(StepStatus::Created),
-            input: StdMutex::new(None),
-            output: StdMutex::new(BTreeMap::new()),
-            final_signal: StdMutex::new(None),
         }
     }
 }

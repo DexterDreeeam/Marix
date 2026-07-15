@@ -4,8 +4,9 @@
     "path": "src",
     "name": "src",
     "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and tool packages.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/client",
@@ -20,27 +21,27 @@
     {
       "path": "src/host",
       "name": "host",
-      "purpose": "Owns Host connectivity, remote-first telemetry with file fallback, execution lifecycle, and Server-directed tool registration."
+      "purpose": "Owns Host connectivity, execution lifecycle, nested invocation status propagation, and tool registration."
     },
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "Owns shared actor/runtime contracts and serialized execution, session, task, plan, step, invocation, relay, executor, and string-backed tool protocols."
+      "purpose": "Owns shared actor/runtime contracts and serialized workflow envelopes, ResultKind-classified terminal results carried by intent, plan, and step Complete statuses, cancellation, and lineage-aware signatures across task, intent, plan, step, invocation, relay, execution, session, executor, and tool protocols."
     },
     {
       "path": "src/server",
       "name": "server",
-      "purpose": "Runs server orchestration with flattened step and tool content, prompt construction, idempotent model-step startup, and session lifecycle management."
-    },
-    {
-      "path": "src/tool",
-      "name": "tool",
-      "purpose": "Top-level marix-tool crate defining ToolProgram and six feature-gated native tool executables, including the OsEnv system-environment tool."
+      "purpose": "Runs managed-child workflow orchestration across tasks, heterogeneous intents, plans, steps, invocations, asynchronous leaf relays, host execution, model prompts, and sessions."
     },
     {
       "path": "src/server_telemetry",
       "name": "server_telemetry",
       "purpose": "Runs the standalone telemetry collector and its paginated HTTP API while serving browser assets from the static http folder."
+    },
+    {
+      "path": "src/tool",
+      "name": "tool",
+      "purpose": "Top-level marix-tool crate defining ToolProgram and six feature-gated native tools with shared compatibility parsing for Windows path and cwd backslashes."
     }
   ],
   "elements": [
@@ -143,59 +144,6 @@
       ]
     },
     {
-      "name": "main",
-      "type": "function",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/host/main.rs",
-          "lineStart": 4,
-          "lineEnd": 18,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "configure_logging",
-      "type": "function",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/host/main.rs",
-          "lineStart": 22,
-          "lineEnd": 33,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 22,
-              "lineEnd": 33
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "SOURCE_NAME",
-      "type": "static",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/host/session.rs",
-          "lineStart": 11,
-          "lineEnd": 11,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
       "name": "HostSession",
       "type": "struct",
       "source_depth": 2,
@@ -233,26 +181,39 @@
       ]
     },
     {
-      "name": "HostSessionState",
-      "type": "struct",
+      "name": "main",
+      "type": "function",
       "source_depth": 2,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
-          "sourcePath": "src/host/session.rs",
-          "lineStart": 111,
-          "lineEnd": 114,
+          "sourcePath": "src/host/main.rs",
+          "lineStart": 4,
+          "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
-        },
+        }
+      ]
+    },
+    {
+      "name": "configure_logging",
+      "type": "function",
+      "source_depth": 2,
+      "changeStatus": "unchanged",
+      "codeSegments": [
         {
-          "sourcePath": "src/host/session.rs",
-          "lineStart": 116,
-          "lineEnd": 123,
+          "sourcePath": "src/host/main.rs",
+          "lineStart": 22,
+          "lineEnd": 33,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 33
+            }
+          ]
         }
       ]
     },
@@ -378,54 +339,6 @@
               "lineEnd": 23
             }
           ]
-        }
-      ]
-    },
-    {
-      "name": "main",
-      "type": "function",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/tool/tool_main.rs",
-          "lineStart": 5,
-          "lineEnd": 7,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "run",
-      "type": "function",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/tool/tool_main.rs",
-          "lineStart": 12,
-          "lineEnd": 31,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ToolProgram",
-      "type": "trait",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/tool/tool_program.rs",
-          "lineStart": 3,
-          "lineEnd": 7,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
         }
       ]
     },
@@ -766,6 +679,22 @@
           "sourcePath": "src/server_telemetry/server.rs",
           "lineStart": 20,
           "lineEnd": 50,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolProgram",
+      "type": "trait",
+      "source_depth": 2,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/tool_program.rs",
+          "lineStart": 3,
+          "lineEnd": 7,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

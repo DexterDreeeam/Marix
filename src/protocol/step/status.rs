@@ -1,19 +1,15 @@
 use crate::external::*;
+use crate::StepResult;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum StepStatus {
     Created,
-    Started,
-    Canceled,
-    Succeed,
-    Failed,
+    Running,
+    Complete(StepResult),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum StepletStatus {
-    Created,
-    Started,
-    Canceled,
-    Succeed { seq_count: usize },
-    Failed,
+impl StepStatus {
+    pub fn is_terminal(&self) -> bool {
+        matches!(self, Self::Complete(_))
+    }
 }

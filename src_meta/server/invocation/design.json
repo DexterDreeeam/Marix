@@ -3,56 +3,82 @@
   "module": {
     "path": "src/server/invocation",
     "name": "invocation",
-    "purpose": "Owns server-side invocation lifecycle and runtime routing between step events and host executor events.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns host execution creation, ordered output aggregation, terminal status handling, and direct task routing to its step.",
+    "changeStatus": "modified"
   },
+  "modified": ["invocation.rs", "mod.rs", "runtime.rs", "state.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Invocation",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/invocation.rs",
-          "lineStart": 13,
-          "lineEnd": 15,
+          "lineStart": 9,
+          "lineEnd": 13,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 9
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 12
+            }
+          ]
         },
         {
           "sourcePath": "src/server/invocation/invocation.rs",
-          "lineStart": 17,
-          "lineEnd": 23,
+          "lineStart": 15,
+          "lineEnd": 66,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "addedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 21
+            },
+            {
+              "lineStart": 26,
+              "lineEnd": 48
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 16,
+              "lineEnd": 19
+            },
+            {
+              "lineStart": 24,
+              "lineEnd": 25
+            },
+            {
+              "lineStart": 51,
+              "lineEnd": 53
+            },
+            {
+              "lineStart": 58,
+              "lineEnd": 58
+            }
+          ]
         },
         {
           "sourcePath": "src/server/invocation/invocation.rs",
-          "lineStart": 25,
-          "lineEnd": 35,
+          "lineStart": 70,
+          "lineEnd": 79,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/invocation/invocation.rs",
-          "lineStart": 37,
-          "lineEnd": 53,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/invocation/invocation.rs",
-          "lineStart": 55,
-          "lineEnd": 63,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 70,
+              "lineEnd": 79
+            }
+          ]
         }
       ]
     },
@@ -60,39 +86,46 @@
       "name": "InvocationRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 14,
-          "lineEnd": 19,
+          "lineStart": 15,
+          "lineEnd": 21,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 21
+            }
+          ]
         },
         {
           "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 21,
-          "lineEnd": 38,
+          "lineStart": 23,
+          "lineEnd": 76,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 76
+            }
+          ]
         },
         {
           "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 40,
-          "lineEnd": 121,
+          "lineStart": 80,
+          "lineEnd": 289,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 125,
-          "lineEnd": 211,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 80,
+              "lineEnd": 289
+            }
+          ]
         }
       ]
     },
@@ -100,23 +133,47 @@
       "name": "InvocationState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/state.rs",
           "lineStart": 12,
-          "lineEnd": 21,
+          "lineEnd": 22,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "addedLines": [
+            {
+              "lineStart": 21,
+              "lineEnd": 21
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 20
+            }
+          ]
         },
         {
           "sourcePath": "src/server/invocation/state.rs",
-          "lineStart": 23,
-          "lineEnd": 41,
+          "lineStart": 26,
+          "lineEnd": 45,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "addedLines": [
+            {
+              "lineStart": 36,
+              "lineEnd": 40
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 27,
+              "lineEnd": 28
+            },
+            {
+              "lineStart": 30,
+              "lineEnd": 30
+            }
+          ]
         }
       ]
     }

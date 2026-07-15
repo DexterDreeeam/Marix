@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/model",
     "name": "model",
-    "purpose": "Owns the server model backend abstraction. backend.rs defines the public ModelBackend trait, the crate-internal ModelBackendImpl trait, and a blanket impl that delegates request directly to ModelBackendImpl::request; backend_deepseek.rs implements DeepseekBackend as a config-driven streaming Deepseek chat-completions backend over reqwest with SSE parsing and a user-role single-message payload that preserves request.prompt as content; error.rs defines ModelBackendError with From conversions for io, serde_json, and reqwest errors plus a Display impl. mod.rs is namespace and re-export wiring only.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns synchronous and asynchronous model backend abstractions, response channels, requests, streaming responses, and backend errors.",
+    "changeStatus": "modified"
   },
+  "modified": ["backend.rs"],
   "childModules": [],
   "elements": [
     {
@@ -16,16 +17,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
-          "lineStart": 9,
-          "lineEnd": 9,
+          "lineStart": 8,
+          "lineEnd": 8,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 9
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -37,16 +33,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
-          "lineStart": 10,
-          "lineEnd": 10,
+          "lineStart": 9,
+          "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 10
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -54,18 +45,18 @@
       "name": "ModelBackend",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
-          "lineStart": 12,
-          "lineEnd": 22,
+          "lineStart": 11,
+          "lineEnd": 21,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 22
+              "lineStart": 11,
+              "lineEnd": 21
             }
           ]
         }
@@ -75,18 +66,18 @@
       "name": "ModelBackendImpl",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
-          "lineStart": 24,
-          "lineEnd": 36,
+          "lineStart": 23,
+          "lineEnd": 35,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 24,
-              "lineEnd": 36
+              "lineStart": 23,
+              "lineEnd": 35
             }
           ]
         }
@@ -100,14 +91,14 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
-          "lineStart": 38,
-          "lineEnd": 42,
+          "lineStart": 37,
+          "lineEnd": 41,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 38,
-              "lineEnd": 42
+              "lineEnd": 41
             }
           ]
         }
@@ -121,14 +112,14 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
-          "lineStart": 44,
-          "lineEnd": 49,
+          "lineStart": 43,
+          "lineEnd": 48,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 44,
-              "lineEnd": 49
+              "lineEnd": 48
             }
           ]
         }
@@ -202,27 +193,6 @@
             {
               "lineStart": 291,
               "lineEnd": 300
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "ModelResponseSender",
-      "type": "trait",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 37,
-          "lineEnd": 39,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 37,
-              "lineEnd": 39
             }
           ]
         }

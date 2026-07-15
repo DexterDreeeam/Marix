@@ -1,0 +1,23 @@
+Reconstruct an ordered child-intent plan for one immutable parent intent.
+
+Parent intent:
+{{#parent_intent}}
+
+Current ordered child intent strings (JSON):
+{{#current_intents}}
+
+Prior non-viable plan results (JSON):
+{{#failures}}
+
+Reusable successful intent results (JSON):
+{{#reusable_successes}}
+
+Return only strict JSON with exactly one choice.
+
+Replacement plan:
+{"type":"replacement","value":{"intents":[{"content":"immutable child goal"}]}}
+
+Parent intent is infeasible:
+{"type":"infeasible","value":{"reason":"why no replacement can work"}}
+
+Reuse successful intent content verbatim when it remains valid. Do not add markdown, commentary, signatures, unknown fields, or an empty replacement.

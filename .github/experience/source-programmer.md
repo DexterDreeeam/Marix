@@ -980,3 +980,137 @@ connecter to protect this distinction.
   modules directly beside `main.rs`; `http/` contains only embedded static
   assets. Root handlers use `include_str!("http/...")`, while `main.rs` calls
   `server::serve` directly.
+- 2026-07-14 (nested workflow design draft): The legacy `server` workflow
+  modules are archived unchanged under `.task`, `.step`, `.plan`, `.relay`,
+  and `.invocation`. Their active replacements plus the new `intent` module
+  are public-interface-only panic stubs and intentionally remain
+  noncompiling until the new intent/result protocol types and dependent
+  session/model wiring are designed.
+- 2026-07-14 (minimal workflow actor API): Each active `server` workflow actor
+  exposes only `status`, `result`, `start`, and `dispatch`; each corresponding
+  runtime exposes only `run` and `dispatch`. Callers construct both directly
+  from their public `Arc<...State>` field.
+- 2026-07-14 (workflow access and channels design; supersedes the construction
+  detail above): `server::task::TaskAccess` is the cloneable task-wide boundary
+  for session access, task identity, Tokio runtime ownership, and shared
+  intent/relay registries. Every active workflow actor, state, and runtime
+  carries it as the first public field, so direct actor/runtime construction
+  now requires both access and state.
+- 2026-07-14 (workflow event ownership design): Each active workflow state
+  exposes its event sender and single-take receiver, while its runtime exposes
+  the matching receiver plus close sender/receiver. The draft intentionally
+  references pending intent, invocation, and relay protocol types and remains
+  noncompiling until those protocol interfaces exist.
+- 2026-07-14 (task access boundary): Active `TaskAccess` names its Tokio
+  runtime field `rt`; intent and relay work queues are private registries.
+- 2026-07-15 (nested workflow implementation; supersedes the draft-only
+  notes above): `TaskAccess` is the sole task-wide store for all `Intent`
+  actors and transient `Relay` actors. `Task` drives its current-thread Tokio
+  runtime from a dedicated standard thread so every nested actor spawned on
+  `access.rt` continues to make progress.
+- 2026-07-15 (workflow lineage and routing): Protocol lineage is
+  `TaskSignature -> IntentSignature -> {PlanSignature, StepSignature,
+  RelaySignature}` and `StepSignature -> InvocationSignature`. Host execution
+  responses use the full nested `TaskEvent::Intent/IntentEvent::Step/
+  StepEvent::Invocation` path; child intent terminal results route through
+  Task to the active Plan that contains their signature.
+- 2026-07-15 (invocation echo invariant): Host-originated nested invocation
+  events first update the `Invocation` actor. Its runtime emits the same nested
+  event after state mutation; `StepRuntime` distinguishes that child echo with
+  `Invocation::has_applied`, preventing redispatch loops while retaining the
+  required nested event tree.
+- 2026-07-15 (plan reconstruction): `PlanState` stores only ordered intent
+  signatures, append-only failed `PlanResult` shapes, and one terminal result.
+  Reconstruction is capped at eight failures and reuses successful task-store
+  intents by exact trimmed content before starting the first unreused child.
+- 2026-07-15 (model verdict contracts): `IntentVerdict.prompt` accepts the
+  immutable intent, ordered Step history, and tools and returns strict
+  step/plan/complete/infeasible JSON. `PlanReconstruction.prompt` returns only
+  replacement/infeasible JSON and includes current children, prior failures,
+  and reusable successful intent results.
+- 2026-07-15 (active Relay ownership): `server/task/access.rs` is the sole
+  active Relay tracker and permits at most one working Relay per Intent.
+  Intent and Plan states hold no Relay identity; their runtimes validate
+  events against the working registry, read terminal output before completing
+  the Relay, and route Plan-owned events only while the Plan is waiting for a
+  Relay.
+- 2026-07-15 (workflow managed-child events): Active workflow `Update`
+  variants always pair the managed child's signature and status:
+  Task/Intent, Plan/Intent, Step/Invocation, and Invocation/Execution.
+  Plan, Step, and Relay use terminal `Result(status)` events; their parents
+  read the actor-owned result only after validating the emitted status.
+- 2026-07-15 (workflow construction boundary): Workflow Create events are
+  absent. `TaskState::new` registers the root Intent, `IntentRuntime` builds
+  Plan children or every Step Invocation before starting the owner, and
+  `TaskAccess::start_relay` synchronously validates, registers, and starts the
+  sole working Relay for an Intent.
+- 2026-07-15 (nested execution routing): Host execution responses retain the
+  full Task/Intent/Step/Invocation wrapper and include `ExecutionSignature` in
+  status and processing events. `InvocationRuntime` rejects mismatched
+  executions, applies duplicate/stale guards, and reports state changes
+  directly as `StepEvent::Update(invocation, status)` without echoing the
+  Invocation wrapper.
+- 2026-07-15 (terminal propagation invariant): Intent, Plan, Step, Relay, and
+  Invocation runtimes commit status plus available result/output state before
+  emitting terminal events. Owner runtimes consume direct child `Update`
+  events while wrapper events remain commands routed to the child actor,
+  preventing child-event echo loops.
+- 2026-07-15 (workflow event direction; supersedes the `Result(status)` note
+  above): An `XxxEvent` is input to actor Xxx. Terminal propagation is
+  Execution -> `InvocationEvent::Update`, Invocation ->
+  `StepEvent::Update`, Step -> `IntentEvent::StepUpdate`, Plan ->
+  `IntentEvent::PlanUpdate`, Relay -> `IntentEvent::RelayUpdate`, and Intent
+  -> `TaskEvent::Update`; wrapper variants remain downward-routing commands.
+- 2026-07-15 (Relay terminal ownership): `RelayRuntime` consumes model stream
+  responses directly, commits output/final signal and terminal status, then
+  sends `IntentEvent::RelayUpdate`. A waiting Plan receives that update only
+  after its owner Intent validates the working Relay and forwards
+  `PlanEvent::RelayUpdate`.
+- 2026-07-15 (task queue ownership; supersedes the sole-store detail above):
+  Active `TaskState` creates and owns the task's Intent and Relay `WorkQueue`
+  Arcs. `TaskAccess` receives clones of those exact Arcs and exposes only
+  insertion methods; `TaskRuntime` performs Intent lookup, completion, parent
+  Plan discovery, and cancellation directly through `TaskState.intents`.
+  Workspace checking is currently blocked by intentionally out-of-scope
+  deleted `TaskAccess` helper calls remaining under active Intent/Plan modules.
+- 2026-07-15 (intent parent Plan routing; supersedes parent Plan discovery
+  above): `IntentSignature.parent` is `None` only for the root and stores the
+  exact `PlanSignature` for newly created children. `PlanSignature` boxes its
+  owner Intent to make the recursive lineage finite-sized. `TaskRuntime`
+  dispatches terminal non-root updates by direct parent key lookup, while
+  `PlanRuntime` still validates child membership.
+- 2026-07-15 (queue order ownership): `WorkQueue` stores insertion order,
+  working entries, and completed entries behind one mutex. Moving an entry to
+  complete or updating it preserves its original position; Intent step history
+  and Step invocation aggregation consume `WorkQueue::list()` directly instead
+  of maintaining parallel signature-order vectors.
+- 2026-07-15 (unified task event routing): `protocol::TaskEvent` directly
+  envelopes Intent, Plan, Step, Invocation, and Relay events. Active downward
+  wrapper variants were removed; `TaskRuntime` resolves every target from the
+  matching `TaskState` registry and rejects cross-task lineage.
+- 2026-07-15 (five task registries): `TaskState` creates the shared Intent,
+  Plan, Step, Invocation, and Relay `WorkQueue` Arcs. `TaskAccess` retains only
+  construction plus duplicate-guarded insertion methods; task-wide lookup and
+  terminal completion stay private to `TaskRuntime`.
+- 2026-07-15 (actor registration invariant): Intent-created Steps,
+  Step-created Invocations, Plans, and both Intent/Plan Relays are inserted in
+  the task-wide registry before `start`. Terminal child events move the global
+  queue entry working-to-complete before owner dispatch, while owner-local
+  queues or actor clones retain result access.
+- 2026-07-15 (task routing ownership): Task event routing is a private
+  `server::task` sibling module, not a child of `task::runtime`. Its
+  `TaskRuntime` extension calls only the runtime helpers explicitly exposed as
+  `pub(super)`, keeping those operations confined to the task module.
+- 2026-07-15 (result-kind naming and Intent runtime ownership): Intent, Plan,
+  and Step result protocols expose `*ResultKind` enums through a `kind` field.
+  Intent plan-update handling is private runtime dispatch behavior, while
+  `intent/workflow.rs` owns only Step/Plan creation. Intent verdict Relay
+  construction is currently unwired and fails through `verdict()`.
+- 2026-07-15 (Plan intent ownership): `PlanState::intents` is a mutex-protected
+  ordered `Vec<IntentSignature>` only. Plan completion consumes child outputs
+  from update events and uses the final successful Intent output directly.
+- 2026-07-16 (Plan child start boundary): Intent workflow registers every child
+  Intent before starting its Plan. `PlanRuntime::advance` walks the ordered
+  signatures and queries only `TaskAccess::get_result`; the first unfinished
+  child is started by sending `TaskEvent::IntentStart` through the Session,
+  leaving actor lookup and direct `Intent::start` ownership in `TaskRuntime`.
