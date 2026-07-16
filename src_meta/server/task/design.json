@@ -4,16 +4,15 @@
     "path": "src/server/task",
     "name": "task",
     "purpose": "Owns task-scoped actor registries and routing: TaskAccess exposes immutable intent content alongside intent and invocation results, while TaskRuntime routes actor events and explicitly starts registered intents.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["access.rs", "routing.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "TaskAccess",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/access.rs",
@@ -55,7 +54,7 @@
       "name": "TaskRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/runtime.rs",

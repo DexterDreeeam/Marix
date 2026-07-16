@@ -4,9 +4,8 @@
     "path": "src/server/plan",
     "name": "plan",
     "purpose": "Owns sequential child-intent execution and reconstruction: runtime records each failure before rendering System plus PlanVerdict with user_request, parent_intent, current_plan, and plan_failures, then installs a replacement without recording that failure twice.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -60,7 +59,7 @@
       "name": "PlanRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",

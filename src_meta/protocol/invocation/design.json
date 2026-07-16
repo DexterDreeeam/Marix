@@ -4,10 +4,8 @@
     "path": "src/protocol/invocation",
     "name": "invocation",
     "purpose": "Defines invocation drafts and requests, identities, signatures, errors, managed execution events, terminal result kinds and payloads with output and distinct Processing sequence counts, and a Created/Running/Complete lifecycle.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": ["result.rs"],
-  "modified": ["mod.rs", "status.rs"],
   "childModules": [],
   "elements": [
     {
@@ -122,7 +120,7 @@
       "name": "InvocationResultKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/result.rs",
@@ -143,7 +141,7 @@
       "name": "InvocationResult",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/result.rs",
@@ -224,7 +222,7 @@
       "name": "InvocationStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/status.rs",

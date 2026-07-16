@@ -4,16 +4,15 @@
     "path": "src/server/invocation",
     "name": "invocation",
     "purpose": "Owns task-registered invocation actors whose state carries lifecycle and ordered distinct-sequence output, while runtimes drive host execution and publish terminal results whose sequence count is derived uniformly from received output.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["invocation.rs", "runtime.rs", "state.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Invocation",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/invocation.rs",
@@ -60,7 +59,7 @@
       "name": "InvocationRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/runtime.rs",
@@ -107,7 +106,7 @@
       "name": "InvocationState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/state.rs",

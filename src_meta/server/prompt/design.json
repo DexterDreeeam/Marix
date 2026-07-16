@@ -4,9 +4,8 @@
     "path": "src/server/prompt",
     "name": "prompt",
     "purpose": "Owns prompt loading and rendering: non-System templates receive the minimal shared System decision prefix, and parameter markers are sliced for deferred injection.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["mod.rs", "prompt.rs"],
   "childModules": [
     {
       "path": "src/server/prompt/template",
@@ -66,7 +65,7 @@
       "name": "Prompt",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/prompt.rs",

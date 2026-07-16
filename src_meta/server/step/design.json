@@ -4,16 +4,15 @@
     "path": "src/server/step",
     "name": "step",
     "purpose": "Owns task-registered invocation groups: Step preserves the validated draft, runtime creates and registers every invocation before starting them directly, and terminal updates trigger aggregate completion.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["runtime.rs", "state.rs", "step.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "StepRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/runtime.rs",
@@ -60,7 +59,7 @@
       "name": "StepState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/state.rs",
@@ -94,7 +93,7 @@
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/step.rs",
