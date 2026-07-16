@@ -183,7 +183,7 @@ impl ClientSession {
                 None
             }
             SessionEvent::TaskUpdate(TaskStatus::Succeed(result)) => {
-                Some(Self::done_event("", Some(result.content)))
+                Some(Self::done_event("", Some(result.output)))
             }
             SessionEvent::TaskUpdate(TaskStatus::Failed { reason }) => {
                 Some(Self::done_event("", Some(format!("task failed: {reason}"))))

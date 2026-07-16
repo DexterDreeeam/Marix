@@ -1,46 +1,33 @@
 use std::sync::Arc;
 
-use marix_common::Logger;
-use marix_protocol::{StepDraft, StepEvent, StepResult, StepSignature, StepStatus};
+use marix_common::{Actor as ActorTrait, ActorBase, ActorRuntime as ActorRuntimeTrait};
+use marix_protocol::{StepDraft, StepEvent, StepResult, StepSignature};
 
-use super::{StepRuntime, StepState};
+use super::StepRuntime;
 use crate::task::TaskAccess;
 
 #[derive(Clone)]
 pub struct Step {
-    pub state: Arc<StepState>,
+    pub runtime: Arc<StepRuntime>,
 }
 
-impl Step {
-    pub fn status(&self) -> StepStatus {
-        self.state
-            .status
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone()
+impl ActorBase for Step {
+    type Signature = StepSignature;
+    type Event = StepEvent;
+    type Result = StepResult;
+    type Runtime = StepRuntime;
+}
+
+impl ActorTrait for Step {
+    fn runtime(&self) -> &Arc<Self::Runtime> {
+        &self.runtime
     }
 
-    pub fn result(&self) -> Option<StepResult> {
-        match self.status() {
-            StepStatus::Complete(result) => Some(result),
-            StepStatus::Created | StepStatus::Running => None,
-        }
-    }
-
-    pub fn start(&self) {
-        let runtime = StepRuntime::new(Arc::clone(&self.state));
-        drop(self.state.access.rt.spawn(async move {
+    fn spawn(&self, runtime: Arc<Self::Runtime>) {
+        let rt = Arc::clone(&runtime.access.rt);
+        drop(rt.spawn(async move {
             runtime.run().await;
         }));
-    }
-
-    pub fn dispatch(&self, event: StepEvent) {
-        if self.state.step_tx.send(event).is_err() {
-            Logger::warning(format!(
-                "step {} event dispatch failed: worker stopped",
-                &self.state.signature,
-            ));
-        }
     }
 }
 
@@ -62,7 +49,19 @@ impl Step {
         {
             return Err("step invocation name cannot be empty".to_owned());
         }
-        let state = Arc::new(StepState::new(access, signature, draft));
-        Ok(Self { state })
+        let runtime = Arc::new(StepRuntime::new(access, signature, draft));
+        Ok(Self { runtime })
     }
+}
+
+#[allow(dead_code)]
+fn assert_actor_object_safe(
+    actor: &dyn ActorTrait<
+        Signature = StepSignature,
+        Event = StepEvent,
+        Result = StepResult,
+        Runtime = StepRuntime,
+    >,
+) {
+    actor.start();
 }

@@ -4,18 +4,19 @@
     "path": "src",
     "name": "src",
     "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and tool packages.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Owns Client session transport, user-facing task output, and remote-first telemetry with file fallback."
+      "purpose": "Owns Client session transport, user-facing task result output, and remote-first telemetry with file fallback."
     },
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Owns shared configuration, approved external wrappers, indexed and batched telemetry storage and query APIs, and reusable transport structures."
+      "purpose": "Owns shared configuration, logging, external wrappers, actor lifecycle abstractions, authenticated channels, and insertion-ordered work queues."
     },
     {
       "path": "src/host",
@@ -25,12 +26,12 @@
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "Defines serialized workflow contracts with an independent execution lifecycle, result-carrying invocation and relay completion states, explicit child starts, cancellation, and actor signatures."
+      "purpose": "Defines serialized workflow contracts with displayable type-qualified signatures, shared common ActorStatus workflow updates, dedicated host execution statuses, and external TaskStatus transport."
     },
     {
       "path": "src/server",
       "name": "server",
-      "purpose": "Runs workflow orchestration through task-scoped actor registries: access exposes intent and invocation result lookups, task routing starts registered children, and result-carrying completion updates propagate through plans, steps, invocations, and relays."
+      "purpose": "Runs workflow orchestration through Arc-backed Task, Intent, Plan, Step, Invocation, and Relay actors whose runtimes own signatures, business state, and lifecycles; TaskRuntime holds task-scoped registries, access, and the root intent, Task launches its current-thread executor on a dedicated thread, and child actors spawn on that same executor, while Session preserves the synchronous protocol runtime boundary."
     },
     {
       "path": "src/server_telemetry",
@@ -80,7 +81,7 @@
       "name": "ClientSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
@@ -103,16 +104,11 @@
           "lineStart": 85,
           "lineEnd": 217,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 180,
-              "lineEnd": 184
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 195,
-              "lineEnd": 195
+              "lineStart": 185,
+              "lineEnd": 186
             }
           ]
         }
@@ -308,15 +304,25 @@
       "name": "Signature",
       "type": "trait",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/signature.rs",
           "lineStart": 6,
-          "lineEnd": 12,
+          "lineEnd": 14,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 8
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 6
+            }
+          ]
         }
       ]
     },

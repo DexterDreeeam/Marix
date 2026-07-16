@@ -2,68 +2,65 @@ use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
 use marix_common::external::*;
-use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
+use marix_common::{
+    Actor, ActorPrepareFuture, ActorRuntime as ActorRuntimeTrait, ActorStatus, Lifecycle, Logger,
+};
 use marix_protocol::{
-    IntentResultKind, IntentSignature, IntentStatus, PlanDraft, PlanEvent, PlanResult,
-    PlanResultKind, PlanStatus, PlanVerdict, RelayRequest, RelayResultKind, RelaySignature,
-    RelayStatus, SessionEvent, TaskEvent,
+    IntentEvent, IntentResultKind, IntentSignature, PlanDraft, PlanEvent, PlanResult,
+    PlanResultKind, PlanSignature, PlanVerdict, RelayRequest, RelayResultKind, RelaySignature,
+    SessionEvent, TaskEvent,
 };
 
-use super::PlanState;
+use super::Plan;
 use crate::intent::Intent;
 use crate::prompt::Prompt;
 use crate::relay::Relay;
+use crate::task::TaskAccess;
 
 pub struct PlanRuntime {
-    pub(super) state: Arc<PlanState>,
-    pub(super) close_tx: AsyncSender<()>,
-    close_rx: StdMutex<Option<AsyncReceiver<()>>>,
+    pub access: Arc<TaskAccess>,
+    pub signature: PlanSignature,
+    pub intents: StdMutex<Vec<IntentSignature>>,
+    pub failures: StdMutex<Vec<PlanResult>>,
+    pub lifecycle: Lifecycle<PlanEvent, PlanResult>,
 }
 
 impl PlanRuntime {
-    pub async fn run(&self) {
-        let Some(mut plan_rx) = self
-            .state
-            .plan_rx
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .take()
-        else {
-            Logger::warning(format!(
-                "plan {} start ignored: already running",
-                &self.state.signature,
-            ));
-            return;
-        };
-        self.set_status(PlanStatus::Running);
-        self.advance();
-        let Some(mut close_rx) = self
-            .close_rx
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .take()
-        else {
-            self.finish(
-                PlanResultKind::Failed,
-                "plan close receiver unavailable".to_owned(),
-            );
-            return;
-        };
-
-        loop {
-            self::tokio::select! {
-                _ = close_rx.recv() => break,
-                event = plan_rx.recv() => {
-                    let Some(event) = event else {
-                        break;
-                    };
-                    self.dispatch(event);
-                }
-            }
+    pub(crate) fn new(
+        access: Arc<TaskAccess>,
+        signature: PlanSignature,
+        intents: Vec<IntentSignature>,
+    ) -> Self {
+        Self {
+            access,
+            signature,
+            intents: StdMutex::new(intents),
+            failures: StdMutex::new(Vec::new()),
+            lifecycle: Lifecycle::new(),
         }
     }
+}
 
-    pub fn dispatch(&self, event: PlanEvent) {
+impl ActorRuntimeTrait for PlanRuntime {
+    type Base = Plan;
+    type Prepared = ();
+
+    fn signature(&self) -> &PlanSignature {
+        &self.signature
+    }
+
+    fn lifecycle(&self) -> &Lifecycle<PlanEvent, PlanResult> {
+        &self.lifecycle
+    }
+
+    fn prepare(&self) -> ActorPrepareFuture<'_, Self::Prepared> {
+        Box::pin(async move {
+            self.advance();
+            Some(())
+        })
+    }
+
+    fn dispatch(&self, event: PlanEvent) {
         match event {
             PlanEvent::Update(signature, status) => {
                 self.on_intent_update(signature, status);
@@ -76,30 +73,27 @@ impl PlanRuntime {
             }
         }
     }
+
+    fn on_finish(&self) {
+        self.send_parent_event(IntentEvent::PlanUpdate(
+            self.signature.clone(),
+            ActorStatus::Complete,
+        ));
+    }
 }
 
 // -- Private -- //
 
 impl PlanRuntime {
-    pub(crate) fn new(state: Arc<PlanState>) -> Self {
-        let (close_tx, close_rx) = build_async_channel();
-        Self {
-            state,
-            close_tx,
-            close_rx: StdMutex::new(Some(close_rx)),
-        }
-    }
-
     fn advance(&self) {
         let intents = self
-            .state
             .intents
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .clone();
         let mut latest_output = String::new();
         for signature in intents {
-            let Some(result) = self.state.access.get_result(&signature) else {
+            let Some(result) = self.access.get_intent_result(&signature) else {
                 if let Err(reason) = self.start_intent(&signature) {
                     self.finish(PlanResultKind::Failed, reason);
                 }
@@ -117,20 +111,19 @@ impl PlanRuntime {
         self.finish(PlanResultKind::Succeed, latest_output);
     }
 
-    fn on_intent_update(&self, signature: IntentSignature, status: IntentStatus) {
+    fn on_intent_update(&self, signature: IntentSignature, status: ActorStatus) {
         if self.status().is_terminal() {
             Logger::error(format!(
                 "plan {} received child intent {signature} update \
                  {status:?} after completion",
-                &self.state.signature,
+                &self.signature,
             ));
             return;
         }
-        let IntentStatus::Complete(result) = status else {
+        if !status.is_terminal() {
             return;
-        };
+        }
         let contains_intent = self
-            .state
             .intents
             .lock()
             .unwrap_or_else(|error| error.into_inner())
@@ -142,12 +135,24 @@ impl PlanRuntime {
             );
             return;
         }
+        let Some(result) = self.access.get_intent_result(&signature) else {
+            self.finish(
+                PlanResultKind::Failed,
+                format!(
+                    "plan child intent {signature} completed without \
+                     a result",
+                ),
+            );
+            return;
+        };
         match result.kind {
             IntentResultKind::Succeed => self.advance(),
             IntentResultKind::Infeasible => {
                 self.verdict(PlanResultKind::Infeasible, result.output);
             }
-            IntentResultKind::Canceled => self.cancel(result.output),
+            IntentResultKind::Canceled => {
+                self.cancel(result.output);
+            }
             IntentResultKind::Failed => {
                 self.verdict(PlanResultKind::Failed, result.output);
             }
@@ -156,19 +161,19 @@ impl PlanRuntime {
 
     fn start_intent(&self, signature: &IntentSignature) -> Result<(), String> {
         let event = SessionEvent::Task(
-            self.state.access.signature.clone(),
+            self.access.signature.clone(),
             TaskEvent::IntentStart(signature.clone()),
         );
-        self.state
-            .access
-            .session_tx
-            .send(event)
-            .map_err(|_| format!("plan child intent {signature} start failed: session stopped"))
+        self.access.session_tx.send(event).map_err(|_| {
+            format!(
+                "plan child intent {signature} start failed: \
+                 session stopped",
+            )
+        })
     }
 
     fn verdict(&self, kind: PlanResultKind, output: String) {
-        self.state
-            .failures
+        self.failures
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .push(PlanResult { kind, output });
@@ -181,25 +186,22 @@ impl PlanRuntime {
         };
         let request = RelayRequest {
             signature: RelaySignature::new(
-                self.state.signature.intent.as_ref().clone(),
+                self.signature.intent.as_ref().clone(),
                 "plan-verdict".to_owned(),
             ),
             prompt,
         };
-        let relay = match Relay::new(Arc::clone(&self.state.access), request) {
+        let relay = match Relay::new(Arc::clone(&self.access), request) {
             Ok(relay) => relay,
             Err(reason) => {
                 self.finish(PlanResultKind::Failed, reason);
                 return;
             }
         };
-        if !self.state.access.insert_relay(relay.clone()) {
+        if !self.access.insert_relay(relay.clone()) {
             self.finish(
                 PlanResultKind::Failed,
-                format!(
-                    "plan verdict relay {} already exists",
-                    &relay.state.signature,
-                ),
+                format!("plan verdict relay {} already exists", relay.signature(),),
             );
             return;
         }
@@ -207,14 +209,17 @@ impl PlanRuntime {
     }
 
     fn verdict_prompt(&self) -> Result<String, String> {
-        let parent_signature = self.state.signature.intent.as_ref();
+        let parent_signature = self.signature.intent.as_ref();
         let parent_intent = self
-            .state
             .access
             .get_intent_content(parent_signature)
-            .ok_or_else(|| format!("plan parent intent {parent_signature} content not found"))?;
+            .ok_or_else(|| {
+                format!(
+                    "plan parent intent {parent_signature} content \
+                     not found",
+                )
+            })?;
         let intent_signatures = self
-            .state
             .intents
             .lock()
             .unwrap_or_else(|error| error.into_inner())
@@ -222,14 +227,15 @@ impl PlanRuntime {
         let current_plan = intent_signatures
             .iter()
             .map(|signature| {
-                self.state
-                    .access
-                    .get_intent_content(signature)
-                    .ok_or_else(|| format!("plan child intent {signature} content not found"))
+                self.access.get_intent_content(signature).ok_or_else(|| {
+                    format!(
+                        "plan child intent {signature} content \
+                             not found",
+                    )
+                })
             })
             .collect::<Result<Vec<_>, _>>()?;
         let plan_failures = self
-            .state
             .failures
             .lock()
             .unwrap_or_else(|error| error.into_inner())
@@ -247,12 +253,9 @@ impl PlanRuntime {
                 } else {
                     "unknown prompt loading panic".to_owned()
                 };
-                format!("failed to load PlanVerdict prompt: {detail}")
+                format!("failed to load PlanVerdict prompt: {detail}",)
             })?;
-        prompt.inject(
-            "user_request".to_owned(),
-            self.state.access.user_request.clone(),
-        );
+        prompt.inject("user_request".to_owned(), self.access.user_request.clone());
         prompt.inject("parent_intent".to_owned(), parent_intent);
         prompt.inject("current_plan".to_owned(), current_plan);
         prompt.inject("plan_failures".to_owned(), plan_failures);
@@ -261,16 +264,23 @@ impl PlanRuntime {
             .map_err(|error| format!("failed to render PlanVerdict prompt: {error}"))
     }
 
-    fn on_relay_update(&self, signature: RelaySignature, status: RelayStatus) {
+    fn on_relay_update(&self, signature: RelaySignature, status: ActorStatus) {
         if self.status().is_terminal() {
             Logger::error(format!(
-                "plan {} received relay {signature} update {status:?} \
-                 after completion",
-                &self.state.signature,
+                "plan {} received relay {signature} update \
+                 {status:?} after completion",
+                &self.signature,
             ));
             return;
         }
-        let RelayStatus::Complete(result) = status else {
+        if !status.is_terminal() {
+            return;
+        }
+        let Some(result) = self.access.get_relay_result(&signature) else {
+            self.finish(
+                PlanResultKind::Failed,
+                format!("relay {signature} completed without a result",),
+            );
             return;
         };
         match result.kind {
@@ -287,8 +297,8 @@ impl PlanRuntime {
                     self.finish(
                         PlanResultKind::Failed,
                         format!(
-                            "plan verdict from relay {signature} is \
-                                 malformed: {error}"
+                            "plan verdict from relay {signature} \
+                                 is malformed: {error}",
                         ),
                     );
                 }
@@ -304,7 +314,6 @@ impl PlanRuntime {
 
     fn reconstruct(&self, draft: PlanDraft) -> Result<(), String> {
         let failure_count = self
-            .state
             .failures
             .lock()
             .unwrap_or_else(|error| error.into_inner())
@@ -315,7 +324,8 @@ impl PlanRuntime {
         for (index, intent) in draft.intents.iter().enumerate() {
             if intent.content.trim().is_empty() {
                 return Err(format!(
-                    "plan reconstruction child intent {} has empty content",
+                    "plan reconstruction child intent {} has empty \
+                     content",
                     index + 1,
                 ));
             }
@@ -324,28 +334,29 @@ impl PlanRuntime {
         let mut signatures = Vec::with_capacity(draft.intents.len());
         for (index, draft) in draft.intents.into_iter().enumerate() {
             let signature = IntentSignature::new(
-                self.state.access.signature.clone(),
-                Some(self.state.signature.clone()),
-                format!("intent-r{failure_count}-{}", index + 1),
+                self.access.signature.clone(),
+                Some(self.signature.clone()),
+                format!("intent-r{failure_count}-{}", index + 1,),
             );
-            let intent = Intent::new(
-                Arc::clone(&self.state.access),
-                signature.clone(),
-                draft.content,
-            );
-            if !self.state.access.insert_intent(intent) {
+            let intent = Intent::new(Arc::clone(&self.access), signature.clone(), draft.content);
+            if !self.access.insert_intent(intent) {
                 return Err(format!(
-                    "plan reconstruction child intent {signature} is duplicated"
+                    "plan reconstruction child intent {signature} \
+                     is duplicated",
                 ));
             }
             signatures.push(signature);
         }
         *self
-            .state
             .intents
             .lock()
             .unwrap_or_else(|error| error.into_inner()) = signatures;
         self.advance();
         Ok(())
     }
+}
+
+#[allow(dead_code)]
+fn assert_runtime_object_safe(runtime: &dyn ActorRuntimeTrait<Base = Plan, Prepared = ()>) {
+    let _ = runtime.run();
 }

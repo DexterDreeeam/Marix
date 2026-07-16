@@ -21,13 +21,17 @@ impl PlanSignature {
 }
 
 impl Signature for PlanSignature {
+    fn type_name(&self) -> &'static str {
+        "plan"
+    }
+
     fn id(&self) -> uuid::Uuid {
         self.id.0
     }
 }
 
 impl fmt::Display for PlanSignature {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(formatter, "{}", self.id.0)
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}:{}", self.type_name(), self.id())
     }
 }

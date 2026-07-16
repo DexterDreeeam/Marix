@@ -1,46 +1,33 @@
 use std::sync::Arc;
 
-use marix_common::Logger;
-use marix_protocol::{IntentSignature, PlanEvent, PlanResult, PlanSignature, PlanStatus};
+use marix_common::{Actor as ActorTrait, ActorBase, ActorRuntime as ActorRuntimeTrait};
+use marix_protocol::{IntentSignature, PlanEvent, PlanResult, PlanSignature};
 
-use super::{PlanRuntime, PlanState};
+use super::PlanRuntime;
 use crate::task::TaskAccess;
 
 #[derive(Clone)]
 pub struct Plan {
-    pub state: Arc<PlanState>,
+    pub runtime: Arc<PlanRuntime>,
 }
 
-impl Plan {
-    pub fn status(&self) -> PlanStatus {
-        self.state
-            .status
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone()
+impl ActorBase for Plan {
+    type Signature = PlanSignature;
+    type Event = PlanEvent;
+    type Result = PlanResult;
+    type Runtime = PlanRuntime;
+}
+
+impl ActorTrait for Plan {
+    fn runtime(&self) -> &Arc<Self::Runtime> {
+        &self.runtime
     }
 
-    pub fn result(&self) -> Option<PlanResult> {
-        match self.status() {
-            PlanStatus::Complete(result) => Some(result),
-            PlanStatus::Created | PlanStatus::Running => None,
-        }
-    }
-
-    pub fn start(&self) {
-        let runtime = PlanRuntime::new(Arc::clone(&self.state));
-        drop(self.state.access.rt.spawn(async move {
+    fn spawn(&self, runtime: Arc<Self::Runtime>) {
+        let rt = Arc::clone(&runtime.access.rt);
+        drop(rt.spawn(async move {
             runtime.run().await;
         }));
-    }
-
-    pub fn dispatch(&self, event: PlanEvent) {
-        if self.state.plan_tx.send(event).is_err() {
-            Logger::warning(format!(
-                "plan {} event dispatch failed: worker stopped",
-                &self.state.signature,
-            ));
-        }
     }
 }
 
@@ -52,7 +39,19 @@ impl Plan {
         signature: PlanSignature,
         intents: Vec<IntentSignature>,
     ) -> Self {
-        let state = Arc::new(PlanState::new(access, signature, intents));
-        Self { state }
+        let runtime = Arc::new(PlanRuntime::new(access, signature, intents));
+        Self { runtime }
     }
+}
+
+#[allow(dead_code)]
+fn assert_actor_object_safe(
+    actor: &dyn ActorTrait<
+        Signature = PlanSignature,
+        Event = PlanEvent,
+        Result = PlanResult,
+        Runtime = PlanRuntime,
+    >,
+) {
+    actor.start();
 }

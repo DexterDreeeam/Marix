@@ -3,9 +3,11 @@
   "module": {
     "path": "src/protocol/intent",
     "name": "intent",
-    "purpose": "Defines intent drafts, verdicts, ResultKind-classified terminal results, identities, lineage-aware signatures, a Created/Running/Complete lifecycle whose Complete status carries the result, errors, child plan/step/relay updates, and cancellation.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines intent drafts, verdicts, typed results, identities, lineage-aware signatures that retain business names and display type-qualified identifiers, shared actor-status plan, step, and relay updates, and cancellation.",
+    "changeStatus": "modified"
   },
+  "modified": ["event.rs", "mod.rs", "signature.rs"],
+  "deleted": ["status.rs"],
   "childModules": [],
   "elements": [
     {
@@ -88,20 +90,20 @@
       "name": "IntentEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/event.rs",
-          "lineStart": 7,
-          "lineEnd": 13,
+          "lineStart": 6,
+          "lineEnd": 12,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 7,
-              "lineEnd": 13
+              "lineStart": 8,
+              "lineEnd": 10
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -185,43 +187,33 @@
       "name": "IntentSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/signature.rs",
-          "lineStart": 6,
+          "lineStart": 7,
           "lineEnd": 12,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 6,
-              "lineEnd": 12
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/intent/signature.rs",
           "lineStart": 14,
-          "lineEnd": 27,
+          "lineEnd": 23,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 27
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/intent/signature.rs",
-          "lineStart": 29,
+          "lineStart": 25,
           "lineEnd": 33,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 29,
-              "lineEnd": 33
+              "lineStart": 26,
+              "lineEnd": 28
             }
           ],
           "modifiedLines": []
@@ -231,45 +223,11 @@
           "lineStart": 35,
           "lineEnd": 39,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 35,
-              "lineEnd": 39
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "IntentStatus",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/intent/status.rs",
-          "lineStart": 4,
-          "lineEnd": 9,
-          "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 4,
-              "lineEnd": 9
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/protocol/intent/status.rs",
-          "lineStart": 11,
-          "lineEnd": 15,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 11,
-              "lineEnd": 15
+              "lineStart": 37,
+              "lineEnd": 37
             }
           ]
         }

@@ -22,13 +22,17 @@ impl ExecutionSignature {
 }
 
 impl Signature for ExecutionSignature {
+    fn type_name(&self) -> &'static str {
+        "execution"
+    }
+
     fn id(&self) -> uuid::Uuid {
         self.execution_id.0
     }
 }
 
 impl fmt::Display for ExecutionSignature {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(formatter, "{}", self.execution_id.0)
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}:{}", self.type_name(), self.id())
     }
 }

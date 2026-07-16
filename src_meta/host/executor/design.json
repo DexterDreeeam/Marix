@@ -3,9 +3,10 @@
   "module": {
     "path": "src/host/executor",
     "name": "executor",
-    "purpose": "Owns host executor lifecycle, tool registration, preview loading, ExecutionSignature routing, and direct task-level invocation failures.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the synchronous host executor boundary, tool registration, execution routing, and task-level invocation failure delivery.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -84,7 +85,7 @@
       "name": "ExecutorRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -92,12 +93,7 @@
           "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 18
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -105,12 +101,7 @@
           "lineEnd": 29,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 20,
-              "lineEnd": 29
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -118,23 +109,18 @@
           "lineEnd": 73,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 31,
-              "lineEnd": 73
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/runtime.rs",
           "lineStart": 77,
-          "lineEnd": 173,
+          "lineEnd": 170,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 77,
-              "lineEnd": 173
+              "lineStart": 136,
+              "lineEnd": 145
             }
           ]
         }

@@ -1,69 +1,70 @@
+use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
-use marix_common::external::*;
-use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
+use marix_common::{
+    ActorPrepareFuture, ActorRuntime as ActorRuntimeTrait, ActorStatus, Lifecycle, Logger,
+};
 use marix_protocol::{
     ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, ExecutorEvent,
-    InvocationEvent, InvocationResult, InvocationResultKind, InvocationStatus, SessionEvent,
-    StepEvent, TaskEvent,
+    InvocationEvent, InvocationResult, InvocationResultKind, InvocationSignature, SessionEvent,
+    StepEvent, TaskEvent, ToolInputSchema,
 };
 
-use super::InvocationState;
+use super::Invocation;
+use crate::task::TaskAccess;
 
 pub struct InvocationRuntime {
-    pub state: Arc<InvocationState>,
-    pub close_tx: AsyncSender<()>,
-    pub close_rx: StdMutex<Option<AsyncReceiver<()>>>,
+    pub access: Arc<TaskAccess>,
+    pub signature: InvocationSignature,
+    pub input: ToolInputSchema,
+    pub output: StdMutex<BTreeMap<usize, String>>,
+    pub final_signal: StdMutex<Option<usize>>,
+    pub execution: StdMutex<Option<ExecutionSignature>>,
+    pub lifecycle: Lifecycle<InvocationEvent, InvocationResult>,
 }
 
 impl InvocationRuntime {
-    pub async fn run(&self) {
-        let Some(mut invocation_rx) = self
-            .state
-            .invocation_rx
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .take()
-        else {
-            Logger::warning(format!(
-                "invocation {} start ignored: already running",
-                &self.state.signature,
-            ));
-            return;
-        };
-        self.set_status(InvocationStatus::Running);
-        let Some(mut close_rx) = self
-            .close_rx
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .take()
-        else {
-            self.finish(
-                InvocationResultKind::Failed,
-                "invocation close receiver unavailable".to_owned(),
-            );
-            return;
-        };
-        if let Err(reason) = self.create_execution() {
-            self.finish(InvocationResultKind::Failed, reason);
-            return;
-        }
-
-        loop {
-            self::tokio::select! {
-                _ = close_rx.recv() => break,
-                event = invocation_rx.recv() => {
-                    let Some(event) = event else {
-                        break;
-                    };
-                    self.dispatch(event);
-                }
-            }
+    pub(crate) fn new(
+        access: Arc<TaskAccess>,
+        signature: InvocationSignature,
+        input: ToolInputSchema,
+    ) -> Self {
+        Self {
+            access,
+            signature,
+            input,
+            output: StdMutex::new(BTreeMap::new()),
+            final_signal: StdMutex::new(None),
+            execution: StdMutex::new(None),
+            lifecycle: Lifecycle::new(),
         }
     }
+}
 
-    pub fn dispatch(&self, event: InvocationEvent) {
+impl ActorRuntimeTrait for InvocationRuntime {
+    type Base = Invocation;
+    type Prepared = ();
+
+    fn signature(&self) -> &InvocationSignature {
+        &self.signature
+    }
+
+    fn lifecycle(&self) -> &Lifecycle<InvocationEvent, InvocationResult> {
+        &self.lifecycle
+    }
+
+    fn prepare(&self) -> ActorPrepareFuture<'_, Self::Prepared> {
+        Box::pin(async move {
+            if let Err(reason) = self.create_execution() {
+                self.finish(InvocationResultKind::Failed, reason);
+                return None;
+            }
+            Some(())
+        })
+    }
+
+    fn dispatch(&self, event: InvocationEvent) {
         match event {
             InvocationEvent::Update(execution, status) => {
                 self.on_update(execution, status);
@@ -78,46 +79,38 @@ impl InvocationRuntime {
             InvocationEvent::Cancel => self.cancel(),
         }
     }
+
+    fn on_finish(&self) {
+        self.send_step_update(ActorStatus::Complete);
+    }
 }
 
 // -- Private -- //
 
 impl InvocationRuntime {
-    pub(crate) fn new(state: Arc<InvocationState>) -> Self {
-        let (close_tx, close_rx) = build_async_channel();
-        Self {
-            state,
-            close_tx,
-            close_rx: StdMutex::new(Some(close_rx)),
-        }
-    }
-
     fn create_execution(&self) -> Result<(), String> {
-        let signature = ExecutionSignature::new(
-            self.state.signature.clone(),
-            self.state.signature.name.clone(),
-        );
+        let signature =
+            ExecutionSignature::new(self.signature.clone(), self.signature.name.clone());
         *self
-            .state
             .execution
             .lock()
             .unwrap_or_else(|error| error.into_inner()) = Some(signature.clone());
         self.send_executor_event(ExecutorEvent::ExecutionCreate(ExecutionRequest {
             signature,
-            input: self.state.input.clone(),
+            input: self.input.clone(),
         }))
     }
 
     fn on_processing(&self, execution: ExecutionSignature, seq: usize, content: String) {
         if self.status().is_terminal() {
             Logger::error(format!(
-                "invocation {} received processing update from execution {execution} after completion",
-                &self.state.signature,
+                "invocation {} received processing update from \
+                 execution {execution} after completion",
+                &self.signature,
             ));
             return;
         }
-        self.state
-            .output
+        self.output
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .insert(seq, content);
@@ -126,8 +119,9 @@ impl InvocationRuntime {
     fn on_update(&self, execution: ExecutionSignature, status: ExecutionStatus) {
         if self.status().is_terminal() {
             Logger::error(format!(
-                "invocation {} received execution {execution} update {status:?} after completion",
-                &self.state.signature,
+                "invocation {} received execution {execution} update \
+                 {status:?} after completion",
+                &self.signature,
             ));
             return;
         }
@@ -138,14 +132,14 @@ impl InvocationRuntime {
                     self.finish(
                         InvocationResultKind::Failed,
                         format!(
-                            "invocation {} completed with missing output chunks; expected {seq_count}",
-                            &self.state.signature,
+                            "invocation {} completed with missing \
+                             output chunks; expected {seq_count}",
+                            &self.signature,
                         ),
                     );
                     return;
                 };
                 *self
-                    .state
                     .final_signal
                     .lock()
                     .unwrap_or_else(|error| error.into_inner()) = Some(seq_count);
@@ -168,7 +162,6 @@ impl InvocationRuntime {
 
     fn complete_output(&self, seq_count: usize) -> Option<String> {
         let output = self
-            .state
             .output
             .lock()
             .unwrap_or_else(|error| error.into_inner());
@@ -188,7 +181,6 @@ impl InvocationRuntime {
             return;
         }
         let execution = self
-            .state
             .execution
             .lock()
             .unwrap_or_else(|error| error.into_inner())
@@ -199,7 +191,7 @@ impl InvocationRuntime {
             {
                 Logger::warning(format!(
                     "invocation {} execution cancel failed: {reason}",
-                    &self.state.signature,
+                    &self.signature,
                 ));
             }
         }
@@ -211,76 +203,43 @@ impl InvocationRuntime {
 
     fn finish(&self, kind: InvocationResultKind, output: String) {
         let seq_count = self
-            .state
             .output
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .len();
-        let result = InvocationResult {
-            kind,
-            output,
-            seq_count,
-        };
-        self.set_status(InvocationStatus::Complete(result));
-        self.close();
+        ActorRuntimeTrait::finish(
+            self,
+            InvocationResult {
+                kind,
+                output,
+                seq_count,
+            },
+        );
     }
 
-    fn status(&self) -> InvocationStatus {
-        self.state
-            .status
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone()
-    }
-
-    fn set_status(&self, status: InvocationStatus) {
-        let mut current = self
-            .state
-            .status
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
-        if current.is_terminal() {
-            return;
-        }
-        let send_update = matches!(&status, InvocationStatus::Complete(_));
-        *current = status.clone();
-        drop(current);
-        if send_update {
-            self.send_step_update(status);
-        }
-    }
-
-    fn send_step_update(&self, status: InvocationStatus) {
-        let step = self.state.signature.step.clone();
+    fn send_step_update(&self, status: ActorStatus) {
+        let step = self.signature.step.clone();
         let event = SessionEvent::Task(
             step.intent.task.clone(),
-            TaskEvent::Step(
-                step,
-                StepEvent::Update(self.state.signature.clone(), status),
-            ),
+            TaskEvent::Step(step, StepEvent::Update(self.signature.clone(), status)),
         );
-        if self.state.access.session_tx.send(event).is_err() {
+        if self.access.session_tx.send(event).is_err() {
             Logger::warning(format!(
                 "invocation {} event send failed: session stopped",
-                &self.state.signature,
+                &self.signature,
             ));
         }
     }
 
     fn send_executor_event(&self, event: ExecutorEvent) -> Result<(), String> {
-        self.state
-            .access
+        self.access
             .session_tx
             .send(SessionEvent::Executor(event))
             .map_err(|_| "executor event send failed: session stopped".to_owned())
     }
+}
 
-    fn close(&self) {
-        if self.close_tx.send(()).is_err() {
-            Logger::warning(format!(
-                "invocation {} close signal failed",
-                &self.state.signature,
-            ));
-        }
-    }
+#[allow(dead_code)]
+fn assert_runtime_object_safe(runtime: &dyn ActorRuntimeTrait<Base = Invocation, Prepared = ()>) {
+    let _ = runtime.run();
 }

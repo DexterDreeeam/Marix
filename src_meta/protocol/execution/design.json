@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/execution",
     "name": "execution",
-    "purpose": "Defines execution requests, identities, signatures, errors, events, and an independent host-execution lifecycle.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines execution requests, identities, signatures that retain business names and display type-qualified identifiers, errors, events, and an independent host-execution lifecycle.",
+    "changeStatus": "modified"
   },
+  "modified": ["signature.rs"],
   "childModules": [],
   "elements": [
     {
@@ -84,7 +85,7 @@
       "name": "ExecutionSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/signature.rs",
@@ -105,18 +106,28 @@
         {
           "sourcePath": "src/protocol/execution/signature.rs",
           "lineStart": 24,
-          "lineEnd": 28,
+          "lineEnd": 32,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 27
+            }
+          ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/execution/signature.rs",
-          "lineStart": 30,
-          "lineEnd": 34,
+          "lineStart": 34,
+          "lineEnd": 38,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 36,
+              "lineEnd": 36
+            }
+          ]
         }
       ]
     },

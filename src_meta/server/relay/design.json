@@ -3,16 +3,18 @@
   "module": {
     "path": "src/server/relay",
     "name": "relay",
-    "purpose": "Owns task-registered relay actors whose state carries model access, lifecycle, and ordered output, while runtimes stream model responses and publish result-carrying completion updates to intents.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs Arc-backed relay actors whose runtimes own task access, signature, prompt, model and output state, and lifecycle, with a prepared response receiver and custom async loop that assembles typed model results.",
+    "changeStatus": "modified"
   },
+  "modified": ["mod.rs", "relay.rs", "runtime.rs"],
+  "deleted": ["state.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Relay",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/relay.rs",
@@ -30,28 +32,54 @@
         {
           "sourcePath": "src/server/relay/relay.rs",
           "lineStart": 14,
-          "lineEnd": 45,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 14,
-              "lineEnd": 45
+              "lineEnd": 19
             }
           ]
         },
         {
           "sourcePath": "src/server/relay/relay.rs",
-          "lineStart": 49,
-          "lineEnd": 57,
+          "lineStart": 21,
+          "lineEnd": 32,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 49,
-              "lineEnd": 57
+              "lineStart": 21,
+              "lineEnd": 32
             }
           ]
+        },
+        {
+          "sourcePath": "src/server/relay/relay.rs",
+          "lineStart": 36,
+          "lineEnd": 41,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 36,
+              "lineEnd": 41
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/relay/relay.rs",
+          "lineStart": 43,
+          "lineEnd": 53,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 43,
+              "lineEnd": 53
+            }
+          ],
+          "modifiedLines": []
         }
       ]
     },
@@ -59,110 +87,72 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 13,
-          "lineEnd": 17,
+          "lineStart": 22,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
-            {
-              "lineStart": 13,
-              "lineEnd": 17
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 19,
-          "lineEnd": 117,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 19,
-              "lineEnd": 117
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 121,
-          "lineEnd": 251,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 121,
-              "lineEnd": 251
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "RelayState",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/relay/state.rs",
-          "lineStart": 13,
-          "lineEnd": 23,
-          "language": "rust",
-          "addedLines": [
             {
               "lineStart": 22,
-              "lineEnd": 22
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 13,
-              "lineEnd": 21
+              "lineEnd": 30
             }
           ]
         },
         {
-          "sourcePath": "src/server/relay/state.rs",
-          "lineStart": 27,
-          "lineEnd": 62,
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 32,
+          "lineEnd": 61,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 32,
+              "lineEnd": 61
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 63,
+          "lineEnd": 160,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 63,
+              "lineEnd": 160
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 164,
+          "lineEnd": 243,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 164,
+              "lineEnd": 243
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 245,
+          "lineEnd": 250,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 33,
-              "lineEnd": 45
-            },
-            {
-              "lineStart": 50,
-              "lineEnd": 54
+              "lineStart": 245,
+              "lineEnd": 250
             }
           ],
-          "modifiedLines": [
-            {
-              "lineStart": 28,
-              "lineEnd": 30
-            },
-            {
-              "lineStart": 32,
-              "lineEnd": 32
-            },
-            {
-              "lineStart": 47,
-              "lineEnd": 47
-            },
-            {
-              "lineStart": 49,
-              "lineEnd": 49
-            },
-            {
-              "lineStart": 57,
-              "lineEnd": 57
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     }

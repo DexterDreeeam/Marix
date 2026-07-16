@@ -1,46 +1,33 @@
 use std::sync::Arc;
 
-use marix_common::Logger;
-use marix_protocol::{IntentEvent, IntentResult, IntentSignature, IntentStatus};
+use marix_common::{Actor as ActorTrait, ActorBase, ActorRuntime as ActorRuntimeTrait};
+use marix_protocol::{IntentEvent, IntentResult, IntentSignature};
 
-use super::{IntentRuntime, IntentState};
+use super::IntentRuntime;
 use crate::task::TaskAccess;
 
 #[derive(Clone)]
 pub struct Intent {
-    pub state: Arc<IntentState>,
+    pub runtime: Arc<IntentRuntime>,
 }
 
-impl Intent {
-    pub fn status(&self) -> IntentStatus {
-        self.state
-            .status
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone()
+impl ActorBase for Intent {
+    type Signature = IntentSignature;
+    type Event = IntentEvent;
+    type Result = IntentResult;
+    type Runtime = IntentRuntime;
+}
+
+impl ActorTrait for Intent {
+    fn runtime(&self) -> &Arc<Self::Runtime> {
+        &self.runtime
     }
 
-    pub fn result(&self) -> Option<IntentResult> {
-        match self.status() {
-            IntentStatus::Complete(result) => Some(result),
-            IntentStatus::Created | IntentStatus::Running => None,
-        }
-    }
-
-    pub fn start(&self) {
-        let runtime = IntentRuntime::new(Arc::clone(&self.state));
-        drop(self.state.access.rt.spawn(async move {
+    fn spawn(&self, runtime: Arc<Self::Runtime>) {
+        let rt = Arc::clone(&runtime.access.rt);
+        drop(rt.spawn(async move {
             runtime.run().await;
         }));
-    }
-
-    pub fn dispatch(&self, event: IntentEvent) {
-        if self.state.intent_tx.send(event).is_err() {
-            Logger::warning(format!(
-                "intent {} event dispatch failed: worker stopped",
-                &self.state.signature,
-            ));
-        }
     }
 }
 
@@ -52,7 +39,19 @@ impl Intent {
         signature: IntentSignature,
         content: String,
     ) -> Self {
-        let state = Arc::new(IntentState::new(access, signature, content));
-        Self { state }
+        let runtime = Arc::new(IntentRuntime::new(access, signature, content));
+        Self { runtime }
     }
+}
+
+#[allow(dead_code)]
+fn assert_actor_object_safe(
+    actor: &dyn ActorTrait<
+        Signature = IntentSignature,
+        Event = IntentEvent,
+        Result = IntentResult,
+        Runtime = IntentRuntime,
+    >,
+) {
+    actor.start();
 }

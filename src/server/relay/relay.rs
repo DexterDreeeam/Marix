@@ -1,57 +1,53 @@
 use std::sync::Arc;
 
-use marix_common::Logger;
-use marix_protocol::{RelayEvent, RelayRequest, RelayResult, RelayStatus};
+use marix_common::{Actor as ActorTrait, ActorBase, ActorRuntime as ActorRuntimeTrait};
+use marix_protocol::{RelayEvent, RelayRequest, RelayResult, RelaySignature};
 
-use super::{RelayRuntime, RelayState};
+use super::RelayRuntime;
 use crate::task::TaskAccess;
 
 #[derive(Clone)]
 pub struct Relay {
-    pub state: Arc<RelayState>,
+    pub runtime: Arc<RelayRuntime>,
 }
 
-impl Relay {
-    pub fn status(&self) -> RelayStatus {
-        self.state
-            .status
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone()
+impl ActorBase for Relay {
+    type Signature = RelaySignature;
+    type Event = RelayEvent;
+    type Result = RelayResult;
+    type Runtime = RelayRuntime;
+}
+
+impl ActorTrait for Relay {
+    fn runtime(&self) -> &Arc<Self::Runtime> {
+        &self.runtime
     }
 
-    pub fn result(&self) -> Option<RelayResult> {
-        match self.status() {
-            RelayStatus::Complete(result) => Some(result),
-            RelayStatus::Created | RelayStatus::Running => None,
-        }
-    }
-
-    pub fn start(&self) {
-        let runtime = RelayRuntime::new(Arc::clone(&self.state));
-        drop(self.state.access.rt.spawn(async move {
+    fn spawn(&self, runtime: Arc<Self::Runtime>) {
+        let rt = Arc::clone(&runtime.access.rt);
+        drop(rt.spawn(async move {
             runtime.run().await;
         }));
-    }
-
-    pub fn dispatch(&self, event: RelayEvent) {
-        if self.state.relay_tx.send(event).is_err() {
-            Logger::warning(format!(
-                "relay {} event dispatch failed: worker stopped",
-                &self.state.signature,
-            ));
-        }
     }
 }
 
 // -- Private -- //
 
 impl Relay {
-    pub(crate) fn new(
-        access: Arc<TaskAccess>,
-        request: RelayRequest,
-    ) -> Result<Self, String> {
-        let state = Arc::new(RelayState::new(access, request)?);
-        Ok(Self { state })
+    pub(crate) fn new(access: Arc<TaskAccess>, request: RelayRequest) -> Result<Self, String> {
+        let runtime = Arc::new(RelayRuntime::new(access, request)?);
+        Ok(Self { runtime })
     }
+}
+
+#[allow(dead_code)]
+fn assert_actor_object_safe(
+    actor: &dyn ActorTrait<
+        Signature = RelaySignature,
+        Event = RelayEvent,
+        Result = RelayResult,
+        Runtime = RelayRuntime,
+    >,
+) {
+    actor.start();
 }

@@ -140,10 +140,7 @@ impl ExecutorRuntime {
             invocation.step.intent.task.clone(),
             TaskEvent::Invocation(
                 invocation,
-                InvocationEvent::Update(
-                    execution,
-                    ExecutionStatus::Failed,
-                ),
+                InvocationEvent::Update(execution, ExecutionStatus::Failed),
             ),
         );
         if let Err(error) = self.send_server_event(event) {

@@ -1,9 +1,11 @@
+use marix_common::ActorStatus;
+
 use crate::external::*;
 
-use crate::{InvocationSignature, InvocationStatus};
+use crate::InvocationSignature;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum StepEvent {
-    Update(InvocationSignature, InvocationStatus),
+    Update(InvocationSignature, ActorStatus),
     Cancel,
 }

@@ -3,10 +3,16 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Owns shared configuration, approved external wrappers, indexed and batched telemetry storage and query APIs, authenticated transport, and insertion-ordered concurrent work queues with ordered key/value snapshots.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns shared configuration, logging, external wrappers, actor lifecycle abstractions, authenticated channels, and insertion-ordered work queues.",
+    "changeStatus": "modified"
   },
+  "modified": [".", "lib.rs"],
   "childModules": [
+    {
+      "path": "src/common/actor",
+      "name": "actor",
+      "purpose": "Defines shared lifecycle-backed object-safe asynchronous actors with projected Signature, Event, Result, and Runtime types."
+    },
     {
       "path": "src/common/config",
       "name": "config",
@@ -25,10 +31,322 @@
     {
       "path": "src/common/structure",
       "name": "structure",
-      "purpose": "Owns shared channel and insertion-ordered work-queue structures, including authenticated transport, configured endpoints, handshake timeouts, atomic working/completed state, and ordered key/value snapshots."
+      "purpose": "Provides authenticated channels and insertion-ordered concurrent work queues."
     }
   ],
   "elements": [
+    {
+      "name": "SignatureOf",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/actor/actor.rs",
+          "lineStart": 12,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "EventOf",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/actor/actor.rs",
+          "lineStart": 13,
+          "lineEnd": 13,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 13,
+              "lineEnd": 13
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ResultOf",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/actor/actor.rs",
+          "lineStart": 14,
+          "lineEnd": 14,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 14
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "RuntimeOf",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/actor/actor.rs",
+          "lineStart": 15,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 15
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ActorFuture",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/actor/actor.rs",
+          "lineStart": 16,
+          "lineEnd": 16,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 16,
+              "lineEnd": 16
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ActorPrepareFuture",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/actor/actor.rs",
+          "lineStart": 17,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 18
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ActorEventReceiver",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/actor/actor.rs",
+          "lineStart": 19,
+          "lineEnd": 19,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 19,
+              "lineEnd": 19
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ActorCloseReceiver",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/actor/actor.rs",
+          "lineStart": 20,
+          "lineEnd": 20,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 20
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ActorBase",
+      "type": "trait",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/actor/actor.rs",
+          "lineStart": 22,
+          "lineEnd": 34,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 34
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Actor",
+      "type": "trait",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/actor/actor.rs",
+          "lineStart": 36,
+          "lineEnd": 65,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 36,
+              "lineEnd": 65
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ActorRuntime",
+      "type": "trait",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/actor/actor.rs",
+          "lineStart": 67,
+          "lineEnd": 141,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 67,
+              "lineEnd": 141
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ActorStatus",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/actor/lifecycle.rs",
+          "lineStart": 7,
+          "lineEnd": 13,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 13
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/actor/lifecycle.rs",
+          "lineStart": 15,
+          "lineEnd": 19,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 19
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Lifecycle",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/actor/lifecycle.rs",
+          "lineStart": 21,
+          "lineEnd": 28,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 21,
+              "lineEnd": 28
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/actor/lifecycle.rs",
+          "lineStart": 30,
+          "lineEnd": 59,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 30,
+              "lineEnd": 59
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/actor/lifecycle.rs",
+          "lineStart": 63,
+          "lineEnd": 117,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 63,
+              "lineEnd": 117
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
     {
       "name": "CONFIG_FILE",
       "type": "const",
@@ -1559,7 +1877,7 @@
       "name": "WorkQueue",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/work_queue.rs",
@@ -1567,66 +1885,27 @@
           "lineEnd": 6,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 4,
-              "lineEnd": 6
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/common/structure/work_queue.rs",
           "lineStart": 8,
-          "lineEnd": 218,
+          "lineEnd": 176,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 61,
-              "lineEnd": 84
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 20
-            },
-            {
-              "lineStart": 22,
-              "lineEnd": 60
-            },
-            {
-              "lineStart": 85,
-              "lineEnd": 98
-            },
-            {
-              "lineStart": 100,
-              "lineEnd": 122
-            },
-            {
-              "lineStart": 124,
-              "lineEnd": 132
-            },
-            {
-              "lineStart": 134,
-              "lineEnd": 164
-            },
-            {
-              "lineStart": 166,
-              "lineEnd": 217
+              "lineStart": 8,
+              "lineEnd": 176
             }
           ]
         },
         {
           "sourcePath": "src/common/structure/work_queue.rs",
-          "lineStart": 222,
-          "lineEnd": 226,
+          "lineStart": 180,
+          "lineEnd": 184,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 222,
-              "lineEnd": 226
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

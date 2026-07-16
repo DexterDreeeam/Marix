@@ -1,13 +1,12 @@
+use marix_common::ActorStatus;
+
 use crate::external::*;
-use crate::{
-    PlanSignature, PlanStatus, RelaySignature, RelayStatus,
-    StepSignature, StepStatus,
-};
+use crate::{PlanSignature, RelaySignature, StepSignature};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum IntentEvent {
-    PlanUpdate(PlanSignature, PlanStatus),
-    StepUpdate(StepSignature, StepStatus),
-    RelayUpdate(RelaySignature, RelayStatus),
+    PlanUpdate(PlanSignature, ActorStatus),
+    StepUpdate(StepSignature, ActorStatus),
+    RelayUpdate(RelaySignature, ActorStatus),
     Cancel,
 }

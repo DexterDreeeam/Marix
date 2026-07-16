@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/session",
     "name": "session",
-    "purpose": "Owns server session routing, authenticated Host initialization, root intent construction with no parent plan, and nested workflow event delivery.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the synchronous protocol Runtime session boundary that routes lifecycle-backed tasks, host execution traffic, client TaskStatus transport, and tool context.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -36,7 +37,7 @@
       "name": "SessionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/runtime.rs",
@@ -44,12 +45,7 @@
           "lineEnd": 22,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 22
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/session/runtime.rs",
@@ -57,12 +53,7 @@
           "lineEnd": 33,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 24,
-              "lineEnd": 33
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/session/runtime.rs",
@@ -70,23 +61,18 @@
           "lineEnd": 85,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 35,
-              "lineEnd": 85
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/session/runtime.rs",
           "lineStart": 89,
-          "lineEnd": 368,
+          "lineEnd": 367,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 89,
-              "lineEnd": 368
+              "lineStart": 202,
+              "lineEnd": 267
             }
           ]
         }

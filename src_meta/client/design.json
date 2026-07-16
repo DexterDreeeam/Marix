@@ -3,9 +3,10 @@
   "module": {
     "path": "src/client",
     "name": "client",
-    "purpose": "Owns Client session transport, user-facing task output, and remote-first telemetry with file fallback.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns Client session transport, user-facing task result output, and remote-first telemetry with file fallback.",
+    "changeStatus": "modified"
   },
+  "modified": ["session.rs"],
   "childModules": [
     {
       "path": "src/client/app",
@@ -55,7 +56,7 @@
       "name": "ClientSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
@@ -78,16 +79,11 @@
           "lineStart": 85,
           "lineEnd": 217,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 180,
-              "lineEnd": 184
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 195,
-              "lineEnd": 195
+              "lineStart": 185,
+              "lineEnd": 186
             }
           ]
         }

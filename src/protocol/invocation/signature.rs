@@ -22,13 +22,17 @@ impl InvocationSignature {
 }
 
 impl Signature for InvocationSignature {
+    fn type_name(&self) -> &'static str {
+        "invocation"
+    }
+
     fn id(&self) -> uuid::Uuid {
         self.id.0
     }
 }
 
 impl fmt::Display for InvocationSignature {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(formatter, "{}", self.id.0)
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}:{}", self.type_name(), self.id())
     }
 }

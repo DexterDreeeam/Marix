@@ -3,9 +3,11 @@
   "module": {
     "path": "src/protocol/relay",
     "name": "relay",
-    "purpose": "Defines relay requests, identities, signatures, errors, cancellation events, terminal result kinds and payloads, and a Created/Running/Complete lifecycle for model output.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines relay requests, identities, signatures that retain business names and display type-qualified identifiers, errors, cancellation events, and typed terminal model results consumed by the shared actor lifecycle.",
+    "changeStatus": "modified"
   },
+  "modified": ["mod.rs", "signature.rs"],
+  "deleted": ["status.rs"],
   "childModules": [],
   "elements": [
     {
@@ -136,7 +138,7 @@
       "name": "RelaySignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/signature.rs",
@@ -144,12 +146,7 @@
           "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 7,
-              "lineEnd": 12
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/relay/signature.rs",
@@ -157,70 +154,31 @@
           "lineEnd": 22,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 22
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/relay/signature.rs",
           "lineStart": 24,
-          "lineEnd": 28,
+          "lineEnd": 32,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 24,
-              "lineEnd": 28
+              "lineStart": 25,
+              "lineEnd": 27
             }
-          ]
+          ],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/relay/signature.rs",
-          "lineStart": 30,
-          "lineEnd": 34,
+          "lineStart": 34,
+          "lineEnd": 38,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 30,
-              "lineEnd": 34
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "RelayStatus",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/relay/status.rs",
-          "lineStart": 4,
-          "lineEnd": 9,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 4,
-              "lineEnd": 9
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/protocol/relay/status.rs",
-          "lineStart": 11,
-          "lineEnd": 15,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 11,
-              "lineEnd": 15
+              "lineStart": 36,
+              "lineEnd": 36
             }
           ]
         }

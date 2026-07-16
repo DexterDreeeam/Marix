@@ -12,11 +12,7 @@ pub struct IntentSignature {
 }
 
 impl IntentSignature {
-    pub fn new(
-        task: TaskSignature,
-        parent: Option<PlanSignature>,
-        name: String,
-    ) -> Self {
+    pub fn new(task: TaskSignature, parent: Option<PlanSignature>, name: String) -> Self {
         Self {
             task,
             parent,
@@ -27,13 +23,17 @@ impl IntentSignature {
 }
 
 impl Signature for IntentSignature {
+    fn type_name(&self) -> &'static str {
+        "intent"
+    }
+
     fn id(&self) -> uuid::Uuid {
         self.id.0
     }
 }
 
 impl fmt::Display for IntentSignature {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(formatter, "{}", self.id.0)
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}:{}", self.type_name(), self.id())
     }
 }

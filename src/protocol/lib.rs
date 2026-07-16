@@ -22,30 +22,27 @@ pub use execution::{
 pub use executor::ExecutorEvent;
 pub use intent::{
     IntentDraft, IntentError, IntentEvent, IntentId, IntentResult, IntentResultKind,
-    IntentSignature, IntentStatus, IntentVerdict,
+    IntentSignature, IntentVerdict,
 };
 pub use invocation::{
     InvocationDraft, InvocationError, InvocationEvent, InvocationId, InvocationRequest,
-    InvocationResult, InvocationResultKind, InvocationSignature, InvocationStatus,
+    InvocationResult, InvocationResultKind, InvocationSignature,
 };
 pub use message::SessionMessage;
 pub use plan::{
-    PlanDraft, PlanError, PlanEvent, PlanId, PlanResult, PlanResultKind, PlanSignature, PlanStatus,
-    PlanVerdict,
+    PlanDraft, PlanError, PlanEvent, PlanId, PlanResult, PlanResultKind, PlanSignature, PlanVerdict,
 };
 pub use relay::{
     RelayError, RelayEvent, RelayId, RelayRequest, RelayResult, RelayResultKind, RelaySignature,
-    RelayStatus,
 };
 pub use runtime::{Runtime, RuntimeAsync};
 pub use session::SessionEvent;
 pub use signature::{Signature, SignatureKey};
 pub use step::{
-    StepDraft, StepError, StepEvent, StepId, StepResult, StepResultKind,
-    StepSignature, StepStatus,
+    StepDraft, StepError, StepEvent, StepId, StepResult, StepResultKind, StepSignature,
 };
 pub use task::{
     TaskError, TaskEvent, TaskId, TaskPreview, TaskRequest, TaskRequestBrief, TaskResult,
-    TaskSignature, TaskStatus,
+    TaskResultKind, TaskSignature, TaskStatus,
 };
 pub use tool::{ToolInputSchema, ToolOutputSchema, ToolPreview};

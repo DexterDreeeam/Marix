@@ -2,10 +2,11 @@ use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
 use marix_common::external::*;
-use marix_common::{Sender, WorkQueue};
+use marix_common::{Actor, Sender, WorkQueue};
 use marix_protocol::{
-    IntentResult, IntentSignature, InvocationResult, InvocationSignature, PlanSignature,
-    RelaySignature, SessionEvent, StepSignature, TaskSignature,
+    IntentResult, IntentSignature, InvocationResult, InvocationSignature, PlanResult,
+    PlanSignature, RelayResult, RelaySignature, SessionEvent, StepResult, StepSignature,
+    TaskSignature,
 };
 
 use crate::intent::Intent;
@@ -62,13 +63,13 @@ impl TaskAccess {
 }
 
 impl TaskAccess {
-    pub(crate) fn get_result(&self, signature: &IntentSignature) -> Option<IntentResult> {
+    pub(crate) fn get_intent_result(&self, signature: &IntentSignature) -> Option<IntentResult> {
         self.intents.with(signature, Intent::result).flatten()
     }
 
     pub(crate) fn get_intent_content(&self, signature: &IntentSignature) -> Option<String> {
         self.intents
-            .with(signature, |intent| intent.state.content.clone())
+            .with(signature, |intent| intent.runtime.content.clone())
     }
 
     pub(crate) fn get_invocation_result(
@@ -80,8 +81,20 @@ impl TaskAccess {
             .flatten()
     }
 
+    pub(crate) fn get_plan_result(&self, signature: &PlanSignature) -> Option<PlanResult> {
+        self.plans.with(signature, Plan::result).flatten()
+    }
+
+    pub(crate) fn get_relay_result(&self, signature: &RelaySignature) -> Option<RelayResult> {
+        self.relays.with(signature, Relay::result).flatten()
+    }
+
+    pub(crate) fn get_step_result(&self, signature: &StepSignature) -> Option<StepResult> {
+        self.steps.with(signature, Step::result).flatten()
+    }
+
     pub(crate) fn insert_intent(&self, intent: Intent) -> bool {
-        let signature = intent.state.signature.clone();
+        let signature = intent.signature().clone();
         if self.intents.with(&signature, |_| ()).is_some() {
             return false;
         }
@@ -90,7 +103,7 @@ impl TaskAccess {
     }
 
     pub(crate) fn insert_plan(&self, plan: Plan) -> bool {
-        let signature = plan.state.signature.clone();
+        let signature = plan.signature().clone();
         if self.plans.with(&signature, |_| ()).is_some() {
             return false;
         }
@@ -99,7 +112,7 @@ impl TaskAccess {
     }
 
     pub(crate) fn insert_step(&self, step: Step) -> bool {
-        let signature = step.state.signature.clone();
+        let signature = step.signature().clone();
         if self.steps.with(&signature, |_| ()).is_some() {
             return false;
         }
@@ -108,7 +121,7 @@ impl TaskAccess {
     }
 
     pub(crate) fn insert_invocation(&self, invocation: Invocation) -> bool {
-        let signature = invocation.state.signature.clone();
+        let signature = invocation.signature().clone();
         if self.invocations.with(&signature, |_| ()).is_some() {
             return false;
         }
@@ -117,7 +130,7 @@ impl TaskAccess {
     }
 
     pub(crate) fn insert_relay(&self, relay: Relay) -> bool {
-        let signature = relay.state.signature.clone();
+        let signature = relay.signature().clone();
         if self.relays.with(&signature, |_| ()).is_some() {
             return false;
         }

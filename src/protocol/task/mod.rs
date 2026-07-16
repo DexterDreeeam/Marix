@@ -14,6 +14,6 @@ pub use id::TaskId;
 pub use preview::TaskPreview;
 pub use request::TaskRequest;
 pub use request_brief::TaskRequestBrief;
-pub use result::TaskResult;
+pub use result::{TaskResult, TaskResultKind};
 pub use signature::TaskSignature;
 pub use status::TaskStatus;

@@ -3,16 +3,18 @@
   "module": {
     "path": "src/server/intent",
     "name": "intent",
-    "purpose": "Owns intent lifecycle orchestration and decision prompting: runtime renders System plus IntentAnalyze with user_request, intent, and ordered completed step_results before creating work or publishing a terminal result.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs Arc-backed intent actors whose runtimes own task access, signature, content, step and plan tracking, and lifecycle; renders IntentAnalyze prompts, creates steps, plans, and relays, and resolves typed child results.",
+    "changeStatus": "modified"
   },
+  "modified": ["intent.rs", "mod.rs", "runtime.rs", "workflow.rs"],
+  "deleted": ["state.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Intent",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/intent.rs",
@@ -30,28 +32,54 @@
         {
           "sourcePath": "src/server/intent/intent.rs",
           "lineStart": 14,
-          "lineEnd": 45,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 14,
+              "lineEnd": 19
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/intent/intent.rs",
+          "lineStart": 21,
+          "lineEnd": 32,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 21,
+              "lineEnd": 32
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/intent/intent.rs",
+          "lineStart": 36,
+          "lineEnd": 45,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 36,
               "lineEnd": 45
             }
           ]
         },
         {
           "sourcePath": "src/server/intent/intent.rs",
-          "lineStart": 49,
-          "lineEnd": 58,
+          "lineStart": 47,
+          "lineEnd": 57,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 49,
-              "lineEnd": 58
+              "lineStart": 47,
+              "lineEnd": 57
             }
-          ]
+          ],
+          "modifiedLines": []
         }
       ]
     },
@@ -59,80 +87,83 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 16,
-          "lineEnd": 20,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 22,
-          "lineEnd": 81,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 85,
-          "lineEnd": 406,
+          "lineStart": 20,
+          "lineEnd": 27,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 95,
-              "lineEnd": 148
-            },
-            {
-              "lineStart": 188,
-              "lineEnd": 234
+              "lineStart": 20,
+              "lineEnd": 27
             }
           ]
+        },
+        {
+          "sourcePath": "src/server/intent/runtime.rs",
+          "lineStart": 29,
+          "lineEnd": 44,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 29,
+              "lineEnd": 44
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/intent/runtime.rs",
+          "lineStart": 46,
+          "lineEnd": 87,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 46,
+              "lineEnd": 87
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/intent/runtime.rs",
+          "lineStart": 91,
+          "lineEnd": 368,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 91,
+              "lineEnd": 368
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/intent/runtime.rs",
+          "lineStart": 370,
+          "lineEnd": 373,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 370,
+              "lineEnd": 373
+            }
+          ],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/workflow.rs",
-          "lineStart": 12,
-          "lineEnd": 97,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "IntentState",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/intent/state.rs",
-          "lineStart": 12,
-          "lineEnd": 21,
+          "lineStart": 11,
+          "lineEnd": 76,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 21
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/intent/state.rs",
-          "lineStart": 25,
-          "lineEnd": 43,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 25,
-              "lineEnd": 43
+              "lineStart": 11,
+              "lineEnd": 76
             }
           ]
         }

@@ -3,9 +3,10 @@
   "module": {
     "path": "src/host/execution",
     "name": "execution",
-    "purpose": "Runs host tool executions and emits direct task-level invocation update and sequenced-processing envelopes.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs host tools through the synchronous protocol runtime boundary and emits execution lifecycle and sequenced processing events through task-level invocation envelopes.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -44,7 +45,7 @@
       "name": "ExecutionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -52,12 +53,7 @@
           "lineEnd": 15,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 11,
-              "lineEnd": 15
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -65,12 +61,7 @@
           "lineEnd": 26,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 26
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -78,23 +69,18 @@
           "lineEnd": 81,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 28,
-              "lineEnd": 81
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/execution/runtime.rs",
           "lineStart": 85,
-          "lineEnd": 159,
+          "lineEnd": 156,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 85,
-              "lineEnd": 159
+              "lineStart": 99,
+              "lineEnd": 107
             }
           ]
         }

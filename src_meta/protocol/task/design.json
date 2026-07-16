@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/task",
     "name": "task",
-    "purpose": "Defines task requests, results, identities, signatures, statuses, errors, actor event envelopes with explicit intent starts, terminal updates, and cancellation.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines task requests, typed results, external transport statuses, identities, signatures that retain business names and display type-qualified identifiers, errors, and actor event envelopes using shared ActorStatus completion updates.",
+    "changeStatus": "modified"
   },
+  "modified": ["event.rs", "mod.rs", "result.rs", "signature.rs"],
   "childModules": [],
   "elements": [
     {
@@ -33,15 +34,20 @@
       "name": "TaskEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/event.rs",
           "lineStart": 9,
-          "lineEnd": 18,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 17
+            }
+          ]
         }
       ]
     },
@@ -118,18 +124,44 @@
       ]
     },
     {
-      "name": "TaskResult",
-      "type": "struct",
+      "name": "TaskResultKind",
+      "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/result.rs",
           "lineStart": 3,
-          "lineEnd": 6,
+          "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 8
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "TaskResult",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/task/result.rs",
+          "lineStart": 10,
+          "lineEnd": 14,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 14
+            }
+          ]
         }
       ]
     },
@@ -137,7 +169,7 @@
       "name": "TaskSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/signature.rs",
@@ -158,18 +190,28 @@
         {
           "sourcePath": "src/protocol/task/signature.rs",
           "lineStart": 21,
-          "lineEnd": 25,
+          "lineEnd": 29,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 24
+            }
+          ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/task/signature.rs",
-          "lineStart": 27,
-          "lineEnd": 31,
+          "lineStart": 31,
+          "lineEnd": 35,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 33,
+              "lineEnd": 33
+            }
+          ]
         }
       ]
     },

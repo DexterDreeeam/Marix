@@ -1,48 +1,33 @@
 use std::sync::Arc;
 
-use marix_common::Logger;
-use marix_protocol::{
-    InvocationEvent, InvocationRequest, InvocationResult, InvocationStatus,
-};
+use marix_common::{Actor as ActorTrait, ActorBase, ActorRuntime as ActorRuntimeTrait};
+use marix_protocol::{InvocationEvent, InvocationRequest, InvocationResult, InvocationSignature};
 
-use super::{InvocationRuntime, InvocationState};
+use super::InvocationRuntime;
 use crate::task::TaskAccess;
 
 #[derive(Clone)]
 pub struct Invocation {
-    pub state: Arc<InvocationState>,
+    pub runtime: Arc<InvocationRuntime>,
 }
 
-impl Invocation {
-    pub fn status(&self) -> InvocationStatus {
-        self.state
-            .status
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone()
+impl ActorBase for Invocation {
+    type Signature = InvocationSignature;
+    type Event = InvocationEvent;
+    type Result = InvocationResult;
+    type Runtime = InvocationRuntime;
+}
+
+impl ActorTrait for Invocation {
+    fn runtime(&self) -> &Arc<Self::Runtime> {
+        &self.runtime
     }
 
-    pub fn result(&self) -> Option<InvocationResult> {
-        match self.status() {
-            InvocationStatus::Complete(result) => Some(result),
-            InvocationStatus::Created | InvocationStatus::Running => None,
-        }
-    }
-
-    pub fn start(&self) {
-        let runtime = InvocationRuntime::new(Arc::clone(&self.state));
-        drop(self.state.access.rt.spawn(async move {
+    fn spawn(&self, runtime: Arc<Self::Runtime>) {
+        let rt = Arc::clone(&runtime.access.rt);
+        drop(rt.spawn(async move {
             runtime.run().await;
         }));
-    }
-
-    pub fn dispatch(&self, event: InvocationEvent) {
-        if self.state.invocation_tx.send(event).is_err() {
-            Logger::warning(format!(
-                "invocation {} event dispatch failed: worker stopped",
-                &self.state.signature,
-            ));
-        }
     }
 }
 
@@ -50,11 +35,23 @@ impl Invocation {
 
 impl Invocation {
     pub(crate) fn new(access: Arc<TaskAccess>, request: InvocationRequest) -> Self {
-        let state = Arc::new(InvocationState::new(
+        let runtime = Arc::new(InvocationRuntime::new(
             access,
             request.signature,
             request.input,
         ));
-        Self { state }
+        Self { runtime }
     }
+}
+
+#[allow(dead_code)]
+fn assert_actor_object_safe(
+    actor: &dyn ActorTrait<
+        Signature = InvocationSignature,
+        Event = InvocationEvent,
+        Result = InvocationResult,
+        Runtime = InvocationRuntime,
+    >,
+) {
+    actor.start();
 }

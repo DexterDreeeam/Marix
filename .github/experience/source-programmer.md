@@ -1138,3 +1138,51 @@ connecter to protect this distinction.
   `user_request`; IntentAnalyze adds Intent content and completed direct Step
   results, while PlanVerdict adds parent/current Intent content and failure
   history. Session snapshots are not serialized into decision prompts.
+- 2026-07-16 (object-safe actor core): `common/structure/actor.rs` keeps
+  `ActorBase`, `ActorState`, `Actor`, and `ActorRuntime` dyn-compatible after
+  associated types are specified. `ActorBase::name` is a required method;
+  `Actor::start` delegates to required `spawn(Arc<State>)`, while runtime
+  preparation, run, main-loop, and finish use boxed futures.
+- 2026-07-16 (unified lifecycle ownership): `common/structure/lifecycle.rs`
+  owns atomic `ActorStatus`, typed result storage, and event/close channels.
+  Finish stores the typed result before publishing `Complete`; workflow
+  completion events therefore carry only `ActorStatus`, and parents read
+  Intent/Plan/Step/Invocation/Relay results through `TaskAccess`.
+- 2026-07-16 (workflow actor migration): Task, Intent, Plan, Step, Invocation,
+  and Relay states each own one `Lifecycle<Event, Result>`. Relay sets
+  `ActorRuntime::Prepared` to `ModelResponseAsyncReceiver` and overrides the
+  main loop to select close, actor-event, and model-response streams.
+- 2026-07-16 (task and legacy boundary): Task uses internal
+  `TaskResultKind` plus `output`, then maps completion to the unchanged
+  transport `TaskStatus`. Protocol `Actor`/`Runtime` remain the legacy
+  Host/Session boundary; only the six Server workflow actors use the common
+  actor traits.
+- 2026-07-16 (dyn-safe lifecycle family binding): `Lifecycle` owns the
+  static actor name. State and runtime implementations identify their concrete
+  actor through `Base`, while `ActorBase` binds the family through
+  `State::Base`; directly constraining those associations to `Self` would
+  rebind `Self` to the trait object and make `dyn Actor::start` and
+  `dyn ActorRuntime::run` unusable.
+- 2026-07-16 (runtime construction boundary): `Actor::start` constructs the
+  associated runtime through `From<Arc<State>>` and passes its `Arc` to
+  `spawn`. The six actor implementations select only the execution context;
+  runtime behavior and state access remain in `ActorRuntime`.
+- 2026-07-17 (runtime-owned workflow actors): Task, Intent, Plan, Step,
+  Invocation, and Relay now hold `Arc<*Runtime>` directly. Each runtime owns
+  its actor's signature/data plus `Lifecycle`; the six active `state.rs`
+  modules and the common `ActorState`/`StateOf` boundary are gone.
+- 2026-07-17 (task runtime topology): `TaskRuntime::new` creates the five
+  shared registries and `TaskAccess`. Task still starts a dedicated thread
+  that blocks on its current-thread Tokio runtime, while all five child actor
+  kinds spawn through that same `TaskAccess::rt` handle.
+- 2026-07-17 (dyn-safe runtime family binding): A literal
+  `ActorBase::Runtime: ActorRuntime<Base = Self>` makes `dyn Actor::start`
+  require the runtime Base to be the trait object. The object-safe form binds
+  the runtime Base's Signature/Event/Result/Runtime projections to the actor
+  projections; private `dyn Actor` and `dyn ActorRuntime` assertions compile
+  and invoke `start`/`run`.
+- 2026-07-17 (signature identity display): Protocol `Signature` extends
+  `Display` and owns a static `type_name`; all seven signature types render
+  identity uniformly as `<type_name>:<uuid>` while retaining business `name`
+  fields.
+- 2026-07-17: The Actor foundation is owned by `src/common/actor/`; it imports channel primitives from `common::structure`, while `common::structure` owns only channel/work-queue APIs. `common/lib.rs` preserves the top-level `marix_common::{Actor, Lifecycle, ...}` surface.

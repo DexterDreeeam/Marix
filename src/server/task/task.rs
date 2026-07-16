@@ -2,51 +2,34 @@ use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 use std::thread;
 
-use marix_common::{Logger, Sender};
-use marix_protocol::{
-    IntentSignature, SessionEvent, TaskEvent, TaskResult, TaskSignature, TaskStatus,
-};
+use marix_common::{Actor as ActorTrait, ActorBase, ActorRuntime as ActorRuntimeTrait, Sender};
+use marix_protocol::{IntentSignature, SessionEvent, TaskEvent, TaskResult, TaskSignature};
 
-use super::{TaskRuntime, TaskState};
+use super::TaskRuntime;
 use crate::session::SessionContext;
 
 #[derive(Clone)]
 pub struct Task {
-    pub state: Arc<TaskState>,
+    pub runtime: Arc<TaskRuntime>,
 }
 
-impl Task {
-    pub fn status(&self) -> TaskStatus {
-        self.state
-            .status
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone()
+impl ActorBase for Task {
+    type Signature = TaskSignature;
+    type Event = TaskEvent;
+    type Result = TaskResult;
+    type Runtime = TaskRuntime;
+}
+
+impl ActorTrait for Task {
+    fn runtime(&self) -> &Arc<Self::Runtime> {
+        &self.runtime
     }
 
-    pub fn result(&self) -> Option<TaskResult> {
-        self.state
-            .result
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone()
-    }
-
-    pub fn start(&self) {
-        let runtime = TaskRuntime::new(Arc::clone(&self.state));
-        let rt = Arc::clone(&self.state.access.rt);
+    fn spawn(&self, runtime: Arc<Self::Runtime>) {
+        let rt = Arc::clone(&runtime.access.rt);
         drop(thread::spawn(move || {
             rt.block_on(runtime.run());
         }));
-    }
-
-    pub fn dispatch(&self, event: TaskEvent) {
-        if self.state.task_tx.send(event).is_err() {
-            Logger::warning(format!(
-                "task {} event dispatch failed: worker stopped",
-                &self.state.access.signature,
-            ));
-        }
     }
 }
 
@@ -60,13 +43,25 @@ impl Task {
         user_request: String,
         session_tx: Sender<SessionEvent>,
     ) -> Self {
-        let state = Arc::new(TaskState::new(
+        let runtime = Arc::new(TaskRuntime::new(
             session_context,
             signature,
             root,
             user_request,
             session_tx,
         ));
-        Self { state }
+        Self { runtime }
     }
+}
+
+#[allow(dead_code)]
+fn assert_actor_object_safe(
+    actor: &dyn ActorTrait<
+        Signature = TaskSignature,
+        Event = TaskEvent,
+        Result = TaskResult,
+        Runtime = TaskRuntime,
+    >,
+) {
+    actor.start();
 }

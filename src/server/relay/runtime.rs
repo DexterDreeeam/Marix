@@ -1,104 +1,104 @@
+use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
 use marix_common::external::*;
-use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
+use marix_common::{
+    ActorCloseReceiver, ActorEventReceiver, ActorFuture, ActorPrepareFuture,
+    ActorRuntime as ActorRuntimeTrait, ActorStatus, Config, Lifecycle, Logger,
+    ModelBackend as ConfigModelBackend,
+};
 use marix_protocol::{
-    IntentEvent, RelayEvent, RelayResult, RelayResultKind, RelayStatus, SessionEvent, TaskEvent,
+    IntentEvent, RelayEvent, RelayRequest, RelayResult, RelayResultKind, RelaySignature,
+    SessionEvent, TaskEvent,
 };
 
-use super::RelayState;
-use crate::model::{ModelRequest, ModelResponse};
+use super::Relay;
+use crate::model::{
+    DeepseekBackend, ModelBackend, ModelRequest, ModelResponse, ModelResponseAsyncReceiver,
+};
+use crate::task::TaskAccess;
 
 pub struct RelayRuntime {
-    pub state: Arc<RelayState>,
-    pub close_tx: AsyncSender<()>,
-    pub close_rx: StdMutex<Option<AsyncReceiver<()>>>,
+    pub access: Arc<TaskAccess>,
+    pub signature: RelaySignature,
+    pub prompt: String,
+    pub output: StdMutex<BTreeMap<usize, String>>,
+    pub final_signal: StdMutex<Option<usize>>,
+    pub model_backend: StdMutex<Box<dyn ModelBackend>>,
+    pub lifecycle: Lifecycle<RelayEvent, RelayResult>,
 }
 
 impl RelayRuntime {
-    pub async fn run(&self) {
-        let Some(mut relay_rx) = self
-            .state
-            .relay_rx
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .take()
-        else {
-            Logger::warning(format!(
-                "relay {} start ignored: already running",
-                &self.state.signature,
-            ));
-            return;
-        };
-        self.set_status(RelayStatus::Running);
-        let Some(mut close_rx) = self
-            .close_rx
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .take()
-        else {
-            self.finish(
-                RelayResultKind::Failed,
-                "relay close receiver unavailable".to_owned(),
-            );
-            return;
-        };
-        let request = ModelRequest {
-            relay: self.state.signature.clone(),
-            prompt: self.state.prompt.clone(),
-        };
-        Logger::log(format!("[Model Relay] Prompt:\n{}", request.prompt));
-        let responses = {
-            let mut backend = self
-                .state
-                .model_backend
-                .lock()
-                .unwrap_or_else(|error| error.into_inner());
-            backend.request_async(request)
-        };
-        let mut responses = match responses {
-            Ok(responses) => responses,
-            Err(error) => {
-                let reason = format!("model request failed: {error}");
-                Logger::error(format!(
-                    "relay {} failed: {reason}",
-                    &self.state.signature,
-                ));
-                self.finish(RelayResultKind::Failed, reason);
-                return;
+    pub(crate) fn new(access: Arc<TaskAccess>, request: RelayRequest) -> Result<Self, String> {
+        let config = Config::load().map_err(|error| format!("failed to load config: {error}"))?;
+        let model_backend: Box<dyn ModelBackend> = match config.model.backend {
+            ConfigModelBackend::Deepseek => {
+                let backend =
+                    std::panic::catch_unwind(DeepseekBackend::new).map_err(|payload| {
+                        let detail = if let Some(message) = payload.downcast_ref::<String>() {
+                            message.clone()
+                        } else if let Some(message) = payload.downcast_ref::<&str>() {
+                            (*message).to_owned()
+                        } else {
+                            "unknown backend construction panic".to_owned()
+                        };
+                        format!("failed to construct model backend: {detail}")
+                    })?;
+                Box::new(backend)
             }
         };
+        Ok(Self {
+            access,
+            signature: request.signature,
+            prompt: request.prompt,
+            output: StdMutex::new(BTreeMap::new()),
+            final_signal: StdMutex::new(None),
+            model_backend: StdMutex::new(model_backend),
+            lifecycle: Lifecycle::new(),
+        })
+    }
+}
 
-        loop {
-            self::tokio::select! {
-                _ = close_rx.recv() => break,
-                event = relay_rx.recv() => {
-                    let Some(event) = event else {
-                        break;
-                    };
-                    self.dispatch(event);
-                }
-                response = responses.recv() => {
-                    let Some(response) = response else {
-                        if !self.status().is_terminal() {
-                            let reason =
-                                "model stream closed before completion".to_owned();
-                            Logger::error(format!(
-                                "relay {} failed: {reason}",
-                                &self.state.signature,
-                            ));
-                            self.finish(RelayResultKind::Failed, reason);
-                        }
-                        break;
-                    };
-                    self.on_model_response(response);
-                }
-            }
-        }
+impl ActorRuntimeTrait for RelayRuntime {
+    type Base = Relay;
+    type Prepared = ModelResponseAsyncReceiver;
+
+    fn signature(&self) -> &RelaySignature {
+        &self.signature
     }
 
-    pub fn dispatch(&self, event: RelayEvent) {
+    fn lifecycle(&self) -> &Lifecycle<RelayEvent, RelayResult> {
+        &self.lifecycle
+    }
+
+    fn prepare(&self) -> ActorPrepareFuture<'_, Self::Prepared> {
+        Box::pin(async move {
+            let request = ModelRequest {
+                relay: self.signature.clone(),
+                prompt: self.prompt.clone(),
+            };
+            Logger::log(format!("[Model Relay] Prompt:\n{}", request.prompt,));
+            let responses = {
+                let mut backend = self
+                    .model_backend
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner());
+                backend.request_async(request)
+            };
+            match responses {
+                Ok(responses) => Some(responses),
+                Err(error) => {
+                    let reason = format!("model request failed: {error}");
+                    Logger::error(format!("relay {} failed: {reason}", &self.signature,));
+                    self.finish(RelayResultKind::Failed, reason);
+                    None
+                }
+            }
+        })
+    }
+
+    fn dispatch(&self, event: RelayEvent) {
         match event {
             RelayEvent::Cancel => {
                 if self.status().is_terminal() {
@@ -114,31 +114,64 @@ impl RelayRuntime {
             }
         }
     }
+
+    fn main<'a>(
+        &'a self,
+        mut event_rx: ActorEventReceiver<RelayEvent>,
+        mut close_rx: ActorCloseReceiver,
+        mut responses: Self::Prepared,
+    ) -> ActorFuture<'a> {
+        Box::pin(async move {
+            loop {
+                self::tokio::select! {
+                    _ = close_rx.recv() => break,
+                    event = event_rx.recv() => {
+                        let Some(event) = event else {
+                            break;
+                        };
+                        self.dispatch(event);
+                    }
+                    response = responses.recv() => {
+                        let Some(response) = response else {
+                            if !self.status().is_terminal() {
+                                let reason = "model stream closed \
+                                    before completion".to_owned();
+                                Logger::error(format!(
+                                    "relay {} failed: {reason}",
+                                    &self.signature,
+                                ));
+                                self.finish(
+                                    RelayResultKind::Failed,
+                                    reason,
+                                );
+                            }
+                            break;
+                        };
+                        self.on_model_response(response);
+                    }
+                }
+            }
+        })
+    }
+
+    fn on_finish(&self) {
+        self.send_owner_update(ActorStatus::Complete);
+    }
 }
 
 // -- Private -- //
 
 impl RelayRuntime {
-    pub(crate) fn new(state: Arc<RelayState>) -> Self {
-        let (close_tx, close_rx) = build_async_channel();
-        Self {
-            state,
-            close_tx,
-            close_rx: StdMutex::new(Some(close_rx)),
-        }
-    }
-
     fn on_model_response(&self, response: ModelResponse) {
         if self.status().is_terminal() {
             Logger::error(format!(
                 "relay {} received model response after completion",
-                &self.state.signature,
+                &self.signature,
             ));
             return;
         }
         if !response.complete {
-            self.state
-                .output
+            self.output
                 .lock()
                 .unwrap_or_else(|error| error.into_inner())
                 .insert(response.seq, response.content);
@@ -146,18 +179,15 @@ impl RelayRuntime {
         }
         let Some(output) = self.complete_output(response.seq) else {
             let reason = format!(
-                "model stream completed with missing chunks; expected {}",
+                "model stream completed with missing chunks; \
+                 expected {}",
                 response.seq,
             );
-            Logger::error(format!(
-                "relay {} failed: {reason}",
-                &self.state.signature,
-            ));
+            Logger::error(format!("relay {} failed: {reason}", &self.signature,));
             self.finish(RelayResultKind::Failed, reason);
             return;
         };
         *self
-            .state
             .final_signal
             .lock()
             .unwrap_or_else(|error| error.into_inner()) = Some(response.seq);
@@ -167,7 +197,6 @@ impl RelayRuntime {
 
     fn complete_output(&self, seq_count: usize) -> Option<String> {
         let output = self
-            .state
             .output
             .lock()
             .unwrap_or_else(|error| error.into_inner());
@@ -183,8 +212,7 @@ impl RelayRuntime {
     }
 
     fn output(&self) -> String {
-        self.state
-            .output
+        self.output
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .values()
@@ -193,59 +221,30 @@ impl RelayRuntime {
     }
 
     fn finish(&self, kind: RelayResultKind, output: String) {
-        let result = RelayResult { kind, output };
-        self.set_status(RelayStatus::Complete(result));
-        self.close();
+        ActorRuntimeTrait::finish(self, RelayResult { kind, output });
     }
 
-    fn status(&self) -> RelayStatus {
-        self.state
-            .status
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone()
-    }
-
-    fn set_status(&self, status: RelayStatus) {
-        let mut current = self
-            .state
-            .status
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
-        if current.is_terminal() {
-            return;
-        }
-        let send_update = matches!(&status, RelayStatus::Complete(_));
-        *current = status.clone();
-        drop(current);
-        if send_update {
-            self.send_owner_update(status);
-        }
-    }
-
-    fn send_owner_update(&self, status: RelayStatus) {
-        let intent = self.state.signature.intent.clone();
+    fn send_owner_update(&self, status: ActorStatus) {
+        let intent = self.signature.intent.clone();
         let event = SessionEvent::Task(
             intent.task.clone(),
             TaskEvent::Intent(
                 intent,
-                IntentEvent::RelayUpdate(self.state.signature.clone(), status),
+                IntentEvent::RelayUpdate(self.signature.clone(), status),
             ),
         );
-        if self.state.access.session_tx.send(event).is_err() {
+        if self.access.session_tx.send(event).is_err() {
             Logger::warning(format!(
                 "relay {} event send failed: session stopped",
-                &self.state.signature,
+                &self.signature,
             ));
         }
     }
+}
 
-    fn close(&self) {
-        if self.close_tx.send(()).is_err() {
-            Logger::warning(format!(
-                "relay {} close signal failed",
-                &self.state.signature,
-            ));
-        }
-    }
+#[allow(dead_code)]
+fn assert_runtime_object_safe(
+    runtime: &dyn ActorRuntimeTrait<Base = Relay, Prepared = ModelResponseAsyncReceiver>,
+) {
+    let _ = runtime.run();
 }

@@ -23,10 +23,7 @@ where
     where
         V: Clone,
     {
-        let state = self
-            .state
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
+        let state = self.state.lock().unwrap_or_else(|error| error.into_inner());
         state
             .order
             .iter()
@@ -38,10 +35,7 @@ where
     where
         V: Clone,
     {
-        let state = self
-            .state
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
+        let state = self.state.lock().unwrap_or_else(|error| error.into_inner());
         state
             .order
             .iter()
@@ -50,9 +44,7 @@ where
                     .working
                     .get(key)
                     .or_else(|| state.complete.get(key))
-                    .unwrap_or_else(|| {
-                        panic!("work queue order key does not exist")
-                    })
+                    .unwrap_or_else(|| panic!("work queue order key does not exist"))
                     .clone()
             })
             .collect()
@@ -62,10 +54,7 @@ where
     where
         V: Clone,
     {
-        let state = self
-            .state
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
+        let state = self.state.lock().unwrap_or_else(|error| error.into_inner());
         state
             .order
             .iter()
@@ -74,9 +63,7 @@ where
                     .working
                     .get(key)
                     .or_else(|| state.complete.get(key))
-                    .unwrap_or_else(|| {
-                        panic!("work queue order key does not exist")
-                    })
+                    .unwrap_or_else(|| panic!("work queue order key does not exist"))
                     .clone();
                 (key.clone(), value)
             })
@@ -87,10 +74,7 @@ where
     where
         V: Clone,
     {
-        let state = self
-            .state
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
+        let state = self.state.lock().unwrap_or_else(|error| error.into_inner());
         state
             .order
             .iter()
@@ -115,31 +99,20 @@ where
     }
 
     pub fn size(&self) -> usize {
-        let state = self
-            .state
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
+        let state = self.state.lock().unwrap_or_else(|error| error.into_inner());
         state.working.len() + state.complete.len()
     }
 
     pub fn clear(&self) {
-        let mut state = self
-            .state
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
+        let mut state = self.state.lock().unwrap_or_else(|error| error.into_inner());
         state.order.clear();
         state.working.clear();
         state.complete.clear();
     }
 
     pub fn insert(&self, key: K, value: V) {
-        let mut state = self
-            .state
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
-        if state.working.contains_key(&key)
-            || state.complete.contains_key(&key)
-        {
+        let mut state = self.state.lock().unwrap_or_else(|error| error.into_inner());
+        if state.working.contains_key(&key) || state.complete.contains_key(&key) {
             panic!("work queue key already exists")
         }
         state.order.push(key.clone());
@@ -147,10 +120,7 @@ where
     }
 
     pub fn insert_or_update(&self, key: K, value: V) -> bool {
-        let mut state = self
-            .state
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
+        let mut state = self.state.lock().unwrap_or_else(|error| error.into_inner());
         if let Some(stored) = state.working.get_mut(&key) {
             *stored = value;
             return true;
@@ -168,10 +138,7 @@ where
     where
         V: Clone,
     {
-        let state = self
-            .state
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
+        let state = self.state.lock().unwrap_or_else(|error| error.into_inner());
         if let Some(value) = state.working.get(&key).cloned() {
             return value;
         }
@@ -183,10 +150,7 @@ where
     }
 
     pub fn with<R>(&self, key: &K, function: impl FnOnce(&V) -> R) -> Option<R> {
-        let state = self
-            .state
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
+        let state = self.state.lock().unwrap_or_else(|error| error.into_inner());
         if let Some(value) = state.working.get(key) {
             return Some(function(value));
         }
@@ -194,10 +158,7 @@ where
     }
 
     pub fn with_mut<R>(&self, key: &K, function: impl FnOnce(&mut V) -> R) -> Option<R> {
-        let mut state = self
-            .state
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
+        let mut state = self.state.lock().unwrap_or_else(|error| error.into_inner());
         if let Some(value) = state.working.get_mut(key) {
             return Some(function(value));
         }
@@ -205,10 +166,7 @@ where
     }
 
     pub fn complete(&self, key: K) {
-        let mut state = self
-            .state
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
+        let mut state = self.state.lock().unwrap_or_else(|error| error.into_inner());
         let value = state
             .working
             .remove(&key)

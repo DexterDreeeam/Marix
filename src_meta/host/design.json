@@ -3,19 +3,20 @@
   "module": {
     "path": "src/host",
     "name": "host",
-    "purpose": "Owns Host connectivity, ExecutionSignature-routed execution lifecycle, direct task-level invocation updates, and tool registration.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns Host connectivity, synchronous execution and executor runtime boundaries, task-level invocation updates, and tool registration.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/host/execution",
       "name": "execution",
-      "purpose": "Runs host tool executions and emits direct task-level invocation update and sequenced-processing envelopes."
+      "purpose": "Runs host tools through the synchronous protocol runtime boundary and emits execution lifecycle and sequenced processing events through task-level invocation envelopes."
     },
     {
       "path": "src/host/executor",
       "name": "executor",
-      "purpose": "Owns host executor lifecycle, tool registration, preview loading, ExecutionSignature routing, and direct task-level invocation failures."
+      "purpose": "Owns the synchronous host executor boundary, tool registration, execution routing, and task-level invocation failure delivery."
     }
   ],
   "elements": [
@@ -129,7 +130,7 @@
       "name": "ExecutionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -137,12 +138,7 @@
           "lineEnd": 15,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 11,
-              "lineEnd": 15
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -150,12 +146,7 @@
           "lineEnd": 26,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 26
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -163,23 +154,18 @@
           "lineEnd": 81,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 28,
-              "lineEnd": 81
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/execution/runtime.rs",
           "lineStart": 85,
-          "lineEnd": 159,
+          "lineEnd": 156,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 85,
-              "lineEnd": 159
+              "lineStart": 99,
+              "lineEnd": 107
             }
           ]
         }
@@ -285,7 +271,7 @@
       "name": "ExecutorRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -293,12 +279,7 @@
           "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 18
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -306,12 +287,7 @@
           "lineEnd": 29,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 20,
-              "lineEnd": 29
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -319,23 +295,18 @@
           "lineEnd": 73,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 31,
-              "lineEnd": 73
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/runtime.rs",
           "lineStart": 77,
-          "lineEnd": 173,
+          "lineEnd": 170,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 77,
-              "lineEnd": 173
+              "lineStart": 136,
+              "lineEnd": 145
             }
           ]
         }

@@ -3,9 +3,11 @@
   "module": {
     "path": "src/protocol/plan",
     "name": "plan",
-    "purpose": "Defines nested plan drafts, verdicts, ResultKind-classified terminal results, identities, boxed owning-intent signatures, a Created/Running/Complete lifecycle whose Complete status carries the result, errors, child-intent and relay updates, and cancellation.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines nested plan drafts, verdicts, typed results, identities, boxed owning-intent signatures that retain business names and display type-qualified identifiers, shared actor-status child and relay updates, and cancellation.",
+    "changeStatus": "modified"
   },
+  "modified": ["event.rs", "mod.rs", "signature.rs"],
+  "deleted": ["status.rs"],
   "childModules": [],
   "elements": [
     {
@@ -101,17 +103,17 @@
       "name": "PlanEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/event.rs",
-          "lineStart": 5,
-          "lineEnd": 10,
+          "lineStart": 7,
+          "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 5,
+              "lineStart": 9,
               "lineEnd": 10
             }
           ]
@@ -188,7 +190,7 @@
       "name": "PlanSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/signature.rs",
@@ -196,12 +198,7 @@
           "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 6,
-              "lineEnd": 11
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/plan/signature.rs",
@@ -209,70 +206,31 @@
           "lineEnd": 21,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 13,
-              "lineEnd": 21
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/plan/signature.rs",
           "lineStart": 23,
-          "lineEnd": 27,
+          "lineEnd": 31,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 23,
-              "lineEnd": 27
+              "lineStart": 24,
+              "lineEnd": 26
             }
-          ]
+          ],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/plan/signature.rs",
-          "lineStart": 29,
-          "lineEnd": 33,
+          "lineStart": 33,
+          "lineEnd": 37,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 29,
-              "lineEnd": 33
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "PlanStatus",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/plan/status.rs",
-          "lineStart": 4,
-          "lineEnd": 9,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 4,
-              "lineEnd": 9
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/protocol/plan/status.rs",
-          "lineStart": 11,
-          "lineEnd": 15,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 11,
-              "lineEnd": 15
+              "lineStart": 35,
+              "lineEnd": 35
             }
           ]
         }

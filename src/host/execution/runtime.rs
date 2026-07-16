@@ -4,8 +4,8 @@ use crate::execution::ExecutionState;
 use crate::session::HostSession;
 use marix_common::{Logger, Receiver, Sender, build_channel, select};
 use marix_protocol::{
-    ExecutionError, ExecutionEvent, ExecutionStatus, InvocationEvent,
-    Runtime, SessionEvent, TaskEvent,
+    ExecutionError, ExecutionEvent, ExecutionStatus, InvocationEvent, Runtime, SessionEvent,
+    TaskEvent,
 };
 
 pub struct ExecutionRuntime {
@@ -101,10 +101,7 @@ impl ExecutionRuntime {
         let invocation = execution.invocation.clone();
         let event = SessionEvent::Task(
             invocation.step.intent.task.clone(),
-            TaskEvent::Invocation(
-                invocation,
-                InvocationEvent::Update(execution, status),
-            ),
+            TaskEvent::Invocation(invocation, InvocationEvent::Update(execution, status)),
         );
         self.send_server_event(event);
     }

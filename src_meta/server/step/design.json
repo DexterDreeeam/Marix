@@ -3,89 +3,83 @@
   "module": {
     "path": "src/server/step",
     "name": "step",
-    "purpose": "Owns task-registered invocation groups: Step preserves the validated draft, runtime creates and registers every invocation before starting them directly, and terminal updates trigger aggregate completion.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs Arc-backed step actors whose runtimes own task access, signature, draft, invocation tracking, and lifecycle; registers invocation groups, resolves typed invocation results, and publishes aggregate completion.",
+    "changeStatus": "modified"
   },
+  "modified": ["mod.rs", "runtime.rs", "step.rs"],
+  "deleted": ["state.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "StepRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/runtime.rs",
-          "lineStart": 14,
-          "lineEnd": 18,
+          "lineStart": 16,
+          "lineEnd": 22,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 14,
-              "lineEnd": 18
+              "lineStart": 16,
+              "lineEnd": 22
             }
           ]
         },
         {
           "sourcePath": "src/server/step/runtime.rs",
-          "lineStart": 20,
-          "lineEnd": 81,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 20,
-              "lineEnd": 81
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/step/runtime.rs",
-          "lineStart": 85,
-          "lineEnd": 255,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 85,
-              "lineEnd": 255
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "StepState",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/step/state.rs",
-          "lineStart": 9,
-          "lineEnd": 17,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 17
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/step/state.rs",
-          "lineStart": 21,
+          "lineStart": 24,
           "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 21,
+              "lineStart": 24,
               "lineEnd": 34
             }
           ]
+        },
+        {
+          "sourcePath": "src/server/step/runtime.rs",
+          "lineStart": 36,
+          "lineEnd": 76,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 36,
+              "lineEnd": 76
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/step/runtime.rs",
+          "lineStart": 80,
+          "lineEnd": 216,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 80,
+              "lineEnd": 216
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/step/runtime.rs",
+          "lineStart": 218,
+          "lineEnd": 221,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 218,
+              "lineEnd": 221
+            }
+          ],
+          "modifiedLines": []
         }
       ]
     },
@@ -93,7 +87,7 @@
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/step.rs",
@@ -101,28 +95,64 @@
           "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 12
+            }
+          ]
         },
         {
           "sourcePath": "src/server/step/step.rs",
           "lineStart": 14,
-          "lineEnd": 45,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/step/step.rs",
-          "lineStart": 49,
-          "lineEnd": 68,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 49,
-              "lineEnd": 68
+              "lineStart": 14,
+              "lineEnd": 19
             }
           ]
+        },
+        {
+          "sourcePath": "src/server/step/step.rs",
+          "lineStart": 21,
+          "lineEnd": 32,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 21,
+              "lineEnd": 32
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/step/step.rs",
+          "lineStart": 36,
+          "lineEnd": 55,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 36,
+              "lineEnd": 55
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/step/step.rs",
+          "lineStart": 57,
+          "lineEnd": 67,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 57,
+              "lineEnd": 67
+            }
+          ],
+          "modifiedLines": []
         }
       ]
     }

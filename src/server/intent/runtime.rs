@@ -2,69 +2,71 @@ use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
 use marix_common::external::*;
-use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
+use marix_common::{
+    Actor, ActorPrepareFuture, ActorRuntime as ActorRuntimeTrait, ActorStatus, Lifecycle, Logger,
+    WorkQueue,
+};
 use marix_protocol::{
-    IntentEvent, IntentResult, IntentResultKind, IntentStatus, IntentVerdict, PlanEvent,
-    PlanResultKind, PlanSignature, PlanStatus, RelayRequest, RelayResultKind, RelaySignature,
-    RelayStatus, SessionEvent, StepEvent, StepResultKind, StepSignature, StepStatus, TaskEvent,
+    IntentEvent, IntentResult, IntentResultKind, IntentSignature, IntentVerdict, PlanEvent,
+    PlanResultKind, PlanSignature, RelayRequest, RelayResultKind, RelaySignature, SessionEvent,
+    StepEvent, StepResult, StepResultKind, StepSignature, TaskEvent,
 };
 
-use super::IntentState;
+use super::Intent;
 use crate::prompt::Prompt;
 use crate::relay::Relay;
+use crate::task::TaskAccess;
 
 pub struct IntentRuntime {
-    pub state: Arc<IntentState>,
-    pub close_tx: AsyncSender<()>,
-    pub close_rx: StdMutex<Option<AsyncReceiver<()>>>,
+    pub access: Arc<TaskAccess>,
+    pub signature: IntentSignature,
+    pub content: String,
+    pub steps: Arc<WorkQueue<StepSignature, Option<StepResult>>>,
+    pub plan: StdMutex<Option<PlanSignature>>,
+    pub lifecycle: Lifecycle<IntentEvent, IntentResult>,
 }
 
 impl IntentRuntime {
-    pub async fn run(&self) {
-        let Some(mut intent_rx) = self
-            .state
-            .intent_rx
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .take()
-        else {
-            Logger::warning(format!(
-                "intent {} start ignored: already running",
-                &self.state.signature,
-            ));
-            return;
-        };
-        self.set_status(IntentStatus::Running);
-        Logger::log(format!("intent {} started", &self.state.signature,));
-        if let Err(reason) = self.verdict() {
-            self.fail(reason);
-            return;
-        }
-
-        let Some(mut close_rx) = self
-            .close_rx
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .take()
-        else {
-            self.fail("intent close receiver unavailable".to_owned());
-            return;
-        };
-
-        loop {
-            self::tokio::select! {
-                _ = close_rx.recv() => break,
-                event = intent_rx.recv() => {
-                    let Some(event) = event else {
-                        break;
-                    };
-                    self.dispatch(event);
-                }
-            }
+    pub(crate) fn new(
+        access: Arc<TaskAccess>,
+        signature: IntentSignature,
+        content: String,
+    ) -> Self {
+        Self {
+            access,
+            signature,
+            content,
+            steps: Arc::new(WorkQueue::new()),
+            plan: StdMutex::new(None),
+            lifecycle: Lifecycle::new(),
         }
     }
+}
 
-    pub fn dispatch(&self, event: IntentEvent) {
+impl ActorRuntimeTrait for IntentRuntime {
+    type Base = Intent;
+    type Prepared = ();
+
+    fn signature(&self) -> &IntentSignature {
+        &self.signature
+    }
+
+    fn lifecycle(&self) -> &Lifecycle<IntentEvent, IntentResult> {
+        &self.lifecycle
+    }
+
+    fn prepare(&self) -> ActorPrepareFuture<'_, Self::Prepared> {
+        Box::pin(async move {
+            Logger::log(format!("intent {} started", &self.signature,));
+            if let Err(reason) = self.verdict() {
+                self.fail(reason);
+                return None;
+            }
+            Some(())
+        })
+    }
+
+    fn dispatch(&self, event: IntentEvent) {
         match event {
             IntentEvent::PlanUpdate(signature, status) => {
                 self.on_plan_update(signature, status);
@@ -78,23 +80,17 @@ impl IntentRuntime {
             IntentEvent::Cancel => self.cancel(),
         }
     }
+
+    fn on_finish(&self) {
+        self.send_task_update(ActorStatus::Complete);
+    }
 }
 
 // -- Private -- //
 
 impl IntentRuntime {
-    pub(crate) fn new(state: Arc<IntentState>) -> Self {
-        let (close_tx, close_rx) = build_async_channel();
-        Self {
-            state,
-            close_tx,
-            close_rx: StdMutex::new(Some(close_rx)),
-        }
-    }
-
     fn verdict(&self) -> Result<(), String> {
         let step_results = self
-            .state
             .steps
             .entries()
             .into_iter()
@@ -108,7 +104,7 @@ impl IntentRuntime {
             })
             .collect::<Vec<_>>();
         let step_results = serde_json::to_string(&step_results)
-            .map_err(|error| format!("failed to serialize intent step results: {error}"))?;
+            .map_err(|error| format!("failed to serialize intent step results: {error}",))?;
         let mut prompt =
             std::panic::catch_unwind(|| Prompt::load("IntentAnalyze")).map_err(|payload| {
                 let detail = if let Some(message) = payload.downcast_ref::<String>() {
@@ -118,59 +114,57 @@ impl IntentRuntime {
                 } else {
                     "unknown prompt loading panic".to_owned()
                 };
-                format!("failed to load IntentAnalyze prompt: {detail}")
+                format!("failed to load IntentAnalyze prompt: {detail}",)
             })?;
-        prompt.inject(
-            "user_request".to_owned(),
-            self.state.access.user_request.clone(),
-        );
-        prompt.inject("intent".to_owned(), self.state.content.clone());
+        prompt.inject("user_request".to_owned(), self.access.user_request.clone());
+        prompt.inject("intent".to_owned(), self.content.clone());
         prompt.inject("step_results".to_owned(), step_results);
         let prompt = prompt
             .prompt()
             .map_err(|error| format!("failed to render IntentAnalyze prompt: {error}"))?;
         let request = RelayRequest {
-            signature: RelaySignature::new(
-                self.state.signature.clone(),
-                "intent-verdict".to_owned(),
-            ),
+            signature: RelaySignature::new(self.signature.clone(), "intent-verdict".to_owned()),
             prompt,
         };
-        let relay = Relay::new(Arc::clone(&self.state.access), request)?;
-        if !self.state.access.insert_relay(relay.clone()) {
+        let relay = Relay::new(Arc::clone(&self.access), request)?;
+        if !self.access.insert_relay(relay.clone()) {
             return Err(format!(
                 "intent verdict relay {} already exists",
-                &relay.state.signature,
+                relay.signature(),
             ));
         }
         relay.start();
         Ok(())
     }
 
-    fn on_plan_update(&self, signature: PlanSignature, status: PlanStatus) {
+    fn on_plan_update(&self, signature: PlanSignature, status: ActorStatus) {
         if self.status().is_terminal() {
             Logger::error(format!(
-                "intent {} received plan {signature} update {status:?} \
-                 after completion",
-                &self.state.signature,
+                "intent {} received plan {signature} update \
+                 {status:?} after completion",
+                &self.signature,
             ));
             return;
         }
-        let PlanStatus::Complete(result) = status else {
+        if !status.is_terminal() {
             return;
-        };
-        let has_plan = self
-            .state
+        }
+        let plan = self
             .plan
             .lock()
             .unwrap_or_else(|error| error.into_inner())
-            .is_some();
-        if !has_plan {
+            .clone();
+        if plan.as_ref() != Some(&signature) {
             self.fail(format!(
-                "intent received plan update for {signature} without a plan"
+                "intent received update from unexpected plan \
+                 {signature}",
             ));
             return;
         }
+        let Some(result) = self.access.get_plan_result(&signature) else {
+            self.fail(format!("plan {signature} completed without a result",));
+            return;
+        };
         match result.kind {
             PlanResultKind::Succeed => {
                 self.finish(IntentResultKind::Succeed, result.output);
@@ -185,20 +179,23 @@ impl IntentRuntime {
         }
     }
 
-    fn on_relay_update(&self, signature: RelaySignature, status: RelayStatus) {
+    fn on_relay_update(&self, signature: RelaySignature, status: ActorStatus) {
         if self.status().is_terminal() {
             Logger::error(format!(
-                "intent {} received relay {signature} update {status:?} \
-                 after completion",
-                &self.state.signature,
+                "intent {} received relay {signature} update \
+                 {status:?} after completion",
+                &self.signature,
             ));
             return;
         }
-        let RelayStatus::Complete(result) = status else {
+        if !status.is_terminal() {
+            return;
+        }
+        let Some(result) = self.access.get_relay_result(&signature) else {
+            self.fail(format!("relay {signature} completed without a result",));
             return;
         };
         let plan = self
-            .state
             .plan
             .lock()
             .unwrap_or_else(|error| error.into_inner())
@@ -206,7 +203,7 @@ impl IntentRuntime {
         if let Some(plan) = plan {
             self.send_plan_event(
                 plan,
-                PlanEvent::RelayUpdate(signature, RelayStatus::Complete(result)),
+                PlanEvent::RelayUpdate(signature, ActorStatus::Complete),
             );
             return;
         }
@@ -216,8 +213,8 @@ impl IntentRuntime {
                     Ok(verdict) => verdict,
                     Err(error) => {
                         self.fail(format!(
-                            "intent verdict from relay {signature} is \
-                             malformed: {error}"
+                            "intent verdict from relay \
+                                 {signature} is malformed: {error}",
                         ));
                         return;
                     }
@@ -233,19 +230,23 @@ impl IntentRuntime {
         }
     }
 
-    fn on_step_update(&self, signature: StepSignature, status: StepStatus) {
+    fn on_step_update(&self, signature: StepSignature, status: ActorStatus) {
         if self.status().is_terminal() {
             Logger::error(format!(
-                "intent {} received step {signature} update {status:?} \
-                 after completion",
-                &self.state.signature,
+                "intent {} received step {signature} update \
+                 {status:?} after completion",
+                &self.signature,
             ));
             return;
         }
-        let StepStatus::Complete(result) = status else {
+        if !status.is_terminal() {
+            return;
+        }
+        let Some(result) = self.access.get_step_result(&signature) else {
+            self.fail(format!("step {signature} completed without a result",));
             return;
         };
-        let Some(updated) = self.state.steps.with_mut(&signature, |stored| {
+        let Some(updated) = self.steps.with_mut(&signature, |stored| {
             if stored.is_some() {
                 return false;
             }
@@ -257,9 +258,9 @@ impl IntentRuntime {
         };
         if !updated {
             Logger::error(format!(
-                "intent {} received duplicate complete update from step \
-                 {signature}",
-                &self.state.signature,
+                "intent {} received duplicate complete update from \
+                 step {signature}",
+                &self.signature,
             ));
             return;
         }
@@ -301,7 +302,6 @@ impl IntentRuntime {
             return;
         }
         let plan = self
-            .state
             .plan
             .lock()
             .unwrap_or_else(|error| error.into_inner())
@@ -309,19 +309,19 @@ impl IntentRuntime {
         if let Some(plan) = plan {
             self.send_plan_event(plan, PlanEvent::Cancel);
         }
-        for (signature, result) in self.state.steps.entries() {
+        for (signature, result) in self.steps.entries() {
             if result.is_some() {
                 continue;
             }
             let event = SessionEvent::Task(
-                self.state.access.signature.clone(),
+                self.access.signature.clone(),
                 TaskEvent::Step(signature.clone(), StepEvent::Cancel),
             );
-            if self.state.access.session_tx.send(event).is_err() {
+            if self.access.session_tx.send(event).is_err() {
                 Logger::warning(format!(
-                    "intent {} step {signature} cancel failed: session \
-                     stopped",
-                    &self.state.signature,
+                    "intent {} step {signature} cancel failed: \
+                     session stopped",
+                    &self.signature,
                 ));
             }
         }
@@ -329,78 +329,45 @@ impl IntentRuntime {
     }
 
     pub(super) fn fail(&self, reason: String) {
-        Logger::error(format!("intent {} failed: {reason}", &self.state.signature,));
+        Logger::error(format!("intent {} failed: {reason}", &self.signature,));
         self.finish(IntentResultKind::Failed, reason);
     }
 
     pub(super) fn finish(&self, kind: IntentResultKind, output: String) {
-        let result = IntentResult { kind, output };
-        let status = IntentStatus::Complete(result);
-        self.set_status(status);
-        self.close();
+        ActorRuntimeTrait::finish(self, IntentResult { kind, output });
     }
 
-    fn status(&self) -> IntentStatus {
-        self.state
-            .status
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone()
-    }
-
-    pub(super) fn set_status(&self, status: IntentStatus) {
-        let mut current = self
-            .state
-            .status
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
-        if current.is_terminal() {
-            return;
-        }
-        let send_update = matches!(&status, IntentStatus::Complete(_));
-        *current = status.clone();
-        drop(current);
-        if send_update {
-            self.send_task_update(status);
-        }
-    }
-
-    fn send_task_update(&self, status: IntentStatus) {
-        let event = match self.state.signature.parent.clone() {
-            None => TaskEvent::Update(self.state.signature.clone(), status),
-            Some(parent) => TaskEvent::Plan(
-                parent,
-                PlanEvent::Update(self.state.signature.clone(), status),
-            ),
+    fn send_task_update(&self, status: ActorStatus) {
+        let event = match self.signature.parent.clone() {
+            None => TaskEvent::Update(self.signature.clone(), status),
+            Some(parent) => {
+                TaskEvent::Plan(parent, PlanEvent::Update(self.signature.clone(), status))
+            }
         };
-        let task_event = SessionEvent::Task(self.state.access.signature.clone(), event);
-        if self.state.access.session_tx.send(task_event).is_err() {
+        let task_event = SessionEvent::Task(self.access.signature.clone(), event);
+        if self.access.session_tx.send(task_event).is_err() {
             Logger::warning(format!(
                 "intent {} event send failed: session stopped",
-                &self.state.signature,
+                &self.signature,
             ));
         }
     }
 
     fn send_plan_event(&self, signature: PlanSignature, event: PlanEvent) {
         let task_event = SessionEvent::Task(
-            self.state.access.signature.clone(),
+            self.access.signature.clone(),
             TaskEvent::Plan(signature, event),
         );
-        if self.state.access.session_tx.send(task_event).is_err() {
+        if self.access.session_tx.send(task_event).is_err() {
             Logger::warning(format!(
                 "intent {} plan event send failed: session stopped",
-                &self.state.signature,
+                &self.signature,
             ));
         }
     }
+}
 
-    fn close(&self) {
-        if self.close_tx.send(()).is_err() {
-            Logger::warning(format!(
-                "intent {} close signal failed",
-                &self.state.signature,
-            ));
-        }
-    }
+#[allow(dead_code)]
+fn assert_runtime_object_safe(runtime: &dyn ActorRuntimeTrait<Base = Intent, Prepared = ()>) {
+    let _ = runtime.run();
 }
