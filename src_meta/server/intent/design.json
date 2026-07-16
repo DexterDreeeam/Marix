@@ -4,17 +4,15 @@
     "path": "src/server/intent",
     "name": "intent",
     "purpose": "Runs Arc-backed intent actors whose runtimes own task access, signature, content, step and plan tracking, and lifecycle; renders IntentAnalyze prompts, creates steps, plans, and relays, and resolves typed child results.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["intent.rs", "mod.rs", "runtime.rs", "workflow.rs"],
-  "deleted": ["state.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Intent",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/intent.rs",
@@ -87,7 +85,7 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",

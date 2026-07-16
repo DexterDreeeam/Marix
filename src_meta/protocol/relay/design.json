@@ -4,10 +4,8 @@
     "path": "src/protocol/relay",
     "name": "relay",
     "purpose": "Defines relay requests, identities, signatures that retain business names and display type-qualified identifiers, errors, cancellation events, and typed terminal model results consumed by the shared actor lifecycle.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["mod.rs", "signature.rs"],
-  "deleted": ["status.rs"],
   "childModules": [],
   "elements": [
     {
@@ -138,7 +136,7 @@
       "name": "RelaySignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/signature.rs",

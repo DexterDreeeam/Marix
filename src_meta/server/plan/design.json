@@ -4,17 +4,15 @@
     "path": "src/server/plan",
     "name": "plan",
     "purpose": "Runs Arc-backed plan actors whose runtimes own task access, signature, child intents, failures, and lifecycle; advances children, renders PlanVerdict prompts, reconstructs plans, and resolves typed results.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["mod.rs", "plan.rs", "result.rs", "runtime.rs"],
-  "deleted": ["state.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Plan",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/plan.rs",
@@ -87,7 +85,7 @@
       "name": "PlanRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",

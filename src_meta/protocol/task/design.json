@@ -4,9 +4,8 @@
     "path": "src/protocol/task",
     "name": "task",
     "purpose": "Defines task requests, typed results, external transport statuses, identities, signatures that retain business names and display type-qualified identifiers, errors, and actor event envelopes using shared ActorStatus completion updates.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["event.rs", "mod.rs", "result.rs", "signature.rs"],
   "childModules": [],
   "elements": [
     {
@@ -34,7 +33,7 @@
       "name": "TaskEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/event.rs",
@@ -127,7 +126,7 @@
       "name": "TaskResultKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/result.rs",
@@ -148,7 +147,7 @@
       "name": "TaskResult",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/result.rs",
@@ -169,7 +168,7 @@
       "name": "TaskSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/signature.rs",

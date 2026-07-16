@@ -4,10 +4,8 @@
     "path": "src/protocol/step",
     "name": "step",
     "purpose": "Defines invocation-based step drafts, identities, signatures that retain business names and display type-qualified identifiers, typed results, errors, shared actor-status invocation updates, and cancellation.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["event.rs", "mod.rs", "signature.rs"],
-  "deleted": ["status.rs"],
   "childModules": [],
   "elements": [
     {
@@ -56,7 +54,7 @@
       "name": "StepEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/event.rs",
@@ -143,7 +141,7 @@
       "name": "StepSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/signature.rs",
