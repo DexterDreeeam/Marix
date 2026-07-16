@@ -4,7 +4,7 @@ use std::sync::Mutex as StdMutex;
 use marix_common::external::*;
 use marix_common::{Sender, WorkQueue};
 use marix_protocol::{
-    IntentResult, IntentSignature, InvocationSignature, PlanSignature,
+    IntentResult, IntentSignature, InvocationResult, InvocationSignature, PlanSignature,
     RelaySignature, SessionEvent, StepSignature, TaskSignature,
 };
 
@@ -71,12 +71,12 @@ impl TaskAccess {
             .flatten()
     }
 
-    pub(crate) fn get_relay_result(
+    pub(crate) fn get_invocation_result(
         &self,
-        signature: &RelaySignature,
-    ) -> Option<String> {
-        self.relays
-            .with(signature, Relay::result)
+        signature: &InvocationSignature,
+    ) -> Option<InvocationResult> {
+        self.invocations
+            .with(signature, Invocation::result)
             .flatten()
     }
 

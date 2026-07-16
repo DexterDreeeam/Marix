@@ -26,14 +26,17 @@ pub use intent::{
 };
 pub use invocation::{
     InvocationDraft, InvocationError, InvocationEvent, InvocationId, InvocationRequest,
-    InvocationSignature, InvocationStatus,
+    InvocationResult, InvocationResultKind, InvocationSignature, InvocationStatus,
 };
 pub use message::SessionMessage;
 pub use plan::{
     PlanDraft, PlanError, PlanEvent, PlanId, PlanResult, PlanResultKind, PlanSignature, PlanStatus,
     PlanVerdict,
 };
-pub use relay::{RelayError, RelayEvent, RelayId, RelayRequest, RelaySignature, RelayStatus};
+pub use relay::{
+    RelayError, RelayEvent, RelayId, RelayRequest, RelayResult, RelayResultKind, RelaySignature,
+    RelayStatus,
+};
 pub use runtime::{Runtime, RuntimeAsync};
 pub use session::SessionEvent;
 pub use signature::{Signature, SignatureKey};

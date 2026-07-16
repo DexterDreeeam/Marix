@@ -3,79 +3,54 @@
   "module": {
     "path": "src/server/relay",
     "name": "relay",
-    "purpose": "Owns asynchronous model relay execution, ordered output aggregation, terminal status handling, and direct task routing to its intent.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns task-registered relay actors whose state carries model access, lifecycle, and ordered output, while runtimes stream model responses and publish result-carrying completion updates to intents.",
+    "changeStatus": "modified"
   },
+  "modified": ["relay.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Relay",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/relay.rs",
           "lineStart": 9,
-          "lineEnd": 13,
+          "lineEnd": 12,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 9
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 11,
+              "lineStart": 9,
               "lineEnd": 12
             }
           ]
         },
         {
           "sourcePath": "src/server/relay/relay.rs",
-          "lineStart": 15,
-          "lineEnd": 66,
+          "lineStart": 14,
+          "lineEnd": 45,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 20,
-              "lineEnd": 21
-            },
-            {
-              "lineStart": 26,
-              "lineEnd": 48
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 16,
-              "lineEnd": 19
-            },
-            {
-              "lineStart": 24,
-              "lineEnd": 25
-            },
-            {
-              "lineStart": 51,
-              "lineEnd": 53
-            },
-            {
-              "lineStart": 58,
-              "lineEnd": 58
+              "lineStart": 14,
+              "lineEnd": 45
             }
           ]
         },
         {
           "sourcePath": "src/server/relay/relay.rs",
-          "lineStart": 70,
-          "lineEnd": 78,
+          "lineStart": 49,
+          "lineEnd": 57,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 70,
-              "lineEnd": 78
+              "lineStart": 49,
+              "lineEnd": 57
             }
           ]
         }
@@ -85,44 +60,44 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 12,
-          "lineEnd": 18,
+          "lineStart": 13,
+          "lineEnd": 17,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 18
+              "lineStart": 13,
+              "lineEnd": 17
             }
           ]
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 20,
-          "lineEnd": 95,
+          "lineStart": 19,
+          "lineEnd": 117,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 20,
-              "lineEnd": 95
+              "lineStart": 19,
+              "lineEnd": 117
             }
           ]
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 99,
-          "lineEnd": 240,
+          "lineStart": 121,
+          "lineEnd": 251,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 99,
-              "lineEnd": 240
+              "lineStart": 121,
+              "lineEnd": 251
             }
           ]
         }

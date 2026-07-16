@@ -1,16 +1,15 @@
 use crate::external::*;
+use crate::InvocationResult;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum InvocationStatus {
     Created,
-    Started,
-    Canceled,
-    Succeed { seq_count: usize },
-    Failed,
+    Running,
+    Complete(InvocationResult),
 }
 
 impl InvocationStatus {
     pub fn is_terminal(&self) -> bool {
-        matches!(self, Self::Canceled | Self::Succeed { .. } | Self::Failed)
+        matches!(self, Self::Complete(_))
     }
 }

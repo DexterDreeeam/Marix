@@ -3,14 +3,15 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Defines serialized actor workflow contracts, ResultKind-classified terminal results, lifecycle events including explicit intent starts, cancellation, and lineage-aware signatures across protocol modules.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines serialized workflow contracts with an independent execution lifecycle, result-carrying invocation and relay completion states, explicit child starts, cancellation, and actor signatures.",
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs", "mod.rs"],
   "childModules": [
     {
       "path": "src/protocol/execution",
       "name": "execution",
-      "purpose": "Defines execution requests, identities, signatures, errors, events, and the invocation-backed execution status alias."
+      "purpose": "Defines execution requests, identities, signatures, errors, events, and an independent host-execution lifecycle."
     },
     {
       "path": "src/protocol/executor",
@@ -30,7 +31,7 @@
     {
       "path": "src/protocol/invocation",
       "name": "invocation",
-      "purpose": "Defines invocation drafts and requests, identities, signatures, lifecycle statuses, errors, and managed execution update and processing events."
+      "purpose": "Defines invocation drafts and requests, identities, signatures, errors, managed execution events, terminal result kinds and payloads, and a Created/Running/Complete lifecycle."
     },
     {
       "path": "src/protocol/plan",
@@ -40,7 +41,7 @@
     {
       "path": "src/protocol/relay",
       "name": "relay",
-      "purpose": "Defines relay requests, identities, signatures, lifecycle statuses, errors, and cancellation events for sequenced model output."
+      "purpose": "Defines relay requests, identities, signatures, errors, cancellation events, terminal result kinds and payloads, and a Created/Running/Complete lifecycle for model output."
     },
     {
       "path": "src/protocol/session",
@@ -55,7 +56,7 @@
     {
       "path": "src/protocol/task",
       "name": "task",
-      "purpose": "Defines task requests, results, identities, signatures, statuses, errors, actor event envelopes with explicit intent starts, intent completion updates, and cancellation."
+      "purpose": "Defines task requests, results, identities, signatures, statuses, errors, actor event envelopes with explicit intent and invocation starts, terminal updates, and cancellation."
     },
     {
       "path": "src/protocol/tool",
@@ -282,20 +283,20 @@
     },
     {
       "name": "ExecutionStatus",
-      "type": "type-alias",
+      "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/status.rs",
           "lineStart": 3,
-          "lineEnd": 3,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 3,
-              "lineEnd": 3
+              "lineEnd": 10
             }
           ]
         }
@@ -698,6 +699,48 @@
       ]
     },
     {
+      "name": "InvocationResultKind",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/invocation/result.rs",
+          "lineStart": 3,
+          "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 8
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "InvocationResult",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/invocation/result.rs",
+          "lineStart": 10,
+          "lineEnd": 14,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 14
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
       "name": "InvocationSignature",
       "type": "struct",
       "source_depth": 3,
@@ -761,33 +804,33 @@
       "name": "InvocationStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/status.rs",
-          "lineStart": 3,
-          "lineEnd": 10,
+          "lineStart": 4,
+          "lineEnd": 9,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 3,
-              "lineEnd": 10
+              "lineStart": 4,
+              "lineEnd": 9
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/protocol/invocation/status.rs",
-          "lineStart": 12,
-          "lineEnd": 16,
+          "lineStart": 11,
+          "lineEnd": 15,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 16
+              "lineStart": 11,
+              "lineEnd": 15
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -1144,6 +1187,48 @@
       ]
     },
     {
+      "name": "RelayResultKind",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/relay/result.rs",
+          "lineStart": 3,
+          "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 8
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "RelayResult",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/relay/result.rs",
+          "lineStart": 10,
+          "lineEnd": 14,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 14
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
       "name": "RelaySignature",
       "type": "struct",
       "source_depth": 3,
@@ -1207,33 +1292,33 @@
       "name": "RelayStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/status.rs",
-          "lineStart": 3,
-          "lineEnd": 10,
+          "lineStart": 4,
+          "lineEnd": 9,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 3,
-              "lineEnd": 10
+              "lineStart": 4,
+              "lineEnd": 9
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/protocol/relay/status.rs",
-          "lineStart": 12,
-          "lineEnd": 16,
+          "lineStart": 11,
+          "lineEnd": 15,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 16
+              "lineStart": 11,
+              "lineEnd": 15
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -1506,29 +1591,20 @@
       "name": "TaskEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/event.rs",
           "lineStart": 9,
-          "lineEnd": 19,
+          "lineEnd": 20,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 12
+              "lineStart": 16,
+              "lineEnd": 16
             }
           ],
-          "modifiedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 11
-            },
-            {
-              "lineStart": 13,
-              "lineEnd": 19
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },

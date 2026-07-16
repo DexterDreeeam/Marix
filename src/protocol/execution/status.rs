@@ -1,3 +1,10 @@
-use crate::InvocationStatus;
+use crate::external::*;
 
-pub type ExecutionStatus = InvocationStatus;
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ExecutionStatus {
+    Created,
+    Started,
+    Canceled,
+    Succeed { seq_count: usize },
+    Failed,
+}

@@ -3,9 +3,11 @@
   "module": {
     "path": "src/protocol/relay",
     "name": "relay",
-    "purpose": "Defines relay requests, identities, signatures, lifecycle statuses, errors, and cancellation events for sequenced model output.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines relay requests, identities, signatures, errors, cancellation events, terminal result kinds and payloads, and a Created/Running/Complete lifecycle for model output.",
+    "changeStatus": "modified"
   },
+  "added": ["result.rs"],
+  "modified": ["mod.rs", "status.rs"],
   "childModules": [],
   "elements": [
     {
@@ -91,6 +93,48 @@
       ]
     },
     {
+      "name": "RelayResultKind",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/relay/result.rs",
+          "lineStart": 3,
+          "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 8
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "RelayResult",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/relay/result.rs",
+          "lineStart": 10,
+          "lineEnd": 14,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 14
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
       "name": "RelaySignature",
       "type": "struct",
       "source_depth": 3,
@@ -154,33 +198,33 @@
       "name": "RelayStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/status.rs",
-          "lineStart": 3,
-          "lineEnd": 10,
+          "lineStart": 4,
+          "lineEnd": 9,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 3,
-              "lineEnd": 10
+              "lineStart": 4,
+              "lineEnd": 9
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/protocol/relay/status.rs",
-          "lineStart": 12,
-          "lineEnd": 16,
+          "lineStart": 11,
+          "lineEnd": 15,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 16
+              "lineStart": 11,
+              "lineEnd": 15
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     }

@@ -16,7 +16,7 @@ pub struct InvocationState {
     pub status: StdMutex<InvocationStatus>,
     pub output: StdMutex<BTreeMap<usize, String>>,
     pub final_signal: StdMutex<Option<usize>>,
-    pub execution_signature: StdMutex<Option<ExecutionSignature>>,
+    pub execution: StdMutex<Option<ExecutionSignature>>,
     pub invocation_tx: AsyncSender<InvocationEvent>,
     pub invocation_rx: StdMutex<Option<AsyncReceiver<InvocationEvent>>>,
 }
@@ -37,7 +37,7 @@ impl InvocationState {
             status: StdMutex::new(InvocationStatus::Created),
             output: StdMutex::new(BTreeMap::new()),
             final_signal: StdMutex::new(None),
-            execution_signature: StdMutex::new(None),
+            execution: StdMutex::new(None),
             invocation_tx,
             invocation_rx: StdMutex::new(Some(invocation_rx)),
         }

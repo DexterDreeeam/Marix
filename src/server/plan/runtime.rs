@@ -6,7 +6,7 @@ use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
 use marix_protocol::{
     IntentResultKind, IntentSignature, IntentStatus, PlanDraft,
     PlanEvent, PlanResult, PlanResultKind, PlanStatus, PlanVerdict,
-    RelayRequest, RelaySignature, RelayStatus, SessionEvent, TaskEvent,
+    RelayRequest, RelayResultKind, RelaySignature, RelayStatus, SessionEvent, TaskEvent,
 };
 
 use super::PlanState;
@@ -219,25 +219,12 @@ impl PlanRuntime {
             ));
             return;
         }
-        if !status.is_terminal() {
+        let RelayStatus::Complete(result) = status else {
             return;
-        }
-        match status {
-            RelayStatus::Succeed { .. } => {
-                let Some(output) = self
-                    .state
-                    .access
-                    .get_relay_result(&signature)
-                else {
-                    self.finish(
-                        PlanResultKind::Failed,
-                        format!(
-                            "plan relay {signature} succeeded without output"
-                        ),
-                    );
-                    return;
-                };
-                match PlanVerdict::parse(&output) {
+        };
+        match result.kind {
+            RelayResultKind::Succeed => {
+                match PlanVerdict::parse(&result.output) {
                     Ok(PlanVerdict::Replacement(draft)) => {
                         if let Err(reason) = self.reconstruct(draft) {
                             self.finish(PlanResultKind::Failed, reason);
@@ -257,16 +244,12 @@ impl PlanRuntime {
                     }
                 }
             }
-            RelayStatus::Failed => {
-                self.finish(
-                    PlanResultKind::Failed,
-                    format!("plan relay {signature} failed"),
-                );
+            RelayResultKind::Failed => {
+                self.finish(PlanResultKind::Failed, result.output);
             }
-            RelayStatus::Canceled => {
-                self.cancel("plan reconstruction canceled".to_owned());
+            RelayResultKind::Canceled => {
+                self.cancel(result.output);
             }
-            RelayStatus::Created | RelayStatus::Started => {}
         }
     }
 

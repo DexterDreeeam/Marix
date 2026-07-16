@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/execution",
     "name": "execution",
-    "purpose": "Defines execution requests, identities, signatures, errors, events, and the invocation-backed execution status alias.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines execution requests, identities, signatures, errors, events, and an independent host-execution lifecycle.",
+    "changeStatus": "modified"
   },
+  "modified": ["status.rs"],
   "childModules": [],
   "elements": [
     {
@@ -122,20 +123,20 @@
     },
     {
       "name": "ExecutionStatus",
-      "type": "type-alias",
+      "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/status.rs",
           "lineStart": 3,
-          "lineEnd": 3,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 3,
-              "lineEnd": 3
+              "lineEnd": 10
             }
           ]
         }

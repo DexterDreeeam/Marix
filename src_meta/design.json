@@ -4,8 +4,9 @@
     "path": "src",
     "name": "src",
     "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and tool packages.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/client",
@@ -25,12 +26,12 @@
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "Owns shared actor/runtime contracts and serialized workflow envelopes, ResultKind-classified terminal results carried by intent, plan, and step Complete statuses, cancellation, and lineage-aware signatures across task, intent, plan, step, invocation, relay, execution, session, executor, and tool protocols."
+      "purpose": "Defines serialized workflow contracts with an independent execution lifecycle, result-carrying invocation and relay completion states, explicit child starts, cancellation, and actor signatures."
     },
     {
       "path": "src/server",
       "name": "server",
-      "purpose": "Runs managed-child workflow orchestration across tasks, heterogeneous intents, plans, steps, invocations, asynchronous leaf relays, host execution, model prompts, and sessions."
+      "purpose": "Runs workflow orchestration through task-scoped actor registries: access exposes intent and invocation result lookups, task routing starts registered children, and result-carrying completion updates propagate through plans, steps, invocations, and relays."
     },
     {
       "path": "src/server_telemetry",

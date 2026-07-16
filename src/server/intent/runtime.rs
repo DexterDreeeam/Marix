@@ -6,8 +6,8 @@ use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
 use marix_protocol::{
     IntentEvent, IntentResult, IntentResultKind, IntentStatus,
     IntentVerdict, PlanEvent, PlanResultKind, PlanSignature, PlanStatus,
-    RelayRequest, RelaySignature, RelayStatus, SessionEvent, StepEvent,
-    StepResultKind, StepSignature, StepStatus,
+    RelayRequest, RelayResultKind, RelaySignature, RelayStatus, SessionEvent,
+    StepEvent, StepResultKind, StepSignature, StepStatus,
     TaskEvent,
 };
 
@@ -166,9 +166,9 @@ impl IntentRuntime {
             ));
             return;
         }
-        if !status.is_terminal() {
+        let RelayStatus::Complete(result) = status else {
             return;
-        }
+        };
         let plan = self
             .state
             .plan
@@ -178,21 +178,16 @@ impl IntentRuntime {
         if let Some(plan) = plan {
             self.send_plan_event(
                 plan,
-                PlanEvent::RelayUpdate(signature, status),
+                PlanEvent::RelayUpdate(
+                    signature,
+                    RelayStatus::Complete(result),
+                ),
             );
             return;
         }
-        match status {
-            RelayStatus::Succeed { .. } => {
-                let Some(output) = self
-                    .state
-                    .access
-                    .get_relay_result(&signature)
-                else {
-                    self.fail(format!("relay {signature} succeeded without output"));
-                    return;
-                };
-                let verdict = match IntentVerdict::parse(&output) {
+        match result.kind {
+            RelayResultKind::Succeed => {
+                let verdict = match IntentVerdict::parse(&result.output) {
                     Ok(verdict) => verdict,
                     Err(error) => {
                         self.fail(format!(
@@ -204,13 +199,12 @@ impl IntentRuntime {
                 };
                 self.on_verdict(verdict);
             }
-            RelayStatus::Failed => {
-                self.fail(format!("relay {signature} failed"));
+            RelayResultKind::Failed => {
+                self.finish(IntentResultKind::Failed, result.output);
             }
-            RelayStatus::Canceled => {
-                self.cancel();
+            RelayResultKind::Canceled => {
+                self.finish(IntentResultKind::Canceled, result.output);
             }
-            RelayStatus::Created | RelayStatus::Started => {}
         }
     }
 

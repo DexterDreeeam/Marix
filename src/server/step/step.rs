@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use marix_common::{Logger, WorkQueue};
+use marix_common::Logger;
 use marix_protocol::{
     InvocationRequest, InvocationSignature, StepDraft, StepEvent, StepResult, StepSignature,
     StepStatus,
@@ -12,7 +12,6 @@ use crate::task::TaskAccess;
 
 #[derive(Clone)]
 pub struct Step {
-    pub access: Arc<TaskAccess>,
     pub state: Arc<StepState>,
 }
 
@@ -33,8 +32,8 @@ impl Step {
     }
 
     pub fn start(&self) {
-        let runtime = StepRuntime::new(Arc::clone(&self.access), Arc::clone(&self.state));
-        drop(self.access.rt.spawn(async move {
+        let runtime = StepRuntime::new(Arc::clone(&self.state));
+        drop(self.state.access.rt.spawn(async move {
             runtime.run().await;
         }));
     }
@@ -57,6 +56,9 @@ impl Step {
         signature: StepSignature,
         draft: StepDraft,
     ) -> Result<Self, String> {
+        if draft.invocations.is_empty() {
+            return Err("step must contain an invocation".to_owned());
+        }
         if draft
             .invocations
             .iter()
@@ -64,7 +66,7 @@ impl Step {
         {
             return Err("step invocation name cannot be empty".to_owned());
         }
-        let invocations = Arc::new(WorkQueue::new());
+        let mut invocations = Vec::with_capacity(draft.invocations.len());
         for invocation in draft.invocations {
             let invocation_signature = InvocationSignature::new(
                 signature.clone(),
@@ -80,13 +82,9 @@ impl Step {
                     "invocation {invocation_signature} is duplicated"
                 ));
             }
-            invocations.insert(invocation_signature, actor);
+            invocations.push(invocation_signature);
         }
-        let state = Arc::new(StepState::new(
-            Arc::clone(&access),
-            signature,
-            invocations,
-        ));
-        Ok(Self { access, state })
+        let state = Arc::new(StepState::new(access, signature, invocations));
+        Ok(Self { state })
     }
 }

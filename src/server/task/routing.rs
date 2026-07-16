@@ -24,6 +24,9 @@ impl TaskRuntime {
             TaskEvent::Invocation(signature, event) => {
                 self.dispatch_invocation(signature, event);
             }
+            TaskEvent::InvocationStart(signature) => {
+                self.start_invocation(signature);
+            }
             TaskEvent::Relay(signature, event) => {
                 self.dispatch_relay(signature, event);
             }
@@ -123,6 +126,20 @@ impl TaskRuntime {
             return;
         };
         invocation.dispatch(event);
+    }
+
+    fn start_invocation(&self, signature: InvocationSignature) {
+        let Some(invocation) = self
+            .state
+            .invocations
+            .with(&signature, Clone::clone)
+        else {
+            self.fail_task(format!(
+                "invocation {signature} start failed: invocation not found",
+            ));
+            return;
+        };
+        invocation.start();
     }
 
     fn dispatch_relay(

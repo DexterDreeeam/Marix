@@ -4,18 +4,14 @@ use std::sync::Mutex as StdMutex;
 use marix_common::external::*;
 use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
 use marix_protocol::{
-    IntentEvent, InvocationEvent, InvocationSignature,
-    InvocationStatus, SessionEvent, StepEvent, StepResult,
-    StepResultKind, StepStatus, TaskEvent,
+    IntentEvent, InvocationEvent, InvocationResultKind, InvocationSignature, InvocationStatus,
+    SessionEvent, StepEvent, StepResult, StepResultKind, StepStatus, TaskEvent,
 };
 
 use super::StepState;
-use crate::task::TaskAccess;
 
 pub struct StepRuntime {
-    pub access: Arc<TaskAccess>,
     pub state: Arc<StepState>,
-    pub step_rx: StdMutex<Option<AsyncReceiver<StepEvent>>>,
     pub close_tx: AsyncSender<()>,
     pub close_rx: StdMutex<Option<AsyncReceiver<()>>>,
 }
@@ -23,6 +19,7 @@ pub struct StepRuntime {
 impl StepRuntime {
     pub async fn run(&self) {
         let Some(mut step_rx) = self
+            .state
             .step_rx
             .lock()
             .unwrap_or_else(|error| error.into_inner())
@@ -34,13 +31,12 @@ impl StepRuntime {
             ));
             return;
         };
-        if self.state.invocations.list().is_empty() {
-            self.fail("step has no invocations".to_owned());
-            return;
-        }
         self.set_status(StepStatus::Running);
-        for invocation in self.state.invocations.working_list() {
-            invocation.start();
+        for signature in &self.state.invocations {
+            if let Err(reason) = self.start_invocation(signature) {
+                self.finish(StepResultKind::Failed, reason);
+                return;
+            }
         }
 
         let Some(mut close_rx) = self
@@ -49,7 +45,10 @@ impl StepRuntime {
             .unwrap_or_else(|error| error.into_inner())
             .take()
         else {
-            self.fail("step close receiver unavailable".to_owned());
+            self.finish(
+                StepResultKind::Failed,
+                "step close receiver unavailable".to_owned(),
+            );
             return;
         };
 
@@ -79,167 +78,99 @@ impl StepRuntime {
 // -- Private -- //
 
 impl StepRuntime {
-    pub(crate) fn new(access: Arc<TaskAccess>, state: Arc<StepState>) -> Self {
+    pub(crate) fn new(state: Arc<StepState>) -> Self {
         let (close_tx, close_rx) = build_async_channel();
-        let step_rx = state
-            .step_rx
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .take();
         Self {
-            access,
             state,
-            step_rx: StdMutex::new(step_rx),
             close_tx,
             close_rx: StdMutex::new(Some(close_rx)),
         }
     }
 
+    fn start_invocation(&self, signature: &InvocationSignature) -> Result<(), String> {
+        let event = SessionEvent::Task(
+            self.state.access.signature.clone(),
+            TaskEvent::InvocationStart(signature.clone()),
+        );
+        self.state.access.session_tx.send(event).map_err(|_| {
+            format!("invocation {signature} start failed: session stopped")
+        })
+    }
+
     fn on_invocation_update(&self, signature: InvocationSignature, status: InvocationStatus) {
         if self.status().is_terminal() {
             Logger::error(format!(
-                "step {} received invocation {signature} update {status:?} \
-                 after completion",
+                "step {} received invocation {signature} update {status:?} after completion",
                 &self.state.signature,
             ));
             return;
         }
-        if !status.is_terminal() {
-            return;
-        }
-        let Some(invocation) = self.state.invocations.with(&signature, Clone::clone) else {
-            self.fail(format!("invocation {signature} not found"));
+        let InvocationStatus::Complete(result) = status else {
             return;
         };
-        match status {
-            InvocationStatus::Succeed { .. } => {
-                if invocation.result().is_none() {
-                    self.fail(format!("invocation {signature} succeeded without output"));
-                    return;
-                }
-                if !self.complete_invocation(&signature) {
-                    Logger::error(format!(
-                        "step {} received duplicate complete update from \
-                         invocation {signature}",
-                        &self.state.signature,
-                    ));
-                    return;
-                }
-                if self.state.invocations.working_size() == 0 {
-                    self.succeed();
-                }
+        match result.kind {
+            InvocationResultKind::Succeed => self.advance(),
+            InvocationResultKind::Canceled => {
+                self.finish(StepResultKind::Canceled, result.output);
             }
-            InvocationStatus::Failed => {
-                if !self.complete_invocation(&signature) {
-                    Logger::error(format!(
-                        "step {} received duplicate complete update from \
-                         invocation {signature}",
-                        &self.state.signature,
-                    ));
-                    return;
-                }
-                self.fail(format!(
-                    "invocation {signature} failed at the system boundary"
-                ));
+            InvocationResultKind::Failed => {
+                self.finish(StepResultKind::Failed, result.output);
             }
-            InvocationStatus::Canceled => {
-                if !self.complete_invocation(&signature) {
-                    Logger::error(format!(
-                        "step {} received duplicate complete update from \
-                         invocation {signature}",
-                        &self.state.signature,
-                    ));
-                    return;
-                }
-                self.cancel();
-            }
-            InvocationStatus::Created | InvocationStatus::Started => {}
         }
     }
 
-    pub(crate) fn succeed(&self) {
-        let invocations = self.state.invocations.list();
-        let mut outputs = Vec::with_capacity(invocations.len());
-        for invocation in invocations {
-            let signature = &invocation.state.signature;
-            let Some(output) = invocation.result() else {
-                self.fail(format!("invocation {signature} succeeded without output"));
+    fn advance(&self) {
+        let mut outputs = Vec::with_capacity(self.state.invocations.len());
+        for signature in &self.state.invocations {
+            let Some(result) = self.state.access.get_invocation_result(signature) else {
                 return;
             };
-            outputs.push(format!("{}: {output}", &signature.name));
+            match result.kind {
+                InvocationResultKind::Succeed => {
+                    outputs.push(format!("{}: {}", &signature.name, result.output));
+                }
+                InvocationResultKind::Canceled => {
+                    self.finish(StepResultKind::Canceled, result.output);
+                    return;
+                }
+                InvocationResultKind::Failed => {
+                    self.finish(StepResultKind::Failed, result.output);
+                    return;
+                }
+            }
         }
-        let result = StepResult {
-            kind: StepResultKind::Succeed,
-            output: outputs.join("\n"),
-        };
-        self.finish(result);
-    }
-
-    fn fail(&self, reason: String) {
-        Logger::error(format!("step {} failed: {reason}", &self.state.signature,));
-        self.finish(StepResult {
-            kind: StepResultKind::Failed,
-            output: reason,
-        });
+        self.finish(StepResultKind::Succeed, outputs.join("\n"));
     }
 
     fn cancel(&self) {
         if self.status().is_terminal() {
             return;
         }
-        for invocation in self.state.invocations.working_list() {
-            if !invocation.status().is_terminal() {
-                let invocation_signature =
-                    invocation.state.signature.clone();
-                let event = SessionEvent::Task(
-                    self.access.signature.clone(),
-                    TaskEvent::Invocation(
-                        invocation_signature.clone(),
-                        InvocationEvent::Cancel,
-                    ),
-                );
-                if self.access.session_tx.send(event).is_err() {
-                    Logger::warning(format!(
-                        "step {} invocation {invocation_signature} cancel \
-                         failed: session stopped",
-                        &self.state.signature,
-                    ));
-                }
+        for signature in &self.state.invocations {
+            if self.state.access.get_invocation_result(signature).is_some() {
+                continue;
+            }
+            let event = SessionEvent::Task(
+                self.state.access.signature.clone(),
+                TaskEvent::Invocation(
+                    signature.clone(),
+                    InvocationEvent::Cancel,
+                ),
+            );
+            if self.state.access.session_tx.send(event).is_err() {
+                Logger::warning(format!(
+                    "step {} invocation {signature} cancel failed: session stopped",
+                    &self.state.signature,
+                ));
             }
         }
-        self.finish(StepResult {
-            kind: StepResultKind::Canceled,
-            output: "step canceled".to_owned(),
-        });
+        self.finish(StepResultKind::Canceled, "step canceled".to_owned());
     }
 
-    fn finish(&self, result: StepResult) {
-        let status = StepStatus::Complete(result);
-        let mut current = self
-            .state
-            .status
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
-        if current.is_terminal() {
-            return;
-        }
-        *current = status.clone();
-        drop(current);
-        self.send_intent_update(status);
+    fn finish(&self, kind: StepResultKind, output: String) {
+        let result = StepResult { kind, output };
+        self.set_status(StepStatus::Complete(result));
         self.close();
-    }
-
-    fn complete_invocation(&self, signature: &InvocationSignature) -> bool {
-        let is_working = self
-            .state
-            .invocations
-            .working_list()
-            .iter()
-            .any(|invocation| &invocation.state.signature == signature);
-        if is_working {
-            self.state.invocations.complete(signature.clone());
-        }
-        is_working
     }
 
     fn status(&self) -> StepStatus {
@@ -251,11 +182,20 @@ impl StepRuntime {
     }
 
     fn set_status(&self, status: StepStatus) {
-        *self
+        let mut current = self
             .state
             .status
             .lock()
-            .unwrap_or_else(|error| error.into_inner()) = status;
+            .unwrap_or_else(|error| error.into_inner());
+        if current.is_terminal() {
+            return;
+        }
+        let send_update = matches!(&status, StepStatus::Complete(_));
+        *current = status.clone();
+        drop(current);
+        if send_update {
+            self.send_intent_update(status);
+        }
     }
 
     fn send_intent_update(&self, status: StepStatus) {
@@ -267,7 +207,7 @@ impl StepRuntime {
                 IntentEvent::StepUpdate(self.state.signature.clone(), status),
             ),
         );
-        if self.access.session_tx.send(event).is_err() {
+        if self.state.access.session_tx.send(event).is_err() {
             Logger::warning(format!(
                 "step {} update failed: session stopped",
                 &self.state.signature,

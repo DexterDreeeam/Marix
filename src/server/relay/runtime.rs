@@ -3,16 +3,15 @@ use std::sync::Mutex as StdMutex;
 
 use marix_common::external::*;
 use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
-use marix_protocol::{IntentEvent, RelayEvent, RelayStatus, SessionEvent, TaskEvent};
+use marix_protocol::{
+    IntentEvent, RelayEvent, RelayResult, RelayResultKind, RelayStatus, SessionEvent, TaskEvent,
+};
 
 use super::RelayState;
 use crate::model::{ModelRequest, ModelResponse};
-use crate::task::TaskAccess;
 
 pub struct RelayRuntime {
-    pub access: Arc<TaskAccess>,
     pub state: Arc<RelayState>,
-    pub relay_rx: StdMutex<Option<AsyncReceiver<RelayEvent>>>,
     pub close_tx: AsyncSender<()>,
     pub close_rx: StdMutex<Option<AsyncReceiver<()>>>,
 }
@@ -20,6 +19,7 @@ pub struct RelayRuntime {
 impl RelayRuntime {
     pub async fn run(&self) {
         let Some(mut relay_rx) = self
+            .state
             .relay_rx
             .lock()
             .unwrap_or_else(|error| error.into_inner())
@@ -31,13 +31,17 @@ impl RelayRuntime {
             ));
             return;
         };
+        self.set_status(RelayStatus::Running);
         let Some(mut close_rx) = self
             .close_rx
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .take()
         else {
-            self.fail("relay close receiver unavailable".to_owned());
+            self.finish(
+                RelayResultKind::Failed,
+                "relay close receiver unavailable".to_owned(),
+            );
             return;
         };
         let request = ModelRequest {
@@ -56,11 +60,15 @@ impl RelayRuntime {
         let mut responses = match responses {
             Ok(responses) => responses,
             Err(error) => {
-                self.fail(format!("model request failed: {error}"));
+                let reason = format!("model request failed: {error}");
+                Logger::error(format!(
+                    "relay {} failed: {reason}",
+                    &self.state.signature,
+                ));
+                self.finish(RelayResultKind::Failed, reason);
                 return;
             }
         };
-        self.set_status(RelayStatus::Started);
 
         loop {
             self::tokio::select! {
@@ -74,10 +82,13 @@ impl RelayRuntime {
                 response = responses.recv() => {
                     let Some(response) = response else {
                         if !self.status().is_terminal() {
-                            self.fail(
-                                "model stream closed before completion"
-                                    .to_owned(),
-                            );
+                            let reason =
+                                "model stream closed before completion".to_owned();
+                            Logger::error(format!(
+                                "relay {} failed: {reason}",
+                                &self.state.signature,
+                            ));
+                            self.finish(RelayResultKind::Failed, reason);
                         }
                         break;
                     };
@@ -89,7 +100,18 @@ impl RelayRuntime {
 
     pub fn dispatch(&self, event: RelayEvent) {
         match event {
-            RelayEvent::Cancel => self.cancel(),
+            RelayEvent::Cancel => {
+                if self.status().is_terminal() {
+                    return;
+                }
+                let output = self.output();
+                let output = if output.is_empty() {
+                    "relay canceled".to_owned()
+                } else {
+                    output
+                };
+                self.finish(RelayResultKind::Canceled, output);
+            }
         }
     }
 }
@@ -97,17 +119,10 @@ impl RelayRuntime {
 // -- Private -- //
 
 impl RelayRuntime {
-    pub(crate) fn new(access: Arc<TaskAccess>, state: Arc<RelayState>) -> Self {
+    pub(crate) fn new(state: Arc<RelayState>) -> Self {
         let (close_tx, close_rx) = build_async_channel();
-        let relay_rx = state
-            .relay_rx
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .take();
         Self {
-            access,
             state,
-            relay_rx: StdMutex::new(relay_rx),
             close_tx,
             close_rx: StdMutex::new(Some(close_rx)),
         }
@@ -122,84 +137,49 @@ impl RelayRuntime {
             return;
         }
         if !response.complete {
-            let mut output = self
-                .state
+            self.state
                 .output
                 .lock()
-                .unwrap_or_else(|error| error.into_inner());
-            if let Some(applied) = output.get(&response.seq) {
-                if applied != &response.content {
-                    drop(output);
-                    self.fail(format!(
-                        "model stream sent conflicting output chunk {}",
-                        response.seq,
-                    ));
-                }
-                return;
-            }
-            output.insert(response.seq, response.content);
+                .unwrap_or_else(|error| error.into_inner())
+                .insert(response.seq, response.content);
             return;
         }
-        let complete = {
-            let output = self
-                .state
-                .output
-                .lock()
-                .unwrap_or_else(|error| error.into_inner());
-            output.len() == response.seq && (0..response.seq).all(|seq| output.contains_key(&seq))
-        };
-        if !complete {
-            self.fail(format!(
+        let Some(output) = self.complete_output(response.seq) else {
+            let reason = format!(
                 "model stream completed with missing chunks; expected {}",
                 response.seq,
+            );
+            Logger::error(format!(
+                "relay {} failed: {reason}",
+                &self.state.signature,
             ));
+            self.finish(RelayResultKind::Failed, reason);
             return;
-        }
+        };
         *self
             .state
             .final_signal
             .lock()
             .unwrap_or_else(|error| error.into_inner()) = Some(response.seq);
-        self.set_status(RelayStatus::Succeed {
-            seq_count: response.seq,
-        });
-        Logger::log(format!("[Model Relay] Output:\n{}", self.output()));
-        self.send_owner_update(RelayStatus::Succeed {
-            seq_count: response.seq,
-        });
-        self.close();
+        Logger::log(format!("[Model Relay] Output:\n{output}"));
+        self.finish(RelayResultKind::Succeed, output);
     }
 
-    fn cancel(&self) {
-        if self.status().is_terminal() {
-            return;
-        }
-        self.set_status(RelayStatus::Canceled);
-        self.send_owner_update(RelayStatus::Canceled);
-        self.close();
-    }
-
-    fn fail(&self, reason: String) {
-        Logger::error(format!("relay {} failed: {reason}", &self.state.signature,));
-        self.set_status(RelayStatus::Failed);
-        self.send_owner_update(RelayStatus::Failed);
-        self.close();
-    }
-
-    fn status(&self) -> RelayStatus {
-        self.state
-            .status
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone()
-    }
-
-    fn set_status(&self, status: RelayStatus) {
-        *self
+    fn complete_output(&self, seq_count: usize) -> Option<String> {
+        let output = self
             .state
-            .status
+            .output
             .lock()
-            .unwrap_or_else(|error| error.into_inner()) = status;
+            .unwrap_or_else(|error| error.into_inner());
+        if output.len() != seq_count || (0..seq_count).any(|seq| !output.contains_key(&seq)) {
+            return None;
+        }
+        Some(
+            (0..seq_count)
+                .filter_map(|seq| output.get(&seq))
+                .cloned()
+                .collect(),
+        )
     }
 
     fn output(&self) -> String {
@@ -212,6 +192,37 @@ impl RelayRuntime {
             .collect()
     }
 
+    fn finish(&self, kind: RelayResultKind, output: String) {
+        let result = RelayResult { kind, output };
+        self.set_status(RelayStatus::Complete(result));
+        self.close();
+    }
+
+    fn status(&self) -> RelayStatus {
+        self.state
+            .status
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clone()
+    }
+
+    fn set_status(&self, status: RelayStatus) {
+        let mut current = self
+            .state
+            .status
+            .lock()
+            .unwrap_or_else(|error| error.into_inner());
+        if current.is_terminal() {
+            return;
+        }
+        let send_update = matches!(&status, RelayStatus::Complete(_));
+        *current = status.clone();
+        drop(current);
+        if send_update {
+            self.send_owner_update(status);
+        }
+    }
+
     fn send_owner_update(&self, status: RelayStatus) {
         let intent = self.state.signature.intent.clone();
         let event = SessionEvent::Task(
@@ -221,7 +232,7 @@ impl RelayRuntime {
                 IntentEvent::RelayUpdate(self.state.signature.clone(), status),
             ),
         );
-        if self.access.session_tx.send(event).is_err() {
+        if self.state.access.session_tx.send(event).is_err() {
             Logger::warning(format!(
                 "relay {} event send failed: session stopped",
                 &self.state.signature,

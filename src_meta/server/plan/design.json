@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/plan",
     "name": "plan",
-    "purpose": "Owns sequential child-intent execution and reconstruction: state stores current intent signatures, accumulated failure history, status, and event channels, while runtime reads results through TaskAccess, starts the first incomplete intent, evaluates failures through a relay, replaces reconstructed intent sets, and finishes directly on success or infeasibility.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns sequential child-intent execution and reconstruction: runtime reads child intent results through TaskAccess, consumes relay completion payloads directly, replaces reconstructed intent sets, and publishes terminal plan results.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -59,7 +60,7 @@
       "name": "PlanRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",
@@ -67,12 +68,7 @@
           "lineEnd": 20,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 16,
-              "lineEnd": 20
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/plan/runtime.rs",
@@ -80,23 +76,18 @@
           "lineEnd": 78,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 22,
-              "lineEnd": 78
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/plan/runtime.rs",
           "lineStart": 82,
-          "lineEnd": 352,
+          "lineEnd": 335,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 82,
-              "lineEnd": 352
+              "lineStart": 209,
+              "lineEnd": 254
             }
           ]
         },
@@ -106,12 +97,7 @@
           "lineEnd": 78,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 78
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/plan/result.rs",
@@ -119,12 +105,7 @@
           "lineEnd": 105,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 82,
-              "lineEnd": 105
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },

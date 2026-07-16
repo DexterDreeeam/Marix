@@ -3,16 +3,17 @@
   "module": {
     "path": "src/server/task",
     "name": "task",
-    "purpose": "Owns task-scoped actor registries and routing: TaskAccess keeps registries private and exposes intent and relay result lookups, while TaskRuntime routes actor events and starts registered intents on IntentStart.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns task-scoped actor registries and routing: TaskAccess exposes intent and invocation result lookups, while TaskRuntime routes events and explicitly starts registered intents and invocations.",
+    "changeStatus": "modified"
   },
+  "modified": ["access.rs", "routing.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "TaskAccess",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/access.rs",
@@ -20,12 +21,7 @@
           "lineEnd": 29,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 18,
-              "lineEnd": 29
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/task/access.rs",
@@ -33,32 +29,18 @@
           "lineEnd": 62,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 33,
-              "lineEnd": 62
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/task/access.rs",
           "lineStart": 64,
           "lineEnd": 130,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 65,
-              "lineEnd": 81
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 64,
-              "lineEnd": 64
-            },
-            {
-              "lineStart": 83,
-              "lineEnd": 130
+              "lineStart": 74,
+              "lineEnd": 81
             }
           ]
         }
@@ -68,7 +50,7 @@
       "name": "TaskRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/runtime.rs",
@@ -76,12 +58,7 @@
           "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 18
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/task/runtime.rs",
@@ -89,12 +66,7 @@
           "lineEnd": 74,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 20,
-              "lineEnd": 74
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/task/runtime.rs",
@@ -102,35 +74,30 @@
           "lineEnd": 192,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 78,
-              "lineEnd": 192
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/task/routing.rs",
           "lineStart": 9,
-          "lineEnd": 36,
+          "lineEnd": 39,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 9,
-              "lineEnd": 36
+              "lineStart": 27,
+              "lineEnd": 29
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/task/routing.rs",
-          "lineStart": 40,
-          "lineEnd": 145,
+          "lineStart": 43,
+          "lineEnd": 162,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 40,
-              "lineEnd": 145
+              "lineStart": 131,
+              "lineEnd": 143
             }
           ],
           "modifiedLines": []

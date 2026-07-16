@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/intent",
     "name": "intent",
-    "purpose": "Owns intent lifecycle orchestration: state retains task access, child steps, an optional plan, status, and event channels, while runtime reads relay results through TaskAccess, creates steps or plans, and publishes terminal results.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns intent lifecycle orchestration: runtime consumes relay completion payloads directly, creates steps or plans, and publishes terminal results, while state retains task access and local child lifecycle data.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -59,7 +60,7 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",
@@ -67,12 +68,7 @@
           "lineEnd": 21,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 21
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
@@ -80,23 +76,18 @@
           "lineEnd": 82,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 23,
-              "lineEnd": 82
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
           "lineStart": 86,
-          "lineEnd": 412,
+          "lineEnd": 406,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 86,
-              "lineEnd": 412
+              "lineStart": 160,
+              "lineEnd": 209
             }
           ]
         },
@@ -106,12 +97,7 @@
           "lineEnd": 97,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 12,
-              "lineEnd": 97
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
