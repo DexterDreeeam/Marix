@@ -3,7 +3,7 @@
   "module": {
     "path": "src/server/plan",
     "name": "plan",
-    "purpose": "Owns sequential child-intent execution and reconstruction: runtime reads child intent results through TaskAccess, consumes relay completion payloads directly, replaces reconstructed intent sets, and publishes terminal plan results.",
+    "purpose": "Owns sequential child-intent execution and reconstruction: runtime records each failure before rendering System plus PlanVerdict with user_request, parent_intent, current_plan, and plan_failures, then installs a replacement without recording that failure twice.",
     "changeStatus": "modified"
   },
   "modified": ["runtime.rs"],
@@ -64,30 +64,34 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 16,
-          "lineEnd": 20,
+          "lineStart": 17,
+          "lineEnd": 21,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 22,
-          "lineEnd": 78,
+          "lineStart": 23,
+          "lineEnd": 79,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 82,
-          "lineEnd": 335,
+          "lineStart": 83,
+          "lineEnd": 351,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 209,
-              "lineEnd": 254
+              "lineStart": 169,
+              "lineEnd": 262
+            },
+            {
+              "lineStart": 305,
+              "lineEnd": 311
             }
           ]
         },

@@ -3,7 +3,7 @@
   "module": {
     "path": "src/protocol/invocation",
     "name": "invocation",
-    "purpose": "Defines invocation drafts and requests, identities, signatures, errors, managed execution events, terminal result kinds and payloads, and a Created/Running/Complete lifecycle.",
+    "purpose": "Defines invocation drafts and requests, identities, signatures, errors, managed execution events, terminal result kinds and payloads with output and distinct Processing sequence counts, and a Created/Running/Complete lifecycle.",
     "changeStatus": "modified"
   },
   "added": ["result.rs"],
@@ -148,12 +148,12 @@
         {
           "sourcePath": "src/protocol/invocation/result.rs",
           "lineStart": 10,
-          "lineEnd": 14,
+          "lineEnd": 15,
           "language": "rust",
           "addedLines": [
             {
               "lineStart": 10,
-              "lineEnd": 14
+              "lineEnd": 15
             }
           ],
           "modifiedLines": []

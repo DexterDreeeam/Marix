@@ -1,0 +1,20 @@
+Determine the next action for this immutable Intent:
+{{#intent}}
+
+Results from completed direct Steps (JSON):
+{{#step_results}}
+
+Each result is from an earlier direct Step. Tool errors are information and must influence the next decision.
+
+Return exactly one of these three JSON objects:
+{"type":"complete","value":{"output":"final result"}}
+{"type":"plan","value":{"intents":[{"content":"immutable child intent"}]}}
+{"type":"step","value":{"invocations":[{"name":"tool_name","input":"tool input JSON string"}]}}
+
+Use complete only when the available information is sufficient to fulfill the current Intent.
+
+Use plan when the Intent is not expected to finish within at most five tool calls. The intents array must be non-empty and ordered. Every child intent must be simple and immutable, and must not contain a tool invocation.
+
+Use step when the Intent can finish within at most five tool calls, or when obtaining information first is worthwhile. The invocations array must contain one to five mutually independent calls that can run in parallel. Each input must be a JSON-encoded string matching the selected tool schema in the shared context.
+
+Do not return any other schema or field.

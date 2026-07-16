@@ -3,14 +3,15 @@
   "module": {
     "path": "src/server/prompt",
     "name": "prompt",
-    "purpose": "Owns regex-sliced prompt template loading, reusable module expansion, deferred parameter injection, and typed single-pass rendering.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns prompt loading and rendering: non-System templates receive the minimal shared System decision prefix, and parameter markers are sliced for deferred injection.",
+    "changeStatus": "modified"
   },
+  "modified": ["mod.rs", "prompt.rs"],
   "childModules": [
     {
       "path": "src/server/prompt/template",
       "name": "template",
-      "purpose": "Defines initial analysis, intent-verdict, and plan-reconstruction prompt compositions and their reusable fragments."
+      "purpose": "Defines the minimal shared System decision contract and the IntentAnalyze and PlanVerdict decision prompt resources."
     }
   ],
   "elements": [
@@ -65,45 +66,35 @@
       "name": "Prompt",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/prompt.rs",
-          "lineStart": 18,
-          "lineEnd": 21,
+          "lineStart": 15,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/prompt/prompt.rs",
+          "lineStart": 20,
+          "lineEnd": 91,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 18,
-              "lineEnd": 21
+              "lineStart": 21,
+              "lineEnd": 46
             }
           ]
         },
         {
           "sourcePath": "src/server/prompt/prompt.rs",
-          "lineStart": 23,
-          "lineEnd": 83,
+          "lineStart": 95,
+          "lineEnd": 169,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 23,
-              "lineEnd": 83
-            }
-          ],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/prompt/prompt.rs",
-          "lineStart": 87,
-          "lineEnd": 209,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 87,
-              "lineEnd": 209
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

@@ -62,13 +62,13 @@ impl TaskAccess {
 }
 
 impl TaskAccess {
-    pub(crate) fn get_result(
-        &self,
-        signature: &IntentSignature,
-    ) -> Option<IntentResult> {
+    pub(crate) fn get_result(&self, signature: &IntentSignature) -> Option<IntentResult> {
+        self.intents.with(signature, Intent::result).flatten()
+    }
+
+    pub(crate) fn get_intent_content(&self, signature: &IntentSignature) -> Option<String> {
         self.intents
-            .with(signature, Intent::result)
-            .flatten()
+            .with(signature, |intent| intent.state.content.clone())
     }
 
     pub(crate) fn get_invocation_result(
@@ -107,10 +107,7 @@ impl TaskAccess {
         true
     }
 
-    pub(crate) fn insert_invocation(
-        &self,
-        invocation: Invocation,
-    ) -> bool {
+    pub(crate) fn insert_invocation(&self, invocation: Invocation) -> bool {
         let signature = invocation.state.signature.clone();
         if self.invocations.with(&signature, |_| ()).is_some() {
             return false;

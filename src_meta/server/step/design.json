@@ -3,7 +3,7 @@
   "module": {
     "path": "src/server/step",
     "name": "step",
-    "purpose": "Owns task-registered invocation-signature groups: runtime starts invocations through TaskEvent, reads terminal results through TaskAccess, aggregates outputs, and routes completion to the intent.",
+    "purpose": "Owns task-registered invocation groups: Step preserves the validated draft, runtime creates and registers every invocation before starting them directly, and terminal updates trigger aggregate completion.",
     "changeStatus": "modified"
   },
   "modified": ["runtime.rs", "state.rs", "step.rs"],
@@ -17,40 +17,40 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/step/runtime.rs",
-          "lineStart": 13,
-          "lineEnd": 17,
+          "lineStart": 14,
+          "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 13,
-              "lineEnd": 17
+              "lineStart": 14,
+              "lineEnd": 18
             }
           ]
         },
         {
           "sourcePath": "src/server/step/runtime.rs",
-          "lineStart": 19,
-          "lineEnd": 76,
+          "lineStart": 20,
+          "lineEnd": 81,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 19,
-              "lineEnd": 76
+              "lineStart": 20,
+              "lineEnd": 81
             }
           ]
         },
         {
           "sourcePath": "src/server/step/runtime.rs",
-          "lineStart": 80,
-          "lineEnd": 226,
+          "lineStart": 85,
+          "lineEnd": 255,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 80,
-              "lineEnd": 226
+              "lineStart": 85,
+              "lineEnd": 255
             }
           ]
         }
@@ -65,26 +65,26 @@
         {
           "sourcePath": "src/server/step/state.rs",
           "lineStart": 9,
-          "lineEnd": 16,
+          "lineEnd": 17,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 9,
-              "lineEnd": 16
+              "lineEnd": 17
             }
           ]
         },
         {
           "sourcePath": "src/server/step/state.rs",
-          "lineStart": 20,
-          "lineEnd": 36,
+          "lineStart": 21,
+          "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 20,
-              "lineEnd": 36
+              "lineStart": 21,
+              "lineEnd": 34
             }
           ]
         }
@@ -98,30 +98,30 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/step/step.rs",
-          "lineStart": 13,
-          "lineEnd": 16,
+          "lineStart": 9,
+          "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/step/step.rs",
-          "lineStart": 18,
-          "lineEnd": 49,
+          "lineStart": 14,
+          "lineEnd": 45,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/step/step.rs",
-          "lineStart": 53,
-          "lineEnd": 90,
+          "lineStart": 49,
+          "lineEnd": 68,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 53,
-              "lineEnd": 90
+              "lineStart": 49,
+              "lineEnd": 68
             }
           ]
         }

@@ -194,10 +194,9 @@ impl InvocationRuntime {
             .unwrap_or_else(|error| error.into_inner())
             .clone();
         if let Some(signature) = execution {
-            if let Err(reason) = self.send_executor_event(ExecutorEvent::Execution(
-                signature,
-                ExecutionEvent::Cancel,
-            )) {
+            if let Err(reason) = self
+                .send_executor_event(ExecutorEvent::Execution(signature, ExecutionEvent::Cancel))
+            {
                 Logger::warning(format!(
                     "invocation {} execution cancel failed: {reason}",
                     &self.state.signature,
@@ -211,7 +210,17 @@ impl InvocationRuntime {
     }
 
     fn finish(&self, kind: InvocationResultKind, output: String) {
-        let result = InvocationResult { kind, output };
+        let seq_count = self
+            .state
+            .output
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .len();
+        let result = InvocationResult {
+            kind,
+            output,
+            seq_count,
+        };
         self.set_status(InvocationStatus::Complete(result));
         self.close();
     }

@@ -3,7 +3,7 @@
   "module": {
     "path": "src/server/invocation",
     "name": "invocation",
-    "purpose": "Owns task-registered invocation actors whose state carries lifecycle and ordered execution output, while runtimes drive host execution and publish result-carrying completion updates to steps.",
+    "purpose": "Owns task-registered invocation actors whose state carries lifecycle and ordered distinct-sequence output, while runtimes drive host execution and publish terminal results whose sequence count is derived uniformly from received output.",
     "changeStatus": "modified"
   },
   "modified": ["invocation.rs", "runtime.rs", "state.rs"],
@@ -91,13 +91,13 @@
         {
           "sourcePath": "src/server/invocation/runtime.rs",
           "lineStart": 85,
-          "lineEnd": 277,
+          "lineEnd": 287,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 85,
-              "lineEnd": 277
+              "lineEnd": 287
             }
           ]
         }

@@ -3,10 +3,10 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Defines serialized workflow contracts with an independent execution lifecycle, result-carrying invocation and relay completion states, explicit child starts, cancellation, and actor signatures.",
+    "purpose": "Defines serialized workflow contracts with an independent execution lifecycle, result-carrying invocation and relay completion states, invocation output counts based on distinct Processing sequences, explicit intent starts, cancellation, and actor signatures.",
     "changeStatus": "modified"
   },
-  "modified": ["lib.rs", "mod.rs"],
+  "modified": [".", "lib.rs", "mod.rs"],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -31,7 +31,7 @@
     {
       "path": "src/protocol/invocation",
       "name": "invocation",
-      "purpose": "Defines invocation drafts and requests, identities, signatures, errors, managed execution events, terminal result kinds and payloads, and a Created/Running/Complete lifecycle."
+      "purpose": "Defines invocation drafts and requests, identities, signatures, errors, managed execution events, terminal result kinds and payloads with output and distinct Processing sequence counts, and a Created/Running/Complete lifecycle."
     },
     {
       "path": "src/protocol/plan",
@@ -56,7 +56,7 @@
     {
       "path": "src/protocol/task",
       "name": "task",
-      "purpose": "Defines task requests, results, identities, signatures, statuses, errors, actor event envelopes with explicit intent and invocation starts, terminal updates, and cancellation."
+      "purpose": "Defines task requests, results, identities, signatures, statuses, errors, actor event envelopes with explicit intent starts, terminal updates, and cancellation."
     },
     {
       "path": "src/protocol/tool",
@@ -728,12 +728,12 @@
         {
           "sourcePath": "src/protocol/invocation/result.rs",
           "lineStart": 10,
-          "lineEnd": 14,
+          "lineEnd": 15,
           "language": "rust",
           "addedLines": [
             {
               "lineStart": 10,
-              "lineEnd": 14
+              "lineEnd": 15
             }
           ],
           "modifiedLines": []
@@ -1540,13 +1540,13 @@
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/status.rs",
-          "lineStart": 3,
+          "lineStart": 4,
           "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 3,
+              "lineStart": 4,
               "lineEnd": 9
             }
           ]
@@ -1596,14 +1596,9 @@
         {
           "sourcePath": "src/protocol/task/event.rs",
           "lineStart": 9,
-          "lineEnd": 20,
+          "lineEnd": 18,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 16,
-              "lineEnd": 16
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

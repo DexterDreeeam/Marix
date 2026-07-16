@@ -3,15 +3,11 @@
   "module": {
     "path": "src/server/prompt/template",
     "name": "template",
-    "purpose": "Defines initial analysis, intent-verdict, and plan-reconstruction prompt compositions and their reusable fragments.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines the minimal shared System decision contract and the IntentAnalyze and PlanVerdict decision prompt resources.",
+    "changeStatus": "modified"
   },
-  "childModules": [
-    {
-      "path": "src/server/prompt/template/module",
-      "name": "module",
-      "purpose": "Defines reusable response-format, tool, request, background, and call-output prompt fragments."
-    }
-  ],
+  "added": ["System.prompt", "IntentAnalyze.prompt", "PlanVerdict.prompt"],
+  "deleted": ["Analysis.prompt", "Initial.prompt", "IntentVerdict.prompt", "PlanReconstruction.prompt"],
+  "childModules": [],
   "elements": []
 }

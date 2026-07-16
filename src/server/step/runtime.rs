@@ -4,11 +4,12 @@ use std::sync::Mutex as StdMutex;
 use marix_common::external::*;
 use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
 use marix_protocol::{
-    IntentEvent, InvocationEvent, InvocationResultKind, InvocationSignature, InvocationStatus,
-    SessionEvent, StepEvent, StepResult, StepResultKind, StepStatus, TaskEvent,
+    IntentEvent, InvocationEvent, InvocationRequest, InvocationResultKind, InvocationSignature,
+    InvocationStatus, SessionEvent, StepEvent, StepResult, StepResultKind, StepStatus, TaskEvent,
 };
 
 use super::StepState;
+use crate::invocation::Invocation;
 
 pub struct StepRuntime {
     pub state: Arc<StepState>,
@@ -32,11 +33,15 @@ impl StepRuntime {
             return;
         };
         self.set_status(StepStatus::Running);
-        for signature in &self.state.invocations {
-            if let Err(reason) = self.start_invocation(signature) {
+        let actors = match self.create_invocations() {
+            Ok(actors) => actors,
+            Err(reason) => {
                 self.finish(StepResultKind::Failed, reason);
                 return;
             }
+        };
+        for actor in actors {
+            actor.start();
         }
 
         let Some(mut close_rx) = self
@@ -87,14 +92,29 @@ impl StepRuntime {
         }
     }
 
-    fn start_invocation(&self, signature: &InvocationSignature) -> Result<(), String> {
-        let event = SessionEvent::Task(
-            self.state.access.signature.clone(),
-            TaskEvent::InvocationStart(signature.clone()),
-        );
-        self.state.access.session_tx.send(event).map_err(|_| {
-            format!("invocation {signature} start failed: session stopped")
-        })
+    fn create_invocations(&self) -> Result<Vec<Invocation>, String> {
+        let drafts = self.state.draft.invocations.clone();
+        let mut actors = Vec::with_capacity(drafts.len());
+        let mut signatures = Vec::with_capacity(drafts.len());
+        for draft in drafts {
+            let signature = InvocationSignature::new(self.state.signature.clone(), draft.name);
+            let request = InvocationRequest {
+                signature: signature.clone(),
+                input: draft.input,
+            };
+            let actor = Invocation::new(Arc::clone(&self.state.access), request);
+            if !self.state.access.insert_invocation(actor.clone()) {
+                return Err(format!("invocation {signature} is duplicated"));
+            }
+            actors.push(actor);
+            signatures.push(signature);
+        }
+        *self
+            .state
+            .invocations
+            .lock()
+            .unwrap_or_else(|error| error.into_inner()) = signatures;
+        Ok(actors)
     }
 
     fn on_invocation_update(&self, signature: InvocationSignature, status: InvocationStatus) {
@@ -109,7 +129,7 @@ impl StepRuntime {
             return;
         };
         match result.kind {
-            InvocationResultKind::Succeed => self.advance(),
+            InvocationResultKind::Succeed => self.finish_if_complete(),
             InvocationResultKind::Canceled => {
                 self.finish(StepResultKind::Canceled, result.output);
             }
@@ -119,9 +139,15 @@ impl StepRuntime {
         }
     }
 
-    fn advance(&self) {
-        let mut outputs = Vec::with_capacity(self.state.invocations.len());
-        for signature in &self.state.invocations {
+    fn finish_if_complete(&self) {
+        let invocations = self
+            .state
+            .invocations
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clone();
+        let mut outputs = Vec::with_capacity(invocations.len());
+        for signature in &invocations {
             let Some(result) = self.state.access.get_invocation_result(signature) else {
                 return;
             };
@@ -146,16 +172,19 @@ impl StepRuntime {
         if self.status().is_terminal() {
             return;
         }
-        for signature in &self.state.invocations {
+        let invocations = self
+            .state
+            .invocations
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clone();
+        for signature in &invocations {
             if self.state.access.get_invocation_result(signature).is_some() {
                 continue;
             }
             let event = SessionEvent::Task(
                 self.state.access.signature.clone(),
-                TaskEvent::Invocation(
-                    signature.clone(),
-                    InvocationEvent::Cancel,
-                ),
+                TaskEvent::Invocation(signature.clone(), InvocationEvent::Cancel),
             );
             if self.state.access.session_tx.send(event).is_err() {
                 Logger::warning(format!(

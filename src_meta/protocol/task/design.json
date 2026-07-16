@@ -3,7 +3,7 @@
   "module": {
     "path": "src/protocol/task",
     "name": "task",
-    "purpose": "Defines task requests, results, identities, signatures, statuses, errors, actor event envelopes with explicit intent and invocation starts, terminal updates, and cancellation.",
+    "purpose": "Defines task requests, results, identities, signatures, statuses, errors, actor event envelopes with explicit intent starts, terminal updates, and cancellation.",
     "changeStatus": "modified"
   },
   "modified": ["event.rs"],
@@ -39,14 +39,9 @@
         {
           "sourcePath": "src/protocol/task/event.rs",
           "lineStart": 9,
-          "lineEnd": 20,
+          "lineEnd": 18,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 16,
-              "lineEnd": 16
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

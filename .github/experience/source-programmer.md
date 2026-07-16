@@ -1114,3 +1114,27 @@ connecter to protect this distinction.
   signatures and queries only `TaskAccess::get_result`; the first unfinished
   child is started by sending `TaskEvent::IntentStart` through the Session,
   leaving actor lookup and direct `Intent::start` ownership in `TaskRuntime`.
+- 2026-07-16 (Step Invocation start boundary): `Step::from_draft` validates and
+  stores the intact `StepDraft`; `StepRuntime::run` creates and task-registers
+  every Invocation, publishes the complete signature list under one mutex
+  assignment, then starts all actors directly. Invocation terminal updates call
+  `finish_if_complete`; there is no Step `advance` path or
+  `TaskEvent::InvocationStart`.
+- 2026-07-16 (Invocation processing count): `InvocationResult::seq_count`
+  records the terminal `InvocationState::output` map length. Because processing
+  updates are keyed by sequence in a `BTreeMap`, this is the number of distinct
+  received updates for success, missing-output failure, cancellation, and
+  execution failure, independent of sequence gaps or duplicate overwrites.
+- 2026-07-16 (workflow prompt composition): `server::prompt::Prompt::load`
+  prepends newline-trimmed `System.prompt` plus exactly two newlines to every
+  non-System template and rejects legacy `[[#` module markers. The only live
+  templates are System, IntentAnalyze, and PlanVerdict.
+- 2026-07-16 (workflow decision context): Intent verdicts receive serialized
+  completed direct Step results in WorkQueue order. Plan verdicts append the
+  current `PlanResult` before rendering, then receive parent/current Intent
+  content and the complete failure history; reconstruction reads that history
+  length without appending the failure again.
+- 2026-07-16 (workflow prompt context boundary): `System.prompt` carries only
+  `user_request`; IntentAnalyze adds Intent content and completed direct Step
+  results, while PlanVerdict adds parent/current Intent content and failure
+  history. Session snapshots are not serialized into decision prompts.

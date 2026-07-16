@@ -1,13 +1,9 @@
 use std::sync::Arc;
 
 use marix_common::Logger;
-use marix_protocol::{
-    InvocationRequest, InvocationSignature, StepDraft, StepEvent, StepResult, StepSignature,
-    StepStatus,
-};
+use marix_protocol::{StepDraft, StepEvent, StepResult, StepSignature, StepStatus};
 
 use super::{StepRuntime, StepState};
-use crate::invocation::Invocation;
 use crate::task::TaskAccess;
 
 #[derive(Clone)]
@@ -66,25 +62,7 @@ impl Step {
         {
             return Err("step invocation name cannot be empty".to_owned());
         }
-        let mut invocations = Vec::with_capacity(draft.invocations.len());
-        for invocation in draft.invocations {
-            let invocation_signature = InvocationSignature::new(
-                signature.clone(),
-                invocation.name,
-            );
-            let request = InvocationRequest {
-                signature: invocation_signature.clone(),
-                input: invocation.input,
-            };
-            let actor = Invocation::new(Arc::clone(&access), request);
-            if !access.insert_invocation(actor.clone()) {
-                return Err(format!(
-                    "invocation {invocation_signature} is duplicated"
-                ));
-            }
-            invocations.push(invocation_signature);
-        }
-        let state = Arc::new(StepState::new(access, signature, invocations));
+        let state = Arc::new(StepState::new(access, signature, draft));
         Ok(Self { state })
     }
 }

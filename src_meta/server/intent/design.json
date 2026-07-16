@@ -3,7 +3,7 @@
   "module": {
     "path": "src/server/intent",
     "name": "intent",
-    "purpose": "Owns intent lifecycle orchestration: runtime consumes relay completion payloads directly, creates steps or plans, and publishes terminal results, while state retains task access and local child lifecycle data.",
+    "purpose": "Owns intent lifecycle orchestration and decision prompting: runtime renders System plus IntentAnalyze with user_request, intent, and ordered completed step_results before creating work or publishing a terminal result.",
     "changeStatus": "modified"
   },
   "modified": ["runtime.rs"],
@@ -64,30 +64,34 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 17,
-          "lineEnd": 21,
+          "lineStart": 16,
+          "lineEnd": 20,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 23,
-          "lineEnd": 82,
+          "lineStart": 22,
+          "lineEnd": 81,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 86,
+          "lineStart": 85,
           "lineEnd": 406,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 160,
-              "lineEnd": 209
+              "lineStart": 95,
+              "lineEnd": 148
+            },
+            {
+              "lineStart": 188,
+              "lineEnd": 234
             }
           ]
         },

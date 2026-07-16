@@ -7,12 +7,9 @@ use marix_common::{Config, external::*};
 
 use super::PromptError;
 
-const MODULE_OPENING: &str = "[[#";
-const MODULE_MARKER_PATTERN: &str = r"\[\[#([A-Za-z0-9_]+?)\]\]";
 const PARAMETER_OPENING: &str = "{{#";
 const PARAMETER_MARKER_PATTERN: &str = r"\{\{#([A-Za-z0-9_]+?)\}\}";
 
-static MODULE_MARKER: OnceLock<regex::Regex> = OnceLock::new();
 static PARAMETER_MARKER: OnceLock<regex::Regex> = OnceLock::new();
 
 pub struct Prompt {
@@ -32,7 +29,18 @@ impl Prompt {
             .join("template");
         let path = directory.join(format!("{name}.prompt"));
         let template = Self::read(&path, "template");
-        let content = Self::expand_modules(&template, &directory);
+        let content = if name == "System" {
+            template
+        } else {
+            let system = Self::read(&directory.join("System.prompt"), "system template");
+            format!("{}\n\n{template}", system.trim_end_matches(['\r', '\n']))
+        };
+        if content.contains("[[#") {
+            panic!(
+                "prompt template {} contains unsupported module markers",
+                path.display()
+            );
+        }
         let (slices, injections) = Self::slice_marker(content);
         Self { slices, injections }
     }
@@ -85,40 +93,6 @@ impl Prompt {
 // -- Private -- //
 
 impl Prompt {
-    fn expand_modules(template: &str, directory: &Path) -> String {
-        let mut modules = HashMap::new();
-        let content = Self::module_marker()
-            .replace_all(template, |captures: &regex::Captures<'_>| {
-                let name = captures
-                    .get(1)
-                    .map(|capture| capture.as_str())
-                    .unwrap_or_else(|| panic!("module marker regex did not capture a name"));
-                modules
-                    .entry(name.to_owned())
-                    .or_insert_with(|| {
-                        let path = directory.join("module").join(format!("{name}.prompt"));
-                        let module = Self::read(&path, "module");
-                        if module.contains(MODULE_OPENING) {
-                            panic!(
-                                "nested module marker in prompt module {} \
-                                     is not supported",
-                                path.display()
-                            );
-                        }
-                        Self::without_final_line_ending(&module).to_owned()
-                    })
-                    .clone()
-            })
-            .into_owned();
-        if content.contains(MODULE_OPENING) {
-            panic!(
-                "malformed module marker: expected `[[#name]]` with an \
-                 ASCII alphanumeric or underscore name"
-            );
-        }
-        content
-    }
-
     fn slice_marker(content: String) -> (Vec<String>, HashMap<String, Option<String>>) {
         let mut slices = Vec::new();
         let mut injections = HashMap::new();
@@ -167,13 +141,6 @@ impl Prompt {
         }
     }
 
-    fn module_marker() -> &'static regex::Regex {
-        MODULE_MARKER.get_or_init(|| {
-            regex::Regex::new(MODULE_MARKER_PATTERN)
-                .unwrap_or_else(|error| panic!("invalid module marker regex: {error}"))
-        })
-    }
-
     fn parameter_marker() -> &'static regex::Regex {
         PARAMETER_MARKER.get_or_init(|| {
             regex::Regex::new(PARAMETER_MARKER_PATTERN)
@@ -198,12 +165,5 @@ impl Prompt {
         fs::read_to_string(path).unwrap_or_else(|error| {
             panic!("failed to read prompt {kind} {}: {error}", path.display())
         })
-    }
-
-    fn without_final_line_ending(content: &str) -> &str {
-        content
-            .strip_suffix("\r\n")
-            .or_else(|| content.strip_suffix('\n'))
-            .unwrap_or(content)
     }
 }

@@ -11,4 +11,5 @@ pub enum InvocationResultKind {
 pub struct InvocationResult {
     pub kind: InvocationResultKind,
     pub output: String,
+    pub seq_count: usize,
 }

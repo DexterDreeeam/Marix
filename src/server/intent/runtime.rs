@@ -4,14 +4,13 @@ use std::sync::Mutex as StdMutex;
 use marix_common::external::*;
 use marix_common::{AsyncReceiver, AsyncSender, Logger, build_async_channel};
 use marix_protocol::{
-    IntentEvent, IntentResult, IntentResultKind, IntentStatus,
-    IntentVerdict, PlanEvent, PlanResultKind, PlanSignature, PlanStatus,
-    RelayRequest, RelayResultKind, RelaySignature, RelayStatus, SessionEvent,
-    StepEvent, StepResultKind, StepSignature, StepStatus,
-    TaskEvent,
+    IntentEvent, IntentResult, IntentResultKind, IntentStatus, IntentVerdict, PlanEvent,
+    PlanResultKind, PlanSignature, PlanStatus, RelayRequest, RelayResultKind, RelaySignature,
+    RelayStatus, SessionEvent, StepEvent, StepResultKind, StepSignature, StepStatus, TaskEvent,
 };
 
 use super::IntentState;
+use crate::prompt::Prompt;
 use crate::relay::Relay;
 
 pub struct IntentRuntime {
@@ -94,17 +93,50 @@ impl IntentRuntime {
     }
 
     fn verdict(&self) -> Result<(), String> {
+        let step_results = self
+            .state
+            .steps
+            .entries()
+            .into_iter()
+            .filter_map(|(signature, result)| {
+                result.map(|result| {
+                    serde_json::json!({
+                        "step": signature.to_string(),
+                        "result": result,
+                    })
+                })
+            })
+            .collect::<Vec<_>>();
+        let step_results = serde_json::to_string(&step_results)
+            .map_err(|error| format!("failed to serialize intent step results: {error}"))?;
+        let mut prompt =
+            std::panic::catch_unwind(|| Prompt::load("IntentAnalyze")).map_err(|payload| {
+                let detail = if let Some(message) = payload.downcast_ref::<String>() {
+                    message.clone()
+                } else if let Some(message) = payload.downcast_ref::<&str>() {
+                    (*message).to_owned()
+                } else {
+                    "unknown prompt loading panic".to_owned()
+                };
+                format!("failed to load IntentAnalyze prompt: {detail}")
+            })?;
+        prompt.inject(
+            "user_request".to_owned(),
+            self.state.access.user_request.clone(),
+        );
+        prompt.inject("intent".to_owned(), self.state.content.clone());
+        prompt.inject("step_results".to_owned(), step_results);
+        let prompt = prompt
+            .prompt()
+            .map_err(|error| format!("failed to render IntentAnalyze prompt: {error}"))?;
         let request = RelayRequest {
             signature: RelaySignature::new(
                 self.state.signature.clone(),
                 "intent-verdict".to_owned(),
             ),
-            prompt: self.state.content.clone(),
+            prompt,
         };
-        let relay = Relay::new(
-            Arc::clone(&self.state.access),
-            request,
-        )?;
+        let relay = Relay::new(Arc::clone(&self.state.access), request)?;
         if !self.state.access.insert_relay(relay.clone()) {
             return Err(format!(
                 "intent verdict relay {} already exists",
@@ -115,11 +147,7 @@ impl IntentRuntime {
         Ok(())
     }
 
-    fn on_plan_update(
-        &self,
-        signature: PlanSignature,
-        status: PlanStatus,
-    ) {
+    fn on_plan_update(&self, signature: PlanSignature, status: PlanStatus) {
         if self.status().is_terminal() {
             Logger::error(format!(
                 "intent {} received plan {signature} update {status:?} \
@@ -178,10 +206,7 @@ impl IntentRuntime {
         if let Some(plan) = plan {
             self.send_plan_event(
                 plan,
-                PlanEvent::RelayUpdate(
-                    signature,
-                    RelayStatus::Complete(result),
-                ),
+                PlanEvent::RelayUpdate(signature, RelayStatus::Complete(result)),
             );
             return;
         }
@@ -220,15 +245,13 @@ impl IntentRuntime {
         let StepStatus::Complete(result) = status else {
             return;
         };
-        let Some(updated) =
-            self.state.steps.with_mut(&signature, |stored| {
-                if stored.is_some() {
-                    return false;
-                }
-                *stored = Some(result.clone());
-                true
-            })
-        else {
+        let Some(updated) = self.state.steps.with_mut(&signature, |stored| {
+            if stored.is_some() {
+                return false;
+            }
+            *stored = Some(result.clone());
+            true
+        }) else {
             self.fail(format!("step {signature} not found"));
             return;
         };
@@ -241,13 +264,10 @@ impl IntentRuntime {
             return;
         }
         match result.kind {
-            StepResultKind::Succeed => {
+            StepResultKind::Succeed | StepResultKind::Failed => {
                 if let Err(reason) = self.verdict() {
                     self.fail(reason);
                 }
-            }
-            StepResultKind::Failed => {
-                self.finish(IntentResultKind::Failed, result.output);
             }
             StepResultKind::Canceled => {
                 self.finish(IntentResultKind::Canceled, result.output);
@@ -295,10 +315,7 @@ impl IntentRuntime {
             }
             let event = SessionEvent::Task(
                 self.state.access.signature.clone(),
-                TaskEvent::Step(
-                    signature.clone(),
-                    StepEvent::Cancel,
-                ),
+                TaskEvent::Step(signature.clone(), StepEvent::Cancel),
             );
             if self.state.access.session_tx.send(event).is_err() {
                 Logger::warning(format!(
@@ -308,10 +325,7 @@ impl IntentRuntime {
                 ));
             }
         }
-        self.finish(
-            IntentResultKind::Canceled,
-            "intent canceled".to_owned(),
-        );
+        self.finish(IntentResultKind::Canceled, "intent canceled".to_owned());
     }
 
     pub(super) fn fail(&self, reason: String) {
@@ -319,11 +333,7 @@ impl IntentRuntime {
         self.finish(IntentResultKind::Failed, reason);
     }
 
-    pub(super) fn finish(
-        &self,
-        kind: IntentResultKind,
-        output: String,
-    ) {
+    pub(super) fn finish(&self, kind: IntentResultKind, output: String) {
         let result = IntentResult { kind, output };
         let status = IntentStatus::Complete(result);
         self.set_status(status);
@@ -357,19 +367,13 @@ impl IntentRuntime {
 
     fn send_task_update(&self, status: IntentStatus) {
         let event = match self.state.signature.parent.clone() {
-            None => TaskEvent::Update(
-                self.state.signature.clone(),
-                status,
-            ),
+            None => TaskEvent::Update(self.state.signature.clone(), status),
             Some(parent) => TaskEvent::Plan(
                 parent,
                 PlanEvent::Update(self.state.signature.clone(), status),
             ),
         };
-        let task_event = SessionEvent::Task(
-            self.state.access.signature.clone(),
-            event,
-        );
+        let task_event = SessionEvent::Task(self.state.access.signature.clone(), event);
         if self.state.access.session_tx.send(task_event).is_err() {
             Logger::warning(format!(
                 "intent {} event send failed: session stopped",
@@ -378,11 +382,7 @@ impl IntentRuntime {
         }
     }
 
-    fn send_plan_event(
-        &self,
-        signature: PlanSignature,
-        event: PlanEvent,
-    ) {
+    fn send_plan_event(&self, signature: PlanSignature, event: PlanEvent) {
         let task_event = SessionEvent::Task(
             self.state.access.signature.clone(),
             TaskEvent::Plan(signature, event),
