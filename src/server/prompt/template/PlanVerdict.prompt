@@ -1,13 +1,6 @@
 A child Intent has been found infeasible. Decide whether to replace the current Plan or declare the parent Intent infeasible.
 
-Parent immutable Intent:
-{{#parent_intent}}
-
-Current ordered child Intent strings (JSON):
-{{#current_plan}}
-
-Current and previous failed attempt reports (JSON):
-{{#plan_failures}}
+Context chain (root to current): {{#context_chain}}
 
 Return exactly one of these two JSON objects:
 {"type":"replacement","value":{"intents":[{"content":"immutable child intent"}]}}

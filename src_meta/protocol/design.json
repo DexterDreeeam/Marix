@@ -3,9 +3,11 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Defines serialized workflow contracts whose signatures implement the shared common Signature contract, with shared common ActorStatus workflow updates, dedicated host execution statuses, and external TaskStatus transport.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines serialized workflow contracts, including root-to-current Context chains that render live results, ordered step history, and accumulated plan failures as JSON, while retaining shared signature, actor-status, execution-status, and external task transport contracts.",
+    "changeStatus": "modified"
   },
+  "added": ["context.rs"],
+  "modified": ["lib.rs", "mod.rs"],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -25,7 +27,7 @@
     {
       "path": "src/protocol/intent",
       "name": "intent",
-      "purpose": "Defines intent drafts, verdicts, typed results, identities, lineage-aware signatures implementing the shared common Signature contract, shared actor-status plan, step, and relay updates, and cancellation."
+      "purpose": "Defines intent context snapshots with signatures, content, optional live results, and ordered step result history, alongside intent drafts, verdicts, typed results, identities, lineage-aware signatures, actor-status updates, and cancellation."
     },
     {
       "path": "src/protocol/invocation",
@@ -35,7 +37,7 @@
     {
       "path": "src/protocol/plan",
       "name": "plan",
-      "purpose": "Defines nested plan drafts, verdicts, typed results, identities, boxed owning-intent signatures implementing the shared common Signature contract, shared actor-status child and relay updates, and cancellation."
+      "purpose": "Defines plan context snapshots with signatures, ordered intent contexts, and accumulated plan result failures, alongside nested plan drafts, verdicts, typed results, identities, owning-intent signatures, actor-status updates, and cancellation."
     },
     {
       "path": "src/protocol/relay",
@@ -64,6 +66,74 @@
     }
   ],
   "elements": [
+    {
+      "name": "Context",
+      "type": "enum",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/context.rs",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ContextChain",
+      "type": "struct",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/context.rs",
+          "lineStart": 12,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 15
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/context.rs",
+          "lineStart": 17,
+          "lineEnd": 27,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 27
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/context.rs",
+          "lineStart": 31,
+          "lineEnd": 76,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 31,
+              "lineEnd": 76
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
     {
       "name": "SessionMessage",
       "type": "struct",
@@ -246,6 +316,27 @@
             {
               "lineStart": 9,
               "lineEnd": 9
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "IntentContext",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/intent/context.rs",
+          "lineStart": 6,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 12
             }
           ],
           "modifiedLines": []
@@ -672,6 +763,27 @@
               "lineEnd": 38
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "PlanContext",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/plan/context.rs",
+          "lineStart": 6,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 11
+            }
+          ],
+          "modifiedLines": []
         }
       ]
     },

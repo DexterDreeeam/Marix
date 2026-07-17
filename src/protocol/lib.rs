@@ -1,3 +1,4 @@
+pub mod context;
 pub mod execution;
 pub mod executor;
 pub mod external;
@@ -11,13 +12,14 @@ pub mod step;
 pub mod task;
 pub mod tool;
 
+pub use context::{Context, ContextChain};
 pub use execution::{
     ExecutionError, ExecutionEvent, ExecutionId, ExecutionRequest, ExecutionSignature,
     ExecutionStatus,
 };
 pub use executor::ExecutorEvent;
 pub use intent::{
-    IntentDraft, IntentError, IntentEvent, IntentId, IntentResult, IntentResultKind,
+    IntentContext, IntentDraft, IntentError, IntentEvent, IntentId, IntentResult, IntentResultKind,
     IntentSignature, IntentVerdict,
 };
 pub use invocation::{
@@ -26,7 +28,8 @@ pub use invocation::{
 };
 pub use message::SessionMessage;
 pub use plan::{
-    PlanDraft, PlanError, PlanEvent, PlanId, PlanResult, PlanResultKind, PlanSignature, PlanVerdict,
+    PlanContext, PlanDraft, PlanError, PlanEvent, PlanId, PlanResult, PlanResultKind,
+    PlanSignature, PlanVerdict,
 };
 pub use relay::{
     RelayError, RelayEvent, RelayId, RelayRequest, RelayResult, RelayResultKind, RelaySignature,

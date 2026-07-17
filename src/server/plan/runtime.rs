@@ -1,7 +1,6 @@
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
-use marix_common::external::*;
 use marix_common::{
     Actor, ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait,
 };
@@ -209,13 +208,7 @@ impl PlanRuntime {
     }
 
     fn verdict_prompt(&self) -> Result<String, String> {
-        let plan_failures = self
-            .failures
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone();
-        let plan_failures = serde_json::to_string(&plan_failures)
-            .map_err(|error| format!("failed to serialize plan failures: {error}"))?;
+        let context_chain = self.access.get_context_chain(&self.signature)?.to_string();
         let mut prompt =
             std::panic::catch_unwind(|| Prompt::load("PlanVerdict")).map_err(|payload| {
                 let detail = if let Some(message) = payload.downcast_ref::<String>() {
@@ -228,7 +221,7 @@ impl PlanRuntime {
                 format!("failed to load PlanVerdict prompt: {detail}",)
             })?;
         prompt.inject("user_request".to_owned(), self.access.user_request.clone());
-        prompt.inject("plan_failures".to_owned(), plan_failures);
+        prompt.inject("context_chain".to_owned(), context_chain);
         prompt
             .prompt()
             .map_err(|error| format!("failed to render PlanVerdict prompt: {error}"))

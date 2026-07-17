@@ -1,7 +1,6 @@
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
-use marix_common::external::*;
 use marix_common::{
     Actor, ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait, WorkQueue,
 };
@@ -89,21 +88,7 @@ impl RuntimeTrait for IntentRuntime {
 
 impl IntentRuntime {
     fn verdict(&self) -> Result<(), String> {
-        let step_results = self
-            .steps
-            .entries()
-            .into_iter()
-            .filter_map(|(signature, result)| {
-                result.map(|result| {
-                    serde_json::json!({
-                        "step": signature.to_string(),
-                        "result": result,
-                    })
-                })
-            })
-            .collect::<Vec<_>>();
-        let step_results = serde_json::to_string(&step_results)
-            .map_err(|error| format!("failed to serialize intent step results: {error}",))?;
+        let context_chain = self.access.get_context_chain(&self.signature)?.to_string();
         let mut prompt =
             std::panic::catch_unwind(|| Prompt::load("IntentAnalyze")).map_err(|payload| {
                 let detail = if let Some(message) = payload.downcast_ref::<String>() {
@@ -116,8 +101,7 @@ impl IntentRuntime {
                 format!("failed to load IntentAnalyze prompt: {detail}",)
             })?;
         prompt.inject("user_request".to_owned(), self.access.user_request.clone());
-        prompt.inject("intent".to_owned(), self.content.clone());
-        prompt.inject("step_results".to_owned(), step_results);
+        prompt.inject("context_chain".to_owned(), context_chain);
         let prompt = prompt
             .prompt()
             .map_err(|error| format!("failed to render IntentAnalyze prompt: {error}"))?;

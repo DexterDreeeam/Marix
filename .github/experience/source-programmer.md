@@ -1246,3 +1246,17 @@ connecter to protect this distinction.
   its value. All active Intent/Plan/Step/Invocation/Relay call sites omit the
   turbofish. `StoredSignature` remains the single reverse signature-to-actor
   mapping needed by signature-driven `get_result`.
+- 2026-07-17 (dynamic ContextChain; supersedes the Plan verdict context gap):
+  `src/protocol/context.rs` owns the root-to-current LLM display, while focused
+  Intent/Plan context records live in their protocol namespaces. Server
+  `task/context.rs` rebuilds every chain from stored actors, current
+  `PlanRuntime.intents`, and lifecycle results; runtimes retain no context or
+  result copies. Child collection first uses `TaskAccess::index_of` against the
+  current parent Plan vector, so reconstructed-away signatures fail as stale.
+  IntentAnalyze and PlanVerdict now inject complete `user_request`,
+  `context_chain`, and workflow-specific evidence parameter sets.
+- 2026-07-17 (ContextChain-owned workflow history): `IntentContext.step_results`
+  is rebuilt from `IntentRuntime.steps.entries()` in WorkQueue insertion order,
+  filtering unfinished values; `PlanContext.failures` is cloned from the live
+  Plan runtime lock. Context display serializes both histories with serde JSON,
+  so IntentAnalyze and PlanVerdict need only `user_request` and `context_chain`.

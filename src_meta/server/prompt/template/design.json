@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/prompt/template",
     "name": "template",
-    "purpose": "Defines the minimal shared System decision contract and the IntentAnalyze and PlanVerdict decision prompt resources.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines the shared System decision contract and IntentAnalyze and PlanVerdict resources; decision prompts retain only the shared user_request and context_chain parameters, with runtime history serialized inside the chain.",
+    "changeStatus": "modified"
   },
+  "modified": ["IntentAnalyze.prompt", "PlanVerdict.prompt"],
   "childModules": [],
   "elements": []
 }

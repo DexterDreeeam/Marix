@@ -4,8 +4,9 @@
     "path": "src",
     "name": "src",
     "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and tool packages.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/client",
@@ -25,12 +26,12 @@
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "Defines serialized workflow contracts whose signatures implement the shared common Signature contract, with shared common ActorStatus workflow updates, dedicated host execution statuses, and external TaskStatus transport."
+      "purpose": "Defines serialized workflow contracts, including root-to-current Context chains that render live results, ordered step history, and accumulated plan failures as JSON, while retaining shared signature, actor-status, execution-status, and external task transport contracts."
     },
     {
       "path": "src/server",
       "name": "server",
-      "purpose": "Runs workflow orchestration through Arc-backed Task, Intent, Plan, Step, Invocation, and Relay implementations of the shared Actor and modern Runtime contracts; TaskRuntime holds task-scoped registries, access, and the root intent, Task launches its current-thread executor on a dedicated thread, child actors spawn on that executor, and Session uses an inherent worker runtime."
+      "purpose": "Runs workflow orchestration through Arc-backed actors and runtimes; IntentRuntime and PlanRuntime dynamically inject root-to-current context chains without storing context, TaskAccess validates current plan membership and builds chains from live actor results, and task-scoped registries, routing, execution, sessions, prompts, and relays coordinate workflow progress."
     },
     {
       "path": "src/server_telemetry",
@@ -208,6 +209,74 @@
               "lineEnd": 33
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "Context",
+      "type": "enum",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/context.rs",
+          "lineStart": 6,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ContextChain",
+      "type": "struct",
+      "source_depth": 2,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/context.rs",
+          "lineStart": 12,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 15
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/context.rs",
+          "lineStart": 17,
+          "lineEnd": 27,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 27
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/context.rs",
+          "lineStart": 31,
+          "lineEnd": 76,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 31,
+              "lineEnd": 76
+            }
+          ],
+          "modifiedLines": []
         }
       ]
     },

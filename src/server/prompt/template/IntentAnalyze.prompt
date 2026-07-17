@@ -1,10 +1,4 @@
-Determine the next action for this immutable Intent:
-{{#intent}}
-
-Results from completed direct Steps (JSON):
-{{#step_results}}
-
-Each result is from an earlier direct Step. Tool errors are information and must influence the next decision.
+Context chain (root to current): {{#context_chain}}
 
 Return exactly one of these three JSON objects:
 {"type":"complete","value":{"output":"final result"}}

@@ -3,11 +3,34 @@
   "module": {
     "path": "src/protocol/intent",
     "name": "intent",
-    "purpose": "Defines intent drafts, verdicts, typed results, identities, lineage-aware signatures implementing the shared common Signature contract, shared actor-status plan, step, and relay updates, and cancellation.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines intent context snapshots with signatures, content, optional live results, and ordered step result history, alongside intent drafts, verdicts, typed results, identities, lineage-aware signatures, actor-status updates, and cancellation.",
+    "changeStatus": "modified"
   },
+  "added": ["context.rs"],
+  "modified": ["mod.rs"],
   "childModules": [],
   "elements": [
+    {
+      "name": "IntentContext",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/intent/context.rs",
+          "lineStart": 6,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
     {
       "name": "IntentDraft",
       "type": "struct",

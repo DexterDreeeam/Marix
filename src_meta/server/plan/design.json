@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/plan",
     "name": "plan",
-    "purpose": "Runs Arc-backed plan actors through the shared Actor and modern Runtime contracts; runtimes own task access, signature, child intents, failures, and lifecycle, advance children, render PlanVerdict prompts from the user request and plan failures, reconstruct plans, register child intents and relays through type-inferred TaskAccess insertion, and resolve results from signatures that infer their mapped actor and result type; the prompt context input remains unwired, so rendering can currently return an error.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs Arc-backed plan actors through shared Actor and Runtime contracts; runtimes dynamically build root-to-current context chains containing accumulated failures, inject only context_chain and user_request into PlanVerdict, reconstruct plans, and create child intents and relays.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -52,81 +53,54 @@
       "name": "PlanRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 20,
-          "lineEnd": 26,
+          "lineStart": 19,
+          "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 28,
-          "lineEnd": 42,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 44,
-          "lineEnd": 83,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 87,
-          "lineEnd": 327,
+          "lineStart": 27,
+          "lineEnd": 41,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 96,
-              "lineEnd": 96
-            },
-            {
-              "lineStart": 115,
-              "lineEnd": 115
-            },
-            {
-              "lineStart": 123,
-              "lineEnd": 123
-            },
-            {
-              "lineStart": 138,
-              "lineEnd": 138
-            },
-            {
-              "lineStart": 201,
-              "lineEnd": 201
-            },
-            {
-              "lineStart": 238,
-              "lineEnd": 238
-            },
-            {
-              "lineStart": 246,
-              "lineEnd": 246
-            },
-            {
-              "lineStart": 249,
-              "lineEnd": 249
-            },
-            {
-              "lineStart": 312,
-              "lineEnd": 312
+              "lineStart": 27,
+              "lineEnd": 41
             }
           ]
         },
         {
           "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 329,
-          "lineEnd": 332,
+          "lineStart": 43,
+          "lineEnd": 82,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/plan/runtime.rs",
+          "lineStart": 86,
+          "lineEnd": 320,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 210,
+              "lineEnd": 228
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/plan/runtime.rs",
+          "lineStart": 322,
+          "lineEnd": 325,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -137,12 +111,7 @@
           "lineEnd": 39,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 16,
-              "lineEnd": 16
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/plan/result.rs",

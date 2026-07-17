@@ -3,11 +3,34 @@
   "module": {
     "path": "src/protocol/plan",
     "name": "plan",
-    "purpose": "Defines nested plan drafts, verdicts, typed results, identities, boxed owning-intent signatures implementing the shared common Signature contract, shared actor-status child and relay updates, and cancellation.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines plan context snapshots with signatures, ordered intent contexts, and accumulated plan result failures, alongside nested plan drafts, verdicts, typed results, identities, owning-intent signatures, actor-status updates, and cancellation.",
+    "changeStatus": "modified"
   },
+  "added": ["context.rs"],
+  "modified": ["mod.rs"],
   "childModules": [],
   "elements": [
+    {
+      "name": "PlanContext",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/plan/context.rs",
+          "lineStart": 6,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 11
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
     {
       "name": "PlanDraft",
       "type": "struct",
