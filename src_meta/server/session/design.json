@@ -4,16 +4,15 @@
     "path": "src/server/session",
     "name": "session",
     "purpose": "Owns session context, state, and runtime; SessionContext keeps the sole WorkQueue<TaskSignature, Task> registry, snapshots expose TaskPreview values, and SessionRuntime creates and dispatches tasks through that registry.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["context.rs", "mod.rs", "runtime.rs", "state.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "SessionContext",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/context.rs",
@@ -47,7 +46,7 @@
       "name": "SessionContextSnapshot",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/context.rs",
@@ -68,7 +67,7 @@
       "name": "SessionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/runtime.rs",
@@ -133,7 +132,7 @@
       "name": "SessionState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/state.rs",

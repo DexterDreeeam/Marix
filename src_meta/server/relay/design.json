@@ -4,9 +4,8 @@
     "path": "src/server/relay",
     "name": "relay",
     "purpose": "Runs relay actors and streaming response assembly; RelayRuntime resolves context through TaskAccess from the signature plan when present or its intent otherwise, then preserves the system, context, prompt, and tools ModelRequest pipeline.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -53,7 +52,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",

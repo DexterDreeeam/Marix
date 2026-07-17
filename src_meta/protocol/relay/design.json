@@ -4,9 +4,8 @@
     "path": "src/protocol/relay",
     "name": "relay",
     "purpose": "Defines prompt-only relay requests and intent-scoped signatures that optionally identify a plan, plus identities, errors, cancellation events, and typed terminal model results.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["request.rs", "signature.rs"],
   "childModules": [],
   "elements": [
     {
@@ -79,7 +78,7 @@
       "name": "RelayRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/request.rs",
@@ -137,7 +136,7 @@
       "name": "RelaySignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/signature.rs",

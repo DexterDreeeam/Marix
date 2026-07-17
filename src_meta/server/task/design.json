@@ -4,9 +4,8 @@
     "path": "src/server/task",
     "name": "task",
     "purpose": "Owns Task actors, runtimes, and TaskAccess; Task exposes public previews, while TaskAccess holds a Weak SessionContext reference to avoid ownership cycles and provides task-local actor registries, result lookup, and session transport.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["access.rs", "task.rs"],
   "childModules": [],
   "elements": [
     {
@@ -47,7 +46,7 @@
       "name": "TaskAccess",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/access.rs",
@@ -280,7 +279,7 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/task.rs",

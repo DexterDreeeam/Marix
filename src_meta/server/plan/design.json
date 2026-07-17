@@ -4,9 +4,8 @@
     "path": "src/server/plan",
     "name": "plan",
     "purpose": "Runs plan actors through shared Actor and Runtime contracts; verdict relays identify the current plan so relay runtime can build accumulated plan context, then plans are reconstructed or finished with typed outcomes.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -53,7 +52,7 @@
       "name": "PlanRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",
