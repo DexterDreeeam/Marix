@@ -4,9 +4,8 @@
     "path": "src/server",
     "name": "server",
     "purpose": "Runs workflow orchestration through Arc-backed actors and runtimes; TaskAccess dynamically builds ordered context histories from runtime intent steps and plan failures, while IntentRuntime and PlanRuntime inject only context_chain and user_request into decision prompts.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["."],
   "childModules": [
     {
       "path": "src/server/intent",
@@ -120,7 +119,7 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/workflow.rs",
@@ -572,7 +571,7 @@
       "name": "PlanRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",
@@ -1080,7 +1079,7 @@
       "name": "ContextSignature",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/context.rs",
@@ -1114,7 +1113,7 @@
       "name": "TaskAccess",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/access.rs",

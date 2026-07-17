@@ -4,17 +4,15 @@
     "path": "src/protocol/plan",
     "name": "plan",
     "purpose": "Defines plan context snapshots with signatures, ordered intent contexts, and accumulated plan result failures, alongside nested plan drafts, verdicts, typed results, identities, owning-intent signatures, actor-status updates, and cancellation.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": ["context.rs"],
-  "modified": ["mod.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "PlanContext",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/context.rs",

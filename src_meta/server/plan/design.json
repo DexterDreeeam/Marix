@@ -4,9 +4,8 @@
     "path": "src/server/plan",
     "name": "plan",
     "purpose": "Runs Arc-backed plan actors through shared Actor and Runtime contracts; runtimes dynamically build root-to-current context chains containing accumulated failures, inject only context_chain and user_request into PlanVerdict, reconstruct plans, and create child intents and relays.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -53,7 +52,7 @@
       "name": "PlanRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",

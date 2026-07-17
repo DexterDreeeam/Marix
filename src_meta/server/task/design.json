@@ -4,17 +4,15 @@
     "path": "src/server/task",
     "name": "task",
     "purpose": "Owns Arc-backed Task actors, runtimes, and TaskAccess; TaskAccess dynamically builds root-to-current context chains from runtime intent steps and plan failures, preserves their order, validates current plan membership, and retains session transport, registries, routing, execution, status translation, and live result lookup.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": ["context.rs"],
-  "modified": ["mod.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "ContextSignature",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/context.rs",
@@ -48,7 +46,7 @@
       "name": "TaskAccess",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/access.rs",

@@ -4,10 +4,8 @@
     "path": "src/protocol",
     "name": "protocol",
     "purpose": "Defines serialized workflow contracts, including root-to-current Context chains that render live results, ordered step history, and accumulated plan failures as JSON, while retaining shared signature, actor-status, execution-status, and external task transport contracts.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": ["context.rs"],
-  "modified": ["lib.rs", "mod.rs"],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -70,7 +68,7 @@
       "name": "Context",
       "type": "enum",
       "source_depth": 2,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/context.rs",
@@ -91,7 +89,7 @@
       "name": "ContextChain",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/context.rs",
@@ -326,7 +324,7 @@
       "name": "IntentContext",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/context.rs",
@@ -770,7 +768,7 @@
       "name": "PlanContext",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/context.rs",
