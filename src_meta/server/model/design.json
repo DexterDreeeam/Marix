@@ -4,12 +4,8 @@
     "path": "src/server/model",
     "name": "model",
     "purpose": "Owns synchronous and asynchronous model backends and streaming channels; ModelRequest carries a system message followed by ordered user prompts, while Deepseek emits compact raw request payloads, accumulates streamed content, and logs raw request and concatenated response records.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "backend.rs",
-    "backend_deepseek.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -90,7 +86,7 @@
       "name": "ModelRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
@@ -127,7 +123,7 @@
       "name": "DeepseekBackend",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",

@@ -4,15 +4,8 @@
     "path": "src/server/relay",
     "name": "relay",
     "purpose": "Runs relay actors, prompt construction, and streaming response assembly; RelayRuntime orders System, decision, then natural paired context messages, serializes calls with dynamic tool-name keys and plain failure text, and assembles sequenced model chunks without response tags.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "prompt.rs"
-  ],
-  "modified": [
-    "mod.rs",
-    "runtime.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -59,7 +52,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",

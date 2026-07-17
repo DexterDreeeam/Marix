@@ -4,11 +4,8 @@
     "path": "src/server/intent",
     "name": "intent",
     "purpose": "Runs intent actors through shared Actor and Runtime contracts; verdict relays render the IntentAnalyze decision prompt, identify the intent without a plan, and create steps, plans, or final results from strict verdict JSON.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "runtime.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -55,7 +52,7 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",
