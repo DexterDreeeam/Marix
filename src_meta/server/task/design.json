@@ -4,9 +4,8 @@
     "path": "src/server/task",
     "name": "task",
     "purpose": "Owns Arc-backed Task actors implementing the shared common Actor contract; their runtimes hold task access, actor registries, root intent, and lifecycle, route events, and translate external TaskStatus, while TaskAccess owns session transport, request data, shared registries, and the current-thread executor used by Task's dedicated thread and child spawns.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["task.rs"],
   "childModules": [],
   "elements": [
     {
@@ -157,7 +156,7 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/task.rs",

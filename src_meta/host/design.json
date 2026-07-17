@@ -4,9 +4,8 @@
     "path": "src/host",
     "name": "host",
     "purpose": "Owns Host connectivity, shared common synchronous execution and executor runtime boundaries, task-level invocation updates, and tool registration.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["session.rs"],
   "childModules": [
     {
       "path": "src/host/execution",
@@ -98,7 +97,7 @@
       "name": "Execution",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/execution.rs",
@@ -196,7 +195,7 @@
       "name": "Executor",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/executor.rs",

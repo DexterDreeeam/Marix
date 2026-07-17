@@ -4,10 +4,8 @@
     "path": "src/protocol",
     "name": "protocol",
     "purpose": "Defines serialized workflow contracts whose signatures implement the shared common Signature contract, with shared common ActorStatus workflow updates, dedicated host execution statuses, and external TaskStatus transport.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["lib.rs", "mod.rs"],
-  "deleted": ["actor.rs", "runtime.rs", "signature.rs"],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -166,7 +164,7 @@
       "name": "ExecutionSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/signature.rs",
@@ -431,7 +429,7 @@
       "name": "IntentSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/signature.rs",
@@ -631,7 +629,7 @@
       "name": "InvocationSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/signature.rs",
@@ -857,7 +855,7 @@
       "name": "PlanSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/signature.rs",
@@ -1031,7 +1029,7 @@
       "name": "RelaySignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/signature.rs",
@@ -1231,7 +1229,7 @@
       "name": "StepSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/signature.rs",
@@ -1437,7 +1435,7 @@
       "name": "TaskSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/signature.rs",

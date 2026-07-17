@@ -4,9 +4,8 @@
     "path": "src/server/session",
     "name": "session",
     "purpose": "Owns the shared common synchronous Runtime session boundary that routes modern actor-backed tasks, host execution traffic, client TaskStatus transport, and tool context.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["runtime.rs", "session.rs"],
   "childModules": [],
   "elements": [
     {
@@ -82,7 +81,7 @@
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/session.rs",

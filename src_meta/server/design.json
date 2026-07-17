@@ -4,9 +4,8 @@
     "path": "src/server",
     "name": "server",
     "purpose": "Runs workflow orchestration through Arc-backed Task, Intent, Plan, Step, Invocation, and Relay implementations of the shared common Actor contract; TaskRuntime holds task-scoped registries, access, and the root intent, Task launches its current-thread executor on a dedicated thread, child actors spawn on that executor, and Session uses the shared common synchronous Runtime boundary.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["main.rs"],
   "childModules": [
     {
       "path": "src/server/intent",
@@ -80,7 +79,7 @@
       "name": "Intent",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/intent.rs",
@@ -211,7 +210,7 @@
       "name": "Invocation",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/invocation.rs",
@@ -574,7 +573,7 @@
       "name": "Plan",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/plan.rs",
@@ -802,7 +801,7 @@
       "name": "Relay",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/relay.rs",
@@ -989,7 +988,7 @@
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/session.rs",
@@ -1125,7 +1124,7 @@
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/step.rs",
@@ -1314,7 +1313,7 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/task.rs",
