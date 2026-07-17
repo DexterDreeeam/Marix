@@ -4,8 +4,11 @@
     "path": "src/server/relay",
     "name": "relay",
     "purpose": "Runs Arc-backed relay actors through the shared Actor and modern Runtime contracts; runtimes own task access, signature, prompt, model and output state, and lifecycle, with an asynchronously prepared response receiver and custom loop that assembles typed model results.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "runtime.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -52,7 +55,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
@@ -78,12 +81,16 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 62,
-              "lineEnd": 62
+              "lineStart": 103,
+              "lineEnd": 103
             },
             {
-              "lineStart": 74,
-              "lineEnd": 98
+              "lineStart": 117,
+              "lineEnd": 117
+            },
+            {
+              "lineStart": 135,
+              "lineEnd": 135
             }
           ]
         },
@@ -93,7 +100,12 @@
           "lineEnd": 242,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 165,
+              "lineEnd": 165
+            }
+          ]
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
@@ -101,12 +113,7 @@
           "lineEnd": 249,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 246,
-              "lineEnd": 246
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     }

@@ -4,8 +4,11 @@
     "path": "src/server/invocation",
     "name": "invocation",
     "purpose": "Runs Arc-backed invocation actors through the shared Actor and modern Runtime contracts; runtimes own task access, signature, tool input, execution and output tracking, and lifecycle, assemble sequenced host output, and publish typed results to parent steps.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "runtime.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -52,7 +55,7 @@
       "name": "InvocationRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/runtime.rs",
@@ -76,16 +79,7 @@
           "lineEnd": 84,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 43,
-              "lineEnd": 43
-            },
-            {
-              "lineStart": 55,
-              "lineEnd": 63
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/invocation/runtime.rs",
@@ -93,7 +87,20 @@
           "lineEnd": 238,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 103,
+              "lineEnd": 103
+            },
+            {
+              "lineStart": 118,
+              "lineEnd": 118
+            },
+            {
+              "lineStart": 178,
+              "lineEnd": 178
+            }
+          ]
         },
         {
           "sourcePath": "src/server/invocation/runtime.rs",
@@ -101,12 +108,7 @@
           "lineEnd": 243,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 241,
-              "lineEnd": 241
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     }

@@ -1,12 +1,12 @@
+use std::fmt::{Debug, Display};
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
 use marix_common::external::*;
-use marix_common::{Actor, Sender, WorkQueue};
+use marix_common::{Actor, ResultOf, Sender, SignatureOf, WorkQueue};
 use marix_protocol::{
-    IntentResult, IntentSignature, InvocationResult, InvocationSignature, PlanResult,
-    PlanSignature, RelayResult, RelaySignature, SessionEvent, StepResult, StepSignature,
-    TaskSignature,
+    IntentSignature, InvocationSignature, PlanSignature, RelaySignature, SessionEvent,
+    StepSignature, TaskSignature,
 };
 
 use crate::intent::Intent;
@@ -15,6 +15,15 @@ use crate::plan::Plan;
 use crate::relay::Relay;
 use crate::session::SessionContext;
 use crate::step::Step;
+
+pub(crate) trait StoredActor: Actor + Clone {
+    fn get(access: &TaskAccess, signature: &SignatureOf<Self>) -> Option<Self>;
+    fn insert(access: &TaskAccess, actor: Self) -> bool;
+}
+
+pub(crate) trait StoredSignature: Display + Clone + Debug + Send + Sync + 'static {
+    type Actor: StoredActor<Signature = Self>;
+}
 
 pub struct TaskAccess {
     pub session_context: Arc<StdMutex<SessionContext>>,
@@ -63,78 +72,109 @@ impl TaskAccess {
 }
 
 impl TaskAccess {
-    pub(crate) fn get_intent_result(&self, signature: &IntentSignature) -> Option<IntentResult> {
-        self.intents.with(signature, Intent::result).flatten()
+    pub(crate) fn get_result<S>(&self, signature: &S) -> Option<ResultOf<S::Actor>>
+    where
+        S: StoredSignature,
+    {
+        S::Actor::get(self, signature).and_then(|actor| actor.result())
     }
 
-    pub(crate) fn get_intent_content(&self, signature: &IntentSignature) -> Option<String> {
-        self.intents
-            .with(signature, |intent| intent.runtime.content.clone())
+    pub(crate) fn insert<A: StoredActor>(&self, actor: A) -> bool {
+        A::insert(self, actor)
+    }
+}
+
+impl StoredSignature for IntentSignature {
+    type Actor = Intent;
+}
+
+impl StoredSignature for PlanSignature {
+    type Actor = Plan;
+}
+
+impl StoredSignature for StepSignature {
+    type Actor = Step;
+}
+
+impl StoredSignature for InvocationSignature {
+    type Actor = Invocation;
+}
+
+impl StoredSignature for RelaySignature {
+    type Actor = Relay;
+}
+
+impl StoredActor for Intent {
+    fn get(access: &TaskAccess, signature: &SignatureOf<Self>) -> Option<Self> {
+        access.intents.with(signature, Clone::clone)
     }
 
-    pub(crate) fn get_invocation_result(
-        &self,
-        signature: &InvocationSignature,
-    ) -> Option<InvocationResult> {
-        self.invocations
-            .with(signature, Invocation::result)
-            .flatten()
-    }
-
-    pub(crate) fn get_plan_result(&self, signature: &PlanSignature) -> Option<PlanResult> {
-        self.plans.with(signature, Plan::result).flatten()
-    }
-
-    pub(crate) fn get_relay_result(&self, signature: &RelaySignature) -> Option<RelayResult> {
-        self.relays.with(signature, Relay::result).flatten()
-    }
-
-    pub(crate) fn get_step_result(&self, signature: &StepSignature) -> Option<StepResult> {
-        self.steps.with(signature, Step::result).flatten()
-    }
-
-    pub(crate) fn insert_intent(&self, intent: Intent) -> bool {
-        let signature = intent.signature().clone();
-        if self.intents.with(&signature, |_| ()).is_some() {
+    fn insert(access: &TaskAccess, actor: Self) -> bool {
+        let signature = actor.signature().clone();
+        if access.intents.with(&signature, |_| ()).is_some() {
             return false;
         }
-        self.intents.insert(signature, intent);
+        access.intents.insert(signature, actor);
         true
     }
+}
 
-    pub(crate) fn insert_plan(&self, plan: Plan) -> bool {
-        let signature = plan.signature().clone();
-        if self.plans.with(&signature, |_| ()).is_some() {
-            return false;
-        }
-        self.plans.insert(signature, plan);
-        true
+impl StoredActor for Plan {
+    fn get(access: &TaskAccess, signature: &SignatureOf<Self>) -> Option<Self> {
+        access.plans.with(signature, Clone::clone)
     }
 
-    pub(crate) fn insert_step(&self, step: Step) -> bool {
-        let signature = step.signature().clone();
-        if self.steps.with(&signature, |_| ()).is_some() {
+    fn insert(access: &TaskAccess, actor: Self) -> bool {
+        let signature = actor.signature().clone();
+        if access.plans.with(&signature, |_| ()).is_some() {
             return false;
         }
-        self.steps.insert(signature, step);
+        access.plans.insert(signature, actor);
         true
     }
+}
 
-    pub(crate) fn insert_invocation(&self, invocation: Invocation) -> bool {
-        let signature = invocation.signature().clone();
-        if self.invocations.with(&signature, |_| ()).is_some() {
-            return false;
-        }
-        self.invocations.insert(signature, invocation);
-        true
+impl StoredActor for Step {
+    fn get(access: &TaskAccess, signature: &SignatureOf<Self>) -> Option<Self> {
+        access.steps.with(signature, Clone::clone)
     }
 
-    pub(crate) fn insert_relay(&self, relay: Relay) -> bool {
-        let signature = relay.signature().clone();
-        if self.relays.with(&signature, |_| ()).is_some() {
+    fn insert(access: &TaskAccess, actor: Self) -> bool {
+        let signature = actor.signature().clone();
+        if access.steps.with(&signature, |_| ()).is_some() {
             return false;
         }
-        self.relays.insert(signature, relay);
+        access.steps.insert(signature, actor);
+        true
+    }
+}
+
+impl StoredActor for Invocation {
+    fn get(access: &TaskAccess, signature: &SignatureOf<Self>) -> Option<Self> {
+        access.invocations.with(signature, Clone::clone)
+    }
+
+    fn insert(access: &TaskAccess, actor: Self) -> bool {
+        let signature = actor.signature().clone();
+        if access.invocations.with(&signature, |_| ()).is_some() {
+            return false;
+        }
+        access.invocations.insert(signature, actor);
+        true
+    }
+}
+
+impl StoredActor for Relay {
+    fn get(access: &TaskAccess, signature: &SignatureOf<Self>) -> Option<Self> {
+        access.relays.with(signature, Clone::clone)
+    }
+
+    fn insert(access: &TaskAccess, actor: Self) -> bool {
+        let signature = actor.signature().clone();
+        if access.relays.with(&signature, |_| ()).is_some() {
+            return false;
+        }
+        access.relays.insert(signature, actor);
         true
     }
 }

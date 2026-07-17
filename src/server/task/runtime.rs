@@ -88,7 +88,7 @@ impl RuntimeTrait for TaskRuntime {
                 self.root.clone(),
                 self.access.user_request.clone(),
             );
-            if !self.access.insert_intent(root.clone()) {
+            if !self.access.insert(root.clone()) {
                 self.fail_task("root intent already exists".to_owned());
                 return None;
             }
@@ -124,7 +124,7 @@ impl RuntimeTrait for TaskRuntime {
 
 impl TaskRuntime {
     pub(super) fn on_root_update(&self, signature: IntentSignature, status: ActorStatus) {
-        if !status.is_terminal() {
+        if status != ActorStatus::Complete {
             return;
         }
         if signature != self.root {
@@ -133,7 +133,7 @@ impl TaskRuntime {
             ));
             return;
         }
-        let Some(result) = self.access.get_intent_result(&signature) else {
+        let Some(result) = self.access.get_result(&signature) else {
             self.fail_task(format!(
                 "root intent {signature} completed without a result",
             ));
@@ -166,11 +166,11 @@ impl TaskRuntime {
     }
 
     pub(super) fn cancel_task(&self) {
-        if self.status().is_terminal() {
+        if self.status() == ActorStatus::Complete {
             return;
         }
         for intent in self.intents.list() {
-            if !intent.status().is_terminal() {
+            if intent.status() != ActorStatus::Complete {
                 intent.dispatch(IntentEvent::Cancel);
             }
         }

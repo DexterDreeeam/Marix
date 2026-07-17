@@ -44,14 +44,14 @@ pub trait Runtime: Send + Sync + 'static {
             let Some(prepared) = self.on_start().await else {
                 return;
             };
-            if self.status().is_terminal() {
+            if self.status() == ActorStatus::Complete {
                 return;
             }
-            self.main(event_rx, close_rx, prepared).await;
+            self.event_loop(event_rx, close_rx, prepared).await;
         })
     }
 
-    fn main<'a>(
+    fn event_loop<'a>(
         &'a self,
         mut event_rx: ActorEventReceiver<EventOf<Self::Base>>,
         mut close_rx: ActorCloseReceiver,

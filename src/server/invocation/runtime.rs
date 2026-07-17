@@ -100,7 +100,7 @@ impl InvocationRuntime {
     }
 
     fn on_processing(&self, execution: ExecutionSignature, seq: usize, content: String) {
-        if self.status().is_terminal() {
+        if self.status() == ActorStatus::Complete {
             Logger::error(format!(
                 "invocation {} received processing update from \
                  execution {execution} after completion",
@@ -115,7 +115,7 @@ impl InvocationRuntime {
     }
 
     fn on_update(&self, execution: ExecutionSignature, status: ExecutionStatus) {
-        if self.status().is_terminal() {
+        if self.status() == ActorStatus::Complete {
             Logger::error(format!(
                 "invocation {} received execution {execution} update \
                  {status:?} after completion",
@@ -175,7 +175,7 @@ impl InvocationRuntime {
     }
 
     fn cancel(&self) {
-        if self.status().is_terminal() {
+        if self.status() == ActorStatus::Complete {
             return;
         }
         let execution = self

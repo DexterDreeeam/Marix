@@ -93,7 +93,7 @@ impl PlanRuntime {
             .clone();
         let mut latest_output = String::new();
         for signature in intents {
-            let Some(result) = self.access.get_intent_result(&signature) else {
+            let Some(result) = self.access.get_result(&signature) else {
                 if let Err(reason) = self.start_intent(&signature) {
                     self.finish(PlanResultKind::Failed, reason);
                 }
@@ -112,7 +112,7 @@ impl PlanRuntime {
     }
 
     fn on_intent_update(&self, signature: IntentSignature, status: ActorStatus) {
-        if self.status().is_terminal() {
+        if self.status() == ActorStatus::Complete {
             Logger::error(format!(
                 "plan {} received child intent {signature} update \
                  {status:?} after completion",
@@ -120,7 +120,7 @@ impl PlanRuntime {
             ));
             return;
         }
-        if !status.is_terminal() {
+        if status != ActorStatus::Complete {
             return;
         }
         let contains_intent = self
@@ -135,7 +135,7 @@ impl PlanRuntime {
             );
             return;
         }
-        let Some(result) = self.access.get_intent_result(&signature) else {
+        let Some(result) = self.access.get_result(&signature) else {
             self.finish(
                 PlanResultKind::Failed,
                 format!(
@@ -198,7 +198,7 @@ impl PlanRuntime {
                 return;
             }
         };
-        if !self.access.insert_relay(relay.clone()) {
+        if !self.access.insert(relay.clone()) {
             self.finish(
                 PlanResultKind::Failed,
                 format!("plan verdict relay {} already exists", relay.signature(),),
@@ -209,39 +209,11 @@ impl PlanRuntime {
     }
 
     fn verdict_prompt(&self) -> Result<String, String> {
-        let parent_signature = self.signature.intent.as_ref();
-        let parent_intent = self
-            .access
-            .get_intent_content(parent_signature)
-            .ok_or_else(|| {
-                format!(
-                    "plan parent intent {parent_signature} content \
-                     not found",
-                )
-            })?;
-        let intent_signatures = self
-            .intents
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone();
-        let current_plan = intent_signatures
-            .iter()
-            .map(|signature| {
-                self.access.get_intent_content(signature).ok_or_else(|| {
-                    format!(
-                        "plan child intent {signature} content \
-                             not found",
-                    )
-                })
-            })
-            .collect::<Result<Vec<_>, _>>()?;
         let plan_failures = self
             .failures
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .clone();
-        let current_plan = serde_json::to_string(&current_plan)
-            .map_err(|error| format!("failed to serialize current plan: {error}"))?;
         let plan_failures = serde_json::to_string(&plan_failures)
             .map_err(|error| format!("failed to serialize plan failures: {error}"))?;
         let mut prompt =
@@ -256,8 +228,6 @@ impl PlanRuntime {
                 format!("failed to load PlanVerdict prompt: {detail}",)
             })?;
         prompt.inject("user_request".to_owned(), self.access.user_request.clone());
-        prompt.inject("parent_intent".to_owned(), parent_intent);
-        prompt.inject("current_plan".to_owned(), current_plan);
         prompt.inject("plan_failures".to_owned(), plan_failures);
         prompt
             .prompt()
@@ -265,7 +235,7 @@ impl PlanRuntime {
     }
 
     fn on_relay_update(&self, signature: RelaySignature, status: ActorStatus) {
-        if self.status().is_terminal() {
+        if self.status() == ActorStatus::Complete {
             Logger::error(format!(
                 "plan {} received relay {signature} update \
                  {status:?} after completion",
@@ -273,10 +243,10 @@ impl PlanRuntime {
             ));
             return;
         }
-        if !status.is_terminal() {
+        if status != ActorStatus::Complete {
             return;
         }
-        let Some(result) = self.access.get_relay_result(&signature) else {
+        let Some(result) = self.access.get_result(&signature) else {
             self.finish(
                 PlanResultKind::Failed,
                 format!("relay {signature} completed without a result",),
@@ -339,7 +309,7 @@ impl PlanRuntime {
                 format!("intent-r{failure_count}-{}", index + 1,),
             );
             let intent = Intent::new(Arc::clone(&self.access), signature.clone(), draft.content);
-            if !self.access.insert_intent(intent) {
+            if !self.access.insert(intent) {
                 return Err(format!(
                     "plan reconstruction child intent {signature} \
                      is duplicated",

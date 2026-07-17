@@ -1,26 +1,17 @@
-use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::{Mutex, MutexGuard};
 
 use crate::external::*;
 use crate::structure::{AsyncReceiver, AsyncSender, build_async_channel};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[repr(u8)]
 pub enum ActorStatus {
-    Created = 0,
-    Running = 1,
-    Complete = 2,
-}
-
-impl ActorStatus {
-    pub fn is_terminal(self) -> bool {
-        matches!(self, Self::Complete)
-    }
+    Created,
+    Running,
+    Complete,
 }
 
 pub struct Lifecycle<Event, Result> {
-    status: AtomicU8,
-    result: Mutex<Option<Result>>,
+    state: Mutex<LifecycleState<Result>>,
     event_tx: AsyncSender<Event>,
     event_rx: Mutex<Option<AsyncReceiver<Event>>>,
     close_tx: AsyncSender<()>,
@@ -35,8 +26,10 @@ where
         let (event_tx, event_rx) = build_async_channel();
         let (close_tx, close_rx) = build_async_channel();
         Self {
-            status: AtomicU8::new(ActorStatus::Created as u8),
-            result: Mutex::new(None),
+            state: Mutex::new(LifecycleState {
+                status: ActorStatus::Created,
+                result: None,
+            }),
             event_tx,
             event_rx: Mutex::new(Some(event_rx)),
             close_tx,
@@ -45,49 +38,47 @@ where
     }
 
     pub fn status(&self) -> ActorStatus {
-        match self.status.load(Ordering::Acquire) {
-            value if value == ActorStatus::Created as u8 => ActorStatus::Created,
-            value if value == ActorStatus::Running as u8 => ActorStatus::Running,
-            value if value == ActorStatus::Complete as u8 => ActorStatus::Complete,
-            _ => unreachable!("lifecycle stored an invalid actor status"),
-        }
+        self.lock_state().status
     }
 
     pub fn result(&self) -> Option<Result> {
-        self.lock_result().clone()
+        self.lock_state().result.clone()
     }
 }
 
 // -- Private -- //
+
+struct LifecycleState<Result> {
+    status: ActorStatus,
+    result: Option<Result>,
+}
 
 impl<Event, Result> Lifecycle<Event, Result>
 where
     Result: Clone,
 {
     pub(super) fn begin(&self) -> Option<(AsyncReceiver<Event>, AsyncReceiver<()>)> {
-        if self
-            .status
-            .compare_exchange(
-                ActorStatus::Created as u8,
-                ActorStatus::Running as u8,
-                Ordering::AcqRel,
-                Ordering::Acquire,
-            )
-            .is_err()
         {
-            return None;
+            let mut state = self.lock_state();
+            if state.status != ActorStatus::Created {
+                return None;
+            }
+            state.status = ActorStatus::Running;
         }
-        let event_rx = self
+
+        let mut event_rx = self
             .event_rx
             .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .take()?;
-        let close_rx = self
+            .unwrap_or_else(|error| error.into_inner());
+        let mut close_rx = self
             .close_rx
             .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .take()?;
-        Some((event_rx, close_rx))
+            .unwrap_or_else(|error| error.into_inner());
+        if event_rx.is_none() || close_rx.is_none() {
+            return None;
+        }
+
+        Some((event_rx.take()?, close_rx.take()?))
     }
 
     pub(super) fn dispatch(&self, event: Event) -> bool {
@@ -95,13 +86,12 @@ where
     }
 
     pub(super) fn finish(&self, result: Result) -> bool {
-        let mut stored = self.lock_result();
-        if self.status().is_terminal() {
+        let mut state = self.lock_state();
+        if state.status == ActorStatus::Complete {
             return false;
         }
-        *stored = Some(result);
-        self.status
-            .store(ActorStatus::Complete as u8, Ordering::Release);
+        state.result = Some(result);
+        state.status = ActorStatus::Complete;
         true
     }
 
@@ -109,9 +99,7 @@ where
         self.close_tx.send(()).is_ok()
     }
 
-    fn lock_result(&self) -> MutexGuard<'_, Option<Result>> {
-        self.result
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
+    fn lock_state(&self) -> MutexGuard<'_, LifecycleState<Result>> {
+        self.state.lock().unwrap_or_else(|error| error.into_inner())
     }
 }

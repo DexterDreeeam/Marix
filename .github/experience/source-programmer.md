@@ -1217,3 +1217,32 @@ connecter to protect this distinction.
   `run`/`close`/`dispatch` as inherent public methods. The six workflow
   runtimes implement the modern `Runtime`; the `ActorRuntime` name is
   retired.
+- 2026-07-17 (atomic lifecycle snapshot): `src/common/actor/lifecycle.rs`
+  stores `ActorStatus` and the optional typed result in one mutex-protected
+  private state, so completion publishes both values atomically. Startup
+  releases that state lock before jointly locking and taking both receivers.
+- 2026-07-17 (runtime event loop): The modern `Runtime` trait names its
+  overridable asynchronous receive loop `event_loop`; `run` owns startup and
+  delegates to it. Relay is the only active runtime with a custom loop.
+- 2026-07-17 (typed TaskAccess results): `TaskAccess::get_result::<A>` uses
+  the internal `StoredActor` implementations to select the Intent, Plan, Step,
+  Invocation, or Relay registry, clone the actor, and read its lifecycle
+  result. Callers must always provide the actor type explicitly.
+- 2026-07-17 (Plan verdict context gap): `PlanRuntime::verdict_prompt` now
+  injects only `user_request` and serialized `plan_failures`; parent Intent and
+  current Plan content await the future prompt-context system, so the current
+  template may fail rendering until that wiring changes.
+- 2026-07-17 (typed TaskAccess insertion): `TaskAccess::insert::<A>` delegates
+  registry selection and duplicate detection to `StoredActor::insert`; active
+  Intent, Plan, Step, Invocation, and Relay insertion call sites use explicit
+  actor turbofish types.
+- 2026-07-17 (signature-inferred TaskAccess results, supersedes the result
+  lookup note above): Server-private `StoredSignature` maps each active
+  Intent/Plan/Step/Invocation/Relay signature to its `StoredActor`.
+  `TaskAccess::get_result(&signature)` now derives registry and result types
+  from that mapping; `insert::<Actor>` remains explicitly actor-typed.
+- 2026-07-17 (argument-inferred TaskAccess insertion, supersedes the insertion
+  detail above): `TaskAccess::insert(actor)` infers `StoredActor` directly from
+  its value. All active Intent/Plan/Step/Invocation/Relay call sites omit the
+  turbofish. `StoredSignature` remains the single reverse signature-to-actor
+  mapping needed by signature-driven `get_result`.

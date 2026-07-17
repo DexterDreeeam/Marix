@@ -100,7 +100,7 @@ impl RuntimeTrait for RelayRuntime {
     fn dispatch(&self, event: RelayEvent) {
         match event {
             RelayEvent::Cancel => {
-                if self.status().is_terminal() {
+                if self.status() == ActorStatus::Complete {
                     return;
                 }
                 let output = self.output();
@@ -114,7 +114,7 @@ impl RuntimeTrait for RelayRuntime {
         }
     }
 
-    fn main<'a>(
+    fn event_loop<'a>(
         &'a self,
         mut event_rx: ActorEventReceiver<RelayEvent>,
         mut close_rx: ActorCloseReceiver,
@@ -132,7 +132,7 @@ impl RuntimeTrait for RelayRuntime {
                     }
                     response = responses.recv() => {
                         let Some(response) = response else {
-                            if !self.status().is_terminal() {
+                            if self.status() != ActorStatus::Complete {
                                 let reason = "model stream closed \
                                     before completion".to_owned();
                                 Logger::error(format!(
@@ -162,7 +162,7 @@ impl RuntimeTrait for RelayRuntime {
 
 impl RelayRuntime {
     fn on_model_response(&self, response: ModelResponse) {
-        if self.status().is_terminal() {
+        if self.status() == ActorStatus::Complete {
             Logger::error(format!(
                 "relay {} received model response after completion",
                 &self.signature,

@@ -89,7 +89,7 @@ impl StepRuntime {
                 input: draft.input,
             };
             let actor = Invocation::new(Arc::clone(&self.access), request);
-            if !self.access.insert_invocation(actor.clone()) {
+            if !self.access.insert(actor.clone()) {
                 return Err(format!("invocation {signature} is duplicated",));
             }
             actors.push(actor);
@@ -103,7 +103,7 @@ impl StepRuntime {
     }
 
     fn on_invocation_update(&self, signature: InvocationSignature, status: ActorStatus) {
-        if self.status().is_terminal() {
+        if self.status() == ActorStatus::Complete {
             Logger::error(format!(
                 "step {} received invocation {signature} update \
                  {status:?} after completion",
@@ -111,10 +111,10 @@ impl StepRuntime {
             ));
             return;
         }
-        if !status.is_terminal() {
+        if status != ActorStatus::Complete {
             return;
         }
-        let Some(result) = self.access.get_invocation_result(&signature) else {
+        let Some(result) = self.access.get_result(&signature) else {
             self.finish(
                 StepResultKind::Failed,
                 format!(
@@ -145,7 +145,7 @@ impl StepRuntime {
             .clone();
         let mut outputs = Vec::with_capacity(invocations.len());
         for signature in &invocations {
-            let Some(result) = self.access.get_invocation_result(signature) else {
+            let Some(result) = self.access.get_result(signature) else {
                 return;
             };
             match result.kind {
@@ -166,7 +166,7 @@ impl StepRuntime {
     }
 
     fn cancel(&self) {
-        if self.status().is_terminal() {
+        if self.status() == ActorStatus::Complete {
             return;
         }
         let invocations = self
@@ -175,7 +175,7 @@ impl StepRuntime {
             .unwrap_or_else(|error| error.into_inner())
             .clone();
         for signature in &invocations {
-            if self.access.get_invocation_result(signature).is_some() {
+            if self.access.get_result(signature).is_some() {
                 continue;
             }
             let event = SessionEvent::Task(

@@ -1,4 +1,4 @@
-use marix_common::{Logger, Runtime as RuntimeTrait};
+use marix_common::{ActorStatus, Logger, Runtime as RuntimeTrait};
 use marix_protocol::{IntentEvent, PlanResult, PlanResultKind, SessionEvent, TaskEvent};
 
 use super::PlanRuntime;
@@ -13,7 +13,7 @@ impl PlanRuntime {
     }
 
     pub(super) fn cancel(&self, output: String) {
-        if self.status().is_terminal() {
+        if self.status() == ActorStatus::Complete {
             return;
         }
         let intents = self

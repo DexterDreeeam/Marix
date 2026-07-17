@@ -3,9 +3,13 @@
   "module": {
     "path": "src/server/plan",
     "name": "plan",
-    "purpose": "Runs Arc-backed plan actors through the shared Actor and modern Runtime contracts; runtimes own task access, signature, child intents, failures, and lifecycle, advance children, render PlanVerdict prompts, reconstruct plans, and resolve typed results.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs Arc-backed plan actors through the shared Actor and modern Runtime contracts; runtimes own task access, signature, child intents, failures, and lifecycle, advance children, render PlanVerdict prompts from the user request and plan failures, reconstruct plans, register child intents and relays through type-inferred TaskAccess insertion, and resolve results from signatures that infer their mapped actor and result type; the prompt context input remains unwired, so rendering can currently return an error.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "result.rs",
+    "runtime.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -52,7 +56,7 @@
       "name": "PlanRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",
@@ -76,37 +80,60 @@
           "lineEnd": 83,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 44,
-              "lineEnd": 44
-            },
-            {
-              "lineStart": 56,
-              "lineEnd": 61
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 87,
-          "lineEnd": 357,
-          "language": "rust",
-          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 359,
-          "lineEnd": 362,
+          "lineStart": 87,
+          "lineEnd": 327,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 360,
-              "lineEnd": 360
+              "lineStart": 96,
+              "lineEnd": 96
+            },
+            {
+              "lineStart": 115,
+              "lineEnd": 115
+            },
+            {
+              "lineStart": 123,
+              "lineEnd": 123
+            },
+            {
+              "lineStart": 138,
+              "lineEnd": 138
+            },
+            {
+              "lineStart": 201,
+              "lineEnd": 201
+            },
+            {
+              "lineStart": 238,
+              "lineEnd": 238
+            },
+            {
+              "lineStart": 246,
+              "lineEnd": 246
+            },
+            {
+              "lineStart": 249,
+              "lineEnd": 249
+            },
+            {
+              "lineStart": 312,
+              "lineEnd": 312
             }
           ]
+        },
+        {
+          "sourcePath": "src/server/plan/runtime.rs",
+          "lineStart": 329,
+          "lineEnd": 332,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/plan/result.rs",
@@ -114,7 +141,12 @@
           "lineEnd": 39,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 16,
+              "lineEnd": 16
+            }
+          ]
         },
         {
           "sourcePath": "src/server/plan/result.rs",

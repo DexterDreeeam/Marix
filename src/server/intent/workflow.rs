@@ -26,7 +26,7 @@ impl IntentRuntime {
             format!("step-{}", self.steps.size() + 1),
         );
         let step = Step::from_draft(Arc::clone(&self.access), signature.clone(), draft)?;
-        if !self.access.insert_step(step.clone()) {
+        if !self.access.insert(step.clone()) {
             return Err(format!("step {signature} is duplicated"));
         }
         self.steps.insert(signature, None);
@@ -60,13 +60,13 @@ impl IntentRuntime {
                 format!("intent-{}", index + 1),
             );
             let intent = Intent::new(Arc::clone(&self.access), signature.clone(), draft.content);
-            if !self.access.insert_intent(intent.clone()) {
+            if !self.access.insert(intent.clone()) {
                 return Err(format!("plan child intent {signature} is duplicated"));
             }
             intents.push(signature);
         }
         let plan = Plan::new(Arc::clone(&self.access), plan_signature.clone(), intents);
-        if !self.access.insert_plan(plan.clone()) {
+        if !self.access.insert(plan.clone()) {
             return Err(format!("plan {plan_signature} is duplicated"));
         }
         *self.plan.lock().unwrap_or_else(|error| error.into_inner()) = Some(plan_signature);

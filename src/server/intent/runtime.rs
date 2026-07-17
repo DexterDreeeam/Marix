@@ -126,7 +126,7 @@ impl IntentRuntime {
             prompt,
         };
         let relay = Relay::new(Arc::clone(&self.access), request)?;
-        if !self.access.insert_relay(relay.clone()) {
+        if !self.access.insert(relay.clone()) {
             return Err(format!(
                 "intent verdict relay {} already exists",
                 relay.signature(),
@@ -137,7 +137,7 @@ impl IntentRuntime {
     }
 
     fn on_plan_update(&self, signature: PlanSignature, status: ActorStatus) {
-        if self.status().is_terminal() {
+        if self.status() == ActorStatus::Complete {
             Logger::error(format!(
                 "intent {} received plan {signature} update \
                  {status:?} after completion",
@@ -145,7 +145,7 @@ impl IntentRuntime {
             ));
             return;
         }
-        if !status.is_terminal() {
+        if status != ActorStatus::Complete {
             return;
         }
         let plan = self
@@ -160,7 +160,7 @@ impl IntentRuntime {
             ));
             return;
         }
-        let Some(result) = self.access.get_plan_result(&signature) else {
+        let Some(result) = self.access.get_result(&signature) else {
             self.fail(format!("plan {signature} completed without a result",));
             return;
         };
@@ -179,7 +179,7 @@ impl IntentRuntime {
     }
 
     fn on_relay_update(&self, signature: RelaySignature, status: ActorStatus) {
-        if self.status().is_terminal() {
+        if self.status() == ActorStatus::Complete {
             Logger::error(format!(
                 "intent {} received relay {signature} update \
                  {status:?} after completion",
@@ -187,10 +187,10 @@ impl IntentRuntime {
             ));
             return;
         }
-        if !status.is_terminal() {
+        if status != ActorStatus::Complete {
             return;
         }
-        let Some(result) = self.access.get_relay_result(&signature) else {
+        let Some(result) = self.access.get_result(&signature) else {
             self.fail(format!("relay {signature} completed without a result",));
             return;
         };
@@ -230,7 +230,7 @@ impl IntentRuntime {
     }
 
     fn on_step_update(&self, signature: StepSignature, status: ActorStatus) {
-        if self.status().is_terminal() {
+        if self.status() == ActorStatus::Complete {
             Logger::error(format!(
                 "intent {} received step {signature} update \
                  {status:?} after completion",
@@ -238,10 +238,10 @@ impl IntentRuntime {
             ));
             return;
         }
-        if !status.is_terminal() {
+        if status != ActorStatus::Complete {
             return;
         }
-        let Some(result) = self.access.get_step_result(&signature) else {
+        let Some(result) = self.access.get_result(&signature) else {
             self.fail(format!("step {signature} completed without a result",));
             return;
         };
@@ -297,7 +297,7 @@ impl IntentRuntime {
     }
 
     pub(super) fn cancel(&self) {
-        if self.status().is_terminal() {
+        if self.status() == ActorStatus::Complete {
             return;
         }
         let plan = self
