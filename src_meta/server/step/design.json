@@ -4,16 +4,15 @@
     "path": "src/server/step",
     "name": "step",
     "purpose": "Runs Arc-backed step actors through the shared Actor and modern Runtime contracts; runtimes own task access, signature, draft, invocation tracking, and lifecycle, register invocation groups, resolve typed invocation results, and publish aggregate completion.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [".", "runtime.rs", "step.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "StepRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/runtime.rs",

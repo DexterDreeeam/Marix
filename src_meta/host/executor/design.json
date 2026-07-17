@@ -4,9 +4,8 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Owns the inherent host executor worker with public run, close, and dispatch operations, tool registration, execution routing, and task-level invocation failure delivery.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [".", "executor.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -77,7 +76,7 @@
       "name": "ExecutorRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",

@@ -4,9 +4,8 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Owns shared configuration, logging, external wrappers, the Actor and modern Runtime lifecycle contracts, signature contracts, authenticated channels, and insertion-ordered work queues.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [".", "lib.rs"],
   "childModules": [
     {
       "path": "src/common/actor",
@@ -103,7 +102,7 @@
       "name": "ActorFuture",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/runtime.rs",
@@ -124,7 +123,7 @@
       "name": "ActorStartFuture",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/runtime.rs",
@@ -145,7 +144,7 @@
       "name": "ActorEventReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/runtime.rs",
@@ -166,7 +165,7 @@
       "name": "ActorCloseReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/runtime.rs",
@@ -187,7 +186,7 @@
       "name": "Actor",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/actor.rs",
@@ -208,7 +207,7 @@
       "name": "Runtime",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/runtime.rs",
