@@ -4,9 +4,8 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Owns shared configuration, logging, external wrappers, Actor and Runtime contracts with mutex-coordinated ActorStatus and lifecycle results, signature contracts, authenticated channels, and insertion-ordered work queues.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["."],
   "childModules": [
     {
       "path": "src/common/actor",
@@ -208,7 +207,7 @@
       "name": "Runtime",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/runtime.rs",
@@ -237,7 +236,7 @@
       "name": "ActorStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/lifecycle.rs",
@@ -258,7 +257,7 @@
       "name": "Lifecycle",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/lifecycle.rs",

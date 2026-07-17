@@ -4,19 +4,15 @@
     "path": "src/server/task",
     "name": "task",
     "purpose": "Owns Arc-backed Task actors implementing the shared Actor and modern Runtime contracts; runtimes hold task access, actor registries, root intent, and lifecycle, asynchronously start and register root work through type-inferred TaskAccess insertion, route events, and translate external TaskStatus, while TaskAccess owns session transport, request data, shared registries, the current-thread executor, type-inferred insertion, and result lookup whose five private StoredSignature mappings infer Actor and Result types and whose five StoredActor implementations select registries and reject duplicate signatures.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "runtime.rs",
-    "access.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "TaskAccess",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/access.rs",
@@ -157,7 +153,7 @@
       "name": "TaskRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/routing.rs",

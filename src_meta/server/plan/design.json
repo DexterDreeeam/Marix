@@ -4,12 +4,8 @@
     "path": "src/server/plan",
     "name": "plan",
     "purpose": "Runs Arc-backed plan actors through the shared Actor and modern Runtime contracts; runtimes own task access, signature, child intents, failures, and lifecycle, advance children, render PlanVerdict prompts from the user request and plan failures, reconstruct plans, register child intents and relays through type-inferred TaskAccess insertion, and resolve results from signatures that infer their mapped actor and result type; the prompt context input remains unwired, so rendering can currently return an error.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "result.rs",
-    "runtime.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -56,7 +52,7 @@
       "name": "PlanRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",
