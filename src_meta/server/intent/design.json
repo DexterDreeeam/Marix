@@ -3,9 +3,12 @@
   "module": {
     "path": "src/server/intent",
     "name": "intent",
-    "purpose": "Runs intent actors through shared Actor and Runtime contracts; verdict relays identify the intent without a plan, and successful verdicts create steps or plans.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs intent actors through shared Actor and Runtime contracts; verdict relays render the IntentAnalyze decision prompt, identify the intent without a plan, and create steps, plans, or final results from strict verdict JSON.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "runtime.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -52,7 +55,7 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",
@@ -81,20 +84,20 @@
         {
           "sourcePath": "src/server/intent/runtime.rs",
           "lineStart": 89,
-          "lineEnd": 352,
+          "lineEnd": 349,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 105,
+              "lineStart": 91,
               "lineEnd": 112
             }
           ]
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 354,
-          "lineEnd": 357,
+          "lineStart": 351,
+          "lineEnd": 354,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

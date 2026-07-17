@@ -3,14 +3,17 @@
   "module": {
     "path": "src/server",
     "name": "server",
-    "purpose": "Runs workflow orchestration through actor runtimes: intent and plan relays encode context ownership in RelaySignature, RelayRuntime resolves the context through TaskAccess and preserves the system, context, prompt, and tools ModelRequest pipeline, while SessionContext owns the task registry and TaskAccess links runtimes to it.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs actor-based workflow orchestration with strict decision JSON; relay prompts order System, decision, and natural paired context messages, while model requests carry ordered prompts and Deepseek transports and logs compact raw JSON with streamed content accumulation.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/server/intent",
       "name": "intent",
-      "purpose": "Runs intent actors through shared Actor and Runtime contracts; verdict relays identify the intent without a plan, and successful verdicts create steps or plans."
+      "purpose": "Runs intent actors through shared Actor and Runtime contracts; verdict relays render the IntentAnalyze decision prompt, identify the intent without a plan, and create steps, plans, or final results from strict verdict JSON."
     },
     {
       "path": "src/server/invocation",
@@ -20,7 +23,7 @@
     {
       "path": "src/server/model",
       "name": "model",
-      "purpose": "Owns synchronous and asynchronous model backends, requests with separate system, context, prompt, and tools fields, streaming response channels, and Deepseek payload construction with validated function schemas."
+      "purpose": "Owns synchronous and asynchronous model backends and streaming channels; ModelRequest carries a system message followed by ordered user prompts, while Deepseek emits compact raw request payloads, accumulates streamed content, and logs raw request and concatenated response records."
     },
     {
       "path": "src/server/plan",
@@ -30,12 +33,12 @@
     {
       "path": "src/server/prompt",
       "name": "prompt",
-      "purpose": "Loads exactly one named prompt template, slices parameter markers for explicit injection, and renders only after every declared parameter is supplied."
+      "purpose": "Loads, injects, and renders one named prompt template after all declared parameters are supplied; its template child owns partitioned decision instructions and the user_request-only System contract."
     },
     {
       "path": "src/server/relay",
       "name": "relay",
-      "purpose": "Runs relay actors and streaming response assembly; RelayRuntime resolves context through TaskAccess from the signature plan when present or its intent otherwise, then preserves the system, context, prompt, and tools ModelRequest pipeline."
+      "purpose": "Runs relay actors, prompt construction, and streaming response assembly; RelayRuntime orders System, decision, then natural paired context messages, serializes calls with dynamic tool-name keys and plain failure text, and assembles sequenced model chunks without response tags."
     },
     {
       "path": "src/server/session",
@@ -119,7 +122,7 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",
@@ -148,20 +151,20 @@
         {
           "sourcePath": "src/server/intent/runtime.rs",
           "lineStart": 89,
-          "lineEnd": 352,
+          "lineEnd": 349,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 105,
+              "lineStart": 91,
               "lineEnd": 112
             }
           ]
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 354,
-          "lineEnd": 357,
+          "lineStart": 351,
+          "lineEnd": 354,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -347,18 +350,18 @@
       "name": "ModelRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
           "lineStart": 37,
-          "lineEnd": 44,
+          "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 38,
-              "lineEnd": 44
+              "lineEnd": 42
             }
           ]
         }
@@ -372,16 +375,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
-          "lineStart": 46,
-          "lineEnd": 51,
+          "lineStart": 45,
+          "lineEnd": 50,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 47,
-              "lineEnd": 51
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -389,7 +387,7 @@
       "name": "DeepseekBackend",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
@@ -410,42 +408,49 @@
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
           "lineStart": 41,
-          "lineEnd": 97,
+          "lineEnd": 100,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 50,
-              "lineEnd": 50
+              "lineEnd": 58
             },
             {
-              "lineStart": 85,
-              "lineEnd": 85
+              "lineStart": 87,
+              "lineEnd": 94
             }
           ]
         },
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 99,
-          "lineEnd": 305,
+          "lineStart": 102,
+          "lineEnd": 362,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 100,
-              "lineEnd": 144
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 146,
-              "lineEnd": 169
+              "lineStart": 103,
+              "lineEnd": 153
+            },
+            {
+              "lineStart": 181,
+              "lineEnd": 210
+            },
+            {
+              "lineStart": 215,
+              "lineEnd": 245
+            },
+            {
+              "lineStart": 282,
+              "lineEnd": 361
             }
           ]
         },
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 319,
-          "lineEnd": 328,
+          "lineStart": 376,
+          "lineEnd": 384,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -729,51 +734,82 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 22,
-          "lineEnd": 30,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 32,
-          "lineEnd": 61,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 63,
-          "lineEnd": 186,
+          "lineStart": 19,
+          "lineEnd": 27,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 77,
-              "lineEnd": 96
+              "lineStart": 23,
+              "lineEnd": 24
             }
           ]
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 190,
-          "lineEnd": 312,
+          "lineStart": 29,
+          "lineEnd": 58,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 314,
-          "lineEnd": 319,
+          "lineStart": 60,
+          "lineEnd": 160,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 164,
+          "lineEnd": 242,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 165,
+              "lineEnd": 220
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 244,
+          "lineEnd": 249,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/relay/prompt.rs",
+          "lineStart": 10,
+          "lineEnd": 30,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 30
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/relay/prompt.rs",
+          "lineStart": 34,
+          "lineEnd": 178,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 178
+            }
+          ],
           "modifiedLines": []
         }
       ]

@@ -3,9 +3,13 @@
   "module": {
     "path": "src/server/model",
     "name": "model",
-    "purpose": "Owns synchronous and asynchronous model backends, requests with separate system, context, prompt, and tools fields, streaming response channels, and Deepseek payload construction with validated function schemas.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns synchronous and asynchronous model backends and streaming channels; ModelRequest carries a system message followed by ordered user prompts, while Deepseek emits compact raw request payloads, accumulates streamed content, and logs raw request and concatenated response records.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "backend.rs",
+    "backend_deepseek.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -86,18 +90,18 @@
       "name": "ModelRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
           "lineStart": 37,
-          "lineEnd": 44,
+          "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 38,
-              "lineEnd": 44
+              "lineEnd": 42
             }
           ]
         }
@@ -111,16 +115,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
-          "lineStart": 46,
-          "lineEnd": 51,
+          "lineStart": 45,
+          "lineEnd": 50,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 47,
-              "lineEnd": 51
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -128,7 +127,7 @@
       "name": "DeepseekBackend",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
@@ -149,42 +148,49 @@
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
           "lineStart": 41,
-          "lineEnd": 97,
+          "lineEnd": 100,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 50,
-              "lineEnd": 50
+              "lineEnd": 58
             },
             {
-              "lineStart": 85,
-              "lineEnd": 85
+              "lineStart": 87,
+              "lineEnd": 94
             }
           ]
         },
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 99,
-          "lineEnd": 305,
+          "lineStart": 102,
+          "lineEnd": 362,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 100,
-              "lineEnd": 144
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 146,
-              "lineEnd": 169
+              "lineStart": 103,
+              "lineEnd": 153
+            },
+            {
+              "lineStart": 181,
+              "lineEnd": 210
+            },
+            {
+              "lineStart": 215,
+              "lineEnd": 245
+            },
+            {
+              "lineStart": 282,
+              "lineEnd": 361
             }
           ]
         },
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 319,
-          "lineEnd": 328,
+          "lineStart": 376,
+          "lineEnd": 384,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

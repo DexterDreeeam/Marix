@@ -3,3 +3,7 @@ pub mod runtime;
 
 pub use relay::Relay;
 pub use runtime::RelayRuntime;
+
+// -- Private -- //
+
+mod prompt;

@@ -3,9 +3,12 @@
   "module": {
     "path": "src/protocol/invocation",
     "name": "invocation",
-    "purpose": "Defines invocation drafts and requests, identities, signatures implementing the shared common Signature contract while retaining business names and displaying type-qualified identifiers, execution events, errors, and typed terminal results.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines invocation drafts and requests, identities, signatures, events, errors, and results; InvocationDraft exposes the JSON fields tool and arguments while retaining its Rust field names.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "request.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -78,20 +81,20 @@
       "name": "InvocationDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/request.rs",
           "lineStart": 5,
-          "lineEnd": 10,
+          "lineEnd": 12,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 5,
-              "lineEnd": 10
+              "lineEnd": 11
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -103,16 +106,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/request.rs",
-          "lineStart": 12,
-          "lineEnd": 16,
+          "lineStart": 14,
+          "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 12,
-              "lineEnd": 16
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },

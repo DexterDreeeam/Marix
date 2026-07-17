@@ -3,26 +3,29 @@
   "module": {
     "path": "src/protocol/step",
     "name": "step",
-    "purpose": "Defines invocation-based step drafts, identities, signatures implementing the shared common Signature contract while retaining business names and displaying type-qualified identifiers, typed results, errors, actor-status invocation updates, and cancellation.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines invocation-based step drafts, identities, signatures, events, errors, and results; StepDraft exposes its invocation list as calls in JSON.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "draft.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "StepDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/draft.rs",
           "lineStart": 4,
-          "lineEnd": 8,
+          "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 4,
+              "lineStart": 7,
               "lineEnd": 8
             }
           ]

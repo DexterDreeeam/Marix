@@ -3,9 +3,14 @@
   "module": {
     "path": "src/server/prompt/template",
     "name": "template",
-    "purpose": "Defines decision prompt resources: System accepts task_preview, while IntentAnalyze and PlanVerdict contain only decision instructions and strict output schemas.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines decision prompt resources: IntentAnalyze partitions complete, plan, and tool_calls; PlanVerdict partitions retry and impossible; each decision keeps its explanation adjacent to its JSON shape, and System injects only user_request under the absolute JSON contract.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "IntentAnalyze.prompt",
+    "PlanVerdict.prompt",
+    "System.prompt"
+  ],
   "childModules": [],
   "elements": []
 }

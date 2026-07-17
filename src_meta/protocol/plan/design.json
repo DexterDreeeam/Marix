@@ -3,9 +3,12 @@
   "module": {
     "path": "src/protocol/plan",
     "name": "plan",
-    "purpose": "Defines plan context snapshots with signatures, ordered intent contexts, and accumulated plan result failures, alongside nested plan drafts, verdicts, typed results, identities, owning-intent signatures, actor-status updates, and cancellation.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines plan contexts, identities, signatures, events, results, and drafts; PlanDraft exposes ordered goals in JSON, and PlanVerdict accepts exactly the retry and impossible decisions.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "draft.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -33,33 +36,28 @@
       "name": "PlanDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/draft.rs",
           "lineStart": 4,
-          "lineEnd": 8,
+          "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 4,
+              "lineStart": 7,
               "lineEnd": 8
             }
           ]
         },
         {
           "sourcePath": "src/protocol/plan/draft.rs",
-          "lineStart": 10,
-          "lineEnd": 14,
+          "lineStart": 11,
+          "lineEnd": 15,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 14
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -67,32 +65,27 @@
       "name": "PlanVerdict",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/draft.rs",
-          "lineStart": 16,
-          "lineEnd": 26,
+          "lineStart": 17,
+          "lineEnd": 24,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 16,
-              "lineEnd": 26
+              "lineStart": 17,
+              "lineEnd": 23
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/protocol/plan/draft.rs",
-          "lineStart": 28,
-          "lineEnd": 32,
+          "lineStart": 26,
+          "lineEnd": 30,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 28,
-              "lineEnd": 32
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

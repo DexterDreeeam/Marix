@@ -3,9 +3,16 @@
   "module": {
     "path": "src/server/relay",
     "name": "relay",
-    "purpose": "Runs relay actors and streaming response assembly; RelayRuntime resolves context through TaskAccess from the signature plan when present or its intent otherwise, then preserves the system, context, prompt, and tools ModelRequest pipeline.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs relay actors, prompt construction, and streaming response assembly; RelayRuntime orders System, decision, then natural paired context messages, serializes calls with dynamic tool-name keys and plain failure text, and assembles sequenced model chunks without response tags.",
+    "changeStatus": "modified"
   },
+  "added": [
+    "prompt.rs"
+  ],
+  "modified": [
+    "mod.rs",
+    "runtime.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -52,51 +59,82 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 22,
-          "lineEnd": 30,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 32,
-          "lineEnd": 61,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 63,
-          "lineEnd": 186,
+          "lineStart": 19,
+          "lineEnd": 27,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 77,
-              "lineEnd": 96
+              "lineStart": 23,
+              "lineEnd": 24
             }
           ]
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 190,
-          "lineEnd": 312,
+          "lineStart": 29,
+          "lineEnd": 58,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 314,
-          "lineEnd": 319,
+          "lineStart": 60,
+          "lineEnd": 160,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 164,
+          "lineEnd": 242,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 165,
+              "lineEnd": 220
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 244,
+          "lineEnd": 249,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/relay/prompt.rs",
+          "lineStart": 10,
+          "lineEnd": 30,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 30
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/relay/prompt.rs",
+          "lineStart": 34,
+          "lineEnd": 178,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 178
+            }
+          ],
           "modifiedLines": []
         }
       ]

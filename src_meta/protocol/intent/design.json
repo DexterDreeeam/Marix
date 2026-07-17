@@ -3,9 +3,12 @@
   "module": {
     "path": "src/protocol/intent",
     "name": "intent",
-    "purpose": "Defines intent context snapshots with signatures, content, optional live results, and ordered step result history, alongside intent drafts, verdicts, typed results, identities, lineage-aware signatures, actor-status updates, and cancellation.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines intent contexts, identities, signatures, events, results, and drafts; IntentDraft is a transparent content value, while IntentVerdict accepts exactly the complete, plan, and tool_calls JSON decisions.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "draft.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -33,20 +36,20 @@
       "name": "IntentDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
           "lineStart": 4,
           "lineEnd": 8,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 4,
-              "lineEnd": 8
+              "lineStart": 5,
+              "lineEnd": 5
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -54,32 +57,27 @@
       "name": "IntentVerdict",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
           "lineStart": 10,
           "lineEnd": 22,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 10,
-              "lineEnd": 22
+              "lineStart": 15,
+              "lineEnd": 15
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/protocol/intent/draft.rs",
           "lineStart": 24,
           "lineEnd": 28,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 24,
-              "lineEnd": 28
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

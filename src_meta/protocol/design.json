@@ -3,9 +3,12 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Defines serialized workflow contracts, including prompt-only relay requests with intent-scoped signatures that optionally identify a plan, task previews with optional results, shared signatures, actor statuses, execution contracts, and external task transport.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines serialized workflow contracts for tasks, plans, goals, calls, relays, execution, sessions, tools, and actor results, including strict decision JSON and externally named goals, calls, tool, and arguments fields.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -25,17 +28,17 @@
     {
       "path": "src/protocol/intent",
       "name": "intent",
-      "purpose": "Defines intent context snapshots with signatures, content, optional live results, and ordered step result history, alongside intent drafts, verdicts, typed results, identities, lineage-aware signatures, actor-status updates, and cancellation."
+      "purpose": "Defines intent contexts, identities, signatures, events, results, and drafts; IntentDraft is a transparent content value, while IntentVerdict accepts exactly the complete, plan, and tool_calls JSON decisions."
     },
     {
       "path": "src/protocol/invocation",
       "name": "invocation",
-      "purpose": "Defines invocation drafts and requests, identities, signatures implementing the shared common Signature contract while retaining business names and displaying type-qualified identifiers, execution events, errors, and typed terminal results."
+      "purpose": "Defines invocation drafts and requests, identities, signatures, events, errors, and results; InvocationDraft exposes the JSON fields tool and arguments while retaining its Rust field names."
     },
     {
       "path": "src/protocol/plan",
       "name": "plan",
-      "purpose": "Defines plan context snapshots with signatures, ordered intent contexts, and accumulated plan result failures, alongside nested plan drafts, verdicts, typed results, identities, owning-intent signatures, actor-status updates, and cancellation."
+      "purpose": "Defines plan contexts, identities, signatures, events, results, and drafts; PlanDraft exposes ordered goals in JSON, and PlanVerdict accepts exactly the retry and impossible decisions."
     },
     {
       "path": "src/protocol/relay",
@@ -50,7 +53,7 @@
     {
       "path": "src/protocol/step",
       "name": "step",
-      "purpose": "Defines invocation-based step drafts, identities, signatures implementing the shared common Signature contract while retaining business names and displaying type-qualified identifiers, typed results, errors, actor-status invocation updates, and cancellation."
+      "purpose": "Defines invocation-based step drafts, identities, signatures, events, errors, and results; StepDraft exposes its invocation list as calls in JSON."
     },
     {
       "path": "src/protocol/task",
@@ -345,20 +348,20 @@
       "name": "IntentDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
           "lineStart": 4,
           "lineEnd": 8,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 4,
-              "lineEnd": 8
+              "lineStart": 5,
+              "lineEnd": 5
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -366,32 +369,27 @@
       "name": "IntentVerdict",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
           "lineStart": 10,
           "lineEnd": 22,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 10,
-              "lineEnd": 22
+              "lineStart": 15,
+              "lineEnd": 15
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/protocol/intent/draft.rs",
           "lineStart": 24,
           "lineEnd": 28,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 24,
-              "lineEnd": 28
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -634,20 +632,20 @@
       "name": "InvocationDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/request.rs",
           "lineStart": 5,
-          "lineEnd": 10,
+          "lineEnd": 12,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 5,
-              "lineEnd": 10
+              "lineEnd": 11
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -659,16 +657,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/request.rs",
-          "lineStart": 12,
-          "lineEnd": 16,
+          "lineStart": 14,
+          "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 12,
-              "lineEnd": 16
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -789,33 +782,28 @@
       "name": "PlanDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/draft.rs",
           "lineStart": 4,
-          "lineEnd": 8,
+          "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 4,
+              "lineStart": 7,
               "lineEnd": 8
             }
           ]
         },
         {
           "sourcePath": "src/protocol/plan/draft.rs",
-          "lineStart": 10,
-          "lineEnd": 14,
+          "lineStart": 11,
+          "lineEnd": 15,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 14
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -823,32 +811,27 @@
       "name": "PlanVerdict",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/draft.rs",
-          "lineStart": 16,
-          "lineEnd": 26,
+          "lineStart": 17,
+          "lineEnd": 24,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 16,
-              "lineEnd": 26
+              "lineStart": 17,
+              "lineEnd": 23
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/protocol/plan/draft.rs",
-          "lineStart": 28,
-          "lineEnd": 32,
+          "lineStart": 26,
+          "lineEnd": 30,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 28,
-              "lineEnd": 32
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -1214,17 +1197,17 @@
       "name": "StepDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/draft.rs",
           "lineStart": 4,
-          "lineEnd": 8,
+          "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 4,
+              "lineStart": 7,
               "lineEnd": 8
             }
           ]

@@ -1,11 +1,11 @@
-A child Intent has been found infeasible. Decide whether to replace the current Plan or declare the parent Intent infeasible.
+Based on the current context, choose exactly one decision for a parent goal whose child goal could not be completed.
 
-Return exactly one of these two JSON objects:
-{"type":"replacement","value":{"intents":[{"content":"immutable child intent"}]}}
-{"type":"infeasible","value":{"reason":"why the parent intent cannot be completed"}}
+--- DECISION: retry ---
+Use retry when a new non-empty ordered list of simple, immutable goals can still achieve the parent goal while reusing successful work and avoiding repeated failed work.
+{"decision":"retry","goals":["first immutable goal","second immutable goal"]}
 
-For replacement, intents must be non-empty and ordered toward completing the parent Intent. Reuse successful work available in the shared context and do not repeat unnecessary work. Every child intent must be simple and immutable.
+--- DECISION: impossible ---
+Use impossible only when the parent goal cannot be completed after considering the current ordered goals and every previous failed attempt.
+{"decision":"impossible","reason":"why the parent goal cannot be completed"}
 
-Use infeasible only when the parent goal is impossible after considering the current Plan and every previous failed attempt.
-
-Do not return any other schema or field.
+Return only the selected JSON object with exactly the shown fields.

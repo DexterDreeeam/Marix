@@ -1280,3 +1280,35 @@ connecter to protect this distinction.
   rebuilds the corresponding Intent or Plan `ContextChain` before constructing
   `ModelRequest`. Relay completion updates remain addressed to the retained
   owner Intent.
+- 2026-07-17 (strict Deepseek verdict JSON): Relay System rendering injects
+  both the task `user_request` and serialized `task_preview`. The shared
+  Deepseek payload builder requests `json_object`, retains function-tool
+  schemas, and sets `tool_choice: none` when tools exist. Streaming rejects
+  non-empty native `delta.tool_calls` as `InvalidResponse`; Intent and Plan
+  verdicts remain strict whole-string serde parses.
+- 2026-07-17 (model-facing verdict wire contract; supersedes internal-name
+  JSON above): `protocol/{intent,plan,step,invocation}` keeps the Rust
+  `IntentVerdict::Complete/Plan/Step` and `PlanVerdict::Replacement/Infeasible`
+  names while serde exposes only `complete`/`delegate`/`tool_calls` and
+  `retry`/`impossible`; transparent `IntentDraft` values make `goals` arrays
+  arrays of strings.
+- 2026-07-17 (Relay prompt layering; supersedes task-preview/context-display
+  request notes above): `server/relay/prompt.rs` renders System with only
+  `user_request`, places the fixed decision prompt first in
+  `ModelRequest.prompts`, then renders root-to-current `ContextChain` pairs as
+  natural-language user messages. Protocol `ContextChain::Display` remains
+  debug-only and is not used by Deepseek.
+- 2026-07-17 (model context history): Relay context rendering omits
+  signatures and result kinds, JSON-quotes all dynamic values, and converts
+  each `StepResult.output` line through the strict `tool: output` invariant
+  into `calls: [{"tool_name":"output"}]`; malformed lines fail request
+  assembly.
+- 2026-07-17 (raw Deepseek relay logging): The shared payload builder returns
+  the exact compact body sent by blocking and async clients. SSE bytes remain
+  buffered through event boundaries, while decoded `delta.content` is
+  accumulated and logged once at completion with the exact Request/Response
+  tags.
+- 2026-07-17 (Intent plan wire decision; supersedes `delegate` in the
+  model-facing verdict wire contract above): `IntentVerdict::Plan` remains the
+  internal Rust variant, while serde and `IntentAnalyze.prompt` expose it as
+  `{"decision":"plan","goals":[...]}`.

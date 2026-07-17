@@ -4,6 +4,7 @@ use crate::external::*;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PlanDraft {
+    #[serde(rename = "goals")]
     pub intents: Vec<IntentDraft>,
 }
 
@@ -14,14 +15,11 @@ impl PlanDraft {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(
-    tag = "type",
-    content = "value",
-    rename_all = "snake_case",
-    deny_unknown_fields
-)]
+#[serde(tag = "decision", deny_unknown_fields)]
 pub enum PlanVerdict {
+    #[serde(rename = "retry")]
     Replacement(PlanDraft),
+    #[serde(rename = "impossible")]
     Infeasible { reason: String },
 }
 

@@ -3,14 +3,17 @@
   "module": {
     "path": "src/server/prompt",
     "name": "prompt",
-    "purpose": "Loads exactly one named prompt template, slices parameter markers for explicit injection, and renders only after every declared parameter is supplied.",
-    "changeStatus": "unchanged"
+    "purpose": "Loads, injects, and renders one named prompt template after all declared parameters are supplied; its template child owns partitioned decision instructions and the user_request-only System contract.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/server/prompt/template",
       "name": "template",
-      "purpose": "Defines decision prompt resources: System accepts task_preview, while IntentAnalyze and PlanVerdict contain only decision instructions and strict output schemas."
+      "purpose": "Defines decision prompt resources: IntentAnalyze partitions complete, plan, and tool_calls; PlanVerdict partitions retry and impossible; each decision keeps its explanation adjacent to its JSON shape, and System injects only user_request under the absolute JSON contract."
     }
   ],
   "elements": [

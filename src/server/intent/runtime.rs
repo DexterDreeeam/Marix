@@ -275,9 +275,6 @@ impl IntentRuntime {
             IntentVerdict::Complete { output } => {
                 self.finish(IntentResultKind::Succeed, output);
             }
-            IntentVerdict::Infeasible { reason } => {
-                self.finish(IntentResultKind::Infeasible, reason);
-            }
         }
     }
 
