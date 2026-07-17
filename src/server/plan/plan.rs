@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use marix_common::{Actor as ActorTrait, ActorBase, ActorRuntime as ActorRuntimeTrait};
+use marix_common::{Actor as ActorTrait, ActorRuntime as ActorRuntimeTrait};
 use marix_protocol::{IntentSignature, PlanEvent, PlanResult, PlanSignature};
 
 use super::PlanRuntime;
@@ -11,14 +11,12 @@ pub struct Plan {
     pub runtime: Arc<PlanRuntime>,
 }
 
-impl ActorBase for Plan {
+impl ActorTrait for Plan {
     type Signature = PlanSignature;
     type Event = PlanEvent;
     type Result = PlanResult;
     type Runtime = PlanRuntime;
-}
 
-impl ActorTrait for Plan {
     fn runtime(&self) -> &Arc<Self::Runtime> {
         &self.runtime
     }

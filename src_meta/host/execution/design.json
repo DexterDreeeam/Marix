@@ -3,16 +3,17 @@
   "module": {
     "path": "src/host/execution",
     "name": "execution",
-    "purpose": "Runs host tools through the synchronous protocol runtime boundary and emits execution lifecycle and sequenced processing events through task-level invocation envelopes.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs host tools through the shared common synchronous Runtime boundary and emits execution lifecycle and sequenced processing events through task-level invocation envelopes.",
+    "changeStatus": "modified"
   },
+  "modified": ["execution.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Execution",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/execution.rs",
@@ -25,18 +26,15 @@
         {
           "sourcePath": "src/host/execution/execution.rs",
           "lineStart": 14,
-          "lineEnd": 24,
+          "lineEnd": 41,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/host/execution/execution.rs",
-          "lineStart": 26,
-          "lineEnd": 43,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 40
+            }
+          ]
         }
       ]
     },
@@ -48,38 +46,38 @@
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
-          "lineStart": 11,
-          "lineEnd": 15,
+          "lineStart": 10,
+          "lineEnd": 14,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/execution/runtime.rs",
-          "lineStart": 17,
-          "lineEnd": 26,
+          "lineStart": 16,
+          "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/execution/runtime.rs",
-          "lineStart": 28,
-          "lineEnd": 81,
+          "lineStart": 27,
+          "lineEnd": 80,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/execution/runtime.rs",
-          "lineStart": 85,
-          "lineEnd": 156,
+          "lineStart": 84,
+          "lineEnd": 155,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 99,
-              "lineEnd": 107
+              "lineStart": 98,
+              "lineEnd": 106
             }
           ]
         }

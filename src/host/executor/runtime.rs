@@ -1,10 +1,10 @@
 use std::convert::Infallible;
 use std::sync::Arc;
 
-use marix_common::{Logger, Receiver, Sender, build_channel, select};
+use marix_common::{Logger, Receiver, Runtime, Sender, build_channel, select};
 use marix_protocol::{
-    Actor, ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, ExecutorEvent,
-    InvocationEvent, Runtime, SessionEvent, TaskEvent,
+    ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, ExecutorEvent,
+    InvocationEvent, SessionEvent, TaskEvent,
 };
 
 use super::state::ExecutorState;

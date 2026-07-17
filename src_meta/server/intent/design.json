@@ -3,16 +3,17 @@
   "module": {
     "path": "src/server/intent",
     "name": "intent",
-    "purpose": "Runs Arc-backed intent actors whose runtimes own task access, signature, content, step and plan tracking, and lifecycle; renders IntentAnalyze prompts, creates steps, plans, and relays, and resolves typed child results.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs Arc-backed intent actors through the shared common Actor contract; their runtimes own task access, signature, content, step and plan tracking, and lifecycle, render IntentAnalyze prompts, create steps, plans, and relays, and resolve typed child results.",
+    "changeStatus": "modified"
   },
+  "modified": ["intent.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Intent",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/intent.rs",
@@ -20,63 +21,35 @@
           "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 12
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/intent.rs",
           "lineStart": 14,
-          "lineEnd": 19,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 14,
-              "lineEnd": 19
+              "lineEnd": 30
             }
           ]
         },
         {
           "sourcePath": "src/server/intent/intent.rs",
-          "lineStart": 21,
-          "lineEnd": 32,
+          "lineStart": 34,
+          "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 21,
-              "lineEnd": 32
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/intent.rs",
-          "lineStart": 36,
-          "lineEnd": 45,
+          "lineStart": 45,
+          "lineEnd": 55,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 36,
-              "lineEnd": 45
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/intent/intent.rs",
-          "lineStart": 47,
-          "lineEnd": 57,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 47,
-              "lineEnd": 57
-            }
-          ],
           "modifiedLines": []
         }
       ]

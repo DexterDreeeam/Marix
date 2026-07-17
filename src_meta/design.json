@@ -4,8 +4,9 @@
     "path": "src",
     "name": "src",
     "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and tool packages.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/client",
@@ -15,22 +16,22 @@
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Owns shared configuration, logging, external wrappers, actor lifecycle abstractions, authenticated channels, and insertion-ordered work queues."
+      "purpose": "Owns shared configuration, logging, external wrappers, modern actor lifecycles, legacy runtime boundaries, signature contracts, authenticated channels, and insertion-ordered work queues."
     },
     {
       "path": "src/host",
       "name": "host",
-      "purpose": "Owns Host connectivity, execution lifecycle, nested invocation status propagation, and tool registration."
+      "purpose": "Owns Host connectivity, shared common synchronous execution and executor runtime boundaries, task-level invocation updates, and tool registration."
     },
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "Defines serialized workflow contracts with displayable type-qualified signatures, shared common ActorStatus workflow updates, dedicated host execution statuses, and external TaskStatus transport."
+      "purpose": "Defines serialized workflow contracts whose signatures implement the shared common Signature contract, with shared common ActorStatus workflow updates, dedicated host execution statuses, and external TaskStatus transport."
     },
     {
       "path": "src/server",
       "name": "server",
-      "purpose": "Runs workflow orchestration through Arc-backed Task, Intent, Plan, Step, Invocation, and Relay actors whose runtimes own signatures, business state, and lifecycles; TaskRuntime holds task-scoped registries, access, and the root intent, Task launches its current-thread executor on a dedicated thread, and child actors spawn on that same executor, while Session preserves the synchronous protocol runtime boundary."
+      "purpose": "Runs workflow orchestration through Arc-backed Task, Intent, Plan, Step, Invocation, and Relay implementations of the shared common Actor contract; TaskRuntime holds task-scoped registries, access, and the root intent, Task launches its current-thread executor on a dedicated thread, child actors spawn on that executor, and Session uses the shared common synchronous Runtime boundary."
     },
     {
       "path": "src/server_telemetry",
@@ -212,22 +213,6 @@
       ]
     },
     {
-      "name": "Actor",
-      "type": "trait",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/actor.rs",
-          "lineStart": 1,
-          "lineEnd": 5,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
       "name": "SessionMessage",
       "type": "struct",
       "source_depth": 2,
@@ -252,80 +237,6 @@
       ]
     },
     {
-      "name": "Runtime",
-      "type": "trait",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/runtime.rs",
-          "lineStart": 1,
-          "lineEnd": 7,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "RuntimeAsync",
-      "type": "trait",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/runtime.rs",
-          "lineStart": 9,
-          "lineEnd": 16,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "SignatureKey",
-      "type": "struct",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/signature.rs",
-          "lineStart": 3,
-          "lineEnd": 4,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "Signature",
-      "type": "trait",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/signature.rs",
-          "lineStart": 6,
-          "lineEnd": 14,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 7,
-              "lineEnd": 8
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 6,
-              "lineEnd": 6
-            }
-          ]
-        }
-      ]
-    },
-    {
       "name": "main",
       "type": "function",
       "source_depth": 2,
@@ -333,14 +244,14 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/main.rs",
-          "lineStart": 5,
-          "lineEnd": 30,
+          "lineStart": 4,
+          "lineEnd": 29,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 17,
-              "lineEnd": 23
+              "lineStart": 16,
+              "lineEnd": 22
             }
           ]
         }

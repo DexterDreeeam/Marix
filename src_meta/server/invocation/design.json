@@ -3,16 +3,17 @@
   "module": {
     "path": "src/server/invocation",
     "name": "invocation",
-    "purpose": "Runs Arc-backed invocation actors whose runtimes own task access, signature, tool input, execution and output tracking, and lifecycle; assembles sequenced host output and publishes typed results to parent steps.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs Arc-backed invocation actors through the shared common Actor contract; their runtimes own task access, signature, tool input, execution and output tracking, and lifecycle, assemble sequenced host output, and publish typed results to parent steps.",
+    "changeStatus": "modified"
   },
+  "modified": ["invocation.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Invocation",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/invocation.rs",
@@ -20,63 +21,35 @@
           "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 12
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/invocation/invocation.rs",
           "lineStart": 14,
-          "lineEnd": 19,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 14,
-              "lineEnd": 19
+              "lineEnd": 30
             }
           ]
         },
         {
           "sourcePath": "src/server/invocation/invocation.rs",
-          "lineStart": 21,
-          "lineEnd": 32,
+          "lineStart": 34,
+          "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 21,
-              "lineEnd": 32
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/invocation/invocation.rs",
-          "lineStart": 36,
-          "lineEnd": 45,
+          "lineStart": 45,
+          "lineEnd": 55,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 36,
-              "lineEnd": 45
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/invocation/invocation.rs",
-          "lineStart": 47,
-          "lineEnd": 57,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 47,
-              "lineEnd": 57
-            }
-          ],
           "modifiedLines": []
         }
       ]

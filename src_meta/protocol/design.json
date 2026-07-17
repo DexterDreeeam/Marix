@@ -3,14 +3,16 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Defines serialized workflow contracts with displayable type-qualified signatures, shared common ActorStatus workflow updates, dedicated host execution statuses, and external TaskStatus transport.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines serialized workflow contracts whose signatures implement the shared common Signature contract, with shared common ActorStatus workflow updates, dedicated host execution statuses, and external TaskStatus transport.",
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs", "mod.rs"],
+  "deleted": ["actor.rs", "runtime.rs", "signature.rs"],
   "childModules": [
     {
       "path": "src/protocol/execution",
       "name": "execution",
-      "purpose": "Defines execution requests, identities, signatures that retain business names and display type-qualified identifiers, errors, events, and an independent host-execution lifecycle."
+      "purpose": "Defines execution requests, identities, signatures implementing the shared common Signature contract while retaining business names and displaying type-qualified identifiers, errors, events, and an independent host-execution lifecycle."
     },
     {
       "path": "src/protocol/executor",
@@ -25,22 +27,22 @@
     {
       "path": "src/protocol/intent",
       "name": "intent",
-      "purpose": "Defines intent drafts, verdicts, typed results, identities, lineage-aware signatures that retain business names and display type-qualified identifiers, shared actor-status plan, step, and relay updates, and cancellation."
+      "purpose": "Defines intent drafts, verdicts, typed results, identities, lineage-aware signatures implementing the shared common Signature contract, shared actor-status plan, step, and relay updates, and cancellation."
     },
     {
       "path": "src/protocol/invocation",
       "name": "invocation",
-      "purpose": "Defines invocation drafts and requests, identities, signatures that retain business names and display type-qualified identifiers, execution events, errors, and typed terminal results consumed by the shared actor lifecycle."
+      "purpose": "Defines invocation drafts and requests, identities, signatures implementing the shared common Signature contract while retaining business names and displaying type-qualified identifiers, execution events, errors, and typed terminal results."
     },
     {
       "path": "src/protocol/plan",
       "name": "plan",
-      "purpose": "Defines nested plan drafts, verdicts, typed results, identities, boxed owning-intent signatures that retain business names and display type-qualified identifiers, shared actor-status child and relay updates, and cancellation."
+      "purpose": "Defines nested plan drafts, verdicts, typed results, identities, boxed owning-intent signatures implementing the shared common Signature contract, shared actor-status child and relay updates, and cancellation."
     },
     {
       "path": "src/protocol/relay",
       "name": "relay",
-      "purpose": "Defines relay requests, identities, signatures that retain business names and display type-qualified identifiers, errors, cancellation events, and typed terminal model results consumed by the shared actor lifecycle."
+      "purpose": "Defines relay requests, identities, signatures implementing the shared common Signature contract while retaining business names and displaying type-qualified identifiers, errors, cancellation events, and typed terminal model results."
     },
     {
       "path": "src/protocol/session",
@@ -50,12 +52,12 @@
     {
       "path": "src/protocol/step",
       "name": "step",
-      "purpose": "Defines invocation-based step drafts, identities, signatures that retain business names and display type-qualified identifiers, typed results, errors, shared actor-status invocation updates, and cancellation."
+      "purpose": "Defines invocation-based step drafts, identities, signatures implementing the shared common Signature contract while retaining business names and displaying type-qualified identifiers, typed results, errors, actor-status invocation updates, and cancellation."
     },
     {
       "path": "src/protocol/task",
       "name": "task",
-      "purpose": "Defines task requests, typed results, external transport statuses, identities, signatures that retain business names and display type-qualified identifiers, errors, and actor event envelopes using shared ActorStatus completion updates."
+      "purpose": "Defines task requests, typed results, external transport statuses, identities, signatures implementing the shared common Signature contract while retaining business names and displaying type-qualified identifiers, errors, and actor event envelopes."
     },
     {
       "path": "src/protocol/tool",
@@ -64,22 +66,6 @@
     }
   ],
   "elements": [
-    {
-      "name": "Actor",
-      "type": "trait",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/actor.rs",
-          "lineStart": 1,
-          "lineEnd": 5,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
     {
       "name": "SessionMessage",
       "type": "struct",
@@ -101,80 +87,6 @@
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "Runtime",
-      "type": "trait",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/runtime.rs",
-          "lineStart": 1,
-          "lineEnd": 7,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "RuntimeAsync",
-      "type": "trait",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/runtime.rs",
-          "lineStart": 9,
-          "lineEnd": 16,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "SignatureKey",
-      "type": "struct",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/signature.rs",
-          "lineStart": 3,
-          "lineEnd": 4,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "Signature",
-      "type": "trait",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/signature.rs",
-          "lineStart": 6,
-          "lineEnd": 14,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 7,
-              "lineEnd": 8
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 6,
-              "lineEnd": 6
-            }
-          ]
         }
       ]
     },
@@ -254,47 +166,47 @@
       "name": "ExecutionSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/signature.rs",
-          "lineStart": 7,
-          "lineEnd": 12,
+          "lineStart": 9,
+          "lineEnd": 14,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/execution/signature.rs",
-          "lineStart": 14,
-          "lineEnd": 22,
+          "lineStart": 16,
+          "lineEnd": 24,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/execution/signature.rs",
-          "lineStart": 24,
-          "lineEnd": 32,
+          "lineStart": 26,
+          "lineEnd": 34,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 25,
-              "lineEnd": 27
+              "lineStart": 27,
+              "lineEnd": 29
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/execution/signature.rs",
-          "lineStart": 34,
-          "lineEnd": 38,
+          "lineStart": 36,
+          "lineEnd": 40,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 36,
-              "lineEnd": 36
+              "lineStart": 38,
+              "lineEnd": 38
             }
           ]
         }
@@ -519,47 +431,47 @@
       "name": "IntentSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/signature.rs",
-          "lineStart": 7,
-          "lineEnd": 12,
+          "lineStart": 8,
+          "lineEnd": 14,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/intent/signature.rs",
-          "lineStart": 14,
-          "lineEnd": 23,
+          "lineStart": 16,
+          "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/intent/signature.rs",
-          "lineStart": 25,
-          "lineEnd": 33,
+          "lineStart": 27,
+          "lineEnd": 35,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 26,
-              "lineEnd": 28
+              "lineStart": 28,
+              "lineEnd": 30
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/intent/signature.rs",
-          "lineStart": 35,
-          "lineEnd": 39,
+          "lineStart": 37,
+          "lineEnd": 41,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 37,
-              "lineEnd": 37
+              "lineStart": 39,
+              "lineEnd": 39
             }
           ]
         }
@@ -719,47 +631,47 @@
       "name": "InvocationSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/signature.rs",
-          "lineStart": 7,
-          "lineEnd": 12,
+          "lineStart": 9,
+          "lineEnd": 14,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/invocation/signature.rs",
-          "lineStart": 14,
-          "lineEnd": 22,
+          "lineStart": 16,
+          "lineEnd": 24,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/invocation/signature.rs",
-          "lineStart": 24,
-          "lineEnd": 32,
+          "lineStart": 26,
+          "lineEnd": 34,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 25,
-              "lineEnd": 27
+              "lineStart": 27,
+              "lineEnd": 29
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/invocation/signature.rs",
-          "lineStart": 34,
-          "lineEnd": 38,
+          "lineStart": 36,
+          "lineEnd": 40,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 36,
-              "lineEnd": 36
+              "lineStart": 38,
+              "lineEnd": 38
             }
           ]
         }
@@ -945,47 +857,47 @@
       "name": "PlanSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/signature.rs",
-          "lineStart": 6,
-          "lineEnd": 11,
+          "lineStart": 8,
+          "lineEnd": 13,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/plan/signature.rs",
-          "lineStart": 13,
-          "lineEnd": 21,
+          "lineStart": 15,
+          "lineEnd": 23,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/plan/signature.rs",
-          "lineStart": 23,
-          "lineEnd": 31,
+          "lineStart": 25,
+          "lineEnd": 33,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 24,
-              "lineEnd": 26
+              "lineStart": 26,
+              "lineEnd": 28
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/plan/signature.rs",
-          "lineStart": 33,
-          "lineEnd": 37,
+          "lineStart": 35,
+          "lineEnd": 39,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 35,
-              "lineEnd": 35
+              "lineStart": 37,
+              "lineEnd": 37
             }
           ]
         }
@@ -1119,47 +1031,47 @@
       "name": "RelaySignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/signature.rs",
-          "lineStart": 7,
-          "lineEnd": 12,
+          "lineStart": 9,
+          "lineEnd": 14,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/relay/signature.rs",
-          "lineStart": 14,
-          "lineEnd": 22,
+          "lineStart": 16,
+          "lineEnd": 24,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/relay/signature.rs",
-          "lineStart": 24,
-          "lineEnd": 32,
+          "lineStart": 26,
+          "lineEnd": 34,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 25,
-              "lineEnd": 27
+              "lineStart": 27,
+              "lineEnd": 29
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/relay/signature.rs",
-          "lineStart": 34,
-          "lineEnd": 38,
+          "lineStart": 36,
+          "lineEnd": 40,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 36,
-              "lineEnd": 36
+              "lineStart": 38,
+              "lineEnd": 38
             }
           ]
         }
@@ -1319,47 +1231,47 @@
       "name": "StepSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/signature.rs",
-          "lineStart": 7,
-          "lineEnd": 12,
+          "lineStart": 9,
+          "lineEnd": 14,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/step/signature.rs",
-          "lineStart": 14,
-          "lineEnd": 22,
+          "lineStart": 16,
+          "lineEnd": 24,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/step/signature.rs",
-          "lineStart": 24,
-          "lineEnd": 32,
+          "lineStart": 26,
+          "lineEnd": 34,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 25,
-              "lineEnd": 27
+              "lineStart": 27,
+              "lineEnd": 29
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/step/signature.rs",
-          "lineStart": 34,
-          "lineEnd": 38,
+          "lineStart": 36,
+          "lineEnd": 40,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 36,
-              "lineEnd": 36
+              "lineStart": 38,
+              "lineEnd": 38
             }
           ]
         }
@@ -1525,47 +1437,47 @@
       "name": "TaskSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/signature.rs",
-          "lineStart": 6,
-          "lineEnd": 10,
+          "lineStart": 8,
+          "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/task/signature.rs",
-          "lineStart": 12,
-          "lineEnd": 19,
+          "lineStart": 14,
+          "lineEnd": 21,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/task/signature.rs",
-          "lineStart": 21,
-          "lineEnd": 29,
+          "lineStart": 23,
+          "lineEnd": 31,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 22,
-              "lineEnd": 24
+              "lineStart": 24,
+              "lineEnd": 26
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/task/signature.rs",
-          "lineStart": 31,
-          "lineEnd": 35,
+          "lineStart": 33,
+          "lineEnd": 37,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 33,
-              "lineEnd": 33
+              "lineStart": 35,
+              "lineEnd": 35
             }
           ]
         }

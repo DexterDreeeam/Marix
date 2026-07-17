@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use marix_common::{Actor as ActorTrait, ActorBase, ActorRuntime as ActorRuntimeTrait};
+use marix_common::{Actor as ActorTrait, ActorRuntime as ActorRuntimeTrait};
 use marix_protocol::{InvocationEvent, InvocationRequest, InvocationResult, InvocationSignature};
 
 use super::InvocationRuntime;
@@ -11,14 +11,12 @@ pub struct Invocation {
     pub runtime: Arc<InvocationRuntime>,
 }
 
-impl ActorBase for Invocation {
+impl ActorTrait for Invocation {
     type Signature = InvocationSignature;
     type Event = InvocationEvent;
     type Result = InvocationResult;
     type Runtime = InvocationRuntime;
-}
 
-impl ActorTrait for Invocation {
     fn runtime(&self) -> &Arc<Self::Runtime> {
         &self.runtime
     }

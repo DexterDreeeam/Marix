@@ -1,8 +1,10 @@
 use std::fmt;
 
+use marix_common::Signature;
+
 use crate::external::*;
 
-use crate::{IntentSignature, Signature, StepId};
+use crate::{IntentSignature, StepId};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct StepSignature {

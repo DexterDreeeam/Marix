@@ -2,8 +2,8 @@ use std::sync::Arc;
 use std::sync::OnceLock;
 use std::thread;
 
-use marix_common::{Logger, external::uuid};
-use marix_protocol::{Actor, Runtime, SessionEvent, SessionMessage};
+use marix_common::{Logger, Runtime, external::uuid};
+use marix_protocol::{SessionEvent, SessionMessage};
 
 use super::{SessionRuntime, SessionState};
 
@@ -27,10 +27,8 @@ impl Session {
     pub fn package_message(event: SessionEvent) -> SessionMessage {
         SessionMessage::new(SOURCE_NAME.get().cloned().unwrap_or_default(), event)
     }
-}
 
-impl Actor<Session, SessionEvent> for Session {
-    fn start(&mut self) {
+    pub fn start(&mut self) {
         let state = Arc::clone(&self.state);
         drop(thread::spawn(move || {
             let runtime = SessionRuntime::new(state);
@@ -38,7 +36,7 @@ impl Actor<Session, SessionEvent> for Session {
         }));
     }
 
-    fn dispatch(&self, event: SessionEvent) {
+    pub fn dispatch(&self, event: SessionEvent) {
         if self.state.session_tx.send(event).is_err() {
             Logger::warning("core session event dispatch failed: worker stopped");
         }

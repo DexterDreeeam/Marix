@@ -4,7 +4,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
 
 use marix_common::{ChannelEndpoint, Logger, NetReceiver, SharedNetSender, connect_channel};
-use marix_protocol::{Actor, SessionEvent, SessionMessage};
+use marix_protocol::{SessionEvent, SessionMessage};
 
 use crate::executor::Executor;
 

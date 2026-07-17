@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/step",
     "name": "step",
-    "purpose": "Runs Arc-backed step actors whose runtimes own task access, signature, draft, invocation tracking, and lifecycle; registers invocation groups, resolves typed invocation results, and publishes aggregate completion.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs Arc-backed step actors through the shared common Actor contract; their runtimes own task access, signature, draft, invocation tracking, and lifecycle, register invocation groups, resolve typed invocation results, and publish aggregate completion.",
+    "changeStatus": "modified"
   },
+  "modified": ["step.rs"],
   "childModules": [],
   "elements": [
     {
@@ -85,7 +86,7 @@
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/step.rs",
@@ -93,63 +94,35 @@
           "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 12
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/step/step.rs",
           "lineStart": 14,
-          "lineEnd": 19,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 14,
-              "lineEnd": 19
+              "lineEnd": 30
             }
           ]
         },
         {
           "sourcePath": "src/server/step/step.rs",
-          "lineStart": 21,
-          "lineEnd": 32,
+          "lineStart": 34,
+          "lineEnd": 53,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 21,
-              "lineEnd": 32
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/step/step.rs",
-          "lineStart": 36,
-          "lineEnd": 55,
+          "lineStart": 55,
+          "lineEnd": 65,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 36,
-              "lineEnd": 55
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/step/step.rs",
-          "lineStart": 57,
-          "lineEnd": 67,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 57,
-              "lineEnd": 67
-            }
-          ],
           "modifiedLines": []
         }
       ]

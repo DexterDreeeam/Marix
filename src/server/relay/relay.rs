@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use marix_common::{Actor as ActorTrait, ActorBase, ActorRuntime as ActorRuntimeTrait};
+use marix_common::{Actor as ActorTrait, ActorRuntime as ActorRuntimeTrait};
 use marix_protocol::{RelayEvent, RelayRequest, RelayResult, RelaySignature};
 
 use super::RelayRuntime;
@@ -11,14 +11,12 @@ pub struct Relay {
     pub runtime: Arc<RelayRuntime>,
 }
 
-impl ActorBase for Relay {
+impl ActorTrait for Relay {
     type Signature = RelaySignature;
     type Event = RelayEvent;
     type Result = RelayResult;
     type Runtime = RelayRuntime;
-}
 
-impl ActorTrait for Relay {
     fn runtime(&self) -> &Arc<Self::Runtime> {
         &self.runtime
     }

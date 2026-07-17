@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/execution",
     "name": "execution",
-    "purpose": "Defines execution requests, identities, signatures that retain business names and display type-qualified identifiers, errors, events, and an independent host-execution lifecycle.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines execution requests, identities, signatures implementing the shared common Signature contract while retaining business names and displaying type-qualified identifiers, errors, events, and an independent host-execution lifecycle.",
+    "changeStatus": "modified"
   },
+  "modified": ["signature.rs"],
   "childModules": [],
   "elements": [
     {
@@ -84,47 +85,47 @@
       "name": "ExecutionSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/signature.rs",
-          "lineStart": 7,
-          "lineEnd": 12,
+          "lineStart": 9,
+          "lineEnd": 14,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/execution/signature.rs",
-          "lineStart": 14,
-          "lineEnd": 22,
+          "lineStart": 16,
+          "lineEnd": 24,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/execution/signature.rs",
-          "lineStart": 24,
-          "lineEnd": 32,
+          "lineStart": 26,
+          "lineEnd": 34,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 25,
-              "lineEnd": 27
+              "lineStart": 27,
+              "lineEnd": 29
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/execution/signature.rs",
-          "lineStart": 34,
-          "lineEnd": 38,
+          "lineStart": 36,
+          "lineEnd": 40,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 36,
-              "lineEnd": 36
+              "lineStart": 38,
+              "lineEnd": 38
             }
           ]
         }

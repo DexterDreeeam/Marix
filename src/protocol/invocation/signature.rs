@@ -1,8 +1,10 @@
 use std::fmt;
 
+use marix_common::Signature;
+
 use crate::external::*;
 
-use crate::{InvocationId, Signature, StepSignature};
+use crate::{InvocationId, StepSignature};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct InvocationSignature {

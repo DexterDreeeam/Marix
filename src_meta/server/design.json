@@ -3,19 +3,20 @@
   "module": {
     "path": "src/server",
     "name": "server",
-    "purpose": "Runs workflow orchestration through Arc-backed Task, Intent, Plan, Step, Invocation, and Relay actors whose runtimes own signatures, business state, and lifecycles; TaskRuntime holds task-scoped registries, access, and the root intent, Task launches its current-thread executor on a dedicated thread, and child actors spawn on that same executor, while Session preserves the synchronous protocol runtime boundary.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs workflow orchestration through Arc-backed Task, Intent, Plan, Step, Invocation, and Relay implementations of the shared common Actor contract; TaskRuntime holds task-scoped registries, access, and the root intent, Task launches its current-thread executor on a dedicated thread, child actors spawn on that executor, and Session uses the shared common synchronous Runtime boundary.",
+    "changeStatus": "modified"
   },
+  "modified": ["main.rs"],
   "childModules": [
     {
       "path": "src/server/intent",
       "name": "intent",
-      "purpose": "Runs Arc-backed intent actors whose runtimes own task access, signature, content, step and plan tracking, and lifecycle; renders IntentAnalyze prompts, creates steps, plans, and relays, and resolves typed child results."
+      "purpose": "Runs Arc-backed intent actors through the shared common Actor contract; their runtimes own task access, signature, content, step and plan tracking, and lifecycle, render IntentAnalyze prompts, create steps, plans, and relays, and resolve typed child results."
     },
     {
       "path": "src/server/invocation",
       "name": "invocation",
-      "purpose": "Runs Arc-backed invocation actors whose runtimes own task access, signature, tool input, execution and output tracking, and lifecycle; assembles sequenced host output and publishes typed results to parent steps."
+      "purpose": "Runs Arc-backed invocation actors through the shared common Actor contract; their runtimes own task access, signature, tool input, execution and output tracking, and lifecycle, assemble sequenced host output, and publish typed results to parent steps."
     },
     {
       "path": "src/server/model",
@@ -25,7 +26,7 @@
     {
       "path": "src/server/plan",
       "name": "plan",
-      "purpose": "Runs Arc-backed plan actors whose runtimes own task access, signature, child intents, failures, and lifecycle; advances children, renders PlanVerdict prompts, reconstructs plans, and resolves typed results."
+      "purpose": "Runs Arc-backed plan actors through the shared common Actor contract; their runtimes own task access, signature, child intents, failures, and lifecycle, advance children, render PlanVerdict prompts, reconstruct plans, and resolve typed results."
     },
     {
       "path": "src/server/prompt",
@@ -35,22 +36,22 @@
     {
       "path": "src/server/relay",
       "name": "relay",
-      "purpose": "Runs Arc-backed relay actors whose runtimes own task access, signature, prompt, model and output state, and lifecycle, with a prepared response receiver and custom async loop that assembles typed model results."
+      "purpose": "Runs Arc-backed relay actors through the shared common Actor contract; their runtimes own task access, signature, prompt, model and output state, and lifecycle, with a prepared response receiver and custom async loop that assembles typed model results."
     },
     {
       "path": "src/server/session",
       "name": "session",
-      "purpose": "Owns the synchronous protocol Runtime session boundary that routes lifecycle-backed tasks, host execution traffic, client TaskStatus transport, and tool context."
+      "purpose": "Owns the shared common synchronous Runtime session boundary that routes modern actor-backed tasks, host execution traffic, client TaskStatus transport, and tool context."
     },
     {
       "path": "src/server/step",
       "name": "step",
-      "purpose": "Runs Arc-backed step actors whose runtimes own task access, signature, draft, invocation tracking, and lifecycle; registers invocation groups, resolves typed invocation results, and publishes aggregate completion."
+      "purpose": "Runs Arc-backed step actors through the shared common Actor contract; their runtimes own task access, signature, draft, invocation tracking, and lifecycle, register invocation groups, resolve typed invocation results, and publish aggregate completion."
     },
     {
       "path": "src/server/task",
       "name": "task",
-      "purpose": "Owns Arc-backed Task actors whose runtimes hold task access, actor registries, root intent, and lifecycle, route events, and translate external TaskStatus; TaskAccess owns session transport, signature, request data, shared registries, and the current-thread executor used by Task's dedicated thread and child spawns."
+      "purpose": "Owns Arc-backed Task actors implementing the shared common Actor contract; their runtimes hold task access, actor registries, root intent, and lifecycle, route events, and translate external TaskStatus, while TaskAccess owns session transport, request data, shared registries, and the current-thread executor used by Task's dedicated thread and child spawns."
     }
   ],
   "elements": [
@@ -62,14 +63,14 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/main.rs",
-          "lineStart": 5,
-          "lineEnd": 30,
+          "lineStart": 4,
+          "lineEnd": 29,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 17,
-              "lineEnd": 23
+              "lineStart": 16,
+              "lineEnd": 22
             }
           ]
         }
@@ -79,7 +80,7 @@
       "name": "Intent",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/intent.rs",
@@ -87,63 +88,35 @@
           "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 12
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/intent.rs",
           "lineStart": 14,
-          "lineEnd": 19,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 14,
-              "lineEnd": 19
+              "lineEnd": 30
             }
           ]
         },
         {
           "sourcePath": "src/server/intent/intent.rs",
-          "lineStart": 21,
-          "lineEnd": 32,
+          "lineStart": 34,
+          "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 21,
-              "lineEnd": 32
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/intent.rs",
-          "lineStart": 36,
-          "lineEnd": 45,
+          "lineStart": 45,
+          "lineEnd": 55,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 36,
-              "lineEnd": 45
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/intent/intent.rs",
-          "lineStart": 47,
-          "lineEnd": 57,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 47,
-              "lineEnd": 57
-            }
-          ],
           "modifiedLines": []
         }
       ]
@@ -238,7 +211,7 @@
       "name": "Invocation",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/invocation.rs",
@@ -246,63 +219,35 @@
           "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 12
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/invocation/invocation.rs",
           "lineStart": 14,
-          "lineEnd": 19,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 14,
-              "lineEnd": 19
+              "lineEnd": 30
             }
           ]
         },
         {
           "sourcePath": "src/server/invocation/invocation.rs",
-          "lineStart": 21,
-          "lineEnd": 32,
+          "lineStart": 34,
+          "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 21,
-              "lineEnd": 32
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/invocation/invocation.rs",
-          "lineStart": 36,
-          "lineEnd": 45,
+          "lineStart": 45,
+          "lineEnd": 55,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 36,
-              "lineEnd": 45
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/invocation/invocation.rs",
-          "lineStart": 47,
-          "lineEnd": 57,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 47,
-              "lineEnd": 57
-            }
-          ],
           "modifiedLines": []
         }
       ]
@@ -629,7 +574,7 @@
       "name": "Plan",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/plan.rs",
@@ -637,63 +582,35 @@
           "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 12
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/plan/plan.rs",
           "lineStart": 14,
-          "lineEnd": 19,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 14,
-              "lineEnd": 19
+              "lineEnd": 30
             }
           ]
         },
         {
           "sourcePath": "src/server/plan/plan.rs",
-          "lineStart": 21,
-          "lineEnd": 32,
+          "lineStart": 34,
+          "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 21,
-              "lineEnd": 32
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/plan/plan.rs",
-          "lineStart": 36,
-          "lineEnd": 45,
+          "lineStart": 45,
+          "lineEnd": 55,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 36,
-              "lineEnd": 45
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/plan/plan.rs",
-          "lineStart": 47,
-          "lineEnd": 57,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 47,
-              "lineEnd": 57
-            }
-          ],
           "modifiedLines": []
         }
       ]
@@ -885,7 +802,7 @@
       "name": "Relay",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/relay.rs",
@@ -893,63 +810,35 @@
           "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 12
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/relay.rs",
           "lineStart": 14,
-          "lineEnd": 19,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 14,
-              "lineEnd": 19
+              "lineEnd": 30
             }
           ]
         },
         {
           "sourcePath": "src/server/relay/relay.rs",
-          "lineStart": 21,
-          "lineEnd": 32,
+          "lineStart": 34,
+          "lineEnd": 39,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 21,
-              "lineEnd": 32
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/relay.rs",
-          "lineStart": 36,
-          "lineEnd": 41,
+          "lineStart": 41,
+          "lineEnd": 51,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 36,
-              "lineEnd": 41
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/relay/relay.rs",
-          "lineStart": 43,
-          "lineEnd": 53,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 43,
-              "lineEnd": 53
-            }
-          ],
           "modifiedLines": []
         }
       ]
@@ -1059,38 +948,38 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/session/runtime.rs",
-          "lineStart": 17,
-          "lineEnd": 22,
+          "lineStart": 18,
+          "lineEnd": 23,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/session/runtime.rs",
-          "lineStart": 24,
-          "lineEnd": 33,
+          "lineStart": 25,
+          "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/session/runtime.rs",
-          "lineStart": 35,
-          "lineEnd": 85,
+          "lineStart": 36,
+          "lineEnd": 86,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/session/runtime.rs",
-          "lineStart": 89,
-          "lineEnd": 367,
+          "lineStart": 90,
+          "lineEnd": 368,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 202,
-              "lineEnd": 267
+              "lineStart": 203,
+              "lineEnd": 268
             }
           ]
         }
@@ -1100,7 +989,7 @@
       "name": "Session",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/session.rs",
@@ -1113,23 +1002,15 @@
         {
           "sourcePath": "src/server/session/session.rs",
           "lineStart": 16,
-          "lineEnd": 30,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 23,
-              "lineEnd": 25
-            }
-          ],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/session/session.rs",
-          "lineStart": 32,
-          "lineEnd": 46,
+          "lineEnd": 44,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 31,
+              "lineEnd": 43
+            }
+          ]
         }
       ]
     },
@@ -1244,7 +1125,7 @@
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/step.rs",
@@ -1252,63 +1133,35 @@
           "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 12
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/step/step.rs",
           "lineStart": 14,
-          "lineEnd": 19,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 14,
-              "lineEnd": 19
+              "lineEnd": 30
             }
           ]
         },
         {
           "sourcePath": "src/server/step/step.rs",
-          "lineStart": 21,
-          "lineEnd": 32,
+          "lineStart": 34,
+          "lineEnd": 53,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 21,
-              "lineEnd": 32
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/step/step.rs",
-          "lineStart": 36,
-          "lineEnd": 55,
+          "lineStart": 55,
+          "lineEnd": 65,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 36,
-              "lineEnd": 55
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/step/step.rs",
-          "lineStart": 57,
-          "lineEnd": 67,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 57,
-              "lineEnd": 67
-            }
-          ],
           "modifiedLines": []
         }
       ]
@@ -1461,7 +1314,7 @@
       "name": "Task",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/task.rs",
@@ -1469,63 +1322,35 @@
           "lineEnd": 14,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 11,
-              "lineEnd": 14
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/task/task.rs",
           "lineStart": 16,
-          "lineEnd": 21,
+          "lineEnd": 32,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 16,
-              "lineEnd": 21
+              "lineEnd": 32
             }
           ]
         },
         {
           "sourcePath": "src/server/task/task.rs",
-          "lineStart": 23,
-          "lineEnd": 34,
+          "lineStart": 36,
+          "lineEnd": 53,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 23,
-              "lineEnd": 34
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/task/task.rs",
-          "lineStart": 38,
-          "lineEnd": 55,
+          "lineStart": 55,
+          "lineEnd": 65,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 38,
-              "lineEnd": 55
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/task/task.rs",
-          "lineStart": 57,
-          "lineEnd": 67,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 57,
-              "lineEnd": 67
-            }
-          ],
           "modifiedLines": []
         }
       ]

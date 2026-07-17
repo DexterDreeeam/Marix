@@ -1,7 +1,9 @@
 use std::fmt;
 
+use marix_common::Signature;
+
+use crate::TaskId;
 use crate::external::*;
-use crate::{Signature, TaskId};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct TaskSignature {

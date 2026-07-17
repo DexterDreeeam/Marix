@@ -1186,3 +1186,21 @@ connecter to protect this distinction.
   identity uniformly as `<type_name>:<uuid>` while retaining business `name`
   fields.
 - 2026-07-17: The Actor foundation is owned by `src/common/actor/`; it imports channel primitives from `common::structure`, while `common::structure` owns only channel/work-queue APIs. `common/lib.rs` preserves the top-level `marix_common::{Actor, Lifecycle, ...}` surface.
+- 2026-07-17 (legacy protocol actor namespace): Protocol `Actor` remains
+  required by Host Execution/Executor and Server Session. Its unchanged
+  definition now lives with `Runtime`, `RuntimeAsync`, `Signature`, and
+  `SignatureKey` under `protocol/actor/`; `protocol/lib.rs` and `mod.rs`
+  preserve their `marix_protocol` top-level exports.
+- 2026-07-17 (actor foundation correction; supersedes the legacy protocol
+  actor namespace note): `src/common/actor/` is the sole owner of the modern
+  `Actor`/`ActorRuntime` family and the legacy `Runtime`/`RuntimeAsync` plus
+  `Signature`/`SignatureKey` foundations. `src/protocol/actor/` and all
+  corresponding protocol-root exports are removed.
+- 2026-07-17 (single actor trait): The former `ActorBase` associated-type
+  family is merged into `Actor`. Its runtime `Base` uses projection equality
+  rather than binding directly to trait-object `Self`, preserving callable
+  `dyn Actor::start` and `dyn ActorRuntime::run` assertions.
+- 2026-07-17 (legacy actor removal): Host `Execution`/`Executor` and Server
+  `Session` preserve public `start`/`dispatch` behavior as inherent methods;
+  their runtime implementations import the unchanged legacy `Runtime` trait
+  from `marix_common`.

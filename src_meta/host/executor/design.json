@@ -3,16 +3,17 @@
   "module": {
     "path": "src/host/executor",
     "name": "executor",
-    "purpose": "Owns the synchronous host executor boundary, tool registration, execution routing, and task-level invocation failure delivery.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the shared common synchronous host executor boundary, tool registration, execution routing, and task-level invocation failure delivery.",
+    "changeStatus": "modified"
   },
+  "modified": ["executor.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Executor",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/executor.rs",
@@ -25,18 +26,15 @@
         {
           "sourcePath": "src/host/executor/executor.rs",
           "lineStart": 14,
-          "lineEnd": 20,
+          "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/host/executor/executor.rs",
-          "lineStart": 22,
-          "lineEnd": 36,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 21,
+              "lineEnd": 33
+            }
+          ]
         }
       ]
     },

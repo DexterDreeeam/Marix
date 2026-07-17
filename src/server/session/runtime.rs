@@ -4,10 +4,11 @@ use std::sync::Mutex as StdMutex;
 use std::thread;
 
 use marix_common::{
-    Actor, ChannelEndpoint, Logger, Receiver, Sender, accept_channel, build_channel, select,
+    Actor, ChannelEndpoint, Logger, Receiver, Runtime, Sender, accept_channel, build_channel,
+    select,
 };
 use marix_protocol::{
-    ExecutorEvent, IntentSignature, Runtime, SessionEvent, SessionMessage, TaskEvent, TaskRequest,
+    ExecutorEvent, IntentSignature, SessionEvent, SessionMessage, TaskEvent, TaskRequest,
     TaskSignature, TaskStatus, ToolPreview,
 };
 

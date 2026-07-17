@@ -1,5 +1,4 @@
 use marix_common::{Config, LogSource, Logger};
-use marix_protocol::Actor;
 use marix_server::Session;
 
 fn main() {

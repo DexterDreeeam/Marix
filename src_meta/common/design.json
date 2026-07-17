@@ -3,14 +3,15 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Owns shared configuration, logging, external wrappers, actor lifecycle abstractions, authenticated channels, and insertion-ordered work queues.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns shared configuration, logging, external wrappers, modern actor lifecycles, legacy runtime boundaries, signature contracts, authenticated channels, and insertion-ordered work queues.",
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs"],
   "childModules": [
     {
       "path": "src/common/actor",
       "name": "actor",
-      "purpose": "Defines shared lifecycle-backed object-safe asynchronous actors with projected Signature, Event, Result, and Runtime types."
+      "purpose": "Defines shared modern Actor, ActorRuntime, and Lifecycle abstractions alongside legacy Runtime and RuntimeAsync boundaries and Signature identity contracts."
     },
     {
       "path": "src/common/config",
@@ -38,7 +39,7 @@
       "name": "SignatureOf",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/actor.rs",
@@ -59,7 +60,7 @@
       "name": "EventOf",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/actor.rs",
@@ -80,7 +81,7 @@
       "name": "ResultOf",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/actor.rs",
@@ -101,7 +102,7 @@
       "name": "RuntimeOf",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/actor.rs",
@@ -122,7 +123,7 @@
       "name": "ActorFuture",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/actor.rs",
@@ -143,7 +144,7 @@
       "name": "ActorPrepareFuture",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/actor.rs",
@@ -164,7 +165,7 @@
       "name": "ActorEventReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/actor.rs",
@@ -185,7 +186,7 @@
       "name": "ActorCloseReceiver",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/actor.rs",
@@ -203,41 +204,20 @@
       ]
     },
     {
-      "name": "ActorBase",
+      "name": "Actor",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/actor.rs",
           "lineStart": 22,
-          "lineEnd": 34,
+          "lineEnd": 63,
           "language": "rust",
           "addedLines": [
             {
               "lineStart": 22,
-              "lineEnd": 34
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "Actor",
-      "type": "trait",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/actor/actor.rs",
-          "lineStart": 36,
-          "lineEnd": 65,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 36,
-              "lineEnd": 65
+              "lineEnd": 63
             }
           ],
           "modifiedLines": []
@@ -248,17 +228,17 @@
       "name": "ActorRuntime",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/actor.rs",
-          "lineStart": 67,
-          "lineEnd": 141,
+          "lineStart": 65,
+          "lineEnd": 139,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 67,
-              "lineEnd": 141
+              "lineStart": 65,
+              "lineEnd": 139
             }
           ],
           "modifiedLines": []
@@ -269,7 +249,7 @@
       "name": "ActorStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/lifecycle.rs",
@@ -303,7 +283,7 @@
       "name": "Lifecycle",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/lifecycle.rs",
@@ -340,6 +320,90 @@
             {
               "lineStart": 63,
               "lineEnd": 117
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Runtime",
+      "type": "trait",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/actor/runtime.rs",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 1,
+              "lineEnd": 7
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "RuntimeAsync",
+      "type": "trait",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/actor/runtime.rs",
+          "lineStart": 9,
+          "lineEnd": 16,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 16
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "SignatureKey",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/actor/signature.rs",
+          "lineStart": 3,
+          "lineEnd": 4,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 4
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "Signature",
+      "type": "trait",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/actor/signature.rs",
+          "lineStart": 6,
+          "lineEnd": 14,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 14
             }
           ],
           "modifiedLines": []

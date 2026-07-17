@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use marix_common::{Actor as ActorTrait, ActorBase, ActorRuntime as ActorRuntimeTrait};
+use marix_common::{Actor as ActorTrait, ActorRuntime as ActorRuntimeTrait};
 use marix_protocol::{StepDraft, StepEvent, StepResult, StepSignature};
 
 use super::StepRuntime;
@@ -11,14 +11,12 @@ pub struct Step {
     pub runtime: Arc<StepRuntime>,
 }
 
-impl ActorBase for Step {
+impl ActorTrait for Step {
     type Signature = StepSignature;
     type Event = StepEvent;
     type Result = StepResult;
     type Runtime = StepRuntime;
-}
 
-impl ActorTrait for Step {
     fn runtime(&self) -> &Arc<Self::Runtime> {
         &self.runtime
     }

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use marix_common::{Actor as ActorTrait, ActorBase, ActorRuntime as ActorRuntimeTrait};
+use marix_common::{Actor as ActorTrait, ActorRuntime as ActorRuntimeTrait};
 use marix_protocol::{IntentEvent, IntentResult, IntentSignature};
 
 use super::IntentRuntime;
@@ -11,14 +11,12 @@ pub struct Intent {
     pub runtime: Arc<IntentRuntime>,
 }
 
-impl ActorBase for Intent {
+impl ActorTrait for Intent {
     type Signature = IntentSignature;
     type Event = IntentEvent;
     type Result = IntentResult;
     type Runtime = IntentRuntime;
-}
 
-impl ActorTrait for Intent {
     fn runtime(&self) -> &Arc<Self::Runtime> {
         &self.runtime
     }

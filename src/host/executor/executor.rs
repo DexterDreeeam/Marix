@@ -1,8 +1,8 @@
 use std::sync::Arc;
 use std::thread;
 
-use marix_common::{Logger, SharedNetSender};
-use marix_protocol::{Actor, ExecutorEvent, Runtime, SessionMessage};
+use marix_common::{Logger, Runtime, SharedNetSender};
+use marix_protocol::{ExecutorEvent, SessionMessage};
 
 use super::runtime::ExecutorRuntime;
 use super::state::ExecutorState;
@@ -17,10 +17,8 @@ impl Executor {
             state: Arc::new(ExecutorState::new(server_tx)),
         }
     }
-}
 
-impl Actor<Executor, ExecutorEvent> for Executor {
-    fn start(&mut self) {
+    pub fn start(&mut self) {
         let state = Arc::clone(&self.state);
         drop(thread::spawn(move || {
             let runtime = ExecutorRuntime::new(state);
@@ -28,7 +26,7 @@ impl Actor<Executor, ExecutorEvent> for Executor {
         }));
     }
 
-    fn dispatch(&self, event: ExecutorEvent) {
+    pub fn dispatch(&self, event: ExecutorEvent) {
         if self.state.executor_tx.send(event).is_err() {
             Logger::warning("host executor event dispatch failed: worker stopped");
         }

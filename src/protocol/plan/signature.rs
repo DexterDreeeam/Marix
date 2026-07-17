@@ -1,7 +1,9 @@
 use std::fmt;
 
+use marix_common::Signature;
+
 use crate::external::*;
-use crate::{IntentSignature, PlanId, Signature};
+use crate::{IntentSignature, PlanId};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct PlanSignature {

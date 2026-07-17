@@ -3,16 +3,17 @@
   "module": {
     "path": "src/server/relay",
     "name": "relay",
-    "purpose": "Runs Arc-backed relay actors whose runtimes own task access, signature, prompt, model and output state, and lifecycle, with a prepared response receiver and custom async loop that assembles typed model results.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs Arc-backed relay actors through the shared common Actor contract; their runtimes own task access, signature, prompt, model and output state, and lifecycle, with a prepared response receiver and custom async loop that assembles typed model results.",
+    "changeStatus": "modified"
   },
+  "modified": ["relay.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Relay",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/relay.rs",
@@ -20,63 +21,35 @@
           "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 12
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/relay.rs",
           "lineStart": 14,
-          "lineEnd": 19,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 14,
-              "lineEnd": 19
+              "lineEnd": 30
             }
           ]
         },
         {
           "sourcePath": "src/server/relay/relay.rs",
-          "lineStart": 21,
-          "lineEnd": 32,
+          "lineStart": 34,
+          "lineEnd": 39,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 21,
-              "lineEnd": 32
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/relay.rs",
-          "lineStart": 36,
-          "lineEnd": 41,
+          "lineStart": 41,
+          "lineEnd": 51,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 36,
-              "lineEnd": 41
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/relay/relay.rs",
-          "lineStart": 43,
-          "lineEnd": 53,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 43,
-              "lineEnd": 53
-            }
-          ],
           "modifiedLines": []
         }
       ]

@@ -9,31 +9,29 @@ use crate::structure::AsyncReceiver;
 
 use super::lifecycle::{ActorStatus, Lifecycle};
 
-pub type SignatureOf<A> = <A as ActorBase>::Signature;
-pub type EventOf<A> = <A as ActorBase>::Event;
-pub type ResultOf<A> = <A as ActorBase>::Result;
-pub type RuntimeOf<A> = <A as ActorBase>::Runtime;
+pub type SignatureOf<A> = <A as Actor>::Signature;
+pub type EventOf<A> = <A as Actor>::Event;
+pub type ResultOf<A> = <A as Actor>::Result;
+pub type RuntimeOf<A> = <A as Actor>::Runtime;
 pub type ActorFuture<'a> = Pin<Box<dyn Future<Output = ()> + Send + 'a>>;
 pub type ActorPrepareFuture<'a, Prepared> =
     Pin<Box<dyn Future<Output = Option<Prepared>> + Send + 'a>>;
 pub type ActorEventReceiver<Event> = AsyncReceiver<Event>;
 pub type ActorCloseReceiver = AsyncReceiver<()>;
 
-pub trait ActorBase: Send + Sync + 'static {
+pub trait Actor: Send + Sync + 'static {
     type Signature: Display + Clone + Debug + Send + Sync + 'static;
     type Event: Debug + Send + 'static;
     type Result: Clone + Send + 'static;
     type Runtime: ActorRuntime<
-            Base: ActorBase<
+            Base: Actor<
                 Signature = Self::Signature,
                 Event = Self::Event,
                 Result = Self::Result,
                 Runtime = Self::Runtime,
             >,
         > + 'static;
-}
 
-pub trait Actor: ActorBase {
     fn runtime(&self) -> &Arc<RuntimeOf<Self>>;
 
     fn spawn(&self, runtime: Arc<RuntimeOf<Self>>);
@@ -65,7 +63,7 @@ pub trait Actor: ActorBase {
 }
 
 pub trait ActorRuntime: Send + Sync + 'static {
-    type Base: ActorBase<Runtime: ActorRuntime<Base = Self::Base>>;
+    type Base: Actor<Runtime: ActorRuntime<Base = Self::Base>>;
     type Prepared: Send + 'static;
 
     fn signature(&self) -> &SignatureOf<Self::Base>;

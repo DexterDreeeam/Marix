@@ -2,10 +2,9 @@ use std::sync::Arc;
 
 use crate::execution::ExecutionState;
 use crate::session::HostSession;
-use marix_common::{Logger, Receiver, Sender, build_channel, select};
+use marix_common::{Logger, Receiver, Runtime, Sender, build_channel, select};
 use marix_protocol::{
-    ExecutionError, ExecutionEvent, ExecutionStatus, InvocationEvent, Runtime, SessionEvent,
-    TaskEvent,
+    ExecutionError, ExecutionEvent, ExecutionStatus, InvocationEvent, SessionEvent, TaskEvent,
 };
 
 pub struct ExecutionRuntime {

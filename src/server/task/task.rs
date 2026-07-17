@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 use std::thread;
 
-use marix_common::{Actor as ActorTrait, ActorBase, ActorRuntime as ActorRuntimeTrait, Sender};
+use marix_common::{Actor as ActorTrait, ActorRuntime as ActorRuntimeTrait, Sender};
 use marix_protocol::{IntentSignature, SessionEvent, TaskEvent, TaskResult, TaskSignature};
 
 use super::TaskRuntime;
@@ -13,14 +13,12 @@ pub struct Task {
     pub runtime: Arc<TaskRuntime>,
 }
 
-impl ActorBase for Task {
+impl ActorTrait for Task {
     type Signature = TaskSignature;
     type Event = TaskEvent;
     type Result = TaskResult;
     type Runtime = TaskRuntime;
-}
 
-impl ActorTrait for Task {
     fn runtime(&self) -> &Arc<Self::Runtime> {
         &self.runtime
     }

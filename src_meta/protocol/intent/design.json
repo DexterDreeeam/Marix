@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/intent",
     "name": "intent",
-    "purpose": "Defines intent drafts, verdicts, typed results, identities, lineage-aware signatures that retain business names and display type-qualified identifiers, shared actor-status plan, step, and relay updates, and cancellation.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines intent drafts, verdicts, typed results, identities, lineage-aware signatures implementing the shared common Signature contract, shared actor-status plan, step, and relay updates, and cancellation.",
+    "changeStatus": "modified"
   },
+  "modified": ["signature.rs"],
   "childModules": [],
   "elements": [
     {
@@ -185,47 +186,47 @@
       "name": "IntentSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/signature.rs",
-          "lineStart": 7,
-          "lineEnd": 12,
+          "lineStart": 8,
+          "lineEnd": 14,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/intent/signature.rs",
-          "lineStart": 14,
-          "lineEnd": 23,
+          "lineStart": 16,
+          "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/intent/signature.rs",
-          "lineStart": 25,
-          "lineEnd": 33,
+          "lineStart": 27,
+          "lineEnd": 35,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 26,
-              "lineEnd": 28
+              "lineStart": 28,
+              "lineEnd": 30
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/intent/signature.rs",
-          "lineStart": 35,
-          "lineEnd": 39,
+          "lineStart": 37,
+          "lineEnd": 41,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 37,
-              "lineEnd": 37
+              "lineStart": 39,
+              "lineEnd": 39
             }
           ]
         }
