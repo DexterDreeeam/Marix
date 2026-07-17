@@ -7,6 +7,7 @@ pub mod structure;
 pub use actor::{
     Actor, ActorCloseReceiver, ActorEventReceiver, ActorFuture, ActorStartFuture, ActorStatus,
     EventOf, Lifecycle, ResultOf, Runtime, RuntimeOf, Signature, SignatureKey, SignatureOf,
+    StatusOf,
 };
 pub use config::{
     Arch, ClientConfig, Config, CoreConfig, DeepseekConfig, ModelBackend, ModelConfig, Platform,

@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/intent",
     "name": "intent",
-    "purpose": "Runs intent actors through shared Actor and Runtime contracts; verdict relays render the IntentAnalyze decision prompt, identify the intent without a plan, and create steps, plans, or final results from strict verdict JSON.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs intent actors, consumes typed plan, step, and relay completion results directly, handles complete, plan, tool_calls, and infeasible verdicts, and publishes IntentResult completions.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -52,7 +53,7 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",
@@ -60,7 +61,12 @@
           "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 24
+            }
+          ]
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
@@ -68,7 +74,12 @@
           "lineEnd": 42,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 37,
+              "lineEnd": 40
+            }
+          ]
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
@@ -76,25 +87,38 @@
           "lineEnd": 85,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 89,
-          "lineEnd": 349,
-          "language": "rust",
-          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 91,
-              "lineEnd": 112
+              "lineStart": 52,
+              "lineEnd": 54
+            },
+            {
+              "lineStart": 67,
+              "lineEnd": 84
             }
           ]
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 351,
-          "lineEnd": 354,
+          "lineStart": 89,
+          "lineEnd": 340,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 124,
+              "lineEnd": 269
+            },
+            {
+              "lineStart": 308,
+              "lineEnd": 318
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/intent/runtime.rs",
+          "lineStart": 342,
+          "lineEnd": 345,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

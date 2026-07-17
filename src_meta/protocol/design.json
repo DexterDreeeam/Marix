@@ -3,14 +3,15 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Defines serialized workflow contracts for tasks, plans, goals, calls, relays, execution, sessions, tools, and actor results, including strict decision JSON and externally named goals, calls, tool, and arguments fields.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines serialized workflow contracts whose actor events carry typed result statuses directly, including ExecutionResult and ExecutionResultKind outcomes.",
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs", "mod.rs"],
   "childModules": [
     {
       "path": "src/protocol/execution",
       "name": "execution",
-      "purpose": "Defines execution requests, identities, signatures implementing the shared common Signature contract while retaining business names and displaying type-qualified identifiers, errors, events, and an independent host-execution lifecycle."
+      "purpose": "Defines execution requests, identities, signatures, errors, cancellation events, and typed ExecutionResult and ExecutionResultKind outcomes."
     },
     {
       "path": "src/protocol/executor",
@@ -25,17 +26,17 @@
     {
       "path": "src/protocol/intent",
       "name": "intent",
-      "purpose": "Defines intent contexts, identities, signatures, events, results, and drafts; IntentDraft is a transparent content value, while IntentVerdict accepts exactly the complete, plan, and tool_calls JSON decisions."
+      "purpose": "Defines intent contexts, identities, signatures, results, and drafts; IntentEvent carries typed plan, step, and relay result statuses, while IntentVerdict accepts complete, plan, tool_calls, and infeasible wire decisions."
     },
     {
       "path": "src/protocol/invocation",
       "name": "invocation",
-      "purpose": "Defines invocation drafts and requests, identities, signatures, events, errors, and results; InvocationDraft exposes the JSON fields tool and arguments while retaining its Rust field names."
+      "purpose": "Defines invocation drafts, requests, identities, signatures, errors, results, and events whose execution updates carry ActorStatus<ExecutionResult> directly."
     },
     {
       "path": "src/protocol/plan",
       "name": "plan",
-      "purpose": "Defines plan contexts, identities, signatures, events, results, and drafts; PlanDraft exposes ordered goals in JSON, and PlanVerdict accepts exactly the retry and impossible decisions."
+      "purpose": "Defines plan contexts, identities, signatures, results, and drafts; PlanEvent carries typed intent and relay result statuses, and PlanVerdict supports replacement and infeasible decisions."
     },
     {
       "path": "src/protocol/relay",
@@ -50,12 +51,12 @@
     {
       "path": "src/protocol/step",
       "name": "step",
-      "purpose": "Defines invocation-based step drafts, identities, signatures, events, errors, and results; StepDraft exposes its invocation list as calls in JSON."
+      "purpose": "Defines invocation-based step drafts, identities, signatures, errors, and results; StepEvent carries ActorStatus<InvocationResult>, and StepResult contains a result kind and structured tool-call results."
     },
     {
       "path": "src/protocol/task",
       "name": "task",
-      "purpose": "Defines task requests and public previews with optional results, typed results, external transport statuses, identities, signatures, errors, and actor event envelopes."
+      "purpose": "Defines task requests, previews, typed results, external transport statuses, identities, signatures, errors, and events whose root updates carry ActorStatus<IntentResult>."
     },
     {
       "path": "src/protocol/tool",
@@ -229,6 +230,48 @@
       ]
     },
     {
+      "name": "ExecutionResultKind",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/execution/result.rs",
+          "lineStart": 3,
+          "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 8
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ExecutionResult",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/execution/result.rs",
+          "lineStart": 10,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 15
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
       "name": "ExecutionSignature",
       "type": "struct",
       "source_depth": 3,
@@ -273,27 +316,6 @@
             {
               "lineStart": 38,
               "lineEnd": 38
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "ExecutionStatus",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/execution/status.rs",
-          "lineStart": 3,
-          "lineEnd": 10,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 3,
-              "lineEnd": 10
             }
           ]
         }
@@ -366,25 +388,25 @@
       "name": "IntentVerdict",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
           "lineStart": 10,
-          "lineEnd": 22,
+          "lineEnd": 24,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 15,
-              "lineEnd": 15
+              "lineStart": 22,
+              "lineEnd": 23
             }
           ]
         },
         {
           "sourcePath": "src/protocol/intent/draft.rs",
-          "lineStart": 24,
-          "lineEnd": 28,
+          "lineStart": 26,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -416,11 +438,11 @@
       "name": "IntentEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/event.rs",
-          "lineStart": 6,
+          "lineStart": 7,
           "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
@@ -584,18 +606,18 @@
       "name": "InvocationEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/event.rs",
-          "lineStart": 5,
-          "lineEnd": 14,
+          "lineStart": 7,
+          "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 5,
-              "lineEnd": 14
+              "lineStart": 9,
+              "lineEnd": 9
             }
           ]
         }
@@ -698,6 +720,27 @@
             {
               "lineStart": 10,
               "lineEnd": 15
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolCallResultDraft",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/invocation/result.rs",
+          "lineStart": 17,
+          "lineEnd": 21,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 21
             }
           ],
           "modifiedLines": []
@@ -858,7 +901,7 @@
       "name": "PlanEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/event.rs",
@@ -1236,7 +1279,7 @@
       "name": "StepEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/event.rs",
@@ -1285,13 +1328,13 @@
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/result.rs",
-          "lineStart": 3,
-          "lineEnd": 8,
+          "lineStart": 4,
+          "lineEnd": 9,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 3,
-              "lineEnd": 8
+              "lineStart": 4,
+              "lineEnd": 9
             }
           ],
           "modifiedLines": []
@@ -1302,18 +1345,18 @@
       "name": "StepResult",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/result.rs",
-          "lineStart": 10,
-          "lineEnd": 14,
+          "lineStart": 11,
+          "lineEnd": 15,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 10,
-              "lineEnd": 14
+              "lineStart": 11,
+              "lineEnd": 15
             }
           ]
         }
@@ -1394,7 +1437,7 @@
       "name": "TaskEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/event.rs",

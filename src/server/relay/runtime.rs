@@ -101,7 +101,7 @@ impl RuntimeTrait for RelayRuntime {
     fn dispatch(&self, event: RelayEvent) {
         match event {
             RelayEvent::Cancel => {
-                if self.status() == ActorStatus::Complete {
+                if matches!(self.status(), ActorStatus::Complete(_)) {
                     return;
                 }
                 let output = self.output();
@@ -133,7 +133,10 @@ impl RuntimeTrait for RelayRuntime {
                     }
                     response = responses.recv() => {
                         let Some(response) = response else {
-                            if self.status() != ActorStatus::Complete {
+                            if !matches!(
+                                self.status(),
+                                ActorStatus::Complete(_)
+                            ) {
                                 let reason = "model stream closed \
                                     before completion".to_owned();
                                 Logger::error(format!(
@@ -154,8 +157,8 @@ impl RuntimeTrait for RelayRuntime {
         })
     }
 
-    fn on_finish(&self) {
-        self.send_owner_update(ActorStatus::Complete);
+    fn on_finish(&self, result: RelayResult) {
+        self.send_owner_update(ActorStatus::Complete(result));
     }
 }
 
@@ -163,7 +166,7 @@ impl RuntimeTrait for RelayRuntime {
 
 impl RelayRuntime {
     fn on_model_response(&self, response: ModelResponse) {
-        if self.status() == ActorStatus::Complete {
+        if matches!(self.status(), ActorStatus::Complete(_)) {
             Logger::error(format!(
                 "relay {} received model response after completion",
                 &self.signature,
@@ -223,7 +226,7 @@ impl RelayRuntime {
         RuntimeTrait::finish(self, RelayResult { kind, output });
     }
 
-    fn send_owner_update(&self, status: ActorStatus) {
+    fn send_owner_update(&self, status: ActorStatus<RelayResult>) {
         let intent = self.signature.intent.clone();
         let event = SessionEvent::Task(
             intent.task.clone(),

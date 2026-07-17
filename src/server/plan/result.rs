@@ -13,7 +13,7 @@ impl PlanRuntime {
     }
 
     pub(super) fn cancel(&self, output: String) {
-        if self.status() == ActorStatus::Complete {
+        if matches!(self.status(), ActorStatus::Complete(_)) {
             return;
         }
         let intents = self

@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/plan",
     "name": "plan",
-    "purpose": "Defines plan contexts, identities, signatures, events, results, and drafts; PlanDraft exposes ordered goals in JSON, and PlanVerdict accepts exactly the retry and impossible decisions.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines plan contexts, identities, signatures, results, and drafts; PlanEvent carries typed intent and relay result statuses, and PlanVerdict supports replacement and infeasible decisions.",
+    "changeStatus": "modified"
   },
+  "modified": ["event.rs"],
   "childModules": [],
   "elements": [
     {
@@ -112,7 +113,7 @@
       "name": "PlanEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/event.rs",

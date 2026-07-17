@@ -3,9 +3,10 @@
   "module": {
     "path": "src/host/executor",
     "name": "executor",
-    "purpose": "Owns the inherent host executor worker with public run, close, and dispatch operations, tool registration, execution routing, and task-level invocation failure delivery.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the host executor worker, routes executions and tool queries, and reports an unknown tool as ActorStatus::Complete with a failed ExecutionResult.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -76,7 +77,7 @@
       "name": "ExecutorRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -92,28 +93,24 @@
           "lineEnd": 73,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 31,
-              "lineEnd": 31
-            },
-            {
-              "lineStart": 53,
-              "lineEnd": 53
-            },
-            {
-              "lineStart": 59,
-              "lineEnd": 59
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/runtime.rs",
           "lineStart": 77,
-          "lineEnd": 170,
+          "lineEnd": 178,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 100,
+              "lineEnd": 109
+            },
+            {
+              "lineStart": 137,
+              "lineEnd": 161
+            }
+          ]
         }
       ]
     },

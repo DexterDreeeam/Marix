@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/invocation",
     "name": "invocation",
-    "purpose": "Defines invocation drafts and requests, identities, signatures, events, errors, and results; InvocationDraft exposes the JSON fields tool and arguments while retaining its Rust field names.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines invocation drafts, requests, identities, signatures, errors, results, and events whose execution updates carry ActorStatus<ExecutionResult> directly.",
+    "changeStatus": "modified"
   },
+  "modified": ["mod.rs", "result.rs", "event.rs"],
   "childModules": [],
   "elements": [
     {
@@ -33,18 +34,18 @@
       "name": "InvocationEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/event.rs",
-          "lineStart": 5,
-          "lineEnd": 14,
+          "lineStart": 7,
+          "lineEnd": 16,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 5,
-              "lineEnd": 14
+              "lineStart": 9,
+              "lineEnd": 9
             }
           ]
         }
@@ -147,6 +148,27 @@
             {
               "lineStart": 10,
               "lineEnd": 15
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolCallResultDraft",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/invocation/result.rs",
+          "lineStart": 17,
+          "lineEnd": 21,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 21
             }
           ],
           "modifiedLines": []

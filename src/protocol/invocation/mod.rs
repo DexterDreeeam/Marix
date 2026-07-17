@@ -9,5 +9,5 @@ pub use error::InvocationError;
 pub use event::InvocationEvent;
 pub use id::InvocationId;
 pub use request::{InvocationDraft, InvocationRequest};
-pub use result::{InvocationResult, InvocationResultKind};
+pub use result::{InvocationResult, InvocationResultKind, ToolCallResultDraft};
 pub use signature::InvocationSignature;

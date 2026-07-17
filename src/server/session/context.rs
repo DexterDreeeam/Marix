@@ -22,6 +22,10 @@ impl SessionContext {
             tools: self.tools.clone(),
         }
     }
+
+    pub fn is_valid_tool(&self, name: &str) -> bool {
+        self.tools.iter().any(|tool| tool.name == name)
+    }
 }
 
 pub struct SessionContextSnapshot {

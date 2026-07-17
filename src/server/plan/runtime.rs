@@ -5,9 +5,9 @@ use marix_common::{
     Actor, ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait,
 };
 use marix_protocol::{
-    IntentEvent, IntentResultKind, IntentSignature, PlanDraft, PlanEvent, PlanResult,
-    PlanResultKind, PlanSignature, PlanVerdict, RelayRequest, RelayResultKind, RelaySignature,
-    SessionEvent, TaskEvent,
+    IntentEvent, IntentResult, IntentResultKind, IntentSignature, PlanDraft, PlanEvent, PlanResult,
+    PlanResultKind, PlanSignature, PlanVerdict, RelayRequest, RelayResult, RelayResultKind,
+    RelaySignature, SessionEvent, TaskEvent,
 };
 
 use super::Plan;
@@ -73,10 +73,10 @@ impl RuntimeTrait for PlanRuntime {
         }
     }
 
-    fn on_finish(&self) {
+    fn on_finish(&self, result: PlanResult) {
         self.send_parent_event(IntentEvent::PlanUpdate(
             self.signature.clone(),
-            ActorStatus::Complete,
+            ActorStatus::Complete(result),
         ));
     }
 }
@@ -110,8 +110,8 @@ impl PlanRuntime {
         self.finish(PlanResultKind::Succeed, latest_output);
     }
 
-    fn on_intent_update(&self, signature: IntentSignature, status: ActorStatus) {
-        if self.status() == ActorStatus::Complete {
+    fn on_intent_update(&self, signature: IntentSignature, status: ActorStatus<IntentResult>) {
+        if matches!(self.status(), ActorStatus::Complete(_)) {
             Logger::error(format!(
                 "plan {} received child intent {signature} update \
                  {status:?} after completion",
@@ -119,9 +119,9 @@ impl PlanRuntime {
             ));
             return;
         }
-        if status != ActorStatus::Complete {
+        let ActorStatus::Complete(result) = status else {
             return;
-        }
+        };
         let contains_intent = self
             .intents
             .lock()
@@ -134,16 +134,6 @@ impl PlanRuntime {
             );
             return;
         }
-        let Some(result) = self.access.get_result(&signature) else {
-            self.finish(
-                PlanResultKind::Failed,
-                format!(
-                    "plan child intent {signature} completed without \
-                     a result",
-                ),
-            );
-            return;
-        };
         match result.kind {
             IntentResultKind::Succeed => self.advance(),
             IntentResultKind::Infeasible => {
@@ -225,8 +215,8 @@ impl PlanRuntime {
             .map_err(|error| format!("failed to render PlanVerdict prompt: {error}"))
     }
 
-    fn on_relay_update(&self, signature: RelaySignature, status: ActorStatus) {
-        if self.status() == ActorStatus::Complete {
+    fn on_relay_update(&self, signature: RelaySignature, status: ActorStatus<RelayResult>) {
+        if matches!(self.status(), ActorStatus::Complete(_)) {
             Logger::error(format!(
                 "plan {} received relay {signature} update \
                  {status:?} after completion",
@@ -234,14 +224,7 @@ impl PlanRuntime {
             ));
             return;
         }
-        if status != ActorStatus::Complete {
-            return;
-        }
-        let Some(result) = self.access.get_result(&signature) else {
-            self.finish(
-                PlanResultKind::Failed,
-                format!("relay {signature} completed without a result",),
-            );
+        let ActorStatus::Complete(result) = status else {
             return;
         };
         match result.kind {

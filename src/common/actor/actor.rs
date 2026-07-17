@@ -10,6 +10,7 @@ pub type SignatureOf<A> = <A as Actor>::Signature;
 pub type EventOf<A> = <A as Actor>::Event;
 pub type ResultOf<A> = <A as Actor>::Result;
 pub type RuntimeOf<A> = <A as Actor>::Runtime;
+pub type StatusOf<A> = ActorStatus<ResultOf<A>>;
 
 pub trait Actor: Send + Sync + 'static {
     type Signature: Display + Clone + Debug + Send + Sync + 'static;
@@ -32,7 +33,7 @@ pub trait Actor: Send + Sync + 'static {
         self.runtime().signature()
     }
 
-    fn status(&self) -> ActorStatus {
+    fn status(&self) -> StatusOf<Self> {
         self.runtime().lifecycle().status()
     }
 

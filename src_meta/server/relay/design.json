@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/relay",
     "name": "relay",
-    "purpose": "Runs relay actors, prompt construction, and streaming response assembly; RelayRuntime orders System, decision, then natural paired context messages, serializes calls with dynamic tool-name keys and plain failure text, and assembles sequenced model chunks without response tags.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs relay actors and prompt construction, streams model output, and publishes typed RelayResult completions directly to owning intents.",
+    "changeStatus": "modified"
   },
+  "modified": ["prompt.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -52,7 +53,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
@@ -62,8 +63,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 23,
-              "lineEnd": 24
+              "lineStart": 26,
+              "lineEnd": 26
             }
           ]
         },
@@ -73,33 +74,55 @@
           "lineEnd": 58,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 60,
-          "lineEnd": 160,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 164,
-          "lineEnd": 242,
-          "language": "rust",
-          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 165,
-              "lineEnd": 220
+              "lineStart": 55,
+              "lineEnd": 55
             }
           ]
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 244,
-          "lineEnd": 249,
+          "lineStart": 60,
+          "lineEnd": 163,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 68,
+              "lineEnd": 70
+            },
+            {
+              "lineStart": 101,
+              "lineEnd": 115
+            },
+            {
+              "lineStart": 118,
+              "lineEnd": 162
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 167,
+          "lineEnd": 245,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 168,
+              "lineEnd": 198
+            },
+            {
+              "lineStart": 225,
+              "lineEnd": 237
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 247,
+          "lineEnd": 252,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -107,28 +130,28 @@
         {
           "sourcePath": "src/server/relay/prompt.rs",
           "lineStart": 10,
-          "lineEnd": 30,
+          "lineEnd": 35,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 10,
-              "lineEnd": 30
+              "lineEnd": 34
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/server/relay/prompt.rs",
-          "lineStart": 34,
-          "lineEnd": 178,
+          "lineStart": 39,
+          "lineEnd": 165,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 34,
-              "lineEnd": 178
+              "lineStart": 39,
+              "lineEnd": 165
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     }

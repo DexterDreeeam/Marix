@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/invocation",
     "name": "invocation",
-    "purpose": "Runs Arc-backed invocation actors through the shared Actor and modern Runtime contracts; runtimes own task access, signature, tool input, execution and output tracking, and lifecycle, assemble sequenced host output, and publish typed results to parent steps.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs invocation actors, validates tools and JSON arguments, consumes typed ExecutionResult completions directly, assembles sequenced output, and publishes InvocationResult completions.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -52,57 +53,76 @@
       "name": "InvocationRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 15,
-          "lineEnd": 23,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 25,
-          "lineEnd": 41,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 43,
-          "lineEnd": 84,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 88,
-          "lineEnd": 238,
+          "lineStart": 16,
+          "lineEnd": 24,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 103,
-              "lineEnd": 103
-            },
-            {
-              "lineStart": 118,
-              "lineEnd": 118
-            },
-            {
-              "lineStart": 178,
-              "lineEnd": 178
+              "lineStart": 23,
+              "lineEnd": 23
             }
           ]
         },
         {
           "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 240,
-          "lineEnd": 243,
+          "lineStart": 26,
+          "lineEnd": 42,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 39,
+              "lineEnd": 39
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/invocation/runtime.rs",
+          "lineStart": 44,
+          "lineEnd": 113,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 52,
+              "lineEnd": 54
+            },
+            {
+              "lineStart": 56,
+              "lineEnd": 89
+            },
+            {
+              "lineStart": 94,
+              "lineEnd": 112
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/invocation/runtime.rs",
+          "lineStart": 117,
+          "lineEnd": 263,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 146,
+              "lineEnd": 184
+            },
+            {
+              "lineStart": 227,
+              "lineEnd": 248
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/invocation/runtime.rs",
+          "lineStart": 265,
+          "lineEnd": 268,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

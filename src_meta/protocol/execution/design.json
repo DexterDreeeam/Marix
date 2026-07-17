@@ -3,9 +3,12 @@
   "module": {
     "path": "src/protocol/execution",
     "name": "execution",
-    "purpose": "Defines execution requests, identities, signatures implementing the shared common Signature contract while retaining business names and displaying type-qualified identifiers, errors, events, and an independent host-execution lifecycle.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines execution requests, identities, signatures, errors, cancellation events, and typed ExecutionResult and ExecutionResultKind outcomes.",
+    "changeStatus": "modified"
   },
+  "added": ["result.rs"],
+  "modified": ["mod.rs"],
+  "deleted": ["status.rs"],
   "childModules": [],
   "elements": [
     {
@@ -81,6 +84,48 @@
       ]
     },
     {
+      "name": "ExecutionResultKind",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/execution/result.rs",
+          "lineStart": 3,
+          "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 8
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ExecutionResult",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/execution/result.rs",
+          "lineStart": 10,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 15
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
       "name": "ExecutionSignature",
       "type": "struct",
       "source_depth": 3,
@@ -125,27 +170,6 @@
             {
               "lineStart": 38,
               "lineEnd": 38
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "ExecutionStatus",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/execution/status.rs",
-          "lineStart": 3,
-          "lineEnd": 10,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 3,
-              "lineEnd": 10
             }
           ]
         }

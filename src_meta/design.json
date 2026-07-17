@@ -4,8 +4,9 @@
     "path": "src",
     "name": "src",
     "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and tool packages.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/client",
@@ -15,17 +16,17 @@
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Owns shared configuration, logging, external wrappers, the Actor and modern Runtime lifecycle contracts, signature contracts, authenticated channels, and insertion-ordered work queues."
+      "purpose": "Owns shared configuration, logging, external wrappers, generic Actor and Runtime contracts with typed completion results and a single-mutex Lifecycle, signature contracts, authenticated channels, and insertion-ordered work queues."
     },
     {
       "path": "src/host",
       "name": "host",
-      "purpose": "Owns Host connectivity, inherent execution and executor worker runtimes, task-level invocation updates, and tool registration."
+      "purpose": "Owns Host connectivity, Arc-backed per-execution actor runtimes, executor workers, tool registration, typed execution results, and unknown-tool failure delivery."
     },
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "Defines serialized workflow contracts, including relay requests that carry ContextChain values and task previews whose result is optional, alongside shared signatures, actor statuses, execution contracts, and external task transport."
+      "purpose": "Defines serialized workflow contracts whose actor events carry typed result statuses directly, including ExecutionResult and ExecutionResultKind outcomes."
     },
     {
       "path": "src/server",

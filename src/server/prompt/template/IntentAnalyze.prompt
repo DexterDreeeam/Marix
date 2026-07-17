@@ -12,4 +12,8 @@ Use plan when the current goal is not expected to finish within at most five too
 Use tool_calls when the current goal can finish within at most five tool calls, or when obtaining information first is worthwhile. Include one to five mutually independent calls that can run in parallel. Each arguments value must be a JSON-encoded string matching the selected tool schema.
 {"decision":"tool_calls","calls":[{"tool":"tool_name","arguments":"JSON argument string"}]}
 
+--- DECISION: infeasible ---
+Use infeasible only when the provided tools and planning capabilities cannot complete the current goal.
+{"decision":"infeasible","reason":"why the current goal cannot be completed"}
+
 Return only the selected JSON object with exactly the shown fields.

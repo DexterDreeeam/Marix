@@ -13,3 +13,9 @@ pub struct InvocationResult {
     pub output: String,
     pub seq_count: usize,
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ToolCallResultDraft {
+    pub tool: String,
+    pub result: InvocationResult,
+}

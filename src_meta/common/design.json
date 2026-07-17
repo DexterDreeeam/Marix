@@ -3,14 +3,15 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Owns shared configuration, logging, external wrappers, Actor and Runtime contracts with mutex-coordinated ActorStatus and lifecycle results, signature contracts, authenticated channels, and insertion-ordered work queues.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns shared configuration, logging, external wrappers, generic Actor and Runtime contracts with typed completion results and a single-mutex Lifecycle, signature contracts, authenticated channels, and insertion-ordered work queues.",
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs"],
   "childModules": [
     {
       "path": "src/common/actor",
       "name": "actor",
-      "purpose": "Defines shared Actor and Runtime contracts, mutex-coordinated ActorStatus and lifecycle results, async runtime aliases, and signature identity contracts."
+      "purpose": "Defines generic Actor and Runtime contracts, a typed StatusOf alias, and a single-mutex Lifecycle whose ActorStatus<Result> carries completion results."
     },
     {
       "path": "src/common/config",
@@ -94,6 +95,27 @@
           "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "StatusOf",
+      "type": "type-alias",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/actor/actor.rs",
+          "lineStart": 13,
+          "lineEnd": 13,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 13,
+              "lineEnd": 13
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -186,18 +208,22 @@
       "name": "Actor",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/actor.rs",
-          "lineStart": 14,
-          "lineEnd": 55,
+          "lineStart": 15,
+          "lineEnd": 56,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 18,
-              "lineEnd": 25
+              "lineEnd": 30
+            },
+            {
+              "lineStart": 36,
+              "lineEnd": 45
             }
           ]
         }
@@ -207,7 +233,7 @@
       "name": "Runtime",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/runtime.rs",
@@ -217,16 +243,16 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 47,
-              "lineEnd": 47
+              "lineStart": 23,
+              "lineEnd": 31
             },
             {
-              "lineStart": 50,
+              "lineStart": 35,
               "lineEnd": 50
             },
             {
-              "lineStart": 54,
-              "lineEnd": 54
+              "lineStart": 75,
+              "lineEnd": 80
             }
           ]
         }
@@ -236,7 +262,7 @@
       "name": "ActorStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/lifecycle.rs",
@@ -246,8 +272,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 7,
-              "lineEnd": 10
+              "lineStart": 6,
+              "lineEnd": 11
             }
           ]
         }
@@ -257,7 +283,7 @@
       "name": "Lifecycle",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/lifecycle.rs",
@@ -267,59 +293,34 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 14,
-              "lineEnd": 14
+              "lineStart": 13,
+              "lineEnd": 19
             }
           ]
         },
         {
           "sourcePath": "src/common/actor/lifecycle.rs",
           "lineStart": 21,
-          "lineEnd": 47,
+          "lineEnd": 48,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 29,
-              "lineEnd": 31
-            },
-            {
-              "lineStart": 40,
-              "lineEnd": 45
+              "lineStart": 21,
+              "lineEnd": 48
             }
           ]
         },
         {
           "sourcePath": "src/common/actor/lifecycle.rs",
-          "lineStart": 51,
-          "lineEnd": 54,
+          "lineStart": 52,
+          "lineEnd": 100,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 51,
-              "lineEnd": 54
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/common/actor/lifecycle.rs",
-          "lineStart": 56,
-          "lineEnd": 105,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 60,
-              "lineEnd": 81
-            },
-            {
-              "lineStart": 88,
-              "lineEnd": 95
-            },
-            {
-              "lineStart": 102,
-              "lineEnd": 104
+              "lineStart": 52,
+              "lineEnd": 100
             }
           ]
         }

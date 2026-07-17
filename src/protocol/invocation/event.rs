@@ -1,10 +1,12 @@
+use marix_common::ActorStatus;
+
 use crate::external::*;
 
-use crate::{ExecutionSignature, ExecutionStatus};
+use crate::{ExecutionResult, ExecutionSignature};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum InvocationEvent {
-    Update(ExecutionSignature, ExecutionStatus),
+    Update(ExecutionSignature, ActorStatus<ExecutionResult>),
     Processing {
         execution: ExecutionSignature,
         seq: usize,

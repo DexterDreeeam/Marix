@@ -3,82 +3,74 @@
   "module": {
     "path": "src/server/step",
     "name": "step",
-    "purpose": "Runs Arc-backed step actors through the shared Actor and modern Runtime contracts; runtimes own task access, signature, draft, invocation tracking, and lifecycle, register invocations through type-inferred TaskAccess insertion, resolve invocation results from signatures that infer their mapped actor and result type, and publish aggregate completion.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs step actors, consumes typed InvocationResult completions directly, and aggregates ordered structured call results into StepResult.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "StepRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/runtime.rs",
-          "lineStart": 16,
-          "lineEnd": 22,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/step/runtime.rs",
-          "lineStart": 24,
-          "lineEnd": 34,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/step/runtime.rs",
-          "lineStart": 36,
-          "lineEnd": 76,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/step/runtime.rs",
-          "lineStart": 80,
-          "lineEnd": 216,
+          "lineStart": 18,
+          "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 92,
-              "lineEnd": 92
-            },
-            {
-              "lineStart": 106,
-              "lineEnd": 106
-            },
-            {
-              "lineStart": 114,
-              "lineEnd": 114
-            },
-            {
-              "lineStart": 117,
-              "lineEnd": 117
-            },
-            {
-              "lineStart": 148,
-              "lineEnd": 148
-            },
-            {
-              "lineStart": 169,
-              "lineEnd": 169
-            },
-            {
-              "lineStart": 178,
-              "lineEnd": 178
+              "lineStart": 18,
+              "lineEnd": 25
             }
           ]
         },
         {
           "sourcePath": "src/server/step/runtime.rs",
-          "lineStart": 218,
-          "lineEnd": 221,
+          "lineStart": 27,
+          "lineEnd": 38,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 33,
+              "lineEnd": 35
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/step/runtime.rs",
+          "lineStart": 40,
+          "lineEnd": 84,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 48,
+              "lineEnd": 83
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/step/runtime.rs",
+          "lineStart": 88,
+          "lineEnd": 266,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 89,
+              "lineEnd": 257
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/step/runtime.rs",
+          "lineStart": 268,
+          "lineEnd": 271,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

@@ -101,15 +101,8 @@ impl RuntimeTrait for TaskRuntime {
         self.route(event);
     }
 
-    fn on_finish(&self) {
-        let Some(result) = self.lifecycle.result() else {
-            Logger::error(format!(
-                "task {} completed without a result",
-                &self.access.signature,
-            ));
-            return;
-        };
-        let status = match result.kind {
+    fn on_finish(&self, result: TaskResult) {
+        let status = match result.kind.clone() {
             TaskResultKind::Succeed => TaskStatus::Succeed(result),
             TaskResultKind::Canceled => TaskStatus::Canceled,
             TaskResultKind::Failed => TaskStatus::Failed {
@@ -123,22 +116,20 @@ impl RuntimeTrait for TaskRuntime {
 // -- Private -- //
 
 impl TaskRuntime {
-    pub(super) fn on_root_update(&self, signature: IntentSignature, status: ActorStatus) {
-        if status != ActorStatus::Complete {
+    pub(super) fn on_root_update(
+        &self,
+        signature: IntentSignature,
+        status: ActorStatus<IntentResult>,
+    ) {
+        let ActorStatus::Complete(result) = status else {
             return;
-        }
+        };
         if signature != self.root {
             self.fail_task(format!(
                 "root update came from unexpected intent {signature}",
             ));
             return;
         }
-        let Some(result) = self.access.get_result(&signature) else {
-            self.fail_task(format!(
-                "root intent {signature} completed without a result",
-            ));
-            return;
-        };
         self.finish_root(result);
     }
 
@@ -166,11 +157,11 @@ impl TaskRuntime {
     }
 
     pub(super) fn cancel_task(&self) {
-        if self.status() == ActorStatus::Complete {
+        if matches!(self.status(), ActorStatus::Complete(_)) {
             return;
         }
         for intent in self.intents.list() {
-            if intent.status() != ActorStatus::Complete {
+            if !matches!(intent.status(), ActorStatus::Complete(_)) {
                 intent.dispatch(IntentEvent::Cancel);
             }
         }

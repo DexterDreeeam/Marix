@@ -14,8 +14,8 @@ pub mod tool;
 
 pub use context::{Context, ContextChain};
 pub use execution::{
-    ExecutionError, ExecutionEvent, ExecutionId, ExecutionRequest, ExecutionSignature,
-    ExecutionStatus,
+    ExecutionError, ExecutionEvent, ExecutionId, ExecutionRequest, ExecutionResult,
+    ExecutionResultKind, ExecutionSignature,
 };
 pub use executor::ExecutorEvent;
 pub use intent::{
@@ -24,7 +24,7 @@ pub use intent::{
 };
 pub use invocation::{
     InvocationDraft, InvocationError, InvocationEvent, InvocationId, InvocationRequest,
-    InvocationResult, InvocationResultKind, InvocationSignature,
+    InvocationResult, InvocationResultKind, InvocationSignature, ToolCallResultDraft,
 };
 pub use message::SessionMessage;
 pub use plan::{

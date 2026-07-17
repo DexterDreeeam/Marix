@@ -5,7 +5,7 @@ use crate::Logger;
 use crate::external::*;
 use crate::structure::AsyncReceiver;
 
-use super::actor::{Actor, EventOf, ResultOf, SignatureOf};
+use super::actor::{Actor, EventOf, ResultOf, SignatureOf, StatusOf};
 use super::lifecycle::{ActorStatus, Lifecycle};
 
 pub type ActorFuture<'a> = Pin<Box<dyn Future<Output = ()> + Send + 'a>>;
@@ -26,9 +26,9 @@ pub trait Runtime: Send + Sync + 'static {
 
     fn dispatch(&self, event: EventOf<Self::Base>);
 
-    fn on_finish(&self) {}
+    fn on_finish(&self, _result: ResultOf<Self::Base>) {}
 
-    fn status(&self) -> ActorStatus {
+    fn status(&self) -> StatusOf<Self::Base> {
         self.lifecycle().status()
     }
 
@@ -44,7 +44,7 @@ pub trait Runtime: Send + Sync + 'static {
             let Some(prepared) = self.on_start().await else {
                 return;
             };
-            if self.status() == ActorStatus::Complete {
+            if matches!(self.status(), ActorStatus::Complete(_)) {
                 return;
             }
             self.event_loop(event_rx, close_rx, prepared).await;
@@ -73,10 +73,10 @@ pub trait Runtime: Send + Sync + 'static {
     }
 
     fn finish(&self, result: ResultOf<Self::Base>) {
-        if !self.lifecycle().finish(result) {
+        if !self.lifecycle().finish(result.clone()) {
             return;
         }
-        self.on_finish();
+        self.on_finish(result);
         self.close();
     }
 

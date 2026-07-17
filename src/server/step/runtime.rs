@@ -1,3 +1,4 @@
+use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
@@ -5,8 +6,9 @@ use marix_common::{
     Actor, ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait,
 };
 use marix_protocol::{
-    IntentEvent, InvocationEvent, InvocationRequest, InvocationResultKind, InvocationSignature,
-    SessionEvent, StepDraft, StepEvent, StepResult, StepResultKind, StepSignature, TaskEvent,
+    IntentEvent, InvocationEvent, InvocationRequest, InvocationResult, InvocationResultKind,
+    InvocationSignature, SessionEvent, StepDraft, StepEvent, StepResult, StepResultKind,
+    StepSignature, TaskEvent, ToolCallResultDraft,
 };
 
 use super::Step;
@@ -19,6 +21,7 @@ pub struct StepRuntime {
     pub draft: StepDraft,
     pub invocations: StdMutex<Vec<InvocationSignature>>,
     pub lifecycle: Lifecycle<StepEvent, StepResult>,
+    invocation_results: StdMutex<BTreeMap<InvocationSignature, InvocationResult>>,
 }
 
 impl StepRuntime {
@@ -29,6 +32,7 @@ impl StepRuntime {
             draft,
             invocations: StdMutex::new(Vec::new()),
             lifecycle: Lifecycle::new(),
+            invocation_results: StdMutex::new(BTreeMap::new()),
         }
     }
 }
@@ -50,7 +54,11 @@ impl RuntimeTrait for StepRuntime {
             let actors = match self.create_invocations() {
                 Ok(actors) => actors,
                 Err(reason) => {
-                    self.finish(StepResultKind::Failed, reason);
+                    Logger::error(reason);
+                    self.finish(StepResult {
+                        kind: StepResultKind::Failed,
+                        calls: Vec::new(),
+                    });
                     return None;
                 }
             };
@@ -70,8 +78,8 @@ impl RuntimeTrait for StepRuntime {
         }
     }
 
-    fn on_finish(&self) {
-        self.send_intent_update(ActorStatus::Complete);
+    fn on_finish(&self, result: StepResult) {
+        self.send_intent_update(ActorStatus::Complete(result));
     }
 }
 
@@ -90,7 +98,7 @@ impl StepRuntime {
             };
             let actor = Invocation::new(Arc::clone(&self.access), request);
             if !self.access.insert(actor.clone()) {
-                return Err(format!("invocation {signature} is duplicated",));
+                return Err(format!("invocation {signature} is duplicated"));
             }
             actors.push(actor);
             signatures.push(signature);
@@ -102,8 +110,12 @@ impl StepRuntime {
         Ok(actors)
     }
 
-    fn on_invocation_update(&self, signature: InvocationSignature, status: ActorStatus) {
-        if self.status() == ActorStatus::Complete {
+    fn on_invocation_update(
+        &self,
+        signature: InvocationSignature,
+        status: ActorStatus<InvocationResult>,
+    ) {
+        if matches!(self.status(), ActorStatus::Complete(_)) {
             Logger::error(format!(
                 "step {} received invocation {signature} update \
                  {status:?} after completion",
@@ -111,30 +123,37 @@ impl StepRuntime {
             ));
             return;
         }
-        if status != ActorStatus::Complete {
-            return;
-        }
-        let Some(result) = self.access.get_result(&signature) else {
-            self.finish(
-                StepResultKind::Failed,
-                format!(
-                    "invocation {signature} completed without a \
-                     result",
-                ),
-            );
+        let ActorStatus::Complete(result) = status else {
             return;
         };
-        match result.kind {
-            InvocationResultKind::Succeed => {
-                self.finish_if_complete();
-            }
-            InvocationResultKind::Canceled => {
-                self.finish(StepResultKind::Canceled, result.output);
-            }
-            InvocationResultKind::Failed => {
-                self.finish(StepResultKind::Failed, result.output);
-            }
+        let known = self
+            .invocations
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .contains(&signature);
+        if !known {
+            Logger::error(format!(
+                "step {} received update from unknown invocation \
+                 {signature}",
+                &self.signature,
+            ));
+            return;
         }
+        let mut results = self
+            .invocation_results
+            .lock()
+            .unwrap_or_else(|error| error.into_inner());
+        if results.contains_key(&signature) {
+            Logger::error(format!(
+                "step {} received duplicate complete update from \
+                 invocation {signature}",
+                &self.signature,
+            ));
+            return;
+        }
+        results.insert(signature, result);
+        drop(results);
+        self.finish_if_complete();
     }
 
     fn finish_if_complete(&self) {
@@ -143,30 +162,40 @@ impl StepRuntime {
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .clone();
-        let mut outputs = Vec::with_capacity(invocations.len());
+        let mut calls = Vec::with_capacity(invocations.len());
+        let mut failed = false;
+        let mut canceled = false;
+        let results = self
+            .invocation_results
+            .lock()
+            .unwrap_or_else(|error| error.into_inner());
         for signature in &invocations {
-            let Some(result) = self.access.get_result(signature) else {
+            let Some(result) = results.get(signature).cloned() else {
                 return;
             };
-            match result.kind {
-                InvocationResultKind::Succeed => {
-                    outputs.push(format!("{}: {}", &signature.name, result.output,));
-                }
-                InvocationResultKind::Canceled => {
-                    self.finish(StepResultKind::Canceled, result.output);
-                    return;
-                }
-                InvocationResultKind::Failed => {
-                    self.finish(StepResultKind::Failed, result.output);
-                    return;
-                }
+            match &result.kind {
+                InvocationResultKind::Succeed => {}
+                InvocationResultKind::Canceled => canceled = true,
+                InvocationResultKind::Failed => failed = true,
             }
+            calls.push(ToolCallResultDraft {
+                tool: signature.name.clone(),
+                result,
+            });
         }
-        self.finish(StepResultKind::Succeed, outputs.join("\n"));
+        drop(results);
+        let kind = if failed {
+            StepResultKind::Failed
+        } else if canceled {
+            StepResultKind::Canceled
+        } else {
+            StepResultKind::Succeed
+        };
+        self.finish(StepResult { kind, calls });
     }
 
     fn cancel(&self) {
-        if self.status() == ActorStatus::Complete {
+        if matches!(self.status(), ActorStatus::Complete(_)) {
             return;
         }
         let invocations = self
@@ -174,8 +203,18 @@ impl StepRuntime {
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .clone();
+        let results = self
+            .invocation_results
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clone();
+        let mut calls = Vec::with_capacity(invocations.len());
         for signature in &invocations {
-            if self.access.get_result(signature).is_some() {
+            if let Some(result) = results.get(signature).cloned() {
+                calls.push(ToolCallResultDraft {
+                    tool: signature.name.clone(),
+                    result,
+                });
                 continue;
             }
             let event = SessionEvent::Task(
@@ -189,15 +228,26 @@ impl StepRuntime {
                     &self.signature,
                 ));
             }
+            calls.push(ToolCallResultDraft {
+                tool: signature.name.clone(),
+                result: InvocationResult {
+                    kind: InvocationResultKind::Canceled,
+                    output: "tool call canceled".to_owned(),
+                    seq_count: 0,
+                },
+            });
         }
-        self.finish(StepResultKind::Canceled, "step canceled".to_owned());
+        self.finish(StepResult {
+            kind: StepResultKind::Canceled,
+            calls,
+        });
     }
 
-    fn finish(&self, kind: StepResultKind, output: String) {
-        RuntimeTrait::finish(self, StepResult { kind, output });
+    fn finish(&self, result: StepResult) {
+        RuntimeTrait::finish(self, result);
     }
 
-    fn send_intent_update(&self, status: ActorStatus) {
+    fn send_intent_update(&self, status: ActorStatus<StepResult>) {
         let intent = self.signature.intent.clone();
         let event = SessionEvent::Task(
             intent.task.clone(),

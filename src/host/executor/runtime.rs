@@ -1,10 +1,10 @@
 use std::convert::Infallible;
 use std::sync::Arc;
 
-use marix_common::{Logger, Receiver, Sender, build_channel, select};
+use marix_common::{Actor, ActorStatus, Logger, Receiver, Sender, build_channel, select};
 use marix_protocol::{
-    ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, ExecutorEvent,
-    InvocationEvent, SessionEvent, TaskEvent,
+    ExecutionEvent, ExecutionRequest, ExecutionResult, ExecutionResultKind, ExecutionSignature,
+    ExecutorEvent, InvocationEvent, SessionEvent, TaskEvent,
 };
 
 use super::state::ExecutorState;
@@ -99,11 +99,12 @@ impl ExecutorRuntime {
 
     fn create_execution(&self, request: ExecutionRequest) {
         let Some(tool) = self.state.registry.get(&request.signature.name).cloned() else {
+            let reason = format!("tool '{}' is not available", request.signature.name,);
             Logger::warning(format!(
-                "execution {} create failed: tool '{}' not found",
-                &request.signature, request.signature.name,
+                "execution {} create failed: {reason}",
+                &request.signature,
             ));
-            self.send_unknown_tool_failure(&request);
+            self.send_unknown_tool_failure(&request, reason);
             return;
         };
         let signature = request.signature.clone();
@@ -120,7 +121,7 @@ impl ExecutorRuntime {
         }
         self.state
             .executions
-            .with_mut(&signature, |execution| execution.start());
+            .with(&signature, |execution| execution.start());
     }
 
     fn send_executor_tools(&self) {
@@ -133,14 +134,21 @@ impl ExecutorRuntime {
         }
     }
 
-    fn send_unknown_tool_failure(&self, request: &ExecutionRequest) {
+    fn send_unknown_tool_failure(&self, request: &ExecutionRequest, reason: String) {
         let execution = request.signature.clone();
         let invocation = execution.invocation.clone();
         let event = SessionEvent::Task(
             invocation.step.intent.task.clone(),
             TaskEvent::Invocation(
                 invocation,
-                InvocationEvent::Update(execution, ExecutionStatus::Failed),
+                InvocationEvent::Update(
+                    execution,
+                    ActorStatus::Complete(ExecutionResult {
+                        kind: ExecutionResultKind::Failed,
+                        output: reason,
+                        seq_count: 0,
+                    }),
+                ),
             ),
         );
         if let Err(error) = self.send_server_event(event) {

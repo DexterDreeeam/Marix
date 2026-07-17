@@ -3,16 +3,17 @@
   "module": {
     "path": "src/server/session",
     "name": "session",
-    "purpose": "Owns session context, state, and runtime; SessionContext keeps the sole WorkQueue<TaskSignature, Task> registry, snapshots expose TaskPreview values, and SessionRuntime creates and dispatches tasks through that registry.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns session context, state, and runtime; SessionContext keeps task and tool registries and publicly validates tool names by exact registry lookup.",
+    "changeStatus": "modified"
   },
+  "modified": ["context.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "SessionContext",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/context.rs",
@@ -20,23 +21,18 @@
           "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 8,
-              "lineEnd": 8
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/session/context.rs",
           "lineStart": 12,
-          "lineEnd": 25,
+          "lineEnd": 29,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 13,
-              "lineEnd": 23
+              "lineStart": 26,
+              "lineEnd": 28
             }
           ]
         }
@@ -50,13 +46,13 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/session/context.rs",
-          "lineStart": 27,
-          "lineEnd": 31,
+          "lineStart": 31,
+          "lineEnd": 35,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 27,
-              "lineEnd": 31
+              "lineStart": 31,
+              "lineEnd": 35
             }
           ],
           "modifiedLines": []

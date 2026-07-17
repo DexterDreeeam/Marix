@@ -2,11 +2,12 @@ use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
+use marix_common::external::*;
 use marix_common::{ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait};
 use marix_protocol::{
-    ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, ExecutorEvent,
-    InvocationEvent, InvocationResult, InvocationResultKind, InvocationSignature, SessionEvent,
-    StepEvent, TaskEvent, ToolInputSchema,
+    ExecutionEvent, ExecutionRequest, ExecutionResult, ExecutionResultKind, ExecutionSignature,
+    ExecutorEvent, InvocationEvent, InvocationResult, InvocationResultKind, InvocationSignature,
+    SessionEvent, StepEvent, TaskEvent, ToolInputSchema,
 };
 
 use super::Invocation;
@@ -54,6 +55,34 @@ impl RuntimeTrait for InvocationRuntime {
 
     fn on_start(&self) -> ActorStartFuture<'_, Self::Prepared> {
         Box::pin(async move {
+            let session_context = match self.access.session_context() {
+                Ok(session_context) => session_context,
+                Err(reason) => {
+                    self.finish(InvocationResultKind::Failed, reason);
+                    return None;
+                }
+            };
+            let is_valid_tool = session_context
+                .lock()
+                .unwrap_or_else(|error| error.into_inner())
+                .is_valid_tool(&self.signature.name);
+            if !is_valid_tool {
+                self.finish(
+                    InvocationResultKind::Failed,
+                    format!("tool '{}' is not available", self.signature.name),
+                );
+                return None;
+            }
+            if let Err(error) = serde_json::from_str::<serde_json::Value>(&self.input) {
+                self.finish(
+                    InvocationResultKind::Failed,
+                    format!(
+                        "arguments for tool '{}' are invalid JSON: {error}",
+                        self.signature.name,
+                    ),
+                );
+                return None;
+            }
             if let Err(reason) = self.create_execution() {
                 self.finish(InvocationResultKind::Failed, reason);
                 return None;
@@ -78,8 +107,8 @@ impl RuntimeTrait for InvocationRuntime {
         }
     }
 
-    fn on_finish(&self) {
-        self.send_step_update(ActorStatus::Complete);
+    fn on_finish(&self, result: InvocationResult) {
+        self.send_step_update(ActorStatus::Complete(result));
     }
 }
 
@@ -100,7 +129,7 @@ impl InvocationRuntime {
     }
 
     fn on_processing(&self, execution: ExecutionSignature, seq: usize, content: String) {
-        if self.status() == ActorStatus::Complete {
+        if matches!(self.status(), ActorStatus::Complete(_)) {
             Logger::error(format!(
                 "invocation {} received processing update from \
                  execution {execution} after completion",
@@ -114,8 +143,8 @@ impl InvocationRuntime {
             .insert(seq, content);
     }
 
-    fn on_update(&self, execution: ExecutionSignature, status: ExecutionStatus) {
-        if self.status() == ActorStatus::Complete {
+    fn on_update(&self, execution: ExecutionSignature, status: ActorStatus<ExecutionResult>) {
+        if matches!(self.status(), ActorStatus::Complete(_)) {
             Logger::error(format!(
                 "invocation {} received execution {execution} update \
                  {status:?} after completion",
@@ -124,37 +153,33 @@ impl InvocationRuntime {
             return;
         }
         match status {
-            ExecutionStatus::Created | ExecutionStatus::Started => {}
-            ExecutionStatus::Succeed { seq_count } => {
-                let Some(output) = self.complete_output(seq_count) else {
-                    self.finish(
-                        InvocationResultKind::Failed,
-                        format!(
-                            "invocation {} completed with missing \
-                             output chunks; expected {seq_count}",
-                            &self.signature,
-                        ),
-                    );
-                    return;
-                };
-                *self
-                    .final_signal
-                    .lock()
-                    .unwrap_or_else(|error| error.into_inner()) = Some(seq_count);
-                self.finish(InvocationResultKind::Succeed, output);
-            }
-            ExecutionStatus::Canceled => {
-                self.finish(
-                    InvocationResultKind::Canceled,
-                    format!("execution {execution} canceled"),
-                );
-            }
-            ExecutionStatus::Failed => {
-                self.finish(
-                    InvocationResultKind::Failed,
-                    format!("execution {execution} failed"),
-                );
-            }
+            ActorStatus::Created | ActorStatus::Running => {}
+            ActorStatus::Complete(result) => match result.kind {
+                ExecutionResultKind::Succeed => {
+                    let Some(output) = self.complete_output(result.seq_count) else {
+                        self.finish(
+                            InvocationResultKind::Failed,
+                            format!(
+                                "invocation {} completed with missing \
+                                 output chunks; expected {}",
+                                &self.signature, result.seq_count,
+                            ),
+                        );
+                        return;
+                    };
+                    *self
+                        .final_signal
+                        .lock()
+                        .unwrap_or_else(|error| error.into_inner()) = Some(result.seq_count);
+                    self.finish(InvocationResultKind::Succeed, output);
+                }
+                ExecutionResultKind::Canceled => {
+                    self.finish(InvocationResultKind::Canceled, result.output);
+                }
+                ExecutionResultKind::Failed => {
+                    self.finish(InvocationResultKind::Failed, result.output);
+                }
+            },
         }
     }
 
@@ -175,7 +200,7 @@ impl InvocationRuntime {
     }
 
     fn cancel(&self) {
-        if self.status() == ActorStatus::Complete {
+        if matches!(self.status(), ActorStatus::Complete(_)) {
             return;
         }
         let execution = self
@@ -215,7 +240,7 @@ impl InvocationRuntime {
         );
     }
 
-    fn send_step_update(&self, status: ActorStatus) {
+    fn send_step_update(&self, status: ActorStatus<InvocationResult>) {
         let step = self.signature.step.clone();
         let event = SessionEvent::Task(
             step.intent.task.clone(),

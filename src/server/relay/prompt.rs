@@ -13,16 +13,21 @@ impl RelayRuntime {
             Some(plan) => self.access.get_context_chain(plan)?,
             None => self.access.get_context_chain(&self.signature.intent)?,
         };
-        let tools = {
-            let session_context = self.access.session_context()?;
-            let context = session_context
-                .lock()
-                .unwrap_or_else(|error| error.into_inner());
-            context.tools.clone()
+        let tools = if self.signature.plan.is_none() {
+            let tools = {
+                let session_context = self.access.session_context()?;
+                let context = session_context
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner());
+                context.tools.clone()
+            };
+            Some(tools)
+        } else {
+            None
         };
         Ok(ModelRequest {
             relay: self.signature.clone(),
-            system: self.system_prompt()?,
+            system: self.system_prompt(tools.is_some())?,
             prompts: self.prompts(&chain)?,
             tools,
         })
@@ -32,9 +37,10 @@ impl RelayRuntime {
 // -- Private -- //
 
 impl RelayRuntime {
-    fn system_prompt(&self) -> Result<String, String> {
+    fn system_prompt(&self, tool_aware: bool) -> Result<String, String> {
+        let template = if tool_aware { "System_Tools" } else { "System" };
         let mut system =
-            std::panic::catch_unwind(|| Prompt::load("System")).map_err(|payload| {
+            std::panic::catch_unwind(|| Prompt::load(template)).map_err(|payload| {
                 let detail = if let Some(message) = payload.downcast_ref::<String>() {
                     message.clone()
                 } else if let Some(message) = payload.downcast_ref::<&str>() {
@@ -42,12 +48,12 @@ impl RelayRuntime {
                 } else {
                     "unknown prompt loading panic".to_owned()
                 };
-                format!("failed to load System prompt: {detail}")
+                format!("failed to load {template} prompt: {detail}")
             })?;
         system.inject("user_request".to_owned(), self.access.user_request.clone());
         system
             .prompt()
-            .map_err(|error| format!("failed to render System prompt: {error}"))
+            .map_err(|error| format!("failed to render {template} prompt: {error}"))
     }
 
     fn context_prompts(&self, chain: &ContextChain) -> Result<Vec<String>, String> {
@@ -109,7 +115,7 @@ impl RelayRuntime {
             "To achieve the goal {goal}, the following ordered goals \
              are being followed: {goals}."
         );
-        Self::push_calls(&mut prompt, intent)?;
+        Self::tool_calls(&mut prompt, intent)?;
         if !plan.failures.is_empty() {
             let failures = plan
                 .failures
@@ -127,12 +133,19 @@ impl RelayRuntime {
     fn intent_prompt(intent: &IntentContext) -> Result<String, String> {
         let goal = Self::json(&intent.content, "current goal")?;
         let mut prompt = format!("The current goal is {goal}.");
-        Self::push_calls(&mut prompt, intent)?;
+        Self::tool_calls(&mut prompt, intent)?;
         Ok(prompt)
     }
 
-    fn push_calls(prompt: &mut String, intent: &IntentContext) -> Result<(), String> {
-        let calls = Self::calls(intent)?;
+    fn tool_calls(prompt: &mut String, intent: &IntentContext) -> Result<(), String> {
+        let mut calls = Vec::new();
+        for result in &intent.step_results {
+            for call_result in &result.calls {
+                let mut call = BTreeMap::new();
+                call.insert(call_result.tool.clone(), call_result.result.output.clone());
+                calls.push(call);
+            }
+        }
         if calls.is_empty() {
             return Ok(());
         }
@@ -141,32 +154,6 @@ impl RelayRuntime {
         prompt.push_str(&calls);
         prompt.push('.');
         Ok(())
-    }
-
-    fn calls(intent: &IntentContext) -> Result<Vec<BTreeMap<String, String>>, String> {
-        let mut calls = Vec::new();
-        for (result_index, result) in intent.step_results.iter().enumerate() {
-            for (line_index, line) in result.output.lines().enumerate() {
-                let Some((tool, output)) = line.split_once(": ") else {
-                    return Err(format!(
-                        "call output {} line {} does not contain `: `",
-                        result_index + 1,
-                        line_index + 1,
-                    ));
-                };
-                if tool.is_empty() {
-                    return Err(format!(
-                        "call output {} line {} has an empty tool name",
-                        result_index + 1,
-                        line_index + 1,
-                    ));
-                }
-                let mut call = BTreeMap::new();
-                call.insert(tool.to_owned(), output.to_owned());
-                calls.push(call);
-            }
-        }
-        Ok(calls)
     }
 
     fn json<T>(value: &T, label: &str) -> Result<String, String>

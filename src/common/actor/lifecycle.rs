@@ -3,15 +3,15 @@ use std::sync::{Mutex, MutexGuard};
 use crate::external::*;
 use crate::structure::{AsyncReceiver, AsyncSender, build_async_channel};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ActorStatus {
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ActorStatus<Result> {
     Created,
     Running,
-    Complete,
+    Complete(Result),
 }
 
 pub struct Lifecycle<Event, Result> {
-    state: Mutex<LifecycleState<Result>>,
+    state: Mutex<ActorStatus<Result>>,
     event_tx: AsyncSender<Event>,
     event_rx: Mutex<Option<AsyncReceiver<Event>>>,
     close_tx: AsyncSender<()>,
@@ -26,10 +26,7 @@ where
         let (event_tx, event_rx) = build_async_channel();
         let (close_tx, close_rx) = build_async_channel();
         Self {
-            state: Mutex::new(LifecycleState {
-                status: ActorStatus::Created,
-                result: None,
-            }),
+            state: Mutex::new(ActorStatus::Created),
             event_tx,
             event_rx: Mutex::new(Some(event_rx)),
             close_tx,
@@ -37,21 +34,20 @@ where
         }
     }
 
-    pub fn status(&self) -> ActorStatus {
-        self.lock_state().status
+    pub fn status(&self) -> ActorStatus<Result> {
+        self.lock_state().clone()
     }
 
     pub fn result(&self) -> Option<Result> {
-        self.lock_state().result.clone()
+        let state = self.lock_state();
+        match &*state {
+            ActorStatus::Complete(result) => Some(result.clone()),
+            ActorStatus::Created | ActorStatus::Running => None,
+        }
     }
 }
 
 // -- Private -- //
-
-struct LifecycleState<Result> {
-    status: ActorStatus,
-    result: Option<Result>,
-}
 
 impl<Event, Result> Lifecycle<Event, Result>
 where
@@ -60,10 +56,10 @@ where
     pub(super) fn begin(&self) -> Option<(AsyncReceiver<Event>, AsyncReceiver<()>)> {
         {
             let mut state = self.lock_state();
-            if state.status != ActorStatus::Created {
+            if !matches!(&*state, ActorStatus::Created) {
                 return None;
             }
-            state.status = ActorStatus::Running;
+            *state = ActorStatus::Running;
         }
 
         let mut event_rx = self
@@ -87,11 +83,10 @@ where
 
     pub(super) fn finish(&self, result: Result) -> bool {
         let mut state = self.lock_state();
-        if state.status == ActorStatus::Complete {
+        if matches!(&*state, ActorStatus::Complete(_)) {
             return false;
         }
-        state.result = Some(result);
-        state.status = ActorStatus::Complete;
+        *state = ActorStatus::Complete(result);
         true
     }
 
@@ -99,7 +94,7 @@ where
         self.close_tx.send(()).is_ok()
     }
 
-    fn lock_state(&self) -> MutexGuard<'_, LifecycleState<Result>> {
+    fn lock_state(&self) -> MutexGuard<'_, ActorStatus<Result>> {
         self.state.lock().unwrap_or_else(|error| error.into_inner())
     }
 }

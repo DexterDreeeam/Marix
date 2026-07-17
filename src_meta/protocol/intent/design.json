@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/intent",
     "name": "intent",
-    "purpose": "Defines intent contexts, identities, signatures, events, results, and drafts; IntentDraft is a transparent content value, while IntentVerdict accepts exactly the complete, plan, and tool_calls JSON decisions.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines intent contexts, identities, signatures, results, and drafts; IntentEvent carries typed plan, step, and relay result statuses, while IntentVerdict accepts complete, plan, tool_calls, and infeasible wire decisions.",
+    "changeStatus": "modified"
   },
+  "modified": ["draft.rs", "event.rs"],
   "childModules": [],
   "elements": [
     {
@@ -54,25 +55,25 @@
       "name": "IntentVerdict",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
           "lineStart": 10,
-          "lineEnd": 22,
+          "lineEnd": 24,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 15,
-              "lineEnd": 15
+              "lineStart": 22,
+              "lineEnd": 23
             }
           ]
         },
         {
           "sourcePath": "src/protocol/intent/draft.rs",
-          "lineStart": 24,
-          "lineEnd": 28,
+          "lineStart": 26,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -104,11 +105,11 @@
       "name": "IntentEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/event.rs",
-          "lineStart": 6,
+          "lineStart": 7,
           "lineEnd": 12,
           "language": "rust",
           "addedLines": [],

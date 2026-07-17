@@ -39,7 +39,7 @@ pub struct ModelRequest {
     pub relay: RelaySignature,
     pub system: String,
     pub prompts: Vec<String>,
-    pub tools: Vec<ToolPreview>,
+    pub tools: Option<Vec<ToolPreview>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

@@ -1,100 +1,96 @@
-use std::sync::Arc;
-
-use crate::execution::ExecutionState;
+use crate::execution::Execution;
+use crate::executor::Tool;
 use crate::session::HostSession;
-use marix_common::{Logger, Receiver, Sender, build_channel, select};
+use marix_common::{
+    ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait, SharedNetSender,
+};
 use marix_protocol::{
-    ExecutionError, ExecutionEvent, ExecutionStatus, InvocationEvent, SessionEvent, TaskEvent,
+    ExecutionEvent, ExecutionRequest, ExecutionResult, ExecutionResultKind, ExecutionSignature,
+    InvocationEvent, SessionEvent, SessionMessage, TaskEvent,
 };
 
 pub struct ExecutionRuntime {
-    pub(super) state: Arc<ExecutionState>,
-    pub close_tx: Sender<()>,
-    pub close_rx: Receiver<()>,
+    pub lifecycle: Lifecycle<ExecutionEvent, ExecutionResult>,
+    pub(super) tool: Tool,
+    pub(super) request: ExecutionRequest,
+    pub(super) server_tx: SharedNetSender<SessionMessage>,
 }
 
 impl ExecutionRuntime {
-    pub fn new(state: Arc<ExecutionState>) -> Self {
-        let (close_tx, close_rx) = build_channel();
+    pub fn new(
+        tool: Tool,
+        request: ExecutionRequest,
+        server_tx: SharedNetSender<SessionMessage>,
+    ) -> Self {
         Self {
-            state,
-            close_tx,
-            close_rx,
+            lifecycle: Lifecycle::new(),
+            tool,
+            request,
+            server_tx,
         }
     }
+}
 
-    pub fn run(&self) {
-        self.execute();
-        Logger::debug(format!(
-            "execution {} runtime loop starting",
-            &self.state.request.signature,
-        ));
-        loop {
-            select! {
-                recv(&self.close_rx) -> _ => {
-                    Logger::log(format!(
-                        "execution {} closed",
-                        &self.state.request.signature,
-                    ));
-                    break;
+impl RuntimeTrait for ExecutionRuntime {
+    type Base = Execution;
+    type Prepared = ();
+
+    fn signature(&self) -> &ExecutionSignature {
+        &self.request.signature
+    }
+
+    fn lifecycle(&self) -> &Lifecycle<ExecutionEvent, ExecutionResult> {
+        &self.lifecycle
+    }
+
+    fn on_start(&self) -> ActorStartFuture<'_, Self::Prepared> {
+        Box::pin(async move {
+            self.send_status(ActorStatus::Running);
+            Logger::log(format!("execution {} started", &self.request.signature,));
+            let content = self.tool.execute(&self.request.input);
+            self.send_processing(0, content);
+            RuntimeTrait::finish(
+                self,
+                ExecutionResult {
+                    kind: ExecutionResultKind::Succeed,
+                    output: String::new(),
+                    seq_count: 1,
                 },
-                recv(&self.state.execution_rx) -> event => {
-                    let Ok(event) = event else {
-                        break;
-                    };
-                    if let Err(error) = self.dispatch(event) {
-                        Logger::debug(format!(
-                            "execution {} runtime stopping: {error:?}",
-                            &self.state.request.signature,
-                        ));
-                        break;
-                    }
-                }
-            }
-        }
-        Logger::debug(format!(
-            "execution {} runtime loop stopped",
-            &self.state.request.signature,
-        ));
+            );
+            None
+        })
     }
 
-    pub fn close(&self) {
-        if let Err(error) = self.close_tx.send(()) {
-            Logger::warning(format!(
-                "execution {} close signal failed: {}",
-                &self.state.request.signature, error,
-            ));
-        }
-    }
-
-    pub fn dispatch(&self, event: ExecutionEvent) -> Result<(), ExecutionError> {
+    fn dispatch(&self, event: ExecutionEvent) {
         match event {
             ExecutionEvent::Cancel => {
-                self.on_cancel();
-                Err(ExecutionError::Canceled)
+                if matches!(self.status(), ActorStatus::Complete(_)) {
+                    return;
+                }
+                let reason = format!("execution {} canceled", &self.request.signature);
+                Logger::log(&reason);
+                RuntimeTrait::finish(
+                    self,
+                    ExecutionResult {
+                        kind: ExecutionResultKind::Canceled,
+                        output: reason,
+                        seq_count: 0,
+                    },
+                );
             }
         }
+    }
+
+    fn on_finish(&self, result: ExecutionResult) {
+        self.send_status(ActorStatus::Complete(result));
     }
 }
 
 // -- Private -- //
 
 impl ExecutionRuntime {
-    pub(super) fn execute(&self) {
-        self.send_status(ExecutionStatus::Created);
-        self.send_status(ExecutionStatus::Started);
-        Logger::log(format!(
-            "execution {} started",
-            &self.state.request.signature,
-        ));
-        let content = self.state.tool.execute(&self.state.request.input);
-        self.send_processing(0, content);
-        self.send_status(ExecutionStatus::Succeed { seq_count: 1 });
-        self.close();
-    }
-
-    pub(super) fn send_status(&self, status: ExecutionStatus) {
-        let execution = self.state.request.signature.clone();
+    fn send_status(&self, status: ActorStatus<ExecutionResult>) {
+        let execution = self.request.signature.clone();
         let invocation = execution.invocation.clone();
         let event = SessionEvent::Task(
             invocation.step.intent.task.clone(),
@@ -103,8 +99,8 @@ impl ExecutionRuntime {
         self.send_server_event(event);
     }
 
-    pub(super) fn send_processing(&self, seq: usize, content: String) {
-        let execution = self.state.request.signature.clone();
+    fn send_processing(&self, seq: usize, content: String) {
+        let execution = self.request.signature.clone();
         let invocation = execution.invocation.clone();
         let event = SessionEvent::Task(
             invocation.step.intent.task.clone(),
@@ -120,33 +116,23 @@ impl ExecutionRuntime {
         self.send_server_event(event);
     }
 
-    fn on_cancel(&self) {
-        Logger::log(format!(
-            "execution canceled for tool {}",
-            self.state.tool.name(),
-        ));
-        self.send_status(ExecutionStatus::Canceled);
-        self.close();
-    }
-
     fn send_server_event(&self, event: SessionEvent) {
         let message = HostSession::package_message(event);
         let mut server_tx = self
-            .state
             .server_tx
             .lock()
             .unwrap_or_else(|error| error.into_inner());
         let Some(sender) = server_tx.as_mut() else {
             Logger::warning(format!(
                 "execution {} could not send event: server is disconnected",
-                &self.state.request.signature,
+                &self.request.signature,
             ));
             return;
         };
         if let Err(error) = sender.try_send(message) {
             Logger::warning(format!(
                 "execution {} could not send event: {}",
-                &self.state.request.signature, error,
+                &self.request.signature, error,
             ));
         }
     }

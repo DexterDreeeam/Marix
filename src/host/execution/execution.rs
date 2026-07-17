@@ -2,13 +2,17 @@ use std::sync::Arc;
 use std::thread;
 
 use crate::executor::Tool;
-use marix_common::{Logger, SharedNetSender};
-use marix_protocol::{ExecutionEvent, ExecutionRequest, SessionMessage};
+use marix_common::external::*;
+use marix_common::{Actor as ActorTrait, Logger, Runtime as RuntimeTrait, SharedNetSender};
+use marix_protocol::{
+    ExecutionEvent, ExecutionRequest, ExecutionResult, ExecutionSignature, SessionMessage,
+};
 
-use super::{ExecutionRuntime, ExecutionState};
+use super::ExecutionRuntime;
 
+#[derive(Clone)]
 pub struct Execution {
-    state: Arc<ExecutionState>,
+    pub runtime: Arc<ExecutionRuntime>,
 }
 
 impl Execution {
@@ -18,24 +22,34 @@ impl Execution {
         server_tx: SharedNetSender<SessionMessage>,
     ) -> Self {
         Self {
-            state: Arc::new(ExecutionState::new(tool, request, server_tx)),
+            runtime: Arc::new(ExecutionRuntime::new(tool, request, server_tx)),
         }
     }
+}
 
-    pub fn start(&mut self) {
-        let state = Arc::clone(&self.state);
+impl ActorTrait for Execution {
+    type Signature = ExecutionSignature;
+    type Event = ExecutionEvent;
+    type Result = ExecutionResult;
+    type Runtime = ExecutionRuntime;
+
+    fn runtime(&self) -> &Arc<Self::Runtime> {
+        &self.runtime
+    }
+
+    fn spawn(&self, runtime: Arc<Self::Runtime>) {
         drop(thread::spawn(move || {
-            let runtime = ExecutionRuntime::new(state);
-            runtime.run();
+            let rt = match tokio::Builder::new_current_thread().enable_all().build() {
+                Ok(rt) => rt,
+                Err(error) => {
+                    Logger::error(format!(
+                        "execution {} runtime build failed: {error}",
+                        runtime.signature(),
+                    ));
+                    return;
+                }
+            };
+            rt.block_on(runtime.run());
         }));
-    }
-
-    pub fn dispatch(&self, event: ExecutionEvent) {
-        if self.state.execution_tx.send(event).is_err() {
-            Logger::warning(format!(
-                "execution {} event dispatch failed: worker stopped",
-                &self.state.request.signature,
-            ));
-        }
     }
 }

@@ -1312,3 +1312,35 @@ connecter to protect this distinction.
   model-facing verdict wire contract above): `IntentVerdict::Plan` remains the
   internal Rust variant, while serde and `IntentAnalyze.prompt` expose it as
   `{"decision":"plan","goals":[...]}`.
+- 2026-07-17 (structured tool results; supersedes model context history):
+  `protocol/invocation/result.rs` owns `ToolCallResultDraft`, and
+  `StepResult.calls` preserves each tool name with its full `InvocationResult`.
+  `server/step/runtime.rs` preflights exact session tool names and JSON
+  arguments before creating any Invocation, then aggregates all results with
+  Failed-over-Canceled precedence.
+- 2026-07-17 (tool-aware model requests): `ModelRequest.tools` uses
+  `Option<Vec<ToolPreview>>`; Intent relays send `Some` and render
+  `System_Tools`, while Plan relays send `None` and render `System`.
+  `backend_deepseek.rs` emits both `tools` and `tool_choice` only for `Some`,
+  including an explicitly empty tools array.
+- 2026-07-17 (workflow boundary failures): `IntentVerdict` exposes the strict
+  `infeasible` decision, and Host `ExecutionStatus::Failed` carries its reason
+  through `server/invocation/runtime.rs` into the Invocation result.
+- 2026-07-17 (invocation-owned tool validation): `SessionContext::is_valid_tool`
+  performs exact registration checks, while `InvocationRuntime::on_start`
+  validates registration and JSON arguments before creating an Execution.
+  Step creation only allocates and registers Invocation actors; validation
+  failures return through normal Invocation result aggregation.
+- 2026-07-17 (result-bearing actor lifecycle): `common/actor/lifecycle.rs`
+  stores `ActorStatus<Result>` directly in one mutex; `Complete` owns the
+  result, and `Runtime::finish` publishes that clone before passing the
+  original result to `on_finish`.
+- 2026-07-17 (workflow completion payloads): Protocol parent-update events
+  carry typed `ActorStatus<ChildResult>`. Server update handlers consume the
+  terminal payload directly; `TaskAccess::get_result` remains only for
+  `PlanRuntime::advance` and dynamic result lookup infrastructure.
+- 2026-07-17 (modern Host Execution; supersedes the ExecutionStatus failure
+  note above): `host/execution` implements the common Actor/Runtime lifecycle
+  and owns one current-thread Tokio runtime per OS thread. Blocking tool work
+  still cannot be interrupted; completion and unknown-tool failures cross the
+  Host/Server boundary as `ExecutionResult`.

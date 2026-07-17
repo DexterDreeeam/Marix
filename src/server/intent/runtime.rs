@@ -6,8 +6,8 @@ use marix_common::{
 };
 use marix_protocol::{
     IntentEvent, IntentResult, IntentResultKind, IntentSignature, IntentVerdict, PlanEvent,
-    PlanResultKind, PlanSignature, RelayRequest, RelayResultKind, RelaySignature, SessionEvent,
-    StepEvent, StepResult, StepResultKind, StepSignature, TaskEvent,
+    PlanResult, PlanResultKind, PlanSignature, RelayRequest, RelayResult, RelayResultKind,
+    RelaySignature, SessionEvent, StepEvent, StepResult, StepResultKind, StepSignature, TaskEvent,
 };
 
 use super::Intent;
@@ -79,8 +79,8 @@ impl RuntimeTrait for IntentRuntime {
         }
     }
 
-    fn on_finish(&self) {
-        self.send_task_update(ActorStatus::Complete);
+    fn on_finish(&self, result: IntentResult) {
+        self.send_task_update(ActorStatus::Complete(result));
     }
 }
 
@@ -121,8 +121,8 @@ impl IntentRuntime {
         Ok(())
     }
 
-    fn on_plan_update(&self, signature: PlanSignature, status: ActorStatus) {
-        if self.status() == ActorStatus::Complete {
+    fn on_plan_update(&self, signature: PlanSignature, status: ActorStatus<PlanResult>) {
+        if matches!(self.status(), ActorStatus::Complete(_)) {
             Logger::error(format!(
                 "intent {} received plan {signature} update \
                  {status:?} after completion",
@@ -130,9 +130,9 @@ impl IntentRuntime {
             ));
             return;
         }
-        if status != ActorStatus::Complete {
+        let ActorStatus::Complete(result) = status else {
             return;
-        }
+        };
         let plan = self
             .plan
             .lock()
@@ -145,10 +145,6 @@ impl IntentRuntime {
             ));
             return;
         }
-        let Some(result) = self.access.get_result(&signature) else {
-            self.fail(format!("plan {signature} completed without a result",));
-            return;
-        };
         match result.kind {
             PlanResultKind::Succeed => {
                 self.finish(IntentResultKind::Succeed, result.output);
@@ -163,8 +159,8 @@ impl IntentRuntime {
         }
     }
 
-    fn on_relay_update(&self, signature: RelaySignature, status: ActorStatus) {
-        if self.status() == ActorStatus::Complete {
+    fn on_relay_update(&self, signature: RelaySignature, status: ActorStatus<RelayResult>) {
+        if matches!(self.status(), ActorStatus::Complete(_)) {
             Logger::error(format!(
                 "intent {} received relay {signature} update \
                  {status:?} after completion",
@@ -172,11 +168,7 @@ impl IntentRuntime {
             ));
             return;
         }
-        if status != ActorStatus::Complete {
-            return;
-        }
-        let Some(result) = self.access.get_result(&signature) else {
-            self.fail(format!("relay {signature} completed without a result",));
+        let ActorStatus::Complete(result) = status else {
             return;
         };
         let plan = self
@@ -187,7 +179,7 @@ impl IntentRuntime {
         if let Some(plan) = plan {
             self.send_plan_event(
                 plan,
-                PlanEvent::RelayUpdate(signature, ActorStatus::Complete),
+                PlanEvent::RelayUpdate(signature, ActorStatus::Complete(result)),
             );
             return;
         }
@@ -214,8 +206,8 @@ impl IntentRuntime {
         }
     }
 
-    fn on_step_update(&self, signature: StepSignature, status: ActorStatus) {
-        if self.status() == ActorStatus::Complete {
+    fn on_step_update(&self, signature: StepSignature, status: ActorStatus<StepResult>) {
+        if matches!(self.status(), ActorStatus::Complete(_)) {
             Logger::error(format!(
                 "intent {} received step {signature} update \
                  {status:?} after completion",
@@ -223,11 +215,7 @@ impl IntentRuntime {
             ));
             return;
         }
-        if status != ActorStatus::Complete {
-            return;
-        }
-        let Some(result) = self.access.get_result(&signature) else {
-            self.fail(format!("step {signature} completed without a result",));
+        let ActorStatus::Complete(result) = status else {
             return;
         };
         let Some(updated) = self.steps.with_mut(&signature, |stored| {
@@ -255,7 +243,7 @@ impl IntentRuntime {
                 }
             }
             StepResultKind::Canceled => {
-                self.finish(IntentResultKind::Canceled, result.output);
+                self.finish(IntentResultKind::Canceled, "tool calls canceled".to_owned());
             }
         }
     }
@@ -275,11 +263,14 @@ impl IntentRuntime {
             IntentVerdict::Complete { output } => {
                 self.finish(IntentResultKind::Succeed, output);
             }
+            IntentVerdict::Infeasible { reason } => {
+                self.finish(IntentResultKind::Infeasible, reason);
+            }
         }
     }
 
     pub(super) fn cancel(&self) {
-        if self.status() == ActorStatus::Complete {
+        if matches!(self.status(), ActorStatus::Complete(_)) {
             return;
         }
         let plan = self
@@ -318,7 +309,7 @@ impl IntentRuntime {
         RuntimeTrait::finish(self, IntentResult { kind, output });
     }
 
-    fn send_task_update(&self, status: ActorStatus) {
+    fn send_task_update(&self, status: ActorStatus<IntentResult>) {
         let event = match self.signature.parent.clone() {
             None => TaskEvent::Update(self.signature.clone(), status),
             Some(parent) => {

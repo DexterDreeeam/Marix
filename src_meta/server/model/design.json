@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/model",
     "name": "model",
-    "purpose": "Owns synchronous and asynchronous model backends and streaming channels; ModelRequest carries a system message followed by ordered user prompts, while Deepseek emits compact raw request payloads, accumulates streamed content, and logs raw request and concatenated response records.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns model backends and streaming channels; Deepseek privately extracts backend-specific tool payloads and omits tools and tool_choice when tools are absent.",
+    "changeStatus": "modified"
   },
+  "modified": ["backend.rs", "backend_deepseek.rs"],
   "childModules": [],
   "elements": [
     {
@@ -86,7 +87,7 @@
       "name": "ModelRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
@@ -96,7 +97,7 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 38,
+              "lineStart": 42,
               "lineEnd": 42
             }
           ]
@@ -123,70 +124,65 @@
       "name": "DeepseekBackend",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 14,
-          "lineEnd": 19,
+          "lineStart": 15,
+          "lineEnd": 20,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 21,
-          "lineEnd": 33,
+          "lineStart": 22,
+          "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 41,
-          "lineEnd": 100,
+          "lineStart": 42,
+          "lineEnd": 101,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/backend_deepseek.rs",
+          "lineStart": 103,
+          "lineEnd": 373,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 50,
-              "lineEnd": 58
-            },
-            {
-              "lineStart": 87,
-              "lineEnd": 94
+              "lineStart": 104,
+              "lineEnd": 164
             }
           ]
         },
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 102,
-          "lineEnd": 362,
+          "lineStart": 375,
+          "lineEnd": 379,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 103,
-              "lineEnd": 153
-            },
-            {
-              "lineStart": 181,
-              "lineEnd": 210
-            },
-            {
-              "lineStart": 215,
-              "lineEnd": 245
-            },
-            {
-              "lineStart": 282,
-              "lineEnd": 361
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 376,
-          "lineEnd": 384,
+          "lineStart": 381,
+          "lineEnd": 385,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/backend_deepseek.rs",
+          "lineStart": 387,
+          "lineEnd": 396,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

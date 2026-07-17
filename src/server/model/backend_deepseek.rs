@@ -7,6 +7,7 @@ use marix_common::{
     AsyncSender, Config, DeepseekConfig, Logger, Receiver, Sender, build_async_channel,
     build_channel,
 };
+use marix_protocol::ToolPreview;
 
 use super::backend::ModelBackendImpl;
 use super::{ModelBackendError, ModelRequest, ModelResponse, ModelResponseAsyncReceiver};
@@ -103,6 +104,44 @@ impl DeepseekBackend {
     fn build_payload(&self, request: &ModelRequest) -> Result<String, ModelBackendError> {
         let tools = request
             .tools
+            .as_ref()
+            .map(|tools| self.build_tools(tools))
+            .transpose()?;
+        let mut messages = Vec::with_capacity(request.prompts.len() + 1);
+        messages.push(serde_json::json!({
+            "role": "system",
+            "content": &request.system
+        }));
+        messages.extend(request.prompts.iter().map(|prompt| {
+            serde_json::json!({
+                "role": "user",
+                "content": prompt
+            })
+        }));
+        let mut payload = serde_json::json!({
+            "model": self.config.model.trim(),
+            "messages": messages,
+            "response_format": {
+                "type": "json_object"
+            },
+            "stream": true
+        });
+        if let Some(tools) = tools {
+            payload["tools"] = serde_json::json!(tools);
+            payload["tool_choice"] = serde_json::json!("none");
+        }
+        serde_json::to_string(&payload).map_err(|error| {
+            ModelBackendError::RequestFailed(format!(
+                "failed to serialize Deepseek request payload: {error}",
+            ))
+        })
+    }
+
+    fn build_tools(
+        &self,
+        tools: &[ToolPreview],
+    ) -> Result<Vec<serde_json::Value>, ModelBackendError> {
+        tools
             .iter()
             .map(|tool| {
                 let parameters: serde_json::Value =
@@ -121,35 +160,7 @@ impl DeepseekBackend {
                     }
                 }))
             })
-            .collect::<Result<Vec<_>, ModelBackendError>>()?;
-        let mut messages = Vec::with_capacity(request.prompts.len() + 1);
-        messages.push(serde_json::json!({
-            "role": "system",
-            "content": &request.system
-        }));
-        messages.extend(request.prompts.iter().map(|prompt| {
-            serde_json::json!({
-                "role": "user",
-                "content": prompt
-            })
-        }));
-        let mut payload = serde_json::json!({
-            "model": self.config.model.trim(),
-            "messages": messages,
-            "tools": tools,
-            "response_format": {
-                "type": "json_object"
-            },
-            "stream": true
-        });
-        if !request.tools.is_empty() {
-            payload["tool_choice"] = serde_json::json!("none");
-        }
-        serde_json::to_string(&payload).map_err(|error| {
-            ModelBackendError::RequestFailed(format!(
-                "failed to serialize Deepseek request payload: {error}",
-            ))
-        })
+            .collect()
     }
 
     async fn request_async_stream(

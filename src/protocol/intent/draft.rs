@@ -19,6 +19,8 @@ pub enum IntentVerdict {
         #[serde(rename = "answer")]
         output: String,
     },
+    #[serde(rename = "infeasible")]
+    Infeasible { reason: String },
 }
 
 impl IntentVerdict {

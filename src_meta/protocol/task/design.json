@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/task",
     "name": "task",
-    "purpose": "Defines task requests and public previews with optional results, typed results, external transport statuses, identities, signatures, errors, and actor event envelopes.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines task requests, previews, typed results, external transport statuses, identities, signatures, errors, and events whose root updates carry ActorStatus<IntentResult>.",
+    "changeStatus": "modified"
   },
+  "modified": ["event.rs"],
   "childModules": [],
   "elements": [
     {
@@ -33,7 +34,7 @@
       "name": "TaskEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/event.rs",
