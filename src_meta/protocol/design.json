@@ -4,9 +4,8 @@
     "path": "src/protocol",
     "name": "protocol",
     "purpose": "Defines serialized workflow contracts whose actor events carry typed result statuses directly, including ExecutionResult and ExecutionResultKind outcomes.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["lib.rs", "mod.rs"],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -233,7 +232,7 @@
       "name": "ExecutionResultKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/result.rs",
@@ -254,7 +253,7 @@
       "name": "ExecutionResult",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/result.rs",
@@ -388,7 +387,7 @@
       "name": "IntentVerdict",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
@@ -438,7 +437,7 @@
       "name": "IntentEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/event.rs",
@@ -606,7 +605,7 @@
       "name": "InvocationEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/event.rs",
@@ -730,7 +729,7 @@
       "name": "ToolCallResultDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/result.rs",
@@ -901,7 +900,7 @@
       "name": "PlanEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/plan/event.rs",
@@ -1279,7 +1278,7 @@
       "name": "StepEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/event.rs",
@@ -1345,7 +1344,7 @@
       "name": "StepResult",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/result.rs",
@@ -1437,7 +1436,7 @@
       "name": "TaskEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/event.rs",

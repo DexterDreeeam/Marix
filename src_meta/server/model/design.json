@@ -4,9 +4,8 @@
     "path": "src/server/model",
     "name": "model",
     "purpose": "Owns model backends and streaming channels; Deepseek privately extracts backend-specific tool payloads and omits tools and tool_choice when tools are absent.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["backend.rs", "backend_deepseek.rs"],
   "childModules": [],
   "elements": [
     {
@@ -87,7 +86,7 @@
       "name": "ModelRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
@@ -124,7 +123,7 @@
       "name": "DeepseekBackend",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",

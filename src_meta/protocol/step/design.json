@@ -4,9 +4,8 @@
     "path": "src/protocol/step",
     "name": "step",
     "purpose": "Defines invocation-based step drafts, identities, signatures, errors, and results; StepEvent carries ActorStatus<InvocationResult>, and StepResult contains a result kind and structured tool-call results.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["result.rs", "event.rs"],
   "childModules": [],
   "elements": [
     {
@@ -55,7 +54,7 @@
       "name": "StepEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/event.rs",
@@ -121,7 +120,7 @@
       "name": "StepResult",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/result.rs",

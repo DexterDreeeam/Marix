@@ -4,9 +4,8 @@
     "path": "src/server/relay",
     "name": "relay",
     "purpose": "Runs relay actors and prompt construction, streams model output, and publishes typed RelayResult completions directly to owning intents.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["prompt.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -53,7 +52,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",

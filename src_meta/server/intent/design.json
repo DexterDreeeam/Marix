@@ -4,9 +4,8 @@
     "path": "src/server/intent",
     "name": "intent",
     "purpose": "Runs intent actors, consumes typed plan, step, and relay completion results directly, handles complete, plan, tool_calls, and infeasible verdicts, and publishes IntentResult completions.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -53,7 +52,7 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",

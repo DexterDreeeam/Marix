@@ -4,9 +4,8 @@
     "path": "src/server/invocation",
     "name": "invocation",
     "purpose": "Runs invocation actors, validates tools and JSON arguments, consumes typed ExecutionResult completions directly, assembles sequenced output, and publishes InvocationResult completions.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -53,7 +52,7 @@
       "name": "InvocationRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/runtime.rs",

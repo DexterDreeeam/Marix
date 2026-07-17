@@ -4,9 +4,8 @@
     "path": "src/server/task",
     "name": "task",
     "purpose": "Owns Task actors, runtimes, and TaskAccess; TaskAccess keeps a weak session-context link, while TaskRuntime consumes the typed root IntentResult directly and maps it to the external TaskStatus.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -194,7 +193,7 @@
       "name": "TaskRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/routing.rs",

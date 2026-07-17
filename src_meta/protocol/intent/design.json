@@ -4,9 +4,8 @@
     "path": "src/protocol/intent",
     "name": "intent",
     "purpose": "Defines intent contexts, identities, signatures, results, and drafts; IntentEvent carries typed plan, step, and relay result statuses, while IntentVerdict accepts complete, plan, tool_calls, and infeasible wire decisions.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["draft.rs", "event.rs"],
   "childModules": [],
   "elements": [
     {
@@ -55,7 +54,7 @@
       "name": "IntentVerdict",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
@@ -105,7 +104,7 @@
       "name": "IntentEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/event.rs",

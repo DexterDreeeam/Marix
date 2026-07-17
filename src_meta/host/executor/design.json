@@ -4,9 +4,8 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Owns the host executor worker, routes executions and tool queries, and reports an unknown tool as ActorStatus::Complete with a failed ExecutionResult.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -77,7 +76,7 @@
       "name": "ExecutorRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",

@@ -4,9 +4,8 @@
     "path": "src/common/actor",
     "name": "actor",
     "purpose": "Defines generic Actor and Runtime contracts, a typed StatusOf alias, and a single-mutex Lifecycle whose ActorStatus<Result> carries completion results.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["actor.rs", "lifecycle.rs", "mod.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -77,7 +76,7 @@
       "name": "StatusOf",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/actor.rs",
@@ -182,7 +181,7 @@
       "name": "Actor",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/actor.rs",
@@ -207,7 +206,7 @@
       "name": "Runtime",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/runtime.rs",
@@ -236,7 +235,7 @@
       "name": "ActorStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/lifecycle.rs",
@@ -257,7 +256,7 @@
       "name": "Lifecycle",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/lifecycle.rs",

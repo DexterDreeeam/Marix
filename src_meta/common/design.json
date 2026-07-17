@@ -4,9 +4,8 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Owns shared configuration, logging, external wrappers, generic Actor and Runtime contracts with typed completion results and a single-mutex Lifecycle, signature contracts, authenticated channels, and insertion-ordered work queues.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["lib.rs"],
   "childModules": [
     {
       "path": "src/common/actor",
@@ -103,7 +102,7 @@
       "name": "StatusOf",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/actor.rs",
@@ -208,7 +207,7 @@
       "name": "Actor",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/actor.rs",
@@ -233,7 +232,7 @@
       "name": "Runtime",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/runtime.rs",
@@ -262,7 +261,7 @@
       "name": "ActorStatus",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/lifecycle.rs",
@@ -283,7 +282,7 @@
       "name": "Lifecycle",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/actor/lifecycle.rs",
