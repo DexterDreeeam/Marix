@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::thread;
 
 use crate::executor::Tool;
-use marix_common::{Logger, Runtime, SharedNetSender};
+use marix_common::{Logger, SharedNetSender};
 use marix_protocol::{ExecutionEvent, ExecutionRequest, SessionMessage};
 
 use super::{ExecutionRuntime, ExecutionState};

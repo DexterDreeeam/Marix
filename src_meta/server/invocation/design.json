@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/invocation",
     "name": "invocation",
-    "purpose": "Runs Arc-backed invocation actors through the shared common Actor contract; their runtimes own task access, signature, tool input, execution and output tracking, and lifecycle, assemble sequenced host output, and publish typed results to parent steps.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs Arc-backed invocation actors through the shared Actor and modern Runtime contracts; runtimes own task access, signature, tool input, execution and output tracking, and lifecycle, assemble sequenced host output, and publish typed results to parent steps.",
+    "changeStatus": "modified"
   },
+  "modified": [".", "invocation.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -28,12 +29,7 @@
           "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 30
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/invocation/invocation.rs",
@@ -57,72 +53,61 @@
       "name": "InvocationRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 17,
-          "lineEnd": 25,
+          "lineStart": 15,
+          "lineEnd": 23,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 25
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 27,
-          "lineEnd": 43,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 27,
-              "lineEnd": 43
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 45,
-          "lineEnd": 86,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 45,
-              "lineEnd": 86
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 90,
-          "lineEnd": 240,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 90,
-              "lineEnd": 240
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 242,
-          "lineEnd": 245,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 242,
-              "lineEnd": 245
-            }
-          ],
           "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/invocation/runtime.rs",
+          "lineStart": 25,
+          "lineEnd": 41,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/invocation/runtime.rs",
+          "lineStart": 43,
+          "lineEnd": 84,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 43,
+              "lineEnd": 43
+            },
+            {
+              "lineStart": 55,
+              "lineEnd": 63
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/invocation/runtime.rs",
+          "lineStart": 88,
+          "lineEnd": 238,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/invocation/runtime.rs",
+          "lineStart": 240,
+          "lineEnd": 243,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 241,
+              "lineEnd": 241
+            }
+          ]
         }
       ]
     }

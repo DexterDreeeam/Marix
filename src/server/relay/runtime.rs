@@ -4,9 +4,8 @@ use std::sync::Mutex as StdMutex;
 
 use marix_common::external::*;
 use marix_common::{
-    ActorCloseReceiver, ActorEventReceiver, ActorFuture, ActorPrepareFuture,
-    ActorRuntime as ActorRuntimeTrait, ActorStatus, Config, Lifecycle, Logger,
-    ModelBackend as ConfigModelBackend,
+    ActorCloseReceiver, ActorEventReceiver, ActorFuture, ActorStartFuture, ActorStatus, Config,
+    Lifecycle, Logger, ModelBackend as ConfigModelBackend, Runtime as RuntimeTrait,
 };
 use marix_protocol::{
     IntentEvent, RelayEvent, RelayRequest, RelayResult, RelayResultKind, RelaySignature,
@@ -60,7 +59,7 @@ impl RelayRuntime {
     }
 }
 
-impl ActorRuntimeTrait for RelayRuntime {
+impl RuntimeTrait for RelayRuntime {
     type Base = Relay;
     type Prepared = ModelResponseAsyncReceiver;
 
@@ -72,7 +71,7 @@ impl ActorRuntimeTrait for RelayRuntime {
         &self.lifecycle
     }
 
-    fn prepare(&self) -> ActorPrepareFuture<'_, Self::Prepared> {
+    fn on_start(&self) -> ActorStartFuture<'_, Self::Prepared> {
         Box::pin(async move {
             let request = ModelRequest {
                 relay: self.signature.clone(),
@@ -221,7 +220,7 @@ impl RelayRuntime {
     }
 
     fn finish(&self, kind: RelayResultKind, output: String) {
-        ActorRuntimeTrait::finish(self, RelayResult { kind, output });
+        RuntimeTrait::finish(self, RelayResult { kind, output });
     }
 
     fn send_owner_update(&self, status: ActorStatus) {
@@ -244,7 +243,7 @@ impl RelayRuntime {
 
 #[allow(dead_code)]
 fn assert_runtime_object_safe(
-    runtime: &dyn ActorRuntimeTrait<Base = Relay, Prepared = ModelResponseAsyncReceiver>,
+    runtime: &dyn RuntimeTrait<Base = Relay, Prepared = ModelResponseAsyncReceiver>,
 ) {
     let _ = runtime.run();
 }

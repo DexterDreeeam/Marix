@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/relay",
     "name": "relay",
-    "purpose": "Runs Arc-backed relay actors through the shared common Actor contract; their runtimes own task access, signature, prompt, model and output state, and lifecycle, with a prepared response receiver and custom async loop that assembles typed model results.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs Arc-backed relay actors through the shared Actor and modern Runtime contracts; runtimes own task access, signature, prompt, model and output state, and lifecycle, with an asynchronously prepared response receiver and custom loop that assembles typed model results.",
+    "changeStatus": "modified"
   },
+  "modified": [".", "relay.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -28,12 +29,7 @@
           "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 30
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/relay.rs",
@@ -57,72 +53,61 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 22,
-          "lineEnd": 30,
+          "lineStart": 21,
+          "lineEnd": 29,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 22,
-              "lineEnd": 30
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 32,
-          "lineEnd": 61,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 32,
-              "lineEnd": 61
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 63,
-          "lineEnd": 160,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 63,
-              "lineEnd": 160
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 164,
-          "lineEnd": 243,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 164,
-              "lineEnd": 243
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 245,
-          "lineEnd": 250,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 245,
-              "lineEnd": 250
-            }
-          ],
           "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 31,
+          "lineEnd": 60,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 62,
+          "lineEnd": 159,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 62,
+              "lineEnd": 62
+            },
+            {
+              "lineStart": 74,
+              "lineEnd": 98
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 163,
+          "lineEnd": 242,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 244,
+          "lineEnd": 249,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 246,
+              "lineEnd": 246
+            }
+          ]
         }
       ]
     }

@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/intent",
     "name": "intent",
-    "purpose": "Runs Arc-backed intent actors through the shared common Actor contract; their runtimes own task access, signature, content, step and plan tracking, and lifecycle, render IntentAnalyze prompts, create steps, plans, and relays, and resolve typed child results.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs Arc-backed intent actors through the shared Actor and modern Runtime contracts; runtimes own task access, signature, content, step and plan tracking, and lifecycle, render IntentAnalyze prompts, create steps, plans, and relays, and resolve typed child results.",
+    "changeStatus": "modified"
   },
+  "modified": [".", "intent.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -28,12 +29,7 @@
           "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 30
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/intent.rs",
@@ -57,72 +53,61 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 20,
-          "lineEnd": 27,
+          "lineStart": 19,
+          "lineEnd": 26,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/intent/runtime.rs",
+          "lineStart": 28,
+          "lineEnd": 43,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/intent/runtime.rs",
+          "lineStart": 45,
+          "lineEnd": 86,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 20,
-              "lineEnd": 27
+              "lineStart": 45,
+              "lineEnd": 45
+            },
+            {
+              "lineStart": 57,
+              "lineEnd": 66
             }
           ]
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 29,
-          "lineEnd": 44,
+          "lineStart": 90,
+          "lineEnd": 367,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 29,
-              "lineEnd": 44
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 46,
-          "lineEnd": 87,
+          "lineStart": 369,
+          "lineEnd": 372,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
-            {
-              "lineStart": 46,
-              "lineEnd": 87
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 91,
-          "lineEnd": 368,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 91,
-              "lineEnd": 368
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 370,
-          "lineEnd": 373,
-          "language": "rust",
-          "addedLines": [
             {
               "lineStart": 370,
-              "lineEnd": 373
+              "lineEnd": 370
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/server/intent/workflow.rs",
@@ -130,12 +115,7 @@
           "lineEnd": 76,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 11,
-              "lineEnd": 76
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     }

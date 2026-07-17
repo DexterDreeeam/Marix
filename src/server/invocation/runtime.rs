@@ -2,9 +2,7 @@ use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
-use marix_common::{
-    ActorPrepareFuture, ActorRuntime as ActorRuntimeTrait, ActorStatus, Lifecycle, Logger,
-};
+use marix_common::{ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait};
 use marix_protocol::{
     ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, ExecutorEvent,
     InvocationEvent, InvocationResult, InvocationResultKind, InvocationSignature, SessionEvent,
@@ -42,7 +40,7 @@ impl InvocationRuntime {
     }
 }
 
-impl ActorRuntimeTrait for InvocationRuntime {
+impl RuntimeTrait for InvocationRuntime {
     type Base = Invocation;
     type Prepared = ();
 
@@ -54,7 +52,7 @@ impl ActorRuntimeTrait for InvocationRuntime {
         &self.lifecycle
     }
 
-    fn prepare(&self) -> ActorPrepareFuture<'_, Self::Prepared> {
+    fn on_start(&self) -> ActorStartFuture<'_, Self::Prepared> {
         Box::pin(async move {
             if let Err(reason) = self.create_execution() {
                 self.finish(InvocationResultKind::Failed, reason);
@@ -207,7 +205,7 @@ impl InvocationRuntime {
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .len();
-        ActorRuntimeTrait::finish(
+        RuntimeTrait::finish(
             self,
             InvocationResult {
                 kind,
@@ -240,6 +238,6 @@ impl InvocationRuntime {
 }
 
 #[allow(dead_code)]
-fn assert_runtime_object_safe(runtime: &dyn ActorRuntimeTrait<Base = Invocation, Prepared = ()>) {
+fn assert_runtime_object_safe(runtime: &dyn RuntimeTrait<Base = Invocation, Prepared = ()>) {
     let _ = runtime.run();
 }

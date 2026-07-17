@@ -3,8 +3,7 @@ use std::sync::Mutex as StdMutex;
 
 use marix_common::external::*;
 use marix_common::{
-    Actor, ActorPrepareFuture, ActorRuntime as ActorRuntimeTrait, ActorStatus, Lifecycle, Logger,
-    WorkQueue,
+    Actor, ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait, WorkQueue,
 };
 use marix_protocol::{
     IntentEvent, IntentResult, IntentResultKind, IntentSignature, IntentVerdict, PlanEvent,
@@ -43,7 +42,7 @@ impl IntentRuntime {
     }
 }
 
-impl ActorRuntimeTrait for IntentRuntime {
+impl RuntimeTrait for IntentRuntime {
     type Base = Intent;
     type Prepared = ();
 
@@ -55,7 +54,7 @@ impl ActorRuntimeTrait for IntentRuntime {
         &self.lifecycle
     }
 
-    fn prepare(&self) -> ActorPrepareFuture<'_, Self::Prepared> {
+    fn on_start(&self) -> ActorStartFuture<'_, Self::Prepared> {
         Box::pin(async move {
             Logger::log(format!("intent {} started", &self.signature,));
             if let Err(reason) = self.verdict() {
@@ -334,7 +333,7 @@ impl IntentRuntime {
     }
 
     pub(super) fn finish(&self, kind: IntentResultKind, output: String) {
-        ActorRuntimeTrait::finish(self, IntentResult { kind, output });
+        RuntimeTrait::finish(self, IntentResult { kind, output });
     }
 
     fn send_task_update(&self, status: ActorStatus) {
@@ -368,6 +367,6 @@ impl IntentRuntime {
 }
 
 #[allow(dead_code)]
-fn assert_runtime_object_safe(runtime: &dyn ActorRuntimeTrait<Base = Intent, Prepared = ()>) {
+fn assert_runtime_object_safe(runtime: &dyn RuntimeTrait<Base = Intent, Prepared = ()>) {
     let _ = runtime.run();
 }

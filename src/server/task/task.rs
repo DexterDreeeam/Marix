@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 use std::thread;
 
-use marix_common::{Actor as ActorTrait, ActorRuntime as ActorRuntimeTrait, Sender};
+use marix_common::{Actor as ActorTrait, Runtime as RuntimeTrait, Sender};
 use marix_protocol::{IntentSignature, SessionEvent, TaskEvent, TaskResult, TaskSignature};
 
 use super::TaskRuntime;

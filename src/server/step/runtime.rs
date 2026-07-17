@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
 use marix_common::{
-    Actor, ActorPrepareFuture, ActorRuntime as ActorRuntimeTrait, ActorStatus, Lifecycle, Logger,
+    Actor, ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait,
 };
 use marix_protocol::{
     IntentEvent, InvocationEvent, InvocationRequest, InvocationResultKind, InvocationSignature,
@@ -33,7 +33,7 @@ impl StepRuntime {
     }
 }
 
-impl ActorRuntimeTrait for StepRuntime {
+impl RuntimeTrait for StepRuntime {
     type Base = Step;
     type Prepared = ();
 
@@ -45,7 +45,7 @@ impl ActorRuntimeTrait for StepRuntime {
         &self.lifecycle
     }
 
-    fn prepare(&self) -> ActorPrepareFuture<'_, Self::Prepared> {
+    fn on_start(&self) -> ActorStartFuture<'_, Self::Prepared> {
         Box::pin(async move {
             let actors = match self.create_invocations() {
                 Ok(actors) => actors,
@@ -194,7 +194,7 @@ impl StepRuntime {
     }
 
     fn finish(&self, kind: StepResultKind, output: String) {
-        ActorRuntimeTrait::finish(self, StepResult { kind, output });
+        RuntimeTrait::finish(self, StepResult { kind, output });
     }
 
     fn send_intent_update(&self, status: ActorStatus) {
@@ -216,6 +216,6 @@ impl StepRuntime {
 }
 
 #[allow(dead_code)]
-fn assert_runtime_object_safe(runtime: &dyn ActorRuntimeTrait<Base = Step, Prepared = ()>) {
+fn assert_runtime_object_safe(runtime: &dyn RuntimeTrait<Base = Step, Prepared = ()>) {
     let _ = runtime.run();
 }

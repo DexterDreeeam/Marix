@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::execution::ExecutionState;
 use crate::session::HostSession;
-use marix_common::{Logger, Receiver, Runtime, Sender, build_channel, select};
+use marix_common::{Logger, Receiver, Sender, build_channel, select};
 use marix_protocol::{
     ExecutionError, ExecutionEvent, ExecutionStatus, InvocationEvent, SessionEvent, TaskEvent,
 };
@@ -22,10 +22,8 @@ impl ExecutionRuntime {
             close_rx,
         }
     }
-}
 
-impl Runtime<ExecutionEvent, ExecutionError> for ExecutionRuntime {
-    fn run(&self) {
+    pub fn run(&self) {
         self.execute();
         Logger::debug(format!(
             "execution {} runtime loop starting",
@@ -60,7 +58,7 @@ impl Runtime<ExecutionEvent, ExecutionError> for ExecutionRuntime {
         ));
     }
 
-    fn close(&self) {
+    pub fn close(&self) {
         if let Err(error) = self.close_tx.send(()) {
             Logger::warning(format!(
                 "execution {} close signal failed: {}",
@@ -69,7 +67,7 @@ impl Runtime<ExecutionEvent, ExecutionError> for ExecutionRuntime {
         }
     }
 
-    fn dispatch(&self, event: ExecutionEvent) -> Result<(), ExecutionError> {
+    pub fn dispatch(&self, event: ExecutionEvent) -> Result<(), ExecutionError> {
         match event {
             ExecutionEvent::Cancel => {
                 self.on_cancel();

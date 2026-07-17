@@ -1204,3 +1204,16 @@ connecter to protect this distinction.
   `Session` preserve public `start`/`dispatch` behavior as inherent methods;
   their runtime implementations import the unchanged legacy `Runtime` trait
   from `marix_common`.
+- 2026-07-17 (modern actor startup): `ActorRuntime::on_start` is the sole
+  asynchronous startup/preparation boundary and returns `ActorStartFuture`.
+  `run` calls it immediately after `Lifecycle::begin`; Task publishes Started
+  and logs before creating and starting its root Intent.
+- 2026-07-17 (single lifecycle runtime): `src/common/actor/runtime.rs`
+  now owns the modern `Runtime` trait and its four actor future/receiver
+  aliases; `marix_common::Runtime` is that lifecycle interface. The legacy
+  generic `Runtime<E, Error>` and `RuntimeAsync` interfaces are removed.
+  Their only active synchronous implementors—Host `ExecutionRuntime`,
+  Host `ExecutorRuntime`, and Server `SessionRuntime`—preserve
+  `run`/`close`/`dispatch` as inherent public methods. The six workflow
+  runtimes implement the modern `Runtime`; the `ActorRuntime` name is
+  retired.

@@ -1,7 +1,7 @@
 use std::convert::Infallible;
 use std::sync::Arc;
 
-use marix_common::{Logger, Receiver, Runtime, Sender, build_channel, select};
+use marix_common::{Logger, Receiver, Sender, build_channel, select};
 use marix_protocol::{
     ExecutionEvent, ExecutionRequest, ExecutionSignature, ExecutionStatus, ExecutorEvent,
     InvocationEvent, SessionEvent, TaskEvent,
@@ -13,6 +13,7 @@ use crate::session::HostSession;
 
 pub struct ExecutorRuntime {
     state: Arc<ExecutorState>,
+    #[allow(dead_code)]
     close_tx: Sender<()>,
     close_rx: Receiver<()>,
 }
@@ -26,10 +27,8 @@ impl ExecutorRuntime {
             close_rx,
         }
     }
-}
 
-impl Runtime<ExecutorEvent, Infallible> for ExecutorRuntime {
-    fn run(&self) {
+    pub fn run(&self) {
         Logger::debug("host executor runtime loop starting");
         loop {
             select! {
@@ -50,13 +49,14 @@ impl Runtime<ExecutorEvent, Infallible> for ExecutorRuntime {
         Logger::debug("host executor runtime loop stopped");
     }
 
-    fn close(&self) {
+    #[allow(dead_code)]
+    pub fn close(&self) {
         if let Err(error) = self.close_tx.send(()) {
             Logger::warning(format!("host executor close signal failed: {error}"));
         }
     }
 
-    fn dispatch(&self, event: ExecutorEvent) -> Result<(), Infallible> {
+    pub fn dispatch(&self, event: ExecutorEvent) -> Result<(), Infallible> {
         match event {
             ExecutorEvent::Execution(signature, event) => {
                 self.dispatch_execution(signature, event);

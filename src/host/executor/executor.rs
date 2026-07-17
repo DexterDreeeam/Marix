@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use std::thread;
 
-use marix_common::{Logger, Runtime, SharedNetSender};
+use marix_common::{Logger, SharedNetSender};
 use marix_protocol::{ExecutorEvent, SessionMessage};
 
 use super::runtime::ExecutorRuntime;

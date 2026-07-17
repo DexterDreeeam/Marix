@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use marix_common::{Actor as ActorTrait, ActorRuntime as ActorRuntimeTrait};
+use marix_common::{Actor as ActorTrait, Runtime as RuntimeTrait};
 use marix_protocol::{InvocationEvent, InvocationRequest, InvocationResult, InvocationSignature};
 
 use super::InvocationRuntime;

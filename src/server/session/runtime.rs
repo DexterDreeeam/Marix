@@ -4,8 +4,7 @@ use std::sync::Mutex as StdMutex;
 use std::thread;
 
 use marix_common::{
-    Actor, ChannelEndpoint, Logger, Receiver, Runtime, Sender, accept_channel, build_channel,
-    select,
+    Actor, ChannelEndpoint, Logger, Receiver, Sender, accept_channel, build_channel, select,
 };
 use marix_protocol::{
     ExecutorEvent, IntentSignature, SessionEvent, SessionMessage, TaskEvent, TaskRequest,
@@ -31,10 +30,8 @@ impl SessionRuntime {
             close_rx,
         }
     }
-}
 
-impl Runtime<SessionEvent, Infallible> for SessionRuntime {
-    fn run(&self) {
+    pub fn run(&self) {
         self.spawn_client_worker();
         self.spawn_host_worker();
         Logger::debug("core session runtime loop starting");
@@ -54,13 +51,13 @@ impl Runtime<SessionEvent, Infallible> for SessionRuntime {
         Logger::debug("core session runtime loop stopped");
     }
 
-    fn close(&self) {
+    pub fn close(&self) {
         if let Err(error) = self.close_tx.send(()) {
             Logger::warning(format!("core session close signal failed: {error}"));
         }
     }
 
-    fn dispatch(&self, event: SessionEvent) -> Result<(), Infallible> {
+    pub fn dispatch(&self, event: SessionEvent) -> Result<(), Infallible> {
         match &event {
             SessionEvent::SessionId(_) => {
                 Logger::warning("core session received unsupported session id event");

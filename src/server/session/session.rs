@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::sync::OnceLock;
 use std::thread;
 
-use marix_common::{Logger, Runtime, external::uuid};
+use marix_common::{Logger, external::uuid};
 use marix_protocol::{SessionEvent, SessionMessage};
 
 use super::{SessionRuntime, SessionState};

@@ -3,7 +3,7 @@ use std::sync::Mutex as StdMutex;
 
 use marix_common::external::*;
 use marix_common::{
-    Actor, ActorPrepareFuture, ActorRuntime as ActorRuntimeTrait, ActorStatus, Lifecycle, Logger,
+    Actor, ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait,
 };
 use marix_protocol::{
     IntentEvent, IntentResultKind, IntentSignature, PlanDraft, PlanEvent, PlanResult,
@@ -41,7 +41,7 @@ impl PlanRuntime {
     }
 }
 
-impl ActorRuntimeTrait for PlanRuntime {
+impl RuntimeTrait for PlanRuntime {
     type Base = Plan;
     type Prepared = ();
 
@@ -53,7 +53,7 @@ impl ActorRuntimeTrait for PlanRuntime {
         &self.lifecycle
     }
 
-    fn prepare(&self) -> ActorPrepareFuture<'_, Self::Prepared> {
+    fn on_start(&self) -> ActorStartFuture<'_, Self::Prepared> {
         Box::pin(async move {
             self.advance();
             Some(())
@@ -357,6 +357,6 @@ impl PlanRuntime {
 }
 
 #[allow(dead_code)]
-fn assert_runtime_object_safe(runtime: &dyn ActorRuntimeTrait<Base = Plan, Prepared = ()>) {
+fn assert_runtime_object_safe(runtime: &dyn RuntimeTrait<Base = Plan, Prepared = ()>) {
     let _ = runtime.run();
 }

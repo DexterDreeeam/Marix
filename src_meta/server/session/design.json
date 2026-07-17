@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/session",
     "name": "session",
-    "purpose": "Owns the shared common synchronous Runtime session boundary that routes modern actor-backed tasks, host execution traffic, client TaskStatus transport, and tool context.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns an inherent session worker runtime with public run, close, and dispatch operations that routes modern actor-backed tasks, host execution traffic, client TaskStatus transport, and tool context.",
+    "changeStatus": "modified"
   },
+  "modified": [".", "runtime.rs", "session.rs"],
   "childModules": [],
   "elements": [
     {
@@ -36,44 +37,44 @@
       "name": "SessionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/runtime.rs",
-          "lineStart": 18,
-          "lineEnd": 23,
+          "lineStart": 17,
+          "lineEnd": 22,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/session/runtime.rs",
-          "lineStart": 25,
-          "lineEnd": 34,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/session/runtime.rs",
-          "lineStart": 36,
-          "lineEnd": 86,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/session/runtime.rs",
-          "lineStart": 90,
-          "lineEnd": 368,
+          "lineStart": 24,
+          "lineEnd": 83,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 203,
-              "lineEnd": 268
+              "lineStart": 34,
+              "lineEnd": 34
+            },
+            {
+              "lineStart": 54,
+              "lineEnd": 54
+            },
+            {
+              "lineStart": 60,
+              "lineEnd": 60
             }
           ]
+        },
+        {
+          "sourcePath": "src/server/session/runtime.rs",
+          "lineStart": 87,
+          "lineEnd": 365,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -97,12 +98,7 @@
           "lineEnd": 44,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 31,
-              "lineEnd": 43
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },

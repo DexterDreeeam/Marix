@@ -1,4 +1,4 @@
-use marix_common::{ActorRuntime as ActorRuntimeTrait, Logger};
+use marix_common::{Logger, Runtime as RuntimeTrait};
 use marix_protocol::{IntentEvent, PlanResult, PlanResultKind, SessionEvent, TaskEvent};
 
 use super::PlanRuntime;
@@ -9,7 +9,7 @@ impl PlanRuntime {
             Logger::error(format!("plan {} failed: {output}", &self.signature,));
         }
         let result = PlanResult { kind, output };
-        ActorRuntimeTrait::finish(self, result);
+        RuntimeTrait::finish(self, result);
     }
 
     pub(super) fn cancel(&self, output: String) {

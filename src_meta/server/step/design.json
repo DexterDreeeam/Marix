@@ -3,16 +3,17 @@
   "module": {
     "path": "src/server/step",
     "name": "step",
-    "purpose": "Runs Arc-backed step actors through the shared common Actor contract; their runtimes own task access, signature, draft, invocation tracking, and lifecycle, register invocation groups, resolve typed invocation results, and publish aggregate completion.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs Arc-backed step actors through the shared Actor and modern Runtime contracts; runtimes own task access, signature, draft, invocation tracking, and lifecycle, register invocation groups, resolve typed invocation results, and publish aggregate completion.",
+    "changeStatus": "modified"
   },
+  "modified": [".", "runtime.rs", "step.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "StepRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/runtime.rs",
@@ -20,12 +21,7 @@
           "lineEnd": 22,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 16,
-              "lineEnd": 22
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/step/runtime.rs",
@@ -33,12 +29,7 @@
           "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 24,
-              "lineEnd": 34
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/step/runtime.rs",
@@ -49,7 +40,11 @@
           "modifiedLines": [
             {
               "lineStart": 36,
-              "lineEnd": 76
+              "lineEnd": 36
+            },
+            {
+              "lineStart": 48,
+              "lineEnd": 62
             }
           ]
         },
@@ -59,25 +54,20 @@
           "lineEnd": 216,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 80,
-              "lineEnd": 216
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/step/runtime.rs",
           "lineStart": 218,
           "lineEnd": 221,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 218,
-              "lineEnd": 221
+              "lineStart": 219,
+              "lineEnd": 219
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -101,12 +91,7 @@
           "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 30
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/step/step.rs",

@@ -2,8 +2,8 @@ use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
 use marix_common::{
-    Actor, ActorPrepareFuture, ActorRuntime as ActorRuntimeTrait, ActorStatus, Lifecycle, Logger,
-    Sender, WorkQueue,
+    Actor, ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait, Sender,
+    WorkQueue,
 };
 use marix_protocol::{
     IntentEvent, IntentResult, IntentResultKind, IntentSignature, InvocationSignature,
@@ -67,7 +67,7 @@ impl TaskRuntime {
     }
 }
 
-impl ActorRuntimeTrait for TaskRuntime {
+impl RuntimeTrait for TaskRuntime {
     type Base = Task;
     type Prepared = ();
 
@@ -79,8 +79,10 @@ impl ActorRuntimeTrait for TaskRuntime {
         &self.lifecycle
     }
 
-    fn prepare(&self) -> ActorPrepareFuture<'_, Self::Prepared> {
+    fn on_start(&self) -> ActorStartFuture<'_, Self::Prepared> {
         Box::pin(async move {
+            self.send_session_status(TaskStatus::Started);
+            Logger::log(format!("task {} started", &self.access.signature,));
             let root = Intent::new(
                 Arc::clone(&self.access),
                 self.root.clone(),
@@ -97,11 +99,6 @@ impl ActorRuntimeTrait for TaskRuntime {
 
     fn dispatch(&self, event: TaskEvent) {
         self.route(event);
-    }
-
-    fn on_start(&self) {
-        self.send_session_status(TaskStatus::Started);
-        Logger::log(format!("task {} started", &self.access.signature,));
     }
 
     fn on_finish(&self) {
@@ -165,7 +162,7 @@ impl TaskRuntime {
                 output,
             },
         };
-        ActorRuntimeTrait::finish(self, result);
+        RuntimeTrait::finish(self, result);
     }
 
     pub(super) fn cancel_task(&self) {
@@ -177,7 +174,7 @@ impl TaskRuntime {
                 intent.dispatch(IntentEvent::Cancel);
             }
         }
-        ActorRuntimeTrait::finish(
+        RuntimeTrait::finish(
             self,
             TaskResult {
                 kind: TaskResultKind::Canceled,
@@ -188,7 +185,7 @@ impl TaskRuntime {
 
     pub(super) fn fail_task(&self, reason: String) {
         Logger::error(format!("task {} failed: {reason}", &self.access.signature,));
-        ActorRuntimeTrait::finish(
+        RuntimeTrait::finish(
             self,
             TaskResult {
                 kind: TaskResultKind::Failed,
@@ -213,6 +210,6 @@ impl TaskRuntime {
 }
 
 #[allow(dead_code)]
-fn assert_runtime_object_safe(runtime: &dyn ActorRuntimeTrait<Base = Task, Prepared = ()>) {
+fn assert_runtime_object_safe(runtime: &dyn RuntimeTrait<Base = Task, Prepared = ()>) {
     let _ = runtime.run();
 }
