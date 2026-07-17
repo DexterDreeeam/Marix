@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/task",
     "name": "task",
-    "purpose": "Defines task requests, typed results, external transport statuses, identities, signatures implementing the shared common Signature contract while retaining business names and displaying type-qualified identifiers, errors, and actor event envelopes.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines task requests and public previews with optional results, typed results, external transport statuses, identities, signatures, errors, and actor event envelopes.",
+    "changeStatus": "modified"
   },
+  "modified": ["preview.rs"],
   "childModules": [],
   "elements": [
     {
@@ -78,7 +79,7 @@
       "name": "TaskPreview",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/preview.rs",
@@ -86,7 +87,12 @@
           "lineEnd": 8,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 7
+            }
+          ]
         }
       ]
     },

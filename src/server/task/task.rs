@@ -3,7 +3,10 @@ use std::sync::Mutex as StdMutex;
 use std::thread;
 
 use marix_common::{Actor as ActorTrait, Runtime as RuntimeTrait, Sender};
-use marix_protocol::{IntentSignature, SessionEvent, TaskEvent, TaskResult, TaskSignature};
+use marix_protocol::{
+    IntentSignature, SessionEvent, TaskEvent, TaskPreview, TaskRequestBrief, TaskResult,
+    TaskSignature,
+};
 
 use super::TaskRuntime;
 use crate::session::SessionContext;
@@ -11,6 +14,17 @@ use crate::session::SessionContext;
 #[derive(Clone)]
 pub struct Task {
     pub runtime: Arc<TaskRuntime>,
+}
+
+impl Task {
+    pub fn preview(&self) -> TaskPreview {
+        TaskPreview {
+            request: TaskRequestBrief {
+                content: self.runtime.access.user_request.clone(),
+            },
+            result: self.result(),
+        }
+    }
 }
 
 impl ActorTrait for Task {

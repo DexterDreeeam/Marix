@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Defines serialized workflow contracts, including root-to-current Context chains that render live results, ordered step history, and accumulated plan failures as JSON, while retaining shared signature, actor-status, execution-status, and external task transport contracts.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines serialized workflow contracts, including prompt-only relay requests with intent-scoped signatures that optionally identify a plan, task previews with optional results, shared signatures, actor statuses, execution contracts, and external task transport.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -40,7 +41,7 @@
     {
       "path": "src/protocol/relay",
       "name": "relay",
-      "purpose": "Defines relay requests, identities, signatures implementing the shared common Signature contract while retaining business names and displaying type-qualified identifiers, errors, cancellation events, and typed terminal model results."
+      "purpose": "Defines prompt-only relay requests and intent-scoped signatures that optionally identify a plan, plus identities, errors, cancellation events, and typed terminal model results."
     },
     {
       "path": "src/protocol/session",
@@ -55,7 +56,7 @@
     {
       "path": "src/protocol/task",
       "name": "task",
-      "purpose": "Defines task requests, typed results, external transport statuses, identities, signatures implementing the shared common Signature contract while retaining business names and displaying type-qualified identifiers, errors, and actor event envelopes."
+      "purpose": "Defines task requests and public previews with optional results, typed results, external transport statuses, identities, signatures, errors, and actor event envelopes."
     },
     {
       "path": "src/protocol/tool",
@@ -1081,7 +1082,7 @@
       "name": "RelayRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/request.rs",
@@ -1139,49 +1140,53 @@
       "name": "RelaySignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/signature.rs",
           "lineStart": 9,
-          "lineEnd": 14,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/protocol/relay/signature.rs",
-          "lineStart": 16,
-          "lineEnd": 24,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/protocol/relay/signature.rs",
-          "lineStart": 26,
-          "lineEnd": 34,
+          "lineEnd": 15,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 27,
-              "lineEnd": 29
+              "lineStart": 12,
+              "lineEnd": 12
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/relay/signature.rs",
-          "lineStart": 36,
-          "lineEnd": 40,
+          "lineStart": 17,
+          "lineEnd": 26,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 18,
+              "lineEnd": 18
+            },
+            {
+              "lineStart": 21,
+              "lineEnd": 21
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/relay/signature.rs",
+          "lineStart": 28,
+          "lineEnd": 36,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 38,
-              "lineEnd": 38
-            }
-          ]
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/relay/signature.rs",
+          "lineStart": 38,
+          "lineEnd": 42,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -1455,7 +1460,7 @@
       "name": "TaskPreview",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/preview.rs",
@@ -1463,7 +1468,12 @@
           "lineEnd": 8,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 7
+            }
+          ]
         }
       ]
     },

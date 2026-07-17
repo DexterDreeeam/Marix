@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Display};
-use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
+use std::sync::{Arc, Weak};
 
 use marix_common::external::*;
 use marix_common::{Actor, ResultOf, Sender, SignatureOf, WorkQueue};
@@ -26,7 +26,7 @@ pub(crate) trait StoredSignature: Display + Clone + Debug + Send + Sync + 'stati
 }
 
 pub struct TaskAccess {
-    pub session_context: Arc<StdMutex<SessionContext>>,
+    pub session_context: Weak<StdMutex<SessionContext>>,
     pub session_tx: Sender<SessionEvent>,
     pub signature: TaskSignature,
     pub user_request: String,
@@ -57,7 +57,7 @@ impl TaskAccess {
             .build()
             .unwrap_or_else(|error| panic!("failed to build task runtime: {error}"));
         Arc::new(Self {
-            session_context,
+            session_context: Arc::downgrade(&session_context),
             session_tx,
             signature,
             user_request,
@@ -72,6 +72,15 @@ impl TaskAccess {
 }
 
 impl TaskAccess {
+    pub(crate) fn session_context(&self) -> Result<Arc<StdMutex<SessionContext>>, String> {
+        self.session_context.upgrade().ok_or_else(|| {
+            format!(
+                "task {} session context is no longer available",
+                &self.signature,
+            )
+        })
+    }
+
     pub(crate) fn get_result<S>(&self, signature: &S) -> Option<ResultOf<S::Actor>>
     where
         S: StoredSignature,

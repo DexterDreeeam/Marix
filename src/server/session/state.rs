@@ -4,16 +4,14 @@ use marix_common::{
     Receiver, Sender, SharedNetReceiver, SharedNetSender, System, WorkQueue, build_channel,
     external::uuid,
 };
-use marix_protocol::{SessionEvent, SessionMessage, TaskSignature};
+use marix_protocol::{SessionEvent, SessionMessage};
 
 use crate::session::SessionContext;
-use crate::task::Task;
 
 pub struct SessionState {
     pub session_id: uuid::Uuid,
     pub context: Arc<StdMutex<SessionContext>>,
     pub host_sys: StdMutex<Option<System>>,
-    pub tasks: WorkQueue<TaskSignature, Arc<StdMutex<Task>>>,
     pub client_tx: SharedNetSender<SessionMessage>,
     pub client_rx: SharedNetReceiver<SessionMessage>,
     pub host_tx: SharedNetSender<SessionMessage>,
@@ -29,11 +27,10 @@ impl SessionState {
             session_id: uuid::Uuid::new_v4(),
             context: Arc::new(StdMutex::new(SessionContext {
                 system: None,
-                tasks: Vec::new(),
+                tasks: WorkQueue::new(),
                 tools: Vec::new(),
             })),
             host_sys: StdMutex::new(None),
-            tasks: WorkQueue::new(),
             client_tx: SharedNetSender::new(std::sync::Mutex::new(None)),
             client_rx: SharedNetReceiver::new(std::sync::Mutex::new(None)),
             host_tx: SharedNetSender::new(std::sync::Mutex::new(None)),

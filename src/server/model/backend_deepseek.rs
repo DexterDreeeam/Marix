@@ -47,16 +47,7 @@ impl ModelBackendImpl for DeepseekBackend {
             "deepseek request: model '{}'",
             self.config.model.trim()
         ));
-        let payload = serde_json::json!({
-            "model": self.config.model.trim(),
-            "messages": [
-                {
-                    "role": "user",
-                    "content": request.prompt
-                }
-            ],
-            "stream": true
-        });
+        let payload = self.build_payload(&request)?;
         let mut response = self
             .client
             .post(self.config.endpoint.trim())
@@ -91,16 +82,7 @@ impl ModelBackendImpl for DeepseekBackend {
             "deepseek async request: model '{}'",
             self.config.model.trim()
         ));
-        let payload = serde_json::json!({
-            "model": self.config.model.trim(),
-            "messages": [
-                {
-                    "role": "user",
-                    "content": request.prompt
-                }
-            ],
-            "stream": true
-        });
+        let payload = self.build_payload(&request)?;
         let config = self.config.clone();
         let client = self.async_client.clone();
         let (sender, receiver) = build_async_channel();
@@ -115,6 +97,52 @@ impl ModelBackendImpl for DeepseekBackend {
 }
 
 impl DeepseekBackend {
+    fn build_payload(
+        &self,
+        request: &ModelRequest,
+    ) -> Result<serde_json::Value, ModelBackendError> {
+        let tools = request
+            .tools
+            .iter()
+            .map(|tool| {
+                let parameters: serde_json::Value =
+                    serde_json::from_str(&tool.input).map_err(|error| {
+                        ModelBackendError::RequestFailed(format!(
+                            "tool `{}` input schema is invalid JSON: {error}",
+                            tool.name,
+                        ))
+                    })?;
+                Ok(serde_json::json!({
+                    "type": "function",
+                    "function": {
+                        "name": &tool.name,
+                        "description": &tool.description,
+                        "parameters": parameters
+                    }
+                }))
+            })
+            .collect::<Result<Vec<_>, ModelBackendError>>()?;
+        Ok(serde_json::json!({
+            "model": self.config.model.trim(),
+            "messages": [
+                {
+                    "role": "system",
+                    "content": &request.system
+                },
+                {
+                    "role": "user",
+                    "content": request.context.to_string()
+                },
+                {
+                    "role": "user",
+                    "content": &request.prompt
+                }
+            ],
+            "tools": tools,
+            "stream": true
+        }))
+    }
+
     async fn request_async_stream(
         client: reqwest::Client,
         config: DeepseekConfig,

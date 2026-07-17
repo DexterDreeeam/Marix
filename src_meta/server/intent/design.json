@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/intent",
     "name": "intent",
-    "purpose": "Runs Arc-backed intent actors through shared Actor and Runtime contracts; runtimes dynamically build root-to-current context chains containing ordered step history, inject only context_chain and user_request into IntentAnalyze, and create steps, plans, and relays.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs intent actors through shared Actor and Runtime contracts; verdict relays identify the intent without a plan, and successful verdicts create steps or plans.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -52,16 +53,8 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
-        {
-          "sourcePath": "src/server/intent/workflow.rs",
-          "lineStart": 11,
-          "lineEnd": 76,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
         {
           "sourcePath": "src/server/intent/runtime.rs",
           "lineStart": 18,
@@ -76,12 +69,7 @@
           "lineEnd": 42,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 27,
-              "lineEnd": 42
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
@@ -94,20 +82,20 @@
         {
           "sourcePath": "src/server/intent/runtime.rs",
           "lineStart": 89,
-          "lineEnd": 351,
+          "lineEnd": 352,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 90,
-              "lineEnd": 121
+              "lineStart": 105,
+              "lineEnd": 112
             }
           ]
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 353,
-          "lineEnd": 356,
+          "lineStart": 354,
+          "lineEnd": 357,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

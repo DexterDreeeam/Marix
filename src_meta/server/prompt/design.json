@@ -3,14 +3,15 @@
   "module": {
     "path": "src/server/prompt",
     "name": "prompt",
-    "purpose": "Owns prompt loading and rendering: non-System templates receive the shared System decision prefix, parameter markers are sliced for deferred injection, and decision prompts retain only user_request and context_chain with runtime history serialized inside the chain.",
-    "changeStatus": "unchanged"
+    "purpose": "Loads exactly one named prompt template, slices parameter markers for explicit injection, and renders only after every declared parameter is supplied.",
+    "changeStatus": "modified"
   },
+  "modified": ["prompt.rs"],
   "childModules": [
     {
       "path": "src/server/prompt/template",
       "name": "template",
-      "purpose": "Defines the shared System decision contract and IntentAnalyze and PlanVerdict resources; decision prompts retain only the shared user_request and context_chain parameters, with runtime history serialized inside the chain."
+      "purpose": "Defines decision prompt resources: System accepts task_preview, while IntentAnalyze and PlanVerdict contain only decision instructions and strict output schemas."
     }
   ],
   "elements": [
@@ -65,7 +66,7 @@
       "name": "Prompt",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/prompt.rs",
@@ -78,20 +79,20 @@
         {
           "sourcePath": "src/server/prompt/prompt.rs",
           "lineStart": 20,
-          "lineEnd": 91,
+          "lineEnd": 85,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 21,
-              "lineEnd": 46
+              "lineEnd": 40
             }
           ]
         },
         {
           "sourcePath": "src/server/prompt/prompt.rs",
-          "lineStart": 95,
-          "lineEnd": 169,
+          "lineStart": 89,
+          "lineEnd": 163,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

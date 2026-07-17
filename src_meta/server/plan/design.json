@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/plan",
     "name": "plan",
-    "purpose": "Runs Arc-backed plan actors through shared Actor and Runtime contracts; runtimes dynamically build root-to-current context chains containing accumulated failures, inject only context_chain and user_request into PlanVerdict, reconstruct plans, and create child intents and relays.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs plan actors through shared Actor and Runtime contracts; verdict relays identify the current plan so relay runtime can build accumulated plan context, then plans are reconstructed or finished with typed outcomes.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -52,7 +53,7 @@
       "name": "PlanRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",
@@ -68,12 +69,7 @@
           "lineEnd": 41,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 27,
-              "lineEnd": 41
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/plan/runtime.rs",
@@ -86,36 +82,20 @@
         {
           "sourcePath": "src/server/plan/runtime.rs",
           "lineStart": 86,
-          "lineEnd": 320,
+          "lineEnd": 318,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 210,
-              "lineEnd": 228
+              "lineStart": 186,
+              "lineEnd": 193
             }
           ]
         },
         {
           "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 322,
-          "lineEnd": 325,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/plan/result.rs",
-          "lineStart": 6,
-          "lineEnd": 39,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/plan/result.rs",
-          "lineStart": 43,
-          "lineEnd": 54,
+          "lineStart": 320,
+          "lineEnd": 323,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

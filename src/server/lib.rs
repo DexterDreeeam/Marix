@@ -17,6 +17,6 @@ pub use model::{
 pub use plan::{Plan, PlanRuntime};
 pub use prompt::{Prompt, PromptError};
 pub use relay::{Relay, RelayRuntime};
-pub use session::{Session, SessionContext, SessionRuntime, SessionState};
+pub use session::{Session, SessionContext, SessionContextSnapshot, SessionRuntime, SessionState};
 pub use step::{Step, StepRuntime};
 pub use task::{Task, TaskAccess, TaskRuntime};

@@ -186,6 +186,7 @@ impl PlanRuntime {
         let request = RelayRequest {
             signature: RelaySignature::new(
                 self.signature.intent.as_ref().clone(),
+                Some(self.signature.clone()),
                 "plan-verdict".to_owned(),
             ),
             prompt,
@@ -208,8 +209,7 @@ impl PlanRuntime {
     }
 
     fn verdict_prompt(&self) -> Result<String, String> {
-        let context_chain = self.access.get_context_chain(&self.signature)?.to_string();
-        let mut prompt =
+        let prompt =
             std::panic::catch_unwind(|| Prompt::load("PlanVerdict")).map_err(|payload| {
                 let detail = if let Some(message) = payload.downcast_ref::<String>() {
                     message.clone()
@@ -220,8 +220,6 @@ impl PlanRuntime {
                 };
                 format!("failed to load PlanVerdict prompt: {detail}",)
             })?;
-        prompt.inject("user_request".to_owned(), self.access.user_request.clone());
-        prompt.inject("context_chain".to_owned(), context_chain);
         prompt
             .prompt()
             .map_err(|error| format!("failed to render PlanVerdict prompt: {error}"))

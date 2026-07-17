@@ -1,10 +1,10 @@
 use std::convert::Infallible;
 use std::sync::Arc;
-use std::sync::Mutex as StdMutex;
 use std::thread;
 
 use marix_common::{
-    Actor, ChannelEndpoint, Logger, Receiver, Sender, accept_channel, build_channel, select,
+    Actor, ChannelEndpoint, Logger, Receiver, Sender, WorkQueue, accept_channel, build_channel,
+    select,
 };
 use marix_protocol::{
     ExecutorEvent, IntentSignature, SessionEvent, SessionMessage, TaskEvent, TaskRequest,
@@ -227,41 +227,50 @@ impl SessionRuntime {
         Logger::log(format!("task {signature} created"));
         self.send_client_event(SessionEvent::TaskUpdate(TaskStatus::Created));
         let root = IntentSignature::new(signature.clone(), None, "root".to_owned());
-        let task = Arc::new(StdMutex::new(Task::new(
+        let task = Task::new(
             Arc::clone(&self.state.context),
             signature.clone(),
             root,
             content,
             self.state.session_tx.clone(),
-        )));
-        self.state
-            .tasks
-            .insert(signature.clone(), Arc::clone(&task));
-        self.state.tasks.with_mut(&signature, |task| {
-            task.lock()
-                .unwrap_or_else(|error| error.into_inner())
-                .start();
-        });
+        );
+        let inserted = {
+            let context = self
+                .state
+                .context
+                .lock()
+                .unwrap_or_else(|error| error.into_inner());
+            if context.tasks.with(&signature, |_| ()).is_some() {
+                false
+            } else {
+                context.tasks.insert(signature.clone(), task.clone());
+                true
+            }
+        };
+        if !inserted {
+            Logger::warning(format!(
+                "task {signature} create ignored: task already exists",
+            ));
+            return;
+        }
+        task.start();
     }
 
     fn dispatch_task(&self, signature: &TaskSignature, event: TaskEvent) {
-        let mut event = Some(event);
-        let Some(()) = self.state.tasks.with(signature, |task| {
-            task.lock()
-                .unwrap_or_else(|error| error.into_inner())
-                .dispatch(
-                    event
-                        .take()
-                        .unwrap_or_else(|| unreachable!("task event already dispatched")),
-                )
-        }) else {
-            let event =
-                event.unwrap_or_else(|| unreachable!("task event dispatched without a task"));
+        let task = self
+            .state
+            .context
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .tasks
+            .with(signature, Clone::clone);
+        let Some(task) = task else {
             Logger::warning(format!(
                 "session could not dispatch event {event:?}: task {signature} not found",
             ));
             return;
         };
+        task.dispatch(event);
     }
 
     fn register_executor_tools(&self, tools: Vec<ToolPreview>) {
@@ -344,7 +353,6 @@ impl SessionRuntime {
             .host_rx
             .lock()
             .unwrap_or_else(|error| error.into_inner()) = None;
-        state.tasks.clear();
         *state
             .host_sys
             .lock()
@@ -358,7 +366,7 @@ impl SessionRuntime {
             .lock()
             .unwrap_or_else(|error| error.into_inner()) = SessionContext {
             system: None,
-            tasks: Vec::new(),
+            tasks: WorkQueue::new(),
             tools: Vec::new(),
         };
     }

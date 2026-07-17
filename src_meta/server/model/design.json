@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/model",
     "name": "model",
-    "purpose": "Owns synchronous and asynchronous model backend abstractions, response channels, requests, streaming responses, and backend errors.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns synchronous and asynchronous model backends, requests with separate system, context, prompt, and tools fields, streaming response channels, and Deepseek payload construction with validated function schemas.",
+    "changeStatus": "modified"
   },
+  "modified": ["backend.rs", "backend_deepseek.rs"],
   "childModules": [],
   "elements": [
     {
@@ -86,18 +87,18 @@
       "name": "ModelRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
           "lineStart": 37,
-          "lineEnd": 41,
+          "lineEnd": 44,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 38,
-              "lineEnd": 41
+              "lineEnd": 44
             }
           ]
         }
@@ -111,14 +112,14 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
-          "lineStart": 43,
-          "lineEnd": 48,
+          "lineStart": 46,
+          "lineEnd": 51,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 44,
-              "lineEnd": 48
+              "lineStart": 47,
+              "lineEnd": 51
             }
           ]
         }
@@ -128,7 +129,7 @@
       "name": "DeepseekBackend",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
@@ -136,12 +137,7 @@
           "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 19
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
@@ -149,51 +145,50 @@
           "lineEnd": 33,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 21,
-              "lineEnd": 33
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
           "lineStart": 41,
-          "lineEnd": 115,
+          "lineEnd": 97,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 41,
-              "lineEnd": 115
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 85,
+              "lineEnd": 85
             }
           ]
         },
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 117,
-          "lineEnd": 277,
+          "lineStart": 99,
+          "lineEnd": 305,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 100,
+              "lineEnd": 144
+            }
+          ],
           "modifiedLines": [
             {
-              "lineStart": 117,
-              "lineEnd": 277
+              "lineStart": 146,
+              "lineEnd": 169
             }
           ]
         },
         {
           "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 291,
-          "lineEnd": 300,
+          "lineStart": 319,
+          "lineEnd": 328,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 291,
-              "lineEnd": 300
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },

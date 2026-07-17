@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/relay",
     "name": "relay",
-    "purpose": "Runs Arc-backed relay actors through the shared Actor and modern Runtime contracts; runtimes own task access, signature, prompt, model and output state, and lifecycle, with an asynchronously prepared response receiver and custom loop that assembles typed model results.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs relay actors and streaming response assembly; RelayRuntime resolves context through TaskAccess from the signature plan when present or its intent otherwise, then preserves the system, context, prompt, and tools ModelRequest pipeline.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -52,62 +53,49 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 21,
-          "lineEnd": 29,
+          "lineStart": 22,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 31,
-          "lineEnd": 60,
+          "lineStart": 32,
+          "lineEnd": 61,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 62,
-          "lineEnd": 159,
+          "lineStart": 63,
+          "lineEnd": 186,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 103,
-              "lineEnd": 103
-            },
-            {
-              "lineStart": 117,
-              "lineEnd": 117
-            },
-            {
-              "lineStart": 135,
-              "lineEnd": 135
+              "lineStart": 77,
+              "lineEnd": 96
             }
           ]
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 163,
-          "lineEnd": 242,
+          "lineStart": 190,
+          "lineEnd": 312,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 165,
-              "lineEnd": 165
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 244,
-          "lineEnd": 249,
+          "lineStart": 314,
+          "lineEnd": 319,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

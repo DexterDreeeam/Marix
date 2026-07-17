@@ -88,8 +88,7 @@ impl RuntimeTrait for IntentRuntime {
 
 impl IntentRuntime {
     fn verdict(&self) -> Result<(), String> {
-        let context_chain = self.access.get_context_chain(&self.signature)?.to_string();
-        let mut prompt =
+        let prompt =
             std::panic::catch_unwind(|| Prompt::load("IntentAnalyze")).map_err(|payload| {
                 let detail = if let Some(message) = payload.downcast_ref::<String>() {
                     message.clone()
@@ -100,13 +99,15 @@ impl IntentRuntime {
                 };
                 format!("failed to load IntentAnalyze prompt: {detail}",)
             })?;
-        prompt.inject("user_request".to_owned(), self.access.user_request.clone());
-        prompt.inject("context_chain".to_owned(), context_chain);
         let prompt = prompt
             .prompt()
             .map_err(|error| format!("failed to render IntentAnalyze prompt: {error}"))?;
         let request = RelayRequest {
-            signature: RelaySignature::new(self.signature.clone(), "intent-verdict".to_owned()),
+            signature: RelaySignature::new(
+                self.signature.clone(),
+                None,
+                "intent-verdict".to_owned(),
+            ),
             prompt,
         };
         let relay = Relay::new(Arc::clone(&self.access), request)?;

@@ -8,14 +8,15 @@ use marix_common::{
     Lifecycle, Logger, ModelBackend as ConfigModelBackend, Runtime as RuntimeTrait,
 };
 use marix_protocol::{
-    IntentEvent, RelayEvent, RelayRequest, RelayResult, RelayResultKind, RelaySignature,
-    SessionEvent, TaskEvent,
+    ContextChain, IntentEvent, RelayEvent, RelayRequest, RelayResult, RelayResultKind,
+    RelaySignature, SessionEvent, TaskEvent,
 };
 
 use super::Relay;
 use crate::model::{
     DeepseekBackend, ModelBackend, ModelRequest, ModelResponse, ModelResponseAsyncReceiver,
 };
+use crate::prompt::Prompt;
 use crate::task::TaskAccess;
 
 pub struct RelayRuntime {
@@ -73,11 +74,37 @@ impl RuntimeTrait for RelayRuntime {
 
     fn on_start(&self) -> ActorStartFuture<'_, Self::Prepared> {
         Box::pin(async move {
-            let request = ModelRequest {
-                relay: self.signature.clone(),
-                prompt: self.prompt.clone(),
+            let context = match self.signature.plan.as_ref() {
+                Some(plan) => self.access.get_context_chain(plan),
+                None => self.access.get_context_chain(&self.signature.intent),
             };
-            Logger::log(format!("[Model Relay] Prompt:\n{}", request.prompt,));
+            let context = match context {
+                Ok(context) => context,
+                Err(reason) => {
+                    Logger::error(format!("relay {} failed: {reason}", &self.signature,));
+                    self.finish(RelayResultKind::Failed, reason);
+                    return None;
+                }
+            };
+            let request = match self.model_request(context) {
+                Ok(request) => request,
+                Err(reason) => {
+                    Logger::error(format!("relay {} failed: {reason}", &self.signature,));
+                    self.finish(RelayResultKind::Failed, reason);
+                    return None;
+                }
+            };
+            Logger::log(format!(
+                "[Model Relay] System:\n{}\n\n\
+                 [Model Relay] Context:\n{}\n\n\
+                 [Model Relay] Prompt:\n{}",
+                request.system, request.context, request.prompt,
+            ));
+            Logger::debug(format!(
+                "relay {} model request includes {} tool(s)",
+                &self.signature,
+                request.tools.len(),
+            ));
             let responses = {
                 let mut backend = self
                     .model_backend
@@ -161,6 +188,49 @@ impl RuntimeTrait for RelayRuntime {
 // -- Private -- //
 
 impl RelayRuntime {
+    fn model_request(&self, context: ContextChain) -> Result<ModelRequest, String> {
+        let session_context = self.access.session_context()?;
+        let (task, tools) = {
+            let context = session_context
+                .lock()
+                .unwrap_or_else(|error| error.into_inner());
+            (
+                context.tasks.with(&self.access.signature, Clone::clone),
+                context.tools.clone(),
+            )
+        };
+        let task = task.ok_or_else(|| {
+            format!(
+                "current task {} was not found in session context",
+                &self.access.signature,
+            )
+        })?;
+        let task_preview = serde_json::to_string(&task.preview())
+            .map_err(|error| format!("failed to serialize current task preview: {error}"))?;
+        let mut system =
+            std::panic::catch_unwind(|| Prompt::load("System")).map_err(|payload| {
+                let detail = if let Some(message) = payload.downcast_ref::<String>() {
+                    message.clone()
+                } else if let Some(message) = payload.downcast_ref::<&str>() {
+                    (*message).to_owned()
+                } else {
+                    "unknown prompt loading panic".to_owned()
+                };
+                format!("failed to load System prompt: {detail}")
+            })?;
+        system.inject("task_preview".to_owned(), task_preview);
+        let system = system
+            .prompt()
+            .map_err(|error| format!("failed to render System prompt: {error}"))?;
+        Ok(ModelRequest {
+            relay: self.signature.clone(),
+            system,
+            context,
+            prompt: self.prompt.clone(),
+            tools,
+        })
+    }
+
     fn on_model_response(&self, response: ModelResponse) {
         if self.status() == ActorStatus::Complete {
             Logger::error(format!(

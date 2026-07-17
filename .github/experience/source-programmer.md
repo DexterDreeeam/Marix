@@ -1260,3 +1260,23 @@ connecter to protect this distinction.
   filtering unfinished values; `PlanContext.failures` is cloned from the live
   Plan runtime lock. Context display serializes both histories with serde JSON,
   so IntentAnalyze and PlanVerdict need only `user_request` and `context_chain`.
+- 2026-07-17 (session-owned Task registry): `SessionContext.tasks` is the sole
+  `WorkQueue<TaskSignature, Task>`. `Task::preview` reads its lifecycle result
+  dynamically as `Option<TaskResult>`, and `SessionContextSnapshot` maps the
+  queue in insertion order instead of maintaining copied previews.
+- 2026-07-17 (Task context cycle): `TaskAccess.session_context` is a `Weak`
+  pointer upgraded only through `TaskAccess::session_context`; the ownership
+  chain `SessionContext -> TaskRuntime -> TaskAccess` therefore does not point
+  strongly back to the context.
+- 2026-07-17 (model message layering): `Prompt::load` reads only the named
+  template. Relay builds System from the current Task preview and transports
+  `ContextChain`, decision prompt, and tools separately. Deepseek emits
+  system/context/prompt messages in that order and parses each tool input
+  schema into a function-tool `parameters` value through one shared payload
+  builder for blocking and async requests.
+- 2026-07-17 (Relay-owned context selection): `RelaySignature.plan` carries
+  optional Plan lineage. Intent verdict relays set it to `None`, Plan verdict
+  relays set it to the current Plan, and active `RelayRuntime::on_start`
+  rebuilds the corresponding Intent or Plan `ContextChain` before constructing
+  `ModelRequest`. Relay completion updates remain addressed to the retained
+  owner Intent.

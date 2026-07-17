@@ -4,8 +4,9 @@
     "path": "src",
     "name": "src",
     "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and tool packages.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/client",
@@ -25,12 +26,12 @@
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "Defines serialized workflow contracts, including root-to-current Context chains that render live results, ordered step history, and accumulated plan failures as JSON, while retaining shared signature, actor-status, execution-status, and external task transport contracts."
+      "purpose": "Defines serialized workflow contracts, including relay requests that carry ContextChain values and task previews whose result is optional, alongside shared signatures, actor statuses, execution contracts, and external task transport."
     },
     {
       "path": "src/server",
       "name": "server",
-      "purpose": "Runs workflow orchestration through Arc-backed actors and runtimes; IntentRuntime and PlanRuntime dynamically inject root-to-current context chains without storing context, TaskAccess validates current plan membership and builds chains from live actor results, and task-scoped registries, routing, execution, sessions, prompts, and relays coordinate workflow progress."
+      "purpose": "Runs workflow orchestration through actor runtimes: decision relays carry ContextChain separately from prompts, RelayRuntime builds system, context, prompt, and tools model requests from the current task and tools, SessionContext owns the sole task registry, and TaskAccess keeps a weak session-context link."
     },
     {
       "path": "src/server_telemetry",

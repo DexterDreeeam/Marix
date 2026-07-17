@@ -28,13 +28,7 @@ impl Prompt {
             .join("prompt")
             .join("template");
         let path = directory.join(format!("{name}.prompt"));
-        let template = Self::read(&path, "template");
-        let content = if name == "System" {
-            template
-        } else {
-            let system = Self::read(&directory.join("System.prompt"), "system template");
-            format!("{}\n\n{template}", system.trim_end_matches(['\r', '\n']))
-        };
+        let content = Self::read(&path, "template");
         if content.contains("[[#") {
             panic!(
                 "prompt template {} contains unsupported module markers",

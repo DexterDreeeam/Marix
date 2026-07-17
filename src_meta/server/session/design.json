@@ -3,31 +3,63 @@
   "module": {
     "path": "src/server/session",
     "name": "session",
-    "purpose": "Owns an inherent session worker runtime with public run, close, and dispatch operations that routes modern actor-backed tasks, host execution traffic, client TaskStatus transport, and tool context.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns session context, state, and runtime; SessionContext keeps the sole WorkQueue<TaskSignature, Task> registry, snapshots expose TaskPreview values, and SessionRuntime creates and dispatches tasks through that registry.",
+    "changeStatus": "modified"
   },
+  "modified": ["context.rs", "mod.rs", "runtime.rs", "state.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "SessionContext",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/context.rs",
-          "lineStart": 4,
-          "lineEnd": 8,
+          "lineStart": 6,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 8
+            }
+          ]
         },
         {
           "sourcePath": "src/server/session/context.rs",
-          "lineStart": 10,
-          "lineEnd": 18,
+          "lineStart": 12,
+          "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 13,
+              "lineEnd": 23
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SessionContextSnapshot",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/session/context.rs",
+          "lineStart": 27,
+          "lineEnd": 31,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 27,
+              "lineEnd": 31
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -36,7 +68,7 @@
       "name": "SessionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/runtime.rs",
@@ -52,28 +84,24 @@
           "lineEnd": 83,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 34,
-              "lineEnd": 34
-            },
-            {
-              "lineStart": 54,
-              "lineEnd": 54
-            },
-            {
-              "lineStart": 60,
-              "lineEnd": 60
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/session/runtime.rs",
           "lineStart": 87,
-          "lineEnd": 365,
+          "lineEnd": 373,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 200,
+              "lineEnd": 257
+            },
+            {
+              "lineStart": 259,
+              "lineEnd": 274
+            }
+          ]
         }
       ]
     },
@@ -105,32 +133,22 @@
       "name": "SessionState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/state.rs",
-          "lineStart": 12,
-          "lineEnd": 23,
+          "lineStart": 11,
+          "lineEnd": 21,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 13,
-              "lineEnd": 13
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/session/state.rs",
-          "lineStart": 25,
-          "lineEnd": 45,
+          "lineStart": 23,
+          "lineEnd": 42,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 29,
-              "lineEnd": 29
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
