@@ -4,11 +4,8 @@
     "path": "src/server/intent",
     "name": "intent",
     "purpose": "Runs intent actors, loads IntentAnalyze and ToolExecution message prompts by enum name, routes their mapped relays, parses verdict and StepDraft responses, and publishes IntentResult completions.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "runtime.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -55,7 +52,7 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",

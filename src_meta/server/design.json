@@ -4,12 +4,8 @@
     "path": "src/server",
     "name": "server",
     "purpose": "Runs actor-based workflow orchestration with enum-mapped message and system prompts, parameter-driven system-template injection, and streaming model execution.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    ".",
-    "lib.rs"
-  ],
   "childModules": [
     {
       "path": "src/server/intent",
@@ -123,7 +119,7 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",
@@ -353,7 +349,7 @@
       "name": "PlanRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",
@@ -597,7 +593,7 @@
       "name": "SessionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/runtime.rs",
@@ -1122,7 +1118,7 @@
       "name": "ModelResponseStream",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
@@ -1143,7 +1139,7 @@
       "name": "ModelBackend",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
@@ -1177,7 +1173,7 @@
       "name": "ModelBackendImpl",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
@@ -1331,7 +1327,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",

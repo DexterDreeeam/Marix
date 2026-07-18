@@ -4,18 +4,15 @@
     "path": "src/tool/native/shell",
     "name": "shell",
     "purpose": "Provides Bash, Command Prompt, and PowerShell tools whose descriptions state only each shell's own syntax and path conventions, plus shared process execution.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": ["bash.rs", "command_prompt.rs", "executor.rs", "powershell.rs"],
-  "modified": ["mod.rs", "bash.rs", "command_prompt.rs", "powershell.rs"],
-  "deleted": ["shell_execute.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Bash",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/bash.rs",
@@ -67,7 +64,7 @@
       "name": "CommandPrompt",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/command_prompt.rs",
@@ -124,7 +121,7 @@
       "name": "PowerShell",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/powershell.rs",
@@ -181,7 +178,7 @@
       "name": "invoke",
       "type": "function",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/executor.rs",
@@ -202,7 +199,7 @@
       "name": "unavailable",
       "type": "function",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/executor.rs",

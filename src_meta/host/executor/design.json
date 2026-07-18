@@ -4,9 +4,8 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Owns the host executor worker, sends the concrete host System with executor tool previews, routes executions, and reports unknown-tool failures.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["registry.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -53,7 +52,7 @@
       "name": "ToolRegistry",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/registry.rs",
@@ -103,7 +102,7 @@
       "name": "ExecutorRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",

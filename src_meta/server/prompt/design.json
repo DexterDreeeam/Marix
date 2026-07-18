@@ -4,15 +4,8 @@
     "path": "src/server/prompt",
     "name": "prompt",
     "purpose": "Loads, injects, and renders named prompt templates, and maps crate-visible message prompt enums to System or System_Tools templates and relay names.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "system_map.rs"
-  ],
-  "modified": [
-    ".",
-    "mod.rs"
-  ],
   "childModules": [
     {
       "path": "src/server/prompt/template",
@@ -109,7 +102,7 @@
       "name": "MessagePrompt",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/system_map.rs",
@@ -130,7 +123,7 @@
       "name": "SystemPrompt",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/system_map.rs",

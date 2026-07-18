@@ -4,12 +4,8 @@
     "path": "src/server/relay",
     "name": "relay",
     "purpose": "Runs relay actors, maps relay names to message and system prompts, derives tool needs from those mappings, and injects only parameters declared by each system template; System_Tools receives the tools marker.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "prompt.rs",
-    "runtime.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -56,7 +52,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",

@@ -4,16 +4,15 @@
     "path": "src/server/model/deepseek",
     "name": "deepseek",
     "purpose": "Implements the Deepseek streaming backend: every payload streams, native tool_calls are accumulated by index with strict finish_reason, [DONE], and schema validation, normalized to StepDraft, and raw SSE response data is logged.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": ["."],
   "childModules": [],
   "elements": [
     {
       "name": "DeepseekBackend",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/deepseek/request.rs",

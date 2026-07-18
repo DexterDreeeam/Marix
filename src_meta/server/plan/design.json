@@ -4,11 +4,8 @@
     "path": "src/server/plan",
     "name": "plan",
     "purpose": "Runs plan actors, loads the PlanVerdict message prompt by enum name, consumes typed intent and relay results, reconstructs plans after failures, and publishes PlanResult completions.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "runtime.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -55,7 +52,7 @@
       "name": "PlanRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",

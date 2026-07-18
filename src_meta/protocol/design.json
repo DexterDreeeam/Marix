@@ -4,9 +4,8 @@
     "path": "src/protocol",
     "name": "protocol",
     "purpose": "Defines serialized workflow contracts, including first-stage intent tool-execution verdicts and parseable invocation step drafts.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["lib.rs", "mod.rs", "."],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -388,7 +387,7 @@
       "name": "IntentVerdict",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
@@ -1216,7 +1215,7 @@
       "name": "SessionEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/session/event.rs",
@@ -1237,7 +1236,7 @@
       "name": "StepDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/draft.rs",
@@ -1693,7 +1692,7 @@
       "name": "ToolPreview",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/tool/preview.rs",
@@ -1722,7 +1721,7 @@
       "name": "ToolCategory",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/tool/category.rs",
