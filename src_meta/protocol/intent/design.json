@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/intent",
     "name": "intent",
-    "purpose": "Defines intent contexts, identities, signatures, results, and drafts; IntentEvent carries typed plan, step, and relay result statuses, while IntentVerdict accepts complete, plan, tool_calls, and infeasible wire decisions.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines intent contexts, identities, signatures, results, and drafts; IntentVerdict separates the first-stage tool_execution decision from complete, plan, and infeasible decisions and parses strict wire JSON.",
+    "changeStatus": "modified"
   },
+  "modified": ["draft.rs"],
   "childModules": [],
   "elements": [
     {
@@ -54,7 +55,7 @@
       "name": "IntentVerdict",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
@@ -64,8 +65,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 22,
-              "lineEnd": 23
+              "lineStart": 13,
+              "lineEnd": 14
             }
           ]
         },

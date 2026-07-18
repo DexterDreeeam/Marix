@@ -1,7 +1,7 @@
 use std::convert::Infallible;
 use std::sync::Arc;
 
-use marix_common::{Actor, ActorStatus, Logger, Receiver, Sender, build_channel, select};
+use marix_common::{Actor, ActorStatus, Logger, Receiver, Sender, System, build_channel, select};
 use marix_protocol::{
     ExecutionEvent, ExecutionRequest, ExecutionResult, ExecutionResultKind, ExecutionSignature,
     ExecutorEvent, InvocationEvent, SessionEvent, TaskEvent,
@@ -125,10 +125,11 @@ impl ExecutorRuntime {
     }
 
     fn send_executor_tools(&self) {
+        let system = System::new();
         let tools = self.state.registry.preview();
         let tool_count = tools.len();
         Logger::debug(format!("executor tools queued with {tool_count} tool(s)"));
-        match self.send_server_event(SessionEvent::ExecutorTools(tools)) {
+        match self.send_server_event(SessionEvent::ExecutorTools(system, tools)) {
             Ok(()) => Logger::debug(format!("executor tools sent with {tool_count} tool(s)")),
             Err(error) => Logger::warning(format!("executor tools send failed: {error}")),
         }

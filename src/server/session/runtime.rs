@@ -3,8 +3,8 @@ use std::sync::Arc;
 use std::thread;
 
 use marix_common::{
-    Actor, ChannelEndpoint, Logger, Receiver, Sender, WorkQueue, accept_channel, build_channel,
-    select,
+    Actor, ChannelEndpoint, Logger, Receiver, Sender, System, WorkQueue, accept_channel,
+    build_channel, select,
 };
 use marix_protocol::{
     ExecutorEvent, IntentSignature, SessionEvent, SessionMessage, TaskEvent, TaskRequest,
@@ -71,8 +71,8 @@ impl SessionRuntime {
             SessionEvent::TaskUpdate(_) => {
                 self.send_client_event(event);
             }
-            SessionEvent::ExecutorTools(tools) => {
-                self.register_executor_tools(tools.clone());
+            SessionEvent::ExecutorTools(system, tools) => {
+                self.register_executor_tools(*system, tools.clone());
             }
             SessionEvent::Executor(event) => {
                 self.send_host_event(SessionEvent::Executor(event.clone()));
@@ -273,7 +273,7 @@ impl SessionRuntime {
         task.dispatch(event);
     }
 
-    fn register_executor_tools(&self, tools: Vec<ToolPreview>) {
+    fn register_executor_tools(&self, system: System, tools: Vec<ToolPreview>) {
         let tool_count = tools.len();
         let host_tx = self
             .state
@@ -284,11 +284,20 @@ impl SessionRuntime {
             Logger::warning("core session ignored executor tools: host disconnected");
             return;
         }
-        self.state
+        drop(host_tx);
+        *self
+            .state
+            .host_sys
+            .lock()
+            .unwrap_or_else(|error| error.into_inner()) = Some(system);
+        let mut context = self
+            .state
             .context
             .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .tools = tools;
+            .unwrap_or_else(|error| error.into_inner());
+        context.system = Some(system);
+        context.tools = tools;
+        drop(context);
         Logger::debug(format!(
             "core session installed {tool_count} executor tool(s)"
         ));

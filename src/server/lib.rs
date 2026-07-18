@@ -12,7 +12,7 @@ pub use intent::{Intent, IntentRuntime};
 pub use invocation::{Invocation, InvocationRuntime};
 pub use model::{
     DeepseekBackend, ModelBackend, ModelBackendError, ModelRequest, ModelResponse,
-    ModelResponseAsyncReceiver, ModelResponseReceiver,
+    ModelResponseStream,
 };
 pub use plan::{Plan, PlanRuntime};
 pub use prompt::{Prompt, PromptError};

@@ -13,8 +13,12 @@ pub enum Platform {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Arch {
-    X86_64,
-    Aarch64,
+    /// Both supported 64-bit architecture families; 32-bit is not supported.
+    All,
+    /// AMD64/x86_64; 32-bit x86 is not supported.
+    Amd,
+    /// ARM64/AArch64; 32-bit ARM is not supported.
+    Arm,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -34,9 +38,9 @@ impl System {
         };
 
         let arch = if cfg!(target_arch = "x86_64") {
-            Arch::X86_64
+            Arch::Amd
         } else if cfg!(target_arch = "aarch64") {
-            Arch::Aarch64
+            Arch::Arm
         } else {
             panic!("unsupported architecture: {}", env::consts::ARCH);
         };
@@ -44,6 +48,15 @@ impl System {
         Self { platform, arch }
     }
 
+    pub fn supports(&self, host: &System) -> bool {
+        (self.platform == Platform::All || self.platform == host.platform)
+            && (self.arch == Arch::All || self.arch == host.arch)
+    }
+}
+
+// -- Private -- //
+
+impl System {
     fn is_ubuntu_host() -> bool {
         std::fs::read_to_string("/etc/os-release")
             .map(|content| {

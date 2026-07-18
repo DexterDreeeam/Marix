@@ -3,9 +3,12 @@
   "module": {
     "path": "src/server/plan",
     "name": "plan",
-    "purpose": "Runs plan actors, consumes typed intent and relay results directly, reconstructs plans after failures, and publishes PlanResult completions.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs plan actors, loads the PlanVerdict message prompt by enum name, consumes typed intent and relay results, reconstructs plans after failures, and publishes PlanResult completions.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "runtime.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -52,7 +55,7 @@
       "name": "PlanRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/runtime.rs",
@@ -96,7 +99,7 @@
         {
           "sourcePath": "src/server/plan/runtime.rs",
           "lineStart": 86,
-          "lineEnd": 301,
+          "lineEnd": 303,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
@@ -113,15 +116,19 @@
               "lineEnd": 198
             },
             {
-              "lineStart": 218,
-              "lineEnd": 257
+              "lineStart": 202,
+              "lineEnd": 217
+            },
+            {
+              "lineStart": 220,
+              "lineEnd": 259
             }
           ]
         },
         {
           "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 303,
-          "lineEnd": 306,
+          "lineStart": 305,
+          "lineEnd": 308,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

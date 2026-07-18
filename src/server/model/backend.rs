@@ -1,37 +1,24 @@
 use std::fmt;
 
-use marix_common::{AsyncReceiver, Receiver};
+use marix_common::AsyncReceiver;
 use marix_protocol::{RelaySignature, ToolPreview};
 
 use super::error::ModelBackendError;
 
-pub type ModelResponseReceiver = Receiver<ModelResponse>;
-pub type ModelResponseAsyncReceiver = AsyncReceiver<ModelResponse>;
+pub type ModelResponseStream = AsyncReceiver<ModelResponse>;
 
 pub trait ModelBackend: fmt::Debug + Send {
-    fn request(
+    fn request_stream(
         &mut self,
         request: ModelRequest,
-    ) -> Result<ModelResponseReceiver, ModelBackendError>;
-
-    fn request_async(
-        &mut self,
-        request: ModelRequest,
-    ) -> Result<ModelResponseAsyncReceiver, ModelBackendError>;
+    ) -> Result<ModelResponseStream, ModelBackendError>;
 }
 
 pub(super) trait ModelBackendImpl: fmt::Debug + Send {
-    fn request(
+    fn request_stream(
         &mut self,
         request: ModelRequest,
-    ) -> Result<ModelResponseReceiver, ModelBackendError>;
-
-    fn request_async(
-        &mut self,
-        _request: ModelRequest,
-    ) -> Result<ModelResponseAsyncReceiver, ModelBackendError> {
-        panic!("not implemented")
-    }
+    ) -> Result<ModelResponseStream, ModelBackendError>;
 }
 
 #[derive(Debug, Clone)]
@@ -55,17 +42,10 @@ impl<T> ModelBackend for T
 where
     T: ModelBackendImpl,
 {
-    fn request(
+    fn request_stream(
         &mut self,
         request: ModelRequest,
-    ) -> Result<ModelResponseReceiver, ModelBackendError> {
-        <T as ModelBackendImpl>::request(self, request)
-    }
-
-    fn request_async(
-        &mut self,
-        request: ModelRequest,
-    ) -> Result<ModelResponseAsyncReceiver, ModelBackendError> {
-        <T as ModelBackendImpl>::request_async(self, request)
+    ) -> Result<ModelResponseStream, ModelBackendError> {
+        <T as ModelBackendImpl>::request_stream(self, request)
     }
 }

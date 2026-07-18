@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Defines serialized workflow contracts whose actor events carry typed result statuses directly, including ExecutionResult and ExecutionResultKind outcomes.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines serialized workflow contracts, including first-stage intent tool-execution verdicts and parseable invocation step drafts.",
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs", "mod.rs", "."],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -25,7 +26,7 @@
     {
       "path": "src/protocol/intent",
       "name": "intent",
-      "purpose": "Defines intent contexts, identities, signatures, results, and drafts; IntentEvent carries typed plan, step, and relay result statuses, while IntentVerdict accepts complete, plan, tool_calls, and infeasible wire decisions."
+      "purpose": "Defines intent contexts, identities, signatures, results, and drafts; IntentVerdict separates the first-stage tool_execution decision from complete, plan, and infeasible decisions and parses strict wire JSON."
     },
     {
       "path": "src/protocol/invocation",
@@ -45,12 +46,12 @@
     {
       "path": "src/protocol/session",
       "name": "session",
-      "purpose": "Owns the top-level SessionEvent envelope, including optional UUID correlation metadata and task/executor traffic."
+      "purpose": "Owns SessionEvent, whose ExecutorTools variant carries a concrete System together with a vector of ToolPreview values."
     },
     {
       "path": "src/protocol/step",
       "name": "step",
-      "purpose": "Defines invocation-based step drafts, identities, signatures, errors, and results; StepEvent carries ActorStatus<InvocationResult>, and StepResult contains a result kind and structured tool-call results."
+      "purpose": "Defines invocation-based step drafts with strict JSON parsing, identities, signatures, errors, and results; StepEvent carries ActorStatus<InvocationResult>, and StepResult contains structured tool-call results."
     },
     {
       "path": "src/protocol/task",
@@ -60,7 +61,7 @@
     {
       "path": "src/protocol/tool",
       "name": "tool",
-      "purpose": "Defines string-backed tool input/output schema aliases and input-only tool previews with JSON conversion helpers."
+      "purpose": "Defines tool categories, string-backed schema aliases, and JSON-convertible tool previews carrying category and target-system metadata."
     }
   ],
   "elements": [
@@ -387,7 +388,7 @@
       "name": "IntentVerdict",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
@@ -397,8 +398,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 22,
-              "lineEnd": 23
+              "lineStart": 13,
+              "lineEnd": 14
             }
           ]
         },
@@ -1215,20 +1216,20 @@
       "name": "SessionEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/session/event.rs",
-          "lineStart": 5,
-          "lineEnd": 13,
+          "lineStart": 7,
+          "lineEnd": 15,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 7,
-              "lineEnd": 7
+              "lineStart": 13,
+              "lineEnd": 13
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -1236,7 +1237,7 @@
       "name": "StepDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/draft.rs",
@@ -1244,12 +1245,20 @@
           "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/step/draft.rs",
+          "lineStart": 11,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [
             {
-              "lineStart": 7,
-              "lineEnd": 8
+              "lineStart": 11,
+              "lineEnd": 15
             }
-          ]
+          ],
+          "modifiedLines": []
         }
       ]
     },
@@ -1684,27 +1693,48 @@
       "name": "ToolPreview",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/tool/preview.rs",
-          "lineStart": 4,
-          "lineEnd": 9,
+          "lineStart": 6,
+          "lineEnd": 13,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 8,
-              "lineEnd": 8
+              "lineStart": 10,
+              "lineEnd": 11
             }
-          ]
+          ],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/tool/preview.rs",
-          "lineStart": 11,
-          "lineEnd": 19,
+          "lineStart": 15,
+          "lineEnd": 23,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolCategory",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/tool/category.rs",
+          "lineStart": 3,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 9
+            }
+          ],
           "modifiedLines": []
         }
       ]

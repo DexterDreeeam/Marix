@@ -3,9 +3,11 @@
   "module": {
     "path": "src/server/prompt/template",
     "name": "template",
-    "purpose": "Defines decision prompt resources: IntentAnalyze offers complete, plan, tool_calls, and infeasible; System_Tools enforces strict JSON and exact supplied tool names and argument schemas.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines first-stage intent verdict, minimal tool-catalog system, native ToolExecution, and other decision prompt resources.",
+    "changeStatus": "modified"
   },
+  "added": ["ToolExecution.prompt"],
+  "modified": ["System.prompt", "System_Tools.prompt", "IntentAnalyze.prompt"],
   "childModules": [],
   "elements": []
 }

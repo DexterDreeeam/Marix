@@ -3,16 +3,17 @@
   "module": {
     "path": "src/protocol/step",
     "name": "step",
-    "purpose": "Defines invocation-based step drafts, identities, signatures, errors, and results; StepEvent carries ActorStatus<InvocationResult>, and StepResult contains a result kind and structured tool-call results.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines invocation-based step drafts with strict JSON parsing, identities, signatures, errors, and results; StepEvent carries ActorStatus<InvocationResult>, and StepResult contains structured tool-call results.",
+    "changeStatus": "modified"
   },
+  "modified": ["draft.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "StepDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/step/draft.rs",
@@ -20,12 +21,20 @@
           "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/step/draft.rs",
+          "lineStart": 11,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [
             {
-              "lineStart": 7,
-              "lineEnd": 8
+              "lineStart": 11,
+              "lineEnd": 15
             }
-          ]
+          ],
+          "modifiedLines": []
         }
       ]
     },

@@ -3,9 +3,11 @@
   "module": {
     "path": "src/protocol/tool",
     "name": "tool",
-    "purpose": "Defines string-backed tool input/output schema aliases and input-only tool previews with JSON conversion helpers.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines tool categories, string-backed schema aliases, and JSON-convertible tool previews carrying category and target-system metadata.",
+    "changeStatus": "modified"
   },
+  "added": ["category.rs"],
+  "modified": ["mod.rs", "preview.rs"],
   "childModules": [],
   "elements": [
     {
@@ -54,27 +56,48 @@
       "name": "ToolPreview",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/tool/preview.rs",
-          "lineStart": 4,
-          "lineEnd": 9,
+          "lineStart": 6,
+          "lineEnd": 13,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 8,
-              "lineEnd": 8
+              "lineStart": 10,
+              "lineEnd": 11
             }
-          ]
+          ],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/tool/preview.rs",
-          "lineStart": 11,
-          "lineEnd": 19,
+          "lineStart": 15,
+          "lineEnd": 23,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolCategory",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/tool/category.rs",
+          "lineStart": 3,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 9
+            }
+          ],
           "modifiedLines": []
         }
       ]

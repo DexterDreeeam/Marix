@@ -12,7 +12,7 @@ use marix_protocol::{
 
 use super::Plan;
 use crate::intent::Intent;
-use crate::prompt::Prompt;
+use crate::prompt::{MessagePrompt, Prompt};
 use crate::relay::Relay;
 use crate::task::TaskAccess;
 
@@ -199,8 +199,9 @@ impl PlanRuntime {
     }
 
     fn verdict_prompt(&self) -> Result<String, String> {
-        let prompt =
-            std::panic::catch_unwind(|| Prompt::load("PlanVerdict")).map_err(|payload| {
+        let message_prompt = MessagePrompt::PlanVerdict;
+        let prompt = std::panic::catch_unwind(|| Prompt::load(message_prompt.name())).map_err(
+            |payload| {
                 let detail = if let Some(message) = payload.downcast_ref::<String>() {
                     message.clone()
                 } else if let Some(message) = payload.downcast_ref::<&str>() {
@@ -209,7 +210,8 @@ impl PlanRuntime {
                     "unknown prompt loading panic".to_owned()
                 };
                 format!("failed to load PlanVerdict prompt: {detail}",)
-            })?;
+            },
+        )?;
         prompt
             .prompt()
             .map_err(|error| format!("failed to render PlanVerdict prompt: {error}"))

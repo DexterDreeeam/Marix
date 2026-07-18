@@ -3,29 +3,30 @@
   "module": {
     "path": "src/protocol/session",
     "name": "session",
-    "purpose": "Owns the top-level SessionEvent envelope, including optional UUID correlation metadata and task/executor traffic.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns SessionEvent, whose ExecutorTools variant carries a concrete System together with a vector of ToolPreview values.",
+    "changeStatus": "modified"
   },
+  "modified": ["event.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "SessionEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/session/event.rs",
-          "lineStart": 5,
-          "lineEnd": 13,
+          "lineStart": 7,
+          "lineEnd": 15,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 7,
-              "lineEnd": 7
+              "lineStart": 13,
+              "lineEnd": 13
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     }

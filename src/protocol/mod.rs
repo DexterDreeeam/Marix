@@ -43,4 +43,6 @@ pub use task::{
     TaskError, TaskEvent, TaskId, TaskPreview, TaskRequest, TaskRequestBrief, TaskResult,
     TaskResultKind, TaskSignature, TaskStatus,
 };
-pub use tool::{ToolInputSchema, ToolOutputSchema, ToolPreview};
+pub use tool::{
+    ToolCategory, ToolInputSchema, ToolOutputSchema, ToolPreview,
+};

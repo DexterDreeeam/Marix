@@ -13,7 +13,7 @@ use marix_protocol::{
 };
 
 use super::Relay;
-use crate::model::{DeepseekBackend, ModelBackend, ModelResponse, ModelResponseAsyncReceiver};
+use crate::model::{DeepseekBackend, ModelBackend, ModelResponse, ModelResponseStream};
 use crate::task::TaskAccess;
 
 pub struct RelayRuntime {
@@ -59,7 +59,7 @@ impl RelayRuntime {
 
 impl RuntimeTrait for RelayRuntime {
     type Base = Relay;
-    type Prepared = ModelResponseAsyncReceiver;
+    type Prepared = ModelResponseStream;
 
     fn signature(&self) -> &RelaySignature {
         &self.signature
@@ -84,7 +84,7 @@ impl RuntimeTrait for RelayRuntime {
                     .model_backend
                     .lock()
                     .unwrap_or_else(|error| error.into_inner());
-                backend.request_async(request)
+                backend.request_stream(request)
             };
             match responses {
                 Ok(responses) => Some(responses),
@@ -246,7 +246,7 @@ impl RelayRuntime {
 
 #[allow(dead_code)]
 fn assert_runtime_object_safe(
-    runtime: &dyn RuntimeTrait<Base = Relay, Prepared = ModelResponseAsyncReceiver>,
+    runtime: &dyn RuntimeTrait<Base = Relay, Prepared = ModelResponseStream>,
 ) {
     let _ = runtime.run();
 }

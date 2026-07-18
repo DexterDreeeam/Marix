@@ -1,11 +1,11 @@
 use std::collections::BTreeMap;
 
-use marix_common::external::*;
-use marix_protocol::{Context, ContextChain, IntentContext, PlanContext};
+use marix_common::{Arch, Platform, System, external::*};
+use marix_protocol::{Context, ContextChain, IntentContext, PlanContext, ToolPreview};
 
 use super::RelayRuntime;
 use crate::model::ModelRequest;
-use crate::prompt::Prompt;
+use crate::prompt::{MessagePrompt, Prompt, SystemPrompt};
 
 impl RelayRuntime {
     pub(super) fn model_request(&self) -> Result<ModelRequest, String> {
@@ -13,23 +13,32 @@ impl RelayRuntime {
             Some(plan) => self.access.get_context_chain(plan)?,
             None => self.access.get_context_chain(&self.signature.intent)?,
         };
-        let tools = if self.signature.plan.is_none() {
-            let tools = {
+        let message_prompt = MessagePrompt::from_relay_name(&self.signature.name)?;
+        let system_prompt = message_prompt.system();
+        let native_tool_execution = matches!(message_prompt, MessagePrompt::ToolExecution);
+        let needs_tools =
+            matches!(system_prompt, SystemPrompt::SystemTools) || native_tool_execution;
+        let tools = if needs_tools {
+            {
                 let session_context = self.access.session_context()?;
                 let context = session_context
                     .lock()
                     .unwrap_or_else(|error| error.into_inner());
                 context.tools.clone()
-            };
-            Some(tools)
+            }
+        } else {
+            Vec::new()
+        };
+        let native_tools = if native_tool_execution {
+            Some(tools.clone())
         } else {
             None
         };
         Ok(ModelRequest {
             relay: self.signature.clone(),
-            system: self.system_prompt(tools.is_some())?,
+            system: self.system_prompt(system_prompt, &tools)?,
             prompts: self.prompts(&chain)?,
-            tools,
+            tools: native_tools,
         })
     }
 }
@@ -37,8 +46,21 @@ impl RelayRuntime {
 // -- Private -- //
 
 impl RelayRuntime {
-    fn system_prompt(&self, tool_aware: bool) -> Result<String, String> {
-        let template = if tool_aware { "System_Tools" } else { "System" };
+    fn system_prompt(
+        &self,
+        system_prompt: SystemPrompt,
+        tools: &[ToolPreview],
+    ) -> Result<String, String> {
+        let current_system = {
+            let session_context = self.access.session_context()?;
+            let context = session_context
+                .lock()
+                .unwrap_or_else(|error| error.into_inner());
+            context
+                .system
+                .ok_or_else(|| "current execution environment is unavailable".to_owned())?
+        };
+        let template = system_prompt.name();
         let mut system =
             std::panic::catch_unwind(|| Prompt::load(template)).map_err(|payload| {
                 let detail = if let Some(message) = payload.downcast_ref::<String>() {
@@ -50,10 +72,41 @@ impl RelayRuntime {
                 };
                 format!("failed to load {template} prompt: {detail}")
             })?;
-        system.inject("user_request".to_owned(), self.access.user_request.clone());
+        for parameter in system.parameters() {
+            let value = match parameter.as_str() {
+                "user_request" => self.access.user_request.clone(),
+                "system" => Self::system_text(current_system),
+                "tools" => tools
+                    .iter()
+                    .map(|tool| format!("{}: {}", tool.name, tool.description))
+                    .collect::<Vec<_>>()
+                    .join("\n"),
+                _ => {
+                    return Err(format!(
+                        "unsupported {template} prompt parameter \
+                         `{parameter}`"
+                    ));
+                }
+            };
+            system.inject(parameter, value);
+        }
         system
             .prompt()
             .map_err(|error| format!("failed to render {template} prompt: {error}"))
+    }
+
+    fn system_text(system: System) -> String {
+        let platform = match system.platform {
+            Platform::All => "all supported operating systems",
+            Platform::Win => "Windows",
+            Platform::Ubuntu => "Ubuntu",
+        };
+        let arch = match system.arch {
+            Arch::All => "all supported 64-bit architectures",
+            Arch::Amd => "amd64",
+            Arch::Arm => "arm",
+        };
+        format!("{platform} on {arch}")
     }
 
     fn context_prompts(&self, chain: &ContextChain) -> Result<Vec<String>, String> {
@@ -96,10 +149,8 @@ impl RelayRuntime {
     }
 
     fn prompts(&self, chain: &ContextChain) -> Result<Vec<String>, String> {
-        let context_prompts = self.context_prompts(chain)?;
-        let mut prompts = Vec::with_capacity(context_prompts.len() + 1);
+        let mut prompts = self.context_prompts(chain)?;
         prompts.push(self.prompt.clone());
-        prompts.extend(context_prompts);
         Ok(prompts)
     }
 

@@ -3,9 +3,10 @@
   "module": {
     "path": "src/host/executor",
     "name": "executor",
-    "purpose": "Owns the host executor worker, routes executions and tool queries, and reports an unknown tool as ActorStatus::Complete with a failed ExecutionResult.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns the host executor worker, sends the concrete host System with executor tool previews, routes executions, and reports unknown-tool failures.",
+    "changeStatus": "modified"
   },
+  "modified": ["registry.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -52,7 +53,7 @@
       "name": "ToolRegistry",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/registry.rs",
@@ -68,6 +69,32 @@
           "lineEnd": 75,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 54,
+              "lineEnd": 57
+            },
+            {
+              "lineStart": 65,
+              "lineEnd": 74
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/executor/registry.rs",
+          "lineStart": 79,
+          "lineEnd": 105,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 79,
+              "lineEnd": 105
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -76,7 +103,7 @@
       "name": "ExecutorRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -102,12 +129,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 100,
-              "lineEnd": 109
-            },
-            {
-              "lineStart": 137,
-              "lineEnd": 161
+              "lineStart": 127,
+              "lineEnd": 135
             }
           ]
         }

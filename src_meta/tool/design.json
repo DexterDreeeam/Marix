@@ -3,14 +3,18 @@
   "module": {
     "path": "src/tool",
     "name": "tool",
-    "purpose": "Top-level marix-tool crate defining ToolProgram and six feature-gated native tools with shared compatibility parsing for Windows path and cwd backslashes.",
-    "changeStatus": "unchanged"
+    "purpose": "Top-level marix-tool crate defining ToolProgram and eight feature-gated native tools whose previews retain explicit host-filtered compatibility, including separate PowerShell, Command Prompt, and Bash binaries.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "Cargo.toml",
+    "."
+  ],
   "childModules": [
     {
       "path": "src/tool/native",
       "name": "native",
-      "purpose": "Groups six built-in filesystem, shell, and system-environment tools and supplies shared JSON input parsing that repairs unescaped Windows path and cwd backslashes."
+      "purpose": "Groups eight built-in tools with explicit wildcard or platform-specific compatibility previews that the host filters without rewriting, plus shared compatible JSON parsing and shell execution."
     }
   ],
   "elements": [

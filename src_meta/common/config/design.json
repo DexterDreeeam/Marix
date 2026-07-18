@@ -3,9 +3,12 @@
   "module": {
     "path": "src/common/config",
     "name": "config",
-    "purpose": "Loads typed executable-relative configuration without logging policy settings.",
-    "changeStatus": "unchanged"
+    "purpose": "Loads typed executable-relative configuration and models All/Win/Ubuntu platforms, All/Amd/Arm 64-bit architecture families, concrete host detection, and wildcard tool-side compatibility.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "sys.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -348,15 +351,20 @@
       "name": "Arch",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/sys.rs",
           "lineStart": 14,
-          "lineEnd": 18,
+          "lineEnd": 22,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 16,
+              "lineEnd": 21
+            }
+          ]
         }
       ]
     },
@@ -364,20 +372,33 @@
       "name": "System",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/sys.rs",
-          "lineStart": 20,
-          "lineEnd": 24,
+          "lineStart": 24,
+          "lineEnd": 28,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/sys.rs",
-          "lineStart": 26,
-          "lineEnd": 56,
+          "lineStart": 30,
+          "lineEnd": 55,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 31,
+              "lineEnd": 54
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/common/config/sys.rs",
+          "lineStart": 59,
+          "lineEnd": 69,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

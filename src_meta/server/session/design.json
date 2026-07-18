@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/session",
     "name": "session",
-    "purpose": "Owns session context, state, and runtime; SessionContext keeps task and tool registries and publicly validates tool names by exact registry lookup.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns session context, state, and runtime; SessionRuntime stores the concrete System received with executor tool previews and does not construct a replacement System.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -62,7 +63,7 @@
       "name": "SessionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/runtime.rs",
@@ -78,22 +79,23 @@
           "lineEnd": 83,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 74,
+              "lineEnd": 76
+            }
+          ]
         },
         {
           "sourcePath": "src/server/session/runtime.rs",
           "lineStart": 87,
-          "lineEnd": 373,
+          "lineEnd": 382,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 200,
-              "lineEnd": 257
-            },
-            {
-              "lineStart": 259,
-              "lineEnd": 274
+              "lineStart": 276,
+              "lineEnd": 300
             }
           ]
         }

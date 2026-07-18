@@ -1,8 +1,11 @@
 use std::fs;
 use std::path::Path;
 
-use marix_common::external::serde_json::{Value, json, to_string};
-use marix_protocol::ToolPreview;
+use marix_common::{
+    Arch, Platform, System,
+    external::serde_json::{Value, json, to_string},
+};
+use marix_protocol::{ToolCategory, ToolPreview};
 
 use super::super::parse_input;
 use crate::ToolProgram;
@@ -20,6 +23,11 @@ impl ToolProgram for ListDirectory {
         ToolPreview {
             name: Self::NAME.to_owned(),
             description: Self::DESCRIPTION.to_owned(),
+            category: ToolCategory::File,
+            system: System {
+                platform: Platform::All,
+                arch: Arch::All,
+            },
             input: Self::INPUT_SCHEMA.to_owned(),
         }
     }

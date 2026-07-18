@@ -3,9 +3,12 @@
   "module": {
     "path": "src/server_telemetry/http",
     "name": "http",
-    "purpose": "Contains only the telemetry browser HTML, CSS, JavaScript, and favicon assets.",
-    "changeStatus": "unchanged"
+    "purpose": "Provides telemetry browser assets, including a format modal that renders parsed CRLF, CR, and LF as line breaks while preserving literal backslash-n and JSON escaping.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "telemetry-format.js"
+  ],
   "childModules": [],
   "elements": []
 }

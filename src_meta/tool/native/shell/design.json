@@ -3,45 +3,219 @@
   "module": {
     "path": "src/tool/native/shell",
     "name": "shell",
-    "purpose": "Provides ShellExecute with an input-only preview, operating-system shell execution, and compatible Windows cwd parsing.",
-    "changeStatus": "unchanged"
+    "purpose": "Provides Bash, Command Prompt, and PowerShell tools whose descriptions state only each shell's own syntax and path conventions, plus shared process execution.",
+    "changeStatus": "modified"
   },
+  "added": ["bash.rs", "command_prompt.rs", "executor.rs", "powershell.rs"],
+  "modified": ["mod.rs", "bash.rs", "command_prompt.rs", "powershell.rs"],
+  "deleted": ["shell_execute.rs"],
   "childModules": [],
   "elements": [
     {
-      "name": "ShellExecute",
+      "name": "Bash",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/tool/native/shell/shell_execute.rs",
+          "sourcePath": "src/tool/native/shell/bash.rs",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 7
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/tool/native/shell/bash.rs",
           "lineStart": 9,
-          "lineEnd": 9,
+          "lineEnd": 14,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 14
+            }
+          ],
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/tool/native/shell/shell_execute.rs",
-          "lineStart": 11,
-          "lineEnd": 16,
+          "sourcePath": "src/tool/native/shell/bash.rs",
+          "lineStart": 16,
+          "lineEnd": 41,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/tool/native/shell/shell_execute.rs",
-          "lineStart": 18,
-          "lineEnd": 57,
-          "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 16,
+              "lineEnd": 38
+            }
+          ],
           "modifiedLines": [
             {
-              "lineStart": 19,
+              "lineStart": 22,
               "lineEnd": 25
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "CommandPrompt",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/native/shell/command_prompt.rs",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 7
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/tool/native/shell/command_prompt.rs",
+          "lineStart": 9,
+          "lineEnd": 14,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 14
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 12
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/tool/native/shell/command_prompt.rs",
+          "lineStart": 16,
+          "lineEnd": 41,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 16,
+              "lineEnd": 38
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PowerShell",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/native/shell/powershell.rs",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 7
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/tool/native/shell/powershell.rs",
+          "lineStart": 9,
+          "lineEnd": 14,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 14
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 12
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/tool/native/shell/powershell.rs",
+          "lineStart": 16,
+          "lineEnd": 45,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 16,
+              "lineEnd": 42
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 22,
+              "lineEnd": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invoke",
+      "type": "function",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/native/shell/executor.rs",
+          "lineStart": 7,
+          "lineEnd": 31,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 7,
+              "lineEnd": 31
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "unavailable",
+      "type": "function",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/native/shell/executor.rs",
+          "lineStart": 33,
+          "lineEnd": 38,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 33,
+              "lineEnd": 38
+            }
+          ],
+          "modifiedLines": []
         }
       ]
     }

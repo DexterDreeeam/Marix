@@ -193,7 +193,7 @@ impl ClientSession {
                 Some(Self::common_event("", "task created".to_owned()))
             }
             SessionEvent::TaskUpdate(TaskStatus::Started) => None,
-            SessionEvent::ExecutorTools(_) => {
+            SessionEvent::ExecutorTools(_, _) => {
                 Logger::warning("client session ignored executor tools event");
                 None
             }

@@ -3,14 +3,17 @@
   "module": {
     "path": "src/server_telemetry",
     "name": "server_telemetry",
-    "purpose": "Runs the standalone telemetry collector and its paginated HTTP API while serving browser assets from the static http folder.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs the standalone telemetry collector and paginated HTTP API while serving browser assets whose format modal renders parsed line endings without altering parsing or copy behavior.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/server_telemetry/http",
       "name": "http",
-      "purpose": "Contains only the telemetry browser HTML, CSS, JavaScript, and favicon assets."
+      "purpose": "Provides telemetry browser assets, including line-break-aware formatted JSON rendering that preserves literal escapes."
     }
   ],
   "elements": [

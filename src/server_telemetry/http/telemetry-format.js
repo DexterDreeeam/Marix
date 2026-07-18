@@ -191,6 +191,24 @@ function appendJsonLine(_container, _indent) {
   return _line;
 }
 
+function formatJsonString(_value) {
+  var _formatted = "\"";
+  for (var _index = 0; _index < _value.length; _index += 1) {
+    var _character = _value[_index];
+    if (_character === "\r") {
+      if (_value[_index + 1] === "\n") {
+        _index += 1;
+      }
+      _formatted += "\n";
+    } else if (_character === "\n") {
+      _formatted += "\n";
+    } else {
+      _formatted += JSON.stringify(_character).slice(1, -1);
+    }
+  }
+  return _formatted + "\"";
+}
+
 function appendJsonScalar(_container, _value) {
   var _className;
   if (typeof _value === "string") {
@@ -202,7 +220,13 @@ function appendJsonScalar(_container, _value) {
   } else {
     _className = "json-null";
   }
-  appendJsonToken(_container, JSON.stringify(_value), _className);
+  appendJsonToken(
+    _container,
+    typeof _value === "string"
+      ? formatJsonString(_value)
+      : JSON.stringify(_value),
+    _className
+  );
 }
 
 function appendJsonPrefix(_container, _key) {

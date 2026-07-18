@@ -3,14 +3,15 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and tool packages.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and eight-tool native tool packages.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Owns Client session transport, user-facing task result output, and remote-first telemetry with file fallback."
+      "purpose": "Owns Client session transport, adapts SessionEvent patterns including system-bearing executor tool announcements, and provides user-facing task result output."
     },
     {
       "path": "src/common",
@@ -25,12 +26,12 @@
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "Defines serialized workflow contracts whose actor events carry typed result statuses directly, including ExecutionResult and ExecutionResultKind outcomes."
+      "purpose": "Defines serialized workflow contracts with typed result statuses and categorized, system-targeted tool previews."
     },
     {
       "path": "src/server",
       "name": "server",
-      "purpose": "Runs workflow orchestration through actor runtimes: decision relays carry ContextChain separately from prompts, RelayRuntime builds system, context, prompt, and tools model requests from the current task and tools, SessionContext owns the sole task registry, and TaskAccess keeps a weak session-context link."
+      "purpose": "Runs actor-based workflow orchestration with context-first relays and a streaming-only model contract; Deepseek streams content and native tool calls, validates SSE completion, and normalizes tool calls to StepDraft."
     },
     {
       "path": "src/server_telemetry",
@@ -40,7 +41,7 @@
     {
       "path": "src/tool",
       "name": "tool",
-      "purpose": "Top-level marix-tool crate defining ToolProgram and six feature-gated native tools with shared compatibility parsing for Windows path and cwd backslashes."
+      "purpose": "Top-level marix-tool crate defining ToolProgram and eight feature-gated native tools, including separate PowerShell, Command Prompt, and Bash binaries."
     }
   ],
   "elements": [
@@ -80,7 +81,7 @@
       "name": "ClientSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
@@ -106,8 +107,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 185,
-              "lineEnd": 186
+              "lineStart": 196,
+              "lineEnd": 196
             }
           ]
         }

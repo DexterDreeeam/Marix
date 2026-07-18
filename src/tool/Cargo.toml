@@ -16,7 +16,9 @@ read_file = []
 write_file = []
 list_directory = []
 search_text = []
-shell_execute = []
+powershell = []
+command_prompt = []
+bash = []
 os_env = []
 
 [[bin]]
@@ -40,9 +42,19 @@ path = "tool_main.rs"
 required-features = ["search_text"]
 
 [[bin]]
-name = "marix_tool_shell_execute"
+name = "powershell"
 path = "tool_main.rs"
-required-features = ["shell_execute"]
+required-features = ["powershell"]
+
+[[bin]]
+name = "command_prompt"
+path = "tool_main.rs"
+required-features = ["command_prompt"]
+
+[[bin]]
+name = "bash"
+path = "tool_main.rs"
+required-features = ["bash"]
 
 [[bin]]
 name = "marix_tool_os_env"

@@ -3,16 +3,24 @@
   "module": {
     "path": "src/server/model",
     "name": "model",
-    "purpose": "Owns model backends and streaming channels; Deepseek privately extracts backend-specific tool payloads and omits tools and tool_choice when tools are absent.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines the streaming-only model backend contract and exposes Deepseek as a direct child implementation.",
+    "changeStatus": "modified"
   },
-  "childModules": [],
+  "modified": ["backend.rs", "mod.rs"],
+  "deleted": ["backend_deepseek.rs"],
+  "childModules": [
+    {
+      "path": "src/server/model/deepseek",
+      "name": "deepseek",
+      "purpose": "Implements the Deepseek streaming backend: every payload streams, native tool_calls are accumulated by index with strict finish_reason, [DONE], and schema validation, normalized to StepDraft, and raw SSE response data is logged."
+    }
+  ],
   "elements": [
     {
-      "name": "ModelResponseReceiver",
+      "name": "ModelResponseStream",
       "type": "type-alias",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "renamed",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
@@ -20,23 +28,12 @@
           "lineEnd": 8,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ModelResponseAsyncReceiver",
-      "type": "type-alias",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/model/backend.rs",
-          "lineStart": 9,
-          "lineEnd": 9,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 8
+            }
+          ]
         }
       ]
     },
@@ -44,18 +41,31 @@
       "name": "ModelBackend",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
-          "lineStart": 11,
-          "lineEnd": 21,
+          "lineStart": 10,
+          "lineEnd": 15,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 11,
-              "lineEnd": 21
+              "lineStart": 10,
+              "lineEnd": 15
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/model/backend.rs",
+          "lineStart": 41,
+          "lineEnd": 51,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 41,
+              "lineEnd": 51
             }
           ]
         }
@@ -65,18 +75,18 @@
       "name": "ModelBackendImpl",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
-          "lineStart": 23,
-          "lineEnd": 35,
+          "lineStart": 17,
+          "lineEnd": 22,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 23,
-              "lineEnd": 35
+              "lineStart": 17,
+              "lineEnd": 22
             }
           ]
         }
@@ -90,14 +100,14 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
-          "lineStart": 37,
-          "lineEnd": 43,
+          "lineStart": 24,
+          "lineEnd": 30,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 42,
-              "lineEnd": 42
+              "lineStart": 29,
+              "lineEnd": 29
             }
           ]
         }
@@ -111,77 +121,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/server/model/backend.rs",
-          "lineStart": 45,
-          "lineEnd": 50,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "DeepseekBackend",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 15,
-          "lineEnd": 20,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 22,
-          "lineEnd": 34,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 42,
-          "lineEnd": 101,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 103,
-          "lineEnd": 373,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 104,
-              "lineEnd": 164
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 375,
-          "lineEnd": 379,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 381,
-          "lineEnd": 385,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/model/backend_deepseek.rs",
-          "lineStart": 387,
-          "lineEnd": 396,
+          "lineStart": 32,
+          "lineEnd": 37,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -240,6 +181,105 @@
           "lineEnd": 46,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "DeepseekBackend",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/model/deepseek/request.rs",
+          "lineStart": 10,
+          "lineEnd": 35,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 35
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/deepseek/backend.rs",
+          "lineStart": 14,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 18
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/deepseek/backend.rs",
+          "lineStart": 20,
+          "lineEnd": 31,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 31
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/deepseek/backend.rs",
+          "lineStart": 35,
+          "lineEnd": 128,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 35,
+              "lineEnd": 128
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/deepseek/backend.rs",
+          "lineStart": 130,
+          "lineEnd": 139,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 130,
+              "lineEnd": 139
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/deepseek/stream.rs",
+          "lineStart": 10,
+          "lineEnd": 47,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 47
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/deepseek/stream.rs",
+          "lineStart": 74,
+          "lineEnd": 104,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 74,
+              "lineEnd": 104
+            }
+          ],
           "modifiedLines": []
         }
       ]

@@ -1,0 +1,48 @@
+use marix_common::{Arch, Platform, System};
+use marix_protocol::{ToolCategory, ToolPreview};
+
+use super::executor;
+use crate::ToolProgram;
+
+pub struct PowerShell;
+
+impl PowerShell {
+    const NAME: &'static str = "powershell";
+    const DESCRIPTION: &'static str =
+        "Execute a command using PowerShell on Windows using PowerShell syntax and Windows paths.";
+    const INPUT_SCHEMA: &'static str = r#"{"type":"object","properties":{"command":{"type":"string"},"cwd":{"type":"string"},"timeout_ms":{"type":"integer","minimum":1}},"required":["command"],"additionalProperties":false}"#;
+}
+
+impl ToolProgram for PowerShell {
+    fn preview(&self) -> ToolPreview {
+        ToolPreview {
+            name: Self::NAME.to_owned(),
+            description: Self::DESCRIPTION.to_owned(),
+            category: ToolCategory::Shell,
+            system: System {
+                platform: Platform::Win,
+                arch: Arch::All,
+            },
+            input: Self::INPUT_SCHEMA.to_owned(),
+        }
+    }
+
+    fn invoke(&self, call: &str) -> String {
+        #[cfg(windows)]
+        {
+            executor::invoke(
+                call,
+                "powershell.exe",
+                &["-NoProfile", "-NonInteractive", "-Command"],
+            )
+        }
+        #[cfg(not(windows))]
+        {
+            let _ = call;
+            executor::unavailable(Self::NAME, "Windows")
+        }
+    }
+}
+
+#[cfg(feature = "powershell")]
+pub use self::PowerShell as SelectedTool;

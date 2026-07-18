@@ -7,11 +7,12 @@ use marix_common::{
 use marix_protocol::{
     IntentEvent, IntentResult, IntentResultKind, IntentSignature, IntentVerdict, PlanEvent,
     PlanResult, PlanResultKind, PlanSignature, RelayRequest, RelayResult, RelayResultKind,
-    RelaySignature, SessionEvent, StepEvent, StepResult, StepResultKind, StepSignature, TaskEvent,
+    RelaySignature, SessionEvent, StepDraft, StepEvent, StepResult, StepResultKind, StepSignature,
+    TaskEvent,
 };
 
 use super::Intent;
-use crate::prompt::Prompt;
+use crate::prompt::{MessagePrompt, Prompt};
 use crate::relay::Relay;
 use crate::task::TaskAccess;
 
@@ -88,8 +89,9 @@ impl RuntimeTrait for IntentRuntime {
 
 impl IntentRuntime {
     fn verdict(&self) -> Result<(), String> {
-        let prompt =
-            std::panic::catch_unwind(|| Prompt::load("IntentAnalyze")).map_err(|payload| {
+        let message_prompt = MessagePrompt::IntentAnalyze;
+        let prompt = std::panic::catch_unwind(|| Prompt::load(message_prompt.name())).map_err(
+            |payload| {
                 let detail = if let Some(message) = payload.downcast_ref::<String>() {
                     message.clone()
                 } else if let Some(message) = payload.downcast_ref::<&str>() {
@@ -98,7 +100,8 @@ impl IntentRuntime {
                     "unknown prompt loading panic".to_owned()
                 };
                 format!("failed to load IntentAnalyze prompt: {detail}",)
-            })?;
+            },
+        )?;
         let prompt = prompt
             .prompt()
             .map_err(|error| format!("failed to render IntentAnalyze prompt: {error}"))?;
@@ -114,6 +117,42 @@ impl IntentRuntime {
         if !self.access.insert(relay.clone()) {
             return Err(format!(
                 "intent verdict relay {} already exists",
+                relay.signature(),
+            ));
+        }
+        relay.start();
+        Ok(())
+    }
+
+    fn tool_execution(&self) -> Result<(), String> {
+        let message_prompt = MessagePrompt::ToolExecution;
+        let prompt = std::panic::catch_unwind(|| Prompt::load(message_prompt.name())).map_err(
+            |payload| {
+                let detail = if let Some(message) = payload.downcast_ref::<String>() {
+                    message.clone()
+                } else if let Some(message) = payload.downcast_ref::<&str>() {
+                    (*message).to_owned()
+                } else {
+                    "unknown prompt loading panic".to_owned()
+                };
+                format!("failed to load ToolExecution prompt: {detail}")
+            },
+        )?;
+        let prompt = prompt
+            .prompt()
+            .map_err(|error| format!("failed to render ToolExecution prompt: {error}"))?;
+        let request = RelayRequest {
+            signature: RelaySignature::new(
+                self.signature.clone(),
+                None,
+                "intent-tool-execution".to_owned(),
+            ),
+            prompt,
+        };
+        let relay = Relay::new(Arc::clone(&self.access), request)?;
+        if !self.access.insert(relay.clone()) {
+            return Err(format!(
+                "intent tool execution relay {} already exists",
                 relay.signature(),
             ));
         }
@@ -183,19 +222,42 @@ impl IntentRuntime {
             );
             return;
         }
+        if signature.name != "intent-verdict" && signature.name != "intent-tool-execution" {
+            self.fail(format!(
+                "intent received update from unexpected relay name `{}`",
+                signature.name,
+            ));
+            return;
+        }
         match result.kind {
             RelayResultKind::Succeed => {
-                let verdict = match IntentVerdict::parse(&result.output) {
-                    Ok(verdict) => verdict,
+                if signature.name == "intent-verdict" {
+                    let verdict = match IntentVerdict::parse(&result.output) {
+                        Ok(verdict) => verdict,
+                        Err(error) => {
+                            self.fail(format!(
+                                "intent verdict from relay \
+                                 {signature} is malformed: {error}",
+                            ));
+                            return;
+                        }
+                    };
+                    self.on_verdict(verdict);
+                    return;
+                }
+                let draft = match StepDraft::parse(&result.output) {
+                    Ok(draft) => draft,
                     Err(error) => {
                         self.fail(format!(
-                            "intent verdict from relay \
-                                 {signature} is malformed: {error}",
+                            "intent tool execution from relay \
+                             {signature} is malformed: {error}",
                         ));
                         return;
                     }
                 };
-                self.on_verdict(verdict);
+                if let Err(reason) = self.create_step(draft) {
+                    self.fail(reason);
+                }
             }
             RelayResultKind::Failed => {
                 self.finish(IntentResultKind::Failed, result.output);
@@ -250,8 +312,8 @@ impl IntentRuntime {
 
     fn on_verdict(&self, verdict: IntentVerdict) {
         match verdict {
-            IntentVerdict::Step(draft) => {
-                if let Err(reason) = self.create_step(draft) {
+            IntentVerdict::ToolExecution => {
+                if let Err(reason) = self.tool_execution() {
                     self.fail(reason);
                 }
             }

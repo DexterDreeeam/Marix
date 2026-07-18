@@ -3,9 +3,13 @@
   "module": {
     "path": "src/server/relay",
     "name": "relay",
-    "purpose": "Runs relay actors and prompt construction, streams model output, and publishes typed RelayResult completions directly to owning intents.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs relay actors, maps relay names to message and system prompts, derives tool needs from those mappings, and injects only parameters declared by each system template; System_Tools receives the tools marker.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "prompt.rs",
+    "runtime.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -52,7 +56,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
@@ -60,12 +64,7 @@
           "lineEnd": 27,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 26,
-              "lineEnd": 26
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
@@ -73,12 +72,7 @@
           "lineEnd": 58,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 55,
-              "lineEnd": 55
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
@@ -88,16 +82,12 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 68,
-              "lineEnd": 70
+              "lineStart": 62,
+              "lineEnd": 62
             },
             {
-              "lineStart": 101,
-              "lineEnd": 115
-            },
-            {
-              "lineStart": 118,
-              "lineEnd": 162
+              "lineStart": 87,
+              "lineEnd": 87
             }
           ]
         },
@@ -107,16 +97,7 @@
           "lineEnd": 245,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 168,
-              "lineEnd": 198
-            },
-            {
-              "lineStart": 225,
-              "lineEnd": 237
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
@@ -129,26 +110,26 @@
         {
           "sourcePath": "src/server/relay/prompt.rs",
           "lineStart": 10,
-          "lineEnd": 35,
+          "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 10,
-              "lineEnd": 34
+              "lineStart": 16,
+              "lineEnd": 42
             }
           ]
         },
         {
           "sourcePath": "src/server/relay/prompt.rs",
-          "lineStart": 39,
-          "lineEnd": 165,
+          "lineStart": 48,
+          "lineEnd": 216,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 39,
-              "lineEnd": 165
+              "lineStart": 49,
+              "lineEnd": 96
             }
           ]
         }

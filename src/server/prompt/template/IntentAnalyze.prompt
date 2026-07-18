@@ -8,9 +8,9 @@ Use complete only when the available information is sufficient to fulfill the cu
 Use plan when the current goal is not expected to finish within at most five tool calls and should be divided into a non-empty ordered list of simple, immutable goals that do not request tool use.
 {"decision":"plan","goals":["first immutable goal","second immutable goal"]}
 
---- DECISION: tool_calls ---
-Use tool_calls when the current goal can finish within at most five tool calls, or when obtaining information first is worthwhile. Include one to five mutually independent calls that can run in parallel. Each arguments value must be a JSON-encoded string matching the selected tool schema.
-{"decision":"tool_calls","calls":[{"tool":"tool_name","arguments":"JSON argument string"}]}
+--- DECISION: tool_execution ---
+Use tool_execution when the currently provided tools can complete the current goal with one to five tool calls. At this stage, do not select tools or return calls, arguments, or any other content.
+{"decision":"tool_execution"}
 
 --- DECISION: infeasible ---
 Use infeasible only when the provided tools and planning capabilities cannot complete the current goal.

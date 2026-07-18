@@ -1,10 +1,14 @@
-use crate::ToolInputSchema;
+use marix_common::System;
+
 use crate::external::*;
+use crate::{ToolCategory, ToolInputSchema};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ToolPreview {
     pub name: String,
     pub description: String,
+    pub category: ToolCategory,
+    pub system: System,
     pub input: ToolInputSchema,
 }
 

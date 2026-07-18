@@ -1344,3 +1344,70 @@ connecter to protect this distinction.
   and owns one current-thread Tokio runtime per OS thread. Blocking tool work
   still cannot be interrupted; completion and unknown-tool failures cross the
   Host/Server boundary as `ExecutionResult`.
+- 2026-07-18 (tool environment metadata): `ToolPreview` now carries
+  `ToolCategory` plus artifact `System`; native previews use `System::new()`.
+  `System::supports` requires equal architecture and accepts an equal platform
+  or tool-side `Platform::All`. Host registration warns and skips incompatible
+  tools, and preview emission repeats the current-host filter.
+- 2026-07-18 (native shell and prompt environment): The generic
+  `shell_execute` target is replaced by independent `powershell`,
+  `command_prompt`, and `bash` features/bins. Their platform-gated invocations
+  share `tool/native/shell/executor.rs`; unsupported hosts return JSON errors.
+  Server tool registration derives session environment from the first
+  non-`All` preview (falling back to the first preview), and Relay injects it
+  into both System templates as `{"os":"...","arch":"..."}`.
+- 2026-07-18 (shell preview platform invariant): Native shell previews describe
+  the platform each binary is designed to support, independent of the build
+  host: PowerShell and Command Prompt use `Platform::Win`, Bash uses
+  `Platform::Ubuntu`, and all retain the current build architecture from
+  `System::new().arch`. Invocation remains target-gated and returns structured
+  unavailable errors off-platform.
+- 2026-07-18 (user-facing architecture vocabulary): `common/config/sys.rs`
+  exposes only `Arch::Amd` for AMD64/x86_64 and `Arch::Arm` for ARM64/AArch64;
+  neither family supports 32-bit targets. Derived protocol JSON keeps `Amd` and
+  `Arm`, while `server/relay/prompt.rs` deliberately renders model-facing
+  environment values as lowercase `amd` and `arm`.
+- 2026-07-18 (tool capability matrix): `Arch::All` denotes both supported
+  64-bit families, never 32-bit. Native tool previews declare artifact
+  capabilities explicitly (`All/All` for file and environment tools,
+  `Win/All` for Windows shells, `Ubuntu/All` for Bash); Host parses and filters
+  those declarations without replacing them. Relay host context comes from
+  concrete `System::new()`, independently of preview capability metadata.
+- 2026-07-18 (Host-owned execution environment; supersedes preview-derived
+  session environment above): `SessionEvent::ExecutorTools` carries the Host
+  `System` beside filtered previews. Host creates this value, Server stores it
+  in `host_sys` and `SessionContext::system` without inspecting its own
+  platform, and Relay renders it as natural language such as
+  `Windows on amd64` or `Ubuntu on arm`.
+- 2026-07-18 (Telemetry Format string display):
+  `server_telemetry/http/telemetry-format.js` formats parsed JSON string
+  scalars separately from extraction and nested parsing. CRLF, CR, and LF are
+  displayed as LF, while every other character retains JSON escaping so
+  literal backslash sequences and Windows paths remain distinct.
+- 2026-07-18 (two-stage Intent tool execution): `IntentVerdict::ToolExecution`
+  is a unit `tool_execution` wire decision. Intent Relay System messages list
+  Host-filtered tools as ordered `name: description` lines, but only the
+  `intent-tool-execution` Relay sends native API tools; `intent-verdict` sees
+  the catalog without receiving native tools.
+- 2026-07-18 (Deepseek native tool normalization): tool-aware Deepseek
+  requests are non-streaming with `tool_choice: required`. The backend logs
+  the raw HTTP body, strictly validates one to five function calls and JSON
+  object arguments, serializes them as `StepDraft`, then emits content chunk
+  zero plus empty completion one so Relay output contains only the draft.
+- 2026-07-18 (stream-only Deepseek backend; supersedes the entry above):
+  `server/model/backend.rs` exposes only `ModelResponseStream` and
+  `request_stream`. Deepseek now lives under `server/model/deepseek/`; every
+  payload sets `stream: true`, and its private SSE parser buffers native tool
+  deltas by index, validates finish/completeness, logs raw `data:` payloads,
+  then emits one normalized `StepDraft` chunk plus completion. Spawned stream
+  errors still close the channel so Relay reports an incomplete model stream.
+- 2026-07-18 (Relay tool exposure split): `intent-verdict` alone uses
+  `System_Tools` and injects the `name: description` catalog;
+  `intent-tool-execution` uses plain `System` while attaching native tools.
+  Relay tool retrieval therefore follows the union of those two modes rather
+  than the catalog-aware mode alone; Plan relays use neither mode.
+- 2026-07-18 (explicit Prompt-to-System mapping):
+  `server/prompt/system_map.rs` owns Relay-name-to-`MessagePrompt` and
+  `MessagePrompt`-to-`SystemPrompt` selection. Relay system injection follows
+  the selected template's declared parameters; only `System_Tools` declares
+  `tools`, while native tool execution still retrieves tools for model APIs.
