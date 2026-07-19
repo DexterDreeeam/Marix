@@ -4,11 +4,8 @@
     "path": "src/tool/native",
     "name": "native",
     "purpose": "Groups eight built-in tools and shared native execution support; shell tools use absolute system paths and return structured JSON failures.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "."
-  ],
   "childModules": [
     {
       "path": "src/tool/native/file",
@@ -216,7 +213,7 @@
       "name": "Bash",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/bash.rs",
@@ -253,7 +250,7 @@
       "name": "CommandPrompt",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/command_prompt.rs",
@@ -303,7 +300,7 @@
       "name": "PowerShellExec",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/powershell_exec.rs",
@@ -363,7 +360,7 @@
       "name": "invoke",
       "type": "function",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/executor.rs",
@@ -384,7 +381,7 @@
       "name": "unavailable",
       "type": "function",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/executor.rs",

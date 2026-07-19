@@ -4,11 +4,8 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Owns the host executor worker, pipes JSON requests to tool standard input, preserves structured process failures, routes executions, and publishes tool previews.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "tool.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -166,7 +163,7 @@
       "name": "Tool",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/tool.rs",

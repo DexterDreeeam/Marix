@@ -4,11 +4,8 @@
     "path": "src/host",
     "name": "host",
     "purpose": "Owns Host connectivity, per-execution actor runtimes, and executor workers that pipe JSON to tools and preserve structured process failures.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "."
-  ],
   "childModules": [
     {
       "path": "src/host/execution",
@@ -358,7 +355,7 @@
       "name": "Tool",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/tool.rs",

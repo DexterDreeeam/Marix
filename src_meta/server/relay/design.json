@@ -4,11 +4,8 @@
     "path": "src/server/relay",
     "name": "relay",
     "purpose": "Builds relay model requests in System, Decision, then Context order, selects mapped system templates and native tools, and injects only declared template parameters.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "prompt.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -55,7 +52,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",

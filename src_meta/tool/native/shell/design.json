@@ -4,27 +4,15 @@
     "path": "src/tool/native/shell",
     "name": "shell",
     "purpose": "Provides Bash, Command Prompt, and PowerShellExec tools launched through absolute system paths, with shared JSON process execution and structured failures.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": [
-    "powershell_exec.rs"
-  ],
-  "modified": [
-    "executor.rs",
-    "command_prompt.rs",
-    "bash.rs",
-    "mod.rs"
-  ],
-  "deleted": [
-    "powershell.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "Bash",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/bash.rs",
@@ -61,7 +49,7 @@
       "name": "CommandPrompt",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/command_prompt.rs",
@@ -111,7 +99,7 @@
       "name": "PowerShellExec",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/powershell_exec.rs",
@@ -171,7 +159,7 @@
       "name": "invoke",
       "type": "function",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/executor.rs",
@@ -192,7 +180,7 @@
       "name": "unavailable",
       "type": "function",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/executor.rs",
