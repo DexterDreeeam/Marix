@@ -4,9 +4,8 @@
     "path": "src/protocol/intent",
     "name": "intent",
     "purpose": "Defines intent contexts with ordered step results, subintent signatures, and prior plan failures, plus signatures, lifecycle events, terminal results, and plan contracts; IntentVerdict parses plan, complete, and infeasible decisions.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["draft.rs", "context.rs", "event.rs", "mod.rs", "signature.rs"],
   "childModules": [
     {
       "path": "src/protocol/intent/plan",
@@ -19,7 +18,7 @@
       "name": "IntentContext",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/context.rs",
@@ -61,7 +60,7 @@
       "name": "IntentVerdict",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
@@ -111,7 +110,7 @@
       "name": "IntentEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/event.rs",
@@ -166,7 +165,7 @@
       "name": "PlanDraft",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/plan/draft.rs",
@@ -200,7 +199,7 @@
       "name": "PlanResult",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/plan/result.rs",
@@ -263,7 +262,7 @@
       "name": "IntentSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/signature.rs",

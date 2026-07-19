@@ -4,16 +4,15 @@
     "path": "src/server/task",
     "name": "task",
     "purpose": "Owns task actors and intent, step, invocation, and relay registries; resolves parent-indexed, ancestor-first intent context chains with plan-failure history, routes task events, and translates the root intent result into external task status.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["access.rs", "context.rs", "routing.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "StoredActor",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/access.rs",
@@ -61,7 +60,7 @@
       "name": "StoredSignature",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/access.rs",
@@ -109,7 +108,7 @@
       "name": "TaskAccess",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/access.rs",
@@ -177,7 +176,7 @@
       "name": "TaskRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/task/routing.rs",

@@ -4,9 +4,8 @@
     "path": "src/protocol",
     "name": "protocol",
     "purpose": "Defines serialized context-chain contracts for intent planning and task execution, plus relay, step, invocation, execution, session, categorized tools, and workflow decisions.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [".", "lib.rs", "mod.rs", "context.rs"],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -69,7 +68,7 @@
       "name": "ContextChain",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/context.rs",
@@ -325,7 +324,7 @@
       "name": "IntentContext",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/context.rs",
@@ -367,7 +366,7 @@
       "name": "IntentVerdict",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
@@ -417,7 +416,7 @@
       "name": "IntentEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/event.rs",
@@ -514,7 +513,7 @@
       "name": "IntentSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/signature.rs",
@@ -904,7 +903,7 @@
       "name": "RelaySignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/signature.rs",
@@ -1183,7 +1182,7 @@
       "name": "TaskEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/event.rs",
@@ -1460,7 +1459,7 @@
       "name": "ToolCategory",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/tool/category.rs",
@@ -1481,7 +1480,7 @@
       "name": "WorkflowComplete",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/workflow/complete.rs",
@@ -1515,7 +1514,7 @@
       "name": "WorkflowInfeasible",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/workflow/infeasible.rs",
@@ -1549,7 +1548,7 @@
       "name": "WorkflowPlan",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/workflow/plan.rs",
@@ -1583,7 +1582,7 @@
       "name": "WorkflowTool",
       "type": "trait",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/workflow/tool.rs",

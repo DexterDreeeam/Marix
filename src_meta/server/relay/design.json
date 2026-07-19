@@ -4,11 +4,8 @@
     "path": "src/server/relay",
     "name": "relay",
     "purpose": "Builds model requests with the Relay decision/instruction prompt first, followed by ancestor-first intent context, a rendered System template based on the execution environment, workflow tools placed before execution tools after duplicate-name and workflow-name conflict validation, and serialized goal, subintent, plan-failure, and call context.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "prompt.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -55,7 +52,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
