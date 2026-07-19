@@ -4,7 +4,7 @@
     "path": "src/server/step",
     "name": "step",
     "purpose": "Runs step actors, consumes typed InvocationResult completions directly, and aggregates ordered structured call results into StepResult.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "StepRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/runtime.rs",
@@ -116,5 +116,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "runtime.rs"
   ]
 }

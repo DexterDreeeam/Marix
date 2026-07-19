@@ -4,7 +4,7 @@
     "path": "src/protocol/invocation",
     "name": "invocation",
     "purpose": "Defines invocation drafts, requests, identities, signatures, errors, results, and events whose execution updates carry ActorStatus<ExecutionResult> directly.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -157,7 +157,7 @@
       "name": "ToolCallResultDraft",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/result.rs",
@@ -224,5 +224,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "result.rs"
   ]
 }

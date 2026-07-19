@@ -169,7 +169,7 @@ impl StepRuntime {
             .invocation_results
             .lock()
             .unwrap_or_else(|error| error.into_inner());
-        for signature in &invocations {
+        for (index, signature) in invocations.iter().enumerate() {
             let Some(result) = results.get(signature).cloned() else {
                 return;
             };
@@ -178,8 +178,10 @@ impl StepRuntime {
                 InvocationResultKind::Canceled => canceled = true,
                 InvocationResultKind::Failed => failed = true,
             }
+            let input = self.draft.invocations[index].input.clone();
             calls.push(ToolCallResultDraft {
                 tool: signature.name.clone(),
+                input,
                 result,
             });
         }
@@ -209,10 +211,12 @@ impl StepRuntime {
             .unwrap_or_else(|error| error.into_inner())
             .clone();
         let mut calls = Vec::with_capacity(invocations.len());
-        for signature in &invocations {
+        for (index, signature) in invocations.iter().enumerate() {
             if let Some(result) = results.get(signature).cloned() {
+                let input = self.draft.invocations[index].input.clone();
                 calls.push(ToolCallResultDraft {
                     tool: signature.name.clone(),
+                    input,
                     result,
                 });
                 continue;
@@ -228,8 +232,10 @@ impl StepRuntime {
                     &self.signature,
                 ));
             }
+            let input = self.draft.invocations[index].input.clone();
             calls.push(ToolCallResultDraft {
                 tool: signature.name.clone(),
+                input,
                 result: InvocationResult {
                     kind: InvocationResultKind::Canceled,
                     output: "tool call canceled".to_owned(),

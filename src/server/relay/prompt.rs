@@ -1,9 +1,9 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 
-use marix_common::{Arch, Platform, System, external::*};
+use marix_common::{Arch, Platform, System};
 use marix_protocol::{
-    ContextChain, IntentContext, ToolPreview, WorkflowComplete, WorkflowInfeasible, WorkflowPlan,
-    WorkflowTool,
+    ContextChain, IntentContext, IntentResult, IntentResultKind, ToolPreview,
+    WorkflowComplete, WorkflowInfeasible, WorkflowPlan, WorkflowTool,
 };
 
 use super::RelayRuntime;
@@ -63,10 +63,23 @@ impl RelayRuntime {
                 ));
             }
         }
-        let mut tools =
-            Vec::with_capacity(workflow_tools.len() + execution_tools.len());
+        let mut tools = Vec::with_capacity(workflow_tools.len() + execution_tools.len());
         tools.extend(workflow_tools);
-        tools.extend(execution_tools);
+        for mut tool in execution_tools {
+            if let Ok(mut schema) = marix_common::external::serde_json::from_str::<marix_common::external::serde_json::Value>(&tool.input) {
+                if let Some(props) = schema.get_mut("properties").and_then(|v| v.as_object_mut()) {
+                    props.insert("purpose".to_owned(), marix_common::external::serde_json::json!({
+                        "type": "string",
+                        "description": "A short summary of what this tool invocation is doing and why."
+                    }));
+                }
+                if let Some(required) = schema.get_mut("required").and_then(|v| v.as_array_mut()) {
+                    required.push(marix_common::external::serde_json::json!("purpose"));
+                }
+                tool.input = marix_common::external::serde_json::to_string(&schema).unwrap_or_else(|_| tool.input);
+            }
+            tools.push(tool);
+        }
         Ok(tools)
     }
 
@@ -85,7 +98,6 @@ impl RelayRuntime {
             })?;
         for parameter in system.parameters() {
             let value = match parameter.as_str() {
-                "user_request" => self.access.user_request.clone(),
                 "system" => Self::system_text(current_system),
                 _ => {
                     return Err(format!(
@@ -116,73 +128,160 @@ impl RelayRuntime {
     }
 
     fn context_prompts(&self, chain: &ContextChain) -> Result<Vec<String>, String> {
-        if chain.intents.is_empty() {
+        let Some((current, ancestors)) = chain.intents.split_last() else {
             return Err("cannot render an empty context chain".to_owned());
+        };
+        if !current.subintents.is_empty() {
+            return Err(
+                "intent verdict target still has an active plan; \
+                 context chain is inconsistent"
+                    .to_owned(),
+            );
         }
 
-        let mut prompts = Vec::with_capacity(chain.intents.len() + 1);
-        prompts.push(self.prompt.clone());
-        for intent in &chain.intents {
-            prompts.push(self.intent_prompt(intent)?);
+        let mut prompts = vec![self.prompt.clone()];
+        if !ancestors.is_empty() {
+            let mut context = "[BACKGROUND CONTEXT]\nThese are the parent tasks and their execution history. They are provided for reference only.\n\n\n".to_owned();
+            context.push_str(&ancestors
+                .iter()
+                .map(|intent| self.plan_prompt(intent))
+                .collect::<Result<Vec<_>, _>>()?
+                .join("\n\n\n"));
+            prompts.push(context);
         }
+        prompts.push(Self::pending_intent_prompt(current));
         Ok(prompts)
     }
 
-    fn intent_prompt(&self, intent: &IntentContext) -> Result<String, String> {
-        let goal = Self::json(&intent.content, "current goal")?;
-        let mut prompt = format!("The current goal is {goal}.");
-        Self::tool_calls(&mut prompt, intent)?;
-        if !intent.subintents.is_empty() {
-            let subintents = intent
-                .subintents
-                .iter()
-                .map(|signature| self.access.get_intent_context(signature))
-                .collect::<Result<Vec<_>, _>>()?;
-            let goals = subintents
-                .iter()
-                .map(|subintent| subintent.content.as_str())
-                .collect::<Vec<_>>();
-            let results = subintents
-                .iter()
-                .map(|subintent| subintent.result.as_ref())
-                .collect::<Vec<_>>();
-            prompt.push_str(" Current ordered subintent goals: ");
-            prompt.push_str(&Self::json(&goals, "subintent goals")?);
-            prompt.push_str(". Their corresponding results: ");
-            prompt.push_str(&Self::json(&results, "subintent results")?);
-            prompt.push('.');
-        }
-        if !intent.plan_failures.is_empty() {
-            prompt.push_str(" Previous plan failures: ");
-            prompt.push_str(&Self::json(&intent.plan_failures, "plan failures")?);
-            prompt.push('.');
-        }
+    /// Renders an ancestor Intent that currently holds an active Plan.
+    fn plan_prompt(&self, intent: &IntentContext) -> Result<String, String> {
+        let mut prompt = format!("Goal: {}", intent.content);
+        Self::append_result(&mut prompt, &intent.result);
+        self.append_plan(&mut prompt, intent)?;
+        Self::append_tool_calls(&mut prompt, intent);
+        Self::append_plan_failures(&mut prompt, intent);
         Ok(prompt)
     }
 
-    fn tool_calls(prompt: &mut String, intent: &IntentContext) -> Result<(), String> {
-        let mut calls = Vec::new();
-        for result in &intent.step_results {
-            for call_result in &result.calls {
-                let mut call = BTreeMap::new();
-                call.insert(call_result.tool.clone(), call_result.result.output.clone());
-                calls.push(call);
-            }
+    /// Renders the Intent currently awaiting a decision (it has no active Plan).
+    fn pending_intent_prompt(intent: &IntentContext) -> String {
+        let mut prompt = "[CURRENT TASK]\nThis is the task you must execute NOW. All workflow decisions MUST be scoped strictly to this goal alone."
+            .to_owned();
+        prompt.push_str(&format!("\nGoal: {}", intent.content));
+        Self::append_tool_calls(&mut prompt, intent);
+        Self::append_plan_failures(&mut prompt, intent);
+        prompt
+    }
+
+    fn append_result(prompt: &mut String, result: &Option<IntentResult>) {
+        if let Some(result) = result {
+            prompt.push_str("\nResult: ");
+            prompt.push_str(Self::intent_result_status(&result.kind));
+            prompt.push_str(" — ");
+            prompt.push_str(&result.output);
         }
-        if calls.is_empty() {
+    }
+
+    fn append_plan(&self, prompt: &mut String, intent: &IntentContext) -> Result<(), String> {
+        if intent.subintents.is_empty() {
             return Ok(());
         }
-        let calls = Self::json(&calls, "calls")?;
-        prompt.push_str(" calls: ");
-        prompt.push_str(&calls);
-        prompt.push('.');
+
+        let subintents = intent
+            .subintents
+            .iter()
+            .map(|signature| self.access.get_intent_context(signature))
+            .collect::<Result<Vec<_>, _>>()?;
+        prompt.push_str("\nPlan:");
+        let mut current_item = None;
+        for (index, subintent) in subintents.iter().enumerate() {
+            prompt.push_str(&format!("\n{}. {}", index + 1, subintent.content));
+            match &subintent.result {
+                Some(result) => {
+                    let output = result.output.replace("\n", "\n      ");
+                    prompt.push_str(&format!("\n   Result:\n      {}", output));
+                }
+                None => {
+                    current_item.get_or_insert(index + 1);
+                }
+            }
+        }
+        if let Some(item) = current_item {
+            prompt.push_str(&format!("\nCurrently executing item {item} of the plan."));
+        }
         Ok(())
     }
 
-    fn json<T>(value: &T, label: &str) -> Result<String, String>
-    where
-        T: Serialize + ?Sized,
-    {
-        serde_json::to_string(value).map_err(|error| format!("failed to encode {label}: {error}"))
+    fn append_tool_calls(prompt: &mut String, intent: &IntentContext) {
+        let has_calls = intent
+            .step_results
+            .iter()
+            .any(|result| !result.calls.is_empty());
+        if !has_calls {
+            return;
+        }
+
+        prompt.push_str("\nTool calls:");
+        let mut index = 1;
+        for step_result in &intent.step_results {
+            for call in &step_result.calls {
+                let purpose = marix_common::external::serde_json::from_str::<marix_common::external::serde_json::Value>(&call.input)
+                    .ok()
+                    .and_then(|v| v.get("purpose").and_then(|p| p.as_str()).map(|s| s.to_owned()))
+                    .unwrap_or_default();
+                let purpose_str = if purpose.is_empty() { String::new() } else { format!(" ({})", purpose) };
+                
+                let output = call.result.output.replace("\n", "\n      ");
+                prompt.push_str(&format!(
+                    "\n{}. {}{}\n   Result:\n      {}",
+                    index,
+                    call.tool,
+                    purpose_str,
+                    output,
+                ));
+                index += 1;
+            }
+        }
+    }
+
+    fn append_plan_failures(prompt: &mut String, intent: &IntentContext) {
+        if intent.plan_failures.is_empty() {
+            return;
+        }
+
+        prompt.push_str("\nPrevious plan failures:\n");
+        let mut failures = Vec::new();
+        for failure in &intent.plan_failures {
+            let mut failed_goal = String::new();
+            for (index, result) in failure.results.iter().enumerate() {
+                if let Some(res) = result {
+                    match res.kind {
+                        IntentResultKind::Failed | IntentResultKind::Infeasible => {
+                            failed_goal = failure.goals.get(index).cloned().unwrap_or_default();
+                            break;
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            
+            failures.push(marix_common::external::serde_json::json!({
+                "goals": failure.goals,
+                "failed": failed_goal,
+                "reason": failure.reason
+            }));
+        }
+        if let Ok(json_str) = marix_common::external::serde_json::to_string_pretty(&failures) {
+            prompt.push_str(&json_str);
+        }
+    }
+
+    fn intent_result_status(kind: &IntentResultKind) -> &'static str {
+        match kind {
+            IntentResultKind::Succeed => "succeeded",
+            IntentResultKind::Infeasible => "was infeasible",
+            IntentResultKind::Canceled => "was canceled",
+            IntentResultKind::Failed => "failed",
+        }
     }
 }

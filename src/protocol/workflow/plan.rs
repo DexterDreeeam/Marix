@@ -17,8 +17,8 @@ impl WorkflowTool for WorkflowPlan {
     fn preview() -> ToolPreview {
         ToolPreview {
             name: Self::NAME.to_owned(),
-            description: "Create a new plan for the current Intent with \
-                          ordered immutable subintent goals. When \
+            description: "Create a new plan for the current task with \
+                          ordered immutable subtask goals. When \
                           plan_failures exist, choose different goals based \
                           on that failure history."
                 .to_owned(),
@@ -27,7 +27,7 @@ impl WorkflowTool for WorkflowPlan {
                 platform: Platform::All,
                 arch: Arch::All,
             },
-            input: r#"{"type":"object","properties":{"goals":{"type":"array","description":"Ordered immutable subintent goals.","items":{"type":"string","minLength":1,"description":"A simple immutable subintent goal that does not request tool use."},"minItems":1}},"required":["goals"],"additionalProperties":false}"#.to_owned(),
+            input: r#"{"type":"object","properties":{"goals":{"type":"array","description":"Ordered immutable subtask goals.","items":{"type":"string","minLength":1,"description":"A simple immutable subtask goal that does not request tool use."},"minItems":2}},"required":["goals"],"additionalProperties":false}"#.to_owned(),
         }
     }
 

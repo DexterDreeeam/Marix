@@ -1,0 +1,32 @@
+name = "marix"
+
+[runtime]
+environment = "development"
+mode = "network"
+marix_path = "."
+
+[client]
+interactive = true
+request_timeout_ms = 30000
+
+[server]
+enabled = true
+ip = "43.142.167.218"
+auth_token = "ldJBcQGm4iaPsfyq2llKxCVHF0YosZtiPpESZ0KJvpY"
+client_port = 22345
+host_port = 22346
+telemetry_port = 22347
+telemetry_http_port = 22348
+max_turns = 32
+
+[model]
+backend = "deepseek"
+
+[model.deepseek]
+endpoint = "https://api.deepseek.com/chat/completions"
+model = "deepseek-chat"
+api_key = "sk-d553de7cb2384587a49c8798320fee58"
+
+[tool]
+directory = "tool"
+

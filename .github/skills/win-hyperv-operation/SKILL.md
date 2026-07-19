@@ -20,17 +20,15 @@ Do not change source code unless the user explicitly asks for a code change. Do 
 - Guest Service Interface is enabled and supports `Copy-VMFile` from host to guest.
 - Guest login credentials are fixed: username `marixagent`, password `123`. PowerShell Direct builds a `PSCredential` from these.
 - All Hyper-V host artifacts (Windows ISO, VHD, provisioning work files) live under `C:\marix\hyperv\`.
-- Client deployment inside the guest lives under `C:\MarixClient\`:
-  - CLI client -> `C:\MarixClient\Cli\`
-  - Web client -> `C:\MarixClient\Web\`
-  - App client -> `C:\MarixClient\App\`
+- Host deployment inside the guest lives under `C:\MarixHost\`.
+- Do NOT deploy Client artifacts to the VM. The Client is deployed locally on the physical machine, not in the guest.
 - PowerShell Direct with `Invoke-Command -VMName Marix_TestVm` runs over VMBus and needs no guest network, NIC, WinRM, or SSH — only the fixed guest credential above.
 
 ## Responsibilities
 
 - Ensure the target VM exists before any other operation: look it up with `Get-VM -Name Marix_TestVm`. If it is missing, provision it fully unattended (see **Zero-Touch VM Provisioning**) so it boots already controllable via PowerShell Direct — never ask the user to sign into the guest or run anything inside it. If it already exists, reuse it and start it only when it is not running.
 - Verify VM state with Hyper-V cmdlets such as `Get-VM` and `Get-VMIntegrationService`.
-- Copy deployment files into the guest with `Copy-VMFile`, placing each client under its `C:\MarixClient\` subfolder (`Cli`, `Web`, or `App`).
+- Copy deployment files into the guest with `Copy-VMFile`, placing Host artifacts in `C:\MarixHost\`.
 - Use PowerShell Direct for guest command execution:
   - build a `PSCredential` from the fixed `marixagent` / `123` credentials,
   - call `Invoke-Command -VMName Marix_TestVm -Credential $credential -ScriptBlock { ... }`.
@@ -200,10 +198,10 @@ Credential construction pattern (fixed credentials):
 $credential = [pscredential]::new("marixagent", (ConvertTo-SecureString "123" -AsPlainText -Force))
 ```
 
-Deploy a client into the guest (example — CLI; use `Web` or `App` for the other clients):
+Deploy Host artifacts into the guest:
 
 ```powershell
-Copy-VMFile -Name Marix_TestVm -FileSource Host -SourcePath $cliArtifact -DestinationPath "C:\MarixClient\Cli\$fileName" -CreateFullPath -Force
+Copy-VMFile -Name Marix_TestVm -FileSource Host -SourcePath $hostArtifact -DestinationPath "C:\MarixHost\$fileName" -CreateFullPath -Force
 ```
 
 ## Operational Notes

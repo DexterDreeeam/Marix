@@ -17,7 +17,7 @@ impl WorkflowTool for WorkflowInfeasible {
     fn preview() -> ToolPreview {
         ToolPreview {
             name: Self::NAME.to_owned(),
-            description: "Declare the entire Intent infeasible only after \
+            description: "Declare the entire task infeasible only after \
                           considering tools, planning, and all plan failures."
                 .to_owned(),
             category: ToolCategory::Workflow,
@@ -25,7 +25,7 @@ impl WorkflowTool for WorkflowInfeasible {
                 platform: Platform::All,
                 arch: Arch::All,
             },
-            input: r#"{"type":"object","properties":{"reason":{"type":"string","minLength":1,"description":"Why the entire Intent is infeasible."}},"required":["reason"],"additionalProperties":false}"#.to_owned(),
+            input: r#"{"type":"object","properties":{"reason":{"type":"string","minLength":1,"description":"Why the entire task is infeasible."}},"required":["reason"],"additionalProperties":false}"#.to_owned(),
         }
     }
 

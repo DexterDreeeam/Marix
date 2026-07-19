@@ -93,7 +93,7 @@ impl RuntimeTrait for IntentRuntime {
 
 impl IntentRuntime {
     pub(super) fn verdict(&self) -> Result<(), String> {
-        let prompt =
+        let mut prompt =
             std::panic::catch_unwind(|| Prompt::load("IntentAnalyze")).map_err(|payload| {
                 let detail = if let Some(message) = payload.downcast_ref::<String>() {
                     message.clone()
@@ -104,6 +104,17 @@ impl IntentRuntime {
                 };
                 format!("failed to load IntentAnalyze prompt: {detail}",)
             })?;
+        for parameter in prompt.parameters() {
+            let value = match parameter.as_str() {
+                "goal" => self.access.user_request.clone(),
+                _ => {
+                    return Err(format!(
+                        "unsupported IntentAnalyze prompt parameter `{parameter}`"
+                    ));
+                }
+            };
+            prompt.inject(parameter, value);
+        }
         let prompt = prompt
             .prompt()
             .map_err(|error| format!("failed to render IntentAnalyze prompt: {error}"))?;

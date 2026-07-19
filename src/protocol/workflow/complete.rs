@@ -18,7 +18,7 @@ impl WorkflowTool for WorkflowComplete {
     fn preview() -> ToolPreview {
         ToolPreview {
             name: Self::NAME.to_owned(),
-            description: "Complete the current Intent only when its goal has \
+            description: "Complete the current task only when its goal has \
                           already been achieved."
                 .to_owned(),
             category: ToolCategory::Workflow,
@@ -26,7 +26,7 @@ impl WorkflowTool for WorkflowComplete {
                 platform: Platform::All,
                 arch: Arch::All,
             },
-            input: r#"{"type":"object","properties":{"answer":{"type":"string","minLength":1,"description":"The completed Intent output."}},"required":["answer"],"additionalProperties":false}"#.to_owned(),
+            input: r#"{"type":"object","properties":{"answer":{"type":"string","minLength":1,"description":"The completed task output."}},"required":["answer"],"additionalProperties":false}"#.to_owned(),
         }
     }
 

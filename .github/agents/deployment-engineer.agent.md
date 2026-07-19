@@ -57,9 +57,10 @@ physical deployment locations.
   even when resolved values are identical.
 - Deployment endpoints receive only what their role requires: the Ubuntu build
   directory receives sanitized source; the Ubuntu runtime receives the two
-  completed Linux binaries plus Server runtime resources; the VM Host and local
-  Client receive completed Windows artifacts and runtime resources and must
-  never run `cargo build`.
+  completed Linux binaries plus Server runtime resources; the VM Host receives
+  completed Windows artifacts and runtime resources in `C:\MarixHost\`; the
+  local Client receives artifacts locally; and neither VM Host nor local Client
+  must ever run `cargo build`.
 
 ## Ubuntu dual-service deployment
 
@@ -82,9 +83,9 @@ physical deployment locations.
   and verify its ownership before start.
 - Start `marix-server-telemetry.service` first because it owns the telemetry TCP
   listener and store. Start `marix-server.service` second so Server can connect
-  when `logging.remote = true`. Use systemd ordering (`After=`/`Wants=`) to
+  when `logging.remote = true`. Use systemd ordering (explicitly add `After=marix-server-telemetry.service` and `Wants=marix-server-telemetry.service` to `marix-server.service`) to
   encode this relationship without making business traffic depend on the HTTP
-  viewer's continued availability.
+  viewer's continued availability, preventing telemetry from falling back to local logs.
 - Only when the user explicitly asks for validation/testing, check telemetry's
   channel listener and HTTP log page, and check the main Server client/host
   listeners separately. Read all ports, including

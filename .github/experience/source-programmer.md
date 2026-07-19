@@ -1507,3 +1507,15 @@ connecter to protect this distinction.
 - 2026-07-19 (Relay prompt assembly): `RelayRuntime::context_prompts` rejects
   an empty `ContextChain`, then returns the Relay decision/instruction prompt
   first and one rendered `intent_prompt` per chain intent in chain order.
+- 2026-07-19 (combined natural-language Relay context; supersedes Relay prompt
+  assembly above): non-empty ContextChains produce exactly two prompts: the
+  decision/instruction prompt and one root-to-current context prompt whose
+  Intent summaries are joined by `\n\n`. Each summary preserves the signature
+  and renders the goal, Intent result, direct current-plan goals/results, tool
+  call outcomes, and prior failed plans without `serde_json`; direct subintent
+  lookup errors still abort request assembly.
+- 2026-07-19 (Result-only Relay Intent context): `server/relay/prompt.rs`
+  always renders Intent, current-plan, and failed-plan goals, but emits each
+  Intent `Result:` line only when its optional result exists. Unfinished
+  Intents have no status or result placeholder; completed tool calls continue
+  to render their non-optional invocation results.

@@ -3,9 +3,12 @@
   "module": {
     "path": "src/server",
     "name": "server",
-    "purpose": "Runs actor-based orchestration with complete, plan, or infeasible workflow decision parsing, ordered subintent execution, failure reanalysis, decision-first relay prompts with workflow tools prepended after duplicate and conflict validation, and streaming model execution.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs actor-based orchestration with complete, plan, or infeasible workflow decision parsing, ordered subintent execution, failure reanalysis, relay requests that reject empty context chains and contain exactly two prompts (decision first, one natural-language ContextChain second), workflow tools prepended after duplicate-name and conflict validation, and streaming model execution.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/server/intent",
@@ -35,7 +38,7 @@
     {
       "path": "src/server/relay",
       "name": "relay",
-      "purpose": "Builds model requests with the Relay decision/instruction prompt first, followed by ancestor-first intent context, a rendered System template based on the execution environment, workflow tools placed before execution tools after duplicate-name and workflow-name conflict validation, and serialized goal, subintent, plan-failure, and call context."
+      "purpose": "Builds relay model requests with a rendered System prompt, exactly two prompts\u2014a decision prompt followed by one natural-language ContextChain prompt\u2014and workflow tools ordered before execution tools after duplicate-name and conflict validation; rejects empty chains and summarizes signed intent goals/results, direct current-plan subintent goals/results through strict one-level TaskAccess lookup, tool calls/results, and prior plan failures, separating intents with blank lines."
     },
     {
       "path": "src/server/session",
@@ -1193,7 +1196,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
@@ -1241,31 +1244,18 @@
           "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 16,
-              "lineEnd": 26
-            },
-            {
-              "lineStart": 30,
-              "lineEnd": 30
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/prompt.rs",
           "lineStart": 38,
-          "lineEnd": 188,
+          "lineEnd": 248,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 39,
-              "lineEnd": 71
-            },
-            {
-              "lineStart": 118,
-              "lineEnd": 129
+              "lineStart": 117,
+              "lineEnd": 247
             }
           ]
         }

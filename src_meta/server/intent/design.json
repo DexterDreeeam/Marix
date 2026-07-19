@@ -4,7 +4,7 @@
     "path": "src/server/intent",
     "name": "intent",
     "purpose": "Runs intent actors that render an IntentAnalyze decision prompt, parse complete, plan, or infeasible relay decisions, prevent direct steps once planning starts, snapshot and clear failed Plans before requesting a new verdict, and publish ordered subintent or terminal results.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -44,7 +44,7 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",
@@ -124,5 +124,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "runtime.rs"
   ]
 }

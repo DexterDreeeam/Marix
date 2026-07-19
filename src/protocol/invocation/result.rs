@@ -17,5 +17,7 @@ pub struct InvocationResult {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ToolCallResultDraft {
     pub tool: String,
+    #[serde(default)]
+    pub input: String,
     pub result: InvocationResult,
 }
