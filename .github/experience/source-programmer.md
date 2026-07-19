@@ -1432,3 +1432,78 @@ connecter to protect this distinction.
   decision or native-tool instruction before context-chain prompts. System
   templates therefore describe the active schema without relying on a final
   instruction-message position.
+- 2026-07-19 (ToolExecution chain removed): Intent verdicts now expose only
+  complete, plan, and infeasible. Direct Intent relays accept only
+  `intent-verdict`; `IntentAnalyze` still renders the `System_Tools` catalog,
+  but Relay always leaves `ModelRequest.tools` unset. Backend native-tool
+  request/stream support remains available for future workflow wiring.
+- 2026-07-19 (Intent-owned planning; supersedes Plan actor notes):
+  `protocol/intent` owns `PlanDraft` and failure-only `PlanResult`; the
+  protocol Plan namespace and Server Plan actor/runtime are removed.
+  `server/intent/runtime.rs` stores the current plain `Plan` and failed-plan
+  snapshots, sequences `SubintentUpdate` events directly, and re-runs
+  IntentAnalyze after failed or infeasible subintents. Only an explicit
+  IntentAnalyze `infeasible` verdict ends the parent as infeasible.
+- 2026-07-19 (Intent-only model context): `server/task/context.rs` rebuilds
+  root-to-current `IntentContext` chains. Each local context recursively
+  includes active `subintents` plus `plan_failures`; Relay signatures carry
+  only the owning Intent, and `server/relay/prompt.rs` renders one
+  natural-language message per Intent without Plan context records.
+- 2026-07-19 (single Plan decision): `IntentVerdict` and
+  `IntentAnalyze.prompt` use `plan` for both initial planning and replacement
+  after recorded failures. Failed subintents snapshot `PlanResult`, clear the
+  active plan, and request another verdict; a later Plan verdict dispatches to
+  `IntentRuntime::replan`, which clears the plan and delegates to
+  `create_plan`.
+- 2026-07-19 (Intent Plan protocol namespace): `PlanDraft` and `PlanResult`
+  live under `protocol/intent/plan/` and are re-exported through Intent and the
+  protocol crate root. Failure snapshots contain only goals, optional intent
+  results, and the triggering output as `reason`; infeasible and failed
+  subintents no longer carry a separate plan-result category.
+- 2026-07-19 (deferred Plan failure recording; supersedes single Plan
+  decision): `server/intent/plan.rs` owns Plan creation, sequencing,
+  cancellation, and failure snapshots. Failed or infeasible subintents keep
+  the current Plan and rerun IntentAnalyze; a replacement `create_plan`
+  validates its draft, snapshots the old Plan from `TaskAccess` through the
+  single `record_failure` helper, registers and stores the replacement, then
+  starts its first subintent.
+- 2026-07-19 (Workflow Tool protocol): `protocol/workflow` owns
+  `WorkflowTool` plus plan, complete, and infeasible payloads. `WorkflowPlan`
+  transparently wraps `PlanDraft`, preserving `{"goals":[...]}`;
+  `WorkflowComplete.output` uses wire key `answer`, while infeasible uses
+  `reason`. Their previews use `ToolCategory::Workflow` and an all-platform,
+  all-architecture `System` value; `System` is a struct and has no
+  `System::All` associated value.
+- 2026-07-19 (Workflow transition boundary): `IntentAnalyze.prompt` names the
+  three Workflow Tools but explicitly requires one legacy JSON decision
+  object because Relay still leaves `ModelRequest.tools` unset.
+  `IntentRuntime::create_step` now lives beside step updates in `runtime.rs`
+  and intentionally remains unused for future native execution wiring.
+- 2026-07-19 (Intent Plan failure boundary; supersedes prior single/deferred
+  Plan decision notes): a failed or infeasible subintent calls the sole
+  `record_failure` snapshot while the Plan is active, clears
+  `IntentRuntime.plan`, and only then requests another verdict. `create_plan`
+  rejects an active Plan and never snapshots or overwrites it; its subintent
+  generation reads `plan_failures.len()` after the previous Plan was recorded.
+- 2026-07-19 (flat Intent Context subintents; supersedes recursive context):
+  `IntentContext.subintents` stores only current-Plan `IntentSignature` values.
+  `TaskAccess::get_intent_context` validates parent/current-Plan membership and
+  builds one Intent only; Relay resolves each direct signature once when it
+  needs that subintent's goal and result.
+- 2026-07-19 (native workflow and execution dispatch; supersedes Workflow
+  transition and Relay tool exposure split): every Relay `ModelRequest` now
+  carries all Session execution previews plus `WorkflowPlan`,
+  `WorkflowComplete`, and `WorkflowInfeasible` previews, while `System.prompt`
+  renders only `user_request` and Host-provided `system`. Deepseek therefore
+  always enters required native-tool mode and preserves its one-to-five call
+  `StepDraft` normalization. `IntentRuntime` accepts that draft directly:
+  exactly one Workflow Tool changes workflow state, mixed workflow/execution
+  calls fail the Intent, and execution-only drafts create a normal Step.
+- 2026-07-19 (Relay tool precedence): `server/relay/prompt.rs` builds
+  `ModelRequest.tools` with `WorkflowPlan`, `WorkflowComplete`, and
+  `WorkflowInfeasible` first, followed by Session execution tools in their
+  existing order. It validates duplicate execution names and workflow-name
+  conflicts before assembling the final vector.
+- 2026-07-19 (Relay prompt assembly): `RelayRuntime::context_prompts` rejects
+  an empty `ContextChain`, then returns the Relay decision/instruction prompt
+  first and one rendered `intent_prompt` per chain intent in chain order.

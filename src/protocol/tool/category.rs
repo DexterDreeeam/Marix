@@ -6,4 +6,5 @@ pub enum ToolCategory {
     File,
     Shell,
     System,
+    Workflow,
 }

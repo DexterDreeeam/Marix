@@ -5,13 +5,12 @@ use std::sync::{Arc, Weak};
 use marix_common::external::*;
 use marix_common::{Actor, ResultOf, Sender, SignatureOf, WorkQueue};
 use marix_protocol::{
-    IntentSignature, InvocationSignature, PlanSignature, RelaySignature, SessionEvent,
-    StepSignature, TaskSignature,
+    IntentSignature, InvocationSignature, RelaySignature, SessionEvent, StepSignature,
+    TaskSignature,
 };
 
 use crate::intent::Intent;
 use crate::invocation::Invocation;
-use crate::plan::Plan;
 use crate::relay::Relay;
 use crate::session::SessionContext;
 use crate::step::Step;
@@ -32,7 +31,6 @@ pub struct TaskAccess {
     pub user_request: String,
     pub rt: Arc<tokio::Runtime>,
     intents: Arc<WorkQueue<IntentSignature, Intent>>,
-    plans: Arc<WorkQueue<PlanSignature, Plan>>,
     steps: Arc<WorkQueue<StepSignature, Step>>,
     invocations: Arc<WorkQueue<InvocationSignature, Invocation>>,
     relays: Arc<WorkQueue<RelaySignature, Relay>>,
@@ -47,7 +45,6 @@ impl TaskAccess {
         signature: TaskSignature,
         user_request: String,
         intents: Arc<WorkQueue<IntentSignature, Intent>>,
-        plans: Arc<WorkQueue<PlanSignature, Plan>>,
         steps: Arc<WorkQueue<StepSignature, Step>>,
         invocations: Arc<WorkQueue<InvocationSignature, Invocation>>,
         relays: Arc<WorkQueue<RelaySignature, Relay>>,
@@ -63,7 +60,6 @@ impl TaskAccess {
             user_request,
             rt: Arc::new(rt),
             intents,
-            plans,
             steps,
             invocations,
             relays,
@@ -97,10 +93,6 @@ impl StoredSignature for IntentSignature {
     type Actor = Intent;
 }
 
-impl StoredSignature for PlanSignature {
-    type Actor = Plan;
-}
-
 impl StoredSignature for StepSignature {
     type Actor = Step;
 }
@@ -124,21 +116,6 @@ impl StoredActor for Intent {
             return false;
         }
         access.intents.insert(signature, actor);
-        true
-    }
-}
-
-impl StoredActor for Plan {
-    fn get(access: &TaskAccess, signature: &SignatureOf<Self>) -> Option<Self> {
-        access.plans.with(signature, Clone::clone)
-    }
-
-    fn insert(access: &TaskAccess, actor: Self) -> bool {
-        let signature = actor.signature().clone();
-        if access.plans.with(&signature, |_| ()).is_some() {
-            return false;
-        }
-        access.plans.insert(signature, actor);
         true
     }
 }

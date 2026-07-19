@@ -7,14 +7,13 @@ use marix_common::{
 };
 use marix_protocol::{
     IntentEvent, IntentResult, IntentResultKind, IntentSignature, InvocationSignature,
-    PlanSignature, RelaySignature, SessionEvent, StepSignature, TaskEvent, TaskResult,
-    TaskResultKind, TaskSignature, TaskStatus,
+    RelaySignature, SessionEvent, StepSignature, TaskEvent, TaskResult, TaskResultKind,
+    TaskSignature, TaskStatus,
 };
 
 use super::{Task, TaskAccess};
 use crate::intent::Intent;
 use crate::invocation::Invocation;
-use crate::plan::Plan;
 use crate::relay::Relay;
 use crate::session::SessionContext;
 use crate::step::Step;
@@ -22,7 +21,6 @@ use crate::step::Step;
 pub struct TaskRuntime {
     pub access: Arc<TaskAccess>,
     pub intents: Arc<WorkQueue<IntentSignature, Intent>>,
-    pub plans: Arc<WorkQueue<PlanSignature, Plan>>,
     pub steps: Arc<WorkQueue<StepSignature, Step>>,
     pub invocations: Arc<WorkQueue<InvocationSignature, Invocation>>,
     pub relays: Arc<WorkQueue<RelaySignature, Relay>>,
@@ -39,7 +37,6 @@ impl TaskRuntime {
         session_tx: Sender<SessionEvent>,
     ) -> Self {
         let intents = Arc::new(WorkQueue::new());
-        let plans = Arc::new(WorkQueue::new());
         let steps = Arc::new(WorkQueue::new());
         let invocations = Arc::new(WorkQueue::new());
         let relays = Arc::new(WorkQueue::new());
@@ -49,7 +46,6 @@ impl TaskRuntime {
             signature,
             user_request,
             Arc::clone(&intents),
-            Arc::clone(&plans),
             Arc::clone(&steps),
             Arc::clone(&invocations),
             Arc::clone(&relays),
@@ -57,7 +53,6 @@ impl TaskRuntime {
         Self {
             access,
             intents,
-            plans,
             steps,
             invocations,
             relays,

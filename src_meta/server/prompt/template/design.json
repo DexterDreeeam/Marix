@@ -3,9 +3,18 @@
   "module": {
     "path": "src/server/prompt/template",
     "name": "template",
-    "purpose": "Defines decision prompt resources, including System_Tools instructions that require the active decision schema and exact native tool argument schemas.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines IntentAnalyze and System prompt resources for decision and execution-environment instructions.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "IntentAnalyze.prompt",
+    "System.prompt"
+  ],
+  "deleted": [
+    "ToolExecution.prompt",
+    "PlanVerdict.prompt",
+    "System_Tools.prompt"
+  ],
   "childModules": [],
   "elements": []
 }

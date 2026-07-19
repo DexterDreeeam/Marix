@@ -14,7 +14,7 @@ pub use model::{
     DeepseekBackend, ModelBackend, ModelBackendError, ModelRequest, ModelResponse,
     ModelResponseStream,
 };
-pub use plan::{Plan, PlanRuntime};
+pub use plan::Plan;
 pub use prompt::{Prompt, PromptError};
 pub use relay::{Relay, RelayRuntime};
 pub use session::{Session, SessionContext, SessionContextSnapshot, SessionRuntime, SessionState};

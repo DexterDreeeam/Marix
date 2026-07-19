@@ -3,9 +3,10 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and eight-tool native tool packages.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and eight native tool packages.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/client",
@@ -25,12 +26,12 @@
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "Defines serialized workflow contracts with typed result statuses and categorized, system-targeted tool previews."
+      "purpose": "Defines serialized context-chain contracts for intent planning and task execution, plus relay, step, invocation, execution, session, categorized tools, and workflow decisions."
     },
     {
       "path": "src/server",
       "name": "server",
-      "purpose": "Runs actor-based workflow orchestration with context-first relays and a streaming-only model contract; Deepseek streams content and native tool calls, validates SSE completion, and normalizes tool calls to StepDraft."
+      "purpose": "Runs actor-based orchestration with complete, plan, or infeasible workflow decision parsing, ordered subintent execution, failure reanalysis, ancestor-first relay context with plan-failure history and current execution-environment prompts, and streaming model execution."
     },
     {
       "path": "src/server_telemetry",
@@ -212,70 +213,49 @@
       ]
     },
     {
-      "name": "Context",
-      "type": "enum",
+      "name": "ContextChain",
+      "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/context.rs",
           "lineStart": 6,
-          "lineEnd": 10,
+          "lineEnd": 9,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 6,
-              "lineEnd": 10
+              "lineEnd": 9
             }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ContextChain",
-      "type": "struct",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/context.rs",
-          "lineStart": 12,
-          "lineEnd": 15,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 12,
-              "lineEnd": 15
-            }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/protocol/context.rs",
-          "lineStart": 17,
-          "lineEnd": 27,
+          "lineStart": 11,
+          "lineEnd": 21,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 17,
-              "lineEnd": 27
+              "lineStart": 11,
+              "lineEnd": 21
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/protocol/context.rs",
-          "lineStart": 31,
-          "lineEnd": 76,
+          "lineStart": 25,
+          "lineEnd": 61,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 31,
-              "lineEnd": 76
+              "lineStart": 25,
+              "lineEnd": 61
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },

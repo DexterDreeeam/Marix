@@ -3,156 +3,29 @@
   "module": {
     "path": "src/server/plan",
     "name": "plan",
-    "purpose": "Runs plan actors, loads the PlanVerdict message prompt by enum name, consumes typed intent and relay results, reconstructs plans after failures, and publishes PlanResult completions.",
-    "changeStatus": "unchanged"
+    "purpose": "Stores the ordered subintent signatures owned by an intent.",
+    "changeStatus": "modified"
   },
+  "modified": ["mod.rs", "plan.rs"],
+  "deleted": ["result.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Plan",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/plan/plan.rs",
-          "lineStart": 9,
-          "lineEnd": 12,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/plan/plan.rs",
-          "lineStart": 14,
-          "lineEnd": 30,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/plan/plan.rs",
-          "lineStart": 34,
-          "lineEnd": 43,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/plan/plan.rs",
-          "lineStart": 45,
-          "lineEnd": 55,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "PlanRuntime",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 19,
-          "lineEnd": 25,
+          "lineStart": 3,
+          "lineEnd": 6,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 23,
-              "lineEnd": 24
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 27,
-          "lineEnd": 41,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 37,
-              "lineEnd": 38
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 43,
-          "lineEnd": 82,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 51,
-              "lineEnd": 80
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 86,
-          "lineEnd": 303,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 95,
-              "lineEnd": 110
-            },
-            {
-              "lineStart": 113,
-              "lineEnd": 149
-            },
-            {
-              "lineStart": 164,
-              "lineEnd": 198
-            },
-            {
-              "lineStart": 202,
-              "lineEnd": 217
-            },
-            {
-              "lineStart": 220,
-              "lineEnd": 259
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/plan/runtime.rs",
-          "lineStart": 305,
-          "lineEnd": 308,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/plan/result.rs",
-          "lineStart": 6,
-          "lineEnd": 39,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 6,
-              "lineEnd": 39
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/plan/result.rs",
-          "lineStart": 43,
-          "lineEnd": 54,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 43,
-              "lineEnd": 54
+              "lineStart": 3,
+              "lineEnd": 6
             }
           ]
         }

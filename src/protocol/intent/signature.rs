@@ -3,21 +3,21 @@ use std::fmt;
 use marix_common::Signature;
 
 use crate::external::*;
-use crate::{IntentId, PlanSignature, TaskSignature};
+use crate::{IntentId, TaskSignature};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct IntentSignature {
     pub task: TaskSignature,
-    pub parent: Option<PlanSignature>,
+    pub parent: Option<Box<IntentSignature>>,
     pub id: IntentId,
     pub name: String,
 }
 
 impl IntentSignature {
-    pub fn new(task: TaskSignature, parent: Option<PlanSignature>, name: String) -> Self {
+    pub fn new(task: TaskSignature, parent: Option<IntentSignature>, name: String) -> Self {
         Self {
             task,
-            parent,
+            parent: parent.map(Box::new),
             id: IntentId::new(),
             name,
         }

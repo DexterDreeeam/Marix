@@ -1,97 +1,79 @@
 use marix_common::Actor;
-use marix_protocol::{
-    Context, ContextChain, IntentContext, IntentSignature, PlanContext, PlanSignature,
-};
+use marix_protocol::{ContextChain, IntentContext, IntentSignature};
 
 use super::TaskAccess;
 use super::access::StoredActor;
 use crate::intent::Intent;
-use crate::plan::Plan;
-
-pub(crate) trait ContextSignature {
-    fn collect_context(
-        &self,
-        access: &TaskAccess,
-        contexts: &mut Vec<Context>,
-    ) -> Result<(), String>;
-}
 
 impl TaskAccess {
     pub(crate) fn index_of(&self, signature: &IntentSignature) -> Result<Option<usize>, String> {
-        let Some(parent) = signature.parent.as_ref() else {
+        let Some(parent) = signature.parent.as_deref() else {
             return Ok(None);
         };
-        let plan = <Plan as StoredActor>::get(self, parent).ok_or_else(|| {
+        let parent_intent = <Intent as StoredActor>::get(self, parent).ok_or_else(|| {
             format!(
-                "cannot index intent {signature}: parent plan {parent} \
-                 actor was not found",
+                "cannot index intent {signature}: parent intent \
+                     {parent} was not found",
             )
         })?;
-        let intents = plan
+        let plan = parent_intent
             .runtime
-            .intents
+            .plan
             .lock()
             .unwrap_or_else(|error| error.into_inner());
-        intents
+        let plan = plan.as_ref().ok_or_else(|| {
+            format!(
+                "cannot index intent {signature}: parent intent {parent} \
+                 has no active plan",
+            )
+        })?;
+        plan.subintents
             .iter()
             .position(|candidate| candidate == signature)
             .map(Some)
             .ok_or_else(|| {
                 format!(
-                    "intent {signature} is not in parent plan {parent}'s \
-                     current intents; it may be stale after plan \
-                     reconstruction",
+                    "intent {signature} is not in parent intent \
+                     {parent}'s current subintents; it may be stale \
+                     after its parent plan ended or changed",
                 )
             })
     }
 
-    pub(crate) fn get_context_chain<S>(&self, signature: &S) -> Result<ContextChain, String>
-    where
-        S: ContextSignature,
-    {
-        let mut contexts = Vec::new();
-        signature.collect_context(self, &mut contexts)?;
-        Ok(ContextChain { contexts })
-    }
-}
-
-// -- Private -- //
-
-impl ContextSignature for IntentSignature {
-    fn collect_context(
+    pub(crate) fn get_context_chain(
         &self,
-        access: &TaskAccess,
-        contexts: &mut Vec<Context>,
-    ) -> Result<(), String> {
-        if let Some(parent) = self.parent.as_ref() {
-            access.index_of(self)?;
-            parent.collect_context(access, contexts)?;
-        }
-        contexts.push(Context::Intent(access.intent_context(self)?));
-        Ok(())
+        signature: &IntentSignature,
+    ) -> Result<ContextChain, String> {
+        let mut intents = Vec::new();
+        self.collect_context(signature, &mut intents)?;
+        Ok(ContextChain { intents })
     }
-}
 
-impl ContextSignature for PlanSignature {
-    fn collect_context(
+    pub(crate) fn get_intent_context(
         &self,
-        access: &TaskAccess,
-        contexts: &mut Vec<Context>,
-    ) -> Result<(), String> {
-        self.intent.collect_context(access, contexts)?;
-        contexts.push(Context::Plan(access.plan_context(self)?));
-        Ok(())
-    }
-}
-
-impl TaskAccess {
-    fn intent_context(&self, signature: &IntentSignature) -> Result<IntentContext, String> {
+        signature: &IntentSignature,
+    ) -> Result<IntentContext, String> {
+        self.index_of(signature)?;
         let intent = <Intent as StoredActor>::get(self, signature).ok_or_else(|| {
             format!(
                 "cannot build context for intent {signature}: actor \
                      was not found",
             )
         })?;
+        let subintents = intent
+            .runtime
+            .plan
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .as_ref()
+            .map(|plan| plan.subintents.clone())
+            .unwrap_or_default();
+        let plan_failures = intent
+            .runtime
+            .plan_failures
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clone();
         Ok(IntentContext {
             signature: signature.clone(),
             content: intent.runtime.content.clone(),
@@ -103,42 +85,29 @@ impl TaskAccess {
                 .into_iter()
                 .filter_map(|(_, result)| result)
                 .collect(),
+            subintents,
+            plan_failures,
         })
     }
 
-    fn plan_context(&self, signature: &PlanSignature) -> Result<PlanContext, String> {
-        let plan = <Plan as StoredActor>::get(self, signature).ok_or_else(|| {
-            format!(
-                "cannot build context for plan {signature}: actor \
-                     was not found",
-            )
-        })?;
-        let signatures = plan
-            .runtime
-            .intents
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone();
-        let intents = signatures
-            .iter()
-            .map(|intent| self.intent_context(intent))
-            .collect::<Result<Vec<_>, _>>()
-            .map_err(|error| {
-                format!(
-                    "cannot build ordered intents for plan {signature}: \
-                     {error}",
-                )
-            })?;
-        let failures = plan
-            .runtime
-            .failures
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone();
-        Ok(PlanContext {
-            signature: signature.clone(),
-            intents,
-            failures,
-        })
+    pub(crate) fn get_intent_content(&self, signature: &IntentSignature) -> Option<String> {
+        <Intent as StoredActor>::get(self, signature).map(|intent| intent.runtime.content.clone())
+    }
+}
+
+// -- Private -- //
+
+impl TaskAccess {
+    fn collect_context(
+        &self,
+        signature: &IntentSignature,
+        intents: &mut Vec<IntentContext>,
+    ) -> Result<(), String> {
+        let context = self.get_intent_context(signature)?;
+        if let Some(parent) = signature.parent.as_deref() {
+            self.collect_context(parent, intents)?;
+        }
+        intents.push(context);
+        Ok(())
     }
 }

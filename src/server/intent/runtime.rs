@@ -5,15 +5,17 @@ use marix_common::{
     Actor, ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait, WorkQueue,
 };
 use marix_protocol::{
-    IntentEvent, IntentResult, IntentResultKind, IntentSignature, IntentVerdict, PlanEvent,
-    PlanResult, PlanResultKind, PlanSignature, RelayRequest, RelayResult, RelayResultKind,
-    RelaySignature, SessionEvent, StepDraft, StepEvent, StepResult, StepResultKind, StepSignature,
-    TaskEvent,
+    IntentEvent, IntentResult, IntentResultKind, IntentSignature, PlanResult, RelayRequest,
+    RelayResult, RelayResultKind, RelaySignature, SessionEvent, StepDraft, StepEvent, StepResult,
+    StepResultKind, StepSignature, TaskEvent, WorkflowComplete, WorkflowInfeasible, WorkflowPlan,
+    WorkflowTool,
 };
 
 use super::Intent;
-use crate::prompt::{MessagePrompt, Prompt};
+use crate::plan::Plan;
+use crate::prompt::Prompt;
 use crate::relay::Relay;
+use crate::step::Step;
 use crate::task::TaskAccess;
 
 pub struct IntentRuntime {
@@ -21,7 +23,8 @@ pub struct IntentRuntime {
     pub signature: IntentSignature,
     pub content: String,
     pub steps: Arc<WorkQueue<StepSignature, Option<StepResult>>>,
-    pub plan: StdMutex<Option<PlanSignature>>,
+    pub plan: StdMutex<Option<Plan>>,
+    pub plan_failures: StdMutex<Vec<PlanResult>>,
     pub lifecycle: Lifecycle<IntentEvent, IntentResult>,
 }
 
@@ -37,6 +40,7 @@ impl IntentRuntime {
             content,
             steps: Arc::new(WorkQueue::new()),
             plan: StdMutex::new(None),
+            plan_failures: StdMutex::new(Vec::new()),
             lifecycle: Lifecycle::new(),
         }
     }
@@ -67,8 +71,8 @@ impl RuntimeTrait for IntentRuntime {
 
     fn dispatch(&self, event: IntentEvent) {
         match event {
-            IntentEvent::PlanUpdate(signature, status) => {
-                self.on_plan_update(signature, status);
+            IntentEvent::SubintentUpdate(signature, status) => {
+                self.on_subintent_update(signature, status);
             }
             IntentEvent::StepUpdate(signature, status) => {
                 self.on_step_update(signature, status);
@@ -88,10 +92,9 @@ impl RuntimeTrait for IntentRuntime {
 // -- Private -- //
 
 impl IntentRuntime {
-    fn verdict(&self) -> Result<(), String> {
-        let message_prompt = MessagePrompt::IntentAnalyze;
-        let prompt = std::panic::catch_unwind(|| Prompt::load(message_prompt.name())).map_err(
-            |payload| {
+    pub(super) fn verdict(&self) -> Result<(), String> {
+        let prompt =
+            std::panic::catch_unwind(|| Prompt::load("IntentAnalyze")).map_err(|payload| {
                 let detail = if let Some(message) = payload.downcast_ref::<String>() {
                     message.clone()
                 } else if let Some(message) = payload.downcast_ref::<&str>() {
@@ -100,17 +103,12 @@ impl IntentRuntime {
                     "unknown prompt loading panic".to_owned()
                 };
                 format!("failed to load IntentAnalyze prompt: {detail}",)
-            },
-        )?;
+            })?;
         let prompt = prompt
             .prompt()
             .map_err(|error| format!("failed to render IntentAnalyze prompt: {error}"))?;
         let request = RelayRequest {
-            signature: RelaySignature::new(
-                self.signature.clone(),
-                None,
-                "intent-verdict".to_owned(),
-            ),
+            signature: RelaySignature::new(self.signature.clone(), "intent-verdict".to_owned()),
             prompt,
         };
         let relay = Relay::new(Arc::clone(&self.access), request)?;
@@ -122,80 +120,6 @@ impl IntentRuntime {
         }
         relay.start();
         Ok(())
-    }
-
-    fn tool_execution(&self) -> Result<(), String> {
-        let message_prompt = MessagePrompt::ToolExecution;
-        let prompt = std::panic::catch_unwind(|| Prompt::load(message_prompt.name())).map_err(
-            |payload| {
-                let detail = if let Some(message) = payload.downcast_ref::<String>() {
-                    message.clone()
-                } else if let Some(message) = payload.downcast_ref::<&str>() {
-                    (*message).to_owned()
-                } else {
-                    "unknown prompt loading panic".to_owned()
-                };
-                format!("failed to load ToolExecution prompt: {detail}")
-            },
-        )?;
-        let prompt = prompt
-            .prompt()
-            .map_err(|error| format!("failed to render ToolExecution prompt: {error}"))?;
-        let request = RelayRequest {
-            signature: RelaySignature::new(
-                self.signature.clone(),
-                None,
-                "intent-tool-execution".to_owned(),
-            ),
-            prompt,
-        };
-        let relay = Relay::new(Arc::clone(&self.access), request)?;
-        if !self.access.insert(relay.clone()) {
-            return Err(format!(
-                "intent tool execution relay {} already exists",
-                relay.signature(),
-            ));
-        }
-        relay.start();
-        Ok(())
-    }
-
-    fn on_plan_update(&self, signature: PlanSignature, status: ActorStatus<PlanResult>) {
-        if matches!(self.status(), ActorStatus::Complete(_)) {
-            Logger::error(format!(
-                "intent {} received plan {signature} update \
-                 {status:?} after completion",
-                &self.signature,
-            ));
-            return;
-        }
-        let ActorStatus::Complete(result) = status else {
-            return;
-        };
-        let plan = self
-            .plan
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone();
-        if plan.as_ref() != Some(&signature) {
-            self.fail(format!(
-                "intent received update from unexpected plan \
-                 {signature}",
-            ));
-            return;
-        }
-        match result.kind {
-            PlanResultKind::Succeed => {
-                self.finish(IntentResultKind::Succeed, result.output);
-            }
-            PlanResultKind::Infeasible => {
-                self.finish(IntentResultKind::Infeasible, result.output);
-            }
-            PlanResultKind::Canceled => {
-                self.finish(IntentResultKind::Canceled, result.output);
-            }
-            PlanResultKind::Failed => self.fail(result.output),
-        }
     }
 
     fn on_relay_update(&self, signature: RelaySignature, status: ActorStatus<RelayResult>) {
@@ -210,19 +134,7 @@ impl IntentRuntime {
         let ActorStatus::Complete(result) = status else {
             return;
         };
-        let plan = self
-            .plan
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone();
-        if let Some(plan) = plan {
-            self.send_plan_event(
-                plan,
-                PlanEvent::RelayUpdate(signature, ActorStatus::Complete(result)),
-            );
-            return;
-        }
-        if signature.name != "intent-verdict" && signature.name != "intent-tool-execution" {
+        if signature.name != "intent-verdict" {
             self.fail(format!(
                 "intent received update from unexpected relay name `{}`",
                 signature.name,
@@ -231,32 +143,21 @@ impl IntentRuntime {
         }
         match result.kind {
             RelayResultKind::Succeed => {
-                if signature.name == "intent-verdict" {
-                    let verdict = match IntentVerdict::parse(&result.output) {
-                        Ok(verdict) => verdict,
-                        Err(error) => {
-                            self.fail(format!(
-                                "intent verdict from relay \
-                                 {signature} is malformed: {error}",
-                            ));
-                            return;
-                        }
-                    };
-                    self.on_verdict(verdict);
-                    return;
-                }
                 let draft = match StepDraft::parse(&result.output) {
                     Ok(draft) => draft,
                     Err(error) => {
                         self.fail(format!(
-                            "intent tool execution from relay \
-                             {signature} is malformed: {error}",
+                            "intent relay {signature} returned malformed \
+                             native tool calls: {error}",
                         ));
                         return;
                     }
                 };
-                if let Err(reason) = self.create_step(draft) {
-                    self.fail(reason);
+                if let Err(error) = self.dispatch_step_draft(draft) {
+                    self.fail(format!(
+                        "intent relay {signature} tool dispatch failed: \
+                         {error}",
+                    ));
                 }
             }
             RelayResultKind::Failed => {
@@ -310,39 +211,117 @@ impl IntentRuntime {
         }
     }
 
-    fn on_verdict(&self, verdict: IntentVerdict) {
-        match verdict {
-            IntentVerdict::ToolExecution => {
-                if let Err(reason) = self.tool_execution() {
-                    self.fail(reason);
-                }
-            }
-            IntentVerdict::Plan(draft) => {
-                if let Err(reason) = self.create_plan(draft) {
-                    self.fail(reason);
-                }
-            }
-            IntentVerdict::Complete { output } => {
-                self.finish(IntentResultKind::Succeed, output);
-            }
-            IntentVerdict::Infeasible { reason } => {
-                self.finish(IntentResultKind::Infeasible, reason);
-            }
+    pub(super) fn create_step(&self, draft: StepDraft) -> Result<(), String> {
+        if self
+            .plan
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .is_some()
+        {
+            return Err("intent cannot create a direct step after creating a plan".to_owned());
         }
+        if draft.invocations.is_empty() {
+            return Err("intent verdict step must contain an invocation".to_owned());
+        }
+        let signature = StepSignature::new(
+            self.signature.clone(),
+            format!("step-{}", self.steps.size() + 1),
+        );
+        let step = Step::from_draft(Arc::clone(&self.access), signature.clone(), draft)?;
+        if !self.access.insert(step.clone()) {
+            return Err(format!("step {signature} is duplicated"));
+        }
+        self.steps.insert(signature, None);
+        step.start();
+        Ok(())
+    }
+
+    fn dispatch_step_draft(&self, draft: StepDraft) -> Result<(), String> {
+        let workflow_call_count = draft
+            .invocations
+            .iter()
+            .filter(|invocation| Self::is_workflow_tool(&invocation.name))
+            .count();
+        if workflow_call_count == 0 {
+            let names = draft
+                .invocations
+                .iter()
+                .map(|invocation| invocation.name.as_str())
+                .collect::<Vec<_>>()
+                .join(", ");
+            return self.create_step(draft).map_err(|error| {
+                format!("execution tool calls [{names}] could not start: {error}")
+            });
+        }
+        if draft.invocations.len() != 1 {
+            let names = draft
+                .invocations
+                .iter()
+                .map(|invocation| invocation.name.as_str())
+                .collect::<Vec<_>>()
+                .join(", ");
+            return Err(format!(
+                "workflow tools require exactly one call and cannot be \
+                 mixed with execution tools; received [{}]",
+                names,
+            ));
+        }
+
+        let invocation = draft
+            .invocations
+            .into_iter()
+            .next()
+            .ok_or_else(|| "workflow tool dispatch received no call".to_owned())?;
+        match invocation.name.as_str() {
+            WorkflowPlan::NAME => {
+                let tool = WorkflowPlan::parse(&invocation.input).map_err(|error| {
+                    format!(
+                        "workflow tool `{}` arguments are invalid: {error}",
+                        invocation.name,
+                    )
+                })?;
+                self.create_plan(tool.draft)
+                    .map_err(|error| format!("workflow tool `{}` failed: {error}", invocation.name))
+            }
+            WorkflowComplete::NAME => {
+                let tool = WorkflowComplete::parse(&invocation.input).map_err(|error| {
+                    format!(
+                        "workflow tool `{}` arguments are invalid: {error}",
+                        invocation.name,
+                    )
+                })?;
+                self.finish(IntentResultKind::Succeed, tool.output);
+                Ok(())
+            }
+            WorkflowInfeasible::NAME => {
+                let tool = WorkflowInfeasible::parse(&invocation.input).map_err(|error| {
+                    format!(
+                        "workflow tool `{}` arguments are invalid: {error}",
+                        invocation.name,
+                    )
+                })?;
+                self.finish(IntentResultKind::Infeasible, tool.reason);
+                Ok(())
+            }
+            _ => Err(format!(
+                "workflow tool `{}` is not recognized",
+                invocation.name,
+            )),
+        }
+    }
+
+    fn is_workflow_tool(name: &str) -> bool {
+        matches!(
+            name,
+            WorkflowPlan::NAME | WorkflowComplete::NAME | WorkflowInfeasible::NAME
+        )
     }
 
     pub(super) fn cancel(&self) {
         if matches!(self.status(), ActorStatus::Complete(_)) {
             return;
         }
-        let plan = self
-            .plan
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone();
-        if let Some(plan) = plan {
-            self.send_plan_event(plan, PlanEvent::Cancel);
-        }
+        self.cancel_plan();
         for (signature, result) in self.steps.entries() {
             if result.is_some() {
                 continue;
@@ -372,29 +351,17 @@ impl IntentRuntime {
     }
 
     fn send_task_update(&self, status: ActorStatus<IntentResult>) {
-        let event = match self.signature.parent.clone() {
+        let event = match self.signature.parent.as_deref() {
             None => TaskEvent::Update(self.signature.clone(), status),
-            Some(parent) => {
-                TaskEvent::Plan(parent, PlanEvent::Update(self.signature.clone(), status))
-            }
+            Some(parent) => TaskEvent::Intent(
+                parent.clone(),
+                IntentEvent::SubintentUpdate(self.signature.clone(), status),
+            ),
         };
         let task_event = SessionEvent::Task(self.access.signature.clone(), event);
         if self.access.session_tx.send(task_event).is_err() {
             Logger::warning(format!(
                 "intent {} event send failed: session stopped",
-                &self.signature,
-            ));
-        }
-    }
-
-    fn send_plan_event(&self, signature: PlanSignature, event: PlanEvent) {
-        let task_event = SessionEvent::Task(
-            self.access.signature.clone(),
-            TaskEvent::Plan(signature, event),
-        );
-        if self.access.session_tx.send(task_event).is_err() {
-            Logger::warning(format!(
-                "intent {} plan event send failed: session stopped",
                 &self.signature,
             ));
         }

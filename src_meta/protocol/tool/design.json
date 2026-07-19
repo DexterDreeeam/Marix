@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/tool",
     "name": "tool",
-    "purpose": "Defines tool categories, string-backed schema aliases, and JSON-convertible tool previews carrying category and target-system metadata.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines file, shell, system, and workflow tool categories, string-backed schema aliases, and JSON-convertible tool previews carrying category and target-system metadata.",
+    "changeStatus": "modified"
   },
+  "modified": ["category.rs"],
   "childModules": [],
   "elements": [
     {
@@ -83,16 +84,16 @@
       "name": "ToolCategory",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/tool/category.rs",
           "lineStart": 3,
-          "lineEnd": 9,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 3,
+              "lineStart": 9,
               "lineEnd": 9
             }
           ],

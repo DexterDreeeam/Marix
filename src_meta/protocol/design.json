@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Defines serialized workflow contracts, including first-stage intent tool-execution verdicts and parseable invocation step drafts.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines serialized context-chain contracts for intent planning and task execution, plus relay, step, invocation, execution, session, categorized tools, and workflow decisions.",
+    "changeStatus": "modified"
   },
+  "modified": [".", "lib.rs", "mod.rs", "context.rs"],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -25,7 +26,7 @@
     {
       "path": "src/protocol/intent",
       "name": "intent",
-      "purpose": "Defines intent contexts, identities, signatures, results, and drafts; IntentVerdict separates the first-stage tool_execution decision from complete, plan, and infeasible decisions and parses strict wire JSON."
+      "purpose": "Defines intent contexts with ordered step results, subintent signatures, and prior plan failures, plus signatures, lifecycle events, terminal results, and plan contracts; IntentVerdict parses plan, complete, and infeasible decisions."
     },
     {
       "path": "src/protocol/invocation",
@@ -33,14 +34,9 @@
       "purpose": "Defines invocation drafts, requests, identities, signatures, errors, results, and events whose execution updates carry ActorStatus<ExecutionResult> directly."
     },
     {
-      "path": "src/protocol/plan",
-      "name": "plan",
-      "purpose": "Defines plan contexts, identities, signatures, results, and drafts; PlanEvent carries typed intent and relay result statuses, and PlanVerdict supports replacement and infeasible decisions."
-    },
-    {
       "path": "src/protocol/relay",
       "name": "relay",
-      "purpose": "Defines prompt-only relay requests and intent-scoped signatures that optionally identify a plan, plus identities, errors, cancellation events, and typed terminal model results."
+      "purpose": "Defines prompt-only relay requests and intent-owned signatures, plus identities, errors, cancellation events, and terminal model results."
     },
     {
       "path": "src/protocol/session",
@@ -55,80 +51,64 @@
     {
       "path": "src/protocol/task",
       "name": "task",
-      "purpose": "Defines task requests, previews, typed results, external transport statuses, identities, signatures, errors, and events whose root updates carry ActorStatus<IntentResult>."
+      "purpose": "Defines task requests, previews, terminal results, transport statuses, identities, signatures, errors, and events for intent, step, invocation, and relay routing."
     },
     {
       "path": "src/protocol/tool",
       "name": "tool",
-      "purpose": "Defines tool categories, string-backed schema aliases, and JSON-convertible tool previews carrying category and target-system metadata."
+      "purpose": "Defines file, shell, system, and workflow tool categories, string-backed schema aliases, and JSON-convertible tool previews carrying category and target-system metadata."
+    },
+    {
+      "path": "src/protocol/workflow",
+      "name": "workflow",
+      "purpose": "Defines workflow decision-tool contracts and complete, plan, and infeasible payloads with previews and JSON parsing."
     }
   ],
   "elements": [
     {
-      "name": "Context",
-      "type": "enum",
+      "name": "ContextChain",
+      "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/context.rs",
           "lineStart": 6,
-          "lineEnd": 10,
+          "lineEnd": 9,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 6,
-              "lineEnd": 10
+              "lineEnd": 9
             }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ContextChain",
-      "type": "struct",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/context.rs",
-          "lineStart": 12,
-          "lineEnd": 15,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 12,
-              "lineEnd": 15
-            }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/protocol/context.rs",
-          "lineStart": 17,
-          "lineEnd": 27,
+          "lineStart": 11,
+          "lineEnd": 21,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 17,
-              "lineEnd": 27
+              "lineStart": 11,
+              "lineEnd": 21
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/protocol/context.rs",
-          "lineStart": 31,
-          "lineEnd": 76,
+          "lineStart": 25,
+          "lineEnd": 61,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 31,
-              "lineEnd": 76
+              "lineStart": 25,
+              "lineEnd": 61
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -345,20 +325,20 @@
       "name": "IntentContext",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/context.rs",
           "lineStart": 6,
-          "lineEnd": 12,
+          "lineEnd": 14,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 6,
-              "lineEnd": 12
+              "lineStart": 7,
+              "lineEnd": 14
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -370,8 +350,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
-          "lineStart": 4,
-          "lineEnd": 8,
+          "lineStart": 5,
+          "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
@@ -387,25 +367,25 @@
       "name": "IntentVerdict",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
-          "lineStart": 10,
-          "lineEnd": 24,
+          "lineStart": 11,
+          "lineEnd": 23,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 13,
-              "lineEnd": 14
+              "lineStart": 11,
+              "lineEnd": 23
             }
           ]
         },
         {
           "sourcePath": "src/protocol/intent/draft.rs",
-          "lineStart": 26,
-          "lineEnd": 30,
+          "lineStart": 25,
+          "lineEnd": 29,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -437,17 +417,17 @@
       "name": "IntentEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/event.rs",
-          "lineStart": 7,
-          "lineEnd": 12,
+          "lineStart": 8,
+          "lineEnd": 14,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 8,
+              "lineStart": 10,
               "lineEnd": 10
             }
           ]
@@ -534,7 +514,7 @@
       "name": "IntentSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/signature.rs",
@@ -542,7 +522,12 @@
           "lineEnd": 14,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 11
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/intent/signature.rs",
@@ -550,19 +535,19 @@
           "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 23
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/intent/signature.rs",
           "lineStart": 27,
           "lineEnd": 35,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 28,
-              "lineEnd": 30
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -571,12 +556,7 @@
           "lineEnd": 41,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 39,
-              "lineEnd": 39
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -797,243 +777,6 @@
       ]
     },
     {
-      "name": "PlanContext",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/plan/context.rs",
-          "lineStart": 6,
-          "lineEnd": 11,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 6,
-              "lineEnd": 11
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "PlanDraft",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/plan/draft.rs",
-          "lineStart": 4,
-          "lineEnd": 9,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 7,
-              "lineEnd": 8
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/protocol/plan/draft.rs",
-          "lineStart": 11,
-          "lineEnd": 15,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "PlanVerdict",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/plan/draft.rs",
-          "lineStart": 17,
-          "lineEnd": 24,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 23
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/protocol/plan/draft.rs",
-          "lineStart": 26,
-          "lineEnd": 30,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "PlanError",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/plan/error.rs",
-          "lineStart": 3,
-          "lineEnd": 7,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 3,
-              "lineEnd": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "PlanEvent",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/plan/event.rs",
-          "lineStart": 7,
-          "lineEnd": 12,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 10
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "PlanId",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/plan/id.rs",
-          "lineStart": 3,
-          "lineEnd": 4,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/protocol/plan/id.rs",
-          "lineStart": 6,
-          "lineEnd": 10,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "PlanResultKind",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/plan/result.rs",
-          "lineStart": 3,
-          "lineEnd": 9,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 3,
-              "lineEnd": 9
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "PlanResult",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/plan/result.rs",
-          "lineStart": 11,
-          "lineEnd": 15,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 11,
-              "lineEnd": 15
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "PlanSignature",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/plan/signature.rs",
-          "lineStart": 8,
-          "lineEnd": 13,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/protocol/plan/signature.rs",
-          "lineStart": 15,
-          "lineEnd": 23,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/protocol/plan/signature.rs",
-          "lineStart": 25,
-          "lineEnd": 33,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 26,
-              "lineEnd": 28
-            }
-          ],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/protocol/plan/signature.rs",
-          "lineStart": 35,
-          "lineEnd": 39,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 37,
-              "lineEnd": 37
-            }
-          ]
-        }
-      ]
-    },
-    {
       "name": "RelayError",
       "type": "enum",
       "source_depth": 3,
@@ -1161,50 +904,46 @@
       "name": "RelaySignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/signature.rs",
           "lineStart": 9,
-          "lineEnd": 15,
+          "lineEnd": 14,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 12,
-              "lineEnd": 12
+              "lineStart": 10,
+              "lineEnd": 14
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/protocol/relay/signature.rs",
-          "lineStart": 17,
-          "lineEnd": 26,
+          "lineStart": 16,
+          "lineEnd": 24,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 18,
-              "lineEnd": 18
-            },
-            {
-              "lineStart": 21,
-              "lineEnd": 21
+              "lineStart": 16,
+              "lineEnd": 23
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/protocol/relay/signature.rs",
-          "lineStart": 28,
-          "lineEnd": 36,
+          "lineStart": 26,
+          "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/relay/signature.rs",
-          "lineStart": 38,
-          "lineEnd": 42,
+          "lineStart": 36,
+          "lineEnd": 40,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -1444,17 +1183,17 @@
       "name": "TaskEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/event.rs",
           "lineStart": 9,
-          "lineEnd": 19,
+          "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 17,
+              "lineStart": 10,
               "lineEnd": 17
             }
           ]
@@ -1721,17 +1460,140 @@
       "name": "ToolCategory",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/tool/category.rs",
           "lineStart": 3,
-          "lineEnd": 9,
+          "lineEnd": 10,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 3,
+              "lineStart": 9,
               "lineEnd": 9
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "WorkflowComplete",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/workflow/complete.rs",
+          "lineStart": 8,
+          "lineEnd": 13,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 13
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/workflow/complete.rs",
+          "lineStart": 15,
+          "lineEnd": 36,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 36
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "WorkflowInfeasible",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/workflow/infeasible.rs",
+          "lineStart": 8,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/workflow/infeasible.rs",
+          "lineStart": 14,
+          "lineEnd": 35,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 35
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "WorkflowPlan",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/workflow/plan.rs",
+          "lineStart": 8,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/workflow/plan.rs",
+          "lineStart": 14,
+          "lineEnd": 37,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 37
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "WorkflowTool",
+      "type": "trait",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/workflow/tool.rs",
+          "lineStart": 4,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 4,
+              "lineEnd": 10
             }
           ],
           "modifiedLines": []

@@ -3,29 +3,36 @@
   "module": {
     "path": "src/protocol/intent",
     "name": "intent",
-    "purpose": "Defines intent contexts, identities, signatures, results, and drafts; IntentVerdict separates the first-stage tool_execution decision from complete, plan, and infeasible decisions and parses strict wire JSON.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines intent contexts with ordered step results, subintent signatures, and prior plan failures, plus signatures, lifecycle events, terminal results, and plan contracts; IntentVerdict parses plan, complete, and infeasible decisions.",
+    "changeStatus": "modified"
   },
-  "childModules": [],
+  "modified": ["draft.rs", "context.rs", "event.rs", "mod.rs", "signature.rs"],
+  "childModules": [
+    {
+      "path": "src/protocol/intent/plan",
+      "name": "plan",
+      "purpose": "Defines plan drafts and failed-plan snapshots with goals, per-goal intent results, and a failure reason."
+    }
+  ],
   "elements": [
     {
       "name": "IntentContext",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/context.rs",
           "lineStart": 6,
-          "lineEnd": 12,
+          "lineEnd": 14,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 6,
-              "lineEnd": 12
+              "lineStart": 7,
+              "lineEnd": 14
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -37,8 +44,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
-          "lineStart": 4,
-          "lineEnd": 8,
+          "lineStart": 5,
+          "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
@@ -54,25 +61,25 @@
       "name": "IntentVerdict",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/draft.rs",
-          "lineStart": 10,
-          "lineEnd": 24,
+          "lineStart": 11,
+          "lineEnd": 23,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 13,
-              "lineEnd": 14
+              "lineStart": 11,
+              "lineEnd": 23
             }
           ]
         },
         {
           "sourcePath": "src/protocol/intent/draft.rs",
-          "lineStart": 26,
-          "lineEnd": 30,
+          "lineStart": 25,
+          "lineEnd": 29,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -104,17 +111,17 @@
       "name": "IntentEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/event.rs",
-          "lineStart": 7,
-          "lineEnd": 12,
+          "lineStart": 8,
+          "lineEnd": 14,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 8,
+              "lineStart": 10,
               "lineEnd": 10
             }
           ]
@@ -148,6 +155,61 @@
           "addedLines": [
             {
               "lineStart": 6,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "PlanDraft",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/intent/plan/draft.rs",
+          "lineStart": 5,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 10
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/intent/plan/draft.rs",
+          "lineStart": 12,
+          "lineEnd": 16,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 16
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "PlanResult",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/intent/plan/result.rs",
+          "lineStart": 5,
+          "lineEnd": 10,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
               "lineEnd": 10
             }
           ],
@@ -201,7 +263,7 @@
       "name": "IntentSignature",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/intent/signature.rs",
@@ -209,7 +271,12 @@
           "lineEnd": 14,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 11
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/intent/signature.rs",
@@ -217,19 +284,19 @@
           "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 23
+            }
+          ]
         },
         {
           "sourcePath": "src/protocol/intent/signature.rs",
           "lineStart": 27,
           "lineEnd": 35,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 28,
-              "lineEnd": 30
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -238,12 +305,7 @@
           "lineEnd": 41,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 39,
-              "lineEnd": 39
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     }

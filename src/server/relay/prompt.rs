@@ -1,44 +1,34 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use marix_common::{Arch, Platform, System, external::*};
-use marix_protocol::{Context, ContextChain, IntentContext, PlanContext, ToolPreview};
+use marix_protocol::{
+    ContextChain, IntentContext, ToolPreview, WorkflowComplete, WorkflowInfeasible, WorkflowPlan,
+    WorkflowTool,
+};
 
 use super::RelayRuntime;
 use crate::model::ModelRequest;
-use crate::prompt::{MessagePrompt, Prompt, SystemPrompt};
+use crate::prompt::Prompt;
 
 impl RelayRuntime {
     pub(super) fn model_request(&self) -> Result<ModelRequest, String> {
-        let chain = match self.signature.plan.as_ref() {
-            Some(plan) => self.access.get_context_chain(plan)?,
-            None => self.access.get_context_chain(&self.signature.intent)?,
+        let chain = self.access.get_context_chain(&self.signature.intent)?;
+        let (current_system, tools) = {
+            let session_context = self.access.session_context()?;
+            let context = session_context
+                .lock()
+                .unwrap_or_else(|error| error.into_inner());
+            let current_system = context
+                .system
+                .ok_or_else(|| "current execution environment is unavailable".to_owned())?;
+            (current_system, context.tools.clone())
         };
-        let message_prompt = MessagePrompt::from_relay_name(&self.signature.name)?;
-        let system_prompt = message_prompt.system();
-        let native_tool_execution = matches!(message_prompt, MessagePrompt::ToolExecution);
-        let needs_tools =
-            matches!(system_prompt, SystemPrompt::SystemTools) || native_tool_execution;
-        let tools = if needs_tools {
-            {
-                let session_context = self.access.session_context()?;
-                let context = session_context
-                    .lock()
-                    .unwrap_or_else(|error| error.into_inner());
-                context.tools.clone()
-            }
-        } else {
-            Vec::new()
-        };
-        let native_tools = if native_tool_execution {
-            Some(tools.clone())
-        } else {
-            None
-        };
+        let tools = self.merge_workflow(tools)?;
         Ok(ModelRequest {
             relay: self.signature.clone(),
-            system: self.system_prompt(system_prompt, &tools)?,
-            prompts: self.prompts(&chain)?,
-            tools: native_tools,
+            system: self.system_prompt(current_system)?,
+            prompts: self.context_prompts(&chain)?,
+            tools: Some(tools),
         })
     }
 }
@@ -46,21 +36,42 @@ impl RelayRuntime {
 // -- Private -- //
 
 impl RelayRuntime {
-    fn system_prompt(
+    fn merge_workflow(
         &self,
-        system_prompt: SystemPrompt,
-        tools: &[ToolPreview],
-    ) -> Result<String, String> {
-        let current_system = {
-            let session_context = self.access.session_context()?;
-            let context = session_context
-                .lock()
-                .unwrap_or_else(|error| error.into_inner());
-            context
-                .system
-                .ok_or_else(|| "current execution environment is unavailable".to_owned())?
-        };
-        let template = system_prompt.name();
+        execution_tools: Vec<ToolPreview>,
+    ) -> Result<Vec<ToolPreview>, String> {
+        let mut names = BTreeSet::new();
+        for tool in &execution_tools {
+            if !names.insert(tool.name.clone()) {
+                return Err(format!(
+                    "relay `{}` cannot send duplicate execution tool name `{}`",
+                    self.signature.name, tool.name,
+                ));
+            }
+        }
+        let workflow_tools = [
+            WorkflowPlan::preview(),
+            WorkflowComplete::preview(),
+            WorkflowInfeasible::preview(),
+        ];
+        for tool in &workflow_tools {
+            if names.contains(&tool.name) {
+                return Err(format!(
+                    "relay `{}` execution tool name `{}` conflicts with \
+                     server workflow tool `{}`",
+                    self.signature.name, tool.name, tool.name,
+                ));
+            }
+        }
+        let mut tools =
+            Vec::with_capacity(workflow_tools.len() + execution_tools.len());
+        tools.extend(workflow_tools);
+        tools.extend(execution_tools);
+        Ok(tools)
+    }
+
+    fn system_prompt(&self, current_system: System) -> Result<String, String> {
+        let template = "System";
         let mut system =
             std::panic::catch_unwind(|| Prompt::load(template)).map_err(|payload| {
                 let detail = if let Some(message) = payload.downcast_ref::<String>() {
@@ -76,11 +87,6 @@ impl RelayRuntime {
             let value = match parameter.as_str() {
                 "user_request" => self.access.user_request.clone(),
                 "system" => Self::system_text(current_system),
-                "tools" => tools
-                    .iter()
-                    .map(|tool| format!("{}: {}", tool.name, tool.description))
-                    .collect::<Vec<_>>()
-                    .join("\n"),
                 _ => {
                     return Err(format!(
                         "unsupported {template} prompt parameter \
@@ -110,83 +116,47 @@ impl RelayRuntime {
     }
 
     fn context_prompts(&self, chain: &ContextChain) -> Result<Vec<String>, String> {
-        if chain.contexts.is_empty() {
+        if chain.intents.is_empty() {
             return Err("cannot render an empty context chain".to_owned());
         }
 
-        let mut prompts = Vec::new();
-        let mut index = 0;
-        while index < chain.contexts.len() {
-            let Context::Intent(intent) = &chain.contexts[index] else {
-                return Err(format!("context item {} has no preceding goal", index + 1,));
-            };
-            match chain.contexts.get(index + 1) {
-                Some(Context::Plan(plan)) => {
-                    if plan.signature.intent.as_ref() != &intent.signature {
-                        return Err(format!(
-                            "context items {} and {} have different owners",
-                            index + 1,
-                            index + 2,
-                        ));
-                    }
-                    prompts.push(Self::intent_plan_prompt(intent, plan)?);
-                    index += 2;
-                }
-                Some(Context::Intent(_)) => {
-                    return Err(format!(
-                        "context item {} is followed by another goal \
-                         without ordered goals between them",
-                        index + 1,
-                    ));
-                }
-                None => {
-                    prompts.push(Self::intent_prompt(intent)?);
-                    index += 1;
-                }
-            }
-        }
-        Ok(prompts)
-    }
-
-    fn prompts(&self, chain: &ContextChain) -> Result<Vec<String>, String> {
-        let context_prompts = self.context_prompts(chain)?;
-        let mut prompts = Vec::with_capacity(context_prompts.len() + 1);
+        let mut prompts = Vec::with_capacity(chain.intents.len() + 1);
         prompts.push(self.prompt.clone());
-        prompts.extend(context_prompts);
+        for intent in &chain.intents {
+            prompts.push(self.intent_prompt(intent)?);
+        }
         Ok(prompts)
     }
 
-    fn intent_plan_prompt(intent: &IntentContext, plan: &PlanContext) -> Result<String, String> {
-        let goal = Self::json(&intent.content, "goal")?;
-        let goals = plan
-            .intents
-            .iter()
-            .map(|intent| intent.content.as_str())
-            .collect::<Vec<_>>();
-        let goals = Self::json(&goals, "ordered goals")?;
-        let mut prompt = format!(
-            "To achieve the goal {goal}, the following ordered goals \
-             are being followed: {goals}."
-        );
-        Self::tool_calls(&mut prompt, intent)?;
-        if !plan.failures.is_empty() {
-            let failures = plan
-                .failures
-                .iter()
-                .map(|failure| failure.output.as_str())
-                .collect::<Vec<_>>();
-            let failures = Self::json(&failures, "previous failed attempts")?;
-            prompt.push_str(" previous failed attempts: ");
-            prompt.push_str(&failures);
-            prompt.push('.');
-        }
-        Ok(prompt)
-    }
-
-    fn intent_prompt(intent: &IntentContext) -> Result<String, String> {
+    fn intent_prompt(&self, intent: &IntentContext) -> Result<String, String> {
         let goal = Self::json(&intent.content, "current goal")?;
         let mut prompt = format!("The current goal is {goal}.");
         Self::tool_calls(&mut prompt, intent)?;
+        if !intent.subintents.is_empty() {
+            let subintents = intent
+                .subintents
+                .iter()
+                .map(|signature| self.access.get_intent_context(signature))
+                .collect::<Result<Vec<_>, _>>()?;
+            let goals = subintents
+                .iter()
+                .map(|subintent| subintent.content.as_str())
+                .collect::<Vec<_>>();
+            let results = subintents
+                .iter()
+                .map(|subintent| subintent.result.as_ref())
+                .collect::<Vec<_>>();
+            prompt.push_str(" Current ordered subintent goals: ");
+            prompt.push_str(&Self::json(&goals, "subintent goals")?);
+            prompt.push_str(". Their corresponding results: ");
+            prompt.push_str(&Self::json(&results, "subintent results")?);
+            prompt.push('.');
+        }
+        if !intent.plan_failures.is_empty() {
+            prompt.push_str(" Previous plan failures: ");
+            prompt.push_str(&Self::json(&intent.plan_failures, "plan failures")?);
+            prompt.push('.');
+        }
         Ok(prompt)
     }
 

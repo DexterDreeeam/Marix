@@ -3,14 +3,21 @@
   "module": {
     "path": "src/server/prompt",
     "name": "prompt",
-    "purpose": "Loads, injects, and renders named prompt templates, including System_Tools active-schema instructions, and maps message prompts to system templates and relay names.",
-    "changeStatus": "unchanged"
+    "purpose": "Loads, validates, injects, and renders named prompt templates from the local template directory.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    ".",
+    "mod.rs"
+  ],
+  "deleted": [
+    "system_map.rs"
+  ],
   "childModules": [
     {
       "path": "src/server/prompt/template",
       "name": "template",
-      "purpose": "Defines decision prompt resources, including System_Tools instructions that require the active decision schema and exact native tool argument schemas."
+      "purpose": "Defines IntentAnalyze and System prompt resources for decision and execution-environment instructions."
     }
   ],
   "elements": [
@@ -94,48 +101,6 @@
           "lineEnd": 163,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "MessagePrompt",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/prompt/system_map.rs",
-          "lineStart": 1,
-          "lineEnd": 34,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 1,
-              "lineEnd": 34
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "SystemPrompt",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/server/prompt/system_map.rs",
-          "lineStart": 36,
-          "lineEnd": 49,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 36,
-              "lineEnd": 49
-            }
-          ],
           "modifiedLines": []
         }
       ]

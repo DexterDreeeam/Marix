@@ -3,9 +3,12 @@
   "module": {
     "path": "src/server/relay",
     "name": "relay",
-    "purpose": "Builds relay model requests in System, Decision, then Context order, selects mapped system templates and native tools, and injects only declared template parameters.",
-    "changeStatus": "unchanged"
+    "purpose": "Builds model requests with the Relay decision/instruction prompt first, followed by ancestor-first intent context, a rendered System template based on the execution environment, workflow tools placed before execution tools after duplicate-name and workflow-name conflict validation, and serialized goal, subintent, plan-failure, and call context.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "prompt.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -52,7 +55,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
@@ -96,22 +99,35 @@
         },
         {
           "sourcePath": "src/server/relay/prompt.rs",
-          "lineStart": 10,
-          "lineEnd": 43,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/relay/prompt.rs",
-          "lineStart": 48,
-          "lineEnd": 216,
+          "lineStart": 13,
+          "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 151,
-              "lineEnd": 156
+              "lineStart": 16,
+              "lineEnd": 26
+            },
+            {
+              "lineStart": 30,
+              "lineEnd": 30
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/relay/prompt.rs",
+          "lineStart": 38,
+          "lineEnd": 188,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 39,
+              "lineEnd": 71
+            },
+            {
+              "lineStart": 118,
+              "lineEnd": 129
             }
           ]
         }

@@ -1,19 +1,8 @@
-Based on the current context, choose exactly one decision to advance the current goal.
+Based on the current context, choose exactly one action to advance the current goal.
 
---- DECISION: complete ---
-Use complete only when the available information is sufficient to fulfill the current goal.
-{"decision":"complete","answer":"final answer"}
+1. Call `workflow_complete` when the current Intent goal has already been achieved. Return the final answer in its `answer` argument.
+2. Call `workflow_plan` when the current Intent has no Plan and an ordered plan is needed. Its goals must be non-empty, simple, immutable, and must not directly request tool use. If `plan_failures` is non-empty, use the failure history to choose a different approach.
+3. Call `workflow_infeasible` only when the entire Intent remains infeasible after considering every supplied tool, planning capability, and all `plan_failures`. One Failed or Infeasible subintent is not enough to declare its parent Intent infeasible.
+4. Call one or more ordinary execution tools when real operations or additional information are needed now.
 
---- DECISION: plan ---
-Use plan when the current goal is not expected to finish within at most five tool calls and should be divided into a non-empty ordered list of simple, immutable goals that do not request tool use.
-{"decision":"plan","goals":["first immutable goal","second immutable goal"]}
-
---- DECISION: tool_execution ---
-Use tool_execution when the currently provided tools can complete the current goal with one to five tool calls. At this stage, do not select tools or return calls, arguments, or any other content.
-{"decision":"tool_execution"}
-
---- DECISION: infeasible ---
-Use infeasible only when the provided tools and planning capabilities cannot complete the current goal.
-{"decision":"infeasible","reason":"why the current goal cannot be completed"}
-
-Return only the selected JSON object with exactly the shown fields.
+Do not mix a Workflow Tool with ordinary execution tools in one response. Call exactly one Workflow Tool when selecting a workflow action. Ordinary execution may call one or more tools within the model backend's existing limit. Return only native function calls and no text.

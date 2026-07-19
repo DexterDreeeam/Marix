@@ -1,7 +1,7 @@
 use marix_common::Actor;
 use marix_protocol::{
-    IntentEvent, IntentSignature, InvocationEvent, InvocationSignature, PlanEvent, PlanSignature,
-    RelayEvent, RelaySignature, StepEvent, StepSignature, TaskEvent,
+    IntentEvent, IntentSignature, InvocationEvent, InvocationSignature, RelayEvent, RelaySignature,
+    StepEvent, StepSignature, TaskEvent,
 };
 
 use super::TaskRuntime;
@@ -14,9 +14,6 @@ impl TaskRuntime {
             }
             TaskEvent::IntentStart(signature) => {
                 self.start_intent(signature);
-            }
-            TaskEvent::Plan(signature, event) => {
-                self.dispatch_plan(signature, event);
             }
             TaskEvent::Step(signature, event) => {
                 self.dispatch_step(signature, event);
@@ -55,17 +52,6 @@ impl TaskRuntime {
             return;
         };
         intent.dispatch(event);
-    }
-
-    fn dispatch_plan(&self, signature: PlanSignature, event: PlanEvent) {
-        let Some(plan) = self.plans.with(&signature, Clone::clone) else {
-            self.fail_task(format!(
-                "plan {signature} event {event:?} not dispatched: \
-                 plan not found",
-            ));
-            return;
-        };
-        plan.dispatch(event);
     }
 
     fn dispatch_step(&self, signature: StepSignature, event: StepEvent) {

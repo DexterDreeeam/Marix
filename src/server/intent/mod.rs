@@ -6,4 +6,4 @@ pub use runtime::IntentRuntime;
 
 // -- Private -- //
 
-mod workflow;
+mod plan;

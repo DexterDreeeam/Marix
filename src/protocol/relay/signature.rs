@@ -4,21 +4,19 @@ use marix_common::Signature;
 
 use crate::external::*;
 
-use crate::{IntentSignature, PlanSignature, RelayId};
+use crate::{IntentSignature, RelayId};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct RelaySignature {
     pub intent: IntentSignature,
-    pub plan: Option<PlanSignature>,
     pub id: RelayId,
     pub name: String,
 }
 
 impl RelaySignature {
-    pub fn new(intent: IntentSignature, plan: Option<PlanSignature>, name: String) -> Self {
+    pub fn new(intent: IntentSignature, name: String) -> Self {
         Self {
             intent,
-            plan,
             id: RelayId::new(),
             name,
         }

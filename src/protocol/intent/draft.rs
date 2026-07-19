@@ -1,5 +1,6 @@
-use crate::PlanDraft;
 use crate::external::*;
+
+use super::PlanDraft;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(transparent, deny_unknown_fields)]
@@ -10,8 +11,6 @@ pub struct IntentDraft {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "decision", deny_unknown_fields)]
 pub enum IntentVerdict {
-    #[serde(rename = "tool_execution")]
-    ToolExecution,
     #[serde(rename = "plan")]
     Plan(PlanDraft),
     #[serde(rename = "complete")]
