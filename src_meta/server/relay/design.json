@@ -4,11 +4,8 @@
     "path": "src/server/relay",
     "name": "relay",
     "purpose": "Builds relay model requests with a rendered System prompt, exactly two prompts\u2014a decision prompt followed by one natural-language ContextChain prompt\u2014and workflow tools ordered before execution tools after duplicate-name and conflict validation; rejects empty chains and summarizes signed intent goals/results, direct current-plan subintent goals/results through strict one-level TaskAccess lookup, tool calls/results, and prior plan failures, separating intents with blank lines.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "prompt.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -55,7 +52,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",

@@ -4,11 +4,8 @@
     "path": "src/server",
     "name": "server",
     "purpose": "Runs actor-based orchestration with complete, plan, or infeasible workflow decision parsing, ordered subintent execution, failure reanalysis, relay requests that reject empty context chains and contain exactly two prompts (decision first, one natural-language ContextChain second), workflow tools prepended after duplicate-name and conflict validation, and streaming model execution.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "."
-  ],
   "childModules": [
     {
       "path": "src/server/intent",
@@ -1196,7 +1193,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
