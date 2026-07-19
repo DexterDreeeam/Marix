@@ -3,9 +3,12 @@
   "module": {
     "path": "src/host",
     "name": "host",
-    "purpose": "Owns Host connectivity, per-execution actor runtimes, and executor workers that report the concrete host System with available tool previews.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns Host connectivity, per-execution actor runtimes, and executor workers that pipe JSON to tools and preserve structured process failures.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/host/execution",
@@ -15,7 +18,7 @@
     {
       "path": "src/host/executor",
       "name": "executor",
-      "purpose": "Owns the host executor worker, sends the concrete host System with executor tool previews, routes executions, and reports unknown-tool failures."
+      "purpose": "Owns the host executor worker, pipes JSON requests to tool standard input, preserves structured process failures, routes executions, and publishes tool previews."
     }
   ],
   "elements": [
@@ -355,28 +358,41 @@
       "name": "Tool",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/tool.rs",
-          "lineStart": 6,
-          "lineEnd": 10,
+          "lineStart": 8,
+          "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/tool.rs",
-          "lineStart": 12,
-          "lineEnd": 46,
+          "lineStart": 14,
+          "lineEnd": 95,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 38,
-              "lineEnd": 45
+              "lineStart": 40,
+              "lineEnd": 93
             }
           ]
+        },
+        {
+          "sourcePath": "src/host/executor/tool.rs",
+          "lineStart": 99,
+          "lineEnd": 103,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 99,
+              "lineEnd": 103
+            }
+          ],
+          "modifiedLines": []
         }
       ]
     }

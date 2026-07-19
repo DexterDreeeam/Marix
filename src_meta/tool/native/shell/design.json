@@ -3,28 +3,35 @@
   "module": {
     "path": "src/tool/native/shell",
     "name": "shell",
-    "purpose": "Provides Bash, Command Prompt, and PowerShell tools whose descriptions state only each shell's own syntax and path conventions, plus shared process execution.",
-    "changeStatus": "unchanged"
+    "purpose": "Provides Bash, Command Prompt, and PowerShellExec tools launched through absolute system paths, with shared JSON process execution and structured failures.",
+    "changeStatus": "modified"
   },
+  "added": [
+    "powershell_exec.rs"
+  ],
+  "modified": [
+    "executor.rs",
+    "command_prompt.rs",
+    "bash.rs",
+    "mod.rs"
+  ],
+  "deleted": [
+    "powershell.rs"
+  ],
   "childModules": [],
   "elements": [
     {
       "name": "Bash",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/bash.rs",
           "lineStart": 7,
           "lineEnd": 7,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 7,
-              "lineEnd": 7
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -32,12 +39,7 @@
           "lineStart": 9,
           "lineEnd": 14,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 14
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -45,16 +47,11 @@
           "lineStart": 16,
           "lineEnd": 41,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 16,
-              "lineEnd": 38
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 22,
-              "lineEnd": 25
+              "lineStart": 33,
+              "lineEnd": 33
             }
           ]
         }
@@ -64,113 +61,109 @@
       "name": "CommandPrompt",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/command_prompt.rs",
-          "lineStart": 7,
-          "lineEnd": 7,
+          "lineStart": 12,
+          "lineEnd": 12,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 7,
-              "lineEnd": 7
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/tool/native/shell/command_prompt.rs",
-          "lineStart": 9,
-          "lineEnd": 14,
+          "lineStart": 14,
+          "lineEnd": 19,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 14
-            }
-          ],
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/tool/native/shell/command_prompt.rs",
+          "lineStart": 21,
+          "lineEnd": 46,
+          "language": "rust",
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 11,
-              "lineEnd": 12
+              "lineStart": 38,
+              "lineEnd": 38
             }
           ]
         },
         {
           "sourcePath": "src/tool/native/shell/command_prompt.rs",
-          "lineStart": 16,
-          "lineEnd": 41,
+          "lineStart": 53,
+          "lineEnd": 72,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 16,
-              "lineEnd": 38
+              "lineStart": 53,
+              "lineEnd": 72
             }
           ],
-          "modifiedLines": [
-            {
-              "lineStart": 22,
-              "lineEnd": 25
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
     {
-      "name": "PowerShell",
+      "name": "PowerShellExec",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "renamed",
       "codeSegments": [
         {
-          "sourcePath": "src/tool/native/shell/powershell.rs",
-          "lineStart": 7,
-          "lineEnd": 7,
+          "sourcePath": "src/tool/native/shell/powershell_exec.rs",
+          "lineStart": 12,
+          "lineEnd": 12,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 7,
-              "lineEnd": 7
-            }
-          ],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/tool/native/shell/powershell.rs",
-          "lineStart": 9,
-          "lineEnd": 14,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 14
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 11,
+              "lineStart": 12,
               "lineEnd": 12
             }
           ]
         },
         {
-          "sourcePath": "src/tool/native/shell/powershell.rs",
-          "lineStart": 16,
-          "lineEnd": 45,
+          "sourcePath": "src/tool/native/shell/powershell_exec.rs",
+          "lineStart": 14,
+          "lineEnd": 19,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 17
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/tool/native/shell/powershell_exec.rs",
+          "lineStart": 21,
+          "lineEnd": 50,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 38,
+              "lineEnd": 42
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/tool/native/shell/powershell_exec.rs",
+          "lineStart": 58,
+          "lineEnd": 72,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 16,
-              "lineEnd": 42
+              "lineStart": 58,
+              "lineEnd": 72
             }
           ],
-          "modifiedLines": [
-            {
-              "lineStart": 22,
-              "lineEnd": 25
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -178,20 +171,20 @@
       "name": "invoke",
       "type": "function",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/executor.rs",
-          "lineStart": 7,
-          "lineEnd": 31,
+          "lineStart": 8,
+          "lineEnd": 36,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 7,
-              "lineEnd": 31
+              "lineStart": 8,
+              "lineEnd": 35
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -199,20 +192,20 @@
       "name": "unavailable",
       "type": "function",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/executor.rs",
-          "lineStart": 33,
-          "lineEnd": 38,
+          "lineStart": 38,
+          "lineEnd": 43,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 33,
-              "lineEnd": 38
+              "lineStart": 38,
+              "lineEnd": 43
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     }

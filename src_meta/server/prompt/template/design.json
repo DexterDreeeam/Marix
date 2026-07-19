@@ -3,9 +3,12 @@
   "module": {
     "path": "src/server/prompt/template",
     "name": "template",
-    "purpose": "Defines first-stage intent verdict, minimal tool-catalog system, native ToolExecution, and other decision prompt resources.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines decision prompt resources, including System_Tools instructions that require the active decision schema and exact native tool argument schemas.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "System_Tools.prompt"
+  ],
   "childModules": [],
   "elements": []
 }

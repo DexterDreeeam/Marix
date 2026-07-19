@@ -149,8 +149,10 @@ impl RelayRuntime {
     }
 
     fn prompts(&self, chain: &ContextChain) -> Result<Vec<String>, String> {
-        let mut prompts = self.context_prompts(chain)?;
+        let context_prompts = self.context_prompts(chain)?;
+        let mut prompts = Vec::with_capacity(context_prompts.len() + 1);
         prompts.push(self.prompt.clone());
+        prompts.extend(context_prompts);
         Ok(prompts)
     }
 

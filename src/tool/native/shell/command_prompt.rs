@@ -1,3 +1,8 @@
+#[cfg(windows)]
+use std::env;
+#[cfg(windows)]
+use std::path::PathBuf;
+
 use marix_common::{Arch, Platform, System};
 use marix_protocol::{ToolCategory, ToolPreview};
 
@@ -30,7 +35,7 @@ impl ToolProgram for CommandPrompt {
     fn invoke(&self, call: &str) -> String {
         #[cfg(windows)]
         {
-            executor::invoke(call, "cmd.exe", &["/D", "/S", "/C"])
+            executor::invoke(call, Self::program(), &["/D", "/S", "/C"])
         }
         #[cfg(not(windows))]
         {
@@ -42,3 +47,26 @@ impl ToolProgram for CommandPrompt {
 
 #[cfg(feature = "command_prompt")]
 pub use self::CommandPrompt as SelectedTool;
+
+// -- Private -- //
+
+#[cfg(windows)]
+impl CommandPrompt {
+    fn program() -> Result<PathBuf, String> {
+        if let Some(com_spec) = env::var_os("ComSpec") {
+            let path = PathBuf::from(com_spec);
+            if path.is_absolute() {
+                return Ok(path);
+            }
+            return Err("ComSpec does not contain an absolute path".to_owned());
+        }
+
+        let system_root = env::var_os("SystemRoot")
+            .ok_or_else(|| "ComSpec and SystemRoot are unavailable".to_owned())?;
+        let path = PathBuf::from(system_root).join("System32").join("cmd.exe");
+        if !path.is_absolute() {
+            return Err("SystemRoot does not contain an absolute path".to_owned());
+        }
+        Ok(path)
+    }
+}

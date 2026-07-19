@@ -1,10 +1,11 @@
+use std::path::PathBuf;
 use std::process::Command;
 
 use marix_common::external::serde_json::{Value, json, to_string};
 
 use super::super::parse_input;
 
-pub(super) fn invoke(call: &str, program: &str, arguments: &[&str]) -> String {
+pub(super) fn invoke(call: &str, program: Result<PathBuf, String>, arguments: &[&str]) -> String {
     let input: Value = match parse_input(call) {
         Ok(value) => value,
         Err(error) => return failure(format!("invalid input: {error}")),
@@ -13,6 +14,10 @@ pub(super) fn invoke(call: &str, program: &str, arguments: &[&str]) -> String {
         return failure("missing required field: command".to_owned());
     };
     let cwd = input.get("cwd").and_then(Value::as_str);
+    let program = match program {
+        Ok(program) => program,
+        Err(error) => return failure(error),
+    };
 
     let mut process = Command::new(program);
     process.args(arguments).arg(command);

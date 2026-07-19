@@ -16,7 +16,7 @@ read_file = []
 write_file = []
 list_directory = []
 search_text = []
-powershell = []
+powershell_exec = []
 command_prompt = []
 bash = []
 os_env = []
@@ -42,9 +42,9 @@ path = "tool_main.rs"
 required-features = ["search_text"]
 
 [[bin]]
-name = "powershell"
+name = "powershell_exec"
 path = "tool_main.rs"
-required-features = ["powershell"]
+required-features = ["powershell_exec"]
 
 [[bin]]
 name = "command_prompt"

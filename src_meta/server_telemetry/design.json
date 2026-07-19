@@ -3,14 +3,17 @@
   "module": {
     "path": "src/server_telemetry",
     "name": "server_telemetry",
-    "purpose": "Runs the standalone telemetry collector and paginated HTTP API while serving browser assets whose format modal renders parsed line endings without altering parsing or copy behavior.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs the standalone telemetry collector and paginated HTTP API while serving static browser assets with navigable formatted-message inspection and millisecond timestamps.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/server_telemetry/http",
       "name": "http",
-      "purpose": "Provides telemetry browser assets, including line-break-aware formatted JSON rendering that preserves literal escapes."
+      "purpose": "Provides static telemetry browser assets with Previous, Next, and Close format-modal navigation, disabled newest and older boundaries, millisecond timestamps, and defined focus and loading behavior."
     }
   ],
   "elements": [

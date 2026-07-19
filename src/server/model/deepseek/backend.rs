@@ -85,7 +85,6 @@ impl DeepseekBackend {
         let status = response.status();
         if !status.is_success() {
             let body = response.text().await?;
-            Self::log_response(&body);
             Logger::error(format!("deepseek stream request failed: {status}"));
             return Err(ModelBackendError::RequestFailed(format!(
                 "Deepseek request failed with {status}: {body}"

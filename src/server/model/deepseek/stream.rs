@@ -57,7 +57,6 @@ enum StreamMode {
 struct StreamAccumulator {
     mode: StreamMode,
     content: String,
-    raw_response: String,
     seq_count: usize,
     finish_reason: Option<String>,
     tool_calls: BTreeMap<usize, ToolCallAccumulator>,
@@ -108,7 +107,6 @@ impl StreamAccumulator {
         Self {
             mode,
             content: String::new(),
-            raw_response: String::new(),
             seq_count: 0,
             finish_reason: None,
             tool_calls: BTreeMap::new(),
@@ -129,10 +127,6 @@ impl StreamAccumulator {
         if data.is_empty() {
             return Ok(false);
         }
-        if !self.raw_response.is_empty() {
-            self.raw_response.push('\n');
-        }
-        self.raw_response.push_str(&data);
         if data.trim() == "[DONE]" {
             self.finish(sender)?;
             return Ok(true);
@@ -326,10 +320,17 @@ impl StreamAccumulator {
                 }
                 None
             }
-            StreamMode::ToolCalls => Some(self.normalize_tool_calls()?),
+            StreamMode::ToolCalls => {
+                if finish_reason != "tool_calls" {
+                    return Err(ModelBackendError::InvalidResponse(format!(
+                        "Deepseek tool call stream ended with finish_reason \
+                         `{finish_reason}`",
+                    )));
+                }
+                Some(self.normalize_tool_calls()?)
+            }
         };
-        DeepseekBackend::log_response(&self.raw_response);
-
+        DeepseekBackend::log_response(&self.response_json()?);
         if let Some(content) = content {
             if sender
                 .send(ModelResponse {
@@ -353,6 +354,45 @@ impl StreamAccumulator {
             complete: true,
         });
         Ok(())
+    }
+
+    fn response_json(&self) -> Result<String, ModelBackendError> {
+        let content = (self.mode == StreamMode::Content).then_some(&self.content);
+        let tool_calls = (self.mode == StreamMode::ToolCalls).then(|| self.tool_calls_json());
+        let finish_reason = if self.mode == StreamMode::Content {
+            "stop"
+        } else {
+            "tool_calls"
+        };
+        serde_json::to_string(&serde_json::json!({
+            "object": "chat.completion",
+            "choices": [{
+                "index": 0,
+                "message": {
+                    "role": "assistant",
+                    "content": content,
+                    "tool_calls": tool_calls
+                },
+                "finish_reason": finish_reason
+            }]
+        }))
+        .map_err(ModelBackendError::from)
+    }
+
+    fn tool_calls_json(&self) -> Vec<serde_json::Value> {
+        self.tool_calls
+            .values()
+            .map(|call| {
+                serde_json::json!({
+                    "id": &call.id,
+                    "type": "function",
+                    "function": {
+                        "name": &call.name,
+                        "arguments": &call.arguments
+                    },
+                })
+            })
+            .collect()
     }
 
     fn normalize_tool_calls(&self) -> Result<String, ModelBackendError> {

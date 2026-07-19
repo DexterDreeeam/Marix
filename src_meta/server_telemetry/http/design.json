@@ -3,9 +3,15 @@
   "module": {
     "path": "src/server_telemetry/http",
     "name": "http",
-    "purpose": "Provides telemetry browser assets, including a format modal that renders parsed CRLF, CR, and LF as line breaks while preserving literal backslash-n and JSON escaping.",
-    "changeStatus": "unchanged"
+    "purpose": "Provides static telemetry browser assets whose Format modal supports Previous, Next, and Close navigation, disables newest and older boundaries, shows millisecond timestamps in titles and lists, and preserves focus and loading behavior.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "page.html",
+    "page.css",
+    "telemetry.js",
+    "telemetry-message.js"
+  ],
   "childModules": [],
   "elements": []
 }

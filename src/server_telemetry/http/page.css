@@ -281,13 +281,19 @@ body.modal-open { overflow: hidden; }
   border-bottom: 1px solid var(--border);
 }
 #format-message-title {
+  flex: 1 1 auto;
   min-width: 0;
   margin: 0;
   font-size: 16px;
   font-weight: 600;
   overflow-wrap: anywhere;
 }
-#format-message-close {
+#format-message-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+}
+#format-message-actions button {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 6px 12px;
@@ -296,11 +302,15 @@ body.modal-open { overflow: hidden; }
   font: inherit;
   cursor: pointer;
 }
-#format-message-close:hover,
-#format-message-close:focus-visible {
+#format-message-actions button:hover:not(:disabled),
+#format-message-actions button:focus-visible:not(:disabled) {
   border-color: var(--accent);
   outline: 2px solid rgba(77, 141, 255, 0.35);
   outline-offset: 1px;
+}
+#format-message-actions button:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
 }
 #format-message-editor {
   width: 100%;

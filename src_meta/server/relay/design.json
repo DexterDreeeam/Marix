@@ -3,9 +3,12 @@
   "module": {
     "path": "src/server/relay",
     "name": "relay",
-    "purpose": "Runs relay actors, maps relay names to message and system prompts, derives tool needs from those mappings, and injects only parameters declared by each system template; System_Tools receives the tools marker.",
-    "changeStatus": "unchanged"
+    "purpose": "Builds relay model requests in System, Decision, then Context order, selects mapped system templates and native tools, and injects only declared template parameters.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "prompt.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -52,7 +55,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
@@ -76,16 +79,7 @@
           "lineEnd": 163,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 62,
-              "lineEnd": 62
-            },
-            {
-              "lineStart": 87,
-              "lineEnd": 87
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
@@ -109,12 +103,7 @@
           "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 16,
-              "lineEnd": 42
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/prompt.rs",
@@ -124,8 +113,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 49,
-              "lineEnd": 96
+              "lineStart": 151,
+              "lineEnd": 156
             }
           ]
         }

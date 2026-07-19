@@ -1411,3 +1411,24 @@ connecter to protect this distinction.
   `MessagePrompt`-to-`SystemPrompt` selection. Relay system injection follows
   the selected template's declared parameters; only `System_Tools` declares
   `tools`, while native tool execution still retrieves tools for model APIs.
+- 2026-07-18 (normalized Deepseek response logging): The SSE accumulator in
+  `server/model/deepseek/stream.rs` no longer retains raw `data:` chunks.
+  Only a validated `[DONE]` path logs one compact OpenAI-compatible completion;
+  native calls follow `BTreeMap` index order and preserve `arguments` as a JSON
+  string. Missing `[DONE]`, invalid calls, and non-success HTTP responses emit
+  errors without a `[Model Relay][Response]` success tag.
+- 2026-07-18 (telemetry message navigation): The Format message modal navigates
+  the full newest-first `s_state.summaries` array rather than virtualized rows:
+  Prev selects index - 1 and Next index + 1. Exact-record cache entries retain
+  `emit_ts` with `message`, and the shared local timestamp formatter always
+  requests three fractional-second digits.
+- 2026-07-19 (tool process transport and shell paths): Tool binaries reserve
+  `--preview` for discovery and otherwise read the complete invocation JSON
+  from stdin. Host execution pipes all standard streams and preserves nonzero
+  exit details as JSON. Native shells resolve absolute programs:
+  `powershell_exec` from `SystemRoot`, Command Prompt from `ComSpec` with a
+  `SystemRoot` fallback, and Bash from `/bin/bash`.
+- 2026-07-19 (relay prompt ordering): Relay model requests place the active
+  decision or native-tool instruction before context-chain prompts. System
+  templates therefore describe the active schema without relying on a final
+  instruction-message position.

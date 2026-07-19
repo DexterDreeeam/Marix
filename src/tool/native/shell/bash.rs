@@ -30,7 +30,7 @@ impl ToolProgram for Bash {
     fn invoke(&self, call: &str) -> String {
         #[cfg(unix)]
         {
-            executor::invoke(call, "bash", &["-lc"])
+            executor::invoke(call, Ok("/bin/bash".into()), &["-lc"])
         }
         #[cfg(not(unix))]
         {

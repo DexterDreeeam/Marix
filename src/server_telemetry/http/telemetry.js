@@ -10,6 +10,17 @@ import { createMessageActions } from "./telemetry-message.js";
 const c_keywordDebounceMs = 400;
 const c_logRefreshMs = 2000;
 const c_sessionRefreshMs = 10000;
+const s_timestampFormatter = new Intl.DateTimeFormat(undefined, {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  fractionalSecondDigits: 3,
+  hour12: false,
+  hourCycle: "h23",
+});
 
 const s_state = {
   sessions: [],
@@ -48,6 +59,9 @@ const s_messageActions = createMessageActions(
     copyToast: document.getElementById("copy-toast"),
     modalBackdrop: document.getElementById("format-message-backdrop"),
     modal: document.getElementById("format-message-modal"),
+    modalTitle: document.getElementById("format-message-title"),
+    modalPrev: document.getElementById("format-message-prev"),
+    modalNext: document.getElementById("format-message-next"),
     modalClose: document.getElementById("format-message-close"),
     modalEditor: document.getElementById("format-message-editor"),
   },
@@ -56,6 +70,10 @@ const s_messageActions = createMessageActions(
       return fetchJson("/api/logs/" + encodeURIComponent(_id));
     },
     showError: showError,
+    getSummaries: function () {
+      return s_state.summaries;
+    },
+    formatTimestamp: formatTimestamp,
     onModalChange: function (_open) {
       if (!_open) {
         requestLogs("incremental");
@@ -99,7 +117,7 @@ function formatTimestamp(_milliseconds) {
   var _date = new Date(_milliseconds);
   return Number.isNaN(_date.getTime())
     ? String(_milliseconds)
-    : _date.toLocaleString();
+    : s_timestampFormatter.format(_date);
 }
 
 function createSessionItem(_sessionId) {

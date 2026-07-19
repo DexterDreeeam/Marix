@@ -3,9 +3,12 @@
   "module": {
     "path": "src/server",
     "name": "server",
-    "purpose": "Runs actor-based workflow orchestration with enum-mapped message and system prompts, parameter-driven system-template injection, and streaming model execution.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs actor-based workflow orchestration with relay model requests ordered as System, Decision, then Context, active-schema prompt rendering, and streaming model execution.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/server/intent",
@@ -20,7 +23,7 @@
     {
       "path": "src/server/model",
       "name": "model",
-      "purpose": "Defines the streaming-only model backend contract and exposes Deepseek as a direct child implementation."
+      "purpose": "Defines the streaming-only model backend contract and exposes Deepseek, which validates complete SSE streams before logging one compact normalized OpenAI-compatible response, as a direct child implementation."
     },
     {
       "path": "src/server/plan",
@@ -30,12 +33,12 @@
     {
       "path": "src/server/prompt",
       "name": "prompt",
-      "purpose": "Loads, injects, and renders named prompt templates, and maps crate-visible message prompt enums to System or System_Tools templates and relay names."
+      "purpose": "Loads, injects, and renders named prompt templates, including System_Tools active-schema instructions, and maps message prompts to system templates and relay names."
     },
     {
       "path": "src/server/relay",
       "name": "relay",
-      "purpose": "Runs relay actors, maps relay names to message and system prompts, derives tool needs from those mappings, and injects only parameters declared by each system template; System_Tools receives the tools marker."
+      "purpose": "Builds relay model requests in System, Decision, then Context order, selects mapped system templates and native tools, and injects only declared template parameters."
     },
     {
       "path": "src/server/session",
@@ -1327,7 +1330,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
@@ -1351,16 +1354,7 @@
           "lineEnd": 163,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 62,
-              "lineEnd": 62
-            },
-            {
-              "lineStart": 87,
-              "lineEnd": 87
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
@@ -1384,12 +1378,7 @@
           "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 16,
-              "lineEnd": 42
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/prompt.rs",
@@ -1399,8 +1388,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 49,
-              "lineEnd": 96
+              "lineStart": 151,
+              "lineEnd": 156
             }
           ]
         }

@@ -5,20 +5,22 @@ const c_cacheLimit = 100;
 export function createMessageActions(_elements, _callbacks) {
   var _context = null;
   var _modalOpen = false;
+  var _modalContext = null;
   var _modalPreviousFocus = null;
+  var _navigationRequest = null;
   var _copyToastTimer = null;
   var _recordCache = new Map();
 
-  function exactMessage(_id) {
+  function exactRecord(_id) {
     if (_recordCache.has(_id)) {
       return Promise.resolve(_recordCache.get(_id));
     }
     return _callbacks.fetchRecord(_id).then(function (_record) {
-      _recordCache.set(_id, _record.message);
+      _recordCache.set(_id, _record);
       if (_recordCache.size > c_cacheLimit) {
         _recordCache.delete(_recordCache.keys().next().value);
       }
-      return _record.message;
+      return _record;
     });
   }
 
@@ -44,6 +46,7 @@ export function createMessageActions(_elements, _callbacks) {
     closeContextMenu(false);
     _context = {
       id: _summary.id,
+      summary: _summary,
       row: _row,
       previousFocus: document.activeElement,
     };
@@ -133,8 +136,10 @@ export function createMessageActions(_elements, _callbacks) {
       return;
     }
     var _id = _context.id;
-    exactMessage(_id)
-      .then(writeClipboardText)
+    exactRecord(_id)
+      .then(function (_record) {
+        return writeClipboardText(_record.message);
+      })
       .then(function (_copied) {
         if (_copied) {
           showCopyToast();
@@ -148,17 +153,62 @@ export function createMessageActions(_elements, _callbacks) {
     closeContextMenu(true);
   }
 
-  function openFormatMessage(_message, _row, _previousFocus) {
+  function modalPosition() {
+    var _summaries = _callbacks.getSummaries();
+    var _index = _modalContext
+      ? _summaries.findIndex(function (_summary) {
+          return _summary.id === _modalContext.id;
+        })
+      : -1;
+    if (_index >= 0) {
+      _modalContext.index = _index;
+      _modalContext.summary = _summaries[_index];
+    }
+    return { summaries: _summaries, index: _index };
+  }
+
+  function updateNavigation() {
+    var _position = modalPosition();
+    var _disabled = !_modalOpen || _navigationRequest !== null;
+    _elements.modalPrev.disabled =
+      _disabled || _position.index <= 0;
+    _elements.modalNext.disabled =
+      _disabled ||
+      _position.index < 0 ||
+      _position.index >= _position.summaries.length - 1;
+  }
+
+  function renderModalRecord(_summary, _record) {
+    var _timestamp =
+      _summary.emit_ts === null || _summary.emit_ts === undefined
+        ? _record.emit_ts
+        : _summary.emit_ts;
+    _elements.modalTitle.textContent = _callbacks.formatTimestamp(_timestamp);
+    renderFormattedMessage(_elements.modalEditor, _record.message);
+  }
+
+  function openFormatMessage(_summary, _record, _row, _previousFocus) {
+    var _summaries = _callbacks.getSummaries();
+    var _index = _summaries.findIndex(function (_candidate) {
+      return _candidate.id === _summary.id;
+    });
+    var _currentSummary = _index >= 0 ? _summaries[_index] : _summary;
     _modalOpen = true;
+    _modalContext = {
+      id: _currentSummary.id,
+      index: _index,
+      summary: _currentSummary,
+    };
     _modalPreviousFocus =
       _previousFocus || _row.querySelector(".message-cell");
     closeContextMenu(false);
-    renderFormattedMessage(_elements.modalEditor, _message);
+    renderModalRecord(_currentSummary, _record);
     _elements.app.setAttribute("inert", "");
     _elements.app.setAttribute("aria-hidden", "true");
     document.body.classList.add("modal-open");
     _elements.modalBackdrop.hidden = false;
     _elements.modalBackdrop.setAttribute("aria-hidden", "false");
+    updateNavigation();
     _elements.modalClose.focus({ preventScroll: true });
     _callbacks.onModalChange(true);
   }
@@ -168,10 +218,11 @@ export function createMessageActions(_elements, _callbacks) {
       return;
     }
     var _contextAtRequest = _context;
-    exactMessage(_contextAtRequest.id)
-      .then(function (_message) {
+    exactRecord(_contextAtRequest.id)
+      .then(function (_record) {
         openFormatMessage(
-          _message,
+          _contextAtRequest.summary,
+          _record,
           _contextAtRequest.row,
           _contextAtRequest.previousFocus
         );
@@ -182,17 +233,66 @@ export function createMessageActions(_elements, _callbacks) {
       });
   }
 
+  function navigate(_delta) {
+    if (!_modalOpen || !_modalContext || _navigationRequest !== null) {
+      return;
+    }
+    var _position = modalPosition();
+    var _targetIndex = _position.index + _delta;
+    if (
+      _position.index < 0 ||
+      _targetIndex < 0 ||
+      _targetIndex >= _position.summaries.length
+    ) {
+      updateNavigation();
+      return;
+    }
+    var _targetSummary = _position.summaries[_targetIndex];
+    var _request = {};
+    _navigationRequest = _request;
+    updateNavigation();
+    exactRecord(_targetSummary.id)
+      .then(function (_record) {
+        if (!_modalOpen || _navigationRequest !== _request) {
+          return;
+        }
+        _modalContext = {
+          id: _targetSummary.id,
+          index: _targetIndex,
+          summary: _targetSummary,
+        };
+        renderModalRecord(_targetSummary, _record);
+      })
+      .catch(function (_error) {
+        if (_modalOpen && _navigationRequest === _request) {
+          _callbacks.showError(
+            "Failed to load full message: " + _error.message
+          );
+        }
+      })
+      .finally(function () {
+        if (_navigationRequest === _request) {
+          _navigationRequest = null;
+          updateNavigation();
+        }
+      });
+  }
+
   function closeFormatMessage() {
     if (!_modalOpen) {
       return;
     }
     _modalOpen = false;
+    _modalContext = null;
+    _navigationRequest = null;
     _elements.modalBackdrop.hidden = true;
     _elements.modalBackdrop.setAttribute("aria-hidden", "true");
     document.body.classList.remove("modal-open");
     _elements.app.removeAttribute("inert");
     _elements.app.removeAttribute("aria-hidden");
+    _elements.modalTitle.textContent = "";
     _elements.modalEditor.textContent = "";
+    updateNavigation();
     var _previousFocus = _modalPreviousFocus;
     _modalPreviousFocus = null;
     if (_previousFocus && _previousFocus.isConnected) {
@@ -213,12 +313,25 @@ export function createMessageActions(_elements, _callbacks) {
 
   bindAction(_elements.copyAction, activateCopyMessage);
   bindAction(_elements.formatAction, activateFormatMessage);
+  _elements.modalPrev.addEventListener("click", function () {
+    navigate(-1);
+  });
+  _elements.modalNext.addEventListener("click", function () {
+    navigate(1);
+  });
   _elements.modalClose.addEventListener("click", closeFormatMessage);
   _elements.modal.addEventListener("keydown", function (_event) {
     if (_event.key !== "Tab") {
       return;
     }
-    var _focusable = [_elements.modalClose, _elements.modalEditor];
+    var _focusable = [
+      _elements.modalPrev,
+      _elements.modalNext,
+      _elements.modalClose,
+      _elements.modalEditor,
+    ].filter(function (_element) {
+      return !_element.disabled;
+    });
     var _index = _focusable.indexOf(document.activeElement);
     if (_event.shiftKey && _index <= 0) {
       _event.preventDefault();
