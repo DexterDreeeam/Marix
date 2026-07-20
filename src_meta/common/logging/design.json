@@ -4,7 +4,7 @@
     "path": "src/common/logging",
     "name": "logging",
     "purpose": "Provides remote-first telemetry, batched indexed redb persistence, paged summary and full-record queries, and executable-sibling JSONL fallback.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [
     {
@@ -68,7 +68,7 @@
       "name": "Logger",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
@@ -1038,9 +1038,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "logger.rs",
-    "logger_tests.rs"
   ]
 }
