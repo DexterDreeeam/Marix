@@ -4,7 +4,7 @@
     "path": "src/tool/native/shell",
     "name": "shell",
     "purpose": "Provides Bash, Command Prompt, and PowerShellExec tools launched through absolute system paths, with shared JSON process execution and structured failures.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -141,7 +141,7 @@
       "name": "PowerShell",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/shell/powershell.rs",
@@ -177,14 +177,5 @@
         }
       ]
     }
-  ],
-  "added": [
-    "powershell.rs"
-  ],
-  "modified": [
-    "mod.rs"
-  ],
-  "deleted": [
-    "powershell_exec.rs"
   ]
 }

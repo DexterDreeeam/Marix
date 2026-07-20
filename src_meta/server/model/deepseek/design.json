@@ -4,7 +4,7 @@
     "path": "src/server/model/deepseek",
     "name": "deepseek",
     "purpose": "Implements the Deepseek streaming backend: SSE deltas are strictly validated and accumulated, and only after a valid finish_reason followed by [DONE] is one compact normalized OpenAI-compatible JSON response with content or tool_calls logged; invalid or disconnected streams produce no success log.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "DeepseekBackend",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/deepseek/backend.rs",
@@ -118,10 +118,5 @@
         }
       ]
     }
-  ],
-  "modified": [
-    "backend.rs",
-    "request.rs",
-    "stream.rs"
   ]
 }
