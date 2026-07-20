@@ -41,19 +41,22 @@ Pass the selected prompt and both configured guardrails to the oneshot client:
 
 ```powershell
 $cli = 'C:\MarixClient\Cli\marix-client-cli.exe'
-$arguments = @('--oneshot')
+$arguments = @('--oneshot', $task.prompt)
 if ($null -ne $task.max_completion_time_secs) {
   $arguments += @('--max-completion-time-secs', "$($task.max_completion_time_secs)")
 }
 if ($null -ne $task.max_relay_count) {
   $arguments += @('--max-relay-count', "$($task.max_relay_count)")
 }
-$arguments += $task.prompt
 & $cli @arguments
 if ($LASTEXITCODE -ne 0) { throw "oneshot failed: $LASTEXITCODE" }
 ```
 
-The CLI flags are `--max-completion-time-secs` and `--max-relay-count`. Omitting a flag for `null` preserves the corresponding TaskRequest value as `None`. The oneshot client waits for the terminal outcome. For unattended runs, a harness may use `suggested_outer_watchdog_minutes` only as a process-runaway fallback; report its activation as an environment error, separately from task and assertion failures.
+This is the only supported deployed CLI path. Do not invoke or fall back to
+`C:\MarixClient\marix-client-cli.exe`.
+
+Place the prompt immediately after `--oneshot`, before the optional flags. The
+CLI flags are `--max-completion-time-secs` and `--max-relay-count`. Omitting a flag for `null` preserves the corresponding TaskRequest value as `None`. The oneshot client waits for the terminal outcome. For unattended runs, a harness may use `suggested_outer_watchdog_minutes` only as a process-runaway fallback; report its activation as an environment error, separately from task and assertion failures.
 
 ## Run with the Smoke Agent
 

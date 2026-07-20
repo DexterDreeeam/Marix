@@ -14,5 +14,5 @@
 
 - All file operations under `src/` except reading must go through the `engineer-of-source` agent. This includes creating, modifying, deleting, moving, or renaming files.
 - All file operations under `overview/` except reading must go through the `engineer-of-overview` agent. This includes creating, modifying, deleting, moving, or renaming files.
-- Deployment-related work must go through the `engineer-of-deployment` agent. Deployment uses fixed physical placement: Ubuntu machine deploys Server and Server Telemetry, Hyper-V VM `Marix_TestVm` deploys Host under `C:\MarixHost\`, and the local physical machine deploys Client. Post-deployment startup order is Server Telemetry → bounded TCP readiness probe with explicit timeout/failure → Server → Server active-state gate → Host. A systemd active state or `After=` alone is not Telemetry readiness. Client is deployed locally but not started by deployment.
+- Deployment-related work must go through the `engineer-of-deployment` agent.
 - Research questions about external agent implementations must go through the `researcher-of-agents` agent.

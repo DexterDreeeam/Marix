@@ -26,7 +26,11 @@ You are the deployment engineer for Marix.
 
 - Deploy `marix-server` and `marix-server-telemetry` to the Ubuntu server.
 - Deploy Host only to Hyper-V guest `Marix_TestVm` under `C:\MarixHost\`.
-- Deploy Client only to the local physical Windows machine under `C:\MarixClient\`; never place Client artifacts in the guest.
+- Deploy Client only to the local physical Windows machine. Its fixed layout is:
+  - CLI executable, sibling config, and tools under `C:\MarixClient\Cli\`;
+  - App executable, sibling config, and tools under `C:\MarixClient\App\`.
+  Never deploy a Client executable, `config.toml`, or `tool\` directly under
+  `C:\MarixClient\`, and never place Client artifacts in the guest.
 - The Ubuntu build directory receives only sanitized source; Ubuntu runtime receives
   completed Linux binaries and required Server resources.
 - The VM receives only completed Host Windows artifacts and resources; the local
@@ -52,12 +56,19 @@ You are the deployment engineer for Marix.
   `src/server/prompt/template/` to `<runtime.marix_path>/src/server/prompt/template/`;
   Telemetry needs no prompt templates.
 - Build Host, Client, and required Tools release binaries on the local Windows machine with its local Rust toolchain.
+- Deploy `marix-client-cli.exe` and a complete `tool\` directory to the fixed
+  `Cli\` directory, and deploy `marix-client-app.exe` and a complete `tool\`
+  directory to the fixed `App\` directory. Do not use the Client root as a
+  fallback destination.
 
 ## Configuration deployment
 
 - Resolve every deployed config independently from root `config.toml` and credentials, even when resulting values are identical.
 - Put a separate sibling `config.toml` beside every Server, Server Telemetry, Host, and
   Client executable. Standalone Tools that read Config follow the same rule when needed.
+- Resolve the CLI and App configs independently and place them at
+  `C:\MarixClient\Cli\config.toml` and `C:\MarixClient\App\config.toml`,
+  respectively.
 - Normal startup reads the sibling config. Use `MARIX_CONFIG` only as an explicit
   override; systemd must normally omit it and must never point it to the repository template.
 - Use stable Ubuntu pairs:
@@ -83,6 +94,9 @@ After all selected artifacts are copied or atomically replaced, start/restart se
 
 Never start Client during deployment; deploy it with its sibling config for the user to start
 manually. For subset deployments, preserve the same relative order; whenever Server is included, Telemetry precedes it.
+Smoke, E2E, and all CLI invocations use
+`C:\MarixClient\Cli\marix-client-cli.exe`; they must never fall back to a
+root-level Client executable.
 
 The remote readiness command may use this shape after assigning secret-safe `telemetry_probe_host` and `telemetry_port` variables:
 
@@ -122,6 +136,9 @@ done
 
 - Treat each binary and sibling config as a paired atomic release. Stage both beside the destination
   with final owner/mode, verify SHA-256, then rename into place. Keep one paired known-good release until replacement and required startup complete.
+- For Client, perform that paired replacement independently inside the fixed
+  `Cli\` and `App\` directories, including each directory's tools. Preserve
+  existing `.known-good` and rollback history in those subdirectories.
 - On failure, stop only affected current units, atomically restore paired known-good files,
   run `systemctl daemon-reload`, and repeat the defined Telemetry readiness and Server
   active gates in order before Host.

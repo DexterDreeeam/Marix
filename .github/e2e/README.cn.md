@@ -41,19 +41,22 @@ $task.setup.commands | ForEach-Object { Invoke-Expression $_ }
 
 ```powershell
 $cli = 'C:\MarixClient\Cli\marix-client-cli.exe'
-$arguments = @('--oneshot')
+$arguments = @('--oneshot', $task.prompt)
 if ($null -ne $task.max_completion_time_secs) {
   $arguments += @('--max-completion-time-secs', "$($task.max_completion_time_secs)")
 }
 if ($null -ne $task.max_relay_count) {
   $arguments += @('--max-relay-count', "$($task.max_relay_count)")
 }
-$arguments += $task.prompt
 & $cli @arguments
 if ($LASTEXITCODE -ne 0) { throw "oneshot failed: $LASTEXITCODE" }
 ```
 
-CLI flags 是 `--max-completion-time-secs` 和 `--max-relay-count`。字段为 `null` 时省略相应 flag，即可将对应 TaskRequest 值保持为 `None`。oneshot Client 会等待任务终态。无人值守运行时，harness 只能把 `suggested_outer_watchdog_minutes` 用作进程失控兜底；watchdog 触发应报告为环境错误，并与任务失败和断言失败分开。
+这是唯一受支持的已部署 CLI 路径。不得调用或回退到
+`C:\MarixClient\marix-client-cli.exe`。
+
+prompt 必须紧跟在 `--oneshot` 后，并放在可选 flags 之前。CLI flags 是
+`--max-completion-time-secs` 和 `--max-relay-count`。字段为 `null` 时省略相应 flag，即可将对应 TaskRequest 值保持为 `None`。oneshot Client 会等待任务终态。无人值守运行时，harness 只能把 `suggested_outer_watchdog_minutes` 用作进程失控兜底；watchdog 触发应报告为环境错误，并与任务失败和断言失败分开。
 
 ## 使用 Smoke Agent
 

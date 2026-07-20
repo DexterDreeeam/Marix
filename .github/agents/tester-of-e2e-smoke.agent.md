@@ -61,8 +61,11 @@ including cleanup, before starting the next case:
    Snapshot the fresh workspace when changed-path checks require a baseline.
    A setup or prerequisite failure is an environment failure.
 2. **Submit** — Invoke
-   `C:\MarixClient\Cli\marix-client-cli.exe --oneshot`, passing the case prompt
-   and both non-null guardrail flags. Never alter guardrail values.
+   `C:\MarixClient\Cli\marix-client-cli.exe --oneshot`, placing the case prompt
+   immediately after `--oneshot` and then passing both non-null guardrail flags.
+   This is the only supported Client CLI
+   deployment path; never invoke or fall back to a root-level executable under
+   `C:\MarixClient\`. Never alter guardrail values.
 3. **Wait** — Keep the oneshot invocation attached until it returns the task's
    terminal outcome. Capture elapsed time, exit status, and a concise,
    secret-safe terminal summary. A non-terminal disappearance or transport

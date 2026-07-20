@@ -21,7 +21,10 @@ Do not change source code unless the user explicitly asks for a code change. Do 
 - Guest login credentials are fixed: username `marixagent`, password `123`. PowerShell Direct builds a `PSCredential` from these.
 - All Hyper-V host artifacts (Windows ISO, VHD, provisioning work files) live under `C:\marix\hyperv\`.
 - Host deployment inside the guest lives under `C:\MarixHost\`.
-- Do NOT deploy Client artifacts to the VM. The Client is deployed locally on the physical machine, not in the guest.
+- Do NOT deploy Client artifacts to the VM. The Client is deployed locally on
+  the physical machine with CLI artifacts under `C:\MarixClient\Cli\` and App
+  artifacts under `C:\MarixClient\App\`; the Client root is not a deployment
+  destination.
 - PowerShell Direct with `Invoke-Command -VMName Marix_TestVm` runs over VMBus and needs no guest network, NIC, WinRM, or SSH — only the fixed guest credential above.
 
 ## Responsibilities

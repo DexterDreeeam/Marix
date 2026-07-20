@@ -84,7 +84,11 @@ cargo build
   `C:\MarixHost\`, and starts only after the Server active-state gate succeeds.
 - Client is deployed only on the local physical machine. Deployment never copies
   Client artifacts into the Hyper-V guest and never starts Client; the user
-  starts Client manually.
+  starts Client manually. CLI executable/config/tools live under
+  `C:\MarixClient\Cli\`, while App executable/config/tools live under
+  `C:\MarixClient\App\`. Nothing is deployed directly into the Client root, and
+  Smoke/E2E/CLI invocations always use
+  `C:\MarixClient\Cli\marix-client-cli.exe`.
 - Prefer loopback for Ubuntu's Telemetry path only when role-specific config
   generation can independently preserve the public Server address used by Host
   and Client. Never change a shared endpoint address to loopback for every role.
