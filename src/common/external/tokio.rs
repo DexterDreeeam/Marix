@@ -5,3 +5,4 @@ pub use ::tokio::select;
 pub use ::tokio::spawn;
 pub use ::tokio::sync::{Mutex, mpsc};
 pub use ::tokio::task::{self, JoinHandle};
+pub use ::tokio::time;

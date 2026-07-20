@@ -1,4 +1,4 @@
-use super::{LogFile, Sink, Store, host_store};
+use super::{LogFile, Logger, Sink, Store, host_store};
 use crate::external::{serde_json, uuid};
 use crate::logging::store::HostStore;
 use crate::logging::{LogMessage, LogTag, LoggingError};
@@ -38,6 +38,21 @@ fn host_store_permits_only_the_host_sink() {
     ));
 
     assert!(matches!(host_store(None), Err(LoggingError::NotHosting)));
+}
+
+#[test]
+fn failed_remote_connection_is_returned_without_file_fallback() {
+    let directory = temp_directory();
+    let fallback_path = directory.join("marix.log");
+    let expected = LoggingError::Channel("telemetry unavailable".to_owned());
+
+    let result = Logger::remote_sink(fallback_path.clone(), || Err(expected.clone()));
+
+    match result {
+        Err(error) => assert_eq!(error, expected),
+        Ok(_) => panic!("connection failure unexpectedly produced a sink"),
+    }
+    assert!(!fallback_path.exists());
 }
 
 #[test]

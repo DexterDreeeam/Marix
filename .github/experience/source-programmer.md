@@ -1561,3 +1561,44 @@ connecter to protect this distinction.
   its directional wrappers and consume a key event only when navigation starts.
 
 - 2026-07-20: Added Yahoo and Wikipedia as fallback search engines for web_search to improve resilience against DDG blocking/timeouts.
+- 2026-07-20 (Telemetry startup fail-fast): `common/logging/logger.rs::Logger::connect`
+  must install `Sink::Remote` only after TCP, remoc, and token acceptance all
+  succeed; its existing five-attempt loop returns the final `LoggingError`
+  instead of creating `marix.log`. `common/structure/channel.rs` bounds each
+  outbound TCP attempt and the complete remoc/token handshake. Server, Host,
+  and Client CLI entrypoints intentionally panic with `failed to connect
+  telemetry` when startup telemetry cannot connect.
+- 2026-07-20 (Client CLI oneshot completion): `client/cli/main.rs` uses
+  `client.request_timeout_ms` for initial connection readiness and interactive
+  responses only; `--oneshot` has no response deadline. The client session
+  reports a broken send or terminated network event stream as a reserved
+  `ClientEvent::Done` signature so the CLI can fail instead of silently
+  reconnecting and waiting forever. Keep `TaskStatus::Created` available to
+  Client App consumers and suppress its `task created` text only in the CLI.
+- 2026-07-20 (Task guardrail ownership): `server/session/runtime.rs` is the
+  authoritative normalization boundary for Task completion/Relay limits.
+  `TaskAccess::gate` owns monotonic deadline checks, atomic Relay reservation,
+  and the first-cause interruption latch; `Step::from_draft` and `Relay::new`
+  are the mandatory gate points. A task-local deadline watchdog reuses that
+  gate, while `TaskRuntime` synchronously cancels all stored child actors and
+  relies on `Lifecycle::finish` to emit exactly one final Task status.
+- 2026-07-20 (Task request ownership, supersedes the normalization boundary
+  above): `SessionRuntime::dispatch` matches events by value so
+  `SessionRuntime::create_task` receives the original `TaskRequest`, retains
+  only one cloned `TaskSignature` for rejection logging, duplicate detection,
+  and the task map key, then moves the request into `Task::new`.
+  `TaskRuntime::new` owns request destructuring, root `IntentSignature`
+  creation, and the 10-second/5-Relay minimum normalization; `None` remains
+  unlimited.
+- 2026-07-20 (Task guardrail simplification, supersedes the interruption-latch
+  detail above): `TaskAccess` guardrail state is only `deadline:
+  Option<Instant>` and `left_relay: Option<AtomicUsize>`. Relay admission uses
+  atomic `fetch_update` plus `checked_sub`, so concurrent actors cannot spend
+  the same remaining slot; `None` is unmetered. `Task::spawn` owns the deadline
+  watchdog's `Arc<TaskRuntime>` and calls `TaskRuntime::fail_task` with
+  `maximum completion time exceeded`, leaving child cancellation and terminal
+  state entirely in the runtime.
+- 2026-07-20 (task submission and cancellation names):
+  `ClientSession::create_task` is the sole client submission API and carries
+  both optional guardrails into `TaskRequest`; `TaskRuntime::cancel_all`
+  synchronously dispatches cancellation to every unfinished child actor kind.

@@ -7,8 +7,8 @@ use marix_common::{
     build_channel, select,
 };
 use marix_protocol::{
-    ExecutorEvent, IntentSignature, SessionEvent, SessionMessage, TaskEvent, TaskRequest,
-    TaskSignature, TaskStatus, ToolPreview,
+    ExecutorEvent, SessionEvent, SessionMessage, TaskEvent, TaskRequest, TaskSignature, TaskStatus,
+    ToolPreview,
 };
 
 use super::{Session, SessionContext, SessionState};
@@ -58,24 +58,24 @@ impl SessionRuntime {
     }
 
     pub fn dispatch(&self, event: SessionEvent) -> Result<(), Infallible> {
-        match &event {
+        match event {
             SessionEvent::SessionId(_) => {
                 Logger::warning("core session received unsupported session id event");
             }
             SessionEvent::TaskCreate(request) => {
-                self.create_task(request.clone());
+                self.create_task(request);
             }
             SessionEvent::Task(signature, task_event) => {
-                self.dispatch_task(signature, task_event.clone());
+                self.dispatch_task(&signature, task_event);
             }
-            SessionEvent::TaskUpdate(_) => {
-                self.send_client_event(event);
+            SessionEvent::TaskUpdate(status) => {
+                self.send_client_event(SessionEvent::TaskUpdate(status));
             }
             SessionEvent::ExecutorTools(system, tools) => {
-                self.register_executor_tools(*system, tools.clone());
+                self.register_executor_tools(system, tools);
             }
             SessionEvent::Executor(event) => {
-                self.send_host_event(SessionEvent::Executor(event.clone()));
+                self.send_host_event(SessionEvent::Executor(event));
             }
         }
         Ok(())
@@ -198,7 +198,7 @@ impl SessionRuntime {
     }
 
     fn create_task(&self, request: TaskRequest) {
-        let TaskRequest { signature, content } = request;
+        let signature = request.signature.clone();
         if self
             .state
             .host_tx
@@ -226,33 +226,25 @@ impl SessionRuntime {
         }
         Logger::log(format!("task {signature} created"));
         self.send_client_event(SessionEvent::TaskUpdate(TaskStatus::Created));
-        let root = IntentSignature::new(signature.clone(), None, "root".to_owned());
         let task = Task::new(
             Arc::clone(&self.state.context),
-            signature.clone(),
-            root,
-            content,
+            request,
             self.state.session_tx.clone(),
         );
-        let inserted = {
-            let context = self
-                .state
-                .context
-                .lock()
-                .unwrap_or_else(|error| error.into_inner());
-            if context.tasks.with(&signature, |_| ()).is_some() {
-                false
-            } else {
-                context.tasks.insert(signature.clone(), task.clone());
-                true
-            }
-        };
-        if !inserted {
+        let context = self
+            .state
+            .context
+            .lock()
+            .unwrap_or_else(|error| error.into_inner());
+        if context.tasks.with(&signature, |_| ()).is_some() {
+            drop(context);
             Logger::warning(format!(
                 "task {signature} create ignored: task already exists",
             ));
             return;
         }
+        context.tasks.insert(signature, task.clone());
+        drop(context);
         task.start();
     }
 

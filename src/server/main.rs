@@ -15,10 +15,7 @@ fn main() {
     }
     let mut session = Session::new(config.name.clone());
     Logger::set_id(session.session_id());
-    if let Err(error) = Logger::connect(LogSource::Server) {
-        eprintln!("failed to configure logger: {error}");
-        std::process::exit(1);
-    }
+    Logger::connect(LogSource::Server).expect("failed to connect telemetry");
     Logger::log(format!("server '{}' logging configured", config.name));
     Logger::log(format!("core session '{}' initializing", config.name));
     Logger::log(format!("server core '{}' starting", config.name));

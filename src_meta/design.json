@@ -4,18 +4,19 @@
     "path": "src",
     "name": "src",
     "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and eight native tool packages.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/client",
       "name": "client",
-      "purpose": "Owns Client session transport, adapts SessionEvent patterns including system-bearing executor tool announcements, and provides user-facing task result output."
+      "purpose": "Owns Client session transport, connection state, task submission through ClientSession::create_task with request, optional completion-time, and optional relay-count arguments, and delivery of task results and connection failures."
     },
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Owns shared configuration, logging, external wrappers, generic Actor and Runtime contracts with typed completion results and a single-mutex Lifecycle, signature contracts, authenticated channels, and insertion-ordered work queues."
+      "purpose": "Owns shared configuration, logging, approved external wrappers including Tokio timers, generic Actor and Runtime contracts, signatures, authenticated channels, and insertion-ordered work queues."
     },
     {
       "path": "src/host",
@@ -25,12 +26,12 @@
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "Defines serialized context-chain contracts for intent planning and task execution, plus relay, step, invocation, execution, session, categorized tools, and workflow decisions."
+      "purpose": "Defines serialized task requests with optional completion-time and relay-count guardrails, context chains, relay, step, invocation, execution, session, tool, and workflow contracts."
     },
     {
       "path": "src/server",
       "name": "server",
-      "purpose": "Runs actor-based orchestration with complete, plan, or infeasible workflow decision parsing, ordered subintent execution, failure reanalysis, ancestor-first relay context with plan-failure history and current execution-environment prompts, and streaming model execution."
+      "purpose": "Runs actor-based orchestration with workflow decision parsing, ordered execution, failure reanalysis, streaming models, and task completion-time and relay-count guardrails that gate new Steps and Relays."
     },
     {
       "path": "src/server_telemetry",
@@ -61,53 +62,55 @@
       ]
     },
     {
-      "name": "SOURCE_NAME",
-      "type": "static",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/client/session.rs",
-          "lineStart": 17,
-          "lineEnd": 17,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
       "name": "ClientSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 22,
-          "lineEnd": 25,
+          "lineStart": 25,
+          "lineEnd": 28,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 27,
-          "lineEnd": 81,
+          "lineStart": 30,
+          "lineEnd": 91,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "addedLines": [
+            {
+              "lineStart": 59,
+              "lineEnd": 68
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 45,
+              "lineEnd": 58
+            }
+          ]
         },
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 85,
-          "lineEnd": 217,
+          "lineStart": 95,
+          "lineEnd": 253,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 196,
-              "lineEnd": 196
+              "lineStart": 166,
+              "lineEnd": 177
+            },
+            {
+              "lineStart": 181,
+              "lineEnd": 212
+            },
+            {
+              "lineStart": 228,
+              "lineEnd": 231
             }
           ]
         }
@@ -121,16 +124,16 @@
       "codeSegments": [
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 219,
-          "lineEnd": 224,
+          "lineStart": 255,
+          "lineEnd": 260,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/client/session.rs",
-          "lineStart": 226,
-          "lineEnd": 236,
+          "lineStart": 262,
+          "lineEnd": 272,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -178,36 +181,15 @@
       "name": "main",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/main.rs",
           "lineStart": 4,
-          "lineEnd": 18,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "configure_logging",
-      "type": "function",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/host/main.rs",
-          "lineStart": 22,
-          "lineEnd": 33,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 22,
-              "lineEnd": 33
-            }
-          ]
         }
       ]
     },
@@ -286,12 +268,12 @@
       "name": "main",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/main.rs",
           "lineStart": 4,
-          "lineEnd": 29,
+          "lineEnd": 26,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [

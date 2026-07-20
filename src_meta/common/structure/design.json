@@ -4,7 +4,7 @@
     "path": "src/common/structure",
     "name": "structure",
     "purpose": "Provides authenticated channels and insertion-ordered concurrent work queues.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -388,12 +388,12 @@
       "name": "connecter_handshake",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
           "lineStart": 346,
-          "lineEnd": 410,
+          "lineEnd": 430,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -437,5 +437,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "channel.rs"
   ]
 }

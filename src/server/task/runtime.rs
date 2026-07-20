@@ -1,14 +1,15 @@
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
+use std::time::{Duration, Instant};
 
 use marix_common::{
     Actor, ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait, Sender,
     WorkQueue,
 };
 use marix_protocol::{
-    IntentEvent, IntentResult, IntentResultKind, IntentSignature, InvocationSignature,
-    RelaySignature, SessionEvent, StepSignature, TaskEvent, TaskResult, TaskResultKind,
-    TaskSignature, TaskStatus,
+    IntentEvent, IntentResult, IntentResultKind, IntentSignature, InvocationEvent,
+    InvocationSignature, RelayEvent, RelaySignature, SessionEvent, StepEvent, StepSignature,
+    TaskEvent, TaskRequest, TaskResult, TaskResultKind, TaskSignature, TaskStatus,
 };
 
 use super::{Task, TaskAccess};
@@ -17,6 +18,9 @@ use crate::invocation::Invocation;
 use crate::relay::Relay;
 use crate::session::SessionContext;
 use crate::step::Step;
+
+const MIN_COMPLETION_TIME_SECS: u64 = 10;
+const MIN_RELAY_COUNT: u64 = 5;
 
 pub struct TaskRuntime {
     pub access: Arc<TaskAccess>,
@@ -31,11 +35,21 @@ pub struct TaskRuntime {
 impl TaskRuntime {
     pub(crate) fn new(
         session_context: Arc<StdMutex<SessionContext>>,
-        signature: TaskSignature,
-        root: IntentSignature,
-        user_request: String,
+        request: TaskRequest,
         session_tx: Sender<SessionEvent>,
     ) -> Self {
+        let TaskRequest {
+            signature,
+            content,
+            max_completion_time_secs,
+            max_relay_count,
+        } = request;
+        let root = IntentSignature::new(signature.clone(), None, "root".to_owned());
+        let deadline = max_completion_time_secs
+            .map(|seconds| Duration::from_secs(seconds.max(MIN_COMPLETION_TIME_SECS)))
+            .and_then(|duration| Instant::now().checked_add(duration));
+        let left_relay = max_relay_count
+            .map(|count| usize::try_from(count.max(MIN_RELAY_COUNT)).unwrap_or(usize::MAX));
         let intents = Arc::new(WorkQueue::new());
         let steps = Arc::new(WorkQueue::new());
         let invocations = Arc::new(WorkQueue::new());
@@ -44,7 +58,9 @@ impl TaskRuntime {
             session_context,
             session_tx,
             signature,
-            user_request,
+            content,
+            deadline,
+            left_relay,
             Arc::clone(&intents),
             Arc::clone(&steps),
             Arc::clone(&invocations),
@@ -155,11 +171,7 @@ impl TaskRuntime {
         if matches!(self.status(), ActorStatus::Complete(_)) {
             return;
         }
-        for intent in self.intents.list() {
-            if !matches!(intent.status(), ActorStatus::Complete(_)) {
-                intent.dispatch(IntentEvent::Cancel);
-            }
-        }
+        self.cancel_all();
         RuntimeTrait::finish(
             self,
             TaskResult {
@@ -171,6 +183,34 @@ impl TaskRuntime {
 
     pub(super) fn fail_task(&self, reason: String) {
         Logger::error(format!("task {} failed: {reason}", &self.access.signature,));
+        self.cancel_all();
+        self.finish_failed(reason);
+    }
+
+    fn cancel_all(&self) {
+        for relay in self.relays.list() {
+            if !matches!(relay.status(), ActorStatus::Complete(_)) {
+                RuntimeTrait::dispatch(relay.runtime.as_ref(), RelayEvent::Cancel);
+            }
+        }
+        for invocation in self.invocations.list() {
+            if !matches!(invocation.status(), ActorStatus::Complete(_)) {
+                RuntimeTrait::dispatch(invocation.runtime.as_ref(), InvocationEvent::Cancel);
+            }
+        }
+        for step in self.steps.list() {
+            if !matches!(step.status(), ActorStatus::Complete(_)) {
+                RuntimeTrait::dispatch(step.runtime.as_ref(), StepEvent::Cancel);
+            }
+        }
+        for intent in self.intents.list() {
+            if !matches!(intent.status(), ActorStatus::Complete(_)) {
+                RuntimeTrait::dispatch(intent.runtime.as_ref(), IntentEvent::Cancel);
+            }
+        }
+    }
+
+    fn finish_failed(&self, reason: String) {
         RuntimeTrait::finish(
             self,
             TaskResult {

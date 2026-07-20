@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/step",
     "name": "step",
-    "purpose": "Runs step actors, consumes typed InvocationResult completions directly, and aggregates ordered structured call results into StepResult.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs step actors, checks the task completion deadline before creating each Step, and aggregates ordered structured invocation results into StepResult.",
+    "changeStatus": "modified"
   },
+  "modified": ["step.rs"],
   "childModules": [],
   "elements": [
     {
@@ -80,7 +81,7 @@
       "name": "Step",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/step/step.rs",
@@ -101,15 +102,20 @@
         {
           "sourcePath": "src/server/step/step.rs",
           "lineStart": 34,
-          "lineEnd": 53,
+          "lineEnd": 54,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 40,
+              "lineEnd": 42
+            }
+          ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/step/step.rs",
-          "lineStart": 55,
-          "lineEnd": 65,
+          "lineStart": 56,
+          "lineEnd": 66,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

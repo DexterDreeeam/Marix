@@ -269,6 +269,29 @@ fn handshake_timeout_drops_connection() {
 }
 
 #[test]
+fn connecter_handshake_timeout_is_visible() {
+    let _guard = TEST_GUARD.lock().unwrap_or_else(|error| error.into_inner());
+    install_config("timeout-token", 34131);
+
+    let listener =
+        std::net::TcpListener::bind("127.0.0.1:34131").expect("bind stalled handshake peer");
+    let peer = std::thread::spawn(move || {
+        let (_socket, _) = listener.accept().expect("accept connecter");
+        std::thread::sleep(Duration::from_secs(7));
+    });
+
+    let started = Instant::now();
+    let result = connect_channel::<String>(ChannelEndpoint::Client);
+
+    assert!(
+        matches!(result, Err(ChannelError::Transport(_))),
+        "expected transport timeout, got {result:?}",
+    );
+    assert!(started.elapsed() < Duration::from_secs(7));
+    peer.join().expect("stalled peer thread panicked");
+}
+
+#[test]
 fn multiple_connections_same_endpoint() {
     let _guard = TEST_GUARD.lock().unwrap_or_else(|error| error.into_inner());
     install_config("multi-token", 34140);

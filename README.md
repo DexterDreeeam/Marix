@@ -76,12 +76,18 @@ cargo build
 ## Deployment Topology
 
 - Server Telemetry and Server are deployed on the Ubuntu server. After deployment,
-  start Server Telemetry first, then Server.
+  start Server Telemetry first and poll its collector TCP port until a connection
+  succeeds, with a finite total timeout and explicit failure. A systemd active
+  state or `After=` ordering alone is not readiness. Only then start Server and
+  confirm that its systemd unit is active.
 - Host is deployed only into the Hyper-V guest `Marix_TestVm` under
-  `C:\MarixHost\`, and starts after Server.
+  `C:\MarixHost\`, and starts only after the Server active-state gate succeeds.
 - Client is deployed only on the local physical machine. Deployment never copies
   Client artifacts into the Hyper-V guest and never starts Client; the user
   starts Client manually.
+- Prefer loopback for Ubuntu's Telemetry path only when role-specific config
+  generation can independently preserve the public Server address used by Host
+  and Client. Never change a shared endpoint address to loopback for every role.
 
 ## License
 

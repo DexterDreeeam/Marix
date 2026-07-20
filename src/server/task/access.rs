@@ -1,6 +1,8 @@
 use std::fmt::{Debug, Display};
 use std::sync::Mutex as StdMutex;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Weak};
+use std::time::Instant;
 
 use marix_common::external::*;
 use marix_common::{Actor, ResultOf, Sender, SignatureOf, WorkQueue};
@@ -14,6 +16,15 @@ use crate::invocation::Invocation;
 use crate::relay::Relay;
 use crate::session::SessionContext;
 use crate::step::Step;
+
+const COMPLETION_TIME_EXCEEDED: &str = "maximum completion time exceeded";
+const RELAY_COUNT_EXCEEDED: &str = "maximum relay count exceeded";
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum TaskGate {
+    Step,
+    Relay,
+}
 
 pub(crate) trait StoredActor: Actor + Clone {
     fn get(access: &TaskAccess, signature: &SignatureOf<Self>) -> Option<Self>;
@@ -30,6 +41,8 @@ pub struct TaskAccess {
     pub signature: TaskSignature,
     pub user_request: String,
     pub rt: Arc<tokio::Runtime>,
+    deadline: Option<Instant>,
+    left_relay: Option<AtomicUsize>,
     intents: Arc<WorkQueue<IntentSignature, Intent>>,
     steps: Arc<WorkQueue<StepSignature, Step>>,
     invocations: Arc<WorkQueue<InvocationSignature, Invocation>>,
@@ -44,6 +57,8 @@ impl TaskAccess {
         session_tx: Sender<SessionEvent>,
         signature: TaskSignature,
         user_request: String,
+        deadline: Option<Instant>,
+        left_relay: Option<usize>,
         intents: Arc<WorkQueue<IntentSignature, Intent>>,
         steps: Arc<WorkQueue<StepSignature, Step>>,
         invocations: Arc<WorkQueue<InvocationSignature, Invocation>>,
@@ -59,6 +74,8 @@ impl TaskAccess {
             signature,
             user_request,
             rt: Arc::new(rt),
+            deadline,
+            left_relay: left_relay.map(AtomicUsize::new),
             intents,
             steps,
             invocations,
@@ -86,6 +103,37 @@ impl TaskAccess {
 
     pub(crate) fn insert<A: StoredActor>(&self, actor: A) -> bool {
         A::insert(self, actor)
+    }
+
+    pub(crate) fn completion_deadline(&self) -> Option<Instant> {
+        self.deadline
+    }
+
+    pub(crate) fn gate(&self, gate: TaskGate) -> Result<(), String> {
+        if self
+            .deadline
+            .is_some_and(|deadline| Instant::now() >= deadline)
+        {
+            return Err(COMPLETION_TIME_EXCEEDED.to_owned());
+        }
+        if matches!(gate, TaskGate::Relay) {
+            self.reserve_relay()?;
+        }
+        Ok(())
+    }
+}
+
+impl TaskAccess {
+    fn reserve_relay(&self) -> Result<(), String> {
+        let Some(left_relay) = &self.left_relay else {
+            return Ok(());
+        };
+        left_relay
+            .fetch_update(Ordering::AcqRel, Ordering::Acquire, |left| {
+                left.checked_sub(1)
+            })
+            .map(|_| ())
+            .map_err(|_| RELAY_COUNT_EXCEEDED.to_owned())
     }
 }
 

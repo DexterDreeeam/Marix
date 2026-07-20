@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/session",
     "name": "session",
-    "purpose": "Owns session context, state, and runtime; SessionRuntime stores the concrete System received with executor tool previews and does not construct a replacement System.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns session context, state, and runtime; accepts TaskRequest events, rejects task creation until a host and executor tools are available, and delegates request normalization to the task runtime.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -62,14 +63,19 @@
       "name": "SessionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/runtime.rs",
           "lineStart": 17,
           "lineEnd": 22,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 17,
+              "lineEnd": 18
+            }
+          ],
           "modifiedLines": []
         },
         {
@@ -78,23 +84,22 @@
           "lineEnd": 83,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 74,
-              "lineEnd": 76
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/session/runtime.rs",
           "lineStart": 87,
-          "lineEnd": 382,
+          "lineEnd": 374,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 276,
-              "lineEnd": 300
+              "lineStart": 201,
+              "lineEnd": 201
+            },
+            {
+              "lineStart": 229,
+              "lineEnd": 233
             }
           ]
         }

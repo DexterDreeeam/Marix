@@ -8,5 +8,7 @@ pub use task::Task;
 
 // -- Private -- //
 
+pub(crate) use access::TaskGate;
+
 mod context;
 mod routing;

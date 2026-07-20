@@ -1,0 +1,414 @@
+{
+  "schema_version": 2,
+  "repository_root": "C:\\r\\Marix",
+  "workspace_root": ".github\\e2e\\workspaces",
+  "tasks": [
+    {
+      "id": "network-rust-stable",
+      "category": "network-search",
+      "title": "Find the current Rust stable release",
+      "prompt": "在联网检索后，把当前 Rust stable 版本和发布日期写入 .github\\e2e\\workspaces\\network-rust-stable\\result.json。必须实际访问至少两个相互独立的来源，不得仅凭模型记忆；其中一个来源必须是 Rust 官方站点（blog.rust-lang.org 或 doc.rust-lang.org），另一个必须是 releases.rs。JSON 必须包含 topic、version、release_date 和 sources；sources 每项包含 url、publisher、version、release_date、accessed_date。version 使用 X.Y.Z，日期使用 YYYY-MM-DD。不要读取或提及任何 .credential 文件或凭据。",
+      "working_directory": ".github\\e2e\\workspaces\\network-rust-stable",
+      "max_completion_time_secs": 600,
+      "max_relay_count": 16,
+      "setup": {
+        "fixture": null,
+        "commands": [
+          "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\network-rust-stable -ErrorAction SilentlyContinue",
+          "New-Item -ItemType Directory -Force .github\\e2e\\workspaces\\network-rust-stable | Out-Null"
+        ]
+      },
+      "requirements": [
+        "Use live network retrieval rather than model memory.",
+        "Do not read .credential files or expose credentials.",
+        "Use at least two URLs on independent registrable domains: rust-lang.org and releases.rs.",
+        "Write only result.json in the task working directory."
+      ],
+      "success_criteria": [
+        {
+          "type": "json_schema",
+          "path": "result.json",
+          "required": [
+            "topic",
+            "version",
+            "release_date",
+            "sources"
+          ],
+          "min_sources": 2
+        },
+        {
+          "type": "regex",
+          "json_path": "$.version",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        {
+          "type": "regex",
+          "json_path": "$.release_date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        {
+          "type": "source_domains",
+          "required_groups": [
+            [
+              "blog.rust-lang.org",
+              "doc.rust-lang.org"
+            ],
+            [
+              "releases.rs"
+            ]
+          ]
+        },
+        {
+          "type": "all_sources_agree",
+          "fields": [
+            "version",
+            "release_date"
+          ]
+        }
+      ],
+      "failure_criteria": [
+        "result.json is missing or invalid JSON.",
+        "A required field, URL, accessed date, or source group is missing.",
+        "Source values disagree, or the answer says it relied on memory.",
+        "Any credential file was read or credential content appears in output."
+      ],
+      "cleanup": [
+        "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\network-rust-stable -ErrorAction SilentlyContinue"
+      ],
+      "expected_artifacts": [
+        "result.json"
+      ],
+      "current_support": {
+        "status": "expected_supported",
+        "reason": "Marix exposes network search with fallback providers; availability still depends on the network and source sites."
+      },
+      "estimated_time_minutes": 5,
+      "suggested_outer_watchdog_minutes": 12
+    },
+    {
+      "id": "network-search-fallback",
+      "category": "network-search",
+      "title": "Recover from an unavailable primary source",
+      "prompt": "先实际尝试访问故意不可达的 https://example.invalid/marix-e2e-primary，然后使用可访问的官方 RFC 来源和 Wikipedia 回退检索 HTTP 418。不得仅凭模型记忆。把结果写入 .github\\e2e\\workspaces\\network-search-fallback\\result.json，字段必须是 topic、status_code、reason_phrase、rfc_number、published_date、primary_attempt_url、primary_attempt_failed、sources；reason_phrase 按 RFC 原文大小写记录，sources 每项包含 url、publisher、accessed_date。不要读取或提及任何 .credential 文件或凭据。",
+      "working_directory": ".github\\e2e\\workspaces\\network-search-fallback",
+      "max_completion_time_secs": 600,
+      "max_relay_count": 16,
+      "setup": {
+        "fixture": null,
+        "commands": [
+          "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\network-search-fallback -ErrorAction SilentlyContinue",
+          "New-Item -ItemType Directory -Force .github\\e2e\\workspaces\\network-search-fallback | Out-Null"
+        ]
+      },
+      "requirements": [
+        "Attempt the .invalid primary URL before using fallback sources.",
+        "Do not rely only on model memory.",
+        "Use at least one official RFC URL and one Wikipedia URL.",
+        "Do not read .credential files or expose credentials.",
+        "Write only result.json in the task working directory."
+      ],
+      "success_criteria": [
+        {
+          "type": "exact_json_fields",
+          "path": "result.json",
+          "values": {
+            "topic": "HTTP 418",
+            "status_code": 418,
+            "reason_phrase": "I'm a teapot",
+            "rfc_number": 2324,
+            "published_date": "1998-04-01",
+            "primary_attempt_url": "https://example.invalid/marix-e2e-primary",
+            "primary_attempt_failed": true
+          }
+        },
+        {
+          "type": "source_domains",
+          "required_groups": [
+            [
+              "www.rfc-editor.org",
+              "datatracker.ietf.org"
+            ],
+            [
+              "en.wikipedia.org",
+              "zh.wikipedia.org"
+            ]
+          ]
+        },
+        {
+          "type": "json_array_min_length",
+          "json_path": "$.sources",
+          "minimum": 2
+        }
+      ],
+      "failure_criteria": [
+        "result.json is missing, invalid, or contains an incorrect expected value.",
+        "The failed primary attempt is not recorded.",
+        "Either the official RFC source or Wikipedia fallback source is absent.",
+        "Any credential file was read or credential content appears in output."
+      ],
+      "cleanup": [
+        "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\network-search-fallback -ErrorAction SilentlyContinue"
+      ],
+      "expected_artifacts": [
+        "result.json"
+      ],
+      "current_support": {
+        "status": "expected_supported",
+        "reason": "The search tool has fallback providers, but external reachability may still fail."
+      },
+      "estimated_time_minutes": 5,
+      "suggested_outer_watchdog_minutes": 12
+    },
+    {
+      "id": "code-edit-rust-slugify",
+      "category": "local-code-edit",
+      "title": "Fix the isolated Rust slugify crate",
+      "prompt": "只在 .github\\e2e\\workspaces\\code-edit-rust-slugify 中工作。运行测试定位预置 bug，只修改 src\\lib.rs 的实现，使 cargo test --quiet 通过。禁止修改 Cargo.toml、tests\\slugify.rs 或测试断言，禁止访问仓库 src\\ 和 overview\\。不要在回复中给出参考答案文件；直接完成修复并保留修改后的 src\\lib.rs。",
+      "working_directory": ".github\\e2e\\workspaces\\code-edit-rust-slugify",
+      "max_completion_time_secs": 600,
+      "max_relay_count": 20,
+      "setup": {
+        "fixture": ".github\\e2e\\fixtures\\code-edit-rust",
+        "commands": [
+          "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\code-edit-rust-slugify -ErrorAction SilentlyContinue",
+          "New-Item -ItemType Directory -Force .github\\e2e\\workspaces\\code-edit-rust-slugify | Out-Null",
+          "Copy-Item -Recurse .github\\e2e\\fixtures\\code-edit-rust\\* .github\\e2e\\workspaces\\code-edit-rust-slugify"
+        ]
+      },
+      "requirements": [
+        "Only src\\lib.rs may be edited after setup; generated target\\ contents are ignored.",
+        "tests\\slugify.rs must retain SHA-256 BFFD927106BB0C84DECBFAED6DC67C138E709B309FD55C8FE41C4F3F11A24BDC.",
+        "Cargo.toml must retain SHA-256 798AC725084C90BA7B23CD78F33D200D913B2F7E24AF86120E2A6528E58F3577.",
+        "Cargo.lock must retain SHA-256 6A084555E79371C6697EA15D63FE107DBDE7C5144FD663738E7DE6842832FDF6.",
+        "Do not access repository src\\ or overview\\."
+      ],
+      "success_criteria": [
+        {
+          "type": "command_exit_code",
+          "command": "cargo test --quiet",
+          "working_directory": ".github\\e2e\\workspaces\\code-edit-rust-slugify",
+          "expected": 0
+        },
+        {
+          "type": "sha256_unchanged",
+          "paths": {
+            "Cargo.toml": "798AC725084C90BA7B23CD78F33D200D913B2F7E24AF86120E2A6528E58F3577",
+            "Cargo.lock": "6A084555E79371C6697EA15D63FE107DBDE7C5144FD663738E7DE6842832FDF6",
+            "tests\\slugify.rs": "BFFD927106BB0C84DECBFAED6DC67C138E709B309FD55C8FE41C4F3F11A24BDC"
+          }
+        },
+        {
+          "type": "allowed_changed_paths",
+          "paths": [
+            "src\\lib.rs"
+          ],
+          "ignored_generated_paths": [
+            "target\\**"
+          ]
+        }
+      ],
+      "failure_criteria": [
+        "cargo test --quiet exits nonzero.",
+        "A fixture-controlled file outside src\\lib.rs changed; generated target\\ contents are ignored.",
+        "The task accesses repository src\\ or overview\\."
+      ],
+      "cleanup": [
+        "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\code-edit-rust-slugify -ErrorAction SilentlyContinue"
+      ],
+      "expected_artifacts": [
+        "src\\lib.rs"
+      ],
+      "current_support": {
+        "status": "expected_supported",
+        "reason": "Marix has native local file and command tools."
+      },
+      "estimated_time_minutes": 4,
+      "suggested_outer_watchdog_minutes": 10
+    },
+    {
+      "id": "code-inspect-catalog",
+      "category": "local-code-understanding",
+      "title": "Summarize an isolated catalog fixture",
+      "prompt": "只读取 .github\\e2e\\workspaces\\code-inspect-catalog 中的 catalog.json 和 rules.txt，按 rules.txt 对启用项目分类，并在同一目录新建 analysis.json。不得修改输入文件，不得访问仓库 src\\ 或 overview\\。analysis.json 必须包含 service、enabled_count、enabled_weight_total、enabled_by_label、heaviest_enabled_sku；每个标签下的 SKU 数组按字典序排列。",
+      "working_directory": ".github\\e2e\\workspaces\\code-inspect-catalog",
+      "max_completion_time_secs": 300,
+      "max_relay_count": 10,
+      "setup": {
+        "fixture": ".github\\e2e\\fixtures\\code-inspection",
+        "commands": [
+          "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\code-inspect-catalog -ErrorAction SilentlyContinue",
+          "New-Item -ItemType Directory -Force .github\\e2e\\workspaces\\code-inspect-catalog | Out-Null",
+          "Copy-Item -Recurse .github\\e2e\\fixtures\\code-inspection\\* .github\\e2e\\workspaces\\code-inspect-catalog"
+        ]
+      },
+      "requirements": [
+        "Only analysis.json may be created or changed after setup.",
+        "catalog.json must retain SHA-256 0180AF7544CB24B7D6FC93B67AEE262B3EAD07720C0DCE08F8C3027993819E7A.",
+        "rules.txt must retain SHA-256 73D6B32394BB2CA43977934F81620FC98736DFE34C8217F028DAC74F85221CCB.",
+        "Do not access repository src\\ or overview\\."
+      ],
+      "success_criteria": [
+        {
+          "type": "exact_json",
+          "path": "analysis.json",
+          "value": {
+            "service": "marix-lab",
+            "enabled_count": 3,
+            "enabled_weight_total": 13,
+            "enabled_by_label": {
+              "light": [
+                "D-40"
+              ],
+              "medium": [
+                "A-10"
+              ],
+              "heavy": [
+                "C-30"
+              ]
+            },
+            "heaviest_enabled_sku": "C-30"
+          }
+        },
+        {
+          "type": "sha256_unchanged",
+          "paths": {
+            "catalog.json": "0180AF7544CB24B7D6FC93B67AEE262B3EAD07720C0DCE08F8C3027993819E7A",
+            "rules.txt": "73D6B32394BB2CA43977934F81620FC98736DFE34C8217F028DAC74F85221CCB"
+          }
+        },
+        {
+          "type": "allowed_changed_paths",
+          "paths": [
+            "analysis.json"
+          ]
+        }
+      ],
+      "failure_criteria": [
+        "analysis.json is missing, invalid, or differs semantically from the exact expected JSON.",
+        "An input file changed or another file was created.",
+        "The task accesses repository src\\ or overview\\."
+      ],
+      "cleanup": [
+        "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\code-inspect-catalog -ErrorAction SilentlyContinue"
+      ],
+      "expected_artifacts": [
+        "analysis.json"
+      ],
+      "current_support": {
+        "status": "expected_supported",
+        "reason": "Marix has native local file tools and this task needs no external dependencies."
+      },
+      "estimated_time_minutes": 3,
+      "suggested_outer_watchdog_minutes": 8
+    },
+    {
+      "id": "image-count-and-text",
+      "category": "image-understanding",
+      "title": "Count shapes and read text",
+      "prompt": "分析 .github\\e2e\\workspaces\\image-count-and-text\\scene.png，并把结果写入同目录 result.json。只报告实际看到的内容。JSON 字段必须是 blue_circles、red_squares、text，数字使用整数，文本保持原大小写和连字符。不要从 tasks.json 或其他说明文件推断答案。",
+      "working_directory": ".github\\e2e\\workspaces\\image-count-and-text",
+      "max_completion_time_secs": 300,
+      "max_relay_count": 10,
+      "setup": {
+        "fixture": ".github\\e2e\\fixtures\\image-understanding\\scene.png",
+        "commands": [
+          "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\image-count-and-text -ErrorAction SilentlyContinue",
+          "New-Item -ItemType Directory -Force .github\\e2e\\workspaces\\image-count-and-text | Out-Null",
+          "Copy-Item .github\\e2e\\fixtures\\image-understanding\\scene.png .github\\e2e\\workspaces\\image-count-and-text\\scene.png"
+        ]
+      },
+      "requirements": [
+        "Derive the answer from scene.png itself.",
+        "Do not read tasks.json to obtain expected values.",
+        "Do not modify scene.png.",
+        "Only result.json may be created."
+      ],
+      "success_criteria": [
+        {
+          "type": "exact_json",
+          "path": "result.json",
+          "value": {
+            "blue_circles": 3,
+            "red_squares": 2,
+            "text": "MX-42"
+          }
+        }
+      ],
+      "failure_criteria": [
+        "result.json is missing, invalid, or differs semantically from the exact expected JSON.",
+        "scene.png changed or another file was created.",
+        "The response claims visual inspection without an image-capable tool."
+      ],
+      "cleanup": [
+        "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\image-count-and-text -ErrorAction SilentlyContinue"
+      ],
+      "expected_artifacts": [
+        "result.json"
+      ],
+      "current_support": {
+        "status": "expected_capability_gap",
+        "reason": "No native image or vision tool is currently identified in this repository; failure should expose that gap rather than be treated as a fixture defect."
+      },
+      "estimated_time_minutes": 2,
+      "suggested_outer_watchdog_minutes": 6
+    },
+    {
+      "id": "image-spatial-relations",
+      "category": "image-understanding",
+      "title": "Identify spatial relationships",
+      "prompt": "分析 .github\\e2e\\workspaces\\image-spatial-relations\\scene.png，并把空间关系写入同目录 result.json。只根据图片作答，不要从 tasks.json 或其他说明文件推断。JSON 必须包含 circles_relative_to_squares、squares_relative_to_circles、text_relative_to_all_shapes，值只能使用英文关键词 above 或 below。",
+      "working_directory": ".github\\e2e\\workspaces\\image-spatial-relations",
+      "max_completion_time_secs": 300,
+      "max_relay_count": 10,
+      "setup": {
+        "fixture": ".github\\e2e\\fixtures\\image-understanding\\scene.png",
+        "commands": [
+          "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\image-spatial-relations -ErrorAction SilentlyContinue",
+          "New-Item -ItemType Directory -Force .github\\e2e\\workspaces\\image-spatial-relations | Out-Null",
+          "Copy-Item .github\\e2e\\fixtures\\image-understanding\\scene.png .github\\e2e\\workspaces\\image-spatial-relations\\scene.png"
+        ]
+      },
+      "requirements": [
+        "Derive the answer from scene.png itself.",
+        "Do not read tasks.json to obtain expected values.",
+        "Do not modify scene.png.",
+        "Only result.json may be created."
+      ],
+      "success_criteria": [
+        {
+          "type": "exact_json",
+          "path": "result.json",
+          "value": {
+            "circles_relative_to_squares": "above",
+            "squares_relative_to_circles": "below",
+            "text_relative_to_all_shapes": "below"
+          }
+        },
+        {
+          "type": "required_keywords",
+          "keywords": [
+            "above",
+            "below"
+          ]
+        }
+      ],
+      "failure_criteria": [
+        "result.json is missing, invalid, or differs semantically from the exact expected JSON.",
+        "scene.png changed or another file was created.",
+        "The response claims visual inspection without an image-capable tool."
+      ],
+      "cleanup": [
+        "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\image-spatial-relations -ErrorAction SilentlyContinue"
+      ],
+      "expected_artifacts": [
+        "result.json"
+      ],
+      "current_support": {
+        "status": "expected_capability_gap",
+        "reason": "No native image or vision tool is currently identified in this repository; failure should expose that gap rather than be treated as a fixture defect."
+      },
+      "estimated_time_minutes": 2,
+      "suggested_outer_watchdog_minutes": 6
+    }
+  ]
+}

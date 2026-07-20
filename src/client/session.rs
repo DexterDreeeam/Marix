@@ -18,6 +18,9 @@ static SOURCE_NAME: OnceLock<String> = OnceLock::new();
 
 const CONNECT_RETRY_DELAY: Duration = Duration::from_millis(200);
 const CONNECT_DIAGNOSTIC_INTERVAL: u64 = 25;
+const CONNECTION_TERMINATED_SIGNATURE: &str = "__marix_client_connection__";
+const CONNECTION_TERMINATED_MESSAGE: &str =
+    "client connection event stream terminated before task completion";
 
 pub struct ClientSession {
     state: Arc<ClientSessionState>,
@@ -47,11 +50,18 @@ impl ClientSession {
             .is_some()
     }
 
-    pub fn create_task(&self, request: String) {
+    pub fn create_task(
+        &self,
+        request: String,
+        max_completion_time_secs: Option<u64>,
+        max_relay_count: Option<u64>,
+    ) {
         let signature = TaskSignature::new("task".to_owned());
         if self.send_to_server(SessionEvent::TaskCreate(TaskRequest {
             signature,
             content: request,
+            max_completion_time_secs,
+            max_relay_count,
         })) {
             Logger::log("client submitted task request");
         }
@@ -132,15 +142,40 @@ impl ClientSession {
             .build()
             .unwrap_or_else(|error| panic!("failed to build client event runtime: {error}"));
         runtime.block_on(async move {
-            while let Ok(Some(message)) = server_rx.recv().await {
-                if let Some(client_event) = Self::to_client_event(message.event) {
-                    let _ = user_tx.send(client_event);
+            loop {
+                match server_rx.recv().await {
+                    Ok(Some(message)) => {
+                        if let Some(client_event) = Self::to_client_event(message.event) {
+                            let _ = user_tx.send(client_event);
+                        }
+                    }
+                    Ok(None) => break,
+                    Err(error) => {
+                        Logger::error(format!(
+                            "client connection event stream failed: \
+                             {error:?}"
+                        ));
+                        break;
+                    }
                 }
                 if shutdown.load(Ordering::Relaxed) {
                     break;
                 }
             }
         });
+        if !shutdown.load(Ordering::Relaxed) {
+            Logger::error(CONNECTION_TERMINATED_MESSAGE);
+            let event = Self::done_event(
+                CONNECTION_TERMINATED_SIGNATURE,
+                Some(CONNECTION_TERMINATED_MESSAGE.to_owned()),
+            );
+            if let Err(error) = user_tx.send(event) {
+                Logger::error(format!(
+                    "client failed to report connection termination: \
+                     {error}"
+                ));
+            }
+        }
     }
 
     fn send_to_server(&self, event: SessionEvent) -> bool {
@@ -167,7 +202,8 @@ impl ClientSession {
         };
         if let Err(message) = result {
             Logger::error(message.clone());
-            if let Err(error) = self.state.user_tx.send(Self::done_event("", Some(message))) {
+            let event = Self::done_event(CONNECTION_TERMINATED_SIGNATURE, Some(message));
+            if let Err(error) = self.state.user_tx.send(event) {
                 Logger::error(format!("client failed to report send failure: {error}"));
             }
             return false;

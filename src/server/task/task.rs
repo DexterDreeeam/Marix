@@ -2,14 +2,15 @@ use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 use std::thread;
 
-use marix_common::{Actor as ActorTrait, Runtime as RuntimeTrait, Sender};
+use marix_common::{Actor as ActorTrait, ActorStatus, Runtime as RuntimeTrait, Sender};
 use marix_protocol::{
-    IntentSignature, SessionEvent, TaskEvent, TaskPreview, TaskRequestBrief, TaskResult,
-    TaskSignature,
+    SessionEvent, TaskEvent, TaskPreview, TaskRequest, TaskRequestBrief, TaskResult, TaskSignature,
 };
 
 use super::TaskRuntime;
 use crate::session::SessionContext;
+
+const COMPLETION_TIME_EXCEEDED: &str = "maximum completion time exceeded";
 
 #[derive(Clone)]
 pub struct Task {
@@ -39,8 +40,22 @@ impl ActorTrait for Task {
 
     fn spawn(&self, runtime: Arc<Self::Runtime>) {
         let rt = Arc::clone(&runtime.access.rt);
+        let watchdog = runtime.access.completion_deadline().map(|deadline| {
+            let watchdog_runtime = Arc::clone(&runtime);
+            rt.spawn(async move {
+                tokio::time::sleep_until(deadline.into()).await;
+                if matches!(watchdog_runtime.status(), ActorStatus::Complete(_)) {
+                    return;
+                }
+                watchdog_runtime.fail_task(COMPLETION_TIME_EXCEEDED.to_owned());
+            })
+        });
         drop(thread::spawn(move || {
             rt.block_on(runtime.run());
+            if let Some(watchdog) = watchdog {
+                watchdog.abort();
+                let _ = rt.block_on(watchdog);
+            }
         }));
     }
 }
@@ -50,18 +65,10 @@ impl ActorTrait for Task {
 impl Task {
     pub(crate) fn new(
         session_context: Arc<StdMutex<SessionContext>>,
-        signature: TaskSignature,
-        root: IntentSignature,
-        user_request: String,
+        request: TaskRequest,
         session_tx: Sender<SessionEvent>,
     ) -> Self {
-        let runtime = Arc::new(TaskRuntime::new(
-            session_context,
-            signature,
-            root,
-            user_request,
-            session_tx,
-        ));
+        let runtime = Arc::new(TaskRuntime::new(session_context, request, session_tx));
         Self { runtime }
     }
 }

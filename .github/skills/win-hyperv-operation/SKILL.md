@@ -32,8 +32,10 @@ Do not change source code unless the user explicitly asks for a code change. Do 
   Host artifacts in `C:\MarixHost\`. Never copy Client artifacts into the
   guest; Client deployment is local to the physical machine.
 - When a deployment flow needs Host startup or restart, start Host only after
-  the deployment engineer has started Server Telemetry and then Server. Never
-  start Client from the Hyper-V guest.
+  the deployment engineer has started Server Telemetry, completed the bounded
+  Telemetry TCP readiness probe successfully, started Server, and confirmed
+  Server is active. Never start Host after a readiness timeout or failed Server
+  active-state gate. Never start Client from the Hyper-V guest.
 - Use PowerShell Direct for guest command execution:
   - build a `PSCredential` from the fixed `marixagent` / `123` credentials,
   - call `Invoke-Command -VMName Marix_TestVm -Credential $credential -ScriptBlock { ... }`.

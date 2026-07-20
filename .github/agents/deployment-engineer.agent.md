@@ -25,6 +25,9 @@ physical deployment locations.
 
 - When the user asks only for deploy/deployment, perform only the necessary build, copying or atomic replacement of configs and artifacts, and necessary start/restart.
 - Unless explicitly requested by the user, do not perform checks, validation, tests, diagnostics, log inspection, browser actions, screenshots, E2E, or any extra actions.
+- The bounded Telemetry TCP readiness probe and the Server active-state gate
+  defined below are mandatory parts of startup, not optional post-deployment
+  validation. Perform no other checks unless the user requests them.
 
 ## Responsibilities
 
@@ -35,7 +38,8 @@ physical deployment locations.
   Client artifacts into the Hyper-V guest and never start Client as part of
   deployment.
 - Start or restart deployed runtime endpoints only in this order:
-  Server Telemetry, then Server, then Host.
+  Server Telemetry, wait for its TCP listener to accept connections, then
+  Server, confirm Server is active, then Host.
 - Resolve credentials from `.credential/*.txt` (see below); never print or commit secrets.
 - Report deployment target, files changed or copied, commands run, and final status.
 
@@ -80,10 +84,16 @@ physical deployment locations.
 
 - After all required files for the selected endpoints are copied or atomically
   replaced, perform necessary starts/restarts in strict endpoint order:
-  1. Server Telemetry: `marix-server-telemetry.service` on the Ubuntu server.
-  2. Server: `marix-server.service` on the Ubuntu server.
-  3. Host: the deployed Host executable in the Hyper-V guest `Marix_TestVm`
-     under `C:\MarixHost\`.
+  1. Start/restart `marix-server-telemetry.service` on the Ubuntu server.
+  2. Poll the Telemetry collector TCP endpoint until a connection succeeds,
+     subject to a finite total timeout. A successful `systemctl start`,
+     `systemctl is-active`, or systemd `After=` ordering is not readiness.
+     Abort with an explicit failure on timeout; do not start Server or Host.
+  3. Start/restart `marix-server.service`, then require
+     `systemctl is-active --quiet marix-server.service` to succeed. If it does
+     not, abort explicitly and do not start Host.
+  4. Only then start the deployed Host executable in the Hyper-V guest
+     `Marix_TestVm` under `C:\MarixHost\`.
 - Do not start Client during deployment. Client is deployed only to the local
   physical machine with its sibling `config.toml`; the user starts it manually.
 - If a deployment request targets only a subset of endpoints, preserve the same
@@ -111,10 +121,46 @@ physical deployment locations.
   `log/telemetry-*.redb` store there; preserve that directory across releases
   and verify its ownership before start.
 - Start `marix-server-telemetry.service` first because it owns the telemetry TCP
-  listener and store. Start `marix-server.service` second so Server can connect
-  when `logging.remote = true`. Use systemd ordering (explicitly add `After=marix-server-telemetry.service` and `Wants=marix-server-telemetry.service` to `marix-server.service`) to
+  listener and store. Before starting `marix-server.service`, make a bounded,
+  repeated TCP connection probe to the Telemetry collector port. Resolve the
+  port and destination from the independently resolved deployment configs
+  without printing them; probe the exact destination Server will use (or
+  loopback when the configured listener is a wildcard). Use a short
+  per-attempt timeout, a short delay, and a finite total timeout (for example,
+  1 second, 250 ms, and 30 seconds). If the unit exits while waiting or the
+  deadline expires, fail explicitly and do not start Server or Host. For
+  example, the remote deployment command may use the following shape after
+  assigning secret-safe `telemetry_probe_host` and `telemetry_port` variables:
+  ```bash
+  deadline=$((SECONDS + 30))
+  until timeout 1 bash -c 'exec 3<>/dev/tcp/$1/$2' _ \
+      "$telemetry_probe_host" "$telemetry_port" 2>/dev/null; do
+    systemctl is-active --quiet marix-server-telemetry.service || {
+      echo "Telemetry stopped before its TCP listener became ready" >&2
+      exit 1
+    }
+    (( SECONDS < deadline )) || {
+      echo "Timed out waiting for the Telemetry TCP listener" >&2
+      exit 1
+    }
+    sleep 0.25
+  done
+  ```
+  Start `marix-server.service` only after this loop succeeds, then run
+  `systemctl is-active --quiet marix-server.service`; do not start Host if that
+  gate fails. Keep systemd ordering (explicitly add
+  `After=marix-server-telemetry.service` and
+  `Wants=marix-server-telemetry.service` to `marix-server.service`) to
   encode this relationship without making business traffic depend on the HTTP
-  viewer's continued availability, preventing telemetry from falling back to local logs.
+  viewer's continued availability, but never treat ordering as a readiness
+  substitute.
+- Prefer a loopback Telemetry bind/connect path on the Ubuntu server only when
+  config generation can independently set both the Telemetry listener and the
+  Server's Telemetry destination. Never replace the shared public Server
+  address with loopback in configs used by Host or Client, and never make the
+  Server's public client/host listeners loopback-only. With the current shared
+  `[server].ip` field, retain the reachable address unless deployment-time
+  role-specific generation can prove those concerns are separated.
 - Do not start or restart Host until the Server Telemetry and Server start or
   restart commands for the current deployment have completed in the required
   order.
@@ -129,8 +175,9 @@ physical deployment locations.
   rename them into place. Keep one paired known-good version until the atomic
   replacement and necessary start/restart complete. On failure, stop only the
   affected current units, restore the paired known-good files atomically, run
-  `systemctl daemon-reload`, and restart telemetry before Server. Report whether
-  rollback was used.
+  `systemctl daemon-reload`, restart telemetry, pass the same bounded TCP
+  readiness gate, then restart Server and pass its active-state gate. Report
+  whether rollback was used.
 - Only when the user explicitly asks for validation/testing, run
   `systemctl is-active`/`is-enabled`, bounded journal checks, TCP listener and
   telemetry HTTP checks, and an end-to-end Client/Host/Server task. Do not

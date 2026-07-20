@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/task",
     "name": "task",
-    "purpose": "Defines task requests, previews, terminal results, transport statuses, identities, signatures, errors, and events for intent, step, invocation, and relay routing.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines task requests with optional completion-time and relay-count guardrails, plus previews, terminal results, transport statuses, identities, signatures, errors, and routing events.",
+    "changeStatus": "modified"
   },
+  "modified": ["request.rs"],
   "childModules": [],
   "elements": [
     {
@@ -99,14 +100,19 @@
       "name": "TaskRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/request.rs",
           "lineStart": 5,
-          "lineEnd": 9,
+          "lineEnd": 13,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 12
+            }
+          ],
           "modifiedLines": []
         }
       ]

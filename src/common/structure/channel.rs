@@ -8,6 +8,8 @@ use crate::config::Config;
 pub use crossbeam_channel::select;
 
 const NET_CHANNEL_BUFFER: usize = 16;
+/// Maximum time allowed for an outbound TCP connection attempt.
+const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 /// Wildcard address used by server listeners on every local IPv4 interface.
 const SERVER_BIND_IP: Ipv4Addr = Ipv4Addr::UNSPECIFIED;
 /// How long the server waits, after a TCP connection is accepted, for
@@ -153,10 +155,22 @@ where
             }
         };
         runtime.block_on(async move {
-            let socket = match tokio::net::TcpStream::connect(address).await {
-                Ok(socket) => socket,
-                Err(error) => {
+            let socket = match tokio::time::timeout(
+                CONNECT_TIMEOUT,
+                tokio::net::TcpStream::connect(address),
+            )
+            .await
+            {
+                Ok(Ok(socket)) => socket,
+                Ok(Err(error)) => {
                     let _ = setup_tx.send(Err(ChannelError::Connect(error.to_string())));
+                    return;
+                }
+                Err(_) => {
+                    let _ = setup_tx.send(Err(ChannelError::Connect(format!(
+                        "TCP connection timed out after {} ms",
+                        CONNECT_TIMEOUT.as_millis()
+                    ))));
                     return;
                 }
             };
@@ -355,56 +369,62 @@ async fn connecter_handshake<T>(
     NetSender<T>: Send,
     NetReceiver<T>: Send,
 {
-    let (socket_rx, socket_tx) = socket.into_split();
-    let (connection, mut base_tx, mut base_rx): (
-        _,
-        remoc::rch::base::Sender<Handshake<T>>,
-        remoc::rch::base::Receiver<Handshake<T>>,
-    ) = match remoc::Connect::io(remoc::Cfg::default(), socket_rx, socket_tx).await {
-        Ok(connection) => connection,
-        Err(error) => {
-            let _ = setup_tx.send(Err(ChannelError::Transport(error.to_string())));
-            return;
-        }
-    };
-    let connection_task = tokio::spawn(async move {
-        let _ = connection.await;
-    });
-
-    let (net_tx, net_rx) = remoc::rch::mpsc::channel::<T, _>(NET_CHANNEL_BUFFER);
-    if let Err(error) = base_tx.send(Handshake::Connect { token, rx: net_rx }).await {
-        let _ = setup_tx.send(Err(ChannelError::Transport(error.to_string())));
-        connection_task.abort();
-        return;
-    }
-
-    match base_rx.recv().await {
-        Ok(Some(Handshake::Accept { rx: peer_rx })) => {
+    match tokio::time::timeout(HANDSHAKE_TIMEOUT, connecter_setup(socket, token)).await {
+        Ok(Ok((net_tx, peer_rx, connection_task))) => {
             if setup_tx.send(Ok((net_tx, peer_rx))).is_ok() {
                 let _ = connection_task.await;
             } else {
                 connection_task.abort();
             }
         }
-        Ok(Some(Handshake::Reject)) => {
-            let _ = setup_tx.send(Err(ChannelError::Auth("channel token rejected".to_owned())));
-            connection_task.abort();
+        Ok(Err(error)) => {
+            let _ = setup_tx.send(Err(error));
         }
-        Ok(Some(_)) => {
-            let _ = setup_tx.send(Err(ChannelError::Transport(
-                "unexpected handshake from server".to_owned(),
-            )));
-            connection_task.abort();
+        Err(_) => {
+            let _ = setup_tx.send(Err(ChannelError::Transport(format!(
+                "remoc and token handshake timed out after {} ms",
+                HANDSHAKE_TIMEOUT.as_millis()
+            ))));
         }
-        Ok(None) => {
-            let _ = setup_tx.send(Err(ChannelError::Transport(
-                "server closed setup channel".to_owned(),
-            )));
-            connection_task.abort();
-        }
-        Err(error) => {
-            let _ = setup_tx.send(Err(ChannelError::Transport(error.to_string())));
-            connection_task.abort();
-        }
+    }
+}
+
+async fn connecter_setup<T>(
+    socket: tokio::net::TcpStream,
+    token: String,
+) -> Result<(NetSender<T>, NetReceiver<T>, tokio::task::JoinHandle<()>), ChannelError>
+where
+    T: remoc::RemoteSend + 'static,
+    NetSender<T>: Send,
+    NetReceiver<T>: Send,
+{
+    let (socket_rx, socket_tx) = socket.into_split();
+    let (connection, mut base_tx, mut base_rx): (
+        _,
+        remoc::rch::base::Sender<Handshake<T>>,
+        remoc::rch::base::Receiver<Handshake<T>>,
+    ) = remoc::Connect::io(remoc::Cfg::default(), socket_rx, socket_tx)
+        .await
+        .map_err(|error| ChannelError::Transport(error.to_string()))?;
+    let guard = ConnectionGuard::new(tokio::spawn(async move {
+        let _ = connection.await;
+    }));
+
+    let (net_tx, net_rx) = remoc::rch::mpsc::channel::<T, _>(NET_CHANNEL_BUFFER);
+    base_tx
+        .send(Handshake::Connect { token, rx: net_rx })
+        .await
+        .map_err(|error| ChannelError::Transport(error.to_string()))?;
+
+    match base_rx.recv().await {
+        Ok(Some(Handshake::Accept { rx: peer_rx })) => Ok((net_tx, peer_rx, guard.disarm())),
+        Ok(Some(Handshake::Reject)) => Err(ChannelError::Auth("channel token rejected".to_owned())),
+        Ok(Some(_)) => Err(ChannelError::Transport(
+            "unexpected handshake from server".to_owned(),
+        )),
+        Ok(None) => Err(ChannelError::Transport(
+            "server closed setup channel".to_owned(),
+        )),
+        Err(error) => Err(ChannelError::Transport(error.to_string())),
     }
 }

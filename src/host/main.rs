@@ -9,25 +9,11 @@ fn main() {
             std::process::exit(1);
         }
     };
-    configure_logging(&config);
+    Logger::connect(LogSource::Host).expect("failed to connect telemetry");
+    Logger::log(format!("host '{}' logging configured", config.name));
     let mut session = HostSession::new(config.name);
     session.run();
     loop {
         std::thread::park();
-    }
-}
-
-// -- Private -- //
-
-/// Configures logging on a best-effort basis. Diagnostics must not stop the
-/// host from serving executions.
-fn configure_logging(config: &Config) {
-    match Logger::connect(LogSource::Host) {
-        Ok(()) => {
-            Logger::log(format!("host '{}' logging configured", config.name));
-        }
-        Err(error) => {
-            eprintln!("logger unavailable, continuing without it: {error}");
-        }
     }
 }

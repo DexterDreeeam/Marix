@@ -34,8 +34,7 @@ impl Logger {
         Ok(())
     }
 
-    /// Configures this process to stream telemetry to the server, falling back
-    /// to a JSON Lines file beside the executable when unavailable.
+    /// Configures this process to stream telemetry to the server.
     pub fn connect(source: LogSource) -> Result<(), LoggingError> {
         LOGGER.configure(source, || {
             let fallback_path = Self::fallback_log_path()?;
@@ -49,13 +48,7 @@ impl Logger {
                     )));
                 }
             }
-            match Self::connect_sender() {
-                Ok(sender) => Ok(Sink::Remote {
-                    sender,
-                    fallback_path,
-                }),
-                Err(_) => Ok(Sink::File(LogFile::create(&fallback_path)?)),
-            }
+            Self::remote_sink(fallback_path, Self::connect_sender)
         })
     }
 
@@ -228,6 +221,17 @@ impl Logger {
                 .map(|error| format!("{error:?}"))
                 .unwrap_or_else(|| "telemetry channel connect failed".to_owned()),
         ))
+    }
+
+    fn remote_sink(
+        fallback_path: PathBuf,
+        connect_sender: impl FnOnce() -> Result<NetSender<LogMessage>, LoggingError>,
+    ) -> Result<Sink, LoggingError> {
+        let sender = connect_sender()?;
+        Ok(Sink::Remote {
+            sender,
+            fallback_path,
+        })
     }
 
     fn record(&self, mut message: LogMessage) -> Result<(), LoggingError> {

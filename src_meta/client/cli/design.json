@@ -3,27 +3,101 @@
   "module": {
     "path": "src/client/cli",
     "name": "cli",
-    "purpose": "Contains the one-shot and interactive Client CLI with remote-first telemetry and silent task-start status handling.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs one-shot and interactive Client sessions, passes optional one-shot completion-time and relay-count arguments directly to ClientSession::create_task, polls connection readiness, and handles task results and connection failures.",
+    "changeStatus": "modified"
   },
+  "modified": ["main.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "marix-client-cli",
       "type": "bin",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/main.rs",
-          "lineStart": 14,
-          "lineEnd": 60,
+          "lineStart": 7,
+          "lineEnd": 270,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 21
+            },
+            {
+              "lineStart": 62,
+              "lineEnd": 63
+            },
+            {
+              "lineStart": 67,
+              "lineEnd": 68
+            },
+            {
+              "lineStart": 80,
+              "lineEnd": 81
+            },
+            {
+              "lineStart": 87,
+              "lineEnd": 88
+            },
+            {
+              "lineStart": 96,
+              "lineEnd": 97
+            },
+            {
+              "lineStart": 101,
+              "lineEnd": 102
+            }
+          ],
           "modifiedLines": [
             {
-              "lineStart": 25,
-              "lineEnd": 40
+              "lineStart": 7,
+              "lineEnd": 14
+            },
+            {
+              "lineStart": 45,
+              "lineEnd": 61
+            },
+            {
+              "lineStart": 64,
+              "lineEnd": 66
+            },
+            {
+              "lineStart": 69,
+              "lineEnd": 70
+            },
+            {
+              "lineStart": 77,
+              "lineEnd": 79
+            },
+            {
+              "lineStart": 82,
+              "lineEnd": 86
+            },
+            {
+              "lineStart": 89,
+              "lineEnd": 95
+            },
+            {
+              "lineStart": 98,
+              "lineEnd": 100
+            },
+            {
+              "lineStart": 103,
+              "lineEnd": 103
+            },
+            {
+              "lineStart": 134,
+              "lineEnd": 134
+            },
+            {
+              "lineStart": 141,
+              "lineEnd": 195
+            },
+            {
+              "lineStart": 198,
+              "lineEnd": 269
             }
           ]
         }

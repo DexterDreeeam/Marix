@@ -4,7 +4,7 @@
     "path": "src/host",
     "name": "host",
     "purpose": "Owns Host connectivity, per-execution actor runtimes, and executor workers that pipe JSON to tools and preserve structured process failures.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
   "childModules": [
     {
@@ -60,36 +60,15 @@
       "name": "main",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/main.rs",
           "lineStart": 4,
-          "lineEnd": 18,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "configure_logging",
-      "type": "function",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/host/main.rs",
-          "lineStart": 22,
-          "lineEnd": 33,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 22,
-              "lineEnd": 33
-            }
-          ]
         }
       ]
     },
@@ -393,5 +372,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "main.rs"
   ]
 }

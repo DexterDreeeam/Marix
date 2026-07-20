@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Defines serialized context-chain contracts for intent planning and task execution, plus relay, step, invocation, execution, session, categorized tools, and workflow decisions.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines serialized task requests with optional completion-time and relay-count guardrails, context chains, relay, step, invocation, execution, session, tool, and workflow contracts.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -50,7 +51,7 @@
     {
       "path": "src/protocol/task",
       "name": "task",
-      "purpose": "Defines task requests, previews, terminal results, transport statuses, identities, signatures, errors, and events for intent, step, invocation, and relay routing."
+      "purpose": "Defines task requests with optional completion-time and relay-count guardrails, plus previews, terminal results, transport statuses, identities, signatures, errors, and routing events."
     },
     {
       "path": "src/protocol/tool",
@@ -1248,14 +1249,19 @@
       "name": "TaskRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/task/request.rs",
           "lineStart": 5,
-          "lineEnd": 9,
+          "lineEnd": 13,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 12
+            }
+          ],
           "modifiedLines": []
         }
       ]

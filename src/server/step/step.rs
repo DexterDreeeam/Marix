@@ -4,7 +4,7 @@ use marix_common::{Actor as ActorTrait, Runtime as RuntimeTrait};
 use marix_protocol::{StepDraft, StepEvent, StepResult, StepSignature};
 
 use super::StepRuntime;
-use crate::task::TaskAccess;
+use crate::task::{TaskAccess, TaskGate};
 
 #[derive(Clone)]
 pub struct Step {
@@ -37,6 +37,7 @@ impl Step {
         signature: StepSignature,
         draft: StepDraft,
     ) -> Result<Self, String> {
+        access.gate(TaskGate::Step)?;
         if draft.invocations.is_empty() {
             return Err("step must contain an invocation".to_owned());
         }

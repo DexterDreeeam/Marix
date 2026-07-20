@@ -4,7 +4,7 @@ use marix_common::{Actor as ActorTrait, Runtime as RuntimeTrait};
 use marix_protocol::{RelayEvent, RelayRequest, RelayResult, RelaySignature};
 
 use super::RelayRuntime;
-use crate::task::TaskAccess;
+use crate::task::{TaskAccess, TaskGate};
 
 #[derive(Clone)]
 pub struct Relay {
@@ -33,6 +33,7 @@ impl ActorTrait for Relay {
 
 impl Relay {
     pub(crate) fn new(access: Arc<TaskAccess>, request: RelayRequest) -> Result<Self, String> {
+        access.gate(TaskGate::Relay)?;
         let runtime = Arc::new(RelayRuntime::new(access, request)?);
         Ok(Self { runtime })
     }

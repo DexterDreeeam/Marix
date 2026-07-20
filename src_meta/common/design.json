@@ -3,9 +3,10 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Owns shared configuration with concrete 64-bit system detection and wildcard compatibility, logging, external wrappers, generic Actor and Runtime contracts, signature contracts, authenticated channels, and insertion-ordered work queues.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns shared configuration, logging, approved external wrappers including Tokio timers, generic Actor and Runtime contracts, signatures, authenticated channels, and insertion-ordered work queues.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/common/actor",
@@ -20,7 +21,7 @@
     {
       "path": "src/common/external",
       "name": "external",
-      "purpose": "Re-exports approved third-party namespaces and traits for common, including redb database, transaction, table, and metadata APIs."
+      "purpose": "Re-exports approved third-party namespaces and traits, including redb APIs and Tokio networking, runtime, synchronization, task, spawning, selection, and time APIs."
     },
     {
       "path": "src/common/logging",
@@ -1071,12 +1072,12 @@
       "name": "Logger",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
           "lineStart": 18,
-          "lineEnd": 23,
+          "lineEnd": 241,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -1899,12 +1900,12 @@
       "name": "connecter_handshake",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
           "lineStart": 346,
-          "lineEnd": 410,
+          "lineEnd": 430,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
