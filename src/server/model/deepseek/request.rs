@@ -16,17 +16,25 @@ impl ModelBackendImpl for DeepseekBackend {
             "deepseek stream request: model '{}'",
             self.config.model.trim()
         ));
+        let task_id = request.relay.intent.task.id.0.to_string();
         let native_tools = request.tools.is_some();
-        let raw = self.build_payload(&request)?;
-        Logger::log(format!("[Model Relay][Request] {raw}"));
+        let raw = match self.build_payload(&request) {
+            Ok(raw) => raw,
+            Err(error) => {
+                Logger::error(format!("[Model Relay][{task_id}][Request] {error}"));
+                return Err(error);
+            }
+        };
+        Logger::log(format!("[Model Relay][{task_id}][Request] {raw}"));
         let config = self.config.clone();
         let client = self.async_client.clone();
         let (sender, receiver) = build_async_channel();
         tokio::spawn(async move {
             if let Err(error) =
-                Self::request_stream_response(client, config, raw, native_tools, sender).await
+                Self::request_stream_response(client, config, raw, &task_id, native_tools, sender)
+                    .await
             {
-                Logger::error(format!("deepseek stream response failed: {error}"));
+                Logger::error(format!("[Model Relay][{task_id}][Response] {error}"));
             }
         });
 

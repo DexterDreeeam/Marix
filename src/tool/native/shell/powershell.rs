@@ -9,16 +9,16 @@ use marix_protocol::{ToolCategory, ToolPreview};
 use super::executor;
 use crate::ToolProgram;
 
-pub struct PowerShellExec;
+pub struct PowerShell;
 
-impl PowerShellExec {
-    const NAME: &'static str = "powershell_exec";
+impl PowerShell {
+    const NAME: &'static str = "powershell";
     const DESCRIPTION: &'static str =
         "Execute a command using PowerShell on Windows using PowerShell syntax and Windows paths.";
     const INPUT_SCHEMA: &'static str = r#"{"type":"object","properties":{"command":{"type":"string"},"cwd":{"type":"string"},"timeout_ms":{"type":"integer","minimum":1}},"required":["command"],"additionalProperties":false}"#;
 }
 
-impl ToolProgram for PowerShellExec {
+impl ToolProgram for PowerShell {
     fn preview(&self) -> ToolPreview {
         ToolPreview {
             name: Self::NAME.to_owned(),
@@ -49,13 +49,13 @@ impl ToolProgram for PowerShellExec {
     }
 }
 
-#[cfg(feature = "powershell_exec")]
-pub use self::PowerShellExec as SelectedTool;
+#[cfg(feature = "powershell")]
+pub use self::PowerShell as SelectedTool;
 
 // -- Private -- //
 
 #[cfg(windows)]
-impl PowerShellExec {
+impl PowerShell {
     fn program() -> Result<PathBuf, String> {
         let system_root =
             env::var_os("SystemRoot").ok_or_else(|| "SystemRoot is unavailable".to_owned())?;

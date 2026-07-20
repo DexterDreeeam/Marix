@@ -4,7 +4,7 @@
     "path": "src/tool/native",
     "name": "native",
     "purpose": "Groups eight built-in tools and shared native execution support; shell tools use absolute system paths and return structured JSON failures.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
   "childModules": [
     {
@@ -21,6 +21,21 @@
       "path": "src/tool/native/sys",
       "name": "sys",
       "purpose": "Provides OsEnv with a System-category All/All preview and a safe allowlisted environment report."
+    },
+    {
+      "path": "src/tool/native/coding",
+      "name": "coding",
+      "purpose": "Native coding tool implementations."
+    },
+    {
+      "path": "src/tool/native/process",
+      "name": "process",
+      "purpose": "Native process tool implementations."
+    },
+    {
+      "path": "src/tool/native/web",
+      "name": "web",
+      "purpose": "Native web tool implementations."
     }
   ],
   "elements": [
@@ -398,5 +413,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "mod.rs"
   ]
 }

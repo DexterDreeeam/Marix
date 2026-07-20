@@ -4,7 +4,7 @@
     "path": "src/tool/native/sys",
     "name": "sys",
     "purpose": "Provides OsEnv with a System-category All/All preview and a safe allowlisted environment report.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -12,7 +12,7 @@
       "name": "OsEnv",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/sys/os_env.rs",
@@ -25,25 +25,28 @@
         {
           "sourcePath": "src/tool/native/sys/os_env.rs",
           "lineStart": 22,
-          "lineEnd": 55,
+          "lineEnd": 50,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 27,
-              "lineEnd": 31
+              "lineStart": 44,
+              "lineEnd": 46
             }
           ]
         },
         {
           "sourcePath": "src/tool/native/sys/os_env.rs",
-          "lineStart": 72,
-          "lineEnd": 295,
+          "lineStart": 67,
+          "lineEnd": 290,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         }
       ]
     }
+  ],
+  "modified": [
+    "os_env.rs"
   ]
 }

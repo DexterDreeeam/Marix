@@ -235,7 +235,7 @@ export function createMessageActions(_elements, _callbacks) {
 
   function navigate(_delta) {
     if (!_modalOpen || !_modalContext || _navigationRequest !== null) {
-      return;
+      return false;
     }
     var _position = modalPosition();
     var _targetIndex = _position.index + _delta;
@@ -245,7 +245,7 @@ export function createMessageActions(_elements, _callbacks) {
       _targetIndex >= _position.summaries.length
     ) {
       updateNavigation();
-      return;
+      return false;
     }
     var _targetSummary = _position.summaries[_targetIndex];
     var _request = {};
@@ -276,6 +276,28 @@ export function createMessageActions(_elements, _callbacks) {
           updateNavigation();
         }
       });
+    return true;
+  }
+
+  function navigateUp() {
+    return navigate(-1);
+  }
+
+  function navigateDown() {
+    return navigate(1);
+  }
+
+  function isEditableElement(_element) {
+    if (!_element || typeof _element.tagName !== "string") {
+      return false;
+    }
+    var _tagName = _element.tagName.toUpperCase();
+    return (
+      _tagName === "INPUT" ||
+      _tagName === "TEXTAREA" ||
+      _tagName === "SELECT" ||
+      _element.isContentEditable === true
+    );
   }
 
   function closeFormatMessage() {
@@ -313,12 +335,8 @@ export function createMessageActions(_elements, _callbacks) {
 
   bindAction(_elements.copyAction, activateCopyMessage);
   bindAction(_elements.formatAction, activateFormatMessage);
-  _elements.modalPrev.addEventListener("click", function () {
-    navigate(-1);
-  });
-  _elements.modalNext.addEventListener("click", function () {
-    navigate(1);
-  });
+  _elements.modalPrev.addEventListener("click", navigateUp);
+  _elements.modalNext.addEventListener("click", navigateDown);
   _elements.modalClose.addEventListener("click", closeFormatMessage);
   _elements.modal.addEventListener("keydown", function (_event) {
     if (_event.key !== "Tab") {
@@ -350,6 +368,21 @@ export function createMessageActions(_elements, _callbacks) {
     }
   });
   document.addEventListener("keydown", function (_event) {
+    if (
+      _modalOpen &&
+      (_event.key === "ArrowUp" || _event.key === "ArrowDown") &&
+      !_event.ctrlKey &&
+      !_event.altKey &&
+      !_event.metaKey &&
+      !isEditableElement(document.activeElement)
+    ) {
+      var _navigated =
+        _event.key === "ArrowUp" ? navigateUp() : navigateDown();
+      if (_navigated) {
+        _event.preventDefault();
+      }
+      return;
+    }
     if (_event.key !== "Escape") {
       return;
     }

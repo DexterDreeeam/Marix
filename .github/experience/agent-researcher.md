@@ -60,3 +60,29 @@
 - Process pattern: long-running jobs are commonly separated from one-shot shell execution through session IDs and poll/write/stop operations (Codex, Gemini, Roo, Claude). A process lifecycle should return state, output cursors, exit/signal/timeout, and artifacts rather than only stdout.
 - Marix implications: prioritize atomic `apply_patch`, bounded/ranged file reads and searches, explicit process lifecycle, typed result envelopes, output truncation/artifacts, real timeout/cancellation, approval policy, and sandbox boundaries. Add bounded `http_fetch` only with redirect, SSRF, credential, and network-scope controls. Keep a human-visible `open_url` distinct from isolated browser automation. Defer `computer` until it can run in an isolated, observable desktop with screenshot/frame results and takeover.
 - Shell implication: retain PowerShell and Command Prompt execution capability on Windows and Bash on Ubuntu, but advertise only the platform-appropriate primary shell by default. Keep Command Prompt deferred for legacy batch compatibility; do not expose PowerShell, cmd, Bash, and a generic shell simultaneously.
+
+## 2026-07-20 — Tool library domains and calling specifications
+
+- Topic: survey of mainstream agent tool categories (file, execution, AST, web, browser, meta) and tool-calling specifications (OpenAI, Anthropic, MCP, XML) for expanding Marix.
+- Systems and pinned evidence: OpenHands, Cline, Aider, AutoGPT, CrewAI, LangGraph, Claude Code, Browser-Use.
+- Core modules observed: File operations (read/edit/search/patch), Shell execution (sync/async/sandboxed), Code/AST analysis (tags/LSP), Web/Browser (fetch/search/DOM), and Orchestration (delegation/human-in-loop).
+- Reusable patterns: MCP for decoupling tool implementation from agent core; XML/custom tags for robust multi-line code generation to bypass JSON escaping issues; JSON Schema for strict, short parameter tools.
+- Risks/anti-patterns: Relying purely on full-file writes instead of diffs/patches; exposing untrusted web execution without sandboxes; tight coupling of API integrations without an abstraction like MCP.
+- Marix implications: Implement an MCP client to infinitely expand tool capabilities without hardcoding; adopt AST/LSP tools for better codebase comprehension; consider hybrid calling (JSON for short tools, XML/text blocks for long code edits).
+
+## 2026-07-20 — Essential Tool Expansions for Marix
+
+- Topic: Identification of the top 5 most urgent and valuable missing tools to expand Marix's coding and automation capabilities (compared to its current baseline of read/write/list/search/env/exec).
+- Systems referenced: Cline, Aider, OpenHands, Claude Code.
+- Core modules identified for expansion: Precise code mutation (Search/Replace), Semantic Repo Navigation (AST/Outlines), Human-in-the-loop (Ask User), External Knowledge (Web Fetch), and Context Management (Sub-agents).
+- Marix implications: Moving away from full-file writes to block-edits reduces hallucination. Adopting AST tools solves the large-repo context window problem. Formalizing human escalation prevents loop crashes.
+
+## 2026-07-20 — Large file reading strategies across coding agents
+
+- Topic: How mainstream coding agents (Cline, Aider, OpenHands) handle reading excessively large files, including pagination, line numbering, truncation, and AST alternatives.
+- Systems studied: Cline, Aider, OpenHands, and general agent tool schemas.
+- Primary sources and citations: Aider's Repo Map documentation (tree-sitter based context), OpenHands/Cline read_file tool implementations.
+- Core modules observed: Paginating file readers (start_line/end_line or view_range), line-numbering pipelines for edit targets, hard truncation defenses, and semantic codebase overviews (AST/tags).
+- Reusable architecture patterns: Prefixing every output line with its line number to ensure accurate subsequent search-and-replace edits; allowing explicit range slicing (e.g., view_range: [start, end]); returning an explicit warning when a file exceeds a byte/line limit; falling back to syntax-aware outlines (like Aider's Repo Map) so the agent can discover classes/functions without reading full implementations.
+- Risks or anti-patterns: Silently truncating output (leading the model to hallucinate or assume the file is small); passing massive minified bundles into the context window; reading entire files when only a function signature is needed.
+- Implications for Marix: Ensure view tools support view_range parameters; prepend line numbers to aid the edit tool; enforce hard truncation with explicit warnings; introduce AST/Outline tools for large file navigation.

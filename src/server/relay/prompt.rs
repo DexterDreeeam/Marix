@@ -2,8 +2,8 @@ use std::collections::BTreeSet;
 
 use marix_common::{Arch, Platform, System};
 use marix_protocol::{
-    ContextChain, IntentContext, IntentResult, IntentResultKind, ToolPreview,
-    WorkflowComplete, WorkflowInfeasible, WorkflowPlan, WorkflowTool,
+    ContextChain, IntentContext, IntentResult, IntentResultKind, ToolPreview, WorkflowComplete,
+    WorkflowInfeasible, WorkflowPlan, WorkflowTool,
 };
 
 use super::RelayRuntime;
@@ -66,7 +66,10 @@ impl RelayRuntime {
         let mut tools = Vec::with_capacity(workflow_tools.len() + execution_tools.len());
         tools.extend(workflow_tools);
         for mut tool in execution_tools {
-            if let Ok(mut schema) = marix_common::external::serde_json::from_str::<marix_common::external::serde_json::Value>(&tool.input) {
+            if let Ok(mut schema) = marix_common::external::serde_json::from_str::<
+                marix_common::external::serde_json::Value,
+            >(&tool.input)
+            {
                 if let Some(props) = schema.get_mut("properties").and_then(|v| v.as_object_mut()) {
                     props.insert("purpose".to_owned(), marix_common::external::serde_json::json!({
                         "type": "string",
@@ -76,7 +79,8 @@ impl RelayRuntime {
                 if let Some(required) = schema.get_mut("required").and_then(|v| v.as_array_mut()) {
                     required.push(marix_common::external::serde_json::json!("purpose"));
                 }
-                tool.input = marix_common::external::serde_json::to_string(&schema).unwrap_or_else(|_| tool.input);
+                tool.input = marix_common::external::serde_json::to_string(&schema)
+                    .unwrap_or_else(|_| tool.input);
             }
             tools.push(tool);
         }
@@ -132,21 +136,21 @@ impl RelayRuntime {
             return Err("cannot render an empty context chain".to_owned());
         };
         if !current.subintents.is_empty() {
-            return Err(
-                "intent verdict target still has an active plan; \
+            return Err("intent verdict target still has an active plan; \
                  context chain is inconsistent"
-                    .to_owned(),
-            );
+                .to_owned());
         }
 
         let mut prompts = vec![self.prompt.clone()];
         if !ancestors.is_empty() {
             let mut context = "[BACKGROUND CONTEXT]\nThese are the parent tasks and their execution history. They are provided for reference only.\n\n\n".to_owned();
-            context.push_str(&ancestors
-                .iter()
-                .map(|intent| self.plan_prompt(intent))
-                .collect::<Result<Vec<_>, _>>()?
-                .join("\n\n\n"));
+            context.push_str(
+                &ancestors
+                    .iter()
+                    .map(|intent| self.plan_prompt(intent))
+                    .collect::<Result<Vec<_>, _>>()?
+                    .join("\n\n\n"),
+            );
             prompts.push(context);
         }
         prompts.push(Self::pending_intent_prompt(current));
@@ -225,19 +229,26 @@ impl RelayRuntime {
         let mut index = 1;
         for step_result in &intent.step_results {
             for call in &step_result.calls {
-                let purpose = marix_common::external::serde_json::from_str::<marix_common::external::serde_json::Value>(&call.input)
-                    .ok()
-                    .and_then(|v| v.get("purpose").and_then(|p| p.as_str()).map(|s| s.to_owned()))
-                    .unwrap_or_default();
-                let purpose_str = if purpose.is_empty() { String::new() } else { format!(" ({})", purpose) };
-                
+                let purpose = marix_common::external::serde_json::from_str::<
+                    marix_common::external::serde_json::Value,
+                >(&call.input)
+                .ok()
+                .and_then(|v| {
+                    v.get("purpose")
+                        .and_then(|p| p.as_str())
+                        .map(|s| s.to_owned())
+                })
+                .unwrap_or_default();
+                let purpose_str = if purpose.is_empty() {
+                    String::new()
+                } else {
+                    format!(" ({})", purpose)
+                };
+
                 let output = call.result.output.replace("\n", "\n      ");
                 prompt.push_str(&format!(
                     "\n{}. {}{}\n   Result:\n      {}",
-                    index,
-                    call.tool,
-                    purpose_str,
-                    output,
+                    index, call.tool, purpose_str, output,
                 ));
                 index += 1;
             }
@@ -264,7 +275,7 @@ impl RelayRuntime {
                     }
                 }
             }
-            
+
             failures.push(marix_common::external::serde_json::json!({
                 "goals": failure.goals,
                 "failed": failed_goal,

@@ -1,12 +1,12 @@
 ---
 name: win-hyperv-operation
-description: Common skill for Windows Hyper-V VM operations, including VM provisioning, file copy, PowerShell Direct execution, deployment checks, and diagnostics.
+description: Common skill for Windows Hyper-V VM operations, including VM provisioning, Host file copy, Host startup, PowerShell Direct execution, deployment checks, and diagnostics.
 ---
 You are using the Windows Hyper-V operation skill for Marix.
 
 ## Scope
 
-Operate the local Hyper-V guest used in the Marix workflow. Provide generic ways to interact with the VM: reachability checks, host-to-guest file transfer, PowerShell Direct execution, guest diagnostics, and copying Marix client artifacts into the guest.
+Operate the local Hyper-V guest used in the Marix workflow. Provide generic ways to interact with the VM: reachability checks, host-to-guest file transfer, PowerShell Direct execution, guest diagnostics, and copying Marix Host artifacts into the guest.
 
 This skill only covers how to interact with the Hyper-V VM. It does not configure Marix, does not describe how any deployed client connects to a server, and does not deal with remote hosts, IPs, ports, or runtime config.
 
@@ -28,7 +28,12 @@ Do not change source code unless the user explicitly asks for a code change. Do 
 
 - Ensure the target VM exists before any other operation: look it up with `Get-VM -Name Marix_TestVm`. If it is missing, provision it fully unattended (see **Zero-Touch VM Provisioning**) so it boots already controllable via PowerShell Direct — never ask the user to sign into the guest or run anything inside it. If it already exists, reuse it and start it only when it is not running.
 - Verify VM state with Hyper-V cmdlets such as `Get-VM` and `Get-VMIntegrationService`.
-- Copy deployment files into the guest with `Copy-VMFile`, placing Host artifacts in `C:\MarixHost\`.
+- Copy only Host deployment files into the guest with `Copy-VMFile`, placing
+  Host artifacts in `C:\MarixHost\`. Never copy Client artifacts into the
+  guest; Client deployment is local to the physical machine.
+- When a deployment flow needs Host startup or restart, start Host only after
+  the deployment engineer has started Server Telemetry and then Server. Never
+  start Client from the Hyper-V guest.
 - Use PowerShell Direct for guest command execution:
   - build a `PSCredential` from the fixed `marixagent` / `123` credentials,
   - call `Invoke-Command -VMName Marix_TestVm -Credential $credential -ScriptBlock { ... }`.

@@ -72,6 +72,7 @@ impl DeepseekBackend {
         client: reqwest::Client,
         config: DeepseekConfig,
         raw: String,
+        task_id: &str,
         native_tools: bool,
         sender: AsyncSender<ModelResponse>,
     ) -> Result<(), ModelBackendError> {
@@ -85,14 +86,13 @@ impl DeepseekBackend {
         let status = response.status();
         if !status.is_success() {
             let body = response.text().await?;
-            Logger::error(format!("deepseek stream request failed: {status}"));
             return Err(ModelBackendError::RequestFailed(format!(
                 "Deepseek request failed with {status}: {body}"
             )));
         }
 
         Logger::debug("deepseek stream established");
-        Self::stream_response(&mut response, &sender, native_tools).await
+        Self::stream_response(&mut response, &sender, task_id, native_tools).await
     }
 
     fn build_tools(
@@ -121,8 +121,8 @@ impl DeepseekBackend {
             .collect()
     }
 
-    fn log_response(content: &str) {
-        Logger::log(format!("[Model Relay][Response] {content}"));
+    fn log_response(task_id: &str, content: &str) {
+        Logger::log(format!("[Model Relay][{task_id}][Response] {content}"));
     }
 }
 

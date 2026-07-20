@@ -11,6 +11,7 @@ impl DeepseekBackend {
     pub(super) async fn stream_response(
         response: &mut reqwest::Response,
         sender: &AsyncSender<ModelResponse>,
+        task_id: &str,
         native_tools: bool,
     ) -> Result<(), ModelBackendError> {
         let mut pending = Vec::new();
@@ -19,7 +20,7 @@ impl DeepseekBackend {
         } else {
             StreamMode::Content
         };
-        let mut accumulator = StreamAccumulator::new(mode);
+        let mut accumulator = StreamAccumulator::new(mode, task_id.to_owned());
 
         loop {
             while let Some(event) = Self::take_next_sse_event(&mut pending)? {
@@ -56,6 +57,7 @@ enum StreamMode {
 
 struct StreamAccumulator {
     mode: StreamMode,
+    task_id: String,
     content: String,
     seq_count: usize,
     finish_reason: Option<String>,
@@ -103,9 +105,10 @@ impl DeepseekBackend {
 }
 
 impl StreamAccumulator {
-    fn new(mode: StreamMode) -> Self {
+    fn new(mode: StreamMode, task_id: String) -> Self {
         Self {
             mode,
+            task_id,
             content: String::new(),
             seq_count: 0,
             finish_reason: None,
@@ -330,7 +333,7 @@ impl StreamAccumulator {
                 Some(self.normalize_tool_calls()?)
             }
         };
-        DeepseekBackend::log_response(&self.response_json()?);
+        DeepseekBackend::log_response(&self.task_id, &self.response_json()?);
         if let Some(content) = content {
             if sender
                 .send(ModelResponse {

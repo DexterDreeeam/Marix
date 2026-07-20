@@ -15,7 +15,7 @@ use crate::ToolProgram;
 const NAME: &str = "os_env";
 const DESCRIPTION: &str = "Report a safe, allowlisted view of the local system environment.";
 const INPUT_SCHEMA: &str =
-    concat!(r#"{"type":"object","properties":{},"additionalProperties":false}"#,);
+    concat!(r#"{"type":"object","properties":{},"additionalProperties":true}"#,);
 
 pub struct OsEnv;
 
@@ -41,13 +41,8 @@ impl ToolProgram for OsEnv {
                 return Self::failure(format!("invalid input: {error}"));
             }
         };
-        let Some(object) = input.as_object() else {
+        if !input.is_object() {
             return Self::failure("input must be a JSON object".to_owned());
-        };
-        if !object.is_empty() {
-            let mut fields: Vec<&str> = object.keys().map(String::as_str).collect();
-            fields.sort_unstable();
-            return Self::failure(format!("unexpected input field(s): {}", fields.join(", ")));
         }
 
         to_string(&Self::collect()).unwrap_or_default()

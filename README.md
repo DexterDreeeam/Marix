@@ -73,6 +73,16 @@ cd Marix
 cargo build
 ```
 
+## Deployment Topology
+
+- Server Telemetry and Server are deployed on the Ubuntu server. After deployment,
+  start Server Telemetry first, then Server.
+- Host is deployed only into the Hyper-V guest `Marix_TestVm` under
+  `C:\MarixHost\`, and starts after Server.
+- Client is deployed only on the local physical machine. Deployment never copies
+  Client artifacts into the Hyper-V guest and never starts Client; the user
+  starts Client manually.
+
 ## License
 
 MIT

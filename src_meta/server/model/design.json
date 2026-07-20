@@ -4,7 +4,7 @@
     "path": "src/server/model",
     "name": "model",
     "purpose": "Defines the streaming-only model backend contract and exposes Deepseek, which validates complete SSE streams before logging one compact normalized OpenAI-compatible response, as a direct child implementation.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
   "childModules": [
     {
@@ -282,5 +282,8 @@
         }
       ]
     }
+  ],
+  "modified": [
+    "."
   ]
 }

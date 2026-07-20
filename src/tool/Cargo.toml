@@ -16,10 +16,17 @@ read_file = []
 write_file = []
 list_directory = []
 search_text = []
-powershell_exec = []
+powershell = []
 command_prompt = []
 bash = []
 os_env = []
+web_fetch = []
+web_search = []
+get_code_outline = []
+replace_in_file = []
+start_process = []
+read_process_output = []
+stop_process = []
 
 [[bin]]
 name = "marix_tool_read_file"
@@ -42,17 +49,17 @@ path = "tool_main.rs"
 required-features = ["search_text"]
 
 [[bin]]
-name = "powershell_exec"
+name = "marix_powershell"
 path = "tool_main.rs"
-required-features = ["powershell_exec"]
+required-features = ["powershell"]
 
 [[bin]]
-name = "command_prompt"
+name = "marix_command_prompt"
 path = "tool_main.rs"
 required-features = ["command_prompt"]
 
 [[bin]]
-name = "bash"
+name = "marix_bash"
 path = "tool_main.rs"
 required-features = ["bash"]
 
@@ -60,3 +67,38 @@ required-features = ["bash"]
 name = "marix_tool_os_env"
 path = "tool_main.rs"
 required-features = ["os_env"]
+
+[[bin]]
+name = "marix_tool_web_fetch"
+path = "tool_main.rs"
+required-features = ["web_fetch"]
+
+[[bin]]
+name = "marix_tool_web_search"
+path = "tool_main.rs"
+required-features = ["web_search"]
+
+[[bin]]
+name = "marix_tool_get_code_outline"
+path = "tool_main.rs"
+required-features = ["get_code_outline"]
+
+[[bin]]
+name = "marix_tool_replace_in_file"
+path = "tool_main.rs"
+required-features = ["replace_in_file"]
+
+[[bin]]
+name = "marix_tool_start_process"
+path = "tool_main.rs"
+required-features = ["start_process"]
+
+[[bin]]
+name = "marix_tool_read_process_output"
+path = "tool_main.rs"
+required-features = ["read_process_output"]
+
+[[bin]]
+name = "marix_tool_stop_process"
+path = "tool_main.rs"
+required-features = ["stop_process"]

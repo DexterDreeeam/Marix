@@ -14,10 +14,7 @@ impl IntentRuntime {
     pub(super) fn create_plan(&self, draft: PlanDraft) -> Result<(), String> {
         self.validate_plan_draft(&draft)?;
 
-        let mut current_plan = self
-            .plan
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
+        let mut current_plan = self.plan.lock().unwrap_or_else(|error| error.into_inner());
         if current_plan.is_some() {
             return Err("cannot create a plan while intent has an active plan".to_owned());
         }

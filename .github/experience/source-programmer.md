@@ -1519,3 +1519,45 @@ connecter to protect this distinction.
   Intent `Result:` line only when its optional result exists. Unfinished
   Intents have no status or result placeholder; completed tool calls continue
   to render their non-optional invocation results.
+- 2026-07-20 (registry-backed process tools): `start_process`,
+  `read_process_output`, and `stop_process` share the private
+  `tool/native/sys/process_registry.rs` registry so their separate
+  ToolProgram binaries can coordinate. On Windows it stores per-user records
+  and stdout/stderr under `LOCALAPPDATA/Marix/tool-processes`, validates a
+  UUID-derived path, rejects symlinks, and verifies the original cmd.exe
+  command-line marker through CIM before reading or task-killing a PID. Stop
+  retains the final output record; stopped records are cleaned after 24 hours
+  and each stream is capped to its latest 1 MiB when read.
+- 2026-07-20 (process tool review corrections): The three process
+  ToolPrograms and their registry are private to `tool/native/process/`;
+  `native/mod.rs` is their sole native re-export boundary, while `sys/` owns
+  only system-environment tools. The registry root is exactly
+  `std::env::temp_dir().join("marix-processes")`; preserve UUID path
+  validation, symlink rejection, and the CIM command-line ownership marker.
+  `read_process_output` pages independent stdout/stderr offsets and returns
+  `next_offset` per stream. Its combined fixed-buffer reads never exceed the
+  caller's 65,536-byte cap, so never use unbounded `read_to_end` for a
+  concurrently growing log. Reading or cleanup observation records a terminal
+  timestamp; only records terminal for over 24 hours may be removed.
+- 2026-07-20 (Windows detached process lifecycle): `start_process` launches
+  the requested executable directly with its explicit `args`; never rebuild it
+  through `cmd.exe`. Before spawning, it clears `HANDLE_FLAG_INHERIT` on the
+  ToolProgram stdin/stdout/stderr handles, while child stdout/stderr are its
+  registry log files; this keeps `host::executor::Tool::execute`'s
+  `wait_with_output` pipes from being retained by a managed child. Registry
+  ownership uses the child PID plus CIM `CreationDate`, so a recycled PID is
+  refused.
+- 2026-07-20 (registry lock ownership): `RegistryLock` uses
+  `File::try_lock` with the existing bounded retry delay. The persistent lock
+  file is never deleted during recovery, and OS release on owner exit prevents
+  a stale owner from removing a newer owner's lock.
+- 2026-07-20 (Model Relay log correlation): the owning stable Task ID is
+  `ModelRequest.relay.intent.task.id` (`protocol/task/id.rs::TaskId`).
+  Deepseek request, completed-stream response, and response-error logs carry
+  that same UUID; relay names and IDs are not task correlation keys.
+- 2026-07-20 (Telemetry modal navigation):
+  `server_telemetry/http/telemetry-message.js::navigate` is the single
+  formatted-message navigation algorithm. Button and arrow-key handlers share
+  its directional wrappers and consume a key event only when navigation starts.
+
+- 2026-07-20: Added Yahoo and Wikipedia as fallback search engines for web_search to improve resilience against DDG blocking/timeouts.

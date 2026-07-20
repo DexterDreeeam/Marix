@@ -4,7 +4,7 @@
     "path": "src/tool/native/shell",
     "name": "shell",
     "purpose": "Provides Bash, Command Prompt, and PowerShellExec tools launched through absolute system paths, with shared JSON process execution and structured failures.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
   "childModules": [],
   "elements": [
@@ -96,66 +96,6 @@
       ]
     },
     {
-      "name": "PowerShellExec",
-      "type": "struct",
-      "source_depth": 4,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/tool/native/shell/powershell_exec.rs",
-          "lineStart": 12,
-          "lineEnd": 12,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 12,
-              "lineEnd": 12
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/tool/native/shell/powershell_exec.rs",
-          "lineStart": 14,
-          "lineEnd": 19,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 15,
-              "lineEnd": 17
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/tool/native/shell/powershell_exec.rs",
-          "lineStart": 21,
-          "lineEnd": 50,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 38,
-              "lineEnd": 42
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/tool/native/shell/powershell_exec.rs",
-          "lineStart": 58,
-          "lineEnd": 72,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 58,
-              "lineEnd": 72
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
       "name": "invoke",
       "type": "function",
       "source_depth": 4,
@@ -196,6 +136,55 @@
           ]
         }
       ]
+    },
+    {
+      "name": "PowerShell",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/native/shell/powershell.rs",
+          "lineStart": 12,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/tool/native/shell/powershell.rs",
+          "lineStart": 14,
+          "lineEnd": 19,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/tool/native/shell/powershell.rs",
+          "lineStart": 21,
+          "lineEnd": 50,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/tool/native/shell/powershell.rs",
+          "lineStart": 57,
+          "lineEnd": 72,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
     }
+  ],
+  "added": [
+    "powershell.rs"
+  ],
+  "modified": [
+    "mod.rs"
+  ],
+  "deleted": [
+    "powershell_exec.rs"
   ]
 }

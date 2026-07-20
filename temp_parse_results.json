@@ -1,0 +1,324 @@
+[
+  {
+    "name": "ToolCategory",
+    "type": "enum",
+    "sourcePath": "src/protocol/tool/category.rs",
+    "lineStart": 6,
+    "lineEnd": 13
+  },
+  {
+    "name": "DeepseekBackend",
+    "type": "struct",
+    "sourcePath": "src/server/model/deepseek/backend.rs",
+    "lineStart": 14,
+    "lineEnd": 18
+  },
+  {
+    "implFor": "DeepseekBackend",
+    "sourcePath": "src/server/model/deepseek/backend.rs",
+    "lineStart": 20,
+    "lineEnd": 31
+  },
+  {
+    "implFor": "DeepseekBackend",
+    "sourcePath": "src/server/model/deepseek/backend.rs",
+    "lineStart": 35,
+    "lineEnd": 127
+  },
+  {
+    "implFor": "DeepseekBackend",
+    "sourcePath": "src/server/model/deepseek/backend.rs",
+    "lineStart": 129,
+    "lineEnd": 138
+  },
+  {
+    "implFor": "DeepseekBackend",
+    "sourcePath": "src/server/model/deepseek/request.rs",
+    "lineStart": 10,
+    "lineEnd": 43
+  },
+  {
+    "implFor": "DeepseekBackend",
+    "sourcePath": "src/server/model/deepseek/stream.rs",
+    "lineStart": 10,
+    "lineEnd": 48
+  },
+  {
+    "implFor": "DeepseekBackend",
+    "sourcePath": "src/server/model/deepseek/stream.rs",
+    "lineStart": 75,
+    "lineEnd": 105
+  },
+  {
+    "implFor": "StreamAccumulator",
+    "sourcePath": "src/server/model/deepseek/stream.rs",
+    "lineStart": 107,
+    "lineEnd": 427
+  },
+  {
+    "implFor": "ToolCallAccumulator",
+    "sourcePath": "src/server/model/deepseek/stream.rs",
+    "lineStart": 429,
+    "lineEnd": 503
+  },
+  {
+    "name": "OsEnv",
+    "type": "struct",
+    "sourcePath": "src/tool/native/sys/os_env.rs",
+    "lineStart": 20,
+    "lineEnd": 20
+  },
+  {
+    "implFor": "OsEnv",
+    "sourcePath": "src/tool/native/sys/os_env.rs",
+    "lineStart": 22,
+    "lineEnd": 50
+  },
+  {
+    "implFor": "OsEnv",
+    "sourcePath": "src/tool/native/sys/os_env.rs",
+    "lineStart": 67,
+    "lineEnd": 290
+  },
+  {
+    "name": "PowerShell",
+    "type": "struct",
+    "sourcePath": "src/tool/native/shell/powershell.rs",
+    "lineStart": 12,
+    "lineEnd": 12
+  },
+  {
+    "implFor": "PowerShell",
+    "sourcePath": "src/tool/native/shell/powershell.rs",
+    "lineStart": 14,
+    "lineEnd": 19
+  },
+  {
+    "implFor": "PowerShell",
+    "sourcePath": "src/tool/native/shell/powershell.rs",
+    "lineStart": 21,
+    "lineEnd": 50
+  },
+  {
+    "implFor": "PowerShell",
+    "sourcePath": "src/tool/native/shell/powershell.rs",
+    "lineStart": 57,
+    "lineEnd": 72
+  },
+  {
+    "name": "GetCodeOutline",
+    "type": "struct",
+    "sourcePath": "src/tool/native/coding/get_code_outline.rs",
+    "lineStart": 12,
+    "lineEnd": 12
+  },
+  {
+    "implFor": "GetCodeOutline",
+    "sourcePath": "src/tool/native/coding/get_code_outline.rs",
+    "lineStart": 14,
+    "lineEnd": 18
+  },
+  {
+    "implFor": "GetCodeOutline",
+    "sourcePath": "src/tool/native/coding/get_code_outline.rs",
+    "lineStart": 20,
+    "lineEnd": 65
+  },
+  {
+    "name": "ReplaceInFile",
+    "type": "struct",
+    "sourcePath": "src/tool/native/coding/replace_in_file.rs",
+    "lineStart": 12,
+    "lineEnd": 12
+  },
+  {
+    "implFor": "ReplaceInFile",
+    "sourcePath": "src/tool/native/coding/replace_in_file.rs",
+    "lineStart": 14,
+    "lineEnd": 19
+  },
+  {
+    "implFor": "ReplaceInFile",
+    "sourcePath": "src/tool/native/coding/replace_in_file.rs",
+    "lineStart": 21,
+    "lineEnd": 65
+  },
+  {
+    "name": "StartProcess",
+    "type": "struct",
+    "sourcePath": "src/tool/native/process/start_process.rs",
+    "lineStart": 11,
+    "lineEnd": 11
+  },
+  {
+    "implFor": "StartProcess",
+    "sourcePath": "src/tool/native/process/start_process.rs",
+    "lineStart": 13,
+    "lineEnd": 18
+  },
+  {
+    "implFor": "StartProcess",
+    "sourcePath": "src/tool/native/process/start_process.rs",
+    "lineStart": 20,
+    "lineEnd": 60
+  },
+  {
+    "implFor": "StartProcess",
+    "sourcePath": "src/tool/native/process/start_process.rs",
+    "lineStart": 67,
+    "lineEnd": 116
+  },
+  {
+    "name": "ReadProcessOutput",
+    "type": "struct",
+    "sourcePath": "src/tool/native/process/read_process_output.rs",
+    "lineStart": 11,
+    "lineEnd": 11
+  },
+  {
+    "implFor": "ReadProcessOutput",
+    "sourcePath": "src/tool/native/process/read_process_output.rs",
+    "lineStart": 13,
+    "lineEnd": 18
+  },
+  {
+    "implFor": "ReadProcessOutput",
+    "sourcePath": "src/tool/native/process/read_process_output.rs",
+    "lineStart": 20,
+    "lineEnd": 66
+  },
+  {
+    "implFor": "ReadProcessOutput",
+    "sourcePath": "src/tool/native/process/read_process_output.rs",
+    "lineStart": 73,
+    "lineEnd": 108
+  },
+  {
+    "name": "StopProcess",
+    "type": "struct",
+    "sourcePath": "src/tool/native/process/stop_process.rs",
+    "lineStart": 11,
+    "lineEnd": 11
+  },
+  {
+    "implFor": "StopProcess",
+    "sourcePath": "src/tool/native/process/stop_process.rs",
+    "lineStart": 13,
+    "lineEnd": 18
+  },
+  {
+    "implFor": "StopProcess",
+    "sourcePath": "src/tool/native/process/stop_process.rs",
+    "lineStart": 20,
+    "lineEnd": 52
+  },
+  {
+    "implFor": "StopProcess",
+    "sourcePath": "src/tool/native/process/stop_process.rs",
+    "lineStart": 59,
+    "lineEnd": 63
+  },
+  {
+    "name": "Output",
+    "type": "struct",
+    "sourcePath": "src/tool/native/process/output.rs",
+    "lineStart": 5,
+    "lineEnd": 9
+  },
+  {
+    "name": "read",
+    "type": "function",
+    "sourcePath": "src/tool/native/process/output.rs",
+    "lineStart": 11,
+    "lineEnd": 25
+  },
+  {
+    "implFor": "OutputSnapshot",
+    "sourcePath": "src/tool/native/process/output.rs",
+    "lineStart": 34,
+    "lineEnd": 48
+  },
+  {
+    "name": "start",
+    "type": "function",
+    "sourcePath": "src/tool/native/process/process_registry.rs",
+    "lineStart": 21,
+    "lineEnd": 79
+  },
+  {
+    "name": "read_output",
+    "type": "function",
+    "sourcePath": "src/tool/native/process/process_registry.rs",
+    "lineStart": 81,
+    "lineEnd": 132
+  },
+  {
+    "name": "stop",
+    "type": "function",
+    "sourcePath": "src/tool/native/process/process_registry.rs",
+    "lineStart": 134,
+    "lineEnd": 177
+  },
+  {
+    "implFor": "ProcessRecord",
+    "sourcePath": "src/tool/native/process/process_registry.rs",
+    "lineStart": 190,
+    "lineEnd": 198
+  },
+  {
+    "implFor": "RegistryLock",
+    "sourcePath": "src/tool/native/process/process_registry.rs",
+    "lineStart": 205,
+    "lineEnd": 238
+  },
+  {
+    "implFor": "RegistryLock",
+    "sourcePath": "src/tool/native/process/process_registry.rs",
+    "lineStart": 240,
+    "lineEnd": 244
+  },
+  {
+    "name": "WebFetch",
+    "type": "struct",
+    "sourcePath": "src/tool/native/web/web_fetch.rs",
+    "lineStart": 12,
+    "lineEnd": 12
+  },
+  {
+    "implFor": "WebFetch",
+    "sourcePath": "src/tool/native/web/web_fetch.rs",
+    "lineStart": 14,
+    "lineEnd": 18
+  },
+  {
+    "implFor": "WebFetch",
+    "sourcePath": "src/tool/native/web/web_fetch.rs",
+    "lineStart": 20,
+    "lineEnd": 71
+  },
+  {
+    "name": "WebSearch",
+    "type": "struct",
+    "sourcePath": "src/tool/native/web/web_search.rs",
+    "lineStart": 12,
+    "lineEnd": 12
+  },
+  {
+    "implFor": "WebSearch",
+    "sourcePath": "src/tool/native/web/web_search.rs",
+    "lineStart": 14,
+    "lineEnd": 20
+  },
+  {
+    "implFor": "WebSearch",
+    "sourcePath": "src/tool/native/web/web_search.rs",
+    "lineStart": 22,
+    "lineEnd": 65
+  },
+  {
+    "implFor": "WebSearch",
+    "sourcePath": "src/tool/native/web/web_search.rs",
+    "lineStart": 72,
+    "lineEnd": 460
+  }
+]

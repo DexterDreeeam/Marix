@@ -31,7 +31,11 @@ physical deployment locations.
 - Deploy both Server components (`marix-server` and
   `marix-server-telemetry`) to the Ubuntu server.
 - Deploy Host components to the VM environment.
-- Deploy Client components locally.
+- Deploy Client components locally on the physical machine only; never deploy
+  Client artifacts into the Hyper-V guest and never start Client as part of
+  deployment.
+- Start or restart deployed runtime endpoints only in this order:
+  Server Telemetry, then Server, then Host.
 - Resolve credentials from `.credential/*.txt` (see below); never print or commit secrets.
 - Report deployment target, files changed or copied, commands run, and final status.
 
@@ -45,6 +49,15 @@ physical deployment locations.
   `.git`, `target`, `.credential`, generated deployment configs, browser
   profiles, logs, and temporary caches. Run `cargo fetch --locked`, then locked
   release builds on Ubuntu. Reuse the installed Rust toolchain and target cache.
+- Create the local sanitized Ubuntu source archive only at
+  `<repository-root>/.temp/deployment/src_for_ubuntu.tar.gz` (or an explicitly
+  named equivalent within `<repository-root>/.temp/deployment/`). Create that
+  directory when needed; never create or retain a deployment archive or any
+  other deployment temporary file in the repository root.
+- Treat the source archive as a short-lived transfer artifact: after the
+  upload/copy and Ubuntu build complete, remove it; also remove it on every
+  failed or interrupted transfer/build path (use a `finally`-equivalent cleanup
+  path). Do not remove any pre-existing user files while doing this cleanup.
 - Deploy `marix-server` by copying `src/server/prompt/template/` to `<runtime.marix_path>/src/server/prompt/template/` with hierarchy preserved; `marix-server-telemetry` does not need these templates.
 - Build Host, Client, and any required Tools release binaries on the local Windows machine with the local Windows Rust toolchain.
 - Normal startup loads `config.toml` from each executable's parent directory;
@@ -58,9 +71,25 @@ physical deployment locations.
 - Deployment endpoints receive only what their role requires: the Ubuntu build
   directory receives sanitized source; the Ubuntu runtime receives the two
   completed Linux binaries plus Server runtime resources; the VM Host receives
-  completed Windows artifacts and runtime resources in `C:\MarixHost\`; the
-  local Client receives artifacts locally; and neither VM Host nor local Client
-  must ever run `cargo build`.
+  only completed Host Windows artifacts and runtime resources in
+  `C:\MarixHost\`; the local Client receives Client artifacts locally on the
+  physical machine and is not started by deployment; and neither VM Host nor
+  local Client must ever run `cargo build`.
+
+## Post-deployment start order
+
+- After all required files for the selected endpoints are copied or atomically
+  replaced, perform necessary starts/restarts in strict endpoint order:
+  1. Server Telemetry: `marix-server-telemetry.service` on the Ubuntu server.
+  2. Server: `marix-server.service` on the Ubuntu server.
+  3. Host: the deployed Host executable in the Hyper-V guest `Marix_TestVm`
+     under `C:\MarixHost\`.
+- Do not start Client during deployment. Client is deployed only to the local
+  physical machine with its sibling `config.toml`; the user starts it manually.
+- If a deployment request targets only a subset of endpoints, preserve the same
+  relative order among the endpoints that are actually started or restarted
+  (for example, Server before Host, and Server Telemetry before Server whenever
+  Server is included).
 
 ## Ubuntu dual-service deployment
 
@@ -86,6 +115,9 @@ physical deployment locations.
   when `logging.remote = true`. Use systemd ordering (explicitly add `After=marix-server-telemetry.service` and `Wants=marix-server-telemetry.service` to `marix-server.service`) to
   encode this relationship without making business traffic depend on the HTTP
   viewer's continued availability, preventing telemetry from falling back to local logs.
+- Do not start or restart Host until the Server Telemetry and Server start or
+  restart commands for the current deployment have completed in the required
+  order.
 - Only when the user explicitly asks for validation/testing, check telemetry's
   channel listener and HTTP log page, and check the main Server client/host
   listeners separately. Read all ports, including

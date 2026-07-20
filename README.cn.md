@@ -73,6 +73,15 @@ cd Marix
 cargo build
 ```
 
+## 部署拓扑
+
+- Server Telemetry 与 Server 部署在 Ubuntu 服务器上。部署后先启动
+  Server Telemetry，再启动 Server。
+- Host 只部署到 Hyper-V guest `Marix_TestVm` 的 `C:\MarixHost\`，并在
+  Server 之后启动。
+- Client 只部署在本地物理机上。部署流程不会把 Client artifacts 复制到
+  Hyper-V guest，也不会启动 Client；Client 由用户手动启动。
+
 ## 许可证
 
 MIT
