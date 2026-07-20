@@ -8,9 +8,10 @@ be written in Chinese, although this agent definition is English.
 
 ## Objective
 
-Run the existing smoke cases and decide only whether each case reaches its
-declared expected outcome. Do not add, run, or report dedicated tests of whether
-the TaskRequest guardrails themselves work.
+Run the existing smoke cases in order until the first non-passing case and
+decide only whether each executed case reaches its declared expected outcome.
+Do not add, run, or report dedicated tests of whether the TaskRequest guardrails
+themselves work.
 
 ## Safety boundaries
 
@@ -54,8 +55,9 @@ report the case's configured value.
 
 Before execution, validate that `tasks.json` parses, case IDs are unique, and
 both guardrail fields are present and are either `null` or positive integers.
-Then process cases strictly in their JSON array order. Complete all steps,
-including cleanup, before starting the next case:
+Then process eligible cases strictly in their JSON array order. A later case is
+eligible only when every earlier case finished with `PASS`. Complete all steps
+for the current case before deciding whether another case may start:
 
 1. **Setup** — Run the case's `setup.commands` in order from `C:\r\Marix`.
    Snapshot the fresh workspace when changed-path checks require a baseline.
@@ -74,19 +76,39 @@ including cleanup, before starting the next case:
    `failure_criteria` entry. Compare JSON semantically, verify hashes and allowed
    paths where requested, and run only validation commands declared by the case.
    Keep assertion failure distinct from task failure.
-5. **Collect** — Save the status, duration, configured guardrails, terminal
-   summary, individual assertion outcomes, and failure class without exposing
+5. **Collect evidence** — Before cleanup, save the preliminary status, duration,
+   configured guardrails, terminal summary, Client CLI captured output and exit
+   status, individual assertion outcomes, failure class, and relevant workspace
+   artifacts or state. Keep the evidence secret-safe and never expose
    credentials or sensitive logs.
 6. **Cleanup** — Run every case `cleanup` command even after setup, submission,
    task, or assertion failure. A cleanup error must be reported and must not be
    hidden by an earlier result. Never repair or update a fixture baseline.
+7. **Finalize and fail fast** — Determine the final primary status after cleanup.
+   If it is `PASS`, the next case may start. If it is `FAIL`, `UNSUPPORTED`, or
+   `ENVIRONMENT_ERROR`, stop immediately, record this case ID as the stop
+   trigger, and mark every remaining case `SKIPPED_AFTER_FAILURE`. Do not run
+   setup, Client CLI, assertions, or cleanup for skipped cases because their
+   workspaces were never created.
+8. **Analyze the first failure** — Immediately after stopping, analyze the stop
+   trigger's failure chain. Use the evidence collected before cleanup and, when
+   needed, only read-only inspection of this task or session's Client CLI
+   captured output and exit status, relevant Client/Host/Server logs from the
+   Telemetry portal or API, deployed process status and logs, corresponding
+   current-source control flow, and collected workspace artifacts or state.
+   Distinguish the direct failure point, upstream root cause, ruled-out causes,
+   evidence, and recommended repair surface; do not merely repeat terminal
+   text. Do not deploy, start, stop, or restart services; modify source or
+   fixtures; read credentials; run git; or execute any later case while
+   investigating. Do not automatically rerun the failed case for reproduction.
+   If existing evidence is insufficient, say so and wait for user direction.
 
 Do not start a later case while any process from the current case is still
-running.
+running, or after fail-fast has been triggered.
 
 ## Result classification
 
-Use exactly one primary status for each case:
+Use exactly one status for each case:
 
 - `PASS` — the task reached a successful terminal state, every success criterion
   passed, and no failure criterion was met.
@@ -99,6 +121,10 @@ Use exactly one primary status for each case:
 - `ENVIRONMENT_ERROR` — setup, prerequisites, transport, Client availability,
   service availability, network infrastructure, harness operation, or cleanup
   prevents a reliable case judgment.
+- `SKIPPED_AFTER_FAILURE` — the case was not executed because an earlier case
+  had a final primary status other than `PASS`. Record the triggering case ID;
+  this status has no elapsed task time, assertions, terminal outcome, workspace,
+  or cleanup execution.
 
 Use `current_support` to explain capability gaps, not to force an expected
 failure: if a currently unsupported capability is genuinely available and all
@@ -114,7 +140,7 @@ outcome unknown unless a terminal outcome was already captured.
 
 ## Chinese report
 
-For every case, report:
+For every executed case, report:
 
 - case ID and `PASS`, `FAIL`, `UNSUPPORTED`, or `ENVIRONMENT_ERROR`;
 - elapsed time;
@@ -125,6 +151,15 @@ For every case, report:
 - failure class and concise reason when applicable;
 - cleanup result.
 
-Finish with totals by status, total elapsed time, execution order, and a concise
-list of task, assertion, environment, capability, or cleanup problems. Report
-only smoke-case outcomes; do not add a guardrail-gate test section.
+For every skipped case, report its ID, `SKIPPED_AFTER_FAILURE`, the triggering
+case ID, and that setup, Client CLI, assertions, and cleanup were not run.
+
+When execution stops early, include the first failure's root-cause analysis with
+separate direct failure point, upstream root cause, ruled-out causes, evidence,
+and recommended repair surface.
+
+Finish with totals by status, executed and skipped counts, total elapsed time
+for executed cases only, declared execution order with the actual stop point,
+and a concise list of task, assertion, environment, capability, or cleanup
+problems. Report elapsed time and assertion details only for executed cases.
+Report only smoke-case outcomes; do not add a guardrail-gate test section.

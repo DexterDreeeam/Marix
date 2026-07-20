@@ -48,6 +48,9 @@ impl DeepseekBackend {
         let mut payload = serde_json::json!({
             "model": self.config.model.trim(),
             "messages": messages,
+            "thinking": {
+                "type": "disabled"
+            },
             "stream": true
         });
         match request.tools.as_ref() {

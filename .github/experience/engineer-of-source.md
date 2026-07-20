@@ -11,6 +11,7 @@
 ## Model and tool boundaries
 
 - Deepseek is stream-only. Buffer SSE tool-call fragments by index, require a valid terminal `[DONE]`, validate complete JSON-object arguments, then emit one normalized `StepDraft`; never execute partial deltas.
+- 2026-07-20: DeepSeek chat-completion payloads explicitly disable Thinking in the base payload because Thinking rejects `tool_choice`; keep forced tool relays on `tool_choice: "required"` and non-tool relays on JSON response format.
 - Invocation validates the exact registered tool name and JSON arguments. Return validation and unknown-tool failures through normal typed results so parent actors cannot strand.
 - Windows managed processes launch executables directly with explicit arguments. Validate UUID paths, reject symlinks, bind ownership to PID plus creation time, bound output pages, and retain the lock file.
 

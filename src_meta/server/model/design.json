@@ -3,14 +3,15 @@
   "module": {
     "path": "src/server/model",
     "name": "model",
-    "purpose": "Defines the streaming-only model backend contract and exposes Deepseek, which validates complete SSE streams before logging one compact normalized OpenAI-compatible response, as a direct child implementation.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines the streaming-only model backend contract and exposes Deepseek, which explicitly disables thinking in request payloads and validates complete SSE streams before logging one compact normalized OpenAI-compatible response, as a direct child implementation.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/server/model/deepseek",
       "name": "deepseek",
-      "purpose": "Implements the Deepseek streaming backend: SSE deltas are strictly validated and accumulated, and only after a valid finish_reason followed by [DONE] is one compact normalized OpenAI-compatible JSON response with content or tool_calls logged; invalid or disconnected streams produce no success log."
+      "purpose": "Implements the Deepseek streaming backend: requests explicitly disable thinking for deterministic JSON and tool relay payloads; SSE deltas are strictly validated and accumulated, and only after a valid finish_reason followed by [DONE] is one compact normalized OpenAI-compatible JSON response with content or tool_calls logged; invalid or disconnected streams produce no success log."
     }
   ],
   "elements": [
@@ -187,16 +188,8 @@
       "name": "DeepseekBackend",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
-        {
-          "sourcePath": "src/server/model/deepseek/request.rs",
-          "lineStart": 10,
-          "lineEnd": 35,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
         {
           "sourcePath": "src/server/model/deepseek/backend.rs",
           "lineStart": 14,
@@ -216,24 +209,28 @@
         {
           "sourcePath": "src/server/model/deepseek/backend.rs",
           "lineStart": 35,
-          "lineEnd": 127,
+          "lineEnd": 130,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 71,
-              "lineEnd": 96
-            },
-            {
-              "lineStart": 124,
-              "lineEnd": 126
+              "lineStart": 51,
+              "lineEnd": 53
             }
-          ]
+          ],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/model/deepseek/backend.rs",
-          "lineStart": 129,
-          "lineEnd": 138,
+          "lineStart": 132,
+          "lineEnd": 141,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/deepseek/request.rs",
+          "lineStart": 10,
+          "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -241,41 +238,15 @@
         {
           "sourcePath": "src/server/model/deepseek/stream.rs",
           "lineStart": 10,
-          "lineEnd": 47,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 10,
-              "lineEnd": 46
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/model/deepseek/stream.rs",
-          "lineStart": 73,
-          "lineEnd": 103,
+          "lineEnd": 48,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/model/deepseek/stream.rs",
-          "lineStart": 105,
-          "lineEnd": 424,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 308,
-              "lineEnd": 380
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/model/deepseek/stream.rs",
-          "lineStart": 426,
-          "lineEnd": 500,
+          "lineStart": 75,
+          "lineEnd": 105,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
