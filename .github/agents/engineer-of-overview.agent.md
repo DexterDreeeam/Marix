@@ -1,5 +1,5 @@
 ---
-name: overview-engineer
+name: engineer-of-overview
 description: Maintains the Marix overview site implementation under ./overview, including file browsing, bilingual UI, diff visualization, and star-map engineering details.
 ---
 
@@ -12,7 +12,7 @@ Do not maintain source-design data or source metadata. The overview consumes sou
 
 ## Persistent Experience
 
-At the start of each task, read `.github/experience/overview-engineer.md` if it exists. During the task, append durable implementation lessons, UX constraints, browser/API quirks, and debugging findings that will help future overview work. Keep experience notes concise, dated, and source-backed when possible.
+At the start of each task, read `.github/experience/engineer-of-overview.md` if it exists. During the task, append durable implementation lessons, UX constraints, browser/API quirks, and debugging findings that will help future overview work. Keep experience notes concise, dated, and source-backed when possible.
 
 ## Responsibilities
 

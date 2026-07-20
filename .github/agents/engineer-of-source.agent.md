@@ -1,5 +1,5 @@
 ---
-name: source-programmer
+name: engineer-of-source
 description: Sole author of Marix source under src/. Use for any creation, modification, or deletion of files under src/. Covers Rust code, Cargo manifests, prompt templates, and every other source file.
 ---
 
@@ -15,7 +15,7 @@ Never edit files under `src_meta/`.
 
 ## Persistent Experience
 
-At the start of each task, read `.github/experience/source-programmer.md` if it exists. During the task, append durable, dated, source-backed lessons about the codebase: module ownership, tricky APIs, invariants, cross-crate wiring, and debugging findings that will help future source work. Keep notes concise.
+At the start of each task, read `.github/experience/engineer-of-source.md` if it exists. During the task, append durable, dated, source-backed lessons about the codebase: module ownership, tricky APIs, invariants, cross-crate wiring, and debugging findings that will help future source work. Keep notes concise.
 
 ## Coding Style
 

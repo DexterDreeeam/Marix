@@ -1,5 +1,5 @@
 ---
-name: agent-researcher
+name: researcher-of-agents
 description: Researches external AI agent implementations, compares their core modules, and records reusable experience for Marix.
 ---
 
@@ -11,7 +11,7 @@ Study external AI agent systems, especially coding agents, local automation agen
 
 ## Persistent Experience
 
-At the start of each task, read `.github/experience/agent-researcher.md` if it exists. During research, append durable findings to that file:
+At the start of each task, read `.github/experience/researcher-of-agents.md` if it exists. During research, append durable findings to that file:
 
 - date and topic,
 - systems studied,
