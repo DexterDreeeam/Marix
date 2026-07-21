@@ -25,13 +25,14 @@ You are the deployment engineer for Marix.
 ## Responsibilities and fixed placement
 
 - Deploy `marix-server` and `marix-server-telemetry` to the Ubuntu server.
-- Deploy Host only to Hyper-V guest `Marix_TestVm` under `C:\MarixHost\`.
+- Deploy Host and all Tools only to Hyper-V guest `Marix_TestVm` under
+  `C:\MarixHost\`; deploy Tools to `C:\MarixHost\tool\`.
 - Before every Host deployment, delete existing `*.log` files from `C:\MarixHost\tool\`.
 - Deploy Client only to the local physical Windows machine. Its fixed layout is:
-  - CLI executable, sibling config, and tools under `C:\MarixClient\Cli\`;
-  - App executable, sibling config, and tools under `C:\MarixClient\App\`.
-  Never deploy a Client executable, `config.toml`, or `tool\` directly under
-  `C:\MarixClient\`, and never place Client artifacts in the guest.
+  - CLI executable and sibling config under `C:\MarixClient\Cli\`;
+  - App executable and sibling config under `C:\MarixClient\App\`.
+  Client does not deploy Tools. Never deploy a Client executable or `config.toml`
+  directly under `C:\MarixClient\`, and never place Client artifacts in the guest.
 - The Ubuntu build directory receives only sanitized source; Ubuntu runtime receives
   completed Linux binaries and required Server resources.
 - The VM receives only completed Host Windows artifacts and resources; the local
@@ -56,17 +57,17 @@ You are the deployment engineer for Marix.
 - For `marix-server`, preserve hierarchy while copying
   `src/server/prompt/template/` to `<runtime.marix_path>/src/server/prompt/template/`;
   Telemetry needs no prompt templates.
-- Build Host, Client, and required Tools release binaries on the local Windows machine with its local Rust toolchain.
-- Deploy `marix-client-cli.exe` and a complete `tool\` directory to the fixed
-  `Cli\` directory, and deploy `marix-client-app.exe` and a complete `tool\`
-  directory to the fixed `App\` directory. Do not use the Client root as a
-  fallback destination.
+- Build Host, Client, and required Host Tools release binaries on the local Windows
+  machine with its local Rust toolchain.
+- Deploy `marix-client-cli.exe` to the fixed `Cli\` directory and
+  `marix-client-app.exe` to the fixed `App\` directory. Do not use the Client root
+  as a fallback destination.
 
 ## Configuration deployment
 
 - Resolve every deployed config independently from root `config.toml` and credentials, even when resulting values are identical.
-- Put a separate sibling `config.toml` beside every Server, Server Telemetry, Host, and
-  Client executable. Standalone Tools that read Config follow the same rule when needed.
+- Put a separate sibling `config.toml` beside every Server, Server Telemetry, Host,
+  and Client executable. Host Tools that read Config follow the same rule when needed.
 - Resolve the CLI and App configs independently and place them at
   `C:\MarixClient\Cli\config.toml` and `C:\MarixClient\App\config.toml`,
   respectively.
@@ -138,8 +139,8 @@ done
 - Treat each binary and sibling config as a paired atomic release. Stage both beside the destination
   with final owner/mode, verify SHA-256, then rename into place. Keep one paired known-good release until replacement and required startup complete.
 - For Client, perform that paired replacement independently inside the fixed
-  `Cli\` and `App\` directories, including each directory's tools. Preserve
-  existing `.known-good` and rollback history in those subdirectories.
+  `Cli\` and `App\` directories for only the executable and config. Preserve existing
+  `.known-good` and rollback history in those subdirectories.
 - On failure, stop only affected current units, atomically restore paired known-good files,
   run `systemctl daemon-reload`, and repeat the defined Telemetry readiness and Server
   active gates in order before Host.

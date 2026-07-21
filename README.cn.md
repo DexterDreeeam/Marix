@@ -80,11 +80,11 @@ cargo build
   总超时和明确失败。仅 systemd active 状态或 `After=` 顺序不代表 ready。
   就绪后才能启动 Server，并确认其 systemd unit 为 active。
 - Host 只部署到 Hyper-V guest `Marix_TestVm` 的 `C:\MarixHost\`，并在
-  Server active gate 成功后才启动。
+  Server active gate 成功后才启动。Tools 只随 Host 部署。
 - Client 只部署在本地物理机上。部署流程不会把 Client artifacts 复制到
   Hyper-V guest，也不会启动 Client；Client 由用户手动启动。CLI 的
-  executable/config/tools 固定放在 `C:\MarixClient\Cli\`，App 的
-  executable/config/tools 固定放在 `C:\MarixClient\App\`。Client 根目录
+  executable/config 固定放在 `C:\MarixClient\Cli\`，App 的
+  executable/config 固定放在 `C:\MarixClient\App\`。Client 根目录
   不直接接收部署文件，Smoke/E2E/CLI 统一调用
   `C:\MarixClient\Cli\marix-client-cli.exe`。
 - 仅当按角色生成配置能够独立保留 Host 与 Client 使用的 Server 公网地址时，

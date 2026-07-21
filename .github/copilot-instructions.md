@@ -12,6 +12,7 @@
 
 ## Work Dispatching Policy
 
+- Place all temporary files under the repository-root `.temp/` directory; never create them directly in the repository root.
 - All file operations under `src/` except reading must go through the `engineer-of-source` agent. This includes creating, modifying, deleting, moving, or renaming files.
 - All file operations under `overview/` except reading must go through the `engineer-of-overview` agent. This includes creating, modifying, deleting, moving, or renaming files.
 - Deployment-related work must go through the `engineer-of-deployment` agent.

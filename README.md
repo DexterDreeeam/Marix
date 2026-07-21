@@ -82,10 +82,11 @@ cargo build
   confirm that its systemd unit is active.
 - Host is deployed only into the Hyper-V guest `Marix_TestVm` under
   `C:\MarixHost\`, and starts only after the Server active-state gate succeeds.
+  Tools are deployed only with Host.
 - Client is deployed only on the local physical machine. Deployment never copies
   Client artifacts into the Hyper-V guest and never starts Client; the user
-  starts Client manually. CLI executable/config/tools live under
-  `C:\MarixClient\Cli\`, while App executable/config/tools live under
+  starts Client manually. CLI executable/config live under
+  `C:\MarixClient\Cli\`, while App executable/config live under
   `C:\MarixClient\App\`. Nothing is deployed directly into the Client root, and
   Smoke/E2E/CLI invocations always use
   `C:\MarixClient\Cli\marix-client-cli.exe`.
