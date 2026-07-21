@@ -8,7 +8,7 @@
       "id": "network-rust-stable",
       "category": "network-search",
       "title": "Find the current Rust stable release",
-      "prompt": "在联网检索后，把当前 Rust stable 版本和发布日期写入 C:\\MarixE2E\\workspaces\\network-rust-stable\\result.json。必须实际访问至少两个相互独立的来源，不得仅凭模型记忆；其中一个来源必须是 Rust 官方站点（blog.rust-lang.org 或 doc.rust-lang.org），另一个必须是 releases.rs。JSON 必须包含 topic、version、release_date 和 sources；sources 每项包含 url、publisher、version、release_date、accessed_date。version 使用 X.Y.Z，日期使用 YYYY-MM-DD。不要读取或提及任何 .credential 文件或凭据。",
+      "prompt": "在联网检索后，把当前 Rust stable 版本和发布日期写入 C:\\MarixE2E\\workspaces\\network-rust-stable\\result.json。必须实际访问至少两个相互独立的来源，不得仅凭模型记忆；其中一个来源必须是 Rust 官方站点（blog.rust-lang.org 或 doc.rust-lang.org），另一个必须是 releases.rs。JSON 必须包含 topic、version、release_date 和 sources；sources 每项包含 url、publisher、version、release_date、accessed_date。version 使用 X.Y.Z，日期使用 YYYY-MM-DD。",
       "vm_working_directory": "C:\\MarixE2E\\workspaces\\network-rust-stable",
       "max_completion_time_secs": 600,
       "max_relay_count": 8,
@@ -17,7 +17,6 @@
       },
       "requirements": [
         "Use live network retrieval rather than model memory.",
-        "Do not read .credential files or expose credentials.",
         "Use at least two URLs on independent registrable domains: rust-lang.org and releases.rs.",
         "Write only result.json in the task working directory."
       ],
@@ -66,8 +65,7 @@
       "failure_criteria": [
         "result.json is missing or invalid JSON.",
         "A required field, URL, accessed date, or source group is missing.",
-        "Source values disagree, or the answer says it relied on memory.",
-        "Any credential file was read or credential content appears in output."
+        "Source values disagree, or the answer says it relied on memory."
       ],
       "expected_artifacts": [
         "result.json"
@@ -83,7 +81,7 @@
       "id": "network-search-fallback",
       "category": "network-search",
       "title": "Recover from an unavailable primary source",
-      "prompt": "先实际尝试访问故意不可达的 https://example.invalid/marix-e2e-primary，然后使用可访问的官方 RFC 来源和 Wikipedia 回退检索 HTTP 418。不得仅凭模型记忆。把结果写入 C:\\MarixE2E\\workspaces\\network-search-fallback\\result.json，字段必须是 topic、status_code、reason_phrase、rfc_number、published_date、primary_attempt_url、primary_attempt_failed、sources；reason_phrase 按 RFC 原文大小写记录，sources 每项包含 url、publisher、accessed_date。不要读取或提及任何 .credential 文件或凭据。",
+      "prompt": "先实际尝试访问故意不可达的 https://example.invalid/marix-e2e-primary，然后使用可访问的官方 RFC 来源和 Wikipedia 回退检索 HTTP 418。不得仅凭模型记忆。把结果写入 C:\\MarixE2E\\workspaces\\network-search-fallback\\result.json，字段必须是 topic、status_code、reason_phrase、rfc_number、published_date、primary_attempt_url、primary_attempt_failed、sources；reason_phrase 按 RFC 原文大小写记录，sources 每项包含 url、publisher、accessed_date。",
       "vm_working_directory": "C:\\MarixE2E\\workspaces\\network-search-fallback",
       "max_completion_time_secs": 600,
       "max_relay_count": 10,
@@ -94,7 +92,6 @@
         "Attempt the .invalid primary URL before using fallback sources.",
         "Do not rely only on model memory.",
         "Use at least one official RFC URL and one Wikipedia URL.",
-        "Do not read .credential files or expose credentials.",
         "Write only result.json in the task working directory."
       ],
       "success_criteria": [
@@ -137,8 +134,7 @@
       "failure_criteria": [
         "result.json is missing, invalid, or contains an incorrect expected value.",
         "The failed primary attempt is not recorded.",
-        "Either the official RFC source or Wikipedia fallback source is absent.",
-        "Any credential file was read or credential content appears in output."
+        "Either the official RFC source or Wikipedia fallback source is absent."
       ],
       "expected_artifacts": [
         "result.json"

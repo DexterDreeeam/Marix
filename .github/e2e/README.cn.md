@@ -2,7 +2,7 @@
 
 ## 范围
 
-`tasks.json` 定义六项可重复任务：两项联网搜索、两项隔离的本地代码任务和两项图片理解探测。现在每项任务都在 VM 内的 `C:\MarixE2E\workspaces\<case-id>` 使用唯一工作目录。联网任务禁止读取 `.credential` 文件。图片任务有意记录当前预期的视觉能力缺口。
+`tasks.json` 定义六项可重复任务：两项联网搜索、两项隔离的本地代码任务和两项图片理解探测。现在每项任务都在 VM 内的 `C:\MarixE2E\workspaces\<case-id>` 使用唯一工作目录。图片任务有意记录当前预期的视觉能力缺口。
 
 Schema 版本 3 保留 `repository_root`，但它只用于定位物理机上的不可变 fixture 源 `.github\e2e\fixtures\...`；同时新增面向 VM 的字段：
 

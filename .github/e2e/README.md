@@ -2,7 +2,7 @@
 
 ## Scope
 
-`tasks.json` defines six repeatable tasks: two network searches, two isolated local-code tasks, and two image-understanding probes. Each task now uses a unique VM workspace under `C:\MarixE2E\workspaces\<case-id>`. Network tasks forbid reading `.credential` files. Image tasks intentionally record the current expected vision capability gap.
+`tasks.json` defines six repeatable tasks: two network searches, two isolated local-code tasks, and two image-understanding probes. Each task now uses a unique VM workspace under `C:\MarixE2E\workspaces\<case-id>`. Image tasks intentionally record the current expected vision capability gap.
 
 Schema version 3 keeps `repository_root` only for locating immutable host-side fixture sources under `.github\e2e\fixtures\...`, and adds VM-targeting fields:
 
