@@ -287,3 +287,17 @@ for executed cases only, declared execution order with the actual stop point,
 and a concise list of task, assertion, environment, capability, or cleanup
 problems. Report elapsed time and assertion details only for executed cases.
 Report only smoke-case outcomes; do not add a guardrail-gate test section.
+
+## Report file
+
+After printing the Chinese report, also save the complete report — every
+executed and skipped case, the totals, and, when execution stopped early, the
+full first-failure root-cause analysis and repair plan — to a Markdown file on
+the physical host filesystem, in the same Chinese wording as printed. This is a
+normal file write by you, the tester agent, on the host; it is not a VM or
+PowerShell Direct operation. Resolve the directory as `repository_root\..\
+Marix_TestReport` (that is, a sibling of the repository checkout named
+`Marix_TestReport`, never a path inside the repository, the VM, or
+`.github\e2e`); create it first if it does not already exist. Name the file
+with the current local time as `YYYYMMDD_HHmmss.md` (for example
+`20260721_133700.md`). Report the full file path you wrote after saving it.
