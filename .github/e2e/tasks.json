@@ -11,7 +11,7 @@
       "prompt": "在联网检索后，把当前 Rust stable 版本和发布日期写入 C:\\MarixE2E\\workspaces\\network-rust-stable\\result.json。必须实际访问至少两个相互独立的来源，不得仅凭模型记忆；其中一个来源必须是 Rust 官方站点（blog.rust-lang.org 或 doc.rust-lang.org），另一个必须是 releases.rs。JSON 必须包含 topic、version、release_date 和 sources；sources 每项包含 url、publisher、version、release_date、accessed_date。version 使用 X.Y.Z，日期使用 YYYY-MM-DD。不要读取或提及任何 .credential 文件或凭据。",
       "vm_working_directory": "C:\\MarixE2E\\workspaces\\network-rust-stable",
       "max_completion_time_secs": 600,
-      "max_relay_count": 16,
+      "max_relay_count": 8,
       "setup": {
         "fixture": null
       },
@@ -86,7 +86,7 @@
       "prompt": "先实际尝试访问故意不可达的 https://example.invalid/marix-e2e-primary，然后使用可访问的官方 RFC 来源和 Wikipedia 回退检索 HTTP 418。不得仅凭模型记忆。把结果写入 C:\\MarixE2E\\workspaces\\network-search-fallback\\result.json，字段必须是 topic、status_code、reason_phrase、rfc_number、published_date、primary_attempt_url、primary_attempt_failed、sources；reason_phrase 按 RFC 原文大小写记录，sources 每项包含 url、publisher、accessed_date。不要读取或提及任何 .credential 文件或凭据。",
       "vm_working_directory": "C:\\MarixE2E\\workspaces\\network-search-fallback",
       "max_completion_time_secs": 600,
-      "max_relay_count": 16,
+      "max_relay_count": 10,
       "setup": {
         "fixture": null
       },
@@ -157,7 +157,7 @@
       "prompt": "只在 C:\\MarixE2E\\workspaces\\code-edit-rust-slugify 中工作。阅读 tests\\slugify.rs 中的测试用例以了解 slugify 函数的预期输入输出行为（当前环境可能没有 Rust 工具链，不要求你实际编译或运行 cargo test），只修改 src\\lib.rs 的实现使其满足全部用例的预期输出。禁止修改 Cargo.toml、tests\\slugify.rs 或测试断言，禁止访问仓库 src\\ 和 overview\\。不要在回复中给出参考答案文件；直接完成修复并保留修改后的 src\\lib.rs。",
       "vm_working_directory": "C:\\MarixE2E\\workspaces\\code-edit-rust-slugify",
       "max_completion_time_secs": 600,
-      "max_relay_count": 20,
+      "max_relay_count": 10,
       "setup": {
         "fixture": ".github\\e2e\\fixtures\\code-edit-rust"
       },
@@ -233,7 +233,7 @@
       "prompt": "只读取 C:\\MarixE2E\\workspaces\\code-inspect-catalog 中的 catalog.json 和 rules.txt，按 rules.txt 对启用项目分类，并在同一目录新建 analysis.json。不得修改输入文件，不得访问仓库 src\\ 或 overview\\。analysis.json 必须包含 service、enabled_count、enabled_weight_total、enabled_by_label、heaviest_enabled_sku；每个标签下的 SKU 数组按字典序排列。",
       "vm_working_directory": "C:\\MarixE2E\\workspaces\\code-inspect-catalog",
       "max_completion_time_secs": 300,
-      "max_relay_count": 10,
+      "max_relay_count": 6,
       "setup": {
         "fixture": ".github\\e2e\\fixtures\\code-inspection"
       },
@@ -301,7 +301,7 @@
       "prompt": "分析 C:\\MarixE2E\\workspaces\\image-count-and-text\\scene.png，并把结果写入同目录 result.json。只报告实际看到的内容。JSON 字段必须是 blue_circles、red_squares、text，数字使用整数，文本保持原大小写和连字符。不要从 tasks.json 或其他说明文件推断答案。",
       "vm_working_directory": "C:\\MarixE2E\\workspaces\\image-count-and-text",
       "max_completion_time_secs": 300,
-      "max_relay_count": 10,
+      "max_relay_count": 5,
       "setup": {
         "fixture": ".github\\e2e\\fixtures\\image-understanding\\scene.png"
       },
@@ -344,7 +344,7 @@
       "prompt": "分析 C:\\MarixE2E\\workspaces\\image-spatial-relations\\scene.png，并把空间关系写入同目录 result.json。只根据图片作答，不要从 tasks.json 或其他说明文件推断。JSON 必须包含 circles_relative_to_squares、squares_relative_to_circles、text_relative_to_all_shapes，值只能使用英文关键词 above 或 below。",
       "vm_working_directory": "C:\\MarixE2E\\workspaces\\image-spatial-relations",
       "max_completion_time_secs": 300,
-      "max_relay_count": 10,
+      "max_relay_count": 5,
       "setup": {
         "fixture": ".github\\e2e\\fixtures\\image-understanding\\scene.png"
       },

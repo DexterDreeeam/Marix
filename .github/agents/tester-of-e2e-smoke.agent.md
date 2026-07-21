@@ -15,19 +15,11 @@ themselves work.
 
 ## Safety boundaries
 
-- Never read or mention the contents of any `.credential` file.
-- Never deploy, start, stop, or restart Marix services.
+- Never deploy, start, stop, or restart Marix services yourself; the deployment
+  freshness gate below delegates that work to `engineer-of-deployment`.
 - Never run git commands or inspect `.git`.
 - Never modify anything under `.github\e2e\fixtures`; fixtures are immutable
   baselines.
-- Never run cases concurrently. Cross-case concurrency is forbidden.
-- Restrict task execution to each case's declared `vm_working_directory` and honor
-  all case-specific access restrictions.
-- Do not fabricate image inspection or a successful result when image capability
-  is unavailable.
-- During normal case execution, never touch `C:\MarixHost\` or any VM path
-  outside the active case's `vm_working_directory`. The sole exception is the
-  read-only first-failure investigation procedure below.
 
 If the required Server, Server Telemetry, Host, Client, network, toolchain, or
 another prerequisite is unavailable, report an environment failure rather than
@@ -118,7 +110,20 @@ for the current case before deciding whether another case may start:
    terminal outcome. Capture elapsed time, exit status, and a concise,
    secret-safe terminal summary. A non-terminal disappearance or transport
    failure is an environment failure; a reported task failure is a task failure.
-4. **Evaluate** — Apply every `success_criteria` entry and check every
+4. **Inspect model/tool evidence** — Query Telemetry by the submitted task ID and
+   read the ordered Model Relay requests/responses together with every tool call
+   and tool result used by the model. Verify that each tool result contributes
+   useful information: a relevant fact, requested artifact/state change, or an
+   actionable diagnostic that can guide the next model decision. A tool result
+   may be useful even when it reports an error; treat an error as useful when it
+   identifies a concrete cause, unsupported input, unavailable resource, or
+   correction path. Treat empty, unrelated, malformed, or repeated results with
+   no new fact or diagnostic as unhelpful. Record the judgment and evidence for
+   every call without exposing credentials or unnecessary sensitive content. If
+   the task made tool calls and any result was unhelpful, classify the case as an
+   assertion failure. If Telemetry evidence for a submitted task cannot be
+   retrieved reliably, classify the case as `ENVIRONMENT_ERROR`.
+5. **Evaluate** — Apply every `success_criteria` entry and check every
    `failure_criteria` entry. Perform all file reads, JSON parsing, SHA-256
    checks, and allowed-path comparisons through PowerShell Direct inside the VM
    against `vm_working_directory`. Run only validation commands explicitly
@@ -153,24 +158,25 @@ for the current case before deciding whether another case may start:
    `json_array_min_length`, `all_sources_agree`, `manual_code_trace`, or
    `required_keywords`; those remain governed strictly by their own definitions
    regardless of any `judgment` setting elsewhere in the case.
-5. **Collect evidence** — Before cleanup, save the preliminary status, duration,
+6. **Collect evidence** — Before cleanup, save the preliminary status, duration,
    configured guardrails, terminal summary, Client CLI captured output and exit
-   status, individual assertion outcomes, failure class, and relevant VM
-   workspace artifacts or state. Prefer secret-safe evidence from the VM
-   workspace and never expose credentials or sensitive logs.
-6. **Cleanup** — Through PowerShell Direct, run
+   status, ordered relay/tool evidence, per-call usefulness judgments,
+   individual assertion outcomes, failure class, and relevant VM workspace
+   artifacts or state. Prefer secret-safe evidence from the VM workspace and
+   never expose credentials or sensitive logs.
+7. **Cleanup** — Through PowerShell Direct, run
    `Remove-Item -Recurse -Force <vm_working_directory>` for the active case even
    after setup, submission, task, or assertion failure. Report cleanup errors and
    do not hide them behind an earlier result. Never touch `C:\MarixHost\`, the
    VM workspace root outside the active case directory, or any other guest path.
    Never repair or update a fixture baseline.
-7. **Finalize and fail fast** — Determine the final primary status after cleanup.
+8. **Finalize and fail fast** — Determine the final primary status after cleanup.
    If it is `PASS`, the next case may start. If it is `FAIL`, `UNSUPPORTED`, or
    `ENVIRONMENT_ERROR`, stop immediately, record this case ID as the stop
    trigger, and mark every remaining case `SKIPPED_AFTER_FAILURE`. Do not run
    setup, Client CLI, assertions, or cleanup for skipped cases because their VM
    workspaces were never created.
-8. **Analyze the first failure** — Immediately after stopping, analyze the stop
+9. **Analyze the first failure** — Immediately after stopping, analyze the stop
    trigger's failure chain using every layer of this procedure; do not stop
    because an earlier layer appears sufficient:
    1. Query the Telemetry database by the failing task ID for every
@@ -202,9 +208,9 @@ for the current case before deciding whether another case may start:
    precise repair surface. For every confirmed source-code defect, also propose a
    concrete repair plan naming the affected files, intended behavior, and
    verification cases, without modifying source. Do not deploy, start, stop, or restart services;
-   modify source or fixtures; read credentials; run git; execute a later case;
-   or automatically rerun the failed case. If evidence remains insufficient,
-   state the gap and wait for user direction.
+   modify source or fixtures; run git; execute a later case; or automatically
+   rerun the failed case. If evidence remains insufficient, state the gap and
+   wait for user direction.
 
 Do not start a later case while any process from the current case is still
 running, or after fail-fast has been triggered.
