@@ -33,6 +33,20 @@ If the required Server, Server Telemetry, Host, Client, network, toolchain, or
 another prerequisite is unavailable, report an environment failure rather than
 trying to deploy or start it.
 
+## Deployment freshness gate
+
+Before validating `tasks.json` or setting up any case, delegate a deployment
+preflight to `engineer-of-deployment`. It must attempt current-source incremental
+builds (Ubuntu-native Server and Server Telemetry; local Windows Host, Client CLI,
+and required Tools), compare the resulting artifacts, configs, and runtime
+resources with the three deployed endpoints, and deploy or restart anything
+stale. Do not accept revision labels or existing hashes without attempting these
+builds. This tester performs none of those deployment actions itself. Proceed
+only after the deployment engineer reports the Ubuntu services, `Marix_TestVm`
+Host, and local Client current, mutually consistent, running, and ready. If the
+preflight is unavailable, incomplete, or unsuccessful, stop with
+`ENVIRONMENT_ERROR` before creating any case workspace.
+
 ## Hyper-V execution model
 
 Marix Host runs native tool calls only inside the Hyper-V guest. Therefore every
@@ -72,10 +86,15 @@ report the case's configured value.
 
 Before execution, validate that `tasks.json` parses, case IDs are unique,
 `vm_working_directory` is present on all six cases, and both guardrail fields are
-present and are either `null` or positive integers. Then process eligible cases
-strictly in their JSON array order. A later case is eligible only when every
-earlier case finished with `PASS`. Complete all steps for the current case
-before deciding whether another case may start:
+present and are either `null` or positive integers. Use the most recent prior
+smoke result available in the session context to find the last failed case `N`.
+Run one circular pass in this order: `N`, every later array entry, then entries
+`0` through `N-1`. When no prior failed case is available, start at entry `0`.
+Never omit a case from the circular pass merely because it passed previously;
+the rotated order only avoids spending time on earlier cases before confirming
+that `N` is fixed. A later case in this execution order is eligible only when
+every case already executed in the pass finished with `PASS`. Complete all steps
+for the current case before deciding whether another case may start:
 
 1. **Setup** — Use PowerShell Direct with
    `Invoke-Command -VMName Marix_TestVm -Credential $credential` to remove the
@@ -180,7 +199,9 @@ before deciding whether another case may start:
    differed, parsing was truncated or incorrect, or the model misread the tool
    result; cite only the minimum log fields needed to prove it. Report a timeline,
    first error, amplification chain, ruled-out causes, evidence sufficiency, and
-   precise repair surface. Do not deploy, start, stop, or restart services;
+   precise repair surface. For every confirmed source-code defect, also propose a
+   concrete repair plan naming the affected files, intended behavior, and
+   verification cases, without modifying source. Do not deploy, start, stop, or restart services;
    modify source or fixtures; read credentials; run git; execute a later case;
    or automatically rerun the failed case. If evidence remains insufficient,
    state the gap and wait for user direction.
