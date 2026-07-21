@@ -10,11 +10,14 @@ pub const CONFIG_FILE: &str = "config.toml";
 const CONFIG_ENV_VAR: &str = "MARIX_CONFIG";
 static CONFIG_CACHE: RwLock<Option<Result<Config, String>>> = RwLock::new(None);
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     pub name: String,
+    #[serde(skip, default = "System::new")]
     pub system: System,
     pub runtime: RuntimeConfig,
+    #[serde(default = "default_core_config")]
     pub core: CoreConfig,
     pub client: ClientConfig,
     pub server: ServerConfig,
@@ -122,20 +125,25 @@ pub struct ServerConfig {
     pub max_turns: u32,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ModelConfig {
-    pub backend: ModelBackend,
-    pub deepseek: DeepseekConfig,
-}
-
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum ModelBackend {
-    Deepseek,
+#[serde(deny_unknown_fields)]
+pub struct ModelConfig {
+    pub selected: String,
+    pub deepseek: DeepseekConfig,
+    pub glm: GlmConfig,
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct DeepseekConfig {
+    pub endpoint: String,
+    pub model: String,
+    pub api_key: String,
+}
+
+#[derive(Clone, PartialEq, Eq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct GlmConfig {
     pub endpoint: String,
     pub model: String,
     pub api_key: String,
@@ -148,46 +156,6 @@ pub struct ToolConfig {
 }
 
 // -- Private -- //
-
-#[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-struct RawConfig {
-    name: String,
-    runtime: RuntimeConfig,
-    core: Option<CoreConfig>,
-    client: ClientConfig,
-    server: RawServerConfig,
-    model: RawModelConfig,
-    tool: ToolConfig,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-struct RawServerConfig {
-    enabled: bool,
-    ip: String,
-    auth_token: String,
-    client_port: u16,
-    host_port: u16,
-    telemetry_port: u16,
-    telemetry_http_port: u16,
-    max_turns: u32,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-struct RawModelConfig {
-    backend: ModelBackend,
-    deepseek: RawDeepseekConfig,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-struct RawDeepseekConfig {
-    endpoint: String,
-    model: String,
-    api_key: String,
-}
 
 fn config_path() -> Result<PathBuf, ConfigError> {
     if let Some(path) = env::var_os(CONFIG_ENV_VAR).filter(|value| !value.is_empty()) {
@@ -222,42 +190,11 @@ fn load_config(config_path: &Path) -> Result<Config, ConfigError> {
 }
 
 fn build_config(content: &str, repo_root: &Path) -> Result<Config, ConfigError> {
-    let system = System::new();
-    let raw_config: RawConfig = toml::from_str(content)?;
-
-    let runtime = resolve_runtime_paths(repo_root, raw_config.runtime);
-
-    Ok(Config {
-        name: raw_config.name,
-        system,
-        runtime,
-        core: raw_config.core.unwrap_or_else(default_core_config),
-        client: raw_config.client,
-        server: ServerConfig {
-            enabled: raw_config.server.enabled,
-            ip: raw_config.server.ip,
-            auth_token: raw_config.server.auth_token,
-            client_port: raw_config.server.client_port,
-            host_port: raw_config.server.host_port,
-            telemetry_port: raw_config.server.telemetry_port,
-            telemetry_http_port: raw_config.server.telemetry_http_port,
-            max_turns: raw_config.server.max_turns,
-        },
-        model: ModelConfig {
-            backend: raw_config.model.backend,
-            deepseek: DeepseekConfig {
-                endpoint: raw_config.model.deepseek.endpoint,
-                model: raw_config.model.deepseek.model,
-                api_key: raw_config.model.deepseek.api_key,
-            },
-        },
-        tool: ToolConfig {
-            directory: path_to_config_string(resolve_config_path(
-                repo_root,
-                &raw_config.tool.directory,
-            )),
-        },
-    })
+    let mut config: Config = toml::from_str(content)?;
+    config.runtime = resolve_runtime_paths(repo_root, config.runtime);
+    config.tool.directory =
+        path_to_config_string(resolve_config_path(repo_root, &config.tool.directory));
+    Ok(config)
 }
 
 fn merge_tables(base: &mut toml::Table, overlay: toml::Table) {
@@ -379,6 +316,17 @@ impl fmt::Debug for DeepseekConfig {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         formatter
             .debug_struct("DeepseekConfig")
+            .field("endpoint", &self.endpoint)
+            .field("model", &self.model)
+            .field("api_key_configured", &(!self.api_key.is_empty()))
+            .finish()
+    }
+}
+
+impl fmt::Debug for GlmConfig {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("GlmConfig")
             .field("endpoint", &self.endpoint)
             .field("model", &self.model)
             .field("api_key_configured", &(!self.api_key.is_empty()))

@@ -4,8 +4,9 @@
     "path": "src/server/relay",
     "name": "relay",
     "purpose": "Builds validated two-prompt relay model requests and checks the task completion deadline before reserving relay budget and creating each Relay.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -57,7 +58,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
@@ -70,31 +71,36 @@
         {
           "sourcePath": "src/server/relay/runtime.rs",
           "lineStart": 29,
-          "lineEnd": 58,
+          "lineEnd": 60,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 29,
+              "lineEnd": 60
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 62,
+          "lineEnd": 165,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 60,
-          "lineEnd": 163,
+          "lineStart": 169,
+          "lineEnd": 247,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 167,
-          "lineEnd": 245,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 247,
-          "lineEnd": 252,
+          "lineStart": 249,
+          "lineEnd": 254,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

@@ -1,27 +1,27 @@
 use std::fmt;
 
-use marix_common::DeepseekConfig;
+use marix_common::GlmConfig;
 
 use crate::model::backend::ModelBackendImpl;
 use crate::model::openai::OpenAiCore;
 use crate::model::{ModelBackendError, ModelRequest, ModelResponseStream};
 
 #[derive(Clone)]
-pub struct DeepseekBackend {
+pub struct GlmBackend {
     core: OpenAiCore,
 }
 
-impl DeepseekBackend {
-    pub fn new(config: DeepseekConfig) -> Self {
+impl GlmBackend {
+    pub fn new(config: GlmConfig) -> Self {
         Self {
-            core: OpenAiCore::new("Deepseek", config.endpoint, config.model, config.api_key),
+            core: OpenAiCore::new("Glm", config.endpoint, config.model, config.api_key),
         }
     }
 }
 
 // -- Private -- //
 
-impl ModelBackendImpl for DeepseekBackend {
+impl ModelBackendImpl for GlmBackend {
     fn request_stream(
         &mut self,
         request: ModelRequest,
@@ -30,7 +30,7 @@ impl ModelBackendImpl for DeepseekBackend {
     }
 }
 
-impl fmt::Debug for DeepseekBackend {
+impl fmt::Debug for GlmBackend {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         fmt::Debug::fmt(&self.core, formatter)
     }

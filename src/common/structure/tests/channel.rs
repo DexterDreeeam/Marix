@@ -10,6 +10,7 @@ use std::sync::{Mutex, OnceLock};
 use std::time::{Duration, Instant};
 
 use crate::config::Config;
+use crate::structure::channel;
 use crate::structure::{
     ChannelEndpoint, ChannelError, NetReceiver, accept_channel, connect_channel,
 };
@@ -45,11 +46,16 @@ telemetry_http_port = 39003
 max_turns = 8
 
 [model]
-backend = "deepseek"
+selected = "deepseek"
 
 [model.deepseek]
 endpoint = "https://example.invalid/chat"
 model = "deepseek-chat"
+api_key = "test-key"
+
+[model.glm]
+endpoint = "https://example.invalid/chat"
+model = "glm-chat"
 api_key = "test-key"
 
 [tool]
@@ -397,4 +403,41 @@ fn repeated_connect_disconnect_cycles() {
         recv_message(&mut server_rx, Duration::from_secs(5)).as_deref(),
         Some("final"),
     );
+}
+
+#[test]
+fn arm_tcp_keepalive_enables_keepalive() {
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("build keepalive test runtime");
+    runtime.block_on(async {
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
+            .await
+            .expect("bind keepalive test listener");
+        let address = listener.local_addr().expect("listener local addr");
+
+        let (accept_result, connect_result) = tokio::join!(
+            async { listener.accept().await },
+            tokio::net::TcpStream::connect(address),
+        );
+        let (accepted, _) = accept_result.expect("accept keepalive test peer");
+        let connected = connect_result.expect("connect keepalive test peer");
+
+        channel::arm_tcp_keepalive(&accepted).expect("arm accepted socket");
+        channel::arm_tcp_keepalive(&connected).expect("arm connected socket");
+
+        assert!(
+            socket2::SockRef::from(&accepted)
+                .keepalive()
+                .expect("read accepted keepalive flag"),
+            "accepted socket should have SO_KEEPALIVE enabled",
+        );
+        assert!(
+            socket2::SockRef::from(&connected)
+                .keepalive()
+                .expect("read connected keepalive flag"),
+            "connected socket should have SO_KEEPALIVE enabled",
+        );
+    });
 }

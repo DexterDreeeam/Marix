@@ -3,14 +3,21 @@
   "module": {
     "path": "src/server/model",
     "name": "model",
-    "purpose": "Defines the streaming-only model backend contract and exposes Deepseek, which explicitly disables thinking in request payloads and validates complete SSE streams before logging one compact normalized OpenAI-compatible response, as a direct child implementation.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines the streaming-only model backend contract, provides the shared OpenAiCore implementation (payload building, tool building, HTTP request/response streaming, SSE parsing and tool-call normalization, and Debug formatting) for OpenAI-compatible chat-completions backends, and exposes Deepseek and Glm as direct child implementations that each wrap OpenAiCore with their own provider name, endpoint, model, and api_key.",
+    "changeStatus": "modified"
   },
+  "added": ["openai.rs"],
+  "modified": ["mod.rs"],
   "childModules": [
     {
       "path": "src/server/model/deepseek",
       "name": "deepseek",
-      "purpose": "Implements the Deepseek streaming backend: requests explicitly disable thinking for deterministic JSON and tool relay payloads; SSE deltas are strictly validated and accumulated, and only after a valid finish_reason followed by [DONE] is one compact normalized OpenAI-compatible JSON response with content or tool_calls logged; invalid or disconnected streams produce no success log."
+      "purpose": "Implements the Deepseek streaming backend as a thin wrapper around the shared OpenAiCore (in src/server/model/openai.rs): constructs from a caller-supplied DeepseekConfig (endpoint/model/api_key) and delegates request/response streaming, payload building, SSE parsing, and Debug formatting to OpenAiCore with provider name \"Deepseek\"."
+    },
+    {
+      "path": "src/server/model/glm",
+      "name": "glm",
+      "purpose": "Implements the GLM streaming backend as a thin wrapper around the shared OpenAiCore (in src/server/model/openai.rs): constructs from a caller-supplied GlmConfig (endpoint/model/api_key, defined in marix_common) and delegates request/response streaming, payload building, SSE parsing, and Debug formatting to OpenAiCore with provider name \"Glm\"."
     }
   ],
   "elements": [
@@ -184,70 +191,194 @@
       ]
     },
     {
-      "name": "DeepseekBackend",
+      "name": "OpenAiCore",
       "type": "struct",
-      "source_depth": 4,
-      "changeStatus": "unchanged",
+      "source_depth": 3,
+      "changeStatus": "added",
       "codeSegments": [
         {
-          "sourcePath": "src/server/model/deepseek/backend.rs",
-          "lineStart": 14,
+          "sourcePath": "src/server/model/openai.rs",
+          "lineStart": 11,
           "lineEnd": 18,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/model/deepseek/backend.rs",
-          "lineStart": 20,
-          "lineEnd": 31,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/model/deepseek/backend.rs",
-          "lineStart": 35,
-          "lineEnd": 130,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 51,
-              "lineEnd": 53
+              "lineStart": 11,
+              "lineEnd": 18
             }
           ],
           "modifiedLines": []
         },
         {
+          "sourcePath": "src/server/model/openai.rs",
+          "lineStart": 20,
+          "lineEnd": 67,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 67
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/openai.rs",
+          "lineStart": 71,
+          "lineEnd": 168,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 71,
+              "lineEnd": 168
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/openai.rs",
+          "lineStart": 170,
+          "lineEnd": 242,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 170,
+              "lineEnd": 242
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/openai.rs",
+          "lineStart": 700,
+          "lineEnd": 709,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 700,
+              "lineEnd": 709
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "DeepseekBackend",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
           "sourcePath": "src/server/model/deepseek/backend.rs",
-          "lineStart": 132,
-          "lineEnd": 141,
+          "lineStart": 9,
+          "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 12
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/model/deepseek/backend.rs",
+          "lineStart": 14,
+          "lineEnd": 20,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 20
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/model/deepseek/backend.rs",
+          "lineStart": 24,
+          "lineEnd": 31,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 24,
+              "lineEnd": 31
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/model/deepseek/backend.rs",
+          "lineStart": 33,
+          "lineEnd": 37,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 33,
+              "lineEnd": 37
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GlmBackend",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/model/glm/backend.rs",
+          "lineStart": 9,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 12
+            }
+          ],
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/server/model/deepseek/request.rs",
-          "lineStart": 10,
-          "lineEnd": 43,
+          "sourcePath": "src/server/model/glm/backend.rs",
+          "lineStart": 14,
+          "lineEnd": 20,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 20
+            }
+          ],
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/server/model/deepseek/stream.rs",
-          "lineStart": 10,
-          "lineEnd": 48,
+          "sourcePath": "src/server/model/glm/backend.rs",
+          "lineStart": 24,
+          "lineEnd": 31,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 24,
+              "lineEnd": 31
+            }
+          ],
           "modifiedLines": []
         },
         {
-          "sourcePath": "src/server/model/deepseek/stream.rs",
-          "lineStart": 75,
-          "lineEnd": 105,
+          "sourcePath": "src/server/model/glm/backend.rs",
+          "lineStart": 33,
+          "lineEnd": 37,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 33,
+              "lineEnd": 37
+            }
+          ],
           "modifiedLines": []
         }
       ]

@@ -3,9 +3,10 @@
   "module": {
     "path": "src/common/config",
     "name": "config",
-    "purpose": "Loads typed executable-relative configuration and models All/Win/Ubuntu platforms, All/Amd/Arm 64-bit architecture families, concrete host detection, and wildcard tool-side compatibility.",
-    "changeStatus": "unchanged"
+    "purpose": "Loads typed executable-relative configuration and models All/Win/Ubuntu platforms, All/Amd/Arm 64-bit architecture families, concrete host detection, and wildcard tool-side compatibility; owns ModelConfig, which pairs a selected model name with always-present DeepseekConfig and GlmConfig endpoint/model/api_key sections.",
+    "changeStatus": "modified"
   },
+  "modified": ["config.rs", "mod.rs"],
   "childModules": [],
   "elements": [
     {
@@ -28,20 +29,42 @@
       "name": "Config",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
           "lineStart": 13,
-          "lineEnd": 23,
+          "lineEnd": 26,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 14
+            },
+            {
+              "lineStart": 17,
+              "lineEnd": 17
+            },
+            {
+              "lineStart": 20,
+              "lineEnd": 20
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 13,
+              "lineEnd": 13
+            },
+            {
+              "lineStart": 24,
+              "lineEnd": 24
+            }
+          ]
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 25,
-          "lineEnd": 67,
+          "lineStart": 28,
+          "lineEnd": 70,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -56,8 +79,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 69,
-          "lineEnd": 80,
+          "lineStart": 72,
+          "lineEnd": 83,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -72,8 +95,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 82,
-          "lineEnd": 88,
+          "lineStart": 85,
+          "lineEnd": 91,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -88,8 +111,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 90,
-          "lineEnd": 96,
+          "lineStart": 93,
+          "lineEnd": 99,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -104,8 +127,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 98,
-          "lineEnd": 103,
+          "lineStart": 101,
+          "lineEnd": 106,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -120,8 +143,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 105,
-          "lineEnd": 110,
+          "lineStart": 108,
+          "lineEnd": 113,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -136,8 +159,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 112,
-          "lineEnd": 123,
+          "lineStart": 115,
+          "lineEnd": 126,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -148,30 +171,19 @@
       "name": "ModelConfig",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 125,
-          "lineEnd": 129,
+          "lineStart": 128,
+          "lineEnd": 134,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ModelBackend",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/config/config.rs",
-          "lineStart": 131,
-          "lineEnd": 135,
-          "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 128,
+              "lineEnd": 134
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -180,22 +192,66 @@
       "name": "DeepseekConfig",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 137,
+          "lineStart": 136,
           "lineEnd": 142,
           "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 137,
+              "lineEnd": 137
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 136,
+              "lineEnd": 136
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 315,
+          "lineEnd": 324,
+          "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "GlmConfig",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 144,
+          "lineEnd": 150,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 144,
+              "lineEnd": 150
+            }
+          ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 378,
-          "lineEnd": 387,
+          "lineStart": 326,
+          "lineEnd": 335,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 326,
+              "lineEnd": 335
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -208,72 +264,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 144,
-          "lineEnd": 148,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "RawConfig",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/config/config.rs",
           "lineStart": 152,
-          "lineEnd": 162,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "RawServerConfig",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/config/config.rs",
-          "lineStart": 164,
-          "lineEnd": 175,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "RawModelConfig",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/config/config.rs",
-          "lineStart": 177,
-          "lineEnd": 182,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "RawDeepseekConfig",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/config/config.rs",
-          "lineStart": 184,
-          "lineEnd": 190,
+          "lineEnd": 156,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -284,44 +276,44 @@
       "name": "ConfigError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 349,
-          "lineEnd": 353,
+          "lineStart": 286,
+          "lineEnd": 290,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 355,
-          "lineEnd": 359,
+          "lineStart": 292,
+          "lineEnd": 296,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 361,
-          "lineEnd": 365,
+          "lineStart": 298,
+          "lineEnd": 302,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 367,
-          "lineEnd": 374,
+          "lineStart": 304,
+          "lineEnd": 311,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 376,
-          "lineEnd": 376,
+          "lineStart": 313,
+          "lineEnd": 313,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

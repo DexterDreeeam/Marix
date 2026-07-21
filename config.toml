@@ -20,12 +20,17 @@ telemetry_http_port = {{SERVER_PORT_TELEMETRY_HTTP}}
 max_turns = 32
 
 [model]
-backend = "deepseek"
+selected = "deepseek"
 
 [model.deepseek]
 endpoint = "https://api.deepseek.com/chat/completions"
 model = "deepseek-v4-flash"
 api_key = "{{MODEL_DEEPSEEK_API_KEY}}"
+
+[model.glm]
+endpoint = "https://open.bigmodel.cn/api/paas/v4/chat/completions"
+model = "glm-4.7-flash"
+api_key = "{{MODEL_GLM_API_KEY}}"
 
 [tool]
 directory = "tool"

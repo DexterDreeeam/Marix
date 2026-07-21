@@ -5,7 +5,7 @@ use std::sync::Mutex as StdMutex;
 use marix_common::external::*;
 use marix_common::{
     ActorCloseReceiver, ActorEventReceiver, ActorFuture, ActorStartFuture, ActorStatus, Config,
-    Lifecycle, Logger, ModelBackend as ConfigModelBackend, Runtime as RuntimeTrait,
+    Lifecycle, Logger, Runtime as RuntimeTrait,
 };
 use marix_protocol::{
     IntentEvent, RelayEvent, RelayRequest, RelayResult, RelayResultKind, RelaySignature,
@@ -13,7 +13,7 @@ use marix_protocol::{
 };
 
 use super::Relay;
-use crate::model::{DeepseekBackend, ModelBackend, ModelResponse, ModelResponseStream};
+use crate::model::{DeepseekBackend, GlmBackend, ModelBackend, ModelResponse, ModelResponseStream};
 use crate::task::TaskAccess;
 
 pub struct RelayRuntime {
@@ -29,20 +29,22 @@ pub struct RelayRuntime {
 impl RelayRuntime {
     pub(crate) fn new(access: Arc<TaskAccess>, request: RelayRequest) -> Result<Self, String> {
         let config = Config::load().map_err(|error| format!("failed to load config: {error}"))?;
-        let model_backend: Box<dyn ModelBackend> = match config.model.backend {
-            ConfigModelBackend::Deepseek => {
-                let backend =
-                    std::panic::catch_unwind(DeepseekBackend::new).map_err(|payload| {
-                        let detail = if let Some(message) = payload.downcast_ref::<String>() {
-                            message.clone()
-                        } else if let Some(message) = payload.downcast_ref::<&str>() {
-                            (*message).to_owned()
-                        } else {
-                            "unknown backend construction panic".to_owned()
-                        };
-                        format!("failed to construct model backend: {detail}")
-                    })?;
+        let model_backend: Box<dyn ModelBackend> = match config.model.selected.as_str() {
+            "deepseek" => {
+                let backend = construct_model_backend("deepseek", || {
+                    DeepseekBackend::new(config.model.deepseek.clone())
+                })?;
                 Box::new(backend)
+            }
+            "glm" => {
+                let backend =
+                    construct_model_backend("glm", || GlmBackend::new(config.model.glm.clone()))?;
+                Box::new(backend)
+            }
+            other => {
+                return Err(format!(
+                    "unsupported model.selected value \"{other}\"; expected \"deepseek\" or \"glm\""
+                ));
             }
         };
         Ok(Self {
@@ -249,4 +251,20 @@ fn assert_runtime_object_safe(
     runtime: &dyn RuntimeTrait<Base = Relay, Prepared = ModelResponseStream>,
 ) {
     let _ = runtime.run();
+}
+
+fn construct_model_backend<B>(
+    backend_name: &str,
+    build: impl FnOnce() -> B + std::panic::UnwindSafe,
+) -> Result<B, String> {
+    std::panic::catch_unwind(build).map_err(|payload| {
+        let detail = if let Some(message) = payload.downcast_ref::<String>() {
+            message.clone()
+        } else if let Some(message) = payload.downcast_ref::<&str>() {
+            (*message).to_owned()
+        } else {
+            "unknown backend construction panic".to_owned()
+        };
+        format!("failed to construct {backend_name} model backend: {detail}")
+    })
 }

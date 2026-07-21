@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/server/model/glm",
+    "name": "glm",
+    "purpose": "Implements the GLM streaming backend as a thin wrapper around the shared OpenAiCore (in src/server/model/openai.rs): constructs from a caller-supplied GlmConfig (endpoint/model/api_key, defined in marix_common) and delegates request/response streaming, payload building, SSE parsing, and Debug formatting to OpenAiCore with provider name \"Glm\".",
+    "changeStatus": "added"
+  },
+  "added": ["."],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "GlmBackend",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/model/glm/backend.rs",
+          "lineStart": 9,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 9,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/glm/backend.rs",
+          "lineStart": 14,
+          "lineEnd": 20,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 20
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/glm/backend.rs",
+          "lineStart": 24,
+          "lineEnd": 31,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 24,
+              "lineEnd": 31
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/glm/backend.rs",
+          "lineStart": 33,
+          "lineEnd": 37,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 33,
+              "lineEnd": 37
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

@@ -11,7 +11,7 @@ pub use actor::{
     StatusOf,
 };
 pub use config::{
-    Arch, ClientConfig, Config, CoreConfig, DeepseekConfig, ModelBackend, ModelConfig, Platform,
+    Arch, ClientConfig, Config, CoreConfig, DeepseekConfig, GlmConfig, ModelConfig, Platform,
     RuntimeConfig, RuntimeEnvironment, RuntimeMode, ServerConfig, System, ToolConfig,
 };
 pub use logging::{

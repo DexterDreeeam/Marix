@@ -95,11 +95,16 @@ telemetry_http_port = 0
 max_turns = 8
 
 [model]
-backend = "deepseek"
+selected = "deepseek"
 
 [model.deepseek]
 endpoint = "https://example.invalid/chat"
 model = "deepseek-chat"
+api_key = "test-key"
+
+[model.glm]
+endpoint = "https://example.invalid/chat"
+model = "glm-chat"
 api_key = "test-key"
 
 [tool]

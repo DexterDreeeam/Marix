@@ -4,8 +4,12 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Owns shared configuration, general telemetry logging, executable-sibling standalone tool logging, approved external wrappers including Tokio timers, generic Actor and Runtime contracts, signatures, authenticated channels, and insertion-ordered work queues.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "Cargo.toml",
+    "lib.rs"
+  ],
   "childModules": [
     {
       "path": "src/common/actor",
@@ -15,7 +19,7 @@
     {
       "path": "src/common/config",
       "name": "config",
-      "purpose": "Loads typed executable-relative configuration and models All/Win/Ubuntu platforms, All/Amd/Arm 64-bit architecture families, concrete host detection, and wildcard tool-side compatibility."
+      "purpose": "Loads typed executable-relative configuration and models All/Win/Ubuntu platforms, All/Amd/Arm 64-bit architecture families, concrete host detection, and wildcard tool-side compatibility; owns ModelConfig, which pairs a selected model name with always-present DeepseekConfig and GlmConfig endpoint/model/api_key sections."
     },
     {
       "path": "src/common/external",
@@ -35,7 +39,7 @@
     {
       "path": "src/common/structure",
       "name": "structure",
-      "purpose": "Provides authenticated channels and insertion-ordered concurrent work queues."
+      "purpose": "Provides authenticated channels, tuned with TCP keepalive, and insertion-ordered concurrent work queues."
     }
   ],
   "elements": [
@@ -424,20 +428,42 @@
       "name": "Config",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
           "lineStart": 13,
-          "lineEnd": 23,
+          "lineEnd": 26,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 14
+            },
+            {
+              "lineStart": 17,
+              "lineEnd": 17
+            },
+            {
+              "lineStart": 20,
+              "lineEnd": 20
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 13,
+              "lineEnd": 13
+            },
+            {
+              "lineStart": 24,
+              "lineEnd": 24
+            }
+          ]
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 25,
-          "lineEnd": 67,
+          "lineStart": 28,
+          "lineEnd": 70,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -452,8 +478,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 69,
-          "lineEnd": 80,
+          "lineStart": 72,
+          "lineEnd": 83,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -468,8 +494,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 82,
-          "lineEnd": 88,
+          "lineStart": 85,
+          "lineEnd": 91,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -484,8 +510,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 90,
-          "lineEnd": 96,
+          "lineStart": 93,
+          "lineEnd": 99,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -500,8 +526,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 98,
-          "lineEnd": 103,
+          "lineStart": 101,
+          "lineEnd": 106,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -516,8 +542,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 105,
-          "lineEnd": 110,
+          "lineStart": 108,
+          "lineEnd": 113,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -532,8 +558,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 112,
-          "lineEnd": 123,
+          "lineStart": 115,
+          "lineEnd": 126,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -544,30 +570,19 @@
       "name": "ModelConfig",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "added",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 125,
-          "lineEnd": 129,
+          "lineStart": 128,
+          "lineEnd": 134,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ModelBackend",
-      "type": "enum",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/config/config.rs",
-          "lineStart": 131,
-          "lineEnd": 135,
-          "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 128,
+              "lineEnd": 134
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -576,22 +591,66 @@
       "name": "DeepseekConfig",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 137,
+          "lineStart": 136,
           "lineEnd": 142,
           "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 137,
+              "lineEnd": 137
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 136,
+              "lineEnd": 136
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 315,
+          "lineEnd": 324,
+          "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "GlmConfig",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/config/config.rs",
+          "lineStart": 144,
+          "lineEnd": 150,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 144,
+              "lineEnd": 150
+            }
+          ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 378,
-          "lineEnd": 387,
+          "lineStart": 326,
+          "lineEnd": 335,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 326,
+              "lineEnd": 335
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -604,72 +663,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 144,
-          "lineEnd": 148,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "RawConfig",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/config/config.rs",
           "lineStart": 152,
-          "lineEnd": 162,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "RawServerConfig",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/config/config.rs",
-          "lineStart": 164,
-          "lineEnd": 175,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "RawModelConfig",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/config/config.rs",
-          "lineStart": 177,
-          "lineEnd": 182,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "RawDeepseekConfig",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/config/config.rs",
-          "lineStart": 184,
-          "lineEnd": 190,
+          "lineEnd": 156,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -684,8 +679,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 192,
-          "lineEnd": 216,
+          "lineStart": 160,
+          "lineEnd": 184,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -700,8 +695,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 218,
-          "lineEnd": 222,
+          "lineStart": 186,
+          "lineEnd": 190,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -712,15 +707,20 @@
       "name": "build_config",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 224,
-          "lineEnd": 261,
+          "lineStart": 192,
+          "lineEnd": 198,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 193,
+              "lineEnd": 197
+            }
+          ]
         }
       ]
     },
@@ -732,8 +732,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 263,
-          "lineEnd": 274,
+          "lineStart": 200,
+          "lineEnd": 211,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -748,8 +748,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 276,
-          "lineEnd": 281,
+          "lineStart": 213,
+          "lineEnd": 218,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -764,8 +764,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 283,
-          "lineEnd": 285,
+          "lineStart": 220,
+          "lineEnd": 222,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -780,8 +780,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 287,
-          "lineEnd": 292,
+          "lineStart": 224,
+          "lineEnd": 229,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -796,8 +796,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 294,
-          "lineEnd": 302,
+          "lineStart": 231,
+          "lineEnd": 239,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -812,8 +812,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 304,
-          "lineEnd": 319,
+          "lineStart": 241,
+          "lineEnd": 256,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -828,8 +828,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 321,
-          "lineEnd": 323,
+          "lineStart": 258,
+          "lineEnd": 260,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -844,8 +844,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 325,
-          "lineEnd": 332,
+          "lineStart": 262,
+          "lineEnd": 269,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -860,8 +860,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 334,
-          "lineEnd": 338,
+          "lineStart": 271,
+          "lineEnd": 275,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -876,8 +876,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 340,
-          "lineEnd": 347,
+          "lineStart": 277,
+          "lineEnd": 284,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -888,44 +888,44 @@
       "name": "ConfigError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 349,
-          "lineEnd": 353,
+          "lineStart": 286,
+          "lineEnd": 290,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 355,
-          "lineEnd": 359,
+          "lineStart": 292,
+          "lineEnd": 296,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 361,
-          "lineEnd": 365,
+          "lineStart": 298,
+          "lineEnd": 302,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 367,
-          "lineEnd": 374,
+          "lineStart": 304,
+          "lineEnd": 311,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/config/config.rs",
-          "lineStart": 376,
-          "lineEnd": 376,
+          "lineStart": 313,
+          "lineEnd": 313,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -1566,8 +1566,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 10,
-          "lineEnd": 10,
+          "lineStart": 11,
+          "lineEnd": 11,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -1582,8 +1582,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 13,
-          "lineEnd": 16,
+          "lineStart": 16,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -1598,10 +1598,73 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 17,
-          "lineEnd": 19,
+          "lineStart": 20,
+          "lineEnd": 22,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "KEEPALIVE_IDLE",
+      "type": "const",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 23,
+          "lineEnd": 27,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 27
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "KEEPALIVE_INTERVAL",
+      "type": "const",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 28,
+          "lineEnd": 28,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 28,
+              "lineEnd": 28
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "KEEPALIVE_RETRIES",
+      "type": "const",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 29,
+          "lineEnd": 29,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 29,
+              "lineEnd": 29
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -1614,8 +1677,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 21,
-          "lineEnd": 21,
+          "lineStart": 31,
+          "lineEnd": 31,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -1630,8 +1693,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 22,
-          "lineEnd": 22,
+          "lineStart": 32,
+          "lineEnd": 32,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -1646,8 +1709,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 23,
-          "lineEnd": 23,
+          "lineStart": 33,
+          "lineEnd": 33,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -1662,8 +1725,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 24,
-          "lineEnd": 24,
+          "lineStart": 34,
+          "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -1678,16 +1741,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 25,
-          "lineEnd": 25,
+          "lineStart": 35,
+          "lineEnd": 35,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 25,
-              "lineEnd": 25
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -1699,16 +1757,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 26,
-          "lineEnd": 26,
+          "lineStart": 36,
+          "lineEnd": 36,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 26,
-              "lineEnd": 26
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -1720,8 +1773,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 27,
-          "lineEnd": 27,
+          "lineStart": 37,
+          "lineEnd": 37,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -1736,8 +1789,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 28,
-          "lineEnd": 28,
+          "lineStart": 38,
+          "lineEnd": 38,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -1752,8 +1805,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 30,
-          "lineEnd": 41,
+          "lineStart": 40,
+          "lineEnd": 51,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -1768,8 +1821,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 43,
-          "lineEnd": 50,
+          "lineStart": 53,
+          "lineEnd": 60,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -1784,8 +1837,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 52,
-          "lineEnd": 54,
+          "lineStart": 62,
+          "lineEnd": 64,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -1800,16 +1853,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 56,
-          "lineEnd": 58,
+          "lineStart": 66,
+          "lineEnd": 68,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 57,
-              "lineEnd": 57
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -1821,20 +1869,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 60,
-          "lineEnd": 112,
+          "lineStart": 70,
+          "lineEnd": 122,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 64,
-              "lineEnd": 65
-            },
-            {
-              "lineStart": 92,
-              "lineEnd": 92
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -1842,15 +1881,25 @@
       "name": "connect_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 114,
-          "lineEnd": 169,
+          "lineStart": 124,
+          "lineEnd": 196,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "addedLines": [
+            {
+              "lineStart": 185,
+              "lineEnd": 189
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 190,
+              "lineEnd": 190
+            }
+          ]
         }
       ]
     },
@@ -1862,8 +1911,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 173,
-          "lineEnd": 192,
+          "lineStart": 200,
+          "lineEnd": 219,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -1878,26 +1927,47 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 194,
-          "lineEnd": 200,
+          "lineStart": 221,
+          "lineEnd": 227,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 202,
-          "lineEnd": 223,
+          "lineStart": 229,
+          "lineEnd": 250,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 225,
-          "lineEnd": 231,
+          "lineStart": 252,
+          "lineEnd": 258,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "arm_tcp_keepalive",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 260,
+          "lineEnd": 275,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 260,
+              "lineEnd": 275
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -1906,14 +1976,19 @@
       "name": "accept_loop",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 233,
-          "lineEnd": 282,
+          "lineStart": 277,
+          "lineEnd": 331,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 304,
+              "lineEnd": 308
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -1926,8 +2001,8 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 284,
-          "lineEnd": 344,
+          "lineStart": 333,
+          "lineEnd": 393,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -1935,18 +2010,48 @@
       ]
     },
     {
-      "name": "connecter_handshake",
+      "name": "connect_attempt",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "renamed",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
-          "lineStart": 346,
-          "lineEnd": 430,
+          "lineStart": 395,
+          "lineEnd": 425,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 398,
+              "lineEnd": 398
+            },
+            {
+              "lineStart": 407,
+              "lineEnd": 407
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "connecter_handshake",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/structure/channel.rs",
+          "lineStart": 427,
+          "lineEnd": 465,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 427,
+              "lineEnd": 427
+            }
+          ]
         }
       ]
     },

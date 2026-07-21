@@ -4,8 +4,9 @@
     "path": "src/server",
     "name": "server",
     "purpose": "Runs actor-based orchestration with workflow decision parsing, ordered execution, failure reanalysis, streaming models, task deadline and relay-budget guardrails, a task-owned completion watchdog, and cancellation of all task-owned actors.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/server/intent",
@@ -20,7 +21,7 @@
     {
       "path": "src/server/model",
       "name": "model",
-      "purpose": "Defines the streaming-only model backend contract and exposes Deepseek, which validates complete SSE streams before logging one compact normalized OpenAI-compatible response, as a direct child implementation."
+      "purpose": "Defines the streaming-only model backend contract, provides the shared OpenAiCore implementation (payload building, tool building, HTTP request/response streaming, SSE parsing and tool-call normalization, and Debug formatting) for OpenAI-compatible chat-completions backends, and exposes Deepseek and Glm as direct child implementations that each wrap OpenAiCore with their own provider name, endpoint, model, and api_key."
     },
     {
       "path": "src/server/plan",
@@ -1238,6 +1239,79 @@
           "lineEnd": 46,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "OpenAiCore",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/model/openai.rs",
+          "lineStart": 11,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 18
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/openai.rs",
+          "lineStart": 20,
+          "lineEnd": 67,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 67
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/openai.rs",
+          "lineStart": 71,
+          "lineEnd": 168,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 71,
+              "lineEnd": 168
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/openai.rs",
+          "lineStart": 170,
+          "lineEnd": 242,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 170,
+              "lineEnd": 242
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/model/openai.rs",
+          "lineStart": 700,
+          "lineEnd": 709,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 700,
+              "lineEnd": 709
+            }
+          ],
           "modifiedLines": []
         }
       ]

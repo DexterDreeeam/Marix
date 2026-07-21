@@ -3,6 +3,7 @@ use std::sync::{Arc, Mutex, mpsc as std_mpsc};
 use std::thread;
 use std::time::Duration;
 
+use crate::Logger;
 use crate::config::Config;
 
 pub use crossbeam_channel::select;
@@ -19,6 +20,13 @@ const HANDSHAKE_TIMEOUT: Duration = Duration::from_secs(5);
 /// How long the server keeps driving a rejected connection so the
 /// rejection reaches the connecter before the connection is torn down.
 const REJECT_FLUSH_GRACE: Duration = Duration::from_secs(2);
+/// How long a connection may sit idle before the OS starts probing it with
+/// TCP keepalive, and how the probe/retry cadence is tuned, so a peer that
+/// vanished without a clean FIN/RST (for example a VM reboot) is detected
+/// well before the accept/connect loop would otherwise wait on it forever.
+const KEEPALIVE_IDLE: Duration = Duration::from_secs(10);
+const KEEPALIVE_INTERVAL: Duration = Duration::from_secs(5);
+const KEEPALIVE_RETRIES: u32 = 3;
 
 pub type Sender<T> = crossbeam_channel::Sender<T>;
 pub type Receiver<T> = crossbeam_channel::Receiver<T>;
@@ -174,7 +182,12 @@ where
                     return;
                 }
             };
-            connecter_handshake(socket, token, setup_tx).await;
+            if let Err(error) = arm_tcp_keepalive(&socket) {
+                Logger::warning(format!(
+                    "failed to arm TCP keepalive on connected socket: {error:?}"
+                ));
+            }
+            connect_attempt(socket, token, setup_tx).await;
         });
     });
     setup_rx
@@ -244,6 +257,23 @@ impl Drop for ConnectionGuard {
     }
 }
 
+/// Arms OS-level TCP keepalive on `socket` using [`KEEPALIVE_IDLE`],
+/// [`KEEPALIVE_INTERVAL`], and [`KEEPALIVE_RETRIES`], so a peer that
+/// disappears without sending a clean FIN/RST (for example because its VM
+/// rebooted) is detected by the kernel instead of leaving a blocked read
+/// pending forever. `pub(super)` only so the sibling integration test module
+/// can verify it directly; still fully crate-internal, not part of the
+/// crate's public API.
+pub(super) fn arm_tcp_keepalive(socket: &tokio::net::TcpStream) -> Result<(), ChannelError> {
+    let keepalive = socket2::TcpKeepalive::new()
+        .with_time(KEEPALIVE_IDLE)
+        .with_interval(KEEPALIVE_INTERVAL)
+        .with_retries(KEEPALIVE_RETRIES);
+    socket2::SockRef::from(socket)
+        .set_tcp_keepalive(&keepalive)
+        .map_err(|error| ChannelError::Transport(format!("failed to arm TCP keepalive: {error}",)))
+}
+
 /// Bind the listener once, then accept connections until one both
 /// establishes and passes the handshake, sending that pair to the
 /// caller. Setup failures (bind) are reported to the caller and stop
@@ -271,6 +301,11 @@ async fn accept_loop<T>(
             Ok(connection) => connection,
             Err(_) => continue,
         };
+        if let Err(error) = arm_tcp_keepalive(&socket) {
+            Logger::warning(format!(
+                "failed to arm TCP keepalive on accepted socket: {error:?}"
+            ));
+        }
         match tokio::time::timeout(
             HANDSHAKE_TIMEOUT,
             server_handshake::<T>(socket, token.clone()),
@@ -360,7 +395,7 @@ where
 /// Connecter side of the handshake: present the token, then interpret
 /// the server's accept/reject reply, sending the resulting pair or
 /// error back through `setup_tx`.
-async fn connecter_handshake<T>(
+async fn connect_attempt<T>(
     socket: tokio::net::TcpStream,
     token: String,
     setup_tx: std_mpsc::Sender<Result<(NetSender<T>, NetReceiver<T>), ChannelError>>,
@@ -369,7 +404,7 @@ async fn connecter_handshake<T>(
     NetSender<T>: Send,
     NetReceiver<T>: Send,
 {
-    match tokio::time::timeout(HANDSHAKE_TIMEOUT, connecter_setup(socket, token)).await {
+    match tokio::time::timeout(HANDSHAKE_TIMEOUT, connecter_handshake(socket, token)).await {
         Ok(Ok((net_tx, peer_rx, connection_task))) => {
             if setup_tx.send(Ok((net_tx, peer_rx))).is_ok() {
                 let _ = connection_task.await;
@@ -389,7 +424,7 @@ async fn connecter_handshake<T>(
     }
 }
 
-async fn connecter_setup<T>(
+async fn connecter_handshake<T>(
     socket: tokio::net::TcpStream,
     token: String,
 ) -> Result<(NetSender<T>, NetReceiver<T>, tokio::task::JoinHandle<()>), ChannelError>
