@@ -3,9 +3,10 @@
   "module": {
     "path": "src/tool",
     "name": "tool",
-    "purpose": "Defines ToolProgram and eight feature-gated native tool binaries whose previews describe host compatibility and whose normal execution reads one JSON payload from standard input.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines ToolProgram and fifteen feature-gated native tool binaries whose previews describe host compatibility and whose normal execution reads one JSON payload, logs the input and output beside the executable, and writes only the JSON result to standard output.",
+    "changeStatus": "modified"
   },
+  "modified": ["tool_main.rs"],
   "childModules": [
     {
       "path": "src/tool/native",
@@ -27,6 +28,636 @@
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "marix_tool_read_file",
+      "type": "bin",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/tool_main.rs",
+          "lineStart": 7,
+          "lineEnd": 62,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 31
+            },
+            {
+              "lineStart": 45,
+              "lineEnd": 48
+            },
+            {
+              "lineStart": 51,
+              "lineEnd": 54
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 42
+            },
+            {
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 55,
+              "lineEnd": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "marix_tool_write_file",
+      "type": "bin",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/tool_main.rs",
+          "lineStart": 7,
+          "lineEnd": 62,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 31
+            },
+            {
+              "lineStart": 45,
+              "lineEnd": 48
+            },
+            {
+              "lineStart": 51,
+              "lineEnd": 54
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 42
+            },
+            {
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 55,
+              "lineEnd": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "marix_tool_list_directory",
+      "type": "bin",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/tool_main.rs",
+          "lineStart": 7,
+          "lineEnd": 62,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 31
+            },
+            {
+              "lineStart": 45,
+              "lineEnd": 48
+            },
+            {
+              "lineStart": 51,
+              "lineEnd": 54
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 42
+            },
+            {
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 55,
+              "lineEnd": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "marix_tool_search_text",
+      "type": "bin",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/tool_main.rs",
+          "lineStart": 7,
+          "lineEnd": 62,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 31
+            },
+            {
+              "lineStart": 45,
+              "lineEnd": 48
+            },
+            {
+              "lineStart": 51,
+              "lineEnd": 54
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 42
+            },
+            {
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 55,
+              "lineEnd": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "marix_powershell",
+      "type": "bin",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/tool_main.rs",
+          "lineStart": 7,
+          "lineEnd": 62,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 31
+            },
+            {
+              "lineStart": 45,
+              "lineEnd": 48
+            },
+            {
+              "lineStart": 51,
+              "lineEnd": 54
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 42
+            },
+            {
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 55,
+              "lineEnd": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "marix_command_prompt",
+      "type": "bin",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/tool_main.rs",
+          "lineStart": 7,
+          "lineEnd": 62,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 31
+            },
+            {
+              "lineStart": 45,
+              "lineEnd": 48
+            },
+            {
+              "lineStart": 51,
+              "lineEnd": 54
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 42
+            },
+            {
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 55,
+              "lineEnd": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "marix_bash",
+      "type": "bin",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/tool_main.rs",
+          "lineStart": 7,
+          "lineEnd": 62,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 31
+            },
+            {
+              "lineStart": 45,
+              "lineEnd": 48
+            },
+            {
+              "lineStart": 51,
+              "lineEnd": 54
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 42
+            },
+            {
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 55,
+              "lineEnd": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "marix_tool_os_env",
+      "type": "bin",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/tool_main.rs",
+          "lineStart": 7,
+          "lineEnd": 62,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 31
+            },
+            {
+              "lineStart": 45,
+              "lineEnd": 48
+            },
+            {
+              "lineStart": 51,
+              "lineEnd": 54
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 42
+            },
+            {
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 55,
+              "lineEnd": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "marix_tool_web_fetch",
+      "type": "bin",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/tool_main.rs",
+          "lineStart": 7,
+          "lineEnd": 62,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 31
+            },
+            {
+              "lineStart": 45,
+              "lineEnd": 48
+            },
+            {
+              "lineStart": 51,
+              "lineEnd": 54
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 42
+            },
+            {
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 55,
+              "lineEnd": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "marix_tool_web_search",
+      "type": "bin",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/tool_main.rs",
+          "lineStart": 7,
+          "lineEnd": 62,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 31
+            },
+            {
+              "lineStart": 45,
+              "lineEnd": 48
+            },
+            {
+              "lineStart": 51,
+              "lineEnd": 54
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 42
+            },
+            {
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 55,
+              "lineEnd": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "marix_tool_get_code_outline",
+      "type": "bin",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/tool_main.rs",
+          "lineStart": 7,
+          "lineEnd": 62,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 31
+            },
+            {
+              "lineStart": 45,
+              "lineEnd": 48
+            },
+            {
+              "lineStart": 51,
+              "lineEnd": 54
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 42
+            },
+            {
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 55,
+              "lineEnd": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "marix_tool_replace_in_file",
+      "type": "bin",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/tool_main.rs",
+          "lineStart": 7,
+          "lineEnd": 62,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 31
+            },
+            {
+              "lineStart": 45,
+              "lineEnd": 48
+            },
+            {
+              "lineStart": 51,
+              "lineEnd": 54
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 42
+            },
+            {
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 55,
+              "lineEnd": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "marix_tool_start_process",
+      "type": "bin",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/tool_main.rs",
+          "lineStart": 7,
+          "lineEnd": 62,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 31
+            },
+            {
+              "lineStart": 45,
+              "lineEnd": 48
+            },
+            {
+              "lineStart": 51,
+              "lineEnd": 54
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 42
+            },
+            {
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 55,
+              "lineEnd": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "marix_tool_read_process_output",
+      "type": "bin",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/tool_main.rs",
+          "lineStart": 7,
+          "lineEnd": 62,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 31
+            },
+            {
+              "lineStart": 45,
+              "lineEnd": 48
+            },
+            {
+              "lineStart": 51,
+              "lineEnd": 54
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 42
+            },
+            {
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 55,
+              "lineEnd": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "marix_tool_stop_process",
+      "type": "bin",
+      "source_depth": 2,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/tool_main.rs",
+          "lineStart": 7,
+          "lineEnd": 62,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 31
+            },
+            {
+              "lineStart": 45,
+              "lineEnd": 48
+            },
+            {
+              "lineStart": 51,
+              "lineEnd": 54
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 42
+            },
+            {
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 55,
+              "lineEnd": 55
+            }
+          ]
         }
       ]
     }

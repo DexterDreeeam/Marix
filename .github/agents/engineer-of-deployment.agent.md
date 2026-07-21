@@ -26,6 +26,7 @@ You are the deployment engineer for Marix.
 
 - Deploy `marix-server` and `marix-server-telemetry` to the Ubuntu server.
 - Deploy Host only to Hyper-V guest `Marix_TestVm` under `C:\MarixHost\`.
+- Before every Host deployment, delete existing `*.log` files from `C:\MarixHost\tool\`.
 - Deploy Client only to the local physical Windows machine. Its fixed layout is:
   - CLI executable, sibling config, and tools under `C:\MarixClient\Cli\`;
   - App executable, sibling config, and tools under `C:\MarixClient\App\`.

@@ -3,9 +3,10 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Owns shared configuration, logging, approved external wrappers including Tokio timers, generic Actor and Runtime contracts, signatures, authenticated channels, and insertion-ordered work queues.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns shared configuration, general telemetry logging, executable-sibling standalone tool logging, approved external wrappers including Tokio timers, generic Actor and Runtime contracts, signatures, authenticated channels, and insertion-ordered work queues.",
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs"],
   "childModules": [
     {
       "path": "src/common/actor",
@@ -26,6 +27,11 @@
       "path": "src/common/logging",
       "name": "logging",
       "purpose": "Provides remote-first telemetry, batched indexed redb persistence, paged summary and full-record queries, and executable-sibling JSONL fallback."
+    },
+    {
+      "path": "src/common/logging_tool",
+      "name": "logging_tool",
+      "purpose": "Creates unique executable-sibling log files for standalone tools and writes and flushes one message per line."
     },
     {
       "path": "src/common/structure",
@@ -1515,6 +1521,40 @@
           "lineEnd": 9,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "ToolLogger",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging_tool/tool_logger.rs",
+          "lineStart": 6,
+          "lineEnd": 8,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 8
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/logging_tool/tool_logger.rs",
+          "lineStart": 10,
+          "lineEnd": 56,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 56
+            }
+          ],
           "modifiedLines": []
         }
       ]

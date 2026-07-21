@@ -2,6 +2,7 @@ pub mod actor;
 pub mod config;
 pub mod external;
 pub mod logging;
+pub mod logging_tool;
 pub mod structure;
 
 pub use actor::{
@@ -17,6 +18,7 @@ pub use logging::{
     LogMessage, LogPage, LogPageQuery, LogRecord, LogSession, LogSource, LogSummary, LogTag,
     Logger, LoggingError,
 };
+pub use logging_tool::ToolLogger;
 pub use structure::{
     AsyncReceiver, AsyncSender, ChannelEndpoint, ChannelError, NetReceiver, NetSender, Receiver,
     Sender, SharedNetReceiver, SharedNetSender, WorkQueue, accept_channel, build_async_channel,

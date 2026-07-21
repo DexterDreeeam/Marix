@@ -1,22 +1,19 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "repository_root": "C:\\r\\Marix",
-  "workspace_root": ".github\\e2e\\workspaces",
+  "vm_name": "Marix_TestVm",
+  "vm_workspace_root": "C:\\MarixE2E\\workspaces",
   "tasks": [
     {
       "id": "network-rust-stable",
       "category": "network-search",
       "title": "Find the current Rust stable release",
-      "prompt": "在联网检索后，把当前 Rust stable 版本和发布日期写入 .github\\e2e\\workspaces\\network-rust-stable\\result.json。必须实际访问至少两个相互独立的来源，不得仅凭模型记忆；其中一个来源必须是 Rust 官方站点（blog.rust-lang.org 或 doc.rust-lang.org），另一个必须是 releases.rs。JSON 必须包含 topic、version、release_date 和 sources；sources 每项包含 url、publisher、version、release_date、accessed_date。version 使用 X.Y.Z，日期使用 YYYY-MM-DD。不要读取或提及任何 .credential 文件或凭据。",
-      "working_directory": ".github\\e2e\\workspaces\\network-rust-stable",
+      "prompt": "在联网检索后，把当前 Rust stable 版本和发布日期写入 C:\\MarixE2E\\workspaces\\network-rust-stable\\result.json。必须实际访问至少两个相互独立的来源，不得仅凭模型记忆；其中一个来源必须是 Rust 官方站点（blog.rust-lang.org 或 doc.rust-lang.org），另一个必须是 releases.rs。JSON 必须包含 topic、version、release_date 和 sources；sources 每项包含 url、publisher、version、release_date、accessed_date。version 使用 X.Y.Z，日期使用 YYYY-MM-DD。不要读取或提及任何 .credential 文件或凭据。",
+      "vm_working_directory": "C:\\MarixE2E\\workspaces\\network-rust-stable",
       "max_completion_time_secs": 600,
       "max_relay_count": 16,
       "setup": {
-        "fixture": null,
-        "commands": [
-          "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\network-rust-stable -ErrorAction SilentlyContinue",
-          "New-Item -ItemType Directory -Force .github\\e2e\\workspaces\\network-rust-stable | Out-Null"
-        ]
+        "fixture": null
       },
       "requirements": [
         "Use live network retrieval rather than model memory.",
@@ -72,9 +69,6 @@
         "Source values disagree, or the answer says it relied on memory.",
         "Any credential file was read or credential content appears in output."
       ],
-      "cleanup": [
-        "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\network-rust-stable -ErrorAction SilentlyContinue"
-      ],
       "expected_artifacts": [
         "result.json"
       ],
@@ -89,16 +83,12 @@
       "id": "network-search-fallback",
       "category": "network-search",
       "title": "Recover from an unavailable primary source",
-      "prompt": "先实际尝试访问故意不可达的 https://example.invalid/marix-e2e-primary，然后使用可访问的官方 RFC 来源和 Wikipedia 回退检索 HTTP 418。不得仅凭模型记忆。把结果写入 .github\\e2e\\workspaces\\network-search-fallback\\result.json，字段必须是 topic、status_code、reason_phrase、rfc_number、published_date、primary_attempt_url、primary_attempt_failed、sources；reason_phrase 按 RFC 原文大小写记录，sources 每项包含 url、publisher、accessed_date。不要读取或提及任何 .credential 文件或凭据。",
-      "working_directory": ".github\\e2e\\workspaces\\network-search-fallback",
+      "prompt": "先实际尝试访问故意不可达的 https://example.invalid/marix-e2e-primary，然后使用可访问的官方 RFC 来源和 Wikipedia 回退检索 HTTP 418。不得仅凭模型记忆。把结果写入 C:\\MarixE2E\\workspaces\\network-search-fallback\\result.json，字段必须是 topic、status_code、reason_phrase、rfc_number、published_date、primary_attempt_url、primary_attempt_failed、sources；reason_phrase 按 RFC 原文大小写记录，sources 每项包含 url、publisher、accessed_date。不要读取或提及任何 .credential 文件或凭据。",
+      "vm_working_directory": "C:\\MarixE2E\\workspaces\\network-search-fallback",
       "max_completion_time_secs": 600,
       "max_relay_count": 16,
       "setup": {
-        "fixture": null,
-        "commands": [
-          "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\network-search-fallback -ErrorAction SilentlyContinue",
-          "New-Item -ItemType Directory -Force .github\\e2e\\workspaces\\network-search-fallback | Out-Null"
-        ]
+        "fixture": null
       },
       "requirements": [
         "Attempt the .invalid primary URL before using fallback sources.",
@@ -111,6 +101,10 @@
         {
           "type": "exact_json_fields",
           "path": "result.json",
+          "judgment": "semantic",
+          "strict_fields": [
+            "reason_phrase"
+          ],
           "values": {
             "topic": "HTTP 418",
             "status_code": 418,
@@ -146,9 +140,6 @@
         "Either the official RFC source or Wikipedia fallback source is absent.",
         "Any credential file was read or credential content appears in output."
       ],
-      "cleanup": [
-        "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\network-search-fallback -ErrorAction SilentlyContinue"
-      ],
       "expected_artifacts": [
         "result.json"
       ],
@@ -163,17 +154,12 @@
       "id": "code-edit-rust-slugify",
       "category": "local-code-edit",
       "title": "Fix the isolated Rust slugify crate",
-      "prompt": "只在 .github\\e2e\\workspaces\\code-edit-rust-slugify 中工作。运行测试定位预置 bug，只修改 src\\lib.rs 的实现，使 cargo test --quiet 通过。禁止修改 Cargo.toml、tests\\slugify.rs 或测试断言，禁止访问仓库 src\\ 和 overview\\。不要在回复中给出参考答案文件；直接完成修复并保留修改后的 src\\lib.rs。",
-      "working_directory": ".github\\e2e\\workspaces\\code-edit-rust-slugify",
+      "prompt": "只在 C:\\MarixE2E\\workspaces\\code-edit-rust-slugify 中工作。阅读 tests\\slugify.rs 中的测试用例以了解 slugify 函数的预期输入输出行为（当前环境可能没有 Rust 工具链，不要求你实际编译或运行 cargo test），只修改 src\\lib.rs 的实现使其满足全部用例的预期输出。禁止修改 Cargo.toml、tests\\slugify.rs 或测试断言，禁止访问仓库 src\\ 和 overview\\。不要在回复中给出参考答案文件；直接完成修复并保留修改后的 src\\lib.rs。",
+      "vm_working_directory": "C:\\MarixE2E\\workspaces\\code-edit-rust-slugify",
       "max_completion_time_secs": 600,
       "max_relay_count": 20,
       "setup": {
-        "fixture": ".github\\e2e\\fixtures\\code-edit-rust",
-        "commands": [
-          "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\code-edit-rust-slugify -ErrorAction SilentlyContinue",
-          "New-Item -ItemType Directory -Force .github\\e2e\\workspaces\\code-edit-rust-slugify | Out-Null",
-          "Copy-Item -Recurse .github\\e2e\\fixtures\\code-edit-rust\\* .github\\e2e\\workspaces\\code-edit-rust-slugify"
-        ]
+        "fixture": ".github\\e2e\\fixtures\\code-edit-rust"
       },
       "requirements": [
         "Only src\\lib.rs may be edited after setup; generated target\\ contents are ignored.",
@@ -184,10 +170,28 @@
       ],
       "success_criteria": [
         {
-          "type": "command_exit_code",
-          "command": "cargo test --quiet",
-          "working_directory": ".github\\e2e\\workspaces\\code-edit-rust-slugify",
-          "expected": 0
+          "type": "manual_code_trace",
+          "source_path": "src\\lib.rs",
+          "function": "slugify",
+          "method": "Read the current src\\lib.rs content from the VM workspace over PowerShell Direct. For each case below, deterministically trace the slugify function's logic character-by-character against the given input (do not compile or execute it) and compare the traced output exactly against expected_output. Cite the specific input and the traced-vs-expected mismatch for any case that fails.",
+          "cases": [
+            {
+              "input": "Hello, Marix World!",
+              "expected_output": "hello-marix-world"
+            },
+            {
+              "input": "rust___agents   work",
+              "expected_output": "rust-agents-work"
+            },
+            {
+              "input": "---Ship It---",
+              "expected_output": "ship-it"
+            },
+            {
+              "input": " MX 42 ",
+              "expected_output": "mx-42"
+            }
+          ]
         },
         {
           "type": "sha256_unchanged",
@@ -208,19 +212,16 @@
         }
       ],
       "failure_criteria": [
-        "cargo test --quiet exits nonzero.",
+        "Manually tracing slugify's logic character-by-character produces an output that does not exactly match expected_output for at least one case.",
         "A fixture-controlled file outside src\\lib.rs changed; generated target\\ contents are ignored.",
         "The task accesses repository src\\ or overview\\."
-      ],
-      "cleanup": [
-        "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\code-edit-rust-slugify -ErrorAction SilentlyContinue"
       ],
       "expected_artifacts": [
         "src\\lib.rs"
       ],
       "current_support": {
         "status": "expected_supported",
-        "reason": "Marix has native local file and command tools."
+        "reason": "Marix has native local file tools; verification uses the smoke tester's own deterministic manual code trace instead of a compiler, so no Rust toolchain is required in the VM."
       },
       "estimated_time_minutes": 4,
       "suggested_outer_watchdog_minutes": 10
@@ -229,17 +230,12 @@
       "id": "code-inspect-catalog",
       "category": "local-code-understanding",
       "title": "Summarize an isolated catalog fixture",
-      "prompt": "只读取 .github\\e2e\\workspaces\\code-inspect-catalog 中的 catalog.json 和 rules.txt，按 rules.txt 对启用项目分类，并在同一目录新建 analysis.json。不得修改输入文件，不得访问仓库 src\\ 或 overview\\。analysis.json 必须包含 service、enabled_count、enabled_weight_total、enabled_by_label、heaviest_enabled_sku；每个标签下的 SKU 数组按字典序排列。",
-      "working_directory": ".github\\e2e\\workspaces\\code-inspect-catalog",
+      "prompt": "只读取 C:\\MarixE2E\\workspaces\\code-inspect-catalog 中的 catalog.json 和 rules.txt，按 rules.txt 对启用项目分类，并在同一目录新建 analysis.json。不得修改输入文件，不得访问仓库 src\\ 或 overview\\。analysis.json 必须包含 service、enabled_count、enabled_weight_total、enabled_by_label、heaviest_enabled_sku；每个标签下的 SKU 数组按字典序排列。",
+      "vm_working_directory": "C:\\MarixE2E\\workspaces\\code-inspect-catalog",
       "max_completion_time_secs": 300,
       "max_relay_count": 10,
       "setup": {
-        "fixture": ".github\\e2e\\fixtures\\code-inspection",
-        "commands": [
-          "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\code-inspect-catalog -ErrorAction SilentlyContinue",
-          "New-Item -ItemType Directory -Force .github\\e2e\\workspaces\\code-inspect-catalog | Out-Null",
-          "Copy-Item -Recurse .github\\e2e\\fixtures\\code-inspection\\* .github\\e2e\\workspaces\\code-inspect-catalog"
-        ]
+        "fixture": ".github\\e2e\\fixtures\\code-inspection"
       },
       "requirements": [
         "Only analysis.json may be created or changed after setup.",
@@ -288,9 +284,6 @@
         "An input file changed or another file was created.",
         "The task accesses repository src\\ or overview\\."
       ],
-      "cleanup": [
-        "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\code-inspect-catalog -ErrorAction SilentlyContinue"
-      ],
       "expected_artifacts": [
         "analysis.json"
       ],
@@ -305,17 +298,12 @@
       "id": "image-count-and-text",
       "category": "image-understanding",
       "title": "Count shapes and read text",
-      "prompt": "分析 .github\\e2e\\workspaces\\image-count-and-text\\scene.png，并把结果写入同目录 result.json。只报告实际看到的内容。JSON 字段必须是 blue_circles、red_squares、text，数字使用整数，文本保持原大小写和连字符。不要从 tasks.json 或其他说明文件推断答案。",
-      "working_directory": ".github\\e2e\\workspaces\\image-count-and-text",
+      "prompt": "分析 C:\\MarixE2E\\workspaces\\image-count-and-text\\scene.png，并把结果写入同目录 result.json。只报告实际看到的内容。JSON 字段必须是 blue_circles、red_squares、text，数字使用整数，文本保持原大小写和连字符。不要从 tasks.json 或其他说明文件推断答案。",
+      "vm_working_directory": "C:\\MarixE2E\\workspaces\\image-count-and-text",
       "max_completion_time_secs": 300,
       "max_relay_count": 10,
       "setup": {
-        "fixture": ".github\\e2e\\fixtures\\image-understanding\\scene.png",
-        "commands": [
-          "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\image-count-and-text -ErrorAction SilentlyContinue",
-          "New-Item -ItemType Directory -Force .github\\e2e\\workspaces\\image-count-and-text | Out-Null",
-          "Copy-Item .github\\e2e\\fixtures\\image-understanding\\scene.png .github\\e2e\\workspaces\\image-count-and-text\\scene.png"
-        ]
+        "fixture": ".github\\e2e\\fixtures\\image-understanding\\scene.png"
       },
       "requirements": [
         "Derive the answer from scene.png itself.",
@@ -339,9 +327,6 @@
         "scene.png changed or another file was created.",
         "The response claims visual inspection without an image-capable tool."
       ],
-      "cleanup": [
-        "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\image-count-and-text -ErrorAction SilentlyContinue"
-      ],
       "expected_artifacts": [
         "result.json"
       ],
@@ -356,17 +341,12 @@
       "id": "image-spatial-relations",
       "category": "image-understanding",
       "title": "Identify spatial relationships",
-      "prompt": "分析 .github\\e2e\\workspaces\\image-spatial-relations\\scene.png，并把空间关系写入同目录 result.json。只根据图片作答，不要从 tasks.json 或其他说明文件推断。JSON 必须包含 circles_relative_to_squares、squares_relative_to_circles、text_relative_to_all_shapes，值只能使用英文关键词 above 或 below。",
-      "working_directory": ".github\\e2e\\workspaces\\image-spatial-relations",
+      "prompt": "分析 C:\\MarixE2E\\workspaces\\image-spatial-relations\\scene.png，并把空间关系写入同目录 result.json。只根据图片作答，不要从 tasks.json 或其他说明文件推断。JSON 必须包含 circles_relative_to_squares、squares_relative_to_circles、text_relative_to_all_shapes，值只能使用英文关键词 above 或 below。",
+      "vm_working_directory": "C:\\MarixE2E\\workspaces\\image-spatial-relations",
       "max_completion_time_secs": 300,
       "max_relay_count": 10,
       "setup": {
-        "fixture": ".github\\e2e\\fixtures\\image-understanding\\scene.png",
-        "commands": [
-          "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\image-spatial-relations -ErrorAction SilentlyContinue",
-          "New-Item -ItemType Directory -Force .github\\e2e\\workspaces\\image-spatial-relations | Out-Null",
-          "Copy-Item .github\\e2e\\fixtures\\image-understanding\\scene.png .github\\e2e\\workspaces\\image-spatial-relations\\scene.png"
-        ]
+        "fixture": ".github\\e2e\\fixtures\\image-understanding\\scene.png"
       },
       "requirements": [
         "Derive the answer from scene.png itself.",
@@ -396,9 +376,6 @@
         "result.json is missing, invalid, or differs semantically from the exact expected JSON.",
         "scene.png changed or another file was created.",
         "The response claims visual inspection without an image-capable tool."
-      ],
-      "cleanup": [
-        "Remove-Item -Recurse -Force .github\\e2e\\workspaces\\image-spatial-relations -ErrorAction SilentlyContinue"
       ],
       "expected_artifacts": [
         "result.json"

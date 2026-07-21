@@ -3,16 +3,17 @@
   "module": {
     "path": "src/tool/native/web",
     "name": "web",
-    "purpose": "New module",
-    "changeStatus": "unchanged"
+    "purpose": "Provides native web fetch and search tools; WebFetch converts HTML into clean markdown-like text with links, decoded entities, and suppressed non-content elements, while WebSearch queries DuckDuckGo, Yahoo, and Wikipedia with 60-second provider request limits.",
+    "changeStatus": "modified"
   },
+  "modified": ["web_search.rs", "web_fetch.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "WebFetch",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/web/web_fetch.rs",
@@ -28,14 +29,37 @@
           "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 16,
+              "lineEnd": 16
+            }
+          ]
         },
         {
           "sourcePath": "src/tool/native/web/web_fetch.rs",
           "lineStart": 20,
-          "lineEnd": 71,
+          "lineEnd": 76,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 59,
+              "lineEnd": 65
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/tool/native/web/web_fetch.rs",
+          "lineStart": 80,
+          "lineEnd": 403,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 80,
+              "lineEnd": 403
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -44,7 +68,7 @@
       "name": "WebSearch",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/web/web_search.rs",
@@ -76,7 +100,20 @@
           "lineEnd": 460,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 118,
+              "lineEnd": 118
+            },
+            {
+              "lineStart": 196,
+              "lineEnd": 196
+            },
+            {
+              "lineStart": 304,
+              "lineEnd": 304
+            }
+          ]
         }
       ]
     }

@@ -3,9 +3,10 @@
   "module": {
     "path": "src/tool/native",
     "name": "native",
-    "purpose": "Groups eight built-in tools and shared native execution support; shell tools use absolute system paths and return structured JSON failures.",
-    "changeStatus": "unchanged"
+    "purpose": "Groups built-in file, shell, system, coding, process, and web tools with shared native execution support; WebFetch cleans HTML into markdown-like text and web search providers use 60-second request limits.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/tool/native/file",
@@ -15,7 +16,7 @@
     {
       "path": "src/tool/native/shell",
       "name": "shell",
-      "purpose": "Provides Bash, Command Prompt, and PowerShellExec tools launched through absolute system paths, with shared JSON process execution and structured failures."
+      "purpose": "Provides Bash, Command Prompt, and PowerShell tools launched through absolute system paths, with shared JSON process execution and structured failures."
     },
     {
       "path": "src/tool/native/sys",
@@ -35,7 +36,7 @@
     {
       "path": "src/tool/native/web",
       "name": "web",
-      "purpose": "Native web tool implementations."
+      "purpose": "Provides native web fetch and search tools; WebFetch converts HTML into clean markdown-like text with links, decoded entities, and suppressed non-content elements, while WebSearch queries DuckDuckGo, Yahoo, and Wikipedia with 60-second provider request limits."
     }
   ],
   "elements": [
@@ -216,8 +217,8 @@
         },
         {
           "sourcePath": "src/tool/native/sys/os_env.rs",
-          "lineStart": 72,
-          "lineEnd": 295,
+          "lineStart": 67,
+          "lineEnd": 290,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -312,61 +313,41 @@
       ]
     },
     {
-      "name": "PowerShellExec",
+      "name": "PowerShell",
       "type": "struct",
       "source_depth": 4,
       "changeStatus": "unchanged",
       "codeSegments": [
         {
-          "sourcePath": "src/tool/native/shell/powershell_exec.rs",
+          "sourcePath": "src/tool/native/shell/powershell.rs",
           "lineStart": 12,
           "lineEnd": 12,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 12,
-              "lineEnd": 12
-            }
-          ]
+          "modifiedLines": []
         },
         {
-          "sourcePath": "src/tool/native/shell/powershell_exec.rs",
+          "sourcePath": "src/tool/native/shell/powershell.rs",
           "lineStart": 14,
           "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 15,
-              "lineEnd": 17
-            }
-          ]
+          "modifiedLines": []
         },
         {
-          "sourcePath": "src/tool/native/shell/powershell_exec.rs",
+          "sourcePath": "src/tool/native/shell/powershell.rs",
           "lineStart": 21,
           "lineEnd": 50,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 38,
-              "lineEnd": 42
-            }
-          ]
+          "modifiedLines": []
         },
         {
-          "sourcePath": "src/tool/native/shell/powershell_exec.rs",
-          "lineStart": 58,
+          "sourcePath": "src/tool/native/shell/powershell.rs",
+          "lineStart": 57,
           "lineEnd": 72,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 58,
-              "lineEnd": 72
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -408,6 +389,114 @@
             {
               "lineStart": 38,
               "lineEnd": 43
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "WebFetch",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/native/web/web_fetch.rs",
+          "lineStart": 12,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/tool/native/web/web_fetch.rs",
+          "lineStart": 14,
+          "lineEnd": 18,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 16,
+              "lineEnd": 16
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/tool/native/web/web_fetch.rs",
+          "lineStart": 20,
+          "lineEnd": 76,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 59,
+              "lineEnd": 65
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/tool/native/web/web_fetch.rs",
+          "lineStart": 80,
+          "lineEnd": 403,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 80,
+              "lineEnd": 403
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "WebSearch",
+      "type": "struct",
+      "source_depth": 4,
+      "changeStatus": "modified",
+      "codeSegments": [
+        {
+          "sourcePath": "src/tool/native/web/web_search.rs",
+          "lineStart": 12,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/tool/native/web/web_search.rs",
+          "lineStart": 14,
+          "lineEnd": 20,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/tool/native/web/web_search.rs",
+          "lineStart": 22,
+          "lineEnd": 65,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/tool/native/web/web_search.rs",
+          "lineStart": 72,
+          "lineEnd": 460,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 118,
+              "lineEnd": 118
+            },
+            {
+              "lineStart": 196,
+              "lineEnd": 196
+            },
+            {
+              "lineStart": 304,
+              "lineEnd": 304
             }
           ]
         }

@@ -2,9 +2,15 @@
 
 ## Scope
 
-`tasks.json` defines six repeatable tasks: two network searches, two isolated local-code tasks, and two image-understanding probes. Each task has a unique directory under `.github\e2e\workspaces`. Network tasks forbid reading `.credential` files. Image tasks intentionally record the current expected vision capability gap.
+`tasks.json` defines six repeatable tasks: two network searches, two isolated local-code tasks, and two image-understanding probes. Each task now uses a unique VM workspace under `C:\MarixE2E\workspaces\<case-id>`. Network tasks forbid reading `.credential` files. Image tasks intentionally record the current expected vision capability gap.
 
-Schema version 2 adds two nullable TaskRequest guardrails to every case:
+Schema version 3 keeps `repository_root` only for locating immutable host-side fixture sources under `.github\e2e\fixtures\...`, and adds VM-targeting fields:
+
+- `vm_name`: the fixed Hyper-V guest that hosts Marix Host tool execution;
+- `vm_workspace_root`: the fixed guest-side E2E workspace root;
+- `vm_working_directory`: the per-case absolute workspace inside the guest.
+
+The two nullable TaskRequest guardrails remain unchanged:
 
 - `max_completion_time_secs`: maximum task completion time;
 - `max_relay_count`: maximum relay count.
@@ -13,31 +19,58 @@ The schema default for either field is `null`, meaning `None` and unlimited. For
 
 Estimated task time and `suggested_outer_watchdog_minutes` are metadata only. An outer watchdog is solely a safety fallback for a runaway agent or harness process. It neither replaces the two TaskRequest guardrails nor determines case success.
 
+## VM-hosted execution model
+
+Marix native tools such as `write_file`, `web_search`, and `cargo test` run only through Host, and Host is deployed only inside the Hyper-V VM `Marix_TestVm`. The physical machine still runs the deployed Client CLI at `C:\MarixClient\Cli\marix-client-cli.exe`, but every task workspace operation, artifact read, hash check, and validation command must target the guest filesystem through PowerShell Direct.
+
+The dedicated guest E2E root is `C:\MarixE2E\workspaces`. It is intentionally isolated from Host's deployment directory `C:\MarixHost\`; smoke workspaces must never read from or write to `C:\MarixHost\`.
+
 ## Prerequisites
 
 - Run from `C:\r\Marix` in PowerShell.
 - Ensure Marix Server Telemetry, Server, and Host are ready, and the client configuration is valid.
-- Install Rust only for `code-edit-rust-slugify`.
+- Reuse the fixed VM name, credential construction pattern, and `Copy-VMFile` usage defined by the `win-hyperv-operation` skill.
 - Do not place credentials in a task workspace or include them in prompts or results.
+- `code-edit-rust-slugify` does not require a Rust toolchain in `Marix_TestVm`. Its success criterion is a `manual_code_trace` judged by the Smoke Agent reading `src\lib.rs` and deterministically tracing the `slugify` logic against the declared cases, not by compiling or running the fixture.
 
 ## Prepare a fixture
 
-Select one task and run its `setup.commands` from `tasks.json` in order. Setup always deletes only that task's workspace, then creates or copies a fresh fixture. Never run two instances with the same task ID concurrently.
+Select one task, read its `setup.fixture`, and prepare the VM workspace instead of a repository-relative host directory:
 
-Example:
+1. Use PowerShell Direct to delete and recreate the case `vm_working_directory` inside `Marix_TestVm`.
+2. If `setup.fixture` is non-null, treat it as an immutable source rooted at `repository_root` on the physical machine.
+3. Recursively enumerate the fixture files on the physical machine and copy each file into the VM with `Copy-VMFile`, preserving relative subpaths under the case `vm_working_directory`.
+4. If `setup.fixture` is `null`, do not copy anything; only ensure the VM workspace exists and is empty.
+
+Example skeleton:
 
 ```powershell
 Set-Location C:\r\Marix
-$task = (Get-Content .github\e2e\tasks.json -Raw | ConvertFrom-Json).tasks |
-  Where-Object id -eq 'code-edit-rust-slugify'
-$task.setup.commands | ForEach-Object { Invoke-Expression $_ }
+$tasks = Get-Content .github\e2e\tasks.json -Raw | ConvertFrom-Json
+$task = $tasks.tasks | Where-Object id -eq 'code-edit-rust-slugify'
+$credential = # build exactly as defined by the win-hyperv-operation skill
+
+Invoke-Command -VMName $tasks.vm_name -Credential $credential -ScriptBlock {
+  param($path)
+  Remove-Item -Recurse -Force $path -ErrorAction SilentlyContinue
+  New-Item -ItemType Directory -Path $path -Force | Out-Null
+} -ArgumentList $task.vm_working_directory
+
+if ($null -ne $task.setup.fixture) {
+  $fixtureRoot = Join-Path $tasks.repository_root $task.setup.fixture
+  Get-ChildItem -LiteralPath $fixtureRoot -Recurse -File | ForEach-Object {
+    $relative = $_.FullName.Substring($fixtureRoot.Length).TrimStart('\')
+    $guestPath = Join-Path $task.vm_working_directory $relative
+    Copy-VMFile -Name $tasks.vm_name -FileSource Host -SourcePath $_.FullName -DestinationPath $guestPath -CreateFullPath -Force
+  }
+}
 ```
 
-Do not run a code task against `.github\e2e\fixtures` directly. The fixture is the immutable baseline. Image setup copies `scene.png`; network setup creates an empty workspace.
+Do not run a code task against `.github\e2e\fixtures` directly. The fixture is the immutable baseline. Image setup copies `scene.png` into the guest workspace. Network setup copies nothing and leaves an empty guest workspace.
 
 ## Run manually
 
-Pass the selected prompt and both configured guardrails to the oneshot client:
+Pass the selected prompt and both configured guardrails to the oneshot client. Prompts now point at VM absolute paths such as `C:\MarixE2E\workspaces\network-rust-stable\result.json`.
 
 ```powershell
 $cli = 'C:\MarixClient\Cli\marix-client-cli.exe'
@@ -52,15 +85,13 @@ if ($null -ne $task.max_relay_count) {
 if ($LASTEXITCODE -ne 0) { throw "oneshot failed: $LASTEXITCODE" }
 ```
 
-This is the only supported deployed CLI path. Do not invoke or fall back to
-`C:\MarixClient\marix-client-cli.exe`.
+This is the only supported deployed CLI path. Do not invoke or fall back to `C:\MarixClient\marix-client-cli.exe`.
 
-Place the prompt immediately after `--oneshot`, before the optional flags. The
-CLI flags are `--max-completion-time-secs` and `--max-relay-count`. Omitting a flag for `null` preserves the corresponding TaskRequest value as `None`. The oneshot client waits for the terminal outcome. For unattended runs, a harness may use `suggested_outer_watchdog_minutes` only as a process-runaway fallback; report its activation as an environment error, separately from task and assertion failures.
+Place the prompt immediately after `--oneshot`, before the optional flags. The CLI flags are `--max-completion-time-secs` and `--max-relay-count`. Omitting a flag for `null` preserves the corresponding TaskRequest value as `None`. The oneshot client waits for the terminal outcome. For unattended runs, a harness may use `suggested_outer_watchdog_minutes` only as a process-runaway fallback; report its activation as an environment error, separately from task and assertion failures.
 
 ## Run with the Smoke Agent
 
-Select the `tester-of-e2e-smoke` custom agent and ask it to run all deterministic E2E smoke cases, or name a subset. The agent reads `tasks.json`, executes cases serially in array order, and performs setup, oneshot submission, terminal-state waiting, criteria validation, result collection, and cleanup for each case. It does not deploy or start services, modify fixture baselines, run git, read `.credential`, or run cases concurrently.
+Select the `tester-of-e2e-smoke` custom agent and ask it to run all deterministic E2E smoke cases, or name a subset. The agent reads `tasks.json`, executes cases serially in array order, prepares VM workspaces, submits the oneshot client locally, evaluates criteria inside the VM, collects evidence, and cleans up the VM workspace for each case. It does not deploy or start services, modify fixture baselines, run git, read `.credential`, or run cases concurrently.
 
 Do not ask the Smoke Agent to test the guardrail gates themselves. Its goal is only to judge whether each smoke case reaches its declared expected outcome.
 
@@ -68,11 +99,11 @@ Do not ask the Smoke Agent to test the guardrail gates themselves. Its goal is o
 
 Apply every entry in `success_criteria` and fail on any `failure_criteria`:
 
-1. Parse JSON artifacts with `Get-Content <path> -Raw | ConvertFrom-Json`.
-2. Compare JSON semantically, not by whitespace or property order.
-3. For `sha256_unchanged`, use `Get-FileHash -Algorithm SHA256`.
-4. For the Rust task, run `cargo test --quiet` in its workspace and require exit code 0.
-5. Check that only `allowed_changed_paths` changed relative to the copied fixture.
+1. Read and parse JSON artifacts inside the VM with PowerShell Direct, for example `Get-Content <vm-path> -Raw | ConvertFrom-Json`.
+2. For `exact_json_fields`/`exact_json` fields, judge by semantic meaning by default (accept different wording, JSON type, or precision that still conveys the same correct fact), except any field a criterion lists under `strict_fields`, which must match the expected value exactly; a criterion with no `judgment` field is fully strict on every field, which is the default for precise computed or recognized data such as `code-inspect-catalog` and the image cases.
+3. For `sha256_unchanged`, run `Get-FileHash -Algorithm SHA256` inside the VM.
+4. For `manual_code_trace`, read the declared source file's current content from the VM and deterministically trace its logic against each declared case's input, comparing the traced output exactly against `expected_output`; do not compile or execute the fixture, and do not require a Rust toolchain in the VM.
+5. Check `allowed_changed_paths` relative to a baseline snapshot taken from the guest workspace after fixture copy.
 6. For network tasks, validate URL host groups, dates, source agreement, and live-access evidence. A network outage is an environmental failure.
 7. Image tasks pass only when an image-capable tool actually inspected the PNG. The expected current outcome is a capability-gap report, not a fabricated answer.
 
@@ -85,18 +116,23 @@ Each case reports its duration, configured maximum time and relay count, termina
 - `PASS`: successful terminal outcome and all criteria pass.
 - `FAIL`: task failure or assertion failure; the report distinguishes these subtypes.
 - `UNSUPPORTED`: a required capability is unavailable under the case's `current_support` rule. Missing image capability is reported here, never fabricated as success.
-- `ENVIRONMENT_ERROR`: setup, prerequisites, Client/transport, service availability, network infrastructure, harness, or cleanup prevents a reliable judgment.
+- `ENVIRONMENT_ERROR`: setup, prerequisites, Client/transport, service availability, network infrastructure, harness, VM-side validation, or cleanup prevents a reliable judgment.
 
 The final report totals every status and total elapsed time. Environment failures, task failures, and assertion failures remain separately identified.
 
 ## Isolation and cleanup
 
-Run only inside the task's declared `working_directory`. Do not allow access to repository `src\`, `overview\`, `.git\`, or credential files. Snapshot the fresh workspace before execution when enforcing changed-path rules.
+Run only inside the task's declared `vm_working_directory`. Do not allow access to repository `src\`, `overview\`, `.git\`, credential files, `C:\MarixHost\`, or unrelated guest paths. Snapshot the fresh guest workspace before execution when enforcing changed-path rules.
 
-After collecting logs and artifacts, run the selected task's `cleanup` commands. Cleanup removes only its unique workspace. To reset all test state after no tasks are running:
+After collecting logs and artifacts, remove only the selected case's VM workspace through PowerShell Direct. To reset all guest test state after no tasks are running:
 
 ```powershell
-Remove-Item -Recurse -Force .github\e2e\workspaces -ErrorAction SilentlyContinue
+$tasks = Get-Content .github\e2e\tasks.json -Raw | ConvertFrom-Json
+$credential = # build exactly as defined by the win-hyperv-operation skill
+Invoke-Command -VMName $tasks.vm_name -Credential $credential -ScriptBlock {
+  param($root)
+  Remove-Item -Recurse -Force $root -ErrorAction SilentlyContinue
+} -ArgumentList $tasks.vm_workspace_root
 ```
 
 Keep fixtures unchanged between runs.
