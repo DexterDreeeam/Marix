@@ -4,16 +4,15 @@
     "path": "src/server/model/glm",
     "name": "glm",
     "purpose": "Implements the GLM streaming backend as a thin wrapper around the shared OpenAiCore (in src/server/model/openai.rs): constructs from a caller-supplied GlmConfig (endpoint/model/api_key, defined in marix_common) and delegates request/response streaming, payload building, SSE parsing, and Debug formatting to OpenAiCore with provider name \"Glm\".",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": ["."],
   "childModules": [],
   "elements": [
     {
       "name": "GlmBackend",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/glm/backend.rs",

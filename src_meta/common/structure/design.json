@@ -4,11 +4,8 @@
     "path": "src/common/structure",
     "name": "structure",
     "purpose": "Provides authenticated channels, tuned with TCP keepalive, and insertion-ordered concurrent work queues.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "channel.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -63,7 +60,7 @@
       "name": "KEEPALIVE_IDLE",
       "type": "const",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -84,7 +81,7 @@
       "name": "KEEPALIVE_INTERVAL",
       "type": "const",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -105,7 +102,7 @@
       "name": "KEEPALIVE_RETRIES",
       "type": "const",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -334,7 +331,7 @@
       "name": "connect_channel",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -408,7 +405,7 @@
       "name": "arm_tcp_keepalive",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -429,7 +426,7 @@
       "name": "accept_loop",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -466,7 +463,7 @@
       "name": "connect_attempt",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",
@@ -491,7 +488,7 @@
       "name": "connecter_handshake",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/structure/channel.rs",

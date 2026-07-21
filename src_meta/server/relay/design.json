@@ -4,9 +4,8 @@
     "path": "src/server/relay",
     "name": "relay",
     "purpose": "Builds validated two-prompt relay model requests and checks the task completion deadline before reserving relay budget and creating each Relay.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -58,7 +57,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",

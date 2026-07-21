@@ -4,17 +4,15 @@
     "path": "src/server/model/deepseek",
     "name": "deepseek",
     "purpose": "Implements the Deepseek streaming backend as a thin wrapper around the shared OpenAiCore (in src/server/model/openai.rs): constructs from a caller-supplied DeepseekConfig (endpoint/model/api_key) and delegates request/response streaming, payload building, SSE parsing, and Debug formatting to OpenAiCore with provider name \"Deepseek\".",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["backend.rs"],
-  "deleted": ["request.rs", "stream.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "DeepseekBackend",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/deepseek/backend.rs",

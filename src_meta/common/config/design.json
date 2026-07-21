@@ -4,9 +4,8 @@
     "path": "src/common/config",
     "name": "config",
     "purpose": "Loads typed executable-relative configuration and models All/Win/Ubuntu platforms, All/Amd/Arm 64-bit architecture families, concrete host detection, and wildcard tool-side compatibility; owns ModelConfig, which pairs a selected model name with always-present DeepseekConfig and GlmConfig endpoint/model/api_key sections.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["config.rs", "mod.rs"],
   "childModules": [],
   "elements": [
     {
@@ -29,7 +28,7 @@
       "name": "Config",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
@@ -171,7 +170,7 @@
       "name": "ModelConfig",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
@@ -192,7 +191,7 @@
       "name": "DeepseekConfig",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
@@ -226,7 +225,7 @@
       "name": "GlmConfig",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",
@@ -276,7 +275,7 @@
       "name": "ConfigError",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/config/config.rs",

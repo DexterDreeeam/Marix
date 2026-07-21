@@ -4,10 +4,8 @@
     "path": "src/server/model",
     "name": "model",
     "purpose": "Defines the streaming-only model backend contract, provides the shared OpenAiCore implementation (payload building, tool building, HTTP request/response streaming, SSE parsing and tool-call normalization, and Debug formatting) for OpenAI-compatible chat-completions backends, and exposes Deepseek and Glm as direct child implementations that each wrap OpenAiCore with their own provider name, endpoint, model, and api_key.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": ["openai.rs"],
-  "modified": ["mod.rs"],
   "childModules": [
     {
       "path": "src/server/model/deepseek",
@@ -194,7 +192,7 @@
       "name": "OpenAiCore",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/openai.rs",
@@ -267,7 +265,7 @@
       "name": "DeepseekBackend",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/deepseek/backend.rs",
@@ -327,7 +325,7 @@
       "name": "GlmBackend",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/glm/backend.rs",
