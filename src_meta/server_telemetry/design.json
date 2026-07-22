@@ -4,9 +4,8 @@
     "path": "src/server_telemetry",
     "name": "server_telemetry",
     "purpose": "Runs the standalone telemetry collector and paginated HTTP API with minimum LogLevel threshold filtering, and serves static browser assets for level-aware log browsing.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["handlers.rs", "server.rs"],
   "childModules": [
     {
       "path": "src/server_telemetry/http",
@@ -19,7 +18,7 @@
       "name": "marix-server-telemetry",
       "type": "bin",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/main.rs",
@@ -82,7 +81,7 @@
       "name": "root",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/handlers.rs",
@@ -119,7 +118,7 @@
       "name": "stylesheet",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/handlers.rs",
@@ -135,7 +134,7 @@
       "name": "data_script",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/handlers.rs",
@@ -193,7 +192,7 @@
       "name": "script",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/handlers.rs",
@@ -225,7 +224,7 @@
       "name": "LogsQuery",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/handlers.rs",
@@ -246,7 +245,7 @@
       "name": "logs",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/handlers.rs",
@@ -284,7 +283,7 @@
       "name": "log_record",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/handlers.rs",
@@ -321,7 +320,7 @@
       "name": "serve",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/server.rs",

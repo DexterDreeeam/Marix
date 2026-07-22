@@ -4,9 +4,8 @@
     "path": "src/common/logging/store",
     "name": "store",
     "purpose": "Implements redb telemetry persistence with session/time, minimum-level threshold, record-id, and trigram indexes, schema migration, paged reads, and bounded batch writes.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["reader.rs", "schema.rs"],
   "childModules": [],
   "elements": [
     {
@@ -241,7 +240,7 @@
       "name": "SESSION_LEVEL_TIME_INDEX",
       "type": "const",
       "source_depth": 4,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
@@ -283,7 +282,7 @@
       "name": "SCHEMA_VERSION",
       "type": "const",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
@@ -430,7 +429,7 @@
       "name": "session_level_time_key",
       "type": "function",
       "source_depth": 4,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
