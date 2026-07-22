@@ -13,9 +13,12 @@ pub struct WebFetch;
 
 impl WebFetch {
     const NAME: &'static str = "web_fetch";
-    const DESCRIPTION: &'static str = "Fetch a URL from the internet and return the page content. Strips excessive HTML tags to return clean markdown-like text.";
-    const INPUT_SCHEMA: &'static str = r#"{"type":"object","properties":{"url":{"type":"string"}},"required":["url"],"additionalProperties":false}"#;
+    const DESCRIPTION: &'static str = "Fetch a URL from the internet and return the page content. Strips excessive HTML tags to return clean markdown-like text. Supports pagination via start_index/max_length; the response reports next_start_index and truncated when more content remains.";
+    const INPUT_SCHEMA: &'static str = r#"{"type":"object","properties":{"url":{"type":"string"},"max_length":{"type":"integer","minimum":1,"maximum":15000},"start_index":{"type":"integer","minimum":0}},"required":["url"],"additionalProperties":false}"#;
 }
+
+const DEFAULT_MAX_LENGTH: usize = 5000;
+const MAX_MAX_LENGTH: usize = 15000;
 
 impl ToolProgram for WebFetch {
     fn preview(&self) -> ToolPreview {
@@ -38,6 +41,24 @@ impl ToolProgram for WebFetch {
         };
         let Some(url) = input.get("url").and_then(Value::as_str) else {
             return failure("missing required field: url".to_owned());
+        };
+        let max_length = match input.get("max_length") {
+            Some(value) => match value.as_u64() {
+                Some(value) if (1..=MAX_MAX_LENGTH as u64).contains(&value) => value as usize,
+                _ => {
+                    return failure(format!(
+                        "max_length must be an integer from 1 to {MAX_MAX_LENGTH}"
+                    ));
+                }
+            },
+            None => DEFAULT_MAX_LENGTH,
+        };
+        let start_index = match input.get("start_index") {
+            Some(value) => match value.as_u64() {
+                Some(value) => value as usize,
+                None => return failure("start_index must be a non-negative integer".to_owned()),
+            },
+            None => 0,
         };
 
         match Command::new("curl")
@@ -62,7 +83,17 @@ impl ToolProgram for WebFetch {
                     } else {
                         content
                     };
-                    to_string(&json!({ "content": content })).unwrap_or_default()
+                    match paginate(&content, start_index, max_length) {
+                        Ok(page) => to_string(&json!({
+                            "content": page.content,
+                            "start_index": page.start_index,
+                            "next_start_index": page.next_start_index,
+                            "truncated": page.truncated,
+                            "total_length": page.total_length,
+                        }))
+                        .unwrap_or_default(),
+                        Err(error) => failure(error),
+                    }
                 } else {
                     failure(format!(
                         "curl error: {}",
@@ -400,6 +431,39 @@ fn normalize_lines(content: &str) -> String {
         lines.pop();
     }
     lines.join("\n")
+}
+
+struct Page {
+    content: String,
+    start_index: usize,
+    next_start_index: Option<usize>,
+    truncated: bool,
+    total_length: usize,
+}
+
+fn paginate(content: &str, start_index: usize, max_length: usize) -> Result<Page, String> {
+    let chars: Vec<(usize, char)> = content.char_indices().collect();
+    let total_length = chars.len();
+    if start_index > total_length {
+        return Err(format!(
+            "start_index {start_index} is beyond the fetched content length {total_length}"
+        ));
+    }
+    let end_index = (start_index + max_length).min(total_length);
+    let byte_start = chars
+        .get(start_index)
+        .map_or(content.len(), |(byte, _)| *byte);
+    let byte_end = chars
+        .get(end_index)
+        .map_or(content.len(), |(byte, _)| *byte);
+    let truncated = end_index < total_length;
+    Ok(Page {
+        content: content[byte_start..byte_end].to_owned(),
+        start_index,
+        next_start_index: if truncated { Some(end_index) } else { None },
+        truncated,
+        total_length,
+    })
 }
 
 fn failure(message: String) -> String {

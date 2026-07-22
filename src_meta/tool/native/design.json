@@ -4,8 +4,11 @@
     "path": "src/tool/native",
     "name": "native",
     "purpose": "Groups built-in file, shell, system, coding, process, and web tools with shared native execution support; WebFetch cleans HTML into markdown-like text and web search providers use 60-second request limits.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/tool/native/file",
@@ -397,7 +400,7 @@
       "name": "WebFetch",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/web/web_fetch.rs",
@@ -410,38 +413,48 @@
         {
           "sourcePath": "src/tool/native/web/web_fetch.rs",
           "lineStart": 14,
-          "lineEnd": 18,
+          "lineEnd": 21,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 21
+            }
+          ],
           "modifiedLines": [
             {
               "lineStart": 16,
-              "lineEnd": 16
+              "lineEnd": 17
             }
           ]
         },
         {
           "sourcePath": "src/tool/native/web/web_fetch.rs",
-          "lineStart": 20,
-          "lineEnd": 76,
+          "lineStart": 23,
+          "lineEnd": 107,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 45,
+              "lineEnd": 62
+            }
+          ],
           "modifiedLines": [
             {
-              "lineStart": 59,
-              "lineEnd": 65
+              "lineStart": 86,
+              "lineEnd": 96
             }
           ]
         },
         {
           "sourcePath": "src/tool/native/web/web_fetch.rs",
           "lineStart": 80,
-          "lineEnd": 403,
+          "lineEnd": 467,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 80,
-              "lineEnd": 403
+              "lineStart": 436,
+              "lineEnd": 467
             }
           ],
           "modifiedLines": []
@@ -452,50 +465,65 @@
       "name": "WebSearch",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/web/web_search.rs",
-          "lineStart": 12,
-          "lineEnd": 12,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/tool/native/web/web_search.rs",
           "lineStart": 14,
-          "lineEnd": 20,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/tool/native/web/web_search.rs",
-          "lineStart": 22,
-          "lineEnd": 65,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/tool/native/web/web_search.rs",
-          "lineStart": 72,
-          "lineEnd": 460,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 118,
-              "lineEnd": 118
+              "lineStart": 16,
+              "lineEnd": 17
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/tool/native/web/web_search.rs",
+          "lineStart": 21,
+          "lineEnd": 81,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 58,
+              "lineEnd": 64
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 66,
+              "lineEnd": 79
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/tool/native/web/web_search.rs",
+          "lineStart": 88,
+          "lineEnd": 495,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 89,
+              "lineEnd": 89
             },
             {
-              "lineStart": 196,
-              "lineEnd": 196
+              "lineStart": 92,
+              "lineEnd": 92
             },
             {
-              "lineStart": 304,
-              "lineEnd": 304
+              "lineStart": 101,
+              "lineEnd": 101
+            },
+            {
+              "lineStart": 122,
+              "lineEnd": 137
+            },
+            {
+              "lineStart": 213,
+              "lineEnd": 225
             }
           ]
         }
