@@ -3,9 +3,10 @@
   "module": {
     "path": "src/host/executor",
     "name": "executor",
-    "purpose": "Owns the host executor worker, pipes JSON requests to tool standard input, preserves structured process failures, routes executions, and publishes tool previews.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns host executor workers, loads compatible tools from the configured directory, logs a sorted startup summary, pipes JSON requests to tool standard input, preserves structured process failures, routes executions, and publishes tool previews.",
+    "changeStatus": "modified"
   },
+  "modified": ["registry.rs"],
   "childModules": [],
   "elements": [
     {
@@ -52,11 +53,11 @@
       "name": "ToolRegistry",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/registry.rs",
-          "lineStart": 16,
+          "lineStart": 11,
           "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
@@ -65,35 +66,22 @@
         {
           "sourcePath": "src/host/executor/registry.rs",
           "lineStart": 20,
-          "lineEnd": 75,
+          "lineEnd": 85,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 23,
-              "lineEnd": 50
-            },
-            {
-              "lineStart": 54,
-              "lineEnd": 57
-            },
-            {
-              "lineStart": 65,
-              "lineEnd": 74
+              "lineStart": 45,
+              "lineEnd": 59
             }
           ]
         },
         {
           "sourcePath": "src/host/executor/registry.rs",
-          "lineStart": 79,
-          "lineEnd": 105,
+          "lineStart": 89,
+          "lineEnd": 115,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 79,
-              "lineEnd": 105
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

@@ -42,11 +42,21 @@ impl ToolRegistry {
                 let _ = registry.register_for_system(tool, &host_system);
             }
         }
-        Logger::log(format!(
-            "loaded {} tool(s) from {}",
-            registry.tools.len(),
-            config.tool.directory
-        ));
+        let mut tool_names = registry
+            .tools
+            .iter()
+            .map(|tool| tool.name())
+            .collect::<Vec<_>>();
+        tool_names.sort_unstable();
+        if tool_names.is_empty() {
+            Logger::log("host loaded 0 tools");
+        } else {
+            Logger::log(format!(
+                "host loaded {} tools: {}",
+                tool_names.len(),
+                tool_names.join(", ")
+            ));
+        }
         registry
     }
 
