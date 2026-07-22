@@ -2,7 +2,7 @@ use marix_common::ActorStatus;
 
 use crate::external::*;
 
-use crate::{ExecutionResult, ExecutionSignature};
+use crate::{ExecutionResult, ExecutionSignature, RelayResult, RelaySignature};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum InvocationEvent {
@@ -12,5 +12,6 @@ pub enum InvocationEvent {
         seq: usize,
         content: String,
     },
+    SummarizeUpdate(RelaySignature, ActorStatus<RelayResult>),
     Cancel,
 }

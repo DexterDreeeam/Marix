@@ -4,8 +4,9 @@
     "path": "src/protocol",
     "name": "protocol",
     "purpose": "Defines serialized task requests with optional completion-time and relay-count guardrails, context chains, relay, step, invocation, execution, session, tool, and workflow contracts.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs"],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -30,12 +31,12 @@
     {
       "path": "src/protocol/invocation",
       "name": "invocation",
-      "purpose": "Defines invocation drafts, requests, identities, signatures, errors, results, and events whose execution updates carry ActorStatus<ExecutionResult> directly."
+      "purpose": "Defines invocation drafts, requests, identities, signatures, errors, results, and events whose execution updates carry ActorStatus<ExecutionResult> directly, plus relay-driven summarize updates carrying ActorStatus<RelayResult>."
     },
     {
       "path": "src/protocol/relay",
       "name": "relay",
-      "purpose": "Defines prompt-only relay requests and intent-owned signatures, plus identities, errors, cancellation events, and terminal model results."
+      "purpose": "Defines relay requests carrying an intent-owned signature plus an intent-analysis-or-tool-call-summarize kind, alongside identities, errors, cancellation events, and terminal model results."
     },
     {
       "path": "src/protocol/session",
@@ -60,7 +61,7 @@
     {
       "path": "src/protocol/workflow",
       "name": "workflow",
-      "purpose": "Defines workflow decision-tool contracts and complete, plan, and infeasible payloads with previews and JSON parsing."
+      "purpose": "Defines workflow decision-tool contracts and call-summary, complete, plan, and infeasible payloads with previews and JSON parsing."
     }
   ],
   "elements": [
@@ -584,20 +585,20 @@
       "name": "InvocationEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/event.rs",
           "lineStart": 7,
-          "lineEnd": 16,
+          "lineEnd": 17,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 9,
-              "lineEnd": 9
+              "lineStart": 15,
+              "lineEnd": 15
             }
-          ]
+          ],
+          "modifiedLines": []
         }
       ]
     },
@@ -842,17 +843,43 @@
       ]
     },
     {
+      "name": "RelayKind",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/relay/kind.rs",
+          "lineStart": 5,
+          "lineEnd": 13,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 13
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
       "name": "RelayRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/request.rs",
           "lineStart": 5,
           "lineEnd": 9,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 8
+            }
+          ],
           "modifiedLines": []
         }
       ]
@@ -1475,6 +1502,40 @@
             {
               "lineStart": 9,
               "lineEnd": 9
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "WorkflowCallSummary",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/workflow/call_summary.rs",
+          "lineStart": 8,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/workflow/call_summary.rs",
+          "lineStart": 14,
+          "lineEnd": 38,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 38
             }
           ],
           "modifiedLines": []

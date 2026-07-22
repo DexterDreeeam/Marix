@@ -3,9 +3,11 @@
   "module": {
     "path": "src/protocol/relay",
     "name": "relay",
-    "purpose": "Defines prompt-only relay requests and intent-owned signatures, plus identities, errors, cancellation events, and terminal model results.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines relay requests carrying an intent-owned signature plus an intent-analysis-or-tool-call-summarize kind, alongside identities, errors, cancellation events, and terminal model results.",
+    "changeStatus": "modified"
   },
+  "added": ["kind.rs"],
+  "modified": ["mod.rs", "request.rs"],
   "childModules": [],
   "elements": [
     {
@@ -75,17 +77,43 @@
       ]
     },
     {
+      "name": "RelayKind",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/relay/kind.rs",
+          "lineStart": 5,
+          "lineEnd": 13,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 5,
+              "lineEnd": 13
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
       "name": "RelayRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/request.rs",
           "lineStart": 5,
           "lineEnd": 9,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 8
+            }
+          ],
           "modifiedLines": []
         }
       ]

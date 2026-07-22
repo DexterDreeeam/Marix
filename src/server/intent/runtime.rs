@@ -5,15 +5,14 @@ use marix_common::{
     Actor, ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait, WorkQueue,
 };
 use marix_protocol::{
-    IntentEvent, IntentResult, IntentResultKind, IntentSignature, PlanResult, RelayRequest,
-    RelayResult, RelayResultKind, RelaySignature, SessionEvent, StepDraft, StepEvent, StepResult,
-    StepResultKind, StepSignature, TaskEvent, WorkflowComplete, WorkflowInfeasible, WorkflowPlan,
-    WorkflowTool,
+    IntentEvent, IntentResult, IntentResultKind, IntentSignature, PlanResult, RelayKind,
+    RelayRequest, RelayResult, RelayResultKind, RelaySignature, SessionEvent, StepDraft, StepEvent,
+    StepResult, StepResultKind, StepSignature, TaskEvent, WorkflowCallSummary, WorkflowComplete,
+    WorkflowInfeasible, WorkflowPlan, WorkflowTool,
 };
 
 use super::Intent;
 use crate::plan::Plan;
-use crate::prompt::Prompt;
 use crate::relay::Relay;
 use crate::step::Step;
 use crate::task::TaskAccess;
@@ -93,34 +92,9 @@ impl RuntimeTrait for IntentRuntime {
 
 impl IntentRuntime {
     pub(super) fn verdict(&self) -> Result<(), String> {
-        let mut prompt =
-            std::panic::catch_unwind(|| Prompt::load("IntentAnalyze")).map_err(|payload| {
-                let detail = if let Some(message) = payload.downcast_ref::<String>() {
-                    message.clone()
-                } else if let Some(message) = payload.downcast_ref::<&str>() {
-                    (*message).to_owned()
-                } else {
-                    "unknown prompt loading panic".to_owned()
-                };
-                format!("failed to load IntentAnalyze prompt: {detail}",)
-            })?;
-        for parameter in prompt.parameters() {
-            let value = match parameter.as_str() {
-                "goal" => self.access.user_request.clone(),
-                _ => {
-                    return Err(format!(
-                        "unsupported IntentAnalyze prompt parameter `{parameter}`"
-                    ));
-                }
-            };
-            prompt.inject(parameter, value);
-        }
-        let prompt = prompt
-            .prompt()
-            .map_err(|error| format!("failed to render IntentAnalyze prompt: {error}"))?;
         let request = RelayRequest {
             signature: RelaySignature::new(self.signature.clone(), "intent-verdict".to_owned()),
-            prompt,
+            kind: RelayKind::IntentAnalyze,
         };
         let relay = Relay::new(Arc::clone(&self.access), request)?;
         if !self.access.insert(relay.clone()) {
@@ -324,7 +298,10 @@ impl IntentRuntime {
     fn is_workflow_tool(name: &str) -> bool {
         matches!(
             name,
-            WorkflowPlan::NAME | WorkflowComplete::NAME | WorkflowInfeasible::NAME
+            WorkflowCallSummary::NAME
+                | WorkflowPlan::NAME
+                | WorkflowComplete::NAME
+                | WorkflowInfeasible::NAME
         )
     }
 

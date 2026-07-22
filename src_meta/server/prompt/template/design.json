@@ -3,9 +3,11 @@
   "module": {
     "path": "src/server/prompt/template",
     "name": "template",
-    "purpose": "Defines IntentAnalyze and System prompt resources for decision and execution-environment instructions.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines WorkflowPolicy, System, and ToolCallSummarize prompt resources for decision-policy, execution-environment, and tool-output-summarization instructions.",
+    "changeStatus": "modified"
   },
+  "added": ["WorkflowPolicy.prompt", "ToolCallSummarize.prompt"],
+  "deleted": ["IntentAnalyze.prompt"],
   "childModules": [],
   "elements": []
 }

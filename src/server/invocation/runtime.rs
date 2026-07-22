@@ -3,14 +3,18 @@ use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
 use marix_common::external::*;
-use marix_common::{ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait};
+use marix_common::{
+    Actor, ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait,
+};
 use marix_protocol::{
     ExecutionEvent, ExecutionRequest, ExecutionResult, ExecutionResultKind, ExecutionSignature,
     ExecutorEvent, InvocationEvent, InvocationResult, InvocationResultKind, InvocationSignature,
-    SessionEvent, StepEvent, TaskEvent, ToolInputSchema,
+    RelayKind, RelayRequest, RelayResult, RelayResultKind, RelaySignature, SessionEvent, StepEvent,
+    TaskEvent, ToolInputSchema,
 };
 
 use super::Invocation;
+use crate::relay::Relay;
 use crate::task::TaskAccess;
 
 pub struct InvocationRuntime {
@@ -20,6 +24,7 @@ pub struct InvocationRuntime {
     pub output: StdMutex<BTreeMap<usize, String>>,
     pub final_signal: StdMutex<Option<usize>>,
     pub execution: StdMutex<Option<ExecutionSignature>>,
+    pub pending_summarize: StdMutex<Option<(InvocationResultKind, String)>>,
     pub lifecycle: Lifecycle<InvocationEvent, InvocationResult>,
 }
 
@@ -36,6 +41,7 @@ impl InvocationRuntime {
             output: StdMutex::new(BTreeMap::new()),
             final_signal: StdMutex::new(None),
             execution: StdMutex::new(None),
+            pending_summarize: StdMutex::new(None),
             lifecycle: Lifecycle::new(),
         }
     }
@@ -102,6 +108,9 @@ impl RuntimeTrait for InvocationRuntime {
                 content,
             } => {
                 self.on_processing(execution, seq, content);
+            }
+            InvocationEvent::SummarizeUpdate(signature, status) => {
+                self.on_summarize_update(signature, status);
             }
             InvocationEvent::Cancel => self.cancel(),
         }
@@ -171,16 +180,104 @@ impl InvocationRuntime {
                         .final_signal
                         .lock()
                         .unwrap_or_else(|error| error.into_inner()) = Some(result.seq_count);
-                    self.finish(InvocationResultKind::Succeed, output);
+                    self.summarize_and_finish(InvocationResultKind::Succeed, output);
                 }
                 ExecutionResultKind::Canceled => {
                     self.finish(InvocationResultKind::Canceled, result.output);
                 }
                 ExecutionResultKind::Failed => {
-                    self.finish(InvocationResultKind::Failed, result.output);
+                    self.summarize_and_finish(InvocationResultKind::Failed, result.output);
                 }
             },
         }
+    }
+
+    fn summarize_and_finish(&self, kind: InvocationResultKind, output: String) {
+        let relay_signature = RelaySignature::new(
+            self.signature.step.intent.clone(),
+            "tool-call-summarize".to_owned(),
+        );
+        let request = RelayRequest {
+            signature: relay_signature,
+            kind: RelayKind::ToolCallSummarize {
+                invocation: self.signature.clone(),
+                tool: self.signature.name.clone(),
+                output: output.clone(),
+            },
+        };
+        let relay = match Relay::new(Arc::clone(&self.access), request) {
+            Ok(relay) => relay,
+            Err(reason) => {
+                Logger::warning(format!(
+                    "invocation {} summarize relay creation failed: {reason}; keeping original output",
+                    &self.signature,
+                ));
+                self.finish(kind, output);
+                return;
+            }
+        };
+        *self
+            .pending_summarize
+            .lock()
+            .unwrap_or_else(|error| error.into_inner()) = Some((kind.clone(), output.clone()));
+        if !self.access.insert(relay.clone()) {
+            Logger::warning(format!(
+                "invocation {} summarize relay {} already exists; keeping original output",
+                &self.signature,
+                relay.signature(),
+            ));
+            *self
+                .pending_summarize
+                .lock()
+                .unwrap_or_else(|error| error.into_inner()) = None;
+            self.finish(kind, output);
+            return;
+        }
+        relay.start();
+    }
+
+    fn on_summarize_update(&self, signature: RelaySignature, status: ActorStatus<RelayResult>) {
+        if matches!(self.status(), ActorStatus::Complete(_)) {
+            Logger::error(format!(
+                "invocation {} received summarize relay {signature} update {status:?} after completion",
+                &self.signature,
+            ));
+            return;
+        }
+        let ActorStatus::Complete(result) = status else {
+            return;
+        };
+        if signature.name != "tool-call-summarize" {
+            Logger::error(format!(
+                "invocation {} received update from unexpected relay name `{}`",
+                &self.signature, signature.name,
+            ));
+            return;
+        }
+        let Some((kind, original_output)) = self
+            .pending_summarize
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .take()
+        else {
+            Logger::error(format!(
+                "invocation {} received summarize relay {signature} update with no pending state",
+                &self.signature,
+            ));
+            return;
+        };
+        let final_output = match result.kind {
+            RelayResultKind::Succeed => result.output,
+            RelayResultKind::Failed | RelayResultKind::Canceled => {
+                Logger::warning(format!(
+                    "invocation {} summarize relay {signature} did not succeed: {}; \
+                     keeping original output",
+                    &self.signature, result.output,
+                ));
+                original_output
+            }
+        };
+        self.finish(kind, final_output);
     }
 
     fn complete_output(&self, seq_count: usize) -> Option<String> {

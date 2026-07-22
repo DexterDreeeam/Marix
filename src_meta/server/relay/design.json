@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/relay",
     "name": "relay",
-    "purpose": "Builds validated two-prompt relay model requests and checks the task completion deadline before reserving relay budget and creating each Relay.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs each Relay as a model-backed actor: `Relay` gates relay budget and spawns `RelayRuntime`, which renders every prompt (System, WorkflowPolicy, and — for tool-call-summarize relays — the trailing ToolCallSummarize template, plus context-chain history) from `self.access` and the request's `RelayKind`, streams the model response, and on success resolves the final `RelayResult.output` by kind: the raw decision text for `IntentAnalyze`, or the native `workflow_call_summary` tool-call extracted summary for `ToolCallSummarize`.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs", "prompt.rs"],
   "childModules": [],
   "elements": [
     {
@@ -57,71 +58,100 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 19,
-          "lineEnd": 27,
+          "lineStart": 20,
+          "lineEnd": 28,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 23,
+              "lineEnd": 23
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 30,
+          "lineEnd": 61,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 54,
+              "lineEnd": 54
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 63,
+          "lineEnd": 166,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 29,
-          "lineEnd": 60,
+          "lineStart": 170,
+          "lineEnd": 290,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 203,
+              "lineEnd": 232
+            }
+          ],
           "modifiedLines": [
             {
-              "lineStart": 29,
-              "lineEnd": 60
+              "lineStart": 200,
+              "lineEnd": 200
             }
           ]
-        },
-        {
-          "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 62,
-          "lineEnd": 165,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 169,
-          "lineEnd": 247,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 249,
-          "lineEnd": 254,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/prompt.rs",
           "lineStart": 13,
           "lineEnd": 34,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 13,
+              "lineEnd": 13
+            },
+            {
+              "lineStart": 17,
+              "lineEnd": 20
+            }
+          ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/prompt.rs",
           "lineStart": 38,
-          "lineEnd": 248,
+          "lineEnd": 364,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 164,
+              "lineEnd": 191
+            }
+          ],
           "modifiedLines": [
             {
-              "lineStart": 117,
-              "lineEnd": 247
+              "lineStart": 145,
+              "lineEnd": 145
+            },
+            {
+              "lineStart": 159,
+              "lineEnd": 159
+            },
+            {
+              "lineStart": 216,
+              "lineEnd": 244
             }
           ]
         }

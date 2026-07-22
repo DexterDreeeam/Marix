@@ -8,8 +8,9 @@ use marix_common::{
     Lifecycle, Logger, Runtime as RuntimeTrait,
 };
 use marix_protocol::{
-    IntentEvent, RelayEvent, RelayRequest, RelayResult, RelayResultKind, RelaySignature,
-    SessionEvent, TaskEvent,
+    IntentEvent, InvocationEvent, RelayEvent, RelayKind, RelayRequest, RelayResult,
+    RelayResultKind, RelaySignature, SessionEvent, StepDraft, TaskEvent, WorkflowCallSummary,
+    WorkflowTool,
 };
 
 use super::Relay;
@@ -19,7 +20,7 @@ use crate::task::TaskAccess;
 pub struct RelayRuntime {
     pub access: Arc<TaskAccess>,
     pub signature: RelaySignature,
-    pub prompt: String,
+    pub kind: RelayKind,
     pub output: StdMutex<BTreeMap<usize, String>>,
     pub final_signal: StdMutex<Option<usize>>,
     pub model_backend: StdMutex<Box<dyn ModelBackend>>,
@@ -50,7 +51,7 @@ impl RelayRuntime {
         Ok(Self {
             access,
             signature: request.signature,
-            prompt: request.prompt,
+            kind: request.kind,
             output: StdMutex::new(BTreeMap::new()),
             final_signal: StdMutex::new(None),
             model_backend: StdMutex::new(model_backend),
@@ -196,7 +197,38 @@ impl RelayRuntime {
             .final_signal
             .lock()
             .unwrap_or_else(|error| error.into_inner()) = Some(response.seq);
-        self.finish(RelayResultKind::Succeed, output);
+        self.finish_succeed(output);
+    }
+
+    fn finish_succeed(&self, output: String) {
+        match &self.kind {
+            RelayKind::IntentAnalyze => self.finish(RelayResultKind::Succeed, output),
+            RelayKind::ToolCallSummarize { .. } => match Self::extract_summary(&output) {
+                Ok(summary) => self.finish(RelayResultKind::Succeed, summary),
+                Err(reason) => {
+                    Logger::error(format!("relay {} failed: {reason}", &self.signature));
+                    self.finish(RelayResultKind::Failed, reason);
+                }
+            },
+        }
+    }
+
+    fn extract_summary(raw: &str) -> Result<String, String> {
+        let draft = StepDraft::parse(raw)
+            .map_err(|error| format!("not a valid tool-call draft: {error}"))?;
+        let mut invocations = draft.invocations.into_iter();
+        let Some(invocation) = invocations.next() else {
+            return Err("no tool call was made".to_owned());
+        };
+        if invocations.next().is_some() {
+            return Err("more than one tool call was made".to_owned());
+        }
+        if invocation.name != WorkflowCallSummary::NAME {
+            return Err(format!("unexpected tool call `{}`", invocation.name));
+        }
+        let tool = WorkflowCallSummary::parse(&invocation.input)
+            .map_err(|error| format!("`{}` arguments are invalid: {error}", invocation.name))?;
+        Ok(tool.summary)
     }
 
     fn complete_output(&self, seq_count: usize) -> Option<String> {
@@ -229,14 +261,25 @@ impl RelayRuntime {
     }
 
     fn send_owner_update(&self, status: ActorStatus<RelayResult>) {
-        let intent = self.signature.intent.clone();
-        let event = SessionEvent::Task(
-            intent.task.clone(),
-            TaskEvent::Intent(
-                intent,
-                IntentEvent::RelayUpdate(self.signature.clone(), status),
+        let event = match &self.kind {
+            RelayKind::IntentAnalyze => {
+                let intent = self.signature.intent.clone();
+                SessionEvent::Task(
+                    intent.task.clone(),
+                    TaskEvent::Intent(
+                        intent,
+                        IntentEvent::RelayUpdate(self.signature.clone(), status),
+                    ),
+                )
+            }
+            RelayKind::ToolCallSummarize { invocation, .. } => SessionEvent::Task(
+                invocation.step.intent.task.clone(),
+                TaskEvent::Invocation(
+                    invocation.clone(),
+                    InvocationEvent::SummarizeUpdate(self.signature.clone(), status),
+                ),
             ),
-        );
+        };
         if self.access.session_tx.send(event).is_err() {
             Logger::warning(format!(
                 "relay {} event send failed: session stopped",

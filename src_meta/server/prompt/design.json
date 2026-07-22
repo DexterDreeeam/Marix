@@ -4,13 +4,14 @@
     "path": "src/server/prompt",
     "name": "prompt",
     "purpose": "Loads, validates, injects, and renders named prompt templates from the local template directory.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/server/prompt/template",
       "name": "template",
-      "purpose": "Defines IntentAnalyze and System prompt resources for decision and execution-environment instructions."
+      "purpose": "Defines WorkflowPolicy, System, and ToolCallSummarize prompt resources for decision-policy, execution-environment, and tool-output-summarization instructions."
     }
   ],
   "elements": [

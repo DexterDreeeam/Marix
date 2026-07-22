@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/invocation",
     "name": "invocation",
-    "purpose": "Defines invocation drafts, requests, identities, signatures, errors, results, and events whose execution updates carry ActorStatus<ExecutionResult> directly.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines invocation drafts, requests, identities, signatures, errors, results, and events whose execution updates carry ActorStatus<ExecutionResult> directly, plus relay-driven summarize updates carrying ActorStatus<RelayResult>.",
+    "changeStatus": "modified"
   },
+  "modified": ["event.rs"],
   "childModules": [],
   "elements": [
     {
@@ -33,20 +34,20 @@
       "name": "InvocationEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/event.rs",
           "lineStart": 7,
-          "lineEnd": 16,
+          "lineEnd": 17,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
+          "addedLines": [
             {
-              "lineStart": 9,
-              "lineEnd": 9
+              "lineStart": 15,
+              "lineEnd": 15
             }
-          ]
+          ],
+          "modifiedLines": []
         }
       ]
     },

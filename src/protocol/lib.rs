@@ -24,7 +24,8 @@ pub use invocation::{
     InvocationResult, InvocationResultKind, InvocationSignature, ToolCallResultDraft,
 };
 pub use relay::{
-    RelayError, RelayEvent, RelayId, RelayRequest, RelayResult, RelayResultKind, RelaySignature,
+    RelayError, RelayEvent, RelayId, RelayKind, RelayRequest, RelayResult, RelayResultKind,
+    RelaySignature,
 };
 pub use session::{SessionEvent, SessionMessage};
 pub use step::{
@@ -35,4 +36,6 @@ pub use task::{
     TaskResult, TaskResultKind, TaskSignature, TaskStatus,
 };
 pub use tool::{ToolCategory, ToolInputSchema, ToolOutputSchema, ToolPreview};
-pub use workflow::{WorkflowComplete, WorkflowInfeasible, WorkflowPlan, WorkflowTool};
+pub use workflow::{
+    WorkflowCallSummary, WorkflowComplete, WorkflowInfeasible, WorkflowPlan, WorkflowTool,
+};

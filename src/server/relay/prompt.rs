@@ -2,8 +2,8 @@ use std::collections::BTreeSet;
 
 use marix_common::{Arch, Platform, System};
 use marix_protocol::{
-    ContextChain, IntentContext, IntentResult, IntentResultKind, ToolPreview, WorkflowComplete,
-    WorkflowInfeasible, WorkflowPlan, WorkflowTool,
+    ContextChain, IntentContext, IntentResult, IntentResultKind, RelayKind, ToolPreview,
+    WorkflowCallSummary, WorkflowComplete, WorkflowInfeasible, WorkflowPlan, WorkflowTool,
 };
 
 use super::RelayRuntime;
@@ -50,6 +50,7 @@ impl RelayRuntime {
             }
         }
         let workflow_tools = [
+            WorkflowCallSummary::preview(),
             WorkflowPlan::preview(),
             WorkflowComplete::preview(),
             WorkflowInfeasible::preview(),
@@ -141,7 +142,7 @@ impl RelayRuntime {
                 .to_owned());
         }
 
-        let mut prompts = vec![self.prompt.clone()];
+        let mut prompts = vec![self.workflow_policy_prompt()?];
         if !ancestors.is_empty() {
             let mut context = "[BACKGROUND CONTEXT]\nThese are the parent tasks and their execution history. They are provided for reference only.\n\n\n".to_owned();
             context.push_str(
@@ -154,7 +155,39 @@ impl RelayRuntime {
             prompts.push(context);
         }
         prompts.push(Self::pending_intent_prompt(current));
+        if let RelayKind::ToolCallSummarize { tool, output, .. } = &self.kind {
+            prompts.push(self.tool_call_prompt(tool, output)?);
+        }
         Ok(prompts)
+    }
+
+    fn workflow_policy_prompt(&self) -> Result<String, String> {
+        let template = "WorkflowPolicy";
+        let mut prompt =
+            std::panic::catch_unwind(|| Prompt::load(template)).map_err(|payload| {
+                let detail = if let Some(message) = payload.downcast_ref::<String>() {
+                    message.clone()
+                } else if let Some(message) = payload.downcast_ref::<&str>() {
+                    (*message).to_owned()
+                } else {
+                    "unknown prompt loading panic".to_owned()
+                };
+                format!("failed to load {template} prompt: {detail}")
+            })?;
+        for parameter in prompt.parameters() {
+            let value = match parameter.as_str() {
+                "goal" => self.access.user_request.clone(),
+                _ => {
+                    return Err(format!(
+                        "unsupported {template} prompt parameter `{parameter}`"
+                    ));
+                }
+            };
+            prompt.inject(parameter, value);
+        }
+        prompt
+            .prompt()
+            .map_err(|error| format!("failed to render {template} prompt: {error}"))
     }
 
     /// Renders an ancestor Intent that currently holds an active Plan.
@@ -169,12 +202,45 @@ impl RelayRuntime {
 
     /// Renders the Intent currently awaiting a decision (it has no active Plan).
     fn pending_intent_prompt(intent: &IntentContext) -> String {
-        let mut prompt = "[CURRENT TASK]\nThis is the task you must execute NOW. All workflow decisions MUST be scoped strictly to this goal alone."
+        let mut prompt = "[CURRENT TASK]\nThis is the task you are executing NOW. Everything you do MUST be scoped strictly to this goal alone."
             .to_owned();
         prompt.push_str(&format!("\nGoal: {}", intent.content));
         Self::append_tool_calls(&mut prompt, intent);
         Self::append_plan_failures(&mut prompt, intent);
         prompt
+    }
+
+    /// Renders the trailing message for a `ToolCallSummarize` relay, appended
+    /// after the pending intent prompt so the shared prefix stays identical
+    /// to a normal decision call for the same intent state.
+    fn tool_call_prompt(&self, tool: &str, output: &str) -> Result<String, String> {
+        let template = "ToolCallSummarize";
+        let mut prompt =
+            std::panic::catch_unwind(|| Prompt::load(template)).map_err(|payload| {
+                let detail = if let Some(message) = payload.downcast_ref::<String>() {
+                    message.clone()
+                } else if let Some(message) = payload.downcast_ref::<&str>() {
+                    (*message).to_owned()
+                } else {
+                    "unknown prompt loading panic".to_owned()
+                };
+                format!("failed to load {template} prompt: {detail}")
+            })?;
+        for parameter in prompt.parameters() {
+            let value = match parameter.as_str() {
+                "tool" => tool.to_owned(),
+                "output" => output.replace("\n", "\n      "),
+                _ => {
+                    return Err(format!(
+                        "unsupported {template} prompt parameter `{parameter}`"
+                    ));
+                }
+            };
+            prompt.inject(parameter, value);
+        }
+        prompt
+            .prompt()
+            .map_err(|error| format!("failed to render {template} prompt: {error}"))
     }
 
     fn append_result(prompt: &mut String, result: &Option<IntentResult>) {

@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/intent",
     "name": "intent",
-    "purpose": "Runs intent actors that render an IntentAnalyze decision prompt, parse complete, plan, or infeasible relay decisions, prevent direct steps once planning starts, snapshot and clear failed Plans before requesting a new verdict, and publish ordered subintent or terminal results.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs intent actors that request an IntentAnalyze relay verdict, dispatch the resulting native tool calls into complete, plan, or infeasible outcomes, prevent direct steps once planning starts, snapshot and clear failed Plans before requesting a new verdict, and publish ordered subintent or terminal results.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -44,80 +45,67 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 21,
-          "lineEnd": 29,
+          "lineStart": 20,
+          "lineEnd": 28,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 31,
-          "lineEnd": 47,
+          "lineStart": 30,
+          "lineEnd": 46,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 49,
-          "lineEnd": 90,
+          "lineStart": 48,
+          "lineEnd": 89,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 94,
-          "lineEnd": 369,
+          "lineStart": 93,
+          "lineEnd": 357,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 210,
-              "lineEnd": 233
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 94,
-              "lineEnd": 94
-            },
-            {
-              "lineStart": 237,
-              "lineEnd": 240
-            },
-            {
-              "lineStart": 255,
-              "lineEnd": 255
+              "lineEnd": 108
             }
           ]
         },
         {
           "sourcePath": "src/server/intent/plan.rs",
           "lineStart": 13,
-          "lineEnd": 127,
+          "lineEnd": 124,
           "language": "rust",
           "addedLines": [
             {
               "lineStart": 13,
-              "lineEnd": 127
+              "lineEnd": 124
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/plan.rs",
-          "lineStart": 131,
-          "lineEnd": 228,
+          "lineStart": 128,
+          "lineEnd": 225,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 131,
-              "lineEnd": 228
+              "lineStart": 128,
+              "lineEnd": 225
             }
           ],
           "modifiedLines": []
