@@ -1,3 +1,4 @@
+pub mod context;
 pub mod error;
 pub mod event;
 pub mod id;
@@ -8,6 +9,7 @@ pub mod result;
 pub mod signature;
 pub mod status;
 
+pub use context::ContextChain;
 pub use error::TaskError;
 pub use event::TaskEvent;
 pub use id::TaskId;

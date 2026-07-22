@@ -1,6 +1,6 @@
 ---
 name: design-json-update
-description: Update Marix src_meta/**/design.json source-design metadata. Requires mode parameter "changed" or "full". This skill can be triggered by git-sync, git-tag and explicit user command ONLY. 
+description: Update Marix src_meta/**/design.json source-design metadata. Requires mode parameter "changed" or "full". This skill can be triggered ONLY by git-sync/git-tag skills and explicit user command.
 ---
 
 ## Purpose
