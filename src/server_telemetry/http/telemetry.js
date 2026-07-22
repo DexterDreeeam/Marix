@@ -5,6 +5,7 @@ import {
   mergeSummaries,
   visibleRange,
 } from "./telemetry-data.js";
+import { createDropdown } from "./telemetry-dropdown.js";
 import { createMessageActions } from "./telemetry-message.js";
 
 const c_keywordDebounceMs = 400;
@@ -27,6 +28,8 @@ const s_state = {
   selectedSession: undefined,
   level: "",
   keyword: "",
+  availableTags: [],
+  selectedTags: new Set(),
   summaries: [],
   nextCursor: null,
   latestRecordId: null,
@@ -40,7 +43,11 @@ const s_state = {
 
 const appEl = document.getElementById("app");
 const sessionListEl = document.getElementById("session-list");
-const levelFilterEl = document.getElementById("level-filter");
+const refreshLogsButtonEl = document.getElementById("refresh-logs-button");
+const levelFilterButtonEl = document.getElementById("level-filter");
+const levelFilterPopupEl = document.getElementById("level-filter-popup");
+const tagsFilterButtonEl = document.getElementById("tags-filter");
+const tagsFilterPopupEl = document.getElementById("tags-filter-popup");
 const keywordFilterEl = document.getElementById("keyword-filter");
 const statusBannerEl = document.getElementById("status-banner");
 const logAreaEl = document.getElementById("log-area");
@@ -49,6 +56,9 @@ const logBodyEl = document.getElementById("log-body");
 const emptyStateEl = document.getElementById("empty-state");
 const initialLoadingEl = document.getElementById("initial-loading");
 const noSessionsEl = document.getElementById("no-sessions-state");
+
+const s_levelDropdown = createDropdown(levelFilterButtonEl, levelFilterPopupEl);
+const s_tagsDropdown = createDropdown(tagsFilterButtonEl, tagsFilterPopupEl);
 
 const s_messageActions = createMessageActions(
   {
@@ -170,6 +180,106 @@ function renderSessions() {
   s_state.sessionItems = _nextItems;
 }
 
+function bindOptionActivation(_element, _action) {
+  _element.tabIndex = 0;
+  _element.addEventListener("click", _action);
+  _element.addEventListener("keydown", function (_event) {
+    if (_event.key === "Enter" || _event.key === " ") {
+      _event.preventDefault();
+      _action();
+    }
+  });
+}
+
+function updateLevelSelection() {
+  levelFilterButtonEl.textContent = s_state.level || "All levels";
+  Array.from(levelFilterPopupEl.children).forEach(function (_item) {
+    var _selected = _item.dataset.value === s_state.level;
+    _item.classList.toggle("selected", _selected);
+    _item.setAttribute("aria-selected", String(_selected));
+  });
+}
+
+function selectLevel(_level) {
+  s_levelDropdown.close();
+  if (s_state.level === _level) {
+    return;
+  }
+  s_state.level = _level;
+  updateLevelSelection();
+  resetLogs();
+}
+
+function tagsLabel() {
+  var _count = s_state.selectedTags.size;
+  if (_count === 0) {
+    return "All tags";
+  }
+  return _count + (_count === 1 ? " tag selected" : " tags selected");
+}
+
+function renderTagsPopup() {
+  tagsFilterButtonEl.textContent = tagsLabel();
+  if (s_state.availableTags.length === 0) {
+    var _empty = document.createElement("li");
+    _empty.className = "dropdown-empty";
+    _empty.textContent = "No tags for this session";
+    tagsFilterPopupEl.replaceChildren(_empty);
+    return;
+  }
+  var _fragment = document.createDocumentFragment();
+  s_state.availableTags.forEach(function (_tag) {
+    var _item = document.createElement("li");
+    _item.setAttribute("role", "option");
+    _item.dataset.tag = _tag;
+    _item.textContent = _tag;
+    var _selected = s_state.selectedTags.has(_tag);
+    _item.classList.toggle("selected", _selected);
+    _item.setAttribute("aria-selected", String(_selected));
+    bindOptionActivation(_item, function () {
+      toggleTag(_tag);
+    });
+    _fragment.appendChild(_item);
+  });
+  tagsFilterPopupEl.replaceChildren(_fragment);
+}
+
+function toggleTag(_tag) {
+  if (s_state.selectedTags.has(_tag)) {
+    s_state.selectedTags.delete(_tag);
+  } else {
+    s_state.selectedTags.add(_tag);
+  }
+  renderTagsPopup();
+  resetLogs();
+}
+
+async function loadAvailableTags() {
+  if (s_state.selectedSession === undefined) {
+    return;
+  }
+  var _requestedSession = s_state.selectedSession;
+  try {
+    var _tags =
+      (await fetchJson(
+        "/api/sessions/" +
+          encodeURIComponent(sessionKey(_requestedSession)) +
+          "/tags"
+      )) || [];
+    if (
+      sessionKey(s_state.selectedSession) !== sessionKey(_requestedSession)
+    ) {
+      return;
+    }
+    s_state.availableTags = _tags;
+    renderTagsPopup();
+  } catch (_error) {
+    if (_error.name !== "AbortError") {
+      showError("Failed to load tags: " + _error.message);
+    }
+  }
+}
+
 function normalizedSource(_source) {
   return ["Host", "Client", "Server"].includes(_source) ? _source : "Server";
 }
@@ -282,6 +392,7 @@ function selectSession(_sessionId) {
   s_state.selectedSession = _sessionId;
   renderSessions();
   resetLogs();
+  loadAvailableTags();
 }
 
 async function loadSessions() {
@@ -315,6 +426,7 @@ async function loadSessions() {
       s_state.selectedSession = fallbackSessionId(_sessions);
       renderSessions();
       resetLogs();
+      loadAvailableTags();
     } else {
       renderSessions();
     }
@@ -352,6 +464,7 @@ async function requestLogs(_mode) {
       sessionId: s_state.selectedSession,
       level: s_state.level,
       keyword: s_state.keyword,
+      tags: Array.from(s_state.selectedTags),
       limit: c_defaultLimit,
       before: s_state.nextCursor,
       afterId: s_state.latestRecordId,
@@ -416,9 +529,15 @@ keywordFilterEl.addEventListener("input", function () {
     resetLogs();
   }, c_keywordDebounceMs);
 });
-levelFilterEl.addEventListener("change", function () {
-  s_state.level = levelFilterEl.value;
+Array.from(levelFilterPopupEl.children).forEach(function (_item) {
+  bindOptionActivation(_item, function () {
+    selectLevel(_item.dataset.value);
+  });
+});
+updateLevelSelection();
+refreshLogsButtonEl.addEventListener("click", function () {
   resetLogs();
+  loadAvailableTags();
 });
 logAreaEl.addEventListener("scroll", function () {
   renderVirtualRows();

@@ -110,10 +110,11 @@ for the current case before deciding whether another case may start:
    terminal outcome. Capture elapsed time, exit status, and a concise,
    secret-safe terminal summary. A non-terminal disappearance or transport
    failure is an environment failure; a reported task failure is a task failure.
-4. **Inspect model/tool evidence** — Query Telemetry by the submitted task ID and
-   read the ordered Model Relay requests/responses together with every tool call
-   and tool result used by the model. Verify that each tool result contributes
-   useful information: a relevant fact, requested artifact/state change, or an
+4. **Inspect model/tool evidence** — Query Telemetry by the submitted task ID,
+   filtered to records tagged `Model Relay`, and read the ordered Model Relay
+   requests/responses together with every tool call and tool result used by
+   the model. Verify that each tool result contributes useful information: a
+   relevant fact, requested artifact/state change, or an
    actionable diagnostic that can guide the next model decision. A tool result
    may be useful even when it reports an error; treat an error as useful when it
    identifies a concrete cause, unsupported input, unavailable resource, or
@@ -179,9 +180,10 @@ for the current case before deciding whether another case may start:
 9. **Analyze the first failure** — Immediately after stopping, analyze the stop
    trigger's failure chain using every layer of this procedure; do not stop
    because an earlier layer appears sufficient:
-   1. Query the Telemetry database by the failing task ID for every
-      `[Model Relay]` Request and Response, read them in emit order, and recover
-      each model decision, tool name, tool arguments, and tool result.
+   1. Query the Telemetry database by the failing task ID, filtered to
+      records tagged `Model Relay`, for every Request and Response, read them
+      in emit order, and recover each model decision, tool name, tool
+      arguments, and tool result.
    2. Through PowerShell Direct, read every `C:\MarixHost\tool\*.log` entry in
       the failing case's time window and correlate each tool executable and
       timestamp with its actual stdin input and stdout output. This exception is

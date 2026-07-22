@@ -17,13 +17,9 @@
   </aside>
   <main id="main">
     <div id="toolbar">
-      <select id="level-filter">
-        <option value="">All levels</option>
-        <option value="Debug">Debug</option>
-        <option value="Info">Info</option>
-        <option value="Warning">Warning</option>
-        <option value="Error">Error</option>
-      </select>
+      <button id="refresh-logs-button" type="button" title="Refresh logs" aria-label="Refresh logs">⟳</button>
+      <button id="level-filter" type="button" class="dropdown-button" aria-haspopup="listbox" aria-expanded="false">All levels</button>
+      <button id="tags-filter" type="button" class="dropdown-button" aria-haspopup="listbox" aria-expanded="false">All tags</button>
       <input id="keyword-filter" type="text" placeholder="Filter by keyword…" />
     </div>
     <div id="status-banner"></div>
@@ -49,6 +45,14 @@
   <button id="copy-message-action" type="button" role="menuitem">Copy</button>
   <button id="format-message-action" type="button" role="menuitem">Format message</button>
 </div>
+<ul id="level-filter-popup" class="dropdown-popup" role="listbox" aria-label="Level filter" hidden>
+  <li role="option" data-value="">All levels</li>
+  <li role="option" data-value="Debug">Debug</li>
+  <li role="option" data-value="Info">Info</li>
+  <li role="option" data-value="Warning">Warning</li>
+  <li role="option" data-value="Error">Error</li>
+</ul>
+<ul id="tags-filter-popup" class="dropdown-popup" role="listbox" aria-label="Tags filter" aria-multiselectable="true" hidden></ul>
 <div id="format-message-backdrop" aria-hidden="true" hidden>
   <section
     id="format-message-modal"

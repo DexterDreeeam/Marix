@@ -418,6 +418,7 @@ impl Store {
         message.session_id == query.session_id
             && query.level.is_none_or(|level| message.level >= level)
             && keyword.is_none_or(|value| message.message.to_lowercase().contains(value))
+            && (query.tags.is_empty() || query.tags.iter().any(|tag| message.tags.contains(tag)))
     }
 
     fn finish_page(mut records: Vec<StoredMessage>, limit: usize, latest: Option<u64>) -> LogPage {
@@ -461,6 +462,7 @@ impl Store {
             message_preview,
             message_len,
             truncated: message_len > MESSAGE_PREVIEW_CHARS,
+            tags: record.message.tags,
         }
     }
 
@@ -481,7 +483,7 @@ impl Store {
         Ok(Cursor { emit_ts, id })
     }
 
-    fn lexicographic_successor(value: &[u8]) -> Option<Vec<u8>> {
+    pub(super) fn lexicographic_successor(value: &[u8]) -> Option<Vec<u8>> {
         let mut next = value.to_vec();
         for byte in next.iter_mut().rev() {
             if *byte != u8::MAX {

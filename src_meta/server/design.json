@@ -4,8 +4,11 @@
     "path": "src/server",
     "name": "server",
     "purpose": "Runs actor-based orchestration with workflow decision parsing, ordered execution, failure reanalysis, streaming models, task deadline and relay-budget guardrails, task-owned cancellation, and Info-level executor tool registration logging.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/server/intent",
@@ -1237,7 +1240,7 @@
       "name": "OpenAiCore",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/openai.rs",
@@ -1257,26 +1260,34 @@
           "lineStart": 20,
           "lineEnd": 67,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 20,
-              "lineEnd": 67
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 54,
+              "lineEnd": 54
+            },
+            {
+              "lineStart": 61,
+              "lineEnd": 61
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/server/model/openai.rs",
           "lineStart": 71,
           "lineEnd": 168,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 71,
-              "lineEnd": 168
+              "lineStart": 166,
+              "lineEnd": 166
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/server/model/openai.rs",

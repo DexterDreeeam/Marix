@@ -60,19 +60,47 @@ impl Logger {
     }
 
     pub fn log(message: impl Into<String>) {
-        LOGGER.emit(LogLevel::Info, message.into());
+        LOGGER.emit(LogLevel::Info, message.into(), Vec::new());
     }
 
     pub fn warning(message: impl Into<String>) {
-        LOGGER.emit(LogLevel::Warning, message.into());
+        LOGGER.emit(LogLevel::Warning, message.into(), Vec::new());
     }
 
     pub fn error(message: impl Into<String>) {
-        LOGGER.emit(LogLevel::Error, message.into());
+        LOGGER.emit(LogLevel::Error, message.into(), Vec::new());
     }
 
     pub fn debug(message: impl Into<String>) {
-        LOGGER.emit(LogLevel::Debug, message.into());
+        LOGGER.emit(LogLevel::Debug, message.into(), Vec::new());
+    }
+
+    pub fn log_tagged(
+        message: impl Into<String>,
+        tags: impl IntoIterator<Item = impl Into<String>>,
+    ) {
+        LOGGER.emit(LogLevel::Info, message.into(), Self::collect_tags(tags));
+    }
+
+    pub fn warning_tagged(
+        message: impl Into<String>,
+        tags: impl IntoIterator<Item = impl Into<String>>,
+    ) {
+        LOGGER.emit(LogLevel::Warning, message.into(), Self::collect_tags(tags));
+    }
+
+    pub fn error_tagged(
+        message: impl Into<String>,
+        tags: impl IntoIterator<Item = impl Into<String>>,
+    ) {
+        LOGGER.emit(LogLevel::Error, message.into(), Self::collect_tags(tags));
+    }
+
+    pub fn debug_tagged(
+        message: impl Into<String>,
+        tags: impl IntoIterator<Item = impl Into<String>>,
+    ) {
+        LOGGER.emit(LogLevel::Debug, message.into(), Self::collect_tags(tags));
     }
 
     pub fn flush() -> Result<(), LoggingError> {
@@ -124,8 +152,8 @@ impl Logger {
             .map_err(|_| LoggingError::AlreadyConfigured)
     }
 
-    fn emit(&self, level: LogLevel, message: String) {
-        if let Err(error) = self.telemetry(level, message) {
+    fn emit(&self, level: LogLevel, message: String, tags: Vec<String>) {
+        if let Err(error) = self.telemetry(level, message, tags) {
             Self::report_error(error);
         }
     }
@@ -134,12 +162,22 @@ impl Logger {
         eprintln!("marix logger failed: {error}");
     }
 
-    fn telemetry(&self, level: LogLevel, message: String) -> Result<(), LoggingError> {
+    fn collect_tags(tags: impl IntoIterator<Item = impl Into<String>>) -> Vec<String> {
+        tags.into_iter().map(Into::into).collect()
+    }
+
+    fn telemetry(
+        &self,
+        level: LogLevel,
+        message: String,
+        tags: Vec<String>,
+    ) -> Result<(), LoggingError> {
         let Some(source) = self.source.get().copied() else {
             return Ok(());
         };
         let mut message = LogMessage::new(level, message);
         message.source = source;
+        message.tags = LogMessage::dedup_tags(tags);
         message.session_id = *self
             .session_id
             .read()

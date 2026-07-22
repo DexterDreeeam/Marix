@@ -6,6 +6,7 @@ use crate::external::*;
 const PAGE_HTML: &str = include_str!("http/page.html");
 const PAGE_CSS: &str = include_str!("http/page.css");
 const DATA_SCRIPT: &str = include_str!("http/telemetry-data.js");
+const DROPDOWN_SCRIPT: &str = include_str!("http/telemetry-dropdown.js");
 const FORMAT_SCRIPT: &str = include_str!("http/telemetry-format.js");
 const MESSAGE_SCRIPT: &str = include_str!("http/telemetry-message.js");
 const PAGE_SCRIPT: &str = include_str!("http/telemetry.js");
@@ -27,6 +28,10 @@ pub(super) async fn stylesheet() -> axum::response::Response {
 
 pub(super) async fn data_script() -> axum::response::Response {
     static_response("text/javascript; charset=utf-8", DATA_SCRIPT)
+}
+
+pub(super) async fn dropdown_script() -> axum::response::Response {
+    static_response("text/javascript; charset=utf-8", DROPDOWN_SCRIPT)
 }
 
 pub(super) async fn format_script() -> axum::response::Response {
@@ -55,6 +60,7 @@ pub(super) struct LogsQuery {
     session_id: Option<String>,
     level: Option<String>,
     keyword: Option<String>,
+    tags: Option<String>,
     limit: Option<usize>,
     before: Option<String>,
     after_id: Option<u64>,
@@ -85,6 +91,15 @@ pub(super) async fn logs(
     if query.before.is_some() && query.after_id.is_some() {
         return bad_request("before and after_id are mutually exclusive");
     }
+    let tags: Vec<String> = query
+        .tags
+        .as_deref()
+        .unwrap_or("")
+        .split(',')
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .map(str::to_owned)
+        .collect();
     let request = LogPageQuery {
         session_id,
         level,
@@ -92,6 +107,7 @@ pub(super) async fn logs(
             .keyword
             .map(|value| value.trim().to_owned())
             .filter(|value| !value.is_empty()),
+        tags,
         limit,
         before: query.before,
         after_record_id: query.after_id,
@@ -114,6 +130,20 @@ pub(super) async fn log_record(
             axum::Json(serde_json::json!({ "error": "log record not found" })),
         )
             .into_response(),
+        Ok(Err(error)) => query_error_response(error),
+        Err(error) => blocking_error_response(error),
+    }
+}
+
+pub(super) async fn session_tags(
+    axum::extract::Path(raw_session_id): axum::extract::Path<String>,
+) -> axum::response::Response {
+    let session_id = match parse_session_id(&raw_session_id) {
+        Ok(session_id) => session_id,
+        Err(message) => return bad_request(message),
+    };
+    match tokio::task::spawn_blocking(move || Logger::distinct_tags(session_id)).await {
+        Ok(Ok(tags)) => axum::Json(tags).into_response(),
         Ok(Err(error)) => query_error_response(error),
         Err(error) => blocking_error_response(error),
     }

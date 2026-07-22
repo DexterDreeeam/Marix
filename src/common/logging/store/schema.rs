@@ -22,8 +22,10 @@ pub(super) const SESSION_LEVEL_TIME_INDEX: TableDefinition<&[u8], u64> =
     TableDefinition::new("telemetry_session_level_emit");
 pub(super) const TRIGRAM_INDEX: TableDefinition<&[u8], u64> =
     TableDefinition::new("telemetry_session_trigram");
+pub(super) const SESSION_TAG_TABLE: TableDefinition<&[u8], &[u8]> =
+    TableDefinition::new("telemetry_session_tags");
 
-pub(super) const SCHEMA_VERSION: u64 = 5;
+pub(super) const SCHEMA_VERSION: u64 = 6;
 pub(super) const META_SCHEMA_VERSION: &str = "schema_version";
 pub(super) const META_INDEXED_COUNT: &str = "indexed_record_count";
 pub(super) const META_NEXT_RECORD_ID: &str = "next_record_id";
@@ -76,6 +78,7 @@ impl Store {
                 SESSION_LEVEL_TIME_INDEX.name(),
                 SESSION_RECORD_ID_INDEX.name(),
                 TRIGRAM_INDEX.name(),
+                SESSION_TAG_TABLE.name(),
             ];
             (
                 version != Some(SCHEMA_VERSION)
@@ -139,6 +142,9 @@ impl Store {
             let mut trigrams = write
                 .open_table(TRIGRAM_INDEX)
                 .map_err(|error| LoggingError::Database(error.to_string()))?;
+            let mut session_tags = write
+                .open_table(SESSION_TAG_TABLE)
+                .map_err(|error| LoggingError::Database(error.to_string()))?;
             for ((id, message), bytes) in ids.iter().zip(messages).zip(serialized.iter()) {
                 primary
                     .insert(*id, bytes.as_slice())
@@ -149,6 +155,7 @@ impl Store {
                     &mut session_level_time,
                     &mut session_record_id,
                     &mut trigrams,
+                    &mut session_tags,
                     *id,
                     message,
                 )?;
@@ -223,9 +230,11 @@ impl Store {
             .database
             .begin_write()
             .map_err(|error| LoggingError::Database(error.to_string()))?;
-        write
-            .delete_table(SESSION_TABLE)
-            .map_err(|error| LoggingError::Database(error.to_string()))?;
+        for table in [SESSION_TABLE, SESSION_TAG_TABLE] {
+            write
+                .delete_table(table)
+                .map_err(|error| LoggingError::Database(error.to_string()))?;
+        }
         for table in [
             SESSION_TIME_INDEX,
             SESSION_LEVEL_TIME_INDEX,
@@ -258,6 +267,9 @@ impl Store {
             let mut trigrams = write
                 .open_table(TRIGRAM_INDEX)
                 .map_err(|error| LoggingError::Database(error.to_string()))?;
+            let mut session_tags = write
+                .open_table(SESSION_TAG_TABLE)
+                .map_err(|error| LoggingError::Database(error.to_string()))?;
             for entry in primary
                 .iter()
                 .map_err(|error| LoggingError::Database(error.to_string()))?
@@ -273,6 +285,7 @@ impl Store {
                     &mut session_level_time,
                     &mut session_record_id,
                     &mut trigrams,
+                    &mut session_tags,
                     id,
                     &message,
                 )?;
@@ -310,6 +323,7 @@ impl Store {
         session_level_time: &mut Table<'_, &[u8], u64>,
         session_record_id: &mut Table<'_, &[u8], u64>,
         trigrams: &mut Table<'_, &[u8], u64>,
+        session_tags: &mut Table<'_, &[u8], &[u8]>,
         id: u64,
         message: &LogMessage,
     ) -> Result<(), LoggingError> {
@@ -345,6 +359,13 @@ impl Store {
                 Self::trigram_posting_key(message.session_id, &component, message.emit_ts, id);
             trigrams
                 .insert(trigram_key.as_slice(), id)
+                .map_err(|error| LoggingError::Database(error.to_string()))?;
+        }
+        let empty_value: &[u8] = b"";
+        for tag in &message.tags {
+            let tag_key = session_tag_key(message.session_id, tag);
+            session_tags
+                .insert(tag_key.as_slice(), empty_value)
                 .map_err(|error| LoggingError::Database(error.to_string()))?;
         }
         Ok(())
@@ -432,6 +453,12 @@ pub(super) fn trigram_key(
     key[..SESSION_KEY_LEN].copy_from_slice(&session_key(session_id));
     key[SESSION_KEY_LEN..SESSION_KEY_LEN + TRIGRAM_COMPONENT_LEN].copy_from_slice(component);
     key[SESSION_KEY_LEN + TRIGRAM_COMPONENT_LEN..].copy_from_slice(&id.to_be_bytes());
+    key
+}
+
+pub(super) fn session_tag_key(session_id: Option<uuid::Uuid>, tag: &str) -> Vec<u8> {
+    let mut key = session_key(session_id).to_vec();
+    key.extend_from_slice(tag.as_bytes());
     key
 }
 

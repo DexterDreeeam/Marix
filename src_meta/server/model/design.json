@@ -4,8 +4,11 @@
     "path": "src/server/model",
     "name": "model",
     "purpose": "Defines the streaming-only model backend contract, provides the shared OpenAiCore implementation (payload building, tool building, HTTP request/response streaming, SSE parsing and tool-call normalization, and Debug formatting) for OpenAI-compatible chat-completions backends, and exposes Deepseek and Glm as direct child implementations that each wrap OpenAiCore with their own provider name, endpoint, model, and api_key.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "openai.rs"
+  ],
   "childModules": [
     {
       "path": "src/server/model/deepseek",
@@ -192,7 +195,7 @@
       "name": "OpenAiCore",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/openai.rs",
@@ -212,26 +215,34 @@
           "lineStart": 20,
           "lineEnd": 67,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 20,
-              "lineEnd": 67
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "lineStart": 54,
+              "lineEnd": 54
+            },
+            {
+              "lineStart": 61,
+              "lineEnd": 61
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/server/model/openai.rs",
           "lineStart": 71,
           "lineEnd": 168,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 71,
-              "lineEnd": 168
+              "lineStart": 166,
+              "lineEnd": 166
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/server/model/openai.rs",

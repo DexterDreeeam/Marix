@@ -2,6 +2,8 @@
 mod reader;
 #[path = "store/schema.rs"]
 mod schema;
+#[path = "store/tags.rs"]
+mod tags;
 #[path = "store/writer.rs"]
 mod writer;
 

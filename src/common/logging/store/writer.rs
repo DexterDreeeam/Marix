@@ -3,6 +3,7 @@ use std::sync::mpsc::{self, Receiver, SyncSender};
 use std::thread;
 use std::time::{Duration, Instant};
 
+use crate::external::uuid;
 use crate::logging::{LogMessage, LogPage, LogPageQuery, LogRecord, LogSession, LoggingError};
 
 use super::Store;
@@ -48,6 +49,14 @@ impl HostStore {
     ) -> Result<Option<LogRecord>, LoggingError> {
         self.flush()?;
         self.store.record_by_id(id)
+    }
+
+    pub(in crate::logging) fn tags(
+        &self,
+        session_id: Option<uuid::Uuid>,
+    ) -> Result<Vec<String>, LoggingError> {
+        self.flush()?;
+        self.store.tags(session_id)
     }
 
     #[cfg(test)]

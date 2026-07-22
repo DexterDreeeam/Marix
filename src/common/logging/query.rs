@@ -9,6 +9,7 @@ pub struct LogPageQuery {
     pub session_id: Option<uuid::Uuid>,
     pub level: Option<LogLevel>,
     pub keyword: Option<String>,
+    pub tags: Vec<String>,
     pub limit: usize,
     pub before: Option<String>,
     pub after_record_id: Option<u64>,
@@ -20,6 +21,7 @@ impl Default for LogPageQuery {
             session_id: None,
             level: None,
             keyword: None,
+            tags: Vec::new(),
             limit: DEFAULT_PAGE_LIMIT,
             before: None,
             after_record_id: None,
@@ -37,6 +39,7 @@ pub struct LogSummary {
     pub message_preview: String,
     pub message_len: usize,
     pub truncated: bool,
+    pub tags: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -55,6 +58,7 @@ pub struct LogRecord {
     pub session_id: Option<uuid::Uuid>,
     pub emit_ts: u64,
     pub arrival_ts: u64,
+    pub tags: Vec<String>,
 }
 
 impl Logger {
@@ -68,6 +72,10 @@ impl Logger {
 
     pub fn log_record(id: u64) -> Result<Option<LogRecord>, LoggingError> {
         Self::host_sink()?.record_by_id(id)
+    }
+
+    pub fn distinct_tags(session_id: Option<uuid::Uuid>) -> Result<Vec<String>, LoggingError> {
+        Self::host_sink()?.tags(session_id)
     }
 }
 
@@ -98,5 +106,6 @@ pub(super) fn log_record(id: u64, message: LogMessage) -> LogRecord {
         session_id: message.session_id,
         emit_ts: message.emit_ts,
         arrival_ts: message.arrival_ts,
+        tags: message.tags,
     }
 }

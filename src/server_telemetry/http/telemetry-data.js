@@ -56,6 +56,9 @@ export function buildLogsUrl(_filters, _mode) {
   if (_filters.keyword && _filters.keyword.trim()) {
     _parameters.set("keyword", _filters.keyword.trim());
   }
+  if (_filters.tags && _filters.tags.length) {
+    _parameters.set("tags", _filters.tags.join(","));
+  }
   if (_mode === "before" && _filters.before) {
     _parameters.set("before", _filters.before);
   }

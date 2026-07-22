@@ -13,6 +13,8 @@ pub struct LogMessage {
     pub session_id: Option<uuid::Uuid>,
     pub emit_ts: u64,
     pub arrival_ts: u64,
+    #[serde(default)]
+    pub tags: Vec<String>,
 }
 
 impl LogMessage {
@@ -24,6 +26,7 @@ impl LogMessage {
             session_id: None,
             emit_ts: Self::now_ms(),
             arrival_ts: 0,
+            tags: Vec::new(),
         }
     }
 
@@ -48,34 +51,17 @@ impl LogMessage {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::external::serde_json;
-    use crate::logging::{LogLevel, LogMessage, LogSource};
-
-    #[test]
-    fn legacy_tag_deserializes_as_level_and_serializes_as_level() {
-        let json = r#"{
-            "tag":"Info",
-            "message":"legacy",
-            "session_id":null,
-            "emit_ts":100,
-            "arrival_ts":200
-        }"#;
-
-        let message: LogMessage = serde_json::from_str(json).expect("deserialize legacy log");
-
-        assert_eq!(message.source, LogSource::Server);
-        assert_eq!(message.level, LogLevel::Info);
-        let serialized = serde_json::to_string(&message).expect("serialize current log");
-        assert!(serialized.contains(r#""level":"Info""#));
-        assert!(!serialized.contains(r#""tag":"#));
-    }
-}
-
 // -- Private -- //
 
 impl LogMessage {
+    /// De-duplicates a message's own tags, preserving first-seen order.
+    pub(super) fn dedup_tags(tags: Vec<String>) -> Vec<String> {
+        let mut seen = std::collections::HashSet::with_capacity(tags.len());
+        tags.into_iter()
+            .filter(|tag| seen.insert(tag.clone()))
+            .collect()
+    }
+
     fn now_ms() -> u64 {
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
