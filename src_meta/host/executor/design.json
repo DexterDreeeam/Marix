@@ -4,9 +4,8 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Owns host executor workers, loads compatible tools from the configured directory, logs a sorted startup summary, pipes JSON requests to tool standard input, preserves structured process failures, routes executions, and publishes tool previews.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["registry.rs"],
   "childModules": [],
   "elements": [
     {
@@ -53,7 +52,7 @@
       "name": "ToolRegistry",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/registry.rs",
