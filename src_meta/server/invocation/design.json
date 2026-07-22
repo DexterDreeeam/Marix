@@ -4,9 +4,8 @@
     "path": "src/server/invocation",
     "name": "invocation",
     "purpose": "Runs invocation actors, validates tools and JSON arguments, consumes typed ExecutionResult completions directly, assembles sequenced output, and for both succeeded and failed output starts a ToolCallSummarize relay carrying the raw tool name/output, applying its resolved RelayResult.output (fail-open to the original output on any relay creation/insertion/failure) before publishing InvocationResult completions.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {

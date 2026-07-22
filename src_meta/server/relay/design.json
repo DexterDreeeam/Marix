@@ -4,9 +4,8 @@
     "path": "src/server/relay",
     "name": "relay",
     "purpose": "Runs each Relay as a model-backed actor: `Relay` gates relay budget and spawns `RelayRuntime`, which renders every prompt (System, WorkflowPolicy, and — for tool-call-summarize relays — the trailing ToolCallSummarize template, plus context-chain history) from `self.access` and the request's `RelayKind`, streams the model response, and on success resolves the final `RelayResult.output` by kind: the raw decision text for `IntentAnalyze`, or the native `workflow_call_summary` tool-call extracted summary for `ToolCallSummarize`.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["runtime.rs", "prompt.rs"],
   "childModules": [],
   "elements": [
     {
