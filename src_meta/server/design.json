@@ -4,8 +4,11 @@
     "path": "src/server",
     "name": "server",
     "purpose": "Runs actor-based orchestration with workflow decision parsing, ordered execution, failure reanalysis, streaming models, task deadline and relay-budget guardrails, task-owned cancellation, and Info-level executor tool registration logging.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/server/intent",
@@ -1237,7 +1240,7 @@
       "name": "OpenAiCore",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/openai.rs",
@@ -1276,38 +1279,38 @@
         {
           "sourcePath": "src/server/model/openai.rs",
           "lineStart": 71,
-          "lineEnd": 168,
+          "lineEnd": 171,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 166,
-              "lineEnd": 166
+              "lineEnd": 169
             }
           ]
         },
         {
           "sourcePath": "src/server/model/openai.rs",
-          "lineStart": 170,
-          "lineEnd": 242,
+          "lineStart": 173,
+          "lineEnd": 245,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 170,
-              "lineEnd": 242
+              "lineStart": 173,
+              "lineEnd": 245
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/model/openai.rs",
-          "lineStart": 700,
-          "lineEnd": 709,
+          "lineStart": 703,
+          "lineEnd": 712,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 700,
-              "lineEnd": 709
+              "lineStart": 703,
+              "lineEnd": 712
             }
           ],
           "modifiedLines": []

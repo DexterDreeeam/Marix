@@ -47,18 +47,18 @@ impl OpenAiCore {
         let raw = match self.build_payload(&request) {
             Ok(raw) => raw,
             Err(error) => {
-                Logger::error_tagged(format!("[{task_id}][Request] {error}"), ["Model Relay"]);
+                Logger::error_tagged(format!("[{task_id}] {error}"), ["Model Relay", "Request"]);
                 return Err(error);
             }
         };
-        Logger::log_tagged(format!("[{task_id}][Request] {raw}"), ["Model Relay"]);
+        Logger::log_tagged(format!("[{task_id}] {raw}"), ["Model Relay", "Request"]);
         let core = self.clone();
         let (sender, receiver) = build_async_channel();
         tokio::spawn(async move {
             if let Err(error) =
                 Self::request_stream_response(core, raw, &task_id, native_tools, sender).await
             {
-                Logger::error_tagged(format!("[{task_id}][Response] {error}"), ["Model Relay"]);
+                Logger::error_tagged(format!("[{task_id}] {error}"), ["Model Relay", "Response"]);
             }
         });
 
@@ -163,7 +163,10 @@ impl OpenAiCore {
     }
 
     fn log_response(task_id: &str, content: &str) {
-        Logger::log_tagged(format!("[{task_id}][Response] {content}"), ["Model Relay"]);
+        Logger::log_tagged(
+            format!("[{task_id}] {content}"),
+            ["Model Relay", "Response"],
+        );
     }
 }
 

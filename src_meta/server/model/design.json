@@ -4,8 +4,11 @@
     "path": "src/server/model",
     "name": "model",
     "purpose": "Defines the streaming-only model backend contract, provides the shared OpenAiCore implementation (payload building, tool building, HTTP request/response streaming, SSE parsing and tool-call normalization, and Debug formatting) for OpenAI-compatible chat-completions backends, and exposes Deepseek and Glm as direct child implementations that each wrap OpenAiCore with their own provider name, endpoint, model, and api_key.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": [
+    "openai.rs"
+  ],
   "childModules": [
     {
       "path": "src/server/model/deepseek",
@@ -192,7 +195,7 @@
       "name": "OpenAiCore",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/model/openai.rs",
@@ -231,38 +234,38 @@
         {
           "sourcePath": "src/server/model/openai.rs",
           "lineStart": 71,
-          "lineEnd": 168,
+          "lineEnd": 171,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 166,
-              "lineEnd": 166
+              "lineEnd": 169
             }
           ]
         },
         {
           "sourcePath": "src/server/model/openai.rs",
-          "lineStart": 170,
-          "lineEnd": 242,
+          "lineStart": 173,
+          "lineEnd": 245,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 170,
-              "lineEnd": 242
+              "lineStart": 173,
+              "lineEnd": 245
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/model/openai.rs",
-          "lineStart": 700,
-          "lineEnd": 709,
+          "lineStart": 703,
+          "lineEnd": 712,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 700,
-              "lineEnd": 709
+              "lineStart": 703,
+              "lineEnd": 712
             }
           ],
           "modifiedLines": []
