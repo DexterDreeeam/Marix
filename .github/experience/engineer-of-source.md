@@ -39,6 +39,11 @@
 
 - Keep public protocol re-exports synchronized between `protocol/lib.rs` and its mirrored `protocol/mod.rs`.
 
+## Logging and telemetry
+
+- 2026-07-22: Logging severity is `LogLevel` ordered by declaration as `Debug < Info < Warning < Error`; telemetry queries treat `level` as a minimum and storage verifies `message.level >= query.level`.
+- 2026-07-22: Telemetry redb schema v5 owns `telemetry_session_level_emit`, deletes the legacy exact-level index during transactional rebuild, and reads old primary JSON through `#[serde(alias = "tag")]` while all new serialization emits only `level`.
+
 ## Design-metadata (`src_meta/`) nuances
 
 - 2026-07-21: `pub(super)` counts as "outward-facing" for `design-json-update` element-tracking purposes, same as `pub`/`pub(crate)`/`pub(in ...)` — a `pub(super) fn` gets its own tracked element even though it never appears in the crate's genuine public API surface.

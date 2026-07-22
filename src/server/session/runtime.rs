@@ -267,6 +267,11 @@ impl SessionRuntime {
 
     fn register_executor_tools(&self, system: System, tools: Vec<ToolPreview>) {
         let tool_count = tools.len();
+        let tool_names = tools
+            .iter()
+            .map(|tool| tool.name.as_str())
+            .collect::<Vec<_>>()
+            .join(", ");
         let host_tx = self
             .state
             .host_tx
@@ -290,9 +295,11 @@ impl SessionRuntime {
         context.system = Some(system);
         context.tools = tools;
         drop(context);
-        Logger::debug(format!(
-            "core session installed {tool_count} executor tool(s)"
-        ));
+        if tool_names.is_empty() {
+            Logger::log("host registered 0 tools");
+        } else {
+            Logger::log(format!("host registered {tool_count} tools: {tool_names}"));
+        }
     }
 
     fn send_client_event(&self, event: SessionEvent) {

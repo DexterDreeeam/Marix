@@ -8,7 +8,7 @@ use std::time::Duration;
 use crate::config::Config;
 use crate::external::{serde_json, uuid};
 use crate::logging::store::{HostStore, Store};
-use crate::logging::{LogMessage, LogSource, LogTag, LoggingError};
+use crate::logging::{LogLevel, LogMessage, LogSource, LoggingError};
 use crate::structure::{ChannelEndpoint, NetReceiver, NetSender, accept_channel, connect_channel};
 
 const FALLBACK_LOG_FILE_NAME: &str = "marix.log";
@@ -60,19 +60,19 @@ impl Logger {
     }
 
     pub fn log(message: impl Into<String>) {
-        LOGGER.emit(LogTag::Info, message.into());
+        LOGGER.emit(LogLevel::Info, message.into());
     }
 
     pub fn warning(message: impl Into<String>) {
-        LOGGER.emit(LogTag::Warning, message.into());
+        LOGGER.emit(LogLevel::Warning, message.into());
     }
 
     pub fn error(message: impl Into<String>) {
-        LOGGER.emit(LogTag::Error, message.into());
+        LOGGER.emit(LogLevel::Error, message.into());
     }
 
     pub fn debug(message: impl Into<String>) {
-        LOGGER.emit(LogTag::Debug, message.into());
+        LOGGER.emit(LogLevel::Debug, message.into());
     }
 
     pub fn flush() -> Result<(), LoggingError> {
@@ -124,8 +124,8 @@ impl Logger {
             .map_err(|_| LoggingError::AlreadyConfigured)
     }
 
-    fn emit(&self, tag: LogTag, message: String) {
-        if let Err(error) = self.telemetry(tag, message) {
+    fn emit(&self, level: LogLevel, message: String) {
+        if let Err(error) = self.telemetry(level, message) {
             Self::report_error(error);
         }
     }
@@ -134,11 +134,11 @@ impl Logger {
         eprintln!("marix logger failed: {error}");
     }
 
-    fn telemetry(&self, tag: LogTag, message: String) -> Result<(), LoggingError> {
+    fn telemetry(&self, level: LogLevel, message: String) -> Result<(), LoggingError> {
         let Some(source) = self.source.get().copied() else {
             return Ok(());
         };
-        let mut message = LogMessage::new(tag, message);
+        let mut message = LogMessage::new(level, message);
         message.source = source;
         message.session_id = *self
             .session_id

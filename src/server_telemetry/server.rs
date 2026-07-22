@@ -177,10 +177,15 @@ directory = "tool"
             tokio::task::spawn_blocking(move || http_get(address, "/favicon.svg"))
                 .await
                 .expect("blocking favicon request");
+        let (data_status, data_body) =
+            tokio::task::spawn_blocking(move || http_get(address, "/telemetry-data.js"))
+                .await
+                .expect("blocking telemetry data request");
 
         handle.abort();
         assert_eq!(status, 200);
         assert_eq!(favicon_status, 200);
+        assert_eq!(data_status, 200);
         assert!(favicon_body.contains("#ffffff"));
         assert!(body.contains("<html"), "body was: {body}");
         assert!(
@@ -188,9 +193,18 @@ directory = "tool"
             "missing session list element, body was: {body}"
         );
         assert!(
-            body.contains(r#"id="tag-filter""#),
-            "missing tag filter element, body was: {body}"
+            body.contains(r#"id="level-filter""#),
+            "missing level filter element, body was: {body}"
         );
+        let option_positions = [
+            r#"<option value="">All levels</option>"#,
+            r#"<option value="Debug">Debug</option>"#,
+            r#"<option value="Info">Info</option>"#,
+            r#"<option value="Warning">Warning</option>"#,
+            r#"<option value="Error">Error</option>"#,
+        ]
+        .map(|option| body.find(option).expect("level option exists"));
+        assert!(option_positions.windows(2).all(|pair| pair[0] < pair[1]));
         assert!(
             body.contains(r#"id="keyword-filter""#),
             "missing keyword filter element, body was: {body}"
@@ -207,6 +221,8 @@ directory = "tool"
             body.contains(r#"src="/telemetry.js""#),
             "missing telemetry module script, body was: {body}"
         );
+        assert!(data_body.contains(r#"_parameters.set("level", _filters.level)"#));
+        assert!(!data_body.contains(r#"_parameters.set("tag""#));
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -234,7 +250,7 @@ directory = "tool"
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-    async fn logs_route_rejects_invalid_session_and_tag() {
+    async fn logs_route_rejects_invalid_session_and_level() {
         let (address, handle) = spawn_test_server().await;
 
         let (missing_status, _) =
@@ -250,27 +266,34 @@ directory = "tool"
         .expect("blocking http_get");
         assert_eq!(bad_uuid_status, 400);
 
-        let (bad_tag_status, _) = tokio::task::spawn_blocking(move || {
-            http_get(address, "/api/logs?session_id=unknown&tag=bogus")
+        let (bad_level_status, _) = tokio::task::spawn_blocking(move || {
+            http_get(address, "/api/logs?session_id=unknown&level=bogus")
         })
         .await
         .expect("blocking http_get");
-        assert_eq!(bad_tag_status, 400);
+        assert_eq!(bad_level_status, 400);
 
-        let (empty_tag_status, empty_tag_body) = tokio::task::spawn_blocking(move || {
-            http_get(address, "/api/logs?session_id=unknown&tag=")
+        let (empty_level_status, empty_level_body) = tokio::task::spawn_blocking(move || {
+            http_get(address, "/api/logs?session_id=unknown&level=")
         })
         .await
         .expect("blocking http_get");
-        assert_eq!(empty_tag_status, 200);
+        assert_eq!(empty_level_status, 200);
         let parsed: serde_json::Value =
-            serde_json::from_str(&empty_tag_body).expect("logs body is valid JSON");
+            serde_json::from_str(&empty_level_body).expect("logs body is valid JSON");
         assert!(
             parsed.get("items").is_some_and(serde_json::Value::is_array)
                 && parsed.get("next_cursor").is_some()
                 && parsed.get("latest_record_id").is_some(),
-            "expected a JSON log page, got: {empty_tag_body}"
+            "expected a JSON log page, got: {empty_level_body}"
         );
+
+        let (legacy_status, _) = tokio::task::spawn_blocking(move || {
+            http_get(address, "/api/logs?session_id=unknown&tag=Info")
+        })
+        .await
+        .expect("blocking legacy query request");
+        assert_eq!(legacy_status, 400);
 
         let (conflict_status, _) = tokio::task::spawn_blocking(move || {
             http_get(
@@ -305,6 +328,8 @@ directory = "tool"
         assert_eq!(page_status, 200);
         let page: serde_json::Value =
             serde_json::from_str(&page_body).expect("page body is valid JSON");
+        assert!(page["items"][0]["level"].is_string());
+        assert!(page["items"][0].get("tag").is_none());
         let id = page["items"][0]["id"]
             .as_u64()
             .expect("page contains a record id");
@@ -317,6 +342,8 @@ directory = "tool"
         let record: serde_json::Value =
             serde_json::from_str(&record_body).expect("record body is valid JSON");
         assert_eq!(record["id"].as_u64(), Some(id));
+        assert!(record["level"].is_string());
+        assert!(record.get("tag").is_none());
         assert!(record["message"].is_string());
 
         let (missing_status, _) = tokio::task::spawn_blocking(move || {

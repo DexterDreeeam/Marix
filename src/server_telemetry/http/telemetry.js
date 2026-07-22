@@ -25,7 +25,7 @@ const s_timestampFormatter = new Intl.DateTimeFormat(undefined, {
 const s_state = {
   sessions: [],
   selectedSession: undefined,
-  tag: "",
+  level: "",
   keyword: "",
   summaries: [],
   nextCursor: null,
@@ -40,7 +40,7 @@ const s_state = {
 
 const appEl = document.getElementById("app");
 const sessionListEl = document.getElementById("session-list");
-const tagFilterEl = document.getElementById("tag-filter");
+const levelFilterEl = document.getElementById("level-filter");
 const keywordFilterEl = document.getElementById("keyword-filter");
 const statusBannerEl = document.getElementById("status-banner");
 const logAreaEl = document.getElementById("log-area");
@@ -174,10 +174,10 @@ function normalizedSource(_source) {
   return ["Host", "Client", "Server"].includes(_source) ? _source : "Server";
 }
 
-function tagBadgeClass(_tag) {
-  return ["Info", "Warning", "Error", "Debug"].includes(_tag)
-    ? "tag-" + _tag.toLowerCase()
-    : "tag-debug";
+function levelBadgeClass(_level) {
+  return ["Debug", "Info", "Warning", "Error"].includes(_level)
+    ? "level-" + _level.toLowerCase()
+    : "level-debug";
 }
 
 function createLogRow(_summary) {
@@ -196,12 +196,13 @@ function createLogRow(_summary) {
   _sourceCell.appendChild(_sourceBadge);
   _row.appendChild(_sourceCell);
 
-  var _tagCell = document.createElement("td");
-  var _tagBadge = document.createElement("span");
-  _tagBadge.className = "tag-badge " + tagBadgeClass(_summary.tag);
-  _tagBadge.textContent = _summary.tag;
-  _tagCell.appendChild(_tagBadge);
-  _row.appendChild(_tagCell);
+  var _levelCell = document.createElement("td");
+  var _levelBadge = document.createElement("span");
+  _levelBadge.className =
+    "level-badge " + levelBadgeClass(_summary.level);
+  _levelBadge.textContent = _summary.level;
+  _levelCell.appendChild(_levelBadge);
+  _row.appendChild(_levelCell);
 
   var _messageCell = document.createElement("td");
   _messageCell.className = "message-cell";
@@ -349,7 +350,7 @@ async function requestLogs(_mode) {
   var _url = buildLogsUrl(
     {
       sessionId: s_state.selectedSession,
-      tag: s_state.tag,
+      level: s_state.level,
       keyword: s_state.keyword,
       limit: c_defaultLimit,
       before: s_state.nextCursor,
@@ -415,8 +416,8 @@ keywordFilterEl.addEventListener("input", function () {
     resetLogs();
   }, c_keywordDebounceMs);
 });
-tagFilterEl.addEventListener("change", function () {
-  s_state.tag = tagFilterEl.value;
+levelFilterEl.addEventListener("change", function () {
+  s_state.level = levelFilterEl.value;
   resetLogs();
 });
 logAreaEl.addEventListener("scroll", function () {

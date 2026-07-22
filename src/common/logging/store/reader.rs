@@ -1,13 +1,19 @@
 use crate::external::redb::{ReadTransaction, ReadableDatabase, ReadableTable};
 use crate::logging::query::{log_record, validate_page_query};
 use crate::logging::{
-    LogMessage, LogPage, LogPageQuery, LogRecord, LogSession, LogSummary, LoggingError,
+    LogLevel, LogMessage, LogPage, LogPageQuery, LogRecord, LogSession, LogSummary, LoggingError,
 };
 
 use super::schema;
 use super::{SESSION_RECORD_ID_INDEX, SessionMetadata, Store, TRIGRAM_COMPONENT_LEN};
 
 const MESSAGE_PREVIEW_CHARS: usize = 240;
+const LOG_LEVELS: [LogLevel; 4] = [
+    LogLevel::Debug,
+    LogLevel::Info,
+    LogLevel::Warning,
+    LogLevel::Error,
+];
 
 struct Cursor {
     emit_ts: u64,
@@ -220,59 +226,51 @@ impl Store {
         keyword: Option<&str>,
         cursor: Option<&Cursor>,
     ) -> Result<Vec<StoredMessage>, LoggingError> {
-        let tagged = query.tag.is_some();
-        let definition = if tagged {
-            schema::SESSION_TAG_TIME_INDEX
-        } else {
-            schema::SESSION_TIME_INDEX
-        };
-        let prefix = if let Some(tag) = query.tag {
-            let key = schema::session_tag_time_key(query.session_id, tag, 0, 0);
-            key[..key.len() - 16].to_vec()
-        } else {
-            schema::session_key(query.session_id).to_vec()
-        };
-        let total_len = schema::session_index_len(tagged);
-        let (start, end) = schema::prefix_bounds(&prefix, total_len);
-        let cursor_key = cursor.map(|value| {
-            if let Some(tag) = query.tag {
-                schema::session_tag_time_key(query.session_id, tag, value.emit_ts, value.id)
-                    .to_vec()
-            } else {
-                schema::session_time_key(query.session_id, value.emit_ts, value.id).to_vec()
-            }
-        });
-        let index = read
-            .open_table(definition)
-            .map_err(|error| LoggingError::Database(error.to_string()))?;
         let primary = read
             .open_table(schema::TELEMETRY_TABLE)
             .map_err(|error| LoggingError::Database(error.to_string()))?;
-        let range_start = cursor_key
-            .as_deref()
-            .and_then(Self::lexicographic_successor)
-            .unwrap_or(start);
-        if range_start > end {
-            return Ok(Vec::new());
-        }
-        let mut range = index
-            .range(range_start.as_slice()..=end.as_slice())
-            .map_err(|error| LoggingError::Database(error.to_string()))?;
 
         let mut records = Vec::new();
-        while let Some(entry) = range.next() {
-            let (_key, id) = entry.map_err(|error| LoggingError::Database(error.to_string()))?;
-            let id = id.value();
-            if let Some(message) = Self::message_from_table(&primary, id)?
-                && Self::matches(&message, query, keyword)
-            {
-                records.push(StoredMessage { id, message });
-                if records.len() > query.limit {
-                    break;
-                }
+        if let Some(minimum) = query.level {
+            let index = read
+                .open_table(schema::SESSION_LEVEL_TIME_INDEX)
+                .map_err(|error| LoggingError::Database(error.to_string()))?;
+            for level in LOG_LEVELS.into_iter().filter(|level| *level >= minimum) {
+                let key = schema::session_level_time_key(query.session_id, level, 0, 0);
+                let prefix = &key[..key.len() - 16];
+                let (start, end) = schema::prefix_bounds(prefix, key.len());
+                let cursor_key = cursor.map(|value| {
+                    schema::session_level_time_key(query.session_id, level, value.emit_ts, value.id)
+                });
+                records.extend(Self::index_range_records(
+                    &index,
+                    &primary,
+                    start,
+                    end,
+                    cursor_key.as_ref().map(|key| key.as_slice()),
+                    query,
+                    keyword,
+                )?);
             }
+            return Ok(records);
         }
-        Ok(records)
+
+        let index = read
+            .open_table(schema::SESSION_TIME_INDEX)
+            .map_err(|error| LoggingError::Database(error.to_string()))?;
+        let prefix = schema::session_key(query.session_id);
+        let (start, end) = schema::prefix_bounds(&prefix, prefix.len() + 16);
+        let cursor_key =
+            cursor.map(|value| schema::session_time_key(query.session_id, value.emit_ts, value.id));
+        Self::index_range_records(
+            &index,
+            &primary,
+            start,
+            end,
+            cursor_key.as_ref().map(|key| key.as_slice()),
+            query,
+            keyword,
+        )
     }
 
     fn trigram_index_records(
@@ -382,9 +380,43 @@ impl Store {
             .transpose()
     }
 
+    fn index_range_records(
+        index: &impl ReadableTable<&'static [u8], u64>,
+        primary: &impl ReadableTable<u64, &'static [u8]>,
+        start: Vec<u8>,
+        end: Vec<u8>,
+        cursor_key: Option<&[u8]>,
+        query: &LogPageQuery,
+        keyword: Option<&str>,
+    ) -> Result<Vec<StoredMessage>, LoggingError> {
+        let range_start = cursor_key
+            .and_then(Self::lexicographic_successor)
+            .unwrap_or(start);
+        if range_start > end {
+            return Ok(Vec::new());
+        }
+        let mut range = index
+            .range(range_start.as_slice()..=end.as_slice())
+            .map_err(|error| LoggingError::Database(error.to_string()))?;
+        let mut records = Vec::new();
+        while let Some(entry) = range.next() {
+            let (_key, id) = entry.map_err(|error| LoggingError::Database(error.to_string()))?;
+            let id = id.value();
+            if let Some(message) = Self::message_from_table(primary, id)?
+                && Self::matches(&message, query, keyword)
+            {
+                records.push(StoredMessage { id, message });
+                if records.len() > query.limit {
+                    break;
+                }
+            }
+        }
+        Ok(records)
+    }
+
     fn matches(message: &LogMessage, query: &LogPageQuery, keyword: Option<&str>) -> bool {
         message.session_id == query.session_id
-            && query.tag.is_none_or(|tag| tag == message.tag)
+            && query.level.is_none_or(|level| message.level >= level)
             && keyword.is_none_or(|value| message.message.to_lowercase().contains(value))
     }
 
@@ -423,7 +455,7 @@ impl Store {
         LogSummary {
             id: record.id,
             source: record.message.source,
-            tag: record.message.tag,
+            level: record.message.level,
             session_id: record.message.session_id,
             emit_ts: record.message.emit_ts,
             message_preview,

@@ -1,3 +1,5 @@
+#[path = "tests/level.rs"]
+mod level;
 #[path = "tests/search.rs"]
 mod search;
 
@@ -5,7 +7,7 @@ use std::sync::{Arc, Barrier};
 
 use crate::external::redb::{Database, ReadableDatabase, ReadableTableMetadata, TableDefinition};
 use crate::external::uuid;
-use crate::logging::{LogMessage, LogPageQuery, LogSource, LogTag, LoggingError};
+use crate::logging::{LogLevel, LogMessage, LogPageQuery, LogSource, LoggingError};
 
 use super::schema;
 use super::{HostStore, SESSION_METADATA_LEN, SESSION_RECORD_ID_INDEX, SessionMetadata, Store};
@@ -19,11 +21,11 @@ fn temp_path() -> std::path::PathBuf {
 
 fn message(
     session_id: Option<uuid::Uuid>,
-    tag: LogTag,
+    level: LogLevel,
     emit_ts: u64,
     text: impl Into<String>,
 ) -> LogMessage {
-    let mut message = LogMessage::new(tag, text);
+    let mut message = LogMessage::new(level, text);
     message.session_id = session_id;
     message.emit_ts = emit_ts;
     message
@@ -56,10 +58,10 @@ fn open_rebuilds_outdated_and_missing_indexes_without_changing_primary() {
     let session = uuid::Uuid::new_v4();
     let store = Store::open_at(&path).expect("open store");
     store
-        .record(&message(Some(session), LogTag::Info, 10, "first"))
+        .record(&message(Some(session), LogLevel::Info, 10, "first"))
         .expect("record first");
     store
-        .record(&message(Some(session), LogTag::Error, 20, "second"))
+        .record(&message(Some(session), LogLevel::Error, 20, "second"))
         .expect("record second");
     let before = store.read_all().expect("read primary before rebuild");
     let write = store.database.begin_write().expect("begin schema damage");
@@ -118,35 +120,35 @@ fn session_metadata_persists_all_fields_and_rebuilds_version_three() {
     store
         .record(&message(
             Some(session),
-            LogTag::Info,
+            LogLevel::Info,
             300,
             "identified latest",
         ))
         .expect("record identified latest timestamp");
     store
-        .record(&message(None, LogTag::Info, 80, "unknown middle"))
+        .record(&message(None, LogLevel::Info, 80, "unknown middle"))
         .expect("record unknown middle timestamp");
     store
         .record(&message(
             Some(session),
-            LogTag::Info,
+            LogLevel::Info,
             100,
             "identified earliest",
         ))
         .expect("record identified earliest timestamp");
     store
-        .record(&message(None, LogTag::Info, 20, "unknown earliest"))
+        .record(&message(None, LogLevel::Info, 20, "unknown earliest"))
         .expect("record unknown earliest timestamp");
     let identified_latest_record = store
         .record(&message(
             Some(session),
-            LogTag::Info,
+            LogLevel::Info,
             200,
             "identified newest",
         ))
         .expect("record identified newest id");
     let unknown_latest_record = store
-        .record(&message(None, LogTag::Info, 90, "unknown newest"))
+        .record(&message(None, LogLevel::Info, 90, "unknown newest"))
         .expect("record unknown newest id");
 
     let identified = stored_session_metadata(&store, Some(session));
@@ -254,10 +256,10 @@ fn failed_rebuild_rolls_back_partial_indexes_and_preserves_primary() {
     let session = uuid::Uuid::new_v4();
     let store = Store::open_at(&path).expect("open store");
     store
-        .record(&message(Some(session), LogTag::Info, 10, "valid"))
+        .record(&message(Some(session), LogLevel::Info, 10, "valid"))
         .expect("record valid payload");
     let damaged = store
-        .record(&message(Some(session), LogTag::Info, 20, "damage"))
+        .record(&message(Some(session), LogLevel::Info, 20, "damage"))
         .expect("record payload to damage");
     let write = store.database.begin_write().expect("begin damage");
     {
@@ -301,24 +303,24 @@ fn failed_rebuild_rolls_back_partial_indexes_and_preserves_primary() {
 }
 
 #[test]
-fn session_and_tag_pages_use_metadata_and_stable_cursors() {
+fn session_and_level_pages_use_metadata_and_stable_cursors() {
     let store = Store::open_at(&temp_path()).expect("open store");
     let session = uuid::Uuid::new_v4();
     let other = uuid::Uuid::new_v4();
     let first = store
-        .record(&message(Some(session), LogTag::Info, 100, "first"))
+        .record(&message(Some(session), LogLevel::Info, 100, "first"))
         .expect("record first");
     let tied = store
-        .record(&message(Some(session), LogTag::Error, 100, "tied"))
+        .record(&message(Some(session), LogLevel::Error, 100, "tied"))
         .expect("record tied");
     let newest = store
-        .record(&message(Some(session), LogTag::Error, 200, "newest"))
+        .record(&message(Some(session), LogLevel::Error, 200, "newest"))
         .expect("record newest");
     store
-        .record(&message(Some(other), LogTag::Error, 300, "other"))
+        .record(&message(Some(other), LogLevel::Error, 300, "other"))
         .expect("record other");
     store
-        .record(&message(None, LogTag::Info, 50, "unknown"))
+        .record(&message(None, LogLevel::Info, 50, "unknown"))
         .expect("record unknown");
 
     let sessions = store.sessions().expect("list sessions");
@@ -340,11 +342,11 @@ fn session_and_tag_pages_use_metadata_and_stable_cursors() {
     );
     assert!(older.next_cursor.is_none());
 
-    let mut tagged = query(Some(session));
-    tagged.tag = Some(LogTag::Error);
-    let tagged = store.page(tagged).expect("tag page");
+    let mut leveled = query(Some(session));
+    leveled.level = Some(LogLevel::Error);
+    let leveled = store.page(leveled).expect("level page");
     assert_eq!(
-        tagged.items.iter().map(|item| item.id).collect::<Vec<_>>(),
+        leveled.items.iter().map(|item| item.id).collect::<Vec<_>>(),
         vec![newest, tied]
     );
 }
@@ -354,10 +356,10 @@ fn equal_timestamp_cursor_orders_newer_record_id_first() {
     let store = Store::open_at(&temp_path()).expect("open store");
     let session = uuid::Uuid::new_v4();
     let older = store
-        .record(&message(Some(session), LogTag::Info, 100, "older id"))
+        .record(&message(Some(session), LogLevel::Info, 100, "older id"))
         .expect("record older id");
     let newer = store
-        .record(&message(Some(session), LogTag::Info, 100, "newer id"))
+        .record(&message(Some(session), LogLevel::Info, 100, "newer id"))
         .expect("record newer id");
     let mut request = query(Some(session));
     request.limit = 1;
@@ -373,16 +375,16 @@ fn incremental_pages_advance_without_skipping_records() {
     let store = Store::open_at(&temp_path()).expect("open store");
     let session = uuid::Uuid::new_v4();
     let base = store
-        .record(&message(Some(session), LogTag::Info, 10, "base"))
+        .record(&message(Some(session), LogLevel::Info, 10, "base"))
         .expect("record base");
     let first = store
-        .record(&message(Some(session), LogTag::Info, 40, "first"))
+        .record(&message(Some(session), LogLevel::Info, 40, "first"))
         .expect("record first");
     let second = store
-        .record(&message(Some(session), LogTag::Info, 20, "second"))
+        .record(&message(Some(session), LogLevel::Info, 20, "second"))
         .expect("record second");
     let third = store
-        .record(&message(Some(session), LogTag::Info, 30, "third"))
+        .record(&message(Some(session), LogLevel::Info, 30, "third"))
         .expect("record third");
 
     let mut request = query(Some(session));
@@ -418,7 +420,7 @@ fn bounded_writer_batches_concurrent_records_and_flushes_reads() {
             barrier.wait();
             host.record(message(
                 Some(session),
-                LogTag::Info,
+                LogLevel::Info,
                 index as u64,
                 format!("record {index}"),
             ))
@@ -468,6 +470,7 @@ fn full_record_lookup_returns_exact_message_and_legacy_source_defaults() {
         .expect("full record lookup")
         .expect("full record exists");
     assert_eq!(record.source, LogSource::Server);
+    assert_eq!(record.level, LogLevel::Warning);
     assert_eq!(record.message, "exact legacy payload");
     assert_eq!(record.arrival_ts, 456);
     assert!(store.record_by_id(99).expect("missing lookup").is_none());

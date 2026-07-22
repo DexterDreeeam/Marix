@@ -15,7 +15,7 @@ pub use config::{
     RuntimeConfig, RuntimeEnvironment, RuntimeMode, ServerConfig, System, ToolConfig,
 };
 pub use logging::{
-    LogMessage, LogPage, LogPageQuery, LogRecord, LogSession, LogSource, LogSummary, LogTag,
+    LogLevel, LogMessage, LogPage, LogPageQuery, LogRecord, LogSession, LogSource, LogSummary,
     Logger, LoggingError,
 };
 pub use logging_tool::ToolLogger;

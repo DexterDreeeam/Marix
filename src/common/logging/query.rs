@@ -1,5 +1,5 @@
 use crate::external::*;
-use crate::logging::{LogMessage, LogSession, LogSource, LogTag, LoggingError};
+use crate::logging::{LogLevel, LogMessage, LogSession, LogSource, LoggingError};
 
 const DEFAULT_PAGE_LIMIT: usize = 200;
 const MAX_PAGE_LIMIT: usize = 500;
@@ -7,7 +7,7 @@ const MAX_PAGE_LIMIT: usize = 500;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LogPageQuery {
     pub session_id: Option<uuid::Uuid>,
-    pub tag: Option<LogTag>,
+    pub level: Option<LogLevel>,
     pub keyword: Option<String>,
     pub limit: usize,
     pub before: Option<String>,
@@ -18,7 +18,7 @@ impl Default for LogPageQuery {
     fn default() -> Self {
         Self {
             session_id: None,
-            tag: None,
+            level: None,
             keyword: None,
             limit: DEFAULT_PAGE_LIMIT,
             before: None,
@@ -31,7 +31,7 @@ impl Default for LogPageQuery {
 pub struct LogSummary {
     pub id: u64,
     pub source: LogSource,
-    pub tag: LogTag,
+    pub level: LogLevel,
     pub session_id: Option<uuid::Uuid>,
     pub emit_ts: u64,
     pub message_preview: String,
@@ -50,7 +50,7 @@ pub struct LogPage {
 pub struct LogRecord {
     pub id: u64,
     pub source: LogSource,
-    pub tag: LogTag,
+    pub level: LogLevel,
     pub message: String,
     pub session_id: Option<uuid::Uuid>,
     pub emit_ts: u64,
@@ -93,7 +93,7 @@ pub(super) fn log_record(id: u64, message: LogMessage) -> LogRecord {
     LogRecord {
         id,
         source: message.source,
-        tag: message.tag,
+        level: message.level,
         message: message.message,
         session_id: message.session_id,
         emit_ts: message.emit_ts,

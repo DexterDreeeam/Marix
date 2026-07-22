@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server",
     "name": "server",
-    "purpose": "Runs actor-based orchestration with workflow decision parsing, ordered execution, failure reanalysis, streaming models, task deadline and relay-budget guardrails, a task-owned completion watchdog, and cancellation of all task-owned actors.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs actor-based orchestration with workflow decision parsing, ordered execution, failure reanalysis, streaming models, task deadline and relay-budget guardrails, task-owned cancellation, and Info-level executor tool registration logging.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/server/intent",
@@ -40,7 +41,7 @@
     {
       "path": "src/server/session",
       "name": "session",
-      "purpose": "Owns session context, state, and runtime; accepts TaskRequest events, rejects task creation until a host and executor tools are available, and delegates request normalization to the task runtime."
+      "purpose": "Owns session context, state, and runtime; accepts TaskRequest events, rejects task creation until a host and executor tools are available, logs registered tool counts and names at Info level, and delegates request normalization."
     },
     {
       "path": "src/server/step",
@@ -470,19 +471,14 @@
       "name": "SessionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/session/runtime.rs",
           "lineStart": 17,
           "lineEnd": 22,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 18
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -496,17 +492,13 @@
         {
           "sourcePath": "src/server/session/runtime.rs",
           "lineStart": 87,
-          "lineEnd": 374,
+          "lineEnd": 381,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 201,
-              "lineEnd": 201
-            },
-            {
-              "lineStart": 229,
-              "lineEnd": 233
+              "lineStart": 268,
+              "lineEnd": 303
             }
           ]
         }

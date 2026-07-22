@@ -17,12 +17,12 @@
   </aside>
   <main id="main">
     <div id="toolbar">
-      <select id="tag-filter">
-        <option value="">All tags</option>
+      <select id="level-filter">
+        <option value="">All levels</option>
+        <option value="Debug">Debug</option>
         <option value="Info">Info</option>
         <option value="Warning">Warning</option>
         <option value="Error">Error</option>
-        <option value="Debug">Debug</option>
       </select>
       <input id="keyword-filter" type="text" placeholder="Filter by keyword…" />
     </div>
@@ -34,7 +34,7 @@
           <tr>
             <th>Emit</th>
             <th>Source</th>
-            <th>Tag</th>
+            <th>Level</th>
             <th>Message</th>
           </tr>
         </thead>

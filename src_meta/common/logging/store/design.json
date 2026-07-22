@@ -3,9 +3,10 @@
   "module": {
     "path": "src/common/logging/store",
     "name": "store",
-    "purpose": "Implements redb schema indexing, paged reads, and bounded batch writes for telemetry storage.",
-    "changeStatus": "unchanged"
+    "purpose": "Implements redb telemetry persistence with session/time, minimum-level threshold, record-id, and trigram indexes, schema migration, paged reads, and bounded batch writes.",
+    "changeStatus": "modified"
   },
+  "modified": ["reader.rs", "schema.rs"],
   "childModules": [],
   "elements": [
     {
@@ -237,23 +238,23 @@
       ]
     },
     {
-      "name": "SESSION_TAG_TIME_INDEX",
+      "name": "SESSION_LEVEL_TIME_INDEX",
       "type": "const",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "renamed",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
           "lineStart": 21,
           "lineEnd": 22,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 21,
               "lineEnd": 22
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -282,20 +283,20 @@
       "name": "SCHEMA_VERSION",
       "type": "const",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
           "lineStart": 26,
           "lineEnd": 26,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
               "lineStart": 26,
               "lineEnd": 26
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -370,13 +371,13 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 350,
-          "lineEnd": 357,
+          "lineStart": 354,
+          "lineEnd": 361,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 350,
-              "lineEnd": 357
+              "lineStart": 354,
+              "lineEnd": 361
             }
           ],
           "modifiedLines": []
@@ -391,13 +392,13 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 359,
-          "lineEnd": 380,
+          "lineStart": 363,
+          "lineEnd": 384,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 359,
-              "lineEnd": 380
+              "lineStart": 363,
+              "lineEnd": 384
             }
           ],
           "modifiedLines": []
@@ -412,13 +413,13 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 382,
-          "lineEnd": 392,
+          "lineStart": 386,
+          "lineEnd": 396,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 382,
-              "lineEnd": 392
+              "lineStart": 386,
+              "lineEnd": 396
             }
           ],
           "modifiedLines": []
@@ -426,23 +427,23 @@
       ]
     },
     {
-      "name": "session_tag_time_key",
+      "name": "session_level_time_key",
       "type": "function",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "renamed",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 394,
-          "lineEnd": 406,
+          "lineStart": 398,
+          "lineEnd": 410,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 394,
-              "lineEnd": 406
+              "lineStart": 398,
+              "lineEnd": 410
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -454,13 +455,13 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 408,
-          "lineEnd": 420,
+          "lineStart": 412,
+          "lineEnd": 424,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 408,
-              "lineEnd": 420
+              "lineStart": 412,
+              "lineEnd": 424
             }
           ],
           "modifiedLines": []
@@ -475,13 +476,13 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 422,
-          "lineEnd": 432,
+          "lineStart": 426,
+          "lineEnd": 436,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 422,
-              "lineEnd": 432
+              "lineStart": 426,
+              "lineEnd": 436
             }
           ],
           "modifiedLines": []
@@ -496,34 +497,13 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 434,
-          "lineEnd": 440,
+          "lineStart": 438,
+          "lineEnd": 444,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 434,
-              "lineEnd": 440
-            }
-          ],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "session_index_len",
-      "type": "function",
-      "source_depth": 4,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 442,
-          "lineEnd": 448,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 442,
-              "lineEnd": 448
+              "lineStart": 438,
+              "lineEnd": 444
             }
           ],
           "modifiedLines": []

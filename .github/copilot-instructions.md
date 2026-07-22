@@ -17,3 +17,4 @@
 - All file operations under `overview/` except reading must go through the `engineer-of-overview` agent. This includes creating, modifying, deleting, moving, or renaming files.
 - Deployment-related work must go through the `engineer-of-deployment` agent.
 - Research questions about external agent implementations must go through the `researcher-of-agents` agent.
+- The user defines the task's completion goal. Stop immediately once that goal is met; do not run unrequested tests or deployment actions unless the user explicitly asks.

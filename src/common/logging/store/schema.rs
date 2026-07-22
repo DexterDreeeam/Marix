@@ -5,7 +5,7 @@ use crate::external::redb::{
     ReadableDatabase, ReadableTable, ReadableTableMetadata, Table, TableDefinition, TableHandle,
 };
 use crate::external::{serde_json, uuid};
-use crate::logging::{LogMessage, LogTag, LoggingError};
+use crate::logging::{LogLevel, LogMessage, LoggingError};
 
 use super::{
     SESSION_KEY_LEN, SESSION_RECORD_ID_INDEX, SessionMetadata, Store, TRIGRAM_COMPONENT_LEN,
@@ -18,19 +18,21 @@ pub(super) const SESSION_TABLE: TableDefinition<&[u8], &[u8]> =
     TableDefinition::new("telemetry_sessions");
 pub(super) const SESSION_TIME_INDEX: TableDefinition<&[u8], u64> =
     TableDefinition::new("telemetry_session_emit");
-pub(super) const SESSION_TAG_TIME_INDEX: TableDefinition<&[u8], u64> =
-    TableDefinition::new("telemetry_session_tag_emit");
+pub(super) const SESSION_LEVEL_TIME_INDEX: TableDefinition<&[u8], u64> =
+    TableDefinition::new("telemetry_session_level_emit");
 pub(super) const TRIGRAM_INDEX: TableDefinition<&[u8], u64> =
     TableDefinition::new("telemetry_session_trigram");
 
-pub(super) const SCHEMA_VERSION: u64 = 4;
+pub(super) const SCHEMA_VERSION: u64 = 5;
 pub(super) const META_SCHEMA_VERSION: &str = "schema_version";
 pub(super) const META_INDEXED_COUNT: &str = "indexed_record_count";
 pub(super) const META_NEXT_RECORD_ID: &str = "next_record_id";
 
 const TIME_KEY_LEN: usize = SESSION_KEY_LEN + 16;
-const TAG_TIME_KEY_LEN: usize = SESSION_KEY_LEN + 1 + 16;
+const LEVEL_TIME_KEY_LEN: usize = SESSION_KEY_LEN + 1 + 16;
 const TRIGRAM_KEY_LEN: usize = SESSION_KEY_LEN + TRIGRAM_COMPONENT_LEN + 8;
+const LEGACY_LEVEL_TIME_INDEX: TableDefinition<&[u8], u64> =
+    TableDefinition::new("telemetry_session_tag_emit");
 
 impl Store {
     pub(super) fn ensure_schema(&self) -> Result<u64, LoggingError> {
@@ -71,7 +73,7 @@ impl Store {
                 METADATA_TABLE.name(),
                 SESSION_TABLE.name(),
                 SESSION_TIME_INDEX.name(),
-                SESSION_TAG_TIME_INDEX.name(),
+                SESSION_LEVEL_TIME_INDEX.name(),
                 SESSION_RECORD_ID_INDEX.name(),
                 TRIGRAM_INDEX.name(),
             ];
@@ -128,8 +130,8 @@ impl Store {
             let mut session_time = write
                 .open_table(SESSION_TIME_INDEX)
                 .map_err(|error| LoggingError::Database(error.to_string()))?;
-            let mut session_tag_time = write
-                .open_table(SESSION_TAG_TIME_INDEX)
+            let mut session_level_time = write
+                .open_table(SESSION_LEVEL_TIME_INDEX)
                 .map_err(|error| LoggingError::Database(error.to_string()))?;
             let mut session_record_id = write
                 .open_table(SESSION_RECORD_ID_INDEX)
@@ -144,7 +146,7 @@ impl Store {
                 Self::index_message(
                     &mut sessions,
                     &mut session_time,
-                    &mut session_tag_time,
+                    &mut session_level_time,
                     &mut session_record_id,
                     &mut trigrams,
                     *id,
@@ -226,7 +228,8 @@ impl Store {
             .map_err(|error| LoggingError::Database(error.to_string()))?;
         for table in [
             SESSION_TIME_INDEX,
-            SESSION_TAG_TIME_INDEX,
+            SESSION_LEVEL_TIME_INDEX,
+            LEGACY_LEVEL_TIME_INDEX,
             SESSION_RECORD_ID_INDEX,
             TRIGRAM_INDEX,
         ] {
@@ -246,8 +249,8 @@ impl Store {
             let mut session_time = write
                 .open_table(SESSION_TIME_INDEX)
                 .map_err(|error| LoggingError::Database(error.to_string()))?;
-            let mut session_tag_time = write
-                .open_table(SESSION_TAG_TIME_INDEX)
+            let mut session_level_time = write
+                .open_table(SESSION_LEVEL_TIME_INDEX)
                 .map_err(|error| LoggingError::Database(error.to_string()))?;
             let mut session_record_id = write
                 .open_table(SESSION_RECORD_ID_INDEX)
@@ -267,7 +270,7 @@ impl Store {
                 Self::index_message(
                     &mut sessions,
                     &mut session_time,
-                    &mut session_tag_time,
+                    &mut session_level_time,
                     &mut session_record_id,
                     &mut trigrams,
                     id,
@@ -304,7 +307,7 @@ impl Store {
     fn index_message(
         sessions: &mut Table<'_, &[u8], &[u8]>,
         session_time: &mut Table<'_, &[u8], u64>,
-        session_tag_time: &mut Table<'_, &[u8], u64>,
+        session_level_time: &mut Table<'_, &[u8], u64>,
         session_record_id: &mut Table<'_, &[u8], u64>,
         trigrams: &mut Table<'_, &[u8], u64>,
         id: u64,
@@ -328,9 +331,10 @@ impl Store {
         session_time
             .insert(time_key.as_slice(), id)
             .map_err(|error| LoggingError::Database(error.to_string()))?;
-        let tag_key = session_tag_time_key(message.session_id, message.tag, message.emit_ts, id);
-        session_tag_time
-            .insert(tag_key.as_slice(), id)
+        let level_key =
+            session_level_time_key(message.session_id, message.level, message.emit_ts, id);
+        session_level_time
+            .insert(level_key.as_slice(), id)
             .map_err(|error| LoggingError::Database(error.to_string()))?;
         let record_key = Self::session_record_id_key(message.session_id, id);
         session_record_id
@@ -391,15 +395,15 @@ pub(super) fn session_time_key(
     key
 }
 
-pub(super) fn session_tag_time_key(
+pub(super) fn session_level_time_key(
     session_id: Option<uuid::Uuid>,
-    tag: LogTag,
+    level: LogLevel,
     emit_ts: u64,
     id: u64,
-) -> [u8; TAG_TIME_KEY_LEN] {
-    let mut key = [0; TAG_TIME_KEY_LEN];
+) -> [u8; LEVEL_TIME_KEY_LEN] {
+    let mut key = [0; LEVEL_TIME_KEY_LEN];
     key[..SESSION_KEY_LEN].copy_from_slice(&session_key(session_id));
-    key[SESSION_KEY_LEN] = tag_code(tag);
+    key[SESSION_KEY_LEN] = level_code(level);
     key[SESSION_KEY_LEN + 1..SESSION_KEY_LEN + 9].copy_from_slice(&(!emit_ts).to_be_bytes());
     key[SESSION_KEY_LEN + 9..].copy_from_slice(&(!id).to_be_bytes());
     key
@@ -439,19 +443,11 @@ pub(super) fn prefix_bounds(prefix: &[u8], total_len: usize) -> (Vec<u8>, Vec<u8
     (start, end)
 }
 
-pub(super) fn session_index_len(tagged: bool) -> usize {
-    if tagged {
-        TAG_TIME_KEY_LEN
-    } else {
-        TIME_KEY_LEN
-    }
-}
-
-fn tag_code(tag: LogTag) -> u8 {
-    match tag {
-        LogTag::Info => 0,
-        LogTag::Warning => 1,
-        LogTag::Error => 2,
-        LogTag::Debug => 3,
+fn level_code(level: LogLevel) -> u8 {
+    match level {
+        LogLevel::Debug => 0,
+        LogLevel::Info => 1,
+        LogLevel::Warning => 2,
+        LogLevel::Error => 3,
     }
 }

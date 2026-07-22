@@ -1,5 +1,5 @@
 use axum::response::IntoResponse;
-use marix_common::{LogPageQuery, LogTag, Logger, LoggingError};
+use marix_common::{LogLevel, LogPageQuery, Logger, LoggingError};
 
 use crate::external::*;
 
@@ -50,9 +50,10 @@ pub(super) async fn sessions() -> axum::response::Response {
 }
 
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 pub(super) struct LogsQuery {
     session_id: Option<String>,
-    tag: Option<String>,
+    level: Option<String>,
     keyword: Option<String>,
     limit: Option<usize>,
     before: Option<String>,
@@ -70,9 +71,9 @@ pub(super) async fn logs(
         Ok(session_id) => session_id,
         Err(message) => return bad_request(message),
     };
-    let tag = match query.tag.as_deref().map(str::trim) {
-        Some(value) if !value.is_empty() => match parse_tag(value) {
-            Ok(tag) => Some(tag),
+    let level = match query.level.as_deref().map(str::trim) {
+        Some(value) if !value.is_empty() => match parse_level(value) {
+            Ok(level) => Some(level),
             Err(message) => return bad_request(message),
         },
         _ => None,
@@ -86,7 +87,7 @@ pub(super) async fn logs(
     }
     let request = LogPageQuery {
         session_id,
-        tag,
+        level,
         keyword: query
             .keyword
             .map(|value| value.trim().to_owned())
@@ -139,13 +140,13 @@ fn parse_session_id(raw: &str) -> Result<Option<uuid::Uuid>, &'static str> {
         .map_err(|_error| "invalid session_id")
 }
 
-fn parse_tag(raw: &str) -> Result<LogTag, &'static str> {
+fn parse_level(raw: &str) -> Result<LogLevel, &'static str> {
     match raw.to_lowercase().as_str() {
-        "info" => Ok(LogTag::Info),
-        "warning" => Ok(LogTag::Warning),
-        "error" => Ok(LogTag::Error),
-        "debug" => Ok(LogTag::Debug),
-        _ => Err("invalid tag"),
+        "debug" => Ok(LogLevel::Debug),
+        "info" => Ok(LogLevel::Info),
+        "warning" => Ok(LogLevel::Warning),
+        "error" => Ok(LogLevel::Error),
+        _ => Err("invalid level"),
     }
 }
 

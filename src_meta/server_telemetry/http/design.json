@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server_telemetry/http",
     "name": "http",
-    "purpose": "Provides static telemetry browser assets whose Format modal supports Previous, Next, and Close navigation, disables newest and older boundaries, shows millisecond timestamps in titles and lists, and preserves focus and loading behavior.",
-    "changeStatus": "unchanged"
+    "purpose": "Provides static telemetry browser assets with session selection, minimum-level and keyword filters, level badges, virtualized rows, incremental paging, and formatted-message inspection.",
+    "changeStatus": "modified"
   },
+  "modified": ["page.css", "page.html", "telemetry-data.js", "telemetry.js"],
   "childModules": [],
   "elements": []
 }

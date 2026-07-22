@@ -1,7 +1,7 @@
 use super::{LogFile, Logger, Sink, Store, host_store};
 use crate::external::{serde_json, uuid};
 use crate::logging::store::HostStore;
-use crate::logging::{LogMessage, LogTag, LoggingError};
+use crate::logging::{LogLevel, LogMessage, LoggingError};
 
 fn temp_directory() -> std::path::PathBuf {
     let path = std::env::temp_dir().join(format!(
@@ -13,7 +13,7 @@ fn temp_directory() -> std::path::PathBuf {
 }
 
 fn message(text: &str) -> LogMessage {
-    LogMessage::new(LogTag::Info, text)
+    LogMessage::new(LogLevel::Info, text)
 }
 
 fn write_legacy(path: &std::path::Path, texts: &[&str]) {
@@ -87,6 +87,8 @@ fn log_file_appends_json_lines_and_truncates_on_create() {
     assert_eq!(lines.len(), 1);
     let replacement: LogMessage = serde_json::from_str(lines[0]).expect("deserialize replacement");
     assert_eq!(replacement.message, "replacement");
+    assert!(lines[0].contains(r#""level":"Info""#));
+    assert!(!lines[0].contains(r#""tag":"#));
 }
 
 #[test]

@@ -50,8 +50,8 @@ export function buildLogsUrl(_filters, _mode) {
     _filters.sessionId === null ? "unknown" : _filters.sessionId
   );
   _parameters.set("limit", String(_filters.limit || c_defaultLimit));
-  if (_filters.tag) {
-    _parameters.set("tag", _filters.tag);
+  if (_filters.level) {
+    _parameters.set("level", _filters.level);
   }
   if (_filters.keyword && _filters.keyword.trim()) {
     _parameters.set("keyword", _filters.keyword.trim());

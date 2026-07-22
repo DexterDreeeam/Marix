@@ -422,7 +422,7 @@ td.time-cell {
 .source-host { background: var(--source-host); }
 .source-client { background: var(--source-client); }
 .source-server { background: var(--source-server); }
-.tag-badge {
+.level-badge {
   display: inline-block;
   padding: 2px 8px;
   border-radius: 10px;
@@ -430,10 +430,10 @@ td.time-cell {
   font-weight: 600;
   color: #0f1115;
 }
-.tag-info { background: var(--info); color: #04122d; }
-.tag-warning { background: var(--warning); color: #2a1c00; }
-.tag-error { background: var(--error); color: #2b0505; }
-.tag-debug { background: var(--debug); color: #0f1115; }
+.level-info { background: var(--info); color: #04122d; }
+.level-warning { background: var(--warning); color: #2a1c00; }
+.level-error { background: var(--error); color: #2b0505; }
+.level-debug { background: var(--debug); color: #0f1115; }
 #empty-state, #initial-loading, #no-sessions-state {
   padding: 24px 4px;
   color: var(--muted);

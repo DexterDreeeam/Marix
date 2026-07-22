@@ -3,14 +3,15 @@
   "module": {
     "path": "src/server_telemetry",
     "name": "server_telemetry",
-    "purpose": "Runs the standalone telemetry collector and paginated HTTP API while serving static browser assets with navigable formatted-message inspection and millisecond timestamps.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs the standalone telemetry collector and paginated HTTP API with minimum LogLevel threshold filtering, and serves static browser assets for level-aware log browsing.",
+    "changeStatus": "modified"
   },
+  "modified": ["handlers.rs", "server.rs"],
   "childModules": [
     {
       "path": "src/server_telemetry/http",
       "name": "http",
-      "purpose": "Provides static telemetry browser assets with Previous, Next, and Close format-modal navigation, disabled newest and older boundaries, millisecond timestamps, and defined focus and loading behavior."
+      "purpose": "Provides static telemetry browser assets with session selection, minimum-level and keyword filters, level badges, virtualized rows, incremental paging, and formatted-message inspection."
     }
   ],
   "elements": [
@@ -18,7 +19,7 @@
       "name": "marix-server-telemetry",
       "type": "bin",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/main.rs",
@@ -26,16 +27,7 @@
           "lineEnd": 33,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 9,
-              "lineEnd": 10
-            },
-            {
-              "lineStart": 29,
-              "lineEnd": 29
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -90,7 +82,7 @@
       "name": "root",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/handlers.rs",
@@ -98,12 +90,7 @@
           "lineEnd": 18,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 16,
-              "lineEnd": 18
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -132,19 +119,14 @@
       "name": "stylesheet",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/handlers.rs",
           "lineStart": 24,
           "lineEnd": 26,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 24,
-              "lineEnd": 26
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -153,19 +135,14 @@
       "name": "data_script",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/handlers.rs",
           "lineStart": 28,
           "lineEnd": 30,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 28,
-              "lineEnd": 30
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -216,19 +193,14 @@
       "name": "script",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/handlers.rs",
           "lineStart": 40,
           "lineEnd": 42,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 40,
-              "lineEnd": 42
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -253,18 +225,18 @@
       "name": "LogsQuery",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/handlers.rs",
           "lineStart": 52,
-          "lineEnd": 60,
+          "lineEnd": 61,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 52,
-              "lineEnd": 60
+              "lineStart": 56,
+              "lineEnd": 56
             }
           ]
         }
@@ -274,18 +246,35 @@
       "name": "logs",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/handlers.rs",
-          "lineStart": 62,
-          "lineEnd": 104,
+          "lineStart": 63,
+          "lineEnd": 105,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 62,
-              "lineEnd": 104
+              "lineStart": 74,
+              "lineEnd": 80
+            },
+            {
+              "lineStart": 88,
+              "lineEnd": 98
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server_telemetry/handlers.rs",
+          "lineStart": 143,
+          "lineEnd": 151,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 143,
+              "lineEnd": 151
             }
           ]
         }
@@ -295,19 +284,14 @@
       "name": "log_record",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/handlers.rs",
-          "lineStart": 106,
-          "lineEnd": 119,
+          "lineStart": 107,
+          "lineEnd": 120,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 106,
-              "lineEnd": 119
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -337,7 +321,7 @@
       "name": "serve",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server_telemetry/server.rs",
@@ -353,7 +337,12 @@
           "lineEnd": 50,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 41,
+              "lineEnd": 44
+            }
+          ]
         }
       ]
     }
