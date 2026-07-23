@@ -9,5 +9,7 @@ pub enum RelayKind {
         invocation: InvocationSignature,
         tool: String,
         output: String,
+        #[serde(default)]
+        continuation_cursor: Option<String>,
     },
 }

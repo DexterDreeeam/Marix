@@ -1,5 +1,7 @@
+use std::sync::{Arc, Mutex};
+
 use crate::execution::Execution;
-use crate::executor::Tool;
+use crate::executor::{ExecutorCache, Tool};
 use crate::session::HostSession;
 use marix_common::{
     ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait, SharedNetSender,
@@ -14,19 +16,22 @@ pub struct ExecutionRuntime {
     pub(super) tool: Tool,
     pub(super) request: ExecutionRequest,
     pub(super) server_tx: SharedNetSender<SessionMessage>,
+    pub(super) cache: Arc<Mutex<ExecutorCache>>,
 }
 
 impl ExecutionRuntime {
-    pub fn new(
+    pub(crate) fn new(
         tool: Tool,
         request: ExecutionRequest,
         server_tx: SharedNetSender<SessionMessage>,
+        cache: Arc<Mutex<ExecutorCache>>,
     ) -> Self {
         Self {
             lifecycle: Lifecycle::new(),
             tool,
             request,
             server_tx,
+            cache,
         }
     }
 }
@@ -47,16 +52,36 @@ impl RuntimeTrait for ExecutionRuntime {
         Box::pin(async move {
             self.send_status(ActorStatus::Running);
             Logger::log(format!("execution {} started", &self.request.signature,));
-            let content = self.tool.execute(&self.request.input);
-            self.send_processing(0, content);
-            RuntimeTrait::finish(
-                self,
-                ExecutionResult {
-                    kind: ExecutionResultKind::Succeed,
-                    output: String::new(),
-                    seq_count: 1,
-                },
-            );
+            let output = self.tool.execute(&self.request.input);
+            let cached = {
+                let mut cache = self.cache.lock().unwrap_or_else(|error| error.into_inner());
+                cache.try_cache(&output)
+            };
+            match cached {
+                Ok((content, continuation_cursor)) => {
+                    self.send_processing(0, content);
+                    RuntimeTrait::finish(
+                        self,
+                        ExecutionResult {
+                            kind: ExecutionResultKind::Succeed,
+                            output: String::new(),
+                            seq_count: 1,
+                            continuation_cursor,
+                        },
+                    );
+                }
+                Err(error) => {
+                    RuntimeTrait::finish(
+                        self,
+                        ExecutionResult {
+                            kind: ExecutionResultKind::Failed,
+                            output: error,
+                            seq_count: 0,
+                            continuation_cursor: None,
+                        },
+                    );
+                }
+            }
             None
         })
     }
@@ -75,6 +100,7 @@ impl RuntimeTrait for ExecutionRuntime {
                         kind: ExecutionResultKind::Canceled,
                         output: reason,
                         seq_count: 0,
+                        continuation_cursor: None,
                     },
                 );
             }

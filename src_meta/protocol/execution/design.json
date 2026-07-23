@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/execution",
     "name": "execution",
-    "purpose": "Defines execution requests, identities, signatures, errors, cancellation events, and typed ExecutionResult and ExecutionResultKind outcomes.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines execution requests, identities, signatures, errors, cancellation events, and typed ExecutionResult outcomes carrying a serde-defaulted optional continuation cursor.",
+    "changeStatus": "modified"
   },
+  "modified": ["result.rs"],
   "childModules": [],
   "elements": [
     {
@@ -105,17 +106,17 @@
       "name": "ExecutionResult",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/result.rs",
           "lineStart": 10,
-          "lineEnd": 15,
+          "lineEnd": 17,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 10,
-              "lineEnd": 15
+              "lineStart": 15,
+              "lineEnd": 16
             }
           ],
           "modifiedLines": []

@@ -5,10 +5,10 @@ use marix_common::{
     Actor, ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait, WorkQueue,
 };
 use marix_protocol::{
-    IntentEvent, IntentResult, IntentResultKind, IntentSignature, PlanResult, RelayKind,
-    RelayRequest, RelayResult, RelayResultKind, RelaySignature, SessionEvent, StepDraft, StepEvent,
-    StepResult, StepResultKind, StepSignature, TaskEvent, WorkflowCallSummary, WorkflowComplete,
-    WorkflowInfeasible, WorkflowPlan, WorkflowTool,
+    IntentEvent, IntentResult, IntentResultKind, IntentSignature, InvocationDraft, PlanResult,
+    RelayKind, RelayRequest, RelayResult, RelayResultKind, RelaySignature, SessionEvent, StepDraft,
+    StepEvent, StepResult, StepResultKind, StepSignature, TaskEvent, WorkflowCallSummary,
+    WorkflowComplete, WorkflowContinuation, WorkflowInfeasible, WorkflowPlan, WorkflowTool,
 };
 
 use super::Intent;
@@ -258,6 +258,35 @@ impl IntentRuntime {
             .next()
             .ok_or_else(|| "workflow tool dispatch received no call".to_owned())?;
         match invocation.name.as_str() {
+            WorkflowContinuation::NAME => {
+                let tool = WorkflowContinuation::parse(&invocation.input).map_err(|error| {
+                    format!(
+                        "workflow tool `{}` arguments are invalid: \
+                                 {error}",
+                        invocation.name,
+                    )
+                })?;
+                let input =
+                    marix_common::external::serde_json::to_string(&tool).map_err(|error| {
+                        format!(
+                            "workflow tool `{}` arguments could not be \
+                                 serialized: {error}",
+                            invocation.name,
+                        )
+                    })?;
+                let draft = StepDraft {
+                    invocations: vec![InvocationDraft {
+                        name: WorkflowContinuation::NAME.to_owned(),
+                        input,
+                    }],
+                };
+                self.create_step(draft).map_err(|error| {
+                    format!(
+                        "workflow tool `{}` could not start: {error}",
+                        invocation.name,
+                    )
+                })
+            }
             WorkflowPlan::NAME => {
                 let tool = WorkflowPlan::parse(&invocation.input).map_err(|error| {
                     format!(
@@ -299,6 +328,7 @@ impl IntentRuntime {
         matches!(
             name,
             WorkflowCallSummary::NAME
+                | WorkflowContinuation::NAME
                 | WorkflowPlan::NAME
                 | WorkflowComplete::NAME
                 | WorkflowInfeasible::NAME

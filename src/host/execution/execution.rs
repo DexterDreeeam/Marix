@@ -1,7 +1,7 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::thread;
 
-use crate::executor::Tool;
+use crate::executor::{ExecutorCache, Tool};
 use marix_common::external::*;
 use marix_common::{Actor as ActorTrait, Logger, Runtime as RuntimeTrait, SharedNetSender};
 use marix_protocol::{
@@ -16,13 +16,14 @@ pub struct Execution {
 }
 
 impl Execution {
-    pub fn new(
+    pub(crate) fn new(
         tool: Tool,
         request: ExecutionRequest,
         server_tx: SharedNetSender<SessionMessage>,
+        cache: Arc<Mutex<ExecutorCache>>,
     ) -> Self {
         Self {
-            runtime: Arc::new(ExecutionRuntime::new(tool, request, server_tx)),
+            runtime: Arc::new(ExecutionRuntime::new(tool, request, server_tx, cache)),
         }
     }
 }

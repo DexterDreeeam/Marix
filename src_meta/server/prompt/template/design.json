@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/prompt/template",
     "name": "template",
-    "purpose": "Defines WorkflowPolicy, System, and ToolCallSummarize prompt resources for decision-policy, execution-environment, and tool-output-summarization instructions.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines WorkflowPolicy, System, ToolCallSummarize, and ToolCallSummarizeByCursor prompt resources for decision policy, execution environment, ordinary tool-output summaries, and cursor-aware continuation summaries.",
+    "changeStatus": "modified"
   },
+  "added": ["ToolCallSummarizeByCursor.prompt"],
   "childModules": [],
   "elements": []
 }

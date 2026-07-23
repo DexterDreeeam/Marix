@@ -13,8 +13,9 @@ pub struct WebSearch;
 
 impl WebSearch {
     const NAME: &'static str = "web_search";
-    const DESCRIPTION: &'static str = "Search the web with DuckDuckGo and return result titles, URLs, and snippets. Supports pagination via offset; the response reports next_offset and has_more when more results may be available.";
-    const INPUT_SCHEMA: &'static str = r#"{"type":"object","properties":{"query":{"type":"string","minLength":1},"max_results":{"type":"integer","minimum":1,"maximum":10},"offset":{"type":"integer","minimum":0}},"required":["query"],"additionalProperties":false}"#;
+    const DESCRIPTION: &'static str =
+        "Search the web and return result titles, URLs, and snippets.";
+    const INPUT_SCHEMA: &'static str = r#"{"type":"object","properties":{"query":{"type":"string","minLength":1},"max_results":{"type":"integer","minimum":1,"maximum":10}},"required":["query"],"additionalProperties":false}"#;
     const MAX_RESULTS: usize = 10;
 }
 
@@ -55,26 +56,8 @@ impl ToolProgram for WebSearch {
             },
             None => Self::MAX_RESULTS,
         };
-        let offset = match input.get("offset") {
-            Some(value) => match value.as_u64() {
-                Some(value) => value as usize,
-                None => return Self::failure("offset must be a non-negative integer".to_owned()),
-            },
-            None => 0,
-        };
-
-        match Self::search(query, max_results, offset) {
-            Ok(results) => {
-                let next_offset = offset + results.len();
-                let has_more = results.len() >= max_results;
-                to_string(&json!({
-                    "results": results,
-                    "offset": offset,
-                    "next_offset": next_offset,
-                    "has_more": has_more,
-                }))
-                .unwrap_or_default()
-            }
+        match Self::search(query, max_results) {
+            Ok(results) => to_string(&json!({ "results": results })).unwrap_or_default(),
             Err(error) => Self::failure(error),
         }
     }
@@ -86,10 +69,10 @@ pub use self::WebSearch as SelectedTool;
 // -- Private -- //
 
 impl WebSearch {
-    fn search(query: &str, max_results: usize, offset: usize) -> Result<Vec<Value>, String> {
+    fn search(query: &str, max_results: usize) -> Result<Vec<Value>, String> {
         let mut last_error = String::new();
 
-        match Self::search_duckduckgo(query, max_results, offset) {
+        match Self::search_duckduckgo(query, max_results) {
             Ok(results) if !results.is_empty() => return Ok(results),
             Ok(_) => last_error.push_str("DuckDuckGo returned 0 results. "),
             Err(e) => {
@@ -98,7 +81,7 @@ impl WebSearch {
             }
         }
 
-        match Self::search_yahoo(query, max_results, offset) {
+        match Self::search_yahoo(query, max_results) {
             Ok(results) if !results.is_empty() => return Ok(results),
             Ok(_) => last_error.push_str("Yahoo returned 0 results. "),
             Err(e) => {
@@ -119,22 +102,11 @@ impl WebSearch {
         ))
     }
 
-    fn search_duckduckgo(
-        query: &str,
-        max_results: usize,
-        offset: usize,
-    ) -> Result<Vec<Value>, String> {
-        let url = if offset > 0 {
-            format!(
-                "https://html.duckduckgo.com/html/?q={}&s={offset}",
-                Self::percent_encode(query.as_bytes())
-            )
-        } else {
-            format!(
-                "https://html.duckduckgo.com/html/?q={}",
-                Self::percent_encode(query.as_bytes())
-            )
-        };
+    fn search_duckduckgo(query: &str, max_results: usize) -> Result<Vec<Value>, String> {
+        let url = format!(
+            "https://html.duckduckgo.com/html/?q={}",
+            Self::percent_encode(query.as_bytes())
+        );
         let output = Command::new("curl")
             .args([
                 "-sS",
@@ -210,19 +182,11 @@ impl WebSearch {
         results
     }
 
-    fn search_yahoo(query: &str, max_results: usize, offset: usize) -> Result<Vec<Value>, String> {
-        let url = if offset > 0 {
-            format!(
-                "https://search.yahoo.com/search?p={}&b={}",
-                Self::percent_encode(query.as_bytes()),
-                offset + 1
-            )
-        } else {
-            format!(
-                "https://search.yahoo.com/search?p={}",
-                Self::percent_encode(query.as_bytes())
-            )
-        };
+    fn search_yahoo(query: &str, max_results: usize) -> Result<Vec<Value>, String> {
+        let url = format!(
+            "https://search.yahoo.com/search?p={}",
+            Self::percent_encode(query.as_bytes())
+        );
         let output = Command::new("curl")
             .args([
                 "-sS",

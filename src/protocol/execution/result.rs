@@ -12,4 +12,6 @@ pub struct ExecutionResult {
     pub kind: ExecutionResultKind,
     pub output: String,
     pub seq_count: usize,
+    #[serde(default)]
+    pub continuation_cursor: Option<String>,
 }

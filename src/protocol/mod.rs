@@ -43,5 +43,5 @@ pub use tool::{
     ToolCategory, ToolInputSchema, ToolOutputSchema, ToolPreview,
 };
 pub use workflow::{
-    WorkflowComplete, WorkflowInfeasible, WorkflowPlan, WorkflowTool,
+    WorkflowComplete, WorkflowContinuation, WorkflowInfeasible, WorkflowPlan, WorkflowTool,
 };

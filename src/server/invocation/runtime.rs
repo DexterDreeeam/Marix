@@ -10,7 +10,7 @@ use marix_protocol::{
     ExecutionEvent, ExecutionRequest, ExecutionResult, ExecutionResultKind, ExecutionSignature,
     ExecutorEvent, InvocationEvent, InvocationResult, InvocationResultKind, InvocationSignature,
     RelayKind, RelayRequest, RelayResult, RelayResultKind, RelaySignature, SessionEvent, StepEvent,
-    TaskEvent, ToolInputSchema,
+    TaskEvent, ToolInputSchema, WorkflowContinuation, WorkflowTool,
 };
 
 use super::Invocation;
@@ -68,10 +68,11 @@ impl RuntimeTrait for InvocationRuntime {
                     return None;
                 }
             };
-            let is_valid_tool = session_context
-                .lock()
-                .unwrap_or_else(|error| error.into_inner())
-                .is_valid_tool(&self.signature.name);
+            let is_valid_tool = self.signature.name == WorkflowContinuation::NAME
+                || session_context
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner())
+                    .is_valid_tool(&self.signature.name);
             if !is_valid_tool {
                 self.finish(
                     InvocationResultKind::Failed,
@@ -180,19 +181,33 @@ impl InvocationRuntime {
                         .final_signal
                         .lock()
                         .unwrap_or_else(|error| error.into_inner()) = Some(result.seq_count);
-                    self.summarize_and_finish(InvocationResultKind::Succeed, output);
+                    self.summarize_and_finish(
+                        InvocationResultKind::Succeed,
+                        output,
+                        result.continuation_cursor,
+                    );
                 }
                 ExecutionResultKind::Canceled => {
                     self.finish(InvocationResultKind::Canceled, result.output);
                 }
                 ExecutionResultKind::Failed => {
-                    self.summarize_and_finish(InvocationResultKind::Failed, result.output);
+                    self.summarize_and_finish(
+                        InvocationResultKind::Failed,
+                        result.output,
+                        result.continuation_cursor,
+                    );
                 }
             },
         }
     }
 
-    fn summarize_and_finish(&self, kind: InvocationResultKind, output: String) {
+    fn summarize_and_finish(
+        &self,
+        kind: InvocationResultKind,
+        output: String,
+        continuation_cursor: Option<String>,
+    ) {
+        let fallback_output = Self::summarize_fallback(&output, continuation_cursor.as_deref());
         let relay_signature = RelaySignature::new(
             self.signature.step.intent.clone(),
             "tool-call-summarize".to_owned(),
@@ -203,26 +218,28 @@ impl InvocationRuntime {
                 invocation: self.signature.clone(),
                 tool: self.signature.name.clone(),
                 output: output.clone(),
+                continuation_cursor,
             },
         };
         let relay = match Relay::new(Arc::clone(&self.access), request) {
             Ok(relay) => relay,
             Err(reason) => {
                 Logger::warning(format!(
-                    "invocation {} summarize relay creation failed: {reason}; keeping original output",
+                    "invocation {} summarize relay creation failed: {reason}; using fallback output",
                     &self.signature,
                 ));
-                self.finish(kind, output);
+                self.finish(kind, fallback_output);
                 return;
             }
         };
         *self
             .pending_summarize
             .lock()
-            .unwrap_or_else(|error| error.into_inner()) = Some((kind.clone(), output.clone()));
+            .unwrap_or_else(|error| error.into_inner()) =
+            Some((kind.clone(), fallback_output.clone()));
         if !self.access.insert(relay.clone()) {
             Logger::warning(format!(
-                "invocation {} summarize relay {} already exists; keeping original output",
+                "invocation {} summarize relay {} already exists; using fallback output",
                 &self.signature,
                 relay.signature(),
             ));
@@ -230,7 +247,7 @@ impl InvocationRuntime {
                 .pending_summarize
                 .lock()
                 .unwrap_or_else(|error| error.into_inner()) = None;
-            self.finish(kind, output);
+            self.finish(kind, fallback_output);
             return;
         }
         relay.start();
@@ -254,7 +271,7 @@ impl InvocationRuntime {
             ));
             return;
         }
-        let Some((kind, original_output)) = self
+        let Some((kind, fallback_output)) = self
             .pending_summarize
             .lock()
             .unwrap_or_else(|error| error.into_inner())
@@ -271,13 +288,20 @@ impl InvocationRuntime {
             RelayResultKind::Failed | RelayResultKind::Canceled => {
                 Logger::warning(format!(
                     "invocation {} summarize relay {signature} did not succeed: {}; \
-                     keeping original output",
+                     using fallback output",
                     &self.signature, result.output,
                 ));
-                original_output
+                fallback_output
             }
         };
         self.finish(kind, final_output);
+    }
+
+    fn summarize_fallback(output: &str, continuation_cursor: Option<&str>) -> String {
+        match continuation_cursor {
+            Some(cursor) => format!("{output}\nContinuation cursor: {cursor}"),
+            None => output.to_owned(),
+        }
     }
 
     fn complete_output(&self, seq_count: usize) -> Option<String> {

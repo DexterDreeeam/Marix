@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol/relay",
     "name": "relay",
-    "purpose": "Defines relay requests carrying an intent-owned signature plus an intent-analysis-or-tool-call-summarize kind, alongside identities, errors, cancellation events, and terminal model results.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines relay requests carrying an intent-owned signature and either intent analysis or tool-call summarization, whose ToolCallSummarize payload includes tool output and a serde-defaulted optional continuation cursor, alongside relay identities, errors, cancellation events, and terminal model results.",
+    "changeStatus": "modified"
   },
+  "added": ["kind.rs"],
   "childModules": [],
   "elements": [
     {
@@ -83,12 +84,12 @@
         {
           "sourcePath": "src/protocol/relay/kind.rs",
           "lineStart": 5,
-          "lineEnd": 13,
+          "lineEnd": 15,
           "language": "rust",
           "addedLines": [
             {
               "lineStart": 5,
-              "lineEnd": 13
+              "lineEnd": 15
             }
           ],
           "modifiedLines": []

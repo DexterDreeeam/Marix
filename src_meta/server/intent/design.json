@@ -3,9 +3,12 @@
   "module": {
     "path": "src/server/intent",
     "name": "intent",
-    "purpose": "Runs intent actors that request an IntentAnalyze relay verdict, dispatch the resulting native tool calls into complete, plan, or infeasible outcomes, prevent direct steps once planning starts, snapshot and clear failed Plans before requesting a new verdict, and publish ordered subintent or terminal results.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs intent actors that request IntentAnalyze verdicts, dispatch complete, plan, and infeasible workflow decisions, forward workflow_continuation as an exclusive execution step, prevent direct steps after planning starts, and publish ordered results.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "runtime.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -73,9 +76,18 @@
         {
           "sourcePath": "src/server/intent/runtime.rs",
           "lineStart": 93,
-          "lineEnd": 357,
+          "lineEnd": 387,
           "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 261,
+              "lineEnd": 289
+            },
+            {
+              "lineStart": 331,
+              "lineEnd": 331
+            }
+          ],
           "modifiedLines": [
             {
               "lineStart": 94,

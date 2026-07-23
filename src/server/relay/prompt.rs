@@ -3,7 +3,8 @@ use std::collections::BTreeSet;
 use marix_common::{Arch, Platform, System};
 use marix_protocol::{
     ContextChain, IntentContext, IntentResult, IntentResultKind, RelayKind, ToolPreview,
-    WorkflowCallSummary, WorkflowComplete, WorkflowInfeasible, WorkflowPlan, WorkflowTool,
+    WorkflowCallSummary, WorkflowComplete, WorkflowContinuation, WorkflowInfeasible, WorkflowPlan,
+    WorkflowTool,
 };
 
 use super::RelayRuntime;
@@ -51,6 +52,7 @@ impl RelayRuntime {
         }
         let workflow_tools = [
             WorkflowCallSummary::preview(),
+            WorkflowContinuation::preview(),
             WorkflowPlan::preview(),
             WorkflowComplete::preview(),
             WorkflowInfeasible::preview(),
@@ -155,8 +157,14 @@ impl RelayRuntime {
             prompts.push(context);
         }
         prompts.push(Self::pending_intent_prompt(current));
-        if let RelayKind::ToolCallSummarize { tool, output, .. } = &self.kind {
-            prompts.push(self.tool_call_prompt(tool, output)?);
+        if let RelayKind::ToolCallSummarize {
+            tool,
+            output,
+            continuation_cursor,
+            ..
+        } = &self.kind
+        {
+            prompts.push(self.tool_call_prompt(tool, output, continuation_cursor.as_deref())?);
         }
         Ok(prompts)
     }
@@ -213,8 +221,17 @@ impl RelayRuntime {
     /// Renders the trailing message for a `ToolCallSummarize` relay, appended
     /// after the pending intent prompt so the shared prefix stays identical
     /// to a normal decision call for the same intent state.
-    fn tool_call_prompt(&self, tool: &str, output: &str) -> Result<String, String> {
-        let template = "ToolCallSummarize";
+    fn tool_call_prompt(
+        &self,
+        tool: &str,
+        output: &str,
+        continuation_cursor: Option<&str>,
+    ) -> Result<String, String> {
+        let template = if continuation_cursor.is_some() {
+            "ToolCallSummarizeByCursor"
+        } else {
+            "ToolCallSummarize"
+        };
         let mut prompt =
             std::panic::catch_unwind(|| Prompt::load(template)).map_err(|payload| {
                 let detail = if let Some(message) = payload.downcast_ref::<String>() {
@@ -230,6 +247,9 @@ impl RelayRuntime {
             let value = match parameter.as_str() {
                 "tool" => tool.to_owned(),
                 "output" => output.replace("\n", "\n      "),
+                "continuation_cursor" => continuation_cursor
+                    .ok_or_else(|| format!("{template} prompt requires a continuation cursor"))?
+                    .to_owned(),
                 _ => {
                     return Err(format!(
                         "unsupported {template} prompt parameter `{parameter}`"

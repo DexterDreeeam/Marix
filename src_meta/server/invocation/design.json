@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/invocation",
     "name": "invocation",
-    "purpose": "Runs invocation actors, validates tools and JSON arguments, consumes typed ExecutionResult completions directly, assembles sequenced output, and for both succeeded and failed output starts a ToolCallSummarize relay carrying the raw tool name/output, applying its resolved RelayResult.output (fail-open to the original output on any relay creation/insertion/failure) before publishing InvocationResult completions.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs invocation actors, admits workflow_continuation independently of host registry previews, consumes typed execution output, summarizes every successful or failed result, and carries continuation cursors into cursor-preserving summarize fallbacks.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -83,45 +84,63 @@
         {
           "sourcePath": "src/server/invocation/runtime.rs",
           "lineStart": 50,
-          "lineEnd": 122,
+          "lineEnd": 123,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 112,
-              "lineEnd": 114
+              "lineStart": 72,
+              "lineEnd": 72
+            },
+            {
+              "lineStart": 113,
+              "lineEnd": 115
             }
           ],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 126,
-          "lineEnd": 360,
-          "language": "rust",
-          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 183,
-              "lineEnd": 183
-            },
-            {
-              "lineStart": 189,
-              "lineEnd": 189
-            },
-            {
-              "lineStart": 195,
-              "lineEnd": 237
-            },
-            {
-              "lineStart": 239,
-              "lineEnd": 281
+              "lineStart": 71,
+              "lineEnd": 71
             }
           ]
         },
         {
           "sourcePath": "src/server/invocation/runtime.rs",
-          "lineStart": 362,
-          "lineEnd": 365,
+          "lineStart": 127,
+          "lineEnd": 384,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 194,
+              "lineEnd": 199
+            },
+            {
+              "lineStart": 240,
+              "lineEnd": 254
+            },
+            {
+              "lineStart": 300,
+              "lineEnd": 305
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 184,
+              "lineEnd": 188
+            },
+            {
+              "lineStart": 204,
+              "lineEnd": 239
+            },
+            {
+              "lineStart": 256,
+              "lineEnd": 298
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/invocation/runtime.rs",
+          "lineStart": 386,
+          "lineEnd": 389,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

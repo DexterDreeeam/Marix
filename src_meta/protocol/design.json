@@ -3,14 +3,15 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Defines serialized task requests with optional completion-time and relay-count guardrails, context chains, relay, step, invocation, execution, session, tool, and workflow contracts.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines serialized task, context, relay, step, invocation, execution, session, tool, and workflow contracts, including serde-defaulted continuation cursors on execution results and tool-call-summary relay payloads.",
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs", "mod.rs", "."],
   "childModules": [
     {
       "path": "src/protocol/execution",
       "name": "execution",
-      "purpose": "Defines execution requests, identities, signatures, errors, cancellation events, and typed ExecutionResult and ExecutionResultKind outcomes."
+      "purpose": "Defines execution requests, identities, signatures, errors, cancellation events, and typed ExecutionResult outcomes carrying a serde-defaulted optional continuation cursor."
     },
     {
       "path": "src/protocol/executor",
@@ -35,12 +36,12 @@
     {
       "path": "src/protocol/relay",
       "name": "relay",
-      "purpose": "Defines relay requests carrying an intent-owned signature plus an intent-analysis-or-tool-call-summarize kind, alongside identities, errors, cancellation events, and terminal model results."
+      "purpose": "Defines relay requests carrying an intent-owned signature and either intent analysis or tool-call summarization, whose ToolCallSummarize payload includes tool output and a serde-defaulted optional continuation cursor, alongside relay identities, errors, cancellation events, and terminal model results."
     },
     {
       "path": "src/protocol/session",
       "name": "session",
-      "purpose": "Owns SessionEvent, whose ExecutorTools variant carries a concrete System together with a vector of ToolPreview values."
+      "purpose": "Owns SessionEvent and timestamped SessionMessage transport envelopes; ExecutorTools carries a concrete System with ToolPreview values."
     },
     {
       "path": "src/protocol/step",
@@ -50,7 +51,7 @@
     {
       "path": "src/protocol/task",
       "name": "task",
-      "purpose": "Defines task requests with optional completion-time and relay-count guardrails, plus previews, terminal results, transport statuses, identities, signatures, errors, and routing events."
+      "purpose": "Defines ContextChain plus task requests, optional completion-time and relay-count guardrails, previews, terminal results, transport statuses, identities, signatures, errors, and routing events."
     },
     {
       "path": "src/protocol/tool",
@@ -60,81 +61,10 @@
     {
       "path": "src/protocol/workflow",
       "name": "workflow",
-      "purpose": "Defines workflow decision-tool contracts and call-summary, complete, plan, and infeasible payloads with previews and JSON parsing."
+      "purpose": "Defines workflow decision-tool contracts and call-summary, continuation, complete, plan, and infeasible payloads with previews and JSON parsing."
     }
   ],
   "elements": [
-    {
-      "name": "ContextChain",
-      "type": "struct",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/context.rs",
-          "lineStart": 6,
-          "lineEnd": 9,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 6,
-              "lineEnd": 9
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/protocol/context.rs",
-          "lineStart": 11,
-          "lineEnd": 21,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 11,
-              "lineEnd": 21
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/protocol/context.rs",
-          "lineStart": 25,
-          "lineEnd": 61,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 25,
-              "lineEnd": 61
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "SessionMessage",
-      "type": "struct",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/message.rs",
-          "lineStart": 6,
-          "lineEnd": 11,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/protocol/message.rs",
-          "lineStart": 13,
-          "lineEnd": 25,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
     {
       "name": "ExecutionError",
       "type": "enum",
@@ -232,17 +162,17 @@
       "name": "ExecutionResult",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/result.rs",
           "lineStart": 10,
-          "lineEnd": 15,
+          "lineEnd": 17,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 10,
-              "lineEnd": 15
+              "lineStart": 15,
+              "lineEnd": 16
             }
           ],
           "modifiedLines": []
@@ -850,12 +780,12 @@
         {
           "sourcePath": "src/protocol/relay/kind.rs",
           "lineStart": 5,
-          "lineEnd": 13,
+          "lineEnd": 15,
           "language": "rust",
           "addedLines": [
             {
               "lineStart": 5,
-              "lineEnd": 13
+              "lineEnd": 15
             }
           ],
           "modifiedLines": []
@@ -993,6 +923,30 @@
               "lineEnd": 13
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "SessionMessage",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/session/message.rs",
+          "lineStart": 6,
+          "lineEnd": 11,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/session/message.rs",
+          "lineStart": 13,
+          "lineEnd": 25,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
         }
       ]
     },
@@ -1178,6 +1132,53 @@
             {
               "lineStart": 38,
               "lineEnd": 38
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ContextChain",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/task/context.rs",
+          "lineStart": 6,
+          "lineEnd": 9,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 6,
+              "lineEnd": 9
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/protocol/task/context.rs",
+          "lineStart": 11,
+          "lineEnd": 21,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 11,
+              "lineEnd": 21
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/protocol/task/context.rs",
+          "lineStart": 25,
+          "lineEnd": 61,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 61
             }
           ]
         }
@@ -1568,6 +1569,40 @@
           "addedLines": [
             {
               "lineStart": 15,
+              "lineEnd": 36
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "WorkflowContinuation",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/workflow/continuation.rs",
+          "lineStart": 8,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/workflow/continuation.rs",
+          "lineStart": 14,
+          "lineEnd": 36,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
               "lineEnd": 36
             }
           ],

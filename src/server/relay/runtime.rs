@@ -203,7 +203,10 @@ impl RelayRuntime {
     fn finish_succeed(&self, output: String) {
         match &self.kind {
             RelayKind::IntentAnalyze => self.finish(RelayResultKind::Succeed, output),
-            RelayKind::ToolCallSummarize { .. } => match Self::extract_summary(&output) {
+            RelayKind::ToolCallSummarize {
+                continuation_cursor: _,
+                ..
+            } => match Self::extract_summary(&output) {
                 Ok(summary) => self.finish(RelayResultKind::Succeed, summary),
                 Err(reason) => {
                     Logger::error(format!("relay {} failed: {reason}", &self.signature));
@@ -272,7 +275,11 @@ impl RelayRuntime {
                     ),
                 )
             }
-            RelayKind::ToolCallSummarize { invocation, .. } => SessionEvent::Task(
+            RelayKind::ToolCallSummarize {
+                invocation,
+                continuation_cursor: _,
+                ..
+            } => SessionEvent::Task(
                 invocation.step.intent.task.clone(),
                 TaskEvent::Invocation(
                     invocation.clone(),

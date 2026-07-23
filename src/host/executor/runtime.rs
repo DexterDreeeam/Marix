@@ -4,7 +4,7 @@ use std::sync::Arc;
 use marix_common::{Actor, ActorStatus, Logger, Receiver, Sender, System, build_channel, select};
 use marix_protocol::{
     ExecutionEvent, ExecutionRequest, ExecutionResult, ExecutionResultKind, ExecutionSignature,
-    ExecutorEvent, InvocationEvent, SessionEvent, TaskEvent,
+    ExecutorEvent, InvocationEvent, SessionEvent, TaskEvent, WorkflowContinuation, WorkflowTool,
 };
 
 use super::state::ExecutorState;
@@ -98,17 +98,26 @@ impl ExecutorRuntime {
     }
 
     fn create_execution(&self, request: ExecutionRequest) {
+        if request.signature.name == WorkflowContinuation::NAME {
+            self.create_continuation_execution(request);
+            return;
+        }
         let Some(tool) = self.state.registry.get(&request.signature.name).cloned() else {
             let reason = format!("tool '{}' is not available", request.signature.name,);
             Logger::warning(format!(
                 "execution {} create failed: {reason}",
                 &request.signature,
             ));
-            self.send_unknown_tool_failure(&request, reason);
+            self.send_execution_failure(&request, reason);
             return;
         };
         let signature = request.signature.clone();
-        let execution = Execution::new(tool, request, self.state.server_tx.clone());
+        let execution = Execution::new(
+            tool,
+            request,
+            self.state.server_tx.clone(),
+            self.state.cache.clone(),
+        );
         if self
             .state
             .executions
@@ -135,27 +144,91 @@ impl ExecutorRuntime {
         }
     }
 
-    fn send_unknown_tool_failure(&self, request: &ExecutionRequest, reason: String) {
+    fn create_continuation_execution(&self, request: ExecutionRequest) {
+        let tool = match WorkflowContinuation::parse(&request.input) {
+            Ok(tool) => tool,
+            Err(error) => {
+                let reason = format!(
+                    "workflow tool '{}' arguments are invalid: {error}",
+                    WorkflowContinuation::NAME,
+                );
+                Logger::warning(format!(
+                    "execution {} create failed: {reason}",
+                    &request.signature,
+                ));
+                self.send_execution_failure(&request, reason);
+                return;
+            }
+        };
+        let result = {
+            let mut cache = self
+                .state
+                .cache
+                .lock()
+                .unwrap_or_else(|error| error.into_inner());
+            cache.pick(&tool.continuation_cursor)
+        };
+        match result {
+            Ok((content, continuation_cursor)) => {
+                self.send_inline_execution(&request, content, continuation_cursor);
+            }
+            Err(error) => self.send_execution_failure(&request, error),
+        }
+    }
+
+    fn send_inline_execution(
+        &self,
+        request: &ExecutionRequest,
+        content: String,
+        continuation_cursor: Option<String>,
+    ) {
         let execution = request.signature.clone();
-        let invocation = execution.invocation.clone();
+        self.send_invocation_event(
+            request,
+            InvocationEvent::Processing {
+                execution: execution.clone(),
+                seq: 0,
+                content,
+            },
+        );
+        self.send_invocation_event(
+            request,
+            InvocationEvent::Update(
+                execution,
+                ActorStatus::Complete(ExecutionResult {
+                    kind: ExecutionResultKind::Succeed,
+                    output: String::new(),
+                    seq_count: 1,
+                    continuation_cursor,
+                }),
+            ),
+        );
+    }
+
+    fn send_execution_failure(&self, request: &ExecutionRequest, reason: String) {
+        self.send_invocation_event(
+            request,
+            InvocationEvent::Update(
+                request.signature.clone(),
+                ActorStatus::Complete(ExecutionResult {
+                    kind: ExecutionResultKind::Failed,
+                    output: reason,
+                    seq_count: 0,
+                    continuation_cursor: None,
+                }),
+            ),
+        );
+    }
+
+    fn send_invocation_event(&self, request: &ExecutionRequest, invocation_event: InvocationEvent) {
+        let invocation = request.signature.invocation.clone();
         let event = SessionEvent::Task(
             invocation.step.intent.task.clone(),
-            TaskEvent::Invocation(
-                invocation,
-                InvocationEvent::Update(
-                    execution,
-                    ActorStatus::Complete(ExecutionResult {
-                        kind: ExecutionResultKind::Failed,
-                        output: reason,
-                        seq_count: 0,
-                    }),
-                ),
-            ),
+            TaskEvent::Invocation(invocation, invocation_event),
         );
         if let Err(error) = self.send_server_event(event) {
             Logger::warning(format!(
-                "execution {} unknown-tool failure could not be sent: \
-                 {error}",
+                "execution {} event could not be sent: {error}",
                 &request.signature,
             ));
         }

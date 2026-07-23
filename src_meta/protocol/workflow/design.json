@@ -3,9 +3,15 @@
   "module": {
     "path": "src/protocol/workflow",
     "name": "workflow",
-    "purpose": "Defines workflow decision-tool contracts and call-summary, complete, plan, and infeasible payloads with previews and JSON parsing.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines workflow decision-tool contracts and call-summary, continuation, complete, plan, and infeasible payloads with previews and JSON parsing.",
+    "changeStatus": "modified"
   },
+  "added": [
+    "continuation.rs"
+  ],
+  "modified": [
+    "mod.rs"
+  ],
   "childModules": [],
   "elements": [
     {
@@ -69,6 +75,40 @@
           "addedLines": [
             {
               "lineStart": 15,
+              "lineEnd": 36
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "WorkflowContinuation",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/protocol/workflow/continuation.rs",
+          "lineStart": 8,
+          "lineEnd": 12,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 8,
+              "lineEnd": 12
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/protocol/workflow/continuation.rs",
+          "lineStart": 14,
+          "lineEnd": 36,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 14,
               "lineEnd": 36
             }
           ],

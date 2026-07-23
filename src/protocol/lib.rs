@@ -37,5 +37,6 @@ pub use task::{
 };
 pub use tool::{ToolCategory, ToolInputSchema, ToolOutputSchema, ToolPreview};
 pub use workflow::{
-    WorkflowCallSummary, WorkflowComplete, WorkflowInfeasible, WorkflowPlan, WorkflowTool,
+    WorkflowCallSummary, WorkflowComplete, WorkflowContinuation, WorkflowInfeasible, WorkflowPlan,
+    WorkflowTool,
 };

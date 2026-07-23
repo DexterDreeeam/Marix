@@ -3,9 +3,12 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and tool packages, including level-aware telemetry and fifteen native tool binaries.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and tool packages, including platform-neutral workflow output continuation, level-aware telemetry, and fifteen native tool binaries.",
+    "changeStatus": "modified"
   },
+  "modified": [
+    "."
+  ],
   "childModules": [
     {
       "path": "src/client",
@@ -25,7 +28,7 @@
     {
       "path": "src/protocol",
       "name": "protocol",
-      "purpose": "Defines serialized task requests with optional completion-time and relay-count guardrails, context chains, relay, step, invocation, execution, session, tool, and workflow contracts."
+      "purpose": "Defines serialized task requests with optional completion-time and relay-count guardrails, context chains, relay, step, invocation, execution, session, tool, and workflow contracts, including opaque output-continuation requests."
     },
     {
       "path": "src/server",
@@ -186,77 +189,6 @@
           "sourcePath": "src/host/main.rs",
           "lineStart": 4,
           "lineEnd": 19,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "ContextChain",
-      "type": "struct",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/context.rs",
-          "lineStart": 6,
-          "lineEnd": 9,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 6,
-              "lineEnd": 9
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/protocol/context.rs",
-          "lineStart": 11,
-          "lineEnd": 21,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 11,
-              "lineEnd": 21
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/protocol/context.rs",
-          "lineStart": 25,
-          "lineEnd": 61,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 25,
-              "lineEnd": 61
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "SessionMessage",
-      "type": "struct",
-      "source_depth": 2,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/message.rs",
-          "lineStart": 6,
-          "lineEnd": 11,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/protocol/message.rs",
-          "lineStart": 13,
-          "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
