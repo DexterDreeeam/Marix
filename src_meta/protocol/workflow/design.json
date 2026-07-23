@@ -4,16 +4,15 @@
     "path": "src/protocol/workflow",
     "name": "workflow",
     "purpose": "Defines workflow decision-tool contracts: workflow_call_summary carries a required summary and optional continuation cursor, WorkflowContinuation remains the server-internal continuation payload, and complete, plan, and infeasible payloads provide previews and JSON parsing.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["call_summary.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "WorkflowCallSummary",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/workflow/call_summary.rs",

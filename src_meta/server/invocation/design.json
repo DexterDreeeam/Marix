@@ -4,9 +4,8 @@
     "path": "src/server/invocation",
     "name": "invocation",
     "purpose": "Runs invocation actors, summarizes each successful or failed execution chunk, accumulates non-empty summaries, automatically requests the internal workflow_continuation while an approved cursor remains, and publishes the accumulated summary or No Summary; canceled invocations retain their cancellation reason.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -53,7 +52,7 @@
       "name": "InvocationRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/runtime.rs",

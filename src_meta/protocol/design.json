@@ -4,9 +4,8 @@
     "path": "src/protocol",
     "name": "protocol",
     "purpose": "Defines serialized task, context, relay, step, invocation, execution, session, tool, and workflow contracts, including optional continuation cursors for execution results, summarize relays, and workflow call summaries used by server-driven continuation.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["."],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -1512,7 +1511,7 @@
       "name": "WorkflowCallSummary",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/workflow/call_summary.rs",
