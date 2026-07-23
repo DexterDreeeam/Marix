@@ -4,9 +4,8 @@
     "path": "src/protocol/relay",
     "name": "relay",
     "purpose": "Defines relay requests carrying an intent-owned signature and either intent analysis or tool-call summarization, whose ToolCallSummarize payload includes tool output and a serde-defaulted optional continuation cursor, alongside relay identities, errors, cancellation events, and terminal model results.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": ["kind.rs"],
   "childModules": [],
   "elements": [
     {
@@ -79,7 +78,7 @@
       "name": "RelayKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/kind.rs",
@@ -100,7 +99,7 @@
       "name": "RelayRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/request.rs",

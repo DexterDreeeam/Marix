@@ -4,10 +4,8 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Owns host executor workers and the ExecutorState-held ExecutorCache: a consuming 10-entry FIFO configured by CHUNK_BYTES (16 KiB), CACHE_THRESHOLD_BYTES (24 KiB), and CACHE_CAPACITY (10); try_cache returns content at or below 24 KiB whole, otherwise returns a UTF-8-safe 16 KiB chunk and caches the remainder, and pick consumes an entry then reuses try_cache. It also loads compatible tools, routes regular executions, intercepts workflow_continuation requests, and publishes plain content with continuation cursors.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["mod.rs", "runtime.rs", "state.rs"],
-  "renamed": ["cache.rs"],
   "childModules": [],
   "elements": [
     {
@@ -38,7 +36,7 @@
       "name": "ExecutorCache",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/cache.rs",
@@ -138,7 +136,7 @@
       "name": "ExecutorRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -183,7 +181,7 @@
       "name": "ExecutorState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/state.rs",

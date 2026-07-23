@@ -4,19 +4,15 @@
     "path": "src/tool/native/web",
     "name": "web",
     "purpose": "Provides native web fetch and search tools; WebFetch converts HTML into clean markdown-like text with links, decoded entities, and suppressed non-content elements, while WebSearch queries DuckDuckGo, Yahoo, and Wikipedia with 60-second provider request limits.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "web_fetch.rs",
-    "web_search.rs"
-  ],
   "childModules": [],
   "elements": [
     {
       "name": "WebFetch",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/web/web_fetch.rs",
@@ -66,7 +62,7 @@
       "name": "WebSearch",
       "type": "struct",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/native/web/web_search.rs",

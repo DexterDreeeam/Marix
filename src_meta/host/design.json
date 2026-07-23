@@ -4,9 +4,8 @@
     "path": "src/host",
     "name": "host",
     "purpose": "Owns Host connectivity, per-execution actor runtimes, executor workers, and the ExecutorState-held ExecutorCache: a consuming 10-entry FIFO where try_cache returns content at or below its 24 KiB threshold whole, otherwise returns a UTF-8-safe 16 KiB chunk and caches the remainder, and pick consumes an entry then reuses try_cache.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["."],
   "childModules": [
     {
       "path": "src/host/execution",
@@ -77,7 +76,7 @@
       "name": "Execution",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/execution.rs",
@@ -123,7 +122,7 @@
       "name": "ExecutionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",
@@ -231,7 +230,7 @@
       "name": "ExecutorCache",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/cache.rs",
@@ -331,7 +330,7 @@
       "name": "ExecutorRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
@@ -376,7 +375,7 @@
       "name": "ExecutorState",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/state.rs",

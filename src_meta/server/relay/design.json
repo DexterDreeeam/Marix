@@ -4,9 +4,8 @@
     "path": "src/server/relay",
     "name": "relay",
     "purpose": "Runs model-backed Relay actors, renders system, workflow-policy, context, and tool-call-summary prompts, selects the cursor-aware summary template when a continuation cursor is present, streams model responses, and resolves intent analysis or workflow_call_summary output by relay kind.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["prompt.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -58,7 +57,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",

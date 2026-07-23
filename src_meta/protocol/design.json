@@ -4,9 +4,8 @@
     "path": "src/protocol",
     "name": "protocol",
     "purpose": "Defines serialized task, context, relay, step, invocation, execution, session, tool, and workflow contracts, including serde-defaulted continuation cursors on execution results and tool-call-summary relay payloads.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["lib.rs", "mod.rs", "."],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -162,7 +161,7 @@
       "name": "ExecutionResult",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/execution/result.rs",
@@ -514,7 +513,7 @@
       "name": "InvocationEvent",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/invocation/event.rs",
@@ -775,7 +774,7 @@
       "name": "RelayKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/kind.rs",
@@ -796,7 +795,7 @@
       "name": "RelayRequest",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/request.rs",
@@ -1512,7 +1511,7 @@
       "name": "WorkflowCallSummary",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/workflow/call_summary.rs",
@@ -1580,7 +1579,7 @@
       "name": "WorkflowContinuation",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/workflow/continuation.rs",

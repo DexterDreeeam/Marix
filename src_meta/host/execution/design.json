@@ -4,16 +4,15 @@
     "path": "src/host/execution",
     "name": "execution",
     "purpose": "Runs each tool execution on its own OS thread with a current-thread Tokio runtime, applies ExecutorCache::try_cache to return a complete output or the first UTF-8-safe 16 KiB content slice with an optional continuation cursor, publishes typed ExecutionResult statuses, and defers cancellation until a blocking tool call returns.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["runtime.rs", "execution.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Execution",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/execution.rs",
@@ -59,7 +58,7 @@
       "name": "ExecutionRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/execution/runtime.rs",

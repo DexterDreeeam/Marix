@@ -4,11 +4,8 @@
     "path": "src/server/intent",
     "name": "intent",
     "purpose": "Runs intent actors that request IntentAnalyze verdicts, dispatch complete, plan, and infeasible workflow decisions, forward workflow_continuation as an exclusive execution step, prevent direct steps after planning starts, and publish ordered results.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": [
-    "runtime.rs"
-  ],
   "childModules": [],
   "elements": [
     {
@@ -47,7 +44,7 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",

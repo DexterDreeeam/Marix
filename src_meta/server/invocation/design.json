@@ -4,9 +4,8 @@
     "path": "src/server/invocation",
     "name": "invocation",
     "purpose": "Runs invocation actors, admits workflow_continuation independently of host registry previews, consumes typed execution output, summarizes every successful or failed result, and carries continuation cursors into cursor-preserving summarize fallbacks.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -53,7 +52,7 @@
       "name": "InvocationRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/runtime.rs",
