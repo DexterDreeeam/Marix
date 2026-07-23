@@ -10,7 +10,7 @@ use marix_protocol::{
     ExecutionEvent, ExecutionRequest, ExecutionResult, ExecutionResultKind, ExecutionSignature,
     ExecutorEvent, InvocationEvent, InvocationResult, InvocationResultKind, InvocationSignature,
     RelayKind, RelayRequest, RelayResult, RelayResultKind, RelaySignature, SessionEvent, StepEvent,
-    TaskEvent, ToolInputSchema, WorkflowContinuation, WorkflowTool,
+    TaskEvent, ToolInputSchema, WorkflowCallSummary, WorkflowContinuation, WorkflowTool,
 };
 
 use super::Invocation;
@@ -26,6 +26,8 @@ pub struct InvocationRuntime {
     pub execution: StdMutex<Option<ExecutionSignature>>,
     pub pending_summarize: StdMutex<Option<(InvocationResultKind, String)>>,
     pub lifecycle: Lifecycle<InvocationEvent, InvocationResult>,
+    summaries: StdMutex<Vec<String>>,
+    overall_kind: StdMutex<Option<InvocationResultKind>>,
 }
 
 impl InvocationRuntime {
@@ -43,6 +45,8 @@ impl InvocationRuntime {
             execution: StdMutex::new(None),
             pending_summarize: StdMutex::new(None),
             lifecycle: Lifecycle::new(),
+            summaries: StdMutex::new(Vec::new()),
+            overall_kind: StdMutex::new(None),
         }
     }
 }
@@ -69,10 +73,7 @@ impl RuntimeTrait for InvocationRuntime {
                 }
             };
             let is_valid_tool = self.signature.name == WorkflowContinuation::NAME
-                || session_context
-                    .lock()
-                    .unwrap_or_else(|error| error.into_inner())
-                    .is_valid_tool(&self.signature.name);
+                || Self::lock(&session_context).is_valid_tool(&self.signature.name);
             if !is_valid_tool {
                 self.finish(
                     InvocationResultKind::Failed,
@@ -125,17 +126,42 @@ impl RuntimeTrait for InvocationRuntime {
 // -- Private -- //
 
 impl InvocationRuntime {
+    fn lock<T>(mutex: &StdMutex<T>) -> std::sync::MutexGuard<'_, T> {
+        mutex.lock().unwrap_or_else(|error| error.into_inner())
+    }
+
     fn create_execution(&self) -> Result<(), String> {
-        let signature =
-            ExecutionSignature::new(self.signature.clone(), self.signature.name.clone());
-        *self
-            .execution
-            .lock()
-            .unwrap_or_else(|error| error.into_inner()) = Some(signature.clone());
-        self.send_executor_event(ExecutorEvent::ExecutionCreate(ExecutionRequest {
-            signature,
-            input: self.input.clone(),
-        }))
+        self.request_execution(self.signature.name.clone(), self.input.clone())
+    }
+
+    fn request_execution(&self, name: String, input: ToolInputSchema) -> Result<(), String> {
+        if Self::lock(&self.pending_summarize).is_some() {
+            return Err("cannot create execution while a summarize relay is pending".to_owned());
+        }
+        let signature = ExecutionSignature::new(self.signature.clone(), name);
+        {
+            let mut execution = Self::lock(&self.execution);
+            if let Some(active) = execution.as_ref() {
+                return Err(format!(
+                    "cannot create execution {}; execution {active} is still active",
+                    &signature
+                ));
+            }
+            *execution = Some(signature.clone());
+        }
+        Self::lock(&self.output).clear();
+        *Self::lock(&self.final_signal) = None;
+        let result = self.send_executor_event(ExecutorEvent::ExecutionCreate(ExecutionRequest {
+            signature: signature.clone(),
+            input,
+        }));
+        if result.is_err() {
+            let mut execution = Self::lock(&self.execution);
+            if execution.as_ref() == Some(&signature) {
+                *execution = None;
+            }
+        }
+        result
     }
 
     fn on_processing(&self, execution: ExecutionSignature, seq: usize, content: String) {
@@ -147,10 +173,16 @@ impl InvocationRuntime {
             ));
             return;
         }
-        self.output
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .insert(seq, content);
+        let current = Self::lock(&self.execution).clone();
+        if current.as_ref() != Some(&execution) {
+            Logger::error(format!(
+                "invocation {} received processing update from unexpected \
+                 execution {execution}",
+                &self.signature,
+            ));
+            return;
+        }
+        Self::lock(&self.output).insert(seq, content);
     }
 
     fn on_update(&self, execution: ExecutionSignature, status: ActorStatus<ExecutionResult>) {
@@ -162,25 +194,38 @@ impl InvocationRuntime {
             ));
             return;
         }
+        let complete = matches!(&status, ActorStatus::Complete(_));
+        {
+            let mut current = Self::lock(&self.execution);
+            if current.as_ref() != Some(&execution) {
+                Logger::error(format!(
+                    "invocation {} received update from unexpected execution \
+                     {execution}: {status:?}",
+                    &self.signature,
+                ));
+                return;
+            }
+            if complete {
+                *current = None;
+            }
+        }
         match status {
             ActorStatus::Created | ActorStatus::Running => {}
             ActorStatus::Complete(result) => match result.kind {
                 ExecutionResultKind::Succeed => {
                     let Some(output) = self.complete_output(result.seq_count) else {
-                        self.finish(
+                        self.summarize_and_finish(
                             InvocationResultKind::Failed,
                             format!(
                                 "invocation {} completed with missing \
                                  output chunks; expected {}",
                                 &self.signature, result.seq_count,
                             ),
+                            None,
                         );
                         return;
                     };
-                    *self
-                        .final_signal
-                        .lock()
-                        .unwrap_or_else(|error| error.into_inner()) = Some(result.seq_count);
+                    *Self::lock(&self.final_signal) = Some(result.seq_count);
                     self.summarize_and_finish(
                         InvocationResultKind::Succeed,
                         output,
@@ -207,7 +252,7 @@ impl InvocationRuntime {
         output: String,
         continuation_cursor: Option<String>,
     ) {
-        let fallback_output = Self::summarize_fallback(&output, continuation_cursor.as_deref());
+        let kind = self.update_overall_kind(kind);
         let relay_signature = RelaySignature::new(
             self.signature.step.intent.clone(),
             "tool-call-summarize".to_owned(),
@@ -217,7 +262,7 @@ impl InvocationRuntime {
             kind: RelayKind::ToolCallSummarize {
                 invocation: self.signature.clone(),
                 tool: self.signature.name.clone(),
-                output: output.clone(),
+                output,
                 continuation_cursor,
             },
         };
@@ -225,29 +270,36 @@ impl InvocationRuntime {
             Ok(relay) => relay,
             Err(reason) => {
                 Logger::warning(format!(
-                    "invocation {} summarize relay creation failed: {reason}; using fallback output",
+                    "invocation {} summarize relay creation failed: {reason}",
                     &self.signature,
                 ));
-                self.finish(kind, fallback_output);
+                self.finish_summary(kind);
                 return;
             }
         };
-        *self
-            .pending_summarize
-            .lock()
-            .unwrap_or_else(|error| error.into_inner()) =
-            Some((kind.clone(), fallback_output.clone()));
+        {
+            let mut pending = Self::lock(&self.pending_summarize);
+            if pending.is_some() {
+                Logger::error(format!(
+                    "invocation {} attempted to start summarize relay {} \
+                     while another summarize relay is pending",
+                    &self.signature,
+                    relay.signature(),
+                ));
+                drop(pending);
+                self.finish_summary(kind);
+                return;
+            }
+            *pending = Some((kind.clone(), relay.signature().to_string()));
+        }
         if !self.access.insert(relay.clone()) {
             Logger::warning(format!(
-                "invocation {} summarize relay {} already exists; using fallback output",
+                "invocation {} summarize relay {} already exists",
                 &self.signature,
                 relay.signature(),
             ));
-            *self
-                .pending_summarize
-                .lock()
-                .unwrap_or_else(|error| error.into_inner()) = None;
-            self.finish(kind, fallback_output);
+            *Self::lock(&self.pending_summarize) = None;
+            self.finish_summary(kind);
             return;
         }
         relay.start();
@@ -271,64 +323,125 @@ impl InvocationRuntime {
             ));
             return;
         }
-        let Some((kind, fallback_output)) = self
-            .pending_summarize
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .take()
-        else {
-            Logger::error(format!(
-                "invocation {} received summarize relay {signature} update with no pending state",
-                &self.signature,
-            ));
-            return;
+        let kind = {
+            let mut pending = Self::lock(&self.pending_summarize);
+            let Some((kind, expected_signature)) = pending.as_ref() else {
+                Logger::error(format!(
+                    "invocation {} received summarize relay {signature} \
+                     update with no pending state",
+                    &self.signature,
+                ));
+                return;
+            };
+            if expected_signature != &signature.to_string() {
+                Logger::error(format!(
+                    "invocation {} received update from unexpected summarize \
+                     relay {signature}",
+                    &self.signature,
+                ));
+                return;
+            }
+            let kind = kind.clone();
+            *pending = None;
+            kind
         };
-        let final_output = match result.kind {
-            RelayResultKind::Succeed => result.output,
+        match result.kind {
+            RelayResultKind::Succeed => {
+                let tool = match WorkflowCallSummary::parse(&result.output) {
+                    Ok(tool) => tool,
+                    Err(error) => {
+                        Logger::warning(format!(
+                            "invocation {} summarize relay {signature} \
+                             returned invalid output: {error}",
+                            &self.signature,
+                        ));
+                        self.finish_summary(kind);
+                        return;
+                    }
+                };
+                let summary = tool.summary.trim();
+                if !summary.is_empty() {
+                    Self::lock(&self.summaries).push(summary.to_owned());
+                }
+                if let Some(cursor) = tool.continuation_cursor {
+                    self.request_continuation(cursor, kind);
+                } else {
+                    self.finish_summary(kind);
+                }
+            }
             RelayResultKind::Failed | RelayResultKind::Canceled => {
                 Logger::warning(format!(
-                    "invocation {} summarize relay {signature} did not succeed: {}; \
-                     using fallback output",
+                    "invocation {} summarize relay {signature} did not \
+                     succeed: {}",
                     &self.signature, result.output,
                 ));
-                fallback_output
+                self.finish_summary(kind);
             }
-        };
-        self.finish(kind, final_output);
+        }
     }
 
-    fn summarize_fallback(output: &str, continuation_cursor: Option<&str>) -> String {
-        match continuation_cursor {
-            Some(cursor) => format!("{output}\nContinuation cursor: {cursor}"),
-            None => output.to_owned(),
+    fn request_continuation(&self, cursor: String, kind: InvocationResultKind) {
+        let input = match serde_json::to_string(&WorkflowContinuation {
+            continuation_cursor: cursor,
+        }) {
+            Ok(input) => input,
+            Err(error) => {
+                Logger::warning(format!(
+                    "invocation {} continuation input serialization failed: \
+                     {error}",
+                    &self.signature,
+                ));
+                self.finish_summary(kind);
+                return;
+            }
+        };
+        if let Err(reason) = self.request_execution(WorkflowContinuation::NAME.to_owned(), input) {
+            Logger::warning(format!(
+                "invocation {} continuation execution create failed: {reason}",
+                &self.signature,
+            ));
+            self.finish_summary(kind);
         }
+    }
+
+    fn update_overall_kind(&self, kind: InvocationResultKind) -> InvocationResultKind {
+        let mut overall = Self::lock(&self.overall_kind);
+        let kind = if matches!(overall.as_ref(), Some(InvocationResultKind::Failed))
+            || matches!(kind, InvocationResultKind::Failed)
+        {
+            InvocationResultKind::Failed
+        } else {
+            InvocationResultKind::Succeed
+        };
+        *overall = Some(kind.clone());
+        kind
+    }
+
+    fn finish_summary(&self, kind: InvocationResultKind) {
+        let output = {
+            let summaries = Self::lock(&self.summaries);
+            if summaries.is_empty() {
+                "No Summary".to_owned()
+            } else {
+                summaries.join("\n")
+            }
+        };
+        self.finish(kind, output);
     }
 
     fn complete_output(&self, seq_count: usize) -> Option<String> {
-        let output = self
-            .output
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
+        let output = Self::lock(&self.output);
         if output.len() != seq_count || (0..seq_count).any(|seq| !output.contains_key(&seq)) {
             return None;
         }
-        Some(
-            (0..seq_count)
-                .filter_map(|seq| output.get(&seq))
-                .cloned()
-                .collect(),
-        )
+        Some((0..seq_count).map(|seq| output[&seq].clone()).collect())
     }
 
     fn cancel(&self) {
         if matches!(self.status(), ActorStatus::Complete(_)) {
             return;
         }
-        let execution = self
-            .execution
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone();
+        let execution = Self::lock(&self.execution).clone();
         if let Some(signature) = execution {
             if let Err(reason) = self
                 .send_executor_event(ExecutorEvent::Execution(signature, ExecutionEvent::Cancel))
@@ -346,11 +459,7 @@ impl InvocationRuntime {
     }
 
     fn finish(&self, kind: InvocationResultKind, output: String) {
-        let seq_count = self
-            .output
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .len();
+        let seq_count = Self::lock(&self.output).len();
         RuntimeTrait::finish(
             self,
             InvocationResult {

@@ -3,14 +3,15 @@
   "module": {
     "path": "src/server_telemetry",
     "name": "server_telemetry",
-    "purpose": "Runs the standalone telemetry collector and paginated HTTP API with minimum LogLevel threshold and tag filtering plus a distinct-tags listing endpoint, and serves static browser assets for level-and-tag-aware log browsing.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs the standalone telemetry collector and paginated HTTP API with minimum LogLevel threshold and tag filtering plus a distinct-tags endpoint, and serves a telemetry browser whose compact Tags dropdown resets selected tags only when the session ID changes while preserving Level and keyword filters.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/server_telemetry/http",
       "name": "http",
-      "purpose": "Provides static telemetry browser assets with session selection, a refresh button, custom rounded-corner Level and Tags dropdown popups, minimum-level/tag/keyword filters, level badges, virtualized rows, incremental paging, and formatted-message inspection."
+      "purpose": "Provides static telemetry browser assets with compact tag-option spacing, session selection, Level, Tags, and keyword filters, virtualized logs, incremental paging, and formatted-message inspection. Only session ID changes clear selected tags, close the Tags dropdown, and refresh logs; Level and keyword filters persist, and same-session refreshes retain tag state."
     }
   ],
   "elements": [

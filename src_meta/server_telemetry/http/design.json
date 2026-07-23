@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server_telemetry/http",
     "name": "http",
-    "purpose": "Provides static telemetry browser assets with session selection, a refresh button, custom rounded-corner Level and Tags dropdown popups, minimum-level/tag/keyword filters, level badges, virtualized rows, incremental paging, and formatted-message inspection.",
-    "changeStatus": "unchanged"
+    "purpose": "Provides static telemetry browser assets with compact tag-option spacing, session selection, Level, Tags, and keyword filters, virtualized logs, incremental paging, and formatted-message inspection. Only session ID changes clear selected tags, close the Tags dropdown, and refresh logs; Level and keyword filters persist, and same-session refreshes retain tag state.",
+    "changeStatus": "modified"
   },
+  "modified": ["page.css", "telemetry-dropdown.js", "telemetry.js"],
   "childModules": [],
   "elements": []
 }

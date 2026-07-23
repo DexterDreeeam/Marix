@@ -3,14 +3,15 @@
   "module": {
     "path": "src/server/prompt",
     "name": "prompt",
-    "purpose": "Loads, validates, injects, and renders named prompt templates from the local template directory.",
-    "changeStatus": "unchanged"
+    "purpose": "Loads, validates, injects, and renders named prompt templates, including mandatory workflow_call_summary instructions and optional cursor-return guidance for tool-call summaries.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/server/prompt/template",
       "name": "template",
-      "purpose": "Defines WorkflowPolicy, System, ToolCallSummarize, and ToolCallSummarizeByCursor prompt resources for decision policy, execution environment, ordinary tool-output summaries, and cursor-aware continuation summaries."
+      "purpose": "Defines System plus WorkflowPolicy, ToolCallSummarize, and ToolCallSummarizeByCursor resources that require workflow_call_summary for [TOOL CALL] messages and place an unchanged useful continuation cursor only in its optional continuation_cursor argument."
     }
   ],
   "elements": [

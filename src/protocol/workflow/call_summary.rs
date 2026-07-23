@@ -9,6 +9,8 @@ use super::WorkflowTool;
 #[serde(deny_unknown_fields)]
 pub struct WorkflowCallSummary {
     pub summary: String,
+    #[serde(default)]
+    pub continuation_cursor: Option<String>,
 }
 
 impl WorkflowTool for WorkflowCallSummary {
@@ -20,7 +22,8 @@ impl WorkflowTool for WorkflowCallSummary {
             description: "Summarize the tool call result presented in the \
                           [TOOL CALL] message. Preserve every detail that \
                           matters for the current task and discard the \
-                          rest. Only call this when a [TOOL CALL] message \
+                          rest. Never call it otherwise. MUST CALL \
+                          workflow_call_summary whenever a [TOOL CALL] message \
                           is present."
                 .to_owned(),
             category: ToolCategory::Workflow,
@@ -28,7 +31,7 @@ impl WorkflowTool for WorkflowCallSummary {
                 platform: Platform::All,
                 arch: Arch::All,
             },
-            input: r#"{"type":"object","properties":{"summary":{"type":"string","description":"The preserved information from the tool call result, written concisely. Use an empty string when nothing is worth keeping."}},"required":["summary"],"additionalProperties":false}"#.to_owned(),
+            input: r#"{"type":"object","properties":{"summary":{"type":"string","description":"The preserved information from the tool call result, written concisely. Use an empty string when nothing is worth keeping."},"continuation_cursor":{"type":"string","minLength":1,"description":"Return the cursor unchanged only when the [TOOL CALL] provides one and later truncated content may be valuable to the current task; otherwise omit this field."}},"required":["summary"],"additionalProperties":false}"#.to_owned(),
         }
     }
 

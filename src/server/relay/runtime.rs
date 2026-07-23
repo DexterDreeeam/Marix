@@ -204,10 +204,31 @@ impl RelayRuntime {
         match &self.kind {
             RelayKind::IntentAnalyze => self.finish(RelayResultKind::Succeed, output),
             RelayKind::ToolCallSummarize {
-                continuation_cursor: _,
+                continuation_cursor,
                 ..
             } => match Self::extract_summary(&output) {
-                Ok(summary) => self.finish(RelayResultKind::Succeed, summary),
+                Ok(tool) => {
+                    if let Err(reason) =
+                        Self::validate_summary_cursor(&tool, continuation_cursor.as_deref())
+                    {
+                        Logger::error(format!("relay {} failed: {reason}", &self.signature));
+                        self.finish(RelayResultKind::Failed, reason);
+                        return;
+                    }
+                    match serde_json::to_string(&tool) {
+                        Ok(output) => {
+                            self.finish(RelayResultKind::Succeed, output);
+                        }
+                        Err(error) => {
+                            let reason = format!(
+                                "failed to serialize workflow call summary: \
+                                 {error}"
+                            );
+                            Logger::error(format!("relay {} failed: {reason}", &self.signature));
+                            self.finish(RelayResultKind::Failed, reason);
+                        }
+                    }
+                }
                 Err(reason) => {
                     Logger::error(format!("relay {} failed: {reason}", &self.signature));
                     self.finish(RelayResultKind::Failed, reason);
@@ -216,7 +237,7 @@ impl RelayRuntime {
         }
     }
 
-    fn extract_summary(raw: &str) -> Result<String, String> {
+    fn extract_summary(raw: &str) -> Result<WorkflowCallSummary, String> {
         let draft = StepDraft::parse(raw)
             .map_err(|error| format!("not a valid tool-call draft: {error}"))?;
         let mut invocations = draft.invocations.into_iter();
@@ -231,7 +252,24 @@ impl RelayRuntime {
         }
         let tool = WorkflowCallSummary::parse(&invocation.input)
             .map_err(|error| format!("`{}` arguments are invalid: {error}", invocation.name))?;
-        Ok(tool.summary)
+        Ok(tool)
+    }
+
+    fn validate_summary_cursor(
+        tool: &WorkflowCallSummary,
+        expected: Option<&str>,
+    ) -> Result<(), String> {
+        match (expected, tool.continuation_cursor.as_deref()) {
+            (Some(expected), Some(actual)) if actual != expected => Err(format!(
+                "workflow_call_summary returned a different continuation \
+                 cursor; expected `{expected}`, got `{actual}`"
+            )),
+            (None, Some(actual)) => Err(format!(
+                "workflow_call_summary returned an unexpected continuation \
+                 cursor `{actual}`"
+            )),
+            _ => Ok(()),
+        }
     }
 
     fn complete_output(&self, seq_count: usize) -> Option<String> {

@@ -52,11 +52,20 @@ impl RelayRuntime {
         }
         let workflow_tools = [
             WorkflowCallSummary::preview(),
-            WorkflowContinuation::preview(),
+            // WorkflowContinuation::preview(), // Server-driven; not exposed to models.
             WorkflowPlan::preview(),
             WorkflowComplete::preview(),
             WorkflowInfeasible::preview(),
         ];
+        if names.contains(WorkflowContinuation::NAME) {
+            return Err(format!(
+                "relay `{}` execution tool name `{}` conflicts with \
+                 hidden server workflow tool `{}`",
+                self.signature.name,
+                WorkflowContinuation::NAME,
+                WorkflowContinuation::NAME,
+            ));
+        }
         for tool in &workflow_tools {
             if names.contains(&tool.name) {
                 return Err(format!(

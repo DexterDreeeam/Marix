@@ -319,6 +319,16 @@ tr.virtual-spacer td {
 .dropdown-popup li.dropdown-empty:hover {
   background: transparent;
 }
+#tags-filter-popup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+#tags-filter-popup li {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  line-height: 18px;
+}
 body.modal-open { overflow: hidden; }
 #format-message-backdrop {
   position: fixed;

@@ -3,42 +3,48 @@
   "module": {
     "path": "src/protocol/workflow",
     "name": "workflow",
-    "purpose": "Defines workflow decision-tool contracts and call-summary, continuation, complete, plan, and infeasible payloads with previews and JSON parsing.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines workflow decision-tool contracts: workflow_call_summary carries a required summary and optional continuation cursor, WorkflowContinuation remains the server-internal continuation payload, and complete, plan, and infeasible payloads provide previews and JSON parsing.",
+    "changeStatus": "modified"
   },
+  "modified": ["call_summary.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "WorkflowCallSummary",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/workflow/call_summary.rs",
           "lineStart": 8,
-          "lineEnd": 12,
+          "lineEnd": 14,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 8,
-              "lineEnd": 12
+              "lineStart": 12,
+              "lineEnd": 13
             }
           ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/protocol/workflow/call_summary.rs",
-          "lineStart": 14,
-          "lineEnd": 38,
+          "lineStart": 16,
+          "lineEnd": 41,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 14,
-              "lineEnd": 38
+              "lineStart": 25,
+              "lineEnd": 27
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 34
+            }
+          ]
         }
       ]
     },
