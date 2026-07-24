@@ -3,9 +3,10 @@
   "module": {
     "path": "src/host",
     "name": "host",
-    "purpose": "Owns Host connectivity, per-execution actor runtimes, executor workers, and the ExecutorState-held ExecutorCache: a consuming 10-entry FIFO where try_cache returns content at or below its 24 KiB threshold whole, otherwise returns a UTF-8-safe 16 KiB chunk and caches the remainder, and pick consumes an entry then reuses try_cache.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns Host connectivity (a single-attempt, bounded-timeout connect to Server and Telemetry that exits the process on failure or on later disconnection rather than retrying), per-execution actor runtimes, executor workers, and the ExecutorState-held ExecutorCache: a consuming 10-entry FIFO where try_cache returns content at or below its 24 KiB threshold whole, otherwise returns a UTF-8-safe 16 KiB chunk and caches the remainder, and pick consumes an entry then reuses try_cache.",
+    "changeStatus": "modified"
   },
+  "modified": ["main.rs", "session.rs"],
   "childModules": [
     {
       "path": "src/host/execution",
@@ -23,36 +24,36 @@
       "name": "HostSession",
       "type": "struct",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/session.rs",
-          "lineStart": 13,
-          "lineEnd": 16,
+          "lineStart": 21,
+          "lineEnd": 24,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/session.rs",
-          "lineStart": 18,
-          "lineEnd": 46,
+          "lineStart": 26,
+          "lineEnd": 54,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/session.rs",
-          "lineStart": 50,
-          "lineEnd": 109,
+          "lineStart": 58,
+          "lineEnd": 118,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 90,
-              "lineEnd": 93
+              "lineStart": 59,
+              "lineEnd": 85
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },
@@ -60,15 +61,20 @@
       "name": "main",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/main.rs",
-          "lineStart": 4,
-          "lineEnd": 19,
+          "lineStart": 6,
+          "lineEnd": 22,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 14,
+              "lineEnd": 15
+            }
+          ]
         }
       ]
     },

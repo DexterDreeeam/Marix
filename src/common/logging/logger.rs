@@ -9,7 +9,10 @@ use crate::config::Config;
 use crate::external::{serde_json, uuid};
 use crate::logging::store::{HostStore, Store};
 use crate::logging::{LogLevel, LogMessage, LogSource, LoggingError};
-use crate::structure::{ChannelEndpoint, NetReceiver, NetSender, accept_channel, connect_channel};
+use crate::structure::{
+    ChannelEndpoint, NetReceiver, NetSender, accept_channel, connect_channel,
+    connect_channel_with_timeout,
+};
 
 const FALLBACK_LOG_FILE_NAME: &str = "marix.log";
 
@@ -34,8 +37,10 @@ impl Logger {
         Ok(())
     }
 
-    /// Configures this process to stream telemetry to the server.
-    pub fn connect(source: LogSource) -> Result<(), LoggingError> {
+    /// Configures this process to stream telemetry to the server, retrying
+    /// the connection attempt up to 5 times with a 200ms backoff between
+    /// attempts.
+    pub fn connect_with_retry(source: LogSource) -> Result<(), LoggingError> {
         LOGGER.configure(source, || {
             let fallback_path = Self::fallback_log_path()?;
             match std::fs::remove_file(&fallback_path) {
@@ -49,6 +54,29 @@ impl Logger {
                 }
             }
             Self::remote_sink(fallback_path, Self::connect_sender)
+        })
+    }
+
+    /// Configures this process to stream telemetry to the server with a
+    /// single connection attempt bounded by `timeout` and no retry.
+    pub fn connect(source: LogSource, timeout: Duration) -> Result<(), LoggingError> {
+        LOGGER.configure(source, || {
+            let fallback_path = Self::fallback_log_path()?;
+            match std::fs::remove_file(&fallback_path) {
+                Ok(()) => {}
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+                Err(error) => {
+                    return Err(LoggingError::Io(format!(
+                        "failed to remove previous fallback log '{}': {error}",
+                        fallback_path.display()
+                    )));
+                }
+            }
+            Self::remote_sink(fallback_path, || {
+                connect_channel_with_timeout::<LogMessage>(ChannelEndpoint::Telemetry, timeout)
+                    .map(|(net_tx, _net_rx)| net_tx)
+                    .map_err(|error| LoggingError::Channel(format!("{error:?}")))
+            })
         })
     }
 

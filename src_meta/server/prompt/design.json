@@ -4,8 +4,9 @@
     "path": "src/server/prompt",
     "name": "prompt",
     "purpose": "Loads, validates, injects, and renders named prompt templates, including mandatory workflow_call_summary instructions and optional cursor-return guidance for tool-call summaries.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["prompt.rs"],
   "childModules": [
     {
       "path": "src/server/prompt/template",
@@ -65,7 +66,7 @@
       "name": "Prompt",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/prompt.rs",
@@ -78,20 +79,20 @@
         {
           "sourcePath": "src/server/prompt/prompt.rs",
           "lineStart": 20,
-          "lineEnd": 85,
+          "lineEnd": 81,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 21,
-              "lineEnd": 40
+              "lineStart": 25,
+              "lineEnd": 25
             }
           ]
         },
         {
           "sourcePath": "src/server/prompt/prompt.rs",
-          "lineStart": 89,
-          "lineEnd": 163,
+          "lineStart": 85,
+          "lineEnd": 159,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []

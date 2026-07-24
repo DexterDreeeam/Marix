@@ -4,8 +4,9 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Owns shared configuration, level-based telemetry logging with threshold queries, executable-sibling standalone tool logging, approved external wrappers including Tokio timers, generic Actor and Runtime contracts, signatures, authenticated channels, and insertion-ordered work queues.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs"],
   "childModules": [
     {
       "path": "src/common/actor",

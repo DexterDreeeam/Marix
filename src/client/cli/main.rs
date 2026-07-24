@@ -40,7 +40,7 @@ fn main() {
             std::process::exit(1);
         }
     };
-    Logger::connect(LogSource::Client).expect("failed to connect telemetry");
+    Logger::connect_with_retry(LogSource::Client).expect("failed to connect telemetry");
     Logger::log(format!("client '{}' logging configured", config.name));
     let request_timeout = Duration::from_millis(config.client.request_timeout_ms);
     let mut session = ClientSession::new(config.name);

@@ -2,11 +2,19 @@ use std::sync::Arc;
 use std::sync::OnceLock;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
+use std::time::Duration;
 
-use marix_common::{ChannelEndpoint, Logger, NetReceiver, SharedNetSender, connect_channel};
+use marix_common::{
+    ChannelEndpoint, Logger, NetReceiver, SharedNetSender, connect_channel_with_timeout,
+};
 use marix_protocol::{SessionEvent, SessionMessage};
 
 use crate::executor::Executor;
+
+/// Host's connect attempt to the server core is single-shot and bounded
+/// by this timeout; unlike Client, Host never retries a failed or
+/// dropped connection (see [`HostSession::spawn_worker`]).
+const HOST_CONNECT_TIMEOUT: Duration = Duration::from_secs(30);
 
 static SOURCE_NAME: OnceLock<String> = OnceLock::new();
 
@@ -51,27 +59,32 @@ impl HostSession {
     fn spawn_worker(state: Arc<HostSessionState>) -> JoinHandle<()> {
         std::thread::spawn(move || {
             let mut executor = Executor::new(Arc::clone(&state.server_tx));
-            let mut executor_started = false;
-            while !state.shutdown.load(Ordering::Relaxed) {
-                let Ok((net_tx, net_rx)) = connect_channel::<SessionMessage>(ChannelEndpoint::Host)
-                else {
-                    continue;
-                };
-                Logger::log("host connected to server core");
-                *state
-                    .server_tx
-                    .lock()
-                    .unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
-                if !executor_started {
-                    executor.start();
-                    executor_started = true;
+            let (net_tx, net_rx) = match connect_channel_with_timeout::<SessionMessage>(
+                ChannelEndpoint::Host,
+                HOST_CONNECT_TIMEOUT,
+            ) {
+                Ok(channel) => channel,
+                Err(error) => {
+                    // A spawned thread panic would not stop the process
+                    // (main just parks forever), so this must exit the
+                    // OS process directly for a deployment script's
+                    // "process still running" check to stay meaningful.
+                    Logger::error(format!(
+                        "host failed to connect to server core within {}s: {error:?}",
+                        HOST_CONNECT_TIMEOUT.as_secs()
+                    ));
+                    std::process::exit(1);
                 }
-                Self::worker(net_rx, &executor, &state.shutdown);
-                *state
-                    .server_tx
-                    .lock()
-                    .unwrap_or_else(|error| error.into_inner()) = None;
-            }
+            };
+            Logger::log("host connected to server core");
+            *state
+                .server_tx
+                .lock()
+                .unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
+            executor.start();
+            Self::worker(net_rx, &executor, &state.shutdown);
+            Logger::error("host lost connection to server core");
+            std::process::exit(1);
         })
     }
 

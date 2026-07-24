@@ -4,8 +4,9 @@
     "path": "src",
     "name": "src",
     "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and tool packages, including platform-neutral workflow output continuation, level-aware telemetry, and fifteen native tool binaries.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/client",
@@ -20,7 +21,7 @@
     {
       "path": "src/host",
       "name": "host",
-      "purpose": "Owns Host connectivity, Arc-backed per-execution actor runtimes, executor workers, tool registration, typed execution results, and unknown-tool failure delivery."
+      "purpose": "Owns Host connectivity (a single-attempt, bounded-timeout connect to Server and Telemetry that exits the process on failure or on later disconnection rather than retrying), Arc-backed per-execution actor runtimes, executor workers, tool registration, typed execution results, and unknown-tool failure delivery."
     },
     {
       "path": "src/protocol",

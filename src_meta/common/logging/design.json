@@ -4,8 +4,9 @@
     "path": "src/common/logging",
     "name": "logging",
     "purpose": "Provides level-based and tag-based telemetry, remote-first delivery, batched indexed redb persistence, minimum-level threshold and paged summary/full-record queries, and executable-sibling JSONL fallback.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["logger.rs"],
   "childModules": [
     {
       "path": "src/common/logging/store",
@@ -68,75 +69,41 @@
       "name": "Logger",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 18,
-          "lineEnd": 23,
+          "lineStart": 21,
+          "lineEnd": 26,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 25,
-          "lineEnd": 119,
+          "lineStart": 28,
+          "lineEnd": 147,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 78,
-              "lineEnd": 104
+              "lineStart": 60,
+              "lineEnd": 81
             }
           ],
           "modifiedLines": [
             {
-              "lineStart": 63,
-              "lineEnd": 63
-            },
-            {
-              "lineStart": 67,
-              "lineEnd": 67
-            },
-            {
-              "lineStart": 71,
-              "lineEnd": 71
-            },
-            {
-              "lineStart": 75,
-              "lineEnd": 75
+              "lineStart": 40,
+              "lineEnd": 43
             }
           ]
         },
         {
           "sourcePath": "src/common/logging/logger.rs",
-          "lineStart": 123,
-          "lineEnd": 279,
+          "lineStart": 151,
+          "lineEnd": 308,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 165,
-              "lineEnd": 167
-            },
-            {
-              "lineStart": 180,
-              "lineEnd": 180
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 155,
-              "lineEnd": 155
-            },
-            {
-              "lineStart": 156,
-              "lineEnd": 156
-            },
-            {
-              "lineStart": 169,
-              "lineEnd": 174
-            }
-          ]
+          "addedLines": [],
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/common/logging/query.rs",

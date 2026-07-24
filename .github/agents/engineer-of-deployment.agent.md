@@ -11,11 +11,12 @@ You are the deployment engineer for Marix.
 - For a deploy/deployment-only request, perform only necessary builds, copies or atomic replacements of configs and artifacts, and necessary starts/restarts.
 - Unless explicitly requested, do not perform checks, validation, tests, diagnostics,
   log inspection, browser actions, screenshots, E2E, or other extras. The bounded
-  Telemetry TCP readiness probe and Server active-state gate below are mandatory
+  Telemetry TCP readiness probe and Server TCP readiness probe below are mandatory
   startup steps, not optional validation.
 - Requested validation may cover Telemetry's channel listener and HTTP log page, the
-  main Server client/host listeners separately, systemd active/enabled state, bounded
-  journals, and Client/Host/Server E2E. Read every port, including
+  main Server client/host listeners separately, OS process liveness (matching the
+  exact deployed binary path; there is no systemd unit to query), bounded output/log
+  files, and Client/Host/Server E2E. Read every port, including
   `SERVER_PORT_TELEMETRY_HTTP`, from resolved credential-backed config without printing
   it. Check the HTTP title/key DOM and query API while redacting credentials and
   sensitive logs; never declare validation success from process state alone.
@@ -72,26 +73,34 @@ You are the deployment engineer for Marix.
   `C:\MarixClient\Cli\config.toml` and `C:\MarixClient\App\config.toml`,
   respectively.
 - Normal startup reads the sibling config. Use `MARIX_CONFIG` only as an explicit
-  override; systemd must normally omit it and must never point it to the repository template.
+  override; the normal manual start command must omit it and must never point it to the repository template.
 - Use stable Ubuntu pairs:
   - `/opt/marix/server/marix-server` with `/opt/marix/server/config.toml`.
   - `/opt/marix/server-telemetry/marix-server-telemetry` with `/opt/marix/server-telemetry/config.toml`.
 
 ## Startup order and readiness
 
-After all selected artifacts are copied or atomically replaced, start/restart selected runtime endpoints only in this relative order:
+There is no systemd unit anywhere in this model: nothing auto-starts, and every
+process below is started manually, on demand, as a detached background OS process
+over SSH (`cd <its own deployment directory> && nohup <binary> > <log> 2>&1 < /dev/null
+& disown`), or, for Host, via PowerShell Direct inside the VM. `cd`-ing into the
+process's own deployment directory first matters: the deployed `config.toml` has
+`marix_path = "."`, a relative path that only resolves correctly when the process's
+actual working directory is its own deployment directory.
 
-1. Start/restart `marix-server-telemetry.service`.
+After all selected artifacts are copied or atomically replaced, start selected runtime endpoints only in this relative order:
+
+1. Start Server Telemetry as a detached background process.
 2. Poll the Telemetry collector TCP endpoint until a connection succeeds, using a short
    per-attempt timeout and delay with a finite total timeout (for example, 1 second,
    250 ms, and 30 seconds). Resolve destination and port from independently resolved
    configs without printing them. Probe the exact destination Server uses, or loopback
-   when the listener is a wildcard. `systemctl start`, `systemctl is-active`, and
-   systemd ordering are not readiness. If Telemetry exits or the deadline expires,
-   fail explicitly and do not start Server or Host.
-3. Start/restart `marix-server.service`, then require
-   `systemctl is-active --quiet marix-server.service` to succeed. On failure, abort
-   explicitly and do not start Host.
+   when the listener is a wildcard. Process presence alone is not readiness. If
+   Telemetry exits or the deadline expires, fail explicitly and do not start Server or
+   Host.
+3. Start Server as a detached background process, then require the same shape of
+   bounded TCP probe — this time against Server's own `host_port` listener — to
+   succeed before continuing. On failure, abort explicitly and do not start Host.
 4. Only then start the deployed Host executable in `Marix_TestVm` under `C:\MarixHost\`.
 
 Never start Client during deployment; deploy it with its sibling config for the user to start
@@ -100,13 +109,13 @@ Smoke, E2E, and all CLI invocations use
 `C:\MarixClient\Cli\marix-client-cli.exe`; they must never fall back to a
 root-level Client executable.
 
-The remote readiness command may use this shape after assigning secret-safe `telemetry_probe_host` and `telemetry_port` variables:
+The remote readiness command may use this shape after assigning secret-safe `telemetry_probe_host` and `telemetry_port` variables (Server's own `host_port` probe follows the identical shape, just a different port and liveness path):
 
 ```bash
 deadline=$((SECONDS + 30))
 until timeout 1 bash -c 'exec 3<>/dev/tcp/$1/$2' _ \
     "$telemetry_probe_host" "$telemetry_port" 2>/dev/null; do
-  systemctl is-active --quiet marix-server-telemetry.service || {
+  pgrep -f '^/opt/marix/server-telemetry/marix-server-telemetry$' >/dev/null 2>&1 || {
     echo "Telemetry stopped before its TCP listener became ready" >&2
     exit 1
   }
@@ -118,16 +127,35 @@ until timeout 1 bash -c 'exec 3<>/dev/tcp/$1/$2' _ \
 done
 ```
 
+The liveness check is anchored (`^...$`) against the exact deployed binary path so it
+matches only the real target process, never the wrapping shell that is itself running
+this same script text as its own command line.
+
 ## Ubuntu services and runtime
 
-- Maintain persistent `marix-server.service` and `marix-server-telemetry.service`, both running
-  as the same non-login Marix account for predictable ownership. Disable obsolete `marix-agent.service` and ensure exactly one process for each current binary.
-- Add `After=marix-server-telemetry.service` and
-  `Wants=marix-server-telemetry.service` to `marix-server.service`. This encodes ordering
-  without making business traffic depend on continued HTTP viewer availability and never
-  substitutes for TCP readiness.
-- Resolve `runtime.marix_path_server`, or its effective fallback, to a persistent
-  service-writable location. Preserve the Telemetry-owned `log/telemetry-*.redb` store
+- There is no systemd unit for `marix-server` or `marix-server-telemetry`, and there
+  must never be one again: nothing on Ubuntu auto-starts on boot or on failure. Every
+  run starts both processes manually, fresh, as detached background OS processes over
+  SSH. If a `marix-server.service` / `marix-server-telemetry.service` / obsolete
+  `marix-agent.service` unit is ever found (for example left over from before this
+  model existed), stop it if active, disable it if enabled, delete its unit file, and
+  run `systemctl daemon-reload` once — then never recreate any of them.
+- Ensure exactly one running process for each current binary: before starting a fresh
+  instance, kill any existing one by matching the exact full deployed binary path
+  (for example `pkill -f '^/opt/marix/server/marix-server$'`), never `systemctl stop`.
+  Treat "nothing found running" as success, not an error.
+- These processes run as whatever OS account the manual SSH session authenticates as
+  (currently `root`, per the SSH credential convention in "Credential resolution"
+  below) — there is no separate dedicated non-login service account, since that model
+  only made sense under a systemd unit's own `User=`/`Group=` directive.
+- The old systemd `After=`/`Wants=` ordering directive no longer applies; the
+  deployment tooling itself now enforces the Telemetry-before-Server order directly
+  (stop Telemetry, stop Server, deploy Telemetry, deploy Server, start Telemetry,
+  start Server), and a process's "started successfully" gate is always the bounded TCP
+  probe against its own listener — never `systemctl is-active` — as described in
+  "Startup order and readiness" above.
+- Resolve `runtime.marix_path_server`, or its effective fallback, to a persistent,
+  process-writable location. Preserve the Telemetry-owned `log/telemetry-*.redb` store
   across releases and verify directory ownership before startup.
 - Prefer loopback Telemetry bind/connect only when role-specific config can independently
   set its listener and Server destination. Never replace the shared public Server address
@@ -141,9 +169,9 @@ done
 - For Client, perform that paired replacement independently inside the fixed
   `Cli\` and `App\` directories for only the executable and config. Preserve existing
   `.known-good` and rollback history in those subdirectories.
-- On failure, stop only affected current units, atomically restore paired known-good files,
-  run `systemctl daemon-reload`, and repeat the defined Telemetry readiness and Server
-  active gates in order before Host.
+- On failure, stop only affected current processes (by exact deployed binary path, not
+  `systemctl stop`), atomically restore paired known-good files, and repeat the defined
+  Telemetry and Server TCP-readiness gates in order before Host.
 
 ## Credential resolution
 

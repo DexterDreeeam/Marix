@@ -22,5 +22,5 @@ pub use logging_tool::ToolLogger;
 pub use structure::{
     AsyncReceiver, AsyncSender, ChannelEndpoint, ChannelError, NetReceiver, NetSender, Receiver,
     Sender, SharedNetReceiver, SharedNetSender, WorkQueue, accept_channel, build_async_channel,
-    build_channel, connect_channel, select,
+    build_channel, connect_channel, connect_channel_with_timeout, select,
 };

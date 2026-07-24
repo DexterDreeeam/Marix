@@ -124,6 +124,22 @@ where
 /// Connect to the logical channel selected by `endpoint`, run the
 /// shared-secret handshake, then return the channel pair.
 ///
+/// Uses [`CONNECT_TIMEOUT`] for the TCP connect attempt; see
+/// [`connect_channel_with_timeout`] for a caller-supplied timeout.
+pub fn connect_channel<T>(
+    endpoint: ChannelEndpoint,
+) -> Result<(NetSender<T>, NetReceiver<T>), ChannelError>
+where
+    T: remoc::RemoteSend + 'static,
+    NetSender<T>: Send,
+    NetReceiver<T>: Send,
+{
+    connect_channel_with_timeout(endpoint, CONNECT_TIMEOUT)
+}
+
+/// Same as [`connect_channel`], but with a caller-supplied timeout for
+/// the TCP connect attempt.
+///
 /// The connect address (the node IP plus the port matching
 /// `endpoint`) and the handshake token are resolved from the loaded
 /// configuration inside this function; there is no caller-provided
@@ -131,8 +147,9 @@ where
 /// the handshake, and returns. If the server rejects the presented
 /// token the call yields [`ChannelError::Auth`]; a failed transport
 /// handshake yields [`ChannelError::Transport`].
-pub fn connect_channel<T>(
+pub fn connect_channel_with_timeout<T>(
     endpoint: ChannelEndpoint,
+    timeout: Duration,
 ) -> Result<(NetSender<T>, NetReceiver<T>), ChannelError>
 where
     T: remoc::RemoteSend + 'static,
@@ -164,7 +181,7 @@ where
         };
         runtime.block_on(async move {
             let socket = match tokio::time::timeout(
-                CONNECT_TIMEOUT,
+                timeout,
                 tokio::net::TcpStream::connect(address),
             )
             .await
@@ -177,7 +194,7 @@ where
                 Err(_) => {
                     let _ = setup_tx.send(Err(ChannelError::Connect(format!(
                         "TCP connection timed out after {} ms",
-                        CONNECT_TIMEOUT.as_millis()
+                        timeout.as_millis()
                     ))));
                     return;
                 }

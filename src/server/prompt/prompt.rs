@@ -22,11 +22,7 @@ impl Prompt {
         Self::assert_identifier("template", name);
         let config = Config::load()
             .unwrap_or_else(|error| panic!("failed to load config for prompt `{name}`: {error}"));
-        let directory = Path::new(&config.runtime.marix_path)
-            .join("src")
-            .join("server")
-            .join("prompt")
-            .join("template");
+        let directory = Path::new(&config.runtime.marix_path).join("prompt");
         let path = directory.join(format!("{name}.prompt"));
         let content = Self::read(&path, "template");
         if content.contains("[[#") {

@@ -4,8 +4,9 @@
     "path": "src/server",
     "name": "server",
     "purpose": "Runs actor-based orchestration with ordered execution, server-driven cursor continuation, successful and failed tool results published as accumulated summaries or No Summary, preserved cancellation reasons, failure reanalysis, streaming models, and task deadline and relay-budget guardrails.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["main.rs"],
   "childModules": [
     {
       "path": "src/server/intent",
@@ -58,7 +59,7 @@
       "name": "main",
       "type": "function",
       "source_depth": 2,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/main.rs",
@@ -68,8 +69,8 @@
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 16,
-              "lineEnd": 22
+              "lineStart": 18,
+              "lineEnd": 18
             }
           ]
         }

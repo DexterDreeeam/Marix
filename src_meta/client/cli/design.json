@@ -4,15 +4,16 @@
     "path": "src/client/cli",
     "name": "cli",
     "purpose": "Runs one-shot and interactive Client sessions, passes optional one-shot completion-time and relay-count arguments directly to ClientSession::create_task, polls connection readiness, and handles task results and connection failures.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["main.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "marix-client-cli",
       "type": "bin",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/main.rs",
@@ -53,6 +54,10 @@
             {
               "lineStart": 7,
               "lineEnd": 14
+            },
+            {
+              "lineStart": 43,
+              "lineEnd": 43
             },
             {
               "lineStart": 45,
