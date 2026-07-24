@@ -4,9 +4,8 @@
     "path": "src/client",
     "name": "client",
     "purpose": "Owns Client session transport, connection state, task submission through ClientSession::create_task with request, optional completion-time, and optional relay-count arguments, and delivery of task results and connection failures.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["."],
   "childModules": [
     {
       "path": "src/client/app",
@@ -135,7 +134,7 @@
       "name": "marix-client-cli",
       "type": "bin",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/client/cli/main.rs",
