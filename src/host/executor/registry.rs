@@ -49,9 +49,9 @@ impl ToolRegistry {
             .collect::<Vec<_>>();
         tool_names.sort_unstable();
         if tool_names.is_empty() {
-            Logger::log("host loaded 0 tools");
+            Logger::info("host loaded 0 tools");
         } else {
-            Logger::log(format!(
+            Logger::info(format!(
                 "host loaded {} tools: {}",
                 tool_names.len(),
                 tool_names.join(", ")

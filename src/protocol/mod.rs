@@ -36,8 +36,8 @@ pub use step::{
     StepResultKind, StepSignature,
 };
 pub use task::{
-    TaskError, TaskEvent, TaskId, TaskPreview, TaskRequest, TaskRequestBrief, TaskResult,
-    TaskResultKind, TaskSignature, TaskStatus,
+    TaskError, TaskEvent, TaskId, TaskLogger, TaskLogging, TaskPreview, TaskRequest,
+    TaskRequestBrief, TaskResult, TaskResultKind, TaskSignature, TaskStatus,
 };
 pub use tool::{
     ToolCategory, ToolInputSchema, ToolOutputSchema, ToolPreview,

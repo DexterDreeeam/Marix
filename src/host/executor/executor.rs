@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::thread;
 
 use marix_common::{Logger, SharedNetSender};
-use marix_protocol::{ExecutorEvent, SessionMessage};
+use marix_protocol::{ExecutorEvent, SessionMessage, TaskLogger};
 
 use super::runtime::ExecutorRuntime;
 use super::state::ExecutorState;
@@ -27,8 +27,30 @@ impl Executor {
     }
 
     pub fn dispatch(&self, event: ExecutorEvent) {
+        let logger = match &event {
+            ExecutorEvent::Execution(signature, _) => Some(TaskLogger::from(
+                signature.invocation.step.intent.task.clone(),
+            )),
+            ExecutorEvent::ExecutionCreate(request) => Some(TaskLogger::from(
+                request
+                    .signature
+                    .invocation
+                    .step
+                    .intent
+                    .task
+                    .clone(),
+            )),
+            ExecutorEvent::ToolQuery => None,
+        };
         if self.state.executor_tx.send(event).is_err() {
-            Logger::warning("host executor event dispatch failed: worker stopped");
+            match logger {
+                Some(logger) => {
+                    logger.warning("host executor event dispatch failed: worker stopped");
+                }
+                None => {
+                    Logger::warning("host executor event dispatch failed: worker stopped");
+                }
+            }
         }
     }
 }

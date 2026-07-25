@@ -3,9 +3,10 @@ use std::thread;
 
 use crate::executor::{ExecutorCache, Tool};
 use marix_common::external::*;
-use marix_common::{Actor as ActorTrait, Logger, Runtime as RuntimeTrait, SharedNetSender};
+use marix_common::{Actor as ActorTrait, Runtime as RuntimeTrait, SharedNetSender};
 use marix_protocol::{
     ExecutionEvent, ExecutionRequest, ExecutionResult, ExecutionSignature, SessionMessage,
+    TaskLogger,
 };
 
 use super::ExecutionRuntime;
@@ -43,7 +44,16 @@ impl ActorTrait for Execution {
             let rt = match tokio::Builder::new_current_thread().enable_all().build() {
                 Ok(rt) => rt,
                 Err(error) => {
-                    Logger::error(format!(
+                    let logger = TaskLogger::from(
+                        runtime
+                            .signature()
+                            .invocation
+                            .step
+                            .intent
+                            .task
+                            .clone(),
+                    );
+                    logger.error(format!(
                         "execution {} runtime build failed: {error}",
                         runtime.signature(),
                     ));

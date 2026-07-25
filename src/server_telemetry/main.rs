@@ -22,7 +22,7 @@ fn main() {
         eprintln!("failed to start telemetry collector: {error}");
         std::process::exit(1);
     }
-    Logger::log(format!(
+    Logger::info(format!(
         "server telemetry collector listening on port {}",
         config.server.telemetry_port
     ));

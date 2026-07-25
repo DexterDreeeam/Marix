@@ -16,9 +16,9 @@ fn main() {
     let mut session = Session::new(config.name.clone());
     Logger::set_id(session.session_id());
     Logger::connect_with_retry(LogSource::Server).expect("failed to connect telemetry");
-    Logger::log(format!("server '{}' logging configured", config.name));
-    Logger::log(format!("core session '{}' initializing", config.name));
-    Logger::log(format!("server core '{}' starting", config.name));
+    Logger::info(format!("server '{}' logging configured", config.name));
+    Logger::info(format!("core session '{}' initializing", config.name));
+    Logger::info(format!("server core '{}' starting", config.name));
     session.start();
     loop {
         std::thread::park();

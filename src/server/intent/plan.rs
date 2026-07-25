@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
-use marix_common::{ActorStatus, Logger, Runtime as RuntimeTrait};
+use marix_common::{ActorStatus, Runtime as RuntimeTrait};
 use marix_protocol::{
     IntentEvent, IntentResult, IntentResultKind, IntentSignature, PlanDraft, PlanResult,
-    SessionEvent, TaskEvent,
+    SessionEvent, TaskEvent, TaskLogging,
 };
 
 use super::IntentRuntime;
@@ -36,7 +36,7 @@ impl IntentRuntime {
         status: ActorStatus<IntentResult>,
     ) {
         if matches!(self.status(), ActorStatus::Complete(_)) {
-            Logger::error(format!(
+            self.error(format!(
                 "intent {} received subintent {signature} update \
                  {status:?} after completion",
                 &self.signature,
@@ -113,7 +113,7 @@ impl IntentRuntime {
                 TaskEvent::Intent(signature.clone(), IntentEvent::Cancel),
             );
             if self.access.session_tx.send(event).is_err() {
-                Logger::warning(format!(
+                self.warning(format!(
                     "intent {} subintent {signature} cancel failed: \
                      session stopped",
                     &self.signature,

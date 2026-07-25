@@ -1,8 +1,11 @@
 import {
   buildLogsUrl,
   c_defaultLimit,
+  c_rowHeight,
+  fallbackSessionId,
   fetchJson,
   mergeSummaries,
+  sortSessions,
   visibleRange,
 } from "./telemetry-data.js";
 import { createLogFilters } from "./telemetry-dropdown.js";
@@ -11,6 +14,8 @@ import { createMessageActions } from "./telemetry-message.js";
 const c_keywordDebounceMs = 400;
 const c_logRefreshMs = 2000;
 const c_sessionRefreshMs = 10000;
+const c_logLoadThreshold = 12 * c_rowHeight;
+const c_bottomStickThreshold = 3 * c_rowHeight;
 const s_timestampFormatter = new Intl.DateTimeFormat(undefined, {
   year: "numeric",
   month: "2-digit",
@@ -131,13 +136,13 @@ function sessionKey(_sessionId) {
   return _sessionId === null ? "unknown" : _sessionId;
 }
 
-function fallbackSessionId(_sessions) {
-  var _ordinary = _sessions.find(function (_session) {
-    return _session.id !== null;
-  });
-  return (_ordinary || _sessions[0]).id;
+function isNearBottom(_element) {
+  var _bottom = _element.scrollHeight - _element.clientHeight;
+  return _bottom - _element.scrollTop <= c_bottomStickThreshold;
 }
-
+function scrollToBottom(_element) {
+  _element.scrollTop = Math.max(0, _element.scrollHeight - _element.clientHeight);
+}
 function formatTimestamp(_milliseconds) {
   if (_milliseconds === null || _milliseconds === undefined) {
     return "–";
@@ -179,7 +184,7 @@ function renderSessions() {
     );
     var _label = _item.querySelector(".session-label");
     var _labelText =
-      _session.id === null ? "Unknown" : formatTimestamp(_session.emit_ts);
+      _session.id === null ? "Empty" : formatTimestamp(_session.emit_ts);
     _label.textContent = _labelText;
     _item.title = _labelText;
     _nextItems.set(_key, _item);
@@ -208,19 +213,50 @@ function levelBadgeClass(_level) {
     : "level-debug";
 }
 
+function taskRowColors(_taskId) {
+  if (_taskId === null || _taskId === undefined) {
+    return { background: "#000", hover: "#000" };
+  }
+  var _text = String(_taskId);
+  var _hash = 0x811c9dc5;
+  for (var _index = 0; _index < _text.length; _index += 1) {
+    _hash ^= _text.charCodeAt(_index);
+    _hash = Math.imul(_hash, 0x01000193);
+  }
+  _hash >>>= 0;
+  var _hue = _hash % 360;
+  var _saturation = 58 + ((_hash >>> 8) % 13);
+  var _lightness = 12 + ((_hash >>> 16) % 5);
+  return {
+    background:
+      "hsl(" + _hue + " " + _saturation + "% " + _lightness + "%)",
+    hover:
+      "hsl(" + _hue + " " + _saturation + "% " + (_lightness + 2) + "%)",
+  };
+}
+
 function createLogRow(_summary) {
   var _row = document.createElement("tr");
   _row.className = "log-row";
+  var _taskColors = taskRowColors(_summary.task_id);
+  _row.style.setProperty("--task-background", _taskColors.background);
+  _row.style.setProperty("--task-background-hover", _taskColors.hover);
   var _emitCell = document.createElement("td");
   _emitCell.className = "time-cell";
   _emitCell.textContent = formatTimestamp(_summary.emit_ts);
   _row.appendChild(_emitCell);
 
   var _source = normalizedSource(_summary.source);
+  var _sourceText =
+    _summary.source === null || _summary.source === undefined
+      ? ""
+      : String(_summary.source);
   var _sourceCell = document.createElement("td");
   var _sourceBadge = document.createElement("span");
   _sourceBadge.className = "source-badge source-" + _source.toLowerCase();
   _sourceBadge.textContent = _source.charAt(0);
+  _sourceBadge.title = _sourceText;
+  _sourceBadge.setAttribute("aria-label", "Source: " + _sourceText);
   _sourceCell.appendChild(_sourceBadge);
   _row.appendChild(_sourceCell);
 
@@ -229,6 +265,12 @@ function createLogRow(_summary) {
   _levelBadge.className =
     "level-badge " + levelBadgeClass(_summary.level);
   _levelBadge.textContent = _summary.level;
+  var _levelText =
+    _summary.level === null || _summary.level === undefined
+      ? ""
+      : String(_summary.level);
+  _levelBadge.title = _levelText;
+  _levelBadge.setAttribute("aria-label", "Level: " + _levelText);
   _levelCell.appendChild(_levelBadge);
   _row.appendChild(_levelCell);
 
@@ -321,13 +363,17 @@ async function loadSessions() {
   if (s_state.sessionsRequest || s_messageActions.isModalOpen()) {
     return;
   }
+  var _stickToBottom =
+    s_state.sessions.length === 0 || isNearBottom(sessionListEl);
   var _controller = new AbortController();
   s_state.sessionsRequest = _controller;
   try {
-    var _sessions = (await fetchJson("/api/sessions", _controller.signal)) || [];
+    var _sessions = sortSessions(
+      (await fetchJson("/api/sessions", _controller.signal)) || []);
     if (s_state.sessionsRequest !== _controller) {
       return;
     }
+    var _keepAtBottom = _stickToBottom && isNearBottom(sessionListEl);
     s_state.sessions = _sessions;
     if (_sessions.length === 0) {
       abortLogRequest();
@@ -337,6 +383,7 @@ async function loadSessions() {
       renderVirtualRows();
       setLogAreaState("no-sessions");
       s_state.initialized = true;
+      sessionListEl.scrollTop = 0;
       return;
     }
     var _present =
@@ -348,6 +395,9 @@ async function loadSessions() {
       selectSession(fallbackSessionId(_sessions));
     } else {
       renderSessions();
+    }
+    if (_keepAtBottom) {
+      scrollToBottom(sessionListEl);
     }
     clearError();
   } catch (_error) {
@@ -371,6 +421,9 @@ async function requestLogs(_mode) {
   if (_mode === "incremental" && s_state.latestRecordId === null) {
     _mode = "initial";
   }
+  var _stickToBottom =
+    _mode === "initial" ||
+    (_mode === "incremental" && isNearBottom(logAreaEl));
   var _generation = s_state.generation;
   var _previousLatestRecordId = s_state.latestRecordId;
   var _controller = new AbortController();
@@ -395,9 +448,15 @@ async function requestLogs(_mode) {
     ) {
       return;
     }
+    var _beforeScrollHeight =
+      _mode === "before" ? logAreaEl.scrollHeight : 0;
+    var _beforeScrollTop = _mode === "before" ? logAreaEl.scrollTop : 0;
+    var _keepAtBottom =
+      _stickToBottom &&
+      (_mode === "initial" || isNearBottom(logAreaEl));
     var _incoming = (_page && _page.items) || [];
     if (_mode === "initial") {
-      s_state.summaries = _incoming;
+      s_state.summaries = mergeSummaries([], _incoming);
       s_state.nextCursor = _page ? _page.next_cursor : null;
     } else if (_mode === "before") {
       s_state.summaries = mergeSummaries(s_state.summaries, _incoming);
@@ -418,6 +477,14 @@ async function requestLogs(_mode) {
     s_state.initialized = true;
     clearError();
     renderVirtualRows();
+    if (_mode === "before") {
+      logAreaEl.scrollTop =
+        _beforeScrollTop + (logAreaEl.scrollHeight - _beforeScrollHeight);
+      renderVirtualRows();
+    } else if (_keepAtBottom) {
+      scrollToBottom(logAreaEl);
+      renderVirtualRows();
+    }
     s_messageActions.summariesChanged();
     if (
       _mode !== "before" &&
@@ -456,9 +523,7 @@ refreshLogsButtonEl.addEventListener("click", function () {
 });
 logAreaEl.addEventListener("scroll", function () {
   renderVirtualRows();
-  var _remaining =
-    logAreaEl.scrollHeight - logAreaEl.scrollTop - logAreaEl.clientHeight;
-  if (_remaining < 12 * 44) {
+  if (logAreaEl.scrollTop < c_logLoadThreshold) {
     requestLogs("before");
   }
 });

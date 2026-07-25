@@ -4,11 +4,11 @@ use crate::execution::Execution;
 use crate::executor::{ExecutorCache, Tool};
 use crate::session::HostSession;
 use marix_common::{
-    ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait, SharedNetSender,
+    ActorStartFuture, ActorStatus, Lifecycle, Runtime as RuntimeTrait, SharedNetSender,
 };
 use marix_protocol::{
     ExecutionEvent, ExecutionRequest, ExecutionResult, ExecutionResultKind, ExecutionSignature,
-    InvocationEvent, SessionEvent, SessionMessage, TaskEvent,
+    InvocationEvent, SessionEvent, SessionMessage, TaskEvent, TaskLogger, TaskLogging,
 };
 
 pub struct ExecutionRuntime {
@@ -36,6 +36,12 @@ impl ExecutionRuntime {
     }
 }
 
+impl TaskLogging for ExecutionRuntime {
+    fn logger(&self) -> TaskLogger {
+        TaskLogger::from(self.request.signature.invocation.step.intent.task.clone())
+    }
+}
+
 impl RuntimeTrait for ExecutionRuntime {
     type Base = Execution;
     type Prepared = ();
@@ -51,7 +57,7 @@ impl RuntimeTrait for ExecutionRuntime {
     fn on_start(&self) -> ActorStartFuture<'_, Self::Prepared> {
         Box::pin(async move {
             self.send_status(ActorStatus::Running);
-            Logger::log(format!("execution {} started", &self.request.signature,));
+            self.info(format!("execution {} started", &self.request.signature,));
             let output = self.tool.execute(&self.request.input);
             let cached = {
                 let mut cache = self.cache.lock().unwrap_or_else(|error| error.into_inner());
@@ -93,7 +99,7 @@ impl RuntimeTrait for ExecutionRuntime {
                     return;
                 }
                 let reason = format!("execution {} canceled", &self.request.signature);
-                Logger::log(&reason);
+                self.info(&reason);
                 RuntimeTrait::finish(
                     self,
                     ExecutionResult {
@@ -149,14 +155,14 @@ impl ExecutionRuntime {
             .lock()
             .unwrap_or_else(|error| error.into_inner());
         let Some(sender) = server_tx.as_mut() else {
-            Logger::warning(format!(
+            self.warning(format!(
                 "execution {} could not send event: server is disconnected",
                 &self.request.signature,
             ));
             return;
         };
         if let Err(error) = sender.try_send(message) {
-            Logger::warning(format!(
+            self.warning(format!(
                 "execution {} could not send event: {}",
                 &self.request.signature, error,
             ));

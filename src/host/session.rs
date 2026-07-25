@@ -85,7 +85,7 @@ impl HostConnectionTermination {
         let messages_received = self.messages_received;
         match &self.reason {
             HostConnectionTerminationReason::LocalShutdown => {
-                Logger::log_tagged(
+                Logger::info_tagged(
                     format!(
                         "host core connection terminated reason=local_shutdown \
                          duration_ms={duration_ms} messages_received={messages_received} \
@@ -122,7 +122,7 @@ impl HostSession {
     fn spawn_worker(state: Arc<HostSessionState>) -> JoinHandle<()> {
         std::thread::spawn(move || {
             let mut executor = Executor::new(Arc::clone(&state.server_tx));
-            Logger::log_tagged(
+            Logger::info_tagged(
                 format!(
                     "host core connection attempt timeout_ms={} side=host policy=single_attempt",
                     HOST_CONNECT_TIMEOUT.as_millis()
@@ -152,7 +152,7 @@ impl HostSession {
                 }
             };
             let connected_at = Instant::now();
-            Logger::log_tagged(
+            Logger::info_tagged(
                 "host core connection connected side=host",
                 ["Host Connection"],
             );
@@ -195,7 +195,7 @@ impl HostSession {
                         match message.event {
                             SessionEvent::SessionId(id) => {
                                 Logger::set_id(id);
-                                Logger::log("host session id updated");
+                                Logger::info("host session id updated");
                             }
                             SessionEvent::Executor(event) => {
                                 executor.dispatch(event);

@@ -11,6 +11,8 @@ pub struct LogMessage {
     pub level: LogLevel,
     pub message: String,
     pub session_id: Option<uuid::Uuid>,
+    #[serde(default)]
+    pub task_id: Option<uuid::Uuid>,
     pub emit_ts: u64,
     pub arrival_ts: u64,
     #[serde(default)]
@@ -24,6 +26,7 @@ impl LogMessage {
             level,
             message: message.into(),
             session_id: None,
+            task_id: None,
             emit_ts: Self::now_ms(),
             arrival_ts: 0,
             tags: Vec::new(),

@@ -458,6 +458,7 @@ impl Store {
             source: record.message.source,
             level: record.message.level,
             session_id: record.message.session_id,
+            task_id: record.message.task_id,
             emit_ts: record.message.emit_ts,
             message_preview,
             message_len,

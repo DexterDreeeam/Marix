@@ -2,13 +2,14 @@ use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
 use marix_common::{
-    Actor, ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait, WorkQueue,
+    Actor, ActorStartFuture, ActorStatus, Lifecycle, Runtime as RuntimeTrait, WorkQueue,
 };
 use marix_protocol::{
     IntentEvent, IntentResult, IntentResultKind, IntentSignature, InvocationDraft, PlanResult,
     RelayKind, RelayRequest, RelayResult, RelayResultKind, RelaySignature, SessionEvent, StepDraft,
-    StepEvent, StepResult, StepResultKind, StepSignature, TaskEvent, WorkflowCallSummary,
-    WorkflowComplete, WorkflowContinuation, WorkflowInfeasible, WorkflowPlan, WorkflowTool,
+    StepEvent, StepResult, StepResultKind, StepSignature, TaskEvent, TaskLogger, TaskLogging,
+    WorkflowCallSummary, WorkflowComplete, WorkflowContinuation, WorkflowInfeasible, WorkflowPlan,
+    WorkflowTool,
 };
 
 use super::Intent;
@@ -45,6 +46,12 @@ impl IntentRuntime {
     }
 }
 
+impl TaskLogging for IntentRuntime {
+    fn logger(&self) -> TaskLogger {
+        self.access.logger()
+    }
+}
+
 impl RuntimeTrait for IntentRuntime {
     type Base = Intent;
     type Prepared = ();
@@ -59,7 +66,7 @@ impl RuntimeTrait for IntentRuntime {
 
     fn on_start(&self) -> ActorStartFuture<'_, Self::Prepared> {
         Box::pin(async move {
-            Logger::log(format!("intent {} started", &self.signature,));
+            self.info(format!("intent {} started", &self.signature,));
             if let Err(reason) = self.verdict() {
                 self.fail(reason);
                 return None;
@@ -109,7 +116,7 @@ impl IntentRuntime {
 
     fn on_relay_update(&self, signature: RelaySignature, status: ActorStatus<RelayResult>) {
         if matches!(self.status(), ActorStatus::Complete(_)) {
-            Logger::error(format!(
+            self.error(format!(
                 "intent {} received relay {signature} update \
                  {status:?} after completion",
                 &self.signature,
@@ -156,7 +163,7 @@ impl IntentRuntime {
 
     fn on_step_update(&self, signature: StepSignature, status: ActorStatus<StepResult>) {
         if matches!(self.status(), ActorStatus::Complete(_)) {
-            Logger::error(format!(
+            self.error(format!(
                 "intent {} received step {signature} update \
                  {status:?} after completion",
                 &self.signature,
@@ -177,7 +184,7 @@ impl IntentRuntime {
             return;
         };
         if !updated {
-            Logger::error(format!(
+            self.error(format!(
                 "intent {} received duplicate complete update from \
                  step {signature}",
                 &self.signature,
@@ -349,7 +356,7 @@ impl IntentRuntime {
                 TaskEvent::Step(signature.clone(), StepEvent::Cancel),
             );
             if self.access.session_tx.send(event).is_err() {
-                Logger::warning(format!(
+                self.warning(format!(
                     "intent {} step {signature} cancel failed: \
                      session stopped",
                     &self.signature,
@@ -360,7 +367,7 @@ impl IntentRuntime {
     }
 
     pub(super) fn fail(&self, reason: String) {
-        Logger::error(format!("intent {} failed: {reason}", &self.signature,));
+        self.error(format!("intent {} failed: {reason}", &self.signature,));
         self.finish(IntentResultKind::Failed, reason);
     }
 
@@ -378,7 +385,7 @@ impl IntentRuntime {
         };
         let task_event = SessionEvent::Task(self.access.signature.clone(), event);
         if self.access.session_tx.send(task_event).is_err() {
-            Logger::warning(format!(
+            self.warning(format!(
                 "intent {} event send failed: session stopped",
                 &self.signature,
             ));

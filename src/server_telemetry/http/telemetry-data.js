@@ -4,9 +4,9 @@ export const c_rowHeight = 44;
 
 export function compareSummaries(_left, _right) {
   if (_left.emit_ts !== _right.emit_ts) {
-    return _right.emit_ts - _left.emit_ts;
+    return _left.emit_ts - _right.emit_ts;
   }
-  return _right.id - _left.id;
+  return _left.id - _right.id;
 }
 
 export function mergeSummaries(_current, _incoming) {
@@ -18,6 +18,30 @@ export function mergeSummaries(_current, _incoming) {
     _byId.set(_item.id, _item);
   });
   return Array.from(_byId.values()).sort(compareSummaries);
+}
+
+export function sortSessions(_sessions) {
+  return _sessions.slice().sort(function (_left, _right) {
+    if (_left.id === null || _right.id === null) {
+      if (_left.id === _right.id) {
+        return 0;
+      }
+      return _left.id === null ? 1 : -1;
+    }
+    if (_left.emit_ts !== _right.emit_ts) {
+      return _left.emit_ts - _right.emit_ts;
+    }
+    return _left.id < _right.id ? -1 : _left.id > _right.id ? 1 : 0;
+  });
+}
+
+export function fallbackSessionId(_sessions) {
+  for (var _index = _sessions.length - 1; _index >= 0; _index -= 1) {
+    if (_sessions[_index].id !== null) {
+      return _sessions[_index].id;
+    }
+  }
+  return _sessions[_sessions.length - 1].id;
 }
 
 export function visibleRange(

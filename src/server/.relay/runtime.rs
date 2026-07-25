@@ -68,7 +68,7 @@ impl RuntimeAsync<RelayEvent, RelayError> for RelayRuntime {
             prompt: self.state.prompt.clone(),
         };
         let signature = self.state.signature.clone();
-        Logger::log(format!("[Model Relay] Prompt:\n{}", request.prompt));
+        Logger::info(format!("[Model Relay] Prompt:\n{}", request.prompt));
         Logger::debug(format!("relay {signature} model async request started"));
         let responses = {
             let mut backend = self
@@ -201,7 +201,7 @@ impl RelayRuntime {
                     &self.state.signature, response.seq,
                 ));
             }
-            Logger::log(format!("[Model Relay] Output:\n{}", self.state.output(),));
+            Logger::info(format!("[Model Relay] Output:\n{}", self.state.output(),));
         }
         if is_complete {
             self.send_step_event(StepEvent::Update(StepletStatus::Succeed {

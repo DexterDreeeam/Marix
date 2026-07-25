@@ -176,7 +176,7 @@ impl RelayRuntime {
         {
             prompts.push(self.tool_call_prompt(tool, output, continuation_cursor.as_deref())?);
         } else {
-            prompts.push(Self::workflow_focus_prompt()?);
+            prompts.push(Self::workflow_ignore_tool_call_prompt()?);
         }
         Ok(prompts)
     }
@@ -210,8 +210,8 @@ impl RelayRuntime {
             .map_err(|error| format!("failed to render {template} prompt: {error}"))
     }
 
-    fn workflow_focus_prompt() -> Result<String, String> {
-        let template = "WorkflowFocus";
+    fn workflow_ignore_tool_call_prompt() -> Result<String, String> {
+        let template = "WorkflowIgnoreToolCall";
         let prompt = std::panic::catch_unwind(|| Prompt::load(template)).map_err(|payload| {
             let detail = if let Some(message) = payload.downcast_ref::<String>() {
                 message.clone()
@@ -275,7 +275,7 @@ impl RelayRuntime {
         for parameter in prompt.parameters() {
             let value = match parameter.as_str() {
                 "tool" => tool.to_owned(),
-                "output" => output.replace("\n", "\n      "),
+                "output" => output.to_owned(),
                 "continuation_cursor" => continuation_cursor
                     .ok_or_else(|| format!("{template} prompt requires a continuation cursor"))?
                     .to_owned(),
@@ -388,10 +388,19 @@ impl RelayRuntime {
                 .collect::<Option<Vec<_>>>()
                 .map(|values| values.join(" ")),
         };
-        let descriptor = match core {
-            Some(core) if !core.is_empty() && core.chars().count() < 32 => Some(core),
-            Some(core) => purpose.or_else(|| (!core.is_empty()).then_some(core)),
-            None => purpose,
+        let core = core.filter(|value| !value.is_empty());
+        let descriptor = match (core, purpose) {
+            (Some(core), Some(purpose)) => {
+                let core_length = core.chars().count();
+                let purpose_length = purpose.chars().count();
+                if core_length < purpose_length || core_length < 32 {
+                    Some(core)
+                } else {
+                    Some(purpose)
+                }
+            }
+            (Some(core), None) => Some(core),
+            (None, purpose) => purpose,
         };
         descriptor
             .map(|value| format!(" ({value})"))

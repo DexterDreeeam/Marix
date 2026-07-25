@@ -3,14 +3,13 @@ use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
 use marix_common::external::*;
-use marix_common::{
-    Actor, ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait,
-};
+use marix_common::{Actor, ActorStartFuture, ActorStatus, Lifecycle, Runtime as RuntimeTrait};
 use marix_protocol::{
     ExecutionEvent, ExecutionRequest, ExecutionResult, ExecutionResultKind, ExecutionSignature,
     ExecutorEvent, InvocationEvent, InvocationResult, InvocationResultKind, InvocationSignature,
     RelayKind, RelayRequest, RelayResult, RelayResultKind, RelaySignature, SessionEvent, StepEvent,
-    TaskEvent, ToolInputSchema, WorkflowCallSummary, WorkflowContinuation, WorkflowTool,
+    TaskEvent, TaskLogging, ToolInputSchema, WorkflowCallSummary, WorkflowContinuation,
+    WorkflowTool,
 };
 
 use super::Invocation;
@@ -166,7 +165,7 @@ impl InvocationRuntime {
 
     fn on_processing(&self, execution: ExecutionSignature, seq: usize, content: String) {
         if matches!(self.status(), ActorStatus::Complete(_)) {
-            Logger::error(format!(
+            self.error(format!(
                 "invocation {} received processing update from \
                  execution {execution} after completion",
                 &self.signature,
@@ -175,7 +174,7 @@ impl InvocationRuntime {
         }
         let current = Self::lock(&self.execution).clone();
         if current.as_ref() != Some(&execution) {
-            Logger::error(format!(
+            self.error(format!(
                 "invocation {} received processing update from unexpected \
                  execution {execution}",
                 &self.signature,
@@ -187,7 +186,7 @@ impl InvocationRuntime {
 
     fn on_update(&self, execution: ExecutionSignature, status: ActorStatus<ExecutionResult>) {
         if matches!(self.status(), ActorStatus::Complete(_)) {
-            Logger::error(format!(
+            self.error(format!(
                 "invocation {} received execution {execution} update \
                  {status:?} after completion",
                 &self.signature,
@@ -198,7 +197,7 @@ impl InvocationRuntime {
         {
             let mut current = Self::lock(&self.execution);
             if current.as_ref() != Some(&execution) {
-                Logger::error(format!(
+                self.error(format!(
                     "invocation {} received update from unexpected execution \
                      {execution}: {status:?}",
                     &self.signature,
@@ -269,7 +268,7 @@ impl InvocationRuntime {
         let relay = match Relay::new(Arc::clone(&self.access), request) {
             Ok(relay) => relay,
             Err(reason) => {
-                Logger::warning(format!(
+                self.warning(format!(
                     "invocation {} summarize relay creation failed: {reason}",
                     &self.signature,
                 ));
@@ -280,7 +279,7 @@ impl InvocationRuntime {
         {
             let mut pending = Self::lock(&self.pending_summarize);
             if pending.is_some() {
-                Logger::error(format!(
+                self.error(format!(
                     "invocation {} attempted to start summarize relay {} \
                      while another summarize relay is pending",
                     &self.signature,
@@ -293,7 +292,7 @@ impl InvocationRuntime {
             *pending = Some((kind.clone(), relay.signature().to_string()));
         }
         if !self.access.insert(relay.clone()) {
-            Logger::warning(format!(
+            self.warning(format!(
                 "invocation {} summarize relay {} already exists",
                 &self.signature,
                 relay.signature(),
@@ -307,7 +306,7 @@ impl InvocationRuntime {
 
     fn on_summarize_update(&self, signature: RelaySignature, status: ActorStatus<RelayResult>) {
         if matches!(self.status(), ActorStatus::Complete(_)) {
-            Logger::error(format!(
+            self.error(format!(
                 "invocation {} received summarize relay {signature} update {status:?} after completion",
                 &self.signature,
             ));
@@ -317,7 +316,7 @@ impl InvocationRuntime {
             return;
         };
         if signature.name != "tool-call-summarize" {
-            Logger::error(format!(
+            self.error(format!(
                 "invocation {} received update from unexpected relay name `{}`",
                 &self.signature, signature.name,
             ));
@@ -326,7 +325,7 @@ impl InvocationRuntime {
         let kind = {
             let mut pending = Self::lock(&self.pending_summarize);
             let Some((kind, expected_signature)) = pending.as_ref() else {
-                Logger::error(format!(
+                self.error(format!(
                     "invocation {} received summarize relay {signature} \
                      update with no pending state",
                     &self.signature,
@@ -334,7 +333,7 @@ impl InvocationRuntime {
                 return;
             };
             if expected_signature != &signature.to_string() {
-                Logger::error(format!(
+                self.error(format!(
                     "invocation {} received update from unexpected summarize \
                      relay {signature}",
                     &self.signature,
@@ -350,7 +349,7 @@ impl InvocationRuntime {
                 let tool = match WorkflowCallSummary::parse(&result.output) {
                     Ok(tool) => tool,
                     Err(error) => {
-                        Logger::warning(format!(
+                        self.warning(format!(
                             "invocation {} summarize relay {signature} \
                              returned invalid output: {error}",
                             &self.signature,
@@ -370,7 +369,7 @@ impl InvocationRuntime {
                 }
             }
             RelayResultKind::Failed | RelayResultKind::Canceled => {
-                Logger::warning(format!(
+                self.warning(format!(
                     "invocation {} summarize relay {signature} did not \
                      succeed: {}",
                     &self.signature, result.output,
@@ -386,7 +385,7 @@ impl InvocationRuntime {
         }) {
             Ok(input) => input,
             Err(error) => {
-                Logger::warning(format!(
+                self.warning(format!(
                     "invocation {} continuation input serialization failed: \
                      {error}",
                     &self.signature,
@@ -396,7 +395,7 @@ impl InvocationRuntime {
             }
         };
         if let Err(reason) = self.request_execution(WorkflowContinuation::NAME.to_owned(), input) {
-            Logger::warning(format!(
+            self.warning(format!(
                 "invocation {} continuation execution create failed: {reason}",
                 &self.signature,
             ));
@@ -446,7 +445,7 @@ impl InvocationRuntime {
             if let Err(reason) = self
                 .send_executor_event(ExecutorEvent::Execution(signature, ExecutionEvent::Cancel))
             {
-                Logger::warning(format!(
+                self.warning(format!(
                     "invocation {} execution cancel failed: {reason}",
                     &self.signature,
                 ));
@@ -477,7 +476,7 @@ impl InvocationRuntime {
             TaskEvent::Step(step, StepEvent::Update(self.signature.clone(), status)),
         );
         if self.access.session_tx.send(event).is_err() {
-            Logger::warning(format!(
+            self.warning(format!(
                 "invocation {} event send failed: session stopped",
                 &self.signature,
             ));

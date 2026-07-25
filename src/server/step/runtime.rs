@@ -2,13 +2,11 @@ use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
-use marix_common::{
-    Actor, ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait,
-};
+use marix_common::{Actor, ActorStartFuture, ActorStatus, Lifecycle, Runtime as RuntimeTrait};
 use marix_protocol::{
     IntentEvent, InvocationEvent, InvocationRequest, InvocationResult, InvocationResultKind,
     InvocationSignature, SessionEvent, StepDraft, StepEvent, StepResult, StepResultKind,
-    StepSignature, TaskEvent, ToolCallResultDraft,
+    StepSignature, TaskEvent, TaskLogger, TaskLogging, ToolCallResultDraft,
 };
 
 use super::Step;
@@ -37,6 +35,12 @@ impl StepRuntime {
     }
 }
 
+impl TaskLogging for StepRuntime {
+    fn logger(&self) -> TaskLogger {
+        self.access.logger()
+    }
+}
+
 impl RuntimeTrait for StepRuntime {
     type Base = Step;
     type Prepared = ();
@@ -54,7 +58,7 @@ impl RuntimeTrait for StepRuntime {
             let actors = match self.create_invocations() {
                 Ok(actors) => actors,
                 Err(reason) => {
-                    Logger::error(reason);
+                    self.error(reason);
                     self.finish(StepResult {
                         kind: StepResultKind::Failed,
                         calls: Vec::new(),
@@ -116,7 +120,7 @@ impl StepRuntime {
         status: ActorStatus<InvocationResult>,
     ) {
         if matches!(self.status(), ActorStatus::Complete(_)) {
-            Logger::error(format!(
+            self.error(format!(
                 "step {} received invocation {signature} update \
                  {status:?} after completion",
                 &self.signature,
@@ -132,7 +136,7 @@ impl StepRuntime {
             .unwrap_or_else(|error| error.into_inner())
             .contains(&signature);
         if !known {
-            Logger::error(format!(
+            self.error(format!(
                 "step {} received update from unknown invocation \
                  {signature}",
                 &self.signature,
@@ -144,7 +148,7 @@ impl StepRuntime {
             .lock()
             .unwrap_or_else(|error| error.into_inner());
         if results.contains_key(&signature) {
-            Logger::error(format!(
+            self.error(format!(
                 "step {} received duplicate complete update from \
                  invocation {signature}",
                 &self.signature,
@@ -226,7 +230,7 @@ impl StepRuntime {
                 TaskEvent::Invocation(signature.clone(), InvocationEvent::Cancel),
             );
             if self.access.session_tx.send(event).is_err() {
-                Logger::warning(format!(
+                self.warning(format!(
                     "step {} invocation {signature} cancel failed: \
                      session stopped",
                     &self.signature,
@@ -263,7 +267,7 @@ impl StepRuntime {
             ),
         );
         if self.access.session_tx.send(event).is_err() {
-            Logger::warning(format!(
+            self.warning(format!(
                 "step {} update failed: session stopped",
                 &self.signature,
             ));

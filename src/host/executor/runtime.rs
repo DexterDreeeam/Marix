@@ -4,7 +4,8 @@ use std::sync::Arc;
 use marix_common::{Actor, ActorStatus, Logger, Receiver, Sender, System, build_channel, select};
 use marix_protocol::{
     ExecutionEvent, ExecutionRequest, ExecutionResult, ExecutionResultKind, ExecutionSignature,
-    ExecutorEvent, InvocationEvent, SessionEvent, TaskEvent, WorkflowContinuation, WorkflowTool,
+    ExecutorEvent, InvocationEvent, SessionEvent, TaskEvent, TaskLogger, WorkflowContinuation,
+    WorkflowTool,
 };
 
 use super::state::ExecutorState;
@@ -33,7 +34,7 @@ impl ExecutorRuntime {
         loop {
             select! {
                 recv(&self.close_rx) -> _ => {
-                    Logger::log("host executor runtime closed");
+                    Logger::info("host executor runtime closed");
                     break;
                 },
                 recv(&self.state.executor_rx) -> event => {
@@ -76,6 +77,7 @@ impl ExecutorRuntime {
 
 impl ExecutorRuntime {
     fn dispatch_execution(&self, signature: ExecutionSignature, event: ExecutionEvent) {
+        let logger = TaskLogger::from(signature.invocation.step.intent.task.clone());
         let mut event = Some(event);
         match self.state.executions.with(&signature, |execution| {
             execution.dispatch(
@@ -89,7 +91,7 @@ impl ExecutorRuntime {
                 let event = event.unwrap_or_else(|| {
                     unreachable!("execution event dispatched without an execution")
                 });
-                Logger::warning(format!(
+                logger.warning(format!(
                     "execution {} event {event:?} not routed: execution not found",
                     &signature,
                 ));
@@ -98,13 +100,22 @@ impl ExecutorRuntime {
     }
 
     fn create_execution(&self, request: ExecutionRequest) {
+        let logger = TaskLogger::from(
+            request
+                .signature
+                .invocation
+                .step
+                .intent
+                .task
+                .clone(),
+        );
         if request.signature.name == WorkflowContinuation::NAME {
             self.create_continuation_execution(request);
             return;
         }
         let Some(tool) = self.state.registry.get(&request.signature.name).cloned() else {
             let reason = format!("tool '{}' is not available", request.signature.name,);
-            Logger::warning(format!(
+            logger.warning(format!(
                 "execution {} create failed: {reason}",
                 &request.signature,
             ));
@@ -123,7 +134,7 @@ impl ExecutorRuntime {
             .executions
             .insert_or_update(signature.clone(), execution)
         {
-            Logger::warning(format!(
+            logger.warning(format!(
                 "execution {} replaced existing queue entry",
                 &signature,
             ));
@@ -145,6 +156,15 @@ impl ExecutorRuntime {
     }
 
     fn create_continuation_execution(&self, request: ExecutionRequest) {
+        let logger = TaskLogger::from(
+            request
+                .signature
+                .invocation
+                .step
+                .intent
+                .task
+                .clone(),
+        );
         let tool = match WorkflowContinuation::parse(&request.input) {
             Ok(tool) => tool,
             Err(error) => {
@@ -152,7 +172,7 @@ impl ExecutorRuntime {
                     "workflow tool '{}' arguments are invalid: {error}",
                     WorkflowContinuation::NAME,
                 );
-                Logger::warning(format!(
+                logger.warning(format!(
                     "execution {} create failed: {reason}",
                     &request.signature,
                 ));
@@ -221,13 +241,22 @@ impl ExecutorRuntime {
     }
 
     fn send_invocation_event(&self, request: &ExecutionRequest, invocation_event: InvocationEvent) {
+        let logger = TaskLogger::from(
+            request
+                .signature
+                .invocation
+                .step
+                .intent
+                .task
+                .clone(),
+        );
         let invocation = request.signature.invocation.clone();
         let event = SessionEvent::Task(
             invocation.step.intent.task.clone(),
             TaskEvent::Invocation(invocation, invocation_event),
         );
         if let Err(error) = self.send_server_event(event) {
-            Logger::warning(format!(
+            logger.warning(format!(
                 "execution {} event could not be sent: {error}",
                 &request.signature,
             ));

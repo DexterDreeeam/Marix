@@ -13,7 +13,7 @@ fn main() {
     };
     Logger::connect(LogSource::Host, Duration::from_secs(30))
         .expect("failed to connect to telemetry within 30s");
-    Logger::log(format!("host '{}' logging configured", config.name));
+    Logger::info(format!("host '{}' logging configured", config.name));
     let mut session = HostSession::new(config.name);
     session.run();
     loop {

@@ -8,8 +8,8 @@ use marix_common::{
     build_channel, select,
 };
 use marix_protocol::{
-    ExecutorEvent, SessionEvent, SessionMessage, TaskEvent, TaskRequest, TaskSignature, TaskStatus,
-    ToolPreview,
+    ExecutorEvent, SessionEvent, SessionMessage, TaskEvent, TaskLogger, TaskRequest, TaskSignature,
+    TaskStatus, ToolPreview,
 };
 
 use super::{Session, SessionContext, SessionState};
@@ -125,7 +125,7 @@ impl SessionRuntime {
                     Logger::warning(format!("client channel session id send failed: {error}"));
                     continue;
                 }
-                Logger::log("client channel connected");
+                Logger::info("client channel connected");
                 *runtime
                     .state
                     .client_tx
@@ -190,7 +190,7 @@ impl SessionRuntime {
                     continue;
                 }
                 let connected_at = Instant::now();
-                Logger::log_tagged(
+                Logger::info_tagged(
                     "host core connection connected side=server",
                     ["Host Connection"],
                 );
@@ -208,7 +208,7 @@ impl SessionRuntime {
                 let termination = runtime.host_worker(connected_at);
                 termination.log();
                 Self::host_disconnect(&runtime.state);
-                Logger::log_tagged(
+                Logger::info_tagged(
                     "host core connection relisten side=server",
                     ["Host Connection"],
                 );
@@ -294,6 +294,7 @@ impl SessionRuntime {
 
     fn create_task(&self, request: TaskRequest) {
         let signature = request.signature.clone();
+        let logger = TaskLogger::from(signature.clone());
         if self
             .state
             .host_tx
@@ -302,7 +303,7 @@ impl SessionRuntime {
             .is_none()
         {
             let reason = "host not connected".to_string();
-            Logger::warning(format!("task {signature} rejected: {reason}"));
+            logger.warning(format!("task {signature} rejected: {reason}"));
             self.send_client_event(SessionEvent::TaskUpdate(TaskStatus::Failed { reason }));
             return;
         }
@@ -315,11 +316,11 @@ impl SessionRuntime {
             .is_empty()
         {
             let reason = "executor tools not registered".to_string();
-            Logger::warning(format!("task {signature} rejected: {reason}"));
+            logger.warning(format!("task {signature} rejected: {reason}"));
             self.send_client_event(SessionEvent::TaskUpdate(TaskStatus::Failed { reason }));
             return;
         }
-        Logger::log(format!("task {signature} created"));
+        logger.info(format!("task {signature} created"));
         self.send_client_event(SessionEvent::TaskUpdate(TaskStatus::Created));
         let task = Task::new(
             Arc::clone(&self.state.context),
@@ -333,7 +334,7 @@ impl SessionRuntime {
             .unwrap_or_else(|error| error.into_inner());
         if context.tasks.with(&signature, |_| ()).is_some() {
             drop(context);
-            Logger::warning(format!(
+            logger.warning(format!(
                 "task {signature} create ignored: task already exists",
             ));
             return;
@@ -344,6 +345,7 @@ impl SessionRuntime {
     }
 
     fn dispatch_task(&self, signature: &TaskSignature, event: TaskEvent) {
+        let logger = TaskLogger::from(signature.clone());
         let task = self
             .state
             .context
@@ -352,7 +354,7 @@ impl SessionRuntime {
             .tasks
             .with(signature, Clone::clone);
         let Some(task) = task else {
-            Logger::warning(format!(
+            logger.warning(format!(
                 "session could not dispatch event {event:?}: task {signature} not found",
             ));
             return;
@@ -391,9 +393,9 @@ impl SessionRuntime {
         context.tools = tools;
         drop(context);
         if tool_names.is_empty() {
-            Logger::log("host registered 0 tools");
+            Logger::info("host registered 0 tools");
         } else {
-            Logger::log(format!("host registered {tool_count} tools: {tool_names}"));
+            Logger::info(format!("host registered {tool_count} tools: {tool_names}"));
         }
     }
 
@@ -415,14 +417,26 @@ impl SessionRuntime {
     }
 
     fn send_host_event(&self, event: SessionEvent) {
-        if !matches!(
-            event,
-            SessionEvent::Executor(ExecutorEvent::Execution(_, _))
-                | SessionEvent::Executor(ExecutorEvent::ExecutionCreate(_))
-        ) {
-            Logger::warning("core session ignored non-executor host event");
-            return;
-        }
+        let logger = match &event {
+            SessionEvent::Executor(ExecutorEvent::Execution(signature, _)) => {
+                TaskLogger::from(signature.invocation.step.intent.task.clone())
+            }
+            SessionEvent::Executor(ExecutorEvent::ExecutionCreate(request)) => {
+                TaskLogger::from(
+                    request
+                        .signature
+                        .invocation
+                        .step
+                        .intent
+                        .task
+                        .clone(),
+                )
+            }
+            _ => {
+                Logger::warning("core session ignored non-executor host event");
+                return;
+            }
+        };
         if let Some(sender) = self
             .state
             .host_tx
@@ -431,7 +445,7 @@ impl SessionRuntime {
             .as_mut()
         {
             if let Err(error) = sender.try_send(Session::package_message(event)) {
-                Logger::error_tagged(
+                logger.error_tagged(
                     format!(
                         "host core connection send failed phase=runtime \
                          side=server error={error}"
@@ -440,7 +454,7 @@ impl SessionRuntime {
                 );
             }
         } else {
-            Logger::warning_tagged(
+            logger.warning_tagged(
                 "host core connection send skipped reason=not_connected \
                  phase=runtime side=server",
                 ["Host Connection"],
@@ -470,7 +484,7 @@ impl SessionRuntime {
             .lock()
             .unwrap_or_else(|error| error.into_inner()) = None;
         Self::reset_context(state);
-        Logger::log_tagged(
+        Logger::info_tagged(
             "host core connection state cleanup completed side=server",
             ["Host Connection"],
         );

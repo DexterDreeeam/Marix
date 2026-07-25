@@ -2,8 +2,8 @@ use std::collections::BTreeMap;
 use std::fmt;
 
 use marix_common::external::*;
-use marix_common::{AsyncSender, Logger, build_async_channel};
-use marix_protocol::{InvocationDraft, StepDraft, ToolPreview};
+use marix_common::{AsyncSender, build_async_channel};
+use marix_protocol::{InvocationDraft, StepDraft, TaskLogger, ToolPreview};
 
 use super::backend::{ModelRequest, ModelResponse, ModelResponseStream};
 use super::error::ModelBackendError;
@@ -37,28 +37,46 @@ impl OpenAiCore {
         &mut self,
         request: ModelRequest,
     ) -> Result<ModelResponseStream, ModelBackendError> {
-        Logger::debug(format!(
+        let task = request.relay.intent.task.clone();
+        let task_id = task.id.0.to_string();
+        let logger = TaskLogger::from(task);
+        logger.debug(format!(
             "{} stream request: model '{}'",
             self.provider,
             self.model.trim()
         ));
-        let task_id = request.relay.intent.task.id.0.to_string();
         let native_tools = request.tools.is_some();
         let raw = match self.build_payload(&request) {
             Ok(raw) => raw,
             Err(error) => {
-                Logger::error_tagged(format!("[{task_id}] {error}"), ["Model Relay", "Request"]);
+                logger.error_tagged(
+                    format!("[{task_id}] {error}"),
+                    ["Model Relay", "Request"],
+                );
                 return Err(error);
             }
         };
-        Logger::log_tagged(format!("[{task_id}] {raw}"), ["Model Relay", "Request"]);
+        logger.info_tagged(
+            format!("[{task_id}] {raw}"),
+            ["Model Relay", "Request"],
+        );
         let core = self.clone();
         let (sender, receiver) = build_async_channel();
         tokio::spawn(async move {
-            if let Err(error) =
-                Self::request_stream_response(core, raw, &task_id, native_tools, sender).await
+            if let Err(error) = Self::request_stream_response(
+                core,
+                raw,
+                &task_id,
+                native_tools,
+                sender,
+                logger.clone(),
+            )
+            .await
             {
-                Logger::error_tagged(format!("[{task_id}] {error}"), ["Model Relay", "Response"]);
+                logger.error_tagged(
+                    format!("[{task_id}] {error}"),
+                    ["Model Relay", "Response"],
+                );
             }
         });
 
@@ -140,6 +158,7 @@ impl OpenAiCore {
         task_id: &str,
         native_tools: bool,
         sender: AsyncSender<ModelResponse>,
+        logger: TaskLogger,
     ) -> Result<(), ModelBackendError> {
         let mut response = core
             .async_client
@@ -158,12 +177,20 @@ impl OpenAiCore {
             )));
         }
 
-        Logger::debug(format!("{} stream established", core.provider));
-        Self::stream_response(core.provider, &mut response, &sender, task_id, native_tools).await
+        logger.debug(format!("{} stream established", core.provider));
+        Self::stream_response(
+            core.provider,
+            &mut response,
+            &sender,
+            task_id,
+            native_tools,
+            logger,
+        )
+        .await
     }
 
-    fn log_response(task_id: &str, content: &str) {
-        Logger::log_tagged(
+    fn log_response(logger: &TaskLogger, task_id: &str, content: &str) {
+        logger.info_tagged(
             format!("[{task_id}] {content}"),
             ["Model Relay", "Response"],
         );
@@ -177,6 +204,7 @@ impl OpenAiCore {
         sender: &AsyncSender<ModelResponse>,
         task_id: &str,
         native_tools: bool,
+        logger: TaskLogger,
     ) -> Result<(), ModelBackendError> {
         let mut pending = Vec::new();
         let mode = if native_tools {
@@ -184,7 +212,8 @@ impl OpenAiCore {
         } else {
             StreamMode::Content
         };
-        let mut accumulator = StreamAccumulator::new(provider, mode, task_id.to_owned());
+        let mut accumulator =
+            StreamAccumulator::new(provider, mode, task_id.to_owned(), logger);
 
         loop {
             while let Some(event) = Self::take_next_sse_event(provider, &mut pending)? {
@@ -254,6 +283,7 @@ struct StreamAccumulator {
     provider: &'static str,
     mode: StreamMode,
     task_id: String,
+    logger: TaskLogger,
     content: String,
     seq_count: usize,
     finish_reason: Option<String>,
@@ -269,11 +299,17 @@ struct ToolCallAccumulator {
 }
 
 impl StreamAccumulator {
-    fn new(provider: &'static str, mode: StreamMode, task_id: String) -> Self {
+    fn new(
+        provider: &'static str,
+        mode: StreamMode,
+        task_id: String,
+        logger: TaskLogger,
+    ) -> Self {
         Self {
             provider,
             mode,
             task_id,
+            logger,
             content: String::new(),
             seq_count: 0,
             finish_reason: None,
@@ -519,7 +555,11 @@ impl StreamAccumulator {
                 Some(self.normalize_tool_calls()?)
             }
         };
-        OpenAiCore::log_response(&self.task_id, &self.response_json()?);
+        OpenAiCore::log_response(
+            &self.logger,
+            &self.task_id,
+            &self.response_json()?,
+        );
         if let Some(content) = content {
             if sender
                 .send(ModelResponse {

@@ -1,7 +1,10 @@
 use std::sync::Arc;
 
 use marix_common::{Actor as ActorTrait, Runtime as RuntimeTrait};
-use marix_protocol::{InvocationEvent, InvocationRequest, InvocationResult, InvocationSignature};
+use marix_protocol::{
+    InvocationEvent, InvocationRequest, InvocationResult, InvocationSignature, TaskLogger,
+    TaskLogging,
+};
 
 use super::InvocationRuntime;
 use crate::task::TaskAccess;
@@ -26,6 +29,12 @@ impl ActorTrait for Invocation {
         drop(rt.spawn(async move {
             runtime.run().await;
         }));
+    }
+}
+
+impl TaskLogging for InvocationRuntime {
+    fn logger(&self) -> TaskLogger {
+        self.access.logger()
     }
 }
 

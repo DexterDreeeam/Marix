@@ -8,11 +8,14 @@ export function createDropdown(_button, _popup) {
   var _open = false;
 
   function position() {
+    var _margin = 8;
+    var _gap = 4;
     _popup.style.visibility = "hidden";
     _popup.hidden = false;
+    _popup.style.maxHeight =
+      Math.max(0, Math.min(320, window.innerHeight - _margin * 2)) + "px";
     var _buttonBounds = _button.getBoundingClientRect();
     var _popupBounds = _popup.getBoundingClientRect();
-    var _margin = 8;
     var _left = Math.max(
       _margin,
       Math.min(
@@ -20,10 +23,18 @@ export function createDropdown(_button, _popup) {
         window.innerWidth - _popupBounds.width - _margin
       )
     );
+    var _spaceBelow =
+      window.innerHeight - _buttonBounds.bottom - _margin - _gap;
+    var _spaceAbove = _buttonBounds.top - _margin - _gap;
+    var _opensAbove =
+      _spaceBelow < _popupBounds.height && _spaceAbove > _spaceBelow;
+    var _preferredTop = _opensAbove
+      ? _buttonBounds.top - _popupBounds.height - _gap
+      : _buttonBounds.bottom + _gap;
     var _top = Math.max(
       _margin,
       Math.min(
-        _buttonBounds.bottom + 4,
+        _preferredTop,
         window.innerHeight - _popupBounds.height - _margin
       )
     );
@@ -40,6 +51,7 @@ export function createDropdown(_button, _popup) {
     _popup.hidden = true;
     _popup.style.left = "";
     _popup.style.top = "";
+    _popup.style.maxHeight = "";
     _button.setAttribute("aria-expanded", "false");
   }
 
@@ -91,6 +103,11 @@ export function createDropdown(_button, _popup) {
     close: close,
     isOpen: function () {
       return _open;
+    },
+    reposition: function () {
+      if (_open) {
+        position();
+      }
     },
   };
 }
@@ -148,6 +165,7 @@ export function createLogFilters(_elements, _state, _actions) {
       _empty.className = "dropdown-empty";
       _empty.textContent = "No tags for this session";
       _elements.tagsPopup.replaceChildren(_empty);
+      _tagsDropdown.reposition();
       return;
     }
     var _fragment = document.createDocumentFragment();
@@ -165,6 +183,7 @@ export function createLogFilters(_elements, _state, _actions) {
       _fragment.appendChild(_item);
     });
     _elements.tagsPopup.replaceChildren(_fragment);
+    _tagsDropdown.reposition();
   }
 
   function toggleTag(_tag) {

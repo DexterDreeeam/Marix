@@ -40,7 +40,7 @@ impl RuntimeAsync<TaskEvent, TaskError> for TaskRuntime {
     async fn run(&self) {
         self.send_session_status(TaskStatus::Started);
         let access = &self.state.access;
-        Logger::log(format!("task {} started", &access.signature));
+        Logger::info(format!("task {} started", &access.signature));
         self.create_plan(initial_plan(access.user_request.clone()));
         let Some(mut task_rx) = self
             .task_rx
@@ -330,7 +330,7 @@ impl TaskRuntime {
     }
 
     fn cancel_task(&self) {
-        Logger::log(format!("task {} canceled", &self.state.access.signature));
+        Logger::info(format!("task {} canceled", &self.state.access.signature));
         for plan in self.state.plans.working_list() {
             self.dispatch_plan(plan.state.signature.clone(), PlanEvent::Cancel);
         }

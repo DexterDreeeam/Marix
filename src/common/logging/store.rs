@@ -1,3 +1,5 @@
+#[path = "store/maintenance.rs"]
+mod maintenance;
 #[path = "store/reader.rs"]
 mod reader;
 #[path = "store/schema.rs"]
@@ -7,11 +9,12 @@ mod tags;
 #[path = "store/writer.rs"]
 mod writer;
 
+use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use crate::config::Config;
-use crate::external::redb::{Database, ReadableDatabase, ReadableTable, TableDefinition};
+use crate::external::redb::{Database, ReadableDatabase, ReadableTable, Table, TableDefinition};
 use crate::external::{serde_json, uuid};
 use crate::logging::{LogMessage, LoggingError};
 
@@ -25,6 +28,8 @@ const SESSION_RECORD_ID_KEY_LEN: usize = SESSION_KEY_LEN + 8;
 const TRIGRAM_POSTING_KEY_LEN: usize = SESSION_KEY_LEN + TRIGRAM_COMPONENT_LEN + 16;
 const SESSION_RECORD_ID_INDEX: TableDefinition<&[u8], u64> =
     TableDefinition::new("telemetry_session_record");
+const LEGACY_LEVEL_TIME_INDEX: TableDefinition<&[u8], u64> =
+    TableDefinition::new("telemetry_session_tag_emit");
 
 pub(super) struct Store {
     database: Database,
@@ -84,6 +89,27 @@ impl Store {
 }
 
 // -- Private -- //
+
+trait StoreMaintenance {
+    fn prune_history(&self, next_id: u64) -> Result<u64, LoggingError>;
+
+    fn rebuild_indexes(
+        &self,
+        next_id_floor: u64,
+        delete_ids: &HashSet<u64>,
+    ) -> Result<u64, LoggingError>;
+
+    fn index_message(
+        sessions: &mut Table<'_, &[u8], &[u8]>,
+        session_time: &mut Table<'_, &[u8], u64>,
+        session_level_time: &mut Table<'_, &[u8], u64>,
+        session_record_id: &mut Table<'_, &[u8], u64>,
+        trigrams: &mut Table<'_, &[u8], u64>,
+        session_tags: &mut Table<'_, &[u8], &[u8]>,
+        id: u64,
+        message: &LogMessage,
+    ) -> Result<(), LoggingError>;
+}
 
 struct SessionMetadata {
     earliest_emit_ts: u64,

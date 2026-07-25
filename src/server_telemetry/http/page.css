@@ -38,8 +38,8 @@ html, body {
   flex: 0 0 16px;
   width: 16px;
   min-width: 0;
-  border-right: 1px solid var(--accent);
-  background: var(--panel);
+  border-right: 1px solid #3a3a3a;
+  background: #171717;
   display: flex;
   flex-direction: column;
   overflow: visible;
@@ -68,56 +68,55 @@ html, body {
   flex-direction: column;
   overflow: hidden;
 }
-#sessions h1 {
-  width: 216px;
-  font-size: 15px;
-  margin: 0;
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
-  color: var(--text);
-  font-weight: 600;
-}
-#sessions h1, #session-list {
+#session-list {
   opacity: 0;
   pointer-events: none;
   transition: opacity 90ms ease;
 }
-#sessions:hover h1, #sessions:hover #session-list,
-#sessions:focus-within h1, #sessions:focus-within #session-list {
+#sessions:hover #session-list,
+#sessions:focus-within #session-list {
   opacity: 1;
   pointer-events: auto;
   transition-delay: 35ms;
 }
 #session-list {
+  display: flex;
   width: 216px;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
   list-style: none;
   margin: 0;
   padding: 6px;
   overflow-y: auto;
-  flex: 1;
 }
 #session-list li {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   padding: 8px 10px;
   border-radius: 6px;
   cursor: pointer;
-  color: var(--muted);
+  color: #a0a0a0;
   margin-bottom: 2px;
 }
+#session-list li:first-child {
+  margin-top: auto;
+}
 #session-list li:hover {
-  background: var(--panel-alt);
-  color: var(--text);
+  background: #242424;
+  color: #e6e6e6;
 }
 #session-list li:focus-visible {
-  outline: 2px solid var(--accent);
+  background: #292929;
+  outline: 2px solid #666;
   outline-offset: -2px;
 }
 #session-list li.selected {
-  background: var(--accent);
-  color: #fff;
+  background: #303030;
+  color: #f2f2f2;
 }
 #session-list .session-label { white-space: nowrap; }
 #main {
@@ -135,13 +134,13 @@ html, body {
   align-items: center;
   gap: 10px;
   padding: 10px 16px;
-  border-bottom: 1px solid var(--border);
-  background: var(--panel);
+  border: 0;
+  background: #000;
   flex-wrap: wrap;
 }
 #toolbar .dropdown-button, #toolbar input {
-  background: var(--panel-alt);
-  border: 1px solid var(--border);
+  background: #202020;
+  border: 1px solid #484848;
   color: var(--text);
   border-radius: 6px;
   padding: 6px 10px;
@@ -155,17 +154,25 @@ html, body {
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1px solid var(--border);
+  border: 1px solid #484848;
   border-radius: 6px;
-  background: var(--panel-alt);
+  background: #202020;
   color: var(--text);
   font-size: 16px;
   line-height: 1;
   cursor: pointer;
 }
-#refresh-logs-button:hover, #refresh-logs-button:focus-visible {
-  border-color: var(--accent);
-  outline: none;
+#refresh-logs-button:hover,
+#toolbar .dropdown-button:hover,
+#toolbar input:hover {
+  border-color: #686868;
+}
+#refresh-logs-button:focus-visible,
+#toolbar .dropdown-button:focus-visible,
+#toolbar input:focus-visible {
+  border-color: #7a7a7a;
+  outline: 1px solid #7a7a7a;
+  outline-offset: 1px;
 }
 #toolbar .dropdown-button {
   display: inline-flex;
@@ -183,10 +190,6 @@ html, body {
   border-right: 4px solid transparent;
   border-top: 5px solid var(--muted);
 }
-#toolbar .dropdown-button:hover, #toolbar .dropdown-button:focus-visible {
-  border-color: var(--accent);
-  outline: none;
-}
 #toolbar input[type="text"] {
   flex: 1;
   min-width: 160px;
@@ -203,33 +206,37 @@ html, body {
   border-bottom: 1px solid var(--border);
 }
 #log-area {
+  display: flex;
   flex: 1;
+  min-width: 0;
   min-height: 0;
+  flex-direction: column;
   overflow: auto;
-  padding: 0 16px 16px;
+  padding: 0 16px;
+  background: #000;
+}
+#log-table:not([hidden]) {
+  flex-shrink: 0;
+  min-width: 0;
+  max-width: 100%;
+  margin-top: auto;
+  background: transparent;
 }
 table {
   width: 100%;
   border-collapse: collapse;
+  background: transparent;
   font-size: 13px;
 }
 table[hidden], [hidden] { display: none !important; }
-thead th {
-  position: sticky;
-  z-index: 2;
-  top: 0;
-  background: var(--bg);
-  text-align: left;
-  color: var(--muted);
-  font-weight: 600;
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--border);
-}
 tbody tr.log-row {
+  --task-background: #000;
+  --task-background-hover: #000;
   height: var(--row-height);
+  background: var(--task-background);
 }
 tbody tr.log-row:hover, tbody tr.log-row:focus-within {
-  background: var(--panel-alt);
+  background: var(--task-background-hover);
 }
 tbody td {
   height: var(--row-height);
@@ -237,14 +244,13 @@ tbody td {
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
 }
-thead th:nth-child(-n+3),
 tbody td:nth-child(-n+3) {
   width: 1%;
   padding-left: 7px;
   padding-right: 7px;
   white-space: nowrap;
 }
-thead th:nth-child(2), tbody td:nth-child(2) { text-align: center; }
+tbody td:nth-child(2) { text-align: center; }
 td.message-cell {
   max-width: 0;
   overflow: hidden;
@@ -293,9 +299,9 @@ tr.virtual-spacer td {
   margin: 0;
   padding: 5px;
   list-style: none;
-  border: 1px solid rgba(230, 233, 239, 0.18);
+  border: 1px solid #484848;
   border-radius: 7px;
-  background: var(--panel-alt);
+  background: #202020;
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
 }
 .dropdown-popup li {
@@ -305,12 +311,12 @@ tr.virtual-spacer td {
   cursor: pointer;
 }
 .dropdown-popup li:hover, .dropdown-popup li:focus-visible {
-  background: rgba(77, 141, 255, 0.18);
+  background: #2d2d2d;
   outline: none;
 }
 .dropdown-popup li.selected {
-  background: var(--accent);
-  color: #fff;
+  background: #3a3a3a;
+  color: #f2f2f2;
 }
 .dropdown-popup li.dropdown-empty {
   color: var(--muted);
@@ -532,7 +538,7 @@ td.time-cell {
     max-width: none;
     max-height: 30vh;
     border-right: none;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid #3a3a3a;
     transition: none;
   }
   #sessions:hover, #sessions:focus-within {
@@ -540,7 +546,7 @@ td.time-cell {
     width: 100%;
   }
   #sessions::after { display: none; }
-  #sessions h1, #session-list {
+  #session-list {
     width: 100%;
     opacity: 1;
     pointer-events: auto;
@@ -555,7 +561,7 @@ td.time-cell {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  #sessions, #sessions h1, #session-list, #copy-toast,
+  #sessions, #session-list, #copy-toast,
   #format-message-backdrop, #format-message-modal {
     transition: none;
     animation: none;

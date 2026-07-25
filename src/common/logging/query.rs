@@ -35,6 +35,8 @@ pub struct LogSummary {
     pub source: LogSource,
     pub level: LogLevel,
     pub session_id: Option<uuid::Uuid>,
+    #[serde(default)]
+    pub task_id: Option<uuid::Uuid>,
     pub emit_ts: u64,
     pub message_preview: String,
     pub message_len: usize,
@@ -56,6 +58,8 @@ pub struct LogRecord {
     pub level: LogLevel,
     pub message: String,
     pub session_id: Option<uuid::Uuid>,
+    #[serde(default)]
+    pub task_id: Option<uuid::Uuid>,
     pub emit_ts: u64,
     pub arrival_ts: u64,
     pub tags: Vec<String>,
@@ -104,6 +108,7 @@ pub(super) fn log_record(id: u64, message: LogMessage) -> LogRecord {
         level: message.level,
         message: message.message,
         session_id: message.session_id,
+        task_id: message.task_id,
         emit_ts: message.emit_ts,
         arrival_ts: message.arrival_ts,
         tags: message.tags,

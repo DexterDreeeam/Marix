@@ -32,8 +32,8 @@ pub use step::{
     StepDraft, StepError, StepEvent, StepId, StepResult, StepResultKind, StepSignature,
 };
 pub use task::{
-    ContextChain, TaskError, TaskEvent, TaskId, TaskPreview, TaskRequest, TaskRequestBrief,
-    TaskResult, TaskResultKind, TaskSignature, TaskStatus,
+    ContextChain, TaskError, TaskEvent, TaskId, TaskLogger, TaskLogging, TaskPreview, TaskRequest,
+    TaskRequestBrief, TaskResult, TaskResultKind, TaskSignature, TaskStatus,
 };
 pub use tool::{ToolCategory, ToolInputSchema, ToolOutputSchema, ToolPreview};
 pub use workflow::{

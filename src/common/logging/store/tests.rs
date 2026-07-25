@@ -1,5 +1,7 @@
 #[path = "tests/level.rs"]
 mod level;
+#[path = "tests/pruning.rs"]
+mod pruning;
 #[path = "tests/search.rs"]
 mod search;
 
@@ -472,8 +474,28 @@ fn full_record_lookup_returns_exact_message_and_legacy_source_defaults() {
     assert_eq!(record.source, LogSource::Server);
     assert_eq!(record.level, LogLevel::Warning);
     assert_eq!(record.message, "exact legacy payload");
+    assert_eq!(record.task_id, None);
     assert_eq!(record.arrival_ts, 456);
     assert!(store.record_by_id(99).expect("missing lookup").is_none());
+}
+
+#[test]
+fn task_id_propagates_to_summary_and_full_record() {
+    let store = Store::open_at(&temp_path()).expect("open store");
+    let task_id = uuid::Uuid::new_v4();
+    let mut task_message = message(None, LogLevel::Info, 123, "task log");
+    task_message.task_id = Some(task_id);
+    let id = store.record(&task_message).expect("record task log");
+
+    let page = store.page(query(None)).expect("query task log");
+    assert_eq!(page.items.len(), 1);
+    assert_eq!(page.items[0].task_id, Some(task_id));
+
+    let record = store
+        .record_by_id(id)
+        .expect("read task log")
+        .expect("task log exists");
+    assert_eq!(record.task_id, Some(task_id));
 }
 
 #[test]

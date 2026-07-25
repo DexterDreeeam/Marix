@@ -3,13 +3,13 @@ use std::sync::Mutex as StdMutex;
 use std::time::{Duration, Instant};
 
 use marix_common::{
-    Actor, ActorStartFuture, ActorStatus, Lifecycle, Logger, Runtime as RuntimeTrait, Sender,
-    WorkQueue,
+    Actor, ActorStartFuture, ActorStatus, Lifecycle, Runtime as RuntimeTrait, Sender, WorkQueue,
 };
 use marix_protocol::{
     IntentEvent, IntentResult, IntentResultKind, IntentSignature, InvocationEvent,
     InvocationSignature, RelayEvent, RelaySignature, SessionEvent, StepEvent, StepSignature,
-    TaskEvent, TaskRequest, TaskResult, TaskResultKind, TaskSignature, TaskStatus,
+    TaskEvent, TaskLogger, TaskLogging, TaskRequest, TaskResult, TaskResultKind, TaskSignature,
+    TaskStatus,
 };
 
 use super::{Task, TaskAccess};
@@ -78,6 +78,12 @@ impl TaskRuntime {
     }
 }
 
+impl TaskLogging for TaskRuntime {
+    fn logger(&self) -> TaskLogger {
+        self.access.logger()
+    }
+}
+
 impl RuntimeTrait for TaskRuntime {
     type Base = Task;
     type Prepared = ();
@@ -93,7 +99,7 @@ impl RuntimeTrait for TaskRuntime {
     fn on_start(&self) -> ActorStartFuture<'_, Self::Prepared> {
         Box::pin(async move {
             self.send_session_status(TaskStatus::Started);
-            Logger::log(format!("task {} started", &self.access.signature,));
+            self.info(format!("task {} started", &self.access.signature,));
             let root = Intent::new(
                 Arc::clone(&self.access),
                 self.root.clone(),
@@ -182,7 +188,7 @@ impl TaskRuntime {
     }
 
     pub(super) fn fail_task(&self, reason: String) {
-        Logger::error(format!("task {} failed: {reason}", &self.access.signature,));
+        self.error(format!("task {} failed: {reason}", &self.access.signature,));
         self.cancel_all();
         self.finish_failed(reason);
     }
@@ -227,7 +233,7 @@ impl TaskRuntime {
             .send(SessionEvent::TaskUpdate(status))
             .is_err()
         {
-            Logger::warning(format!(
+            self.warning(format!(
                 "task {} status update failed: session stopped",
                 &self.access.signature,
             ));

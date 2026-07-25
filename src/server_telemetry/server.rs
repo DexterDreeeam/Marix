@@ -38,7 +38,7 @@ async fn bind(port: u16) -> Result<tokio::net::TcpListener, HttpError> {
 /// socket, which is what makes `serve` block the caller as intended.
 async fn serve_listener(listener: tokio::net::TcpListener) -> Result<(), HttpError> {
     if let Ok(local_addr) = listener.local_addr() {
-        Logger::log(format!(
+        Logger::info(format!(
             "server telemetry HTTP listening on port {}",
             local_addr.port()
         ));

@@ -63,7 +63,7 @@ impl ClientSession {
             max_completion_time_secs,
             max_relay_count,
         })) {
-            Logger::log("client submitted task request");
+            Logger::info("client submitted task request");
         }
     }
 
@@ -74,7 +74,7 @@ impl ClientSession {
             id: task_id,
         };
         if self.send_to_server(SessionEvent::Task(signature, TaskEvent::Cancel)) {
-            Logger::log(format!(
+            Logger::info(format!(
                 "client submitted cancellation for task {task_id_for_log}"
             ));
         }
@@ -118,7 +118,7 @@ impl ClientSession {
                 if state.shutdown.load(Ordering::Relaxed) {
                     break;
                 }
-                Logger::log("client connected to server core");
+                Logger::info("client connected to server core");
                 *state
                     .server_tx
                     .lock()
@@ -215,7 +215,7 @@ impl ClientSession {
         match event {
             SessionEvent::SessionId(id) => {
                 Logger::set_id(id);
-                Logger::log("client session id updated");
+                Logger::info("client session id updated");
                 None
             }
             SessionEvent::TaskUpdate(TaskStatus::Succeed(result)) => {

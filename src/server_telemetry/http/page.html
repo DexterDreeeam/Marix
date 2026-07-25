@@ -11,33 +11,24 @@
 <div id="app">
   <aside id="sessions">
     <div id="session-content">
-      <h1>Sessions</h1>
       <ul id="session-list"></ul>
     </div>
   </aside>
   <main id="main">
+    <div id="status-banner"></div>
+    <div id="log-area">
+      <div id="initial-loading">Loading…</div>
+      <table id="log-table" hidden>
+        <tbody id="log-body"></tbody>
+      </table>
+      <div id="empty-state" hidden>No log entries match the current filters.</div>
+      <div id="no-sessions-state" hidden>No sessions available.</div>
+    </div>
     <div id="toolbar">
       <button id="refresh-logs-button" type="button" title="Refresh logs" aria-label="Refresh logs">⟳</button>
       <button id="level-filter" type="button" class="dropdown-button" aria-haspopup="listbox" aria-expanded="false">All levels</button>
       <button id="tags-filter" type="button" class="dropdown-button" aria-haspopup="listbox" aria-expanded="false">All tags</button>
       <input id="keyword-filter" type="text" placeholder="Filter by keyword…" />
-    </div>
-    <div id="status-banner"></div>
-    <div id="log-area">
-      <div id="initial-loading">Loading…</div>
-      <table id="log-table" hidden>
-        <thead>
-          <tr>
-            <th>Emit</th>
-            <th>Source</th>
-            <th>Level</th>
-            <th>Message</th>
-          </tr>
-        </thead>
-        <tbody id="log-body"></tbody>
-      </table>
-      <div id="empty-state" hidden>No log entries match the current filters.</div>
-      <div id="no-sessions-state" hidden>No sessions available.</div>
     </div>
   </main>
 </div>

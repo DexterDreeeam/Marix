@@ -1,14 +1,14 @@
 use std::fmt::{Debug, Display};
-use std::sync::Mutex as StdMutex;
 use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::Mutex as StdMutex;
 use std::sync::{Arc, Weak};
 use std::time::Instant;
 
 use marix_common::external::*;
 use marix_common::{Actor, ResultOf, Sender, SignatureOf, WorkQueue};
 use marix_protocol::{
-    IntentSignature, InvocationSignature, RelaySignature, SessionEvent, StepSignature,
-    TaskSignature,
+    IntentSignature, InvocationSignature, RelaySignature, SessionEvent, StepSignature, TaskLogger,
+    TaskLogging, TaskSignature,
 };
 
 use crate::intent::Intent;
@@ -47,6 +47,18 @@ pub struct TaskAccess {
     steps: Arc<WorkQueue<StepSignature, Step>>,
     invocations: Arc<WorkQueue<InvocationSignature, Invocation>>,
     relays: Arc<WorkQueue<RelaySignature, Relay>>,
+}
+
+impl TaskAccess {
+    pub fn logger(&self) -> TaskLogger {
+        TaskLogger::from(self.signature.clone())
+    }
+}
+
+impl TaskLogging for TaskAccess {
+    fn logger(&self) -> TaskLogger {
+        TaskAccess::logger(self)
+    }
 }
 
 // -- Private -- //

@@ -5,12 +5,12 @@ use std::sync::Mutex as StdMutex;
 use marix_common::external::*;
 use marix_common::{
     ActorCloseReceiver, ActorEventReceiver, ActorFuture, ActorStartFuture, ActorStatus, Config,
-    Lifecycle, Logger, Runtime as RuntimeTrait,
+    Lifecycle, Runtime as RuntimeTrait,
 };
 use marix_protocol::{
     IntentEvent, InvocationEvent, RelayEvent, RelayKind, RelayRequest, RelayResult,
-    RelayResultKind, RelaySignature, SessionEvent, StepDraft, TaskEvent, WorkflowCallSummary,
-    WorkflowTool,
+    RelayResultKind, RelaySignature, SessionEvent, StepDraft, TaskEvent, TaskLogger, TaskLogging,
+    WorkflowCallSummary, WorkflowTool,
 };
 
 use super::Relay;
@@ -60,6 +60,12 @@ impl RelayRuntime {
     }
 }
 
+impl TaskLogging for RelayRuntime {
+    fn logger(&self) -> TaskLogger {
+        self.access.logger()
+    }
+}
+
 impl RuntimeTrait for RelayRuntime {
     type Base = Relay;
     type Prepared = ModelResponseStream;
@@ -77,7 +83,7 @@ impl RuntimeTrait for RelayRuntime {
             let request = match self.model_request() {
                 Ok(request) => request,
                 Err(reason) => {
-                    Logger::error(format!("relay {} failed: {reason}", &self.signature,));
+                    self.error(format!("relay {} failed: {reason}", &self.signature,));
                     self.finish(RelayResultKind::Failed, reason);
                     return None;
                 }
@@ -93,7 +99,7 @@ impl RuntimeTrait for RelayRuntime {
                 Ok(responses) => Some(responses),
                 Err(error) => {
                     let reason = format!("model request failed: {error}");
-                    Logger::error(format!("relay {} failed: {reason}", &self.signature,));
+                    self.error(format!("relay {} failed: {reason}", &self.signature,));
                     self.finish(RelayResultKind::Failed, reason);
                     None
                 }
@@ -142,7 +148,7 @@ impl RuntimeTrait for RelayRuntime {
                             ) {
                                 let reason = "model stream closed \
                                     before completion".to_owned();
-                                Logger::error(format!(
+                                self.error(format!(
                                     "relay {} failed: {reason}",
                                     &self.signature,
                                 ));
@@ -170,7 +176,7 @@ impl RuntimeTrait for RelayRuntime {
 impl RelayRuntime {
     fn on_model_response(&self, response: ModelResponse) {
         if matches!(self.status(), ActorStatus::Complete(_)) {
-            Logger::error(format!(
+            self.error(format!(
                 "relay {} received model response after completion",
                 &self.signature,
             ));
@@ -189,7 +195,7 @@ impl RelayRuntime {
                  expected {}",
                 response.seq,
             );
-            Logger::error(format!("relay {} failed: {reason}", &self.signature,));
+            self.error(format!("relay {} failed: {reason}", &self.signature,));
             self.finish(RelayResultKind::Failed, reason);
             return;
         };
@@ -211,7 +217,7 @@ impl RelayRuntime {
                     if let Err(reason) =
                         Self::validate_summary_cursor(&tool, continuation_cursor.as_deref())
                     {
-                        Logger::error(format!("relay {} failed: {reason}", &self.signature));
+                        self.error(format!("relay {} failed: {reason}", &self.signature));
                         self.finish(RelayResultKind::Failed, reason);
                         return;
                     }
@@ -224,13 +230,13 @@ impl RelayRuntime {
                                 "failed to serialize workflow call summary: \
                                  {error}"
                             );
-                            Logger::error(format!("relay {} failed: {reason}", &self.signature));
+                            self.error(format!("relay {} failed: {reason}", &self.signature,));
                             self.finish(RelayResultKind::Failed, reason);
                         }
                     }
                 }
                 Err(reason) => {
-                    Logger::error(format!("relay {} failed: {reason}", &self.signature));
+                    self.error(format!("relay {} failed: {reason}", &self.signature));
                     self.finish(RelayResultKind::Failed, reason);
                 }
             },
@@ -326,7 +332,7 @@ impl RelayRuntime {
             ),
         };
         if self.access.session_tx.send(event).is_err() {
-            Logger::warning(format!(
+            self.warning(format!(
                 "relay {} event send failed: session stopped",
                 &self.signature,
             ));
