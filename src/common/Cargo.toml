@@ -11,7 +11,7 @@ regex = "1"
 reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls", "stream"] }
 remoc = "0.18"
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+serde_json = { version = "1.0", features = ["preserve_order"] }
 socket2 = "0.6"
 tokio = { version = "1", features = ["net", "rt-multi-thread", "sync", "time"] }
 toml = "0.9"

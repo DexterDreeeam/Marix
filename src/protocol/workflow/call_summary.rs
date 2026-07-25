@@ -19,13 +19,12 @@ impl WorkflowTool for WorkflowCallSummary {
     fn preview() -> ToolPreview {
         ToolPreview {
             name: Self::NAME.to_owned(),
-            description: "MUST CALL workflow_call_summary when the last \
-                          message starts with [TOOL CALL]. Preserve every \
-                          important fact relevant to the current task and \
-                          discard the rest. Use an empty summary when nothing \
-                          is worth keeping. In that condition, do not call any \
-                          other tool. Do not call this tool when the last \
-                          message does not start with [TOOL CALL]."
+            description: "Preserve every important fact relevant to the \
+                          current task and discard the rest. Use an empty \
+                          summary when nothing is worth keeping. In that \
+                          condition, do not call any other tool. Do not call \
+                          this tool when the last message does not start with \
+                          [TOOL CALL]."
                 .to_owned(),
             category: ToolCategory::Workflow,
             system: System {

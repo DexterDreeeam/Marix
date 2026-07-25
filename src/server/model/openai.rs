@@ -88,7 +88,7 @@ impl OpenAiCore {
 
 impl OpenAiCore {
     fn build_payload(&self, request: &ModelRequest) -> Result<String, ModelBackendError> {
-        let mut messages = Vec::with_capacity(request.prompts.len() + 1);
+        let mut messages = Vec::with_capacity(request.prompts.len() + 2);
         messages.push(serde_json::json!({
             "role": "system",
             "content": &request.system
@@ -98,6 +98,10 @@ impl OpenAiCore {
                 "role": "user",
                 "content": prompt
             })
+        }));
+        messages.push(serde_json::json!({
+            "role": "system",
+            "content": &request.regulation
         }));
         let mut payload = serde_json::json!({
             "model": self.model.trim(),

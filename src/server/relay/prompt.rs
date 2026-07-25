@@ -3,9 +3,8 @@ use std::collections::BTreeSet;
 use marix_common::external::*;
 use marix_common::{Arch, Platform, System};
 use marix_protocol::{
-    ContextChain, IntentContext, IntentResult, IntentResultKind, RelayKind, ToolPreview,
-    WorkflowCallSummary, WorkflowComplete, WorkflowContinuation, WorkflowInfeasible, WorkflowPlan,
-    WorkflowTool,
+    ContextChain, IntentContext, IntentResultKind, RelayKind, ToolPreview, WorkflowCallSummary,
+    WorkflowComplete, WorkflowContinuation, WorkflowInfeasible, WorkflowPlan, WorkflowTool,
 };
 
 use super::RelayRuntime;
@@ -26,10 +25,13 @@ impl RelayRuntime {
             (current_system, context.tools.clone())
         };
         let tools = self.merge_workflow(tools)?;
+        let prompts = self.context_prompts(&chain)?;
+        let regulation = self.regulation_prompt()?;
         Ok(ModelRequest {
             relay: self.signature.clone(),
             system: self.system_prompt(current_system)?,
-            prompts: self.context_prompts(&chain)?,
+            prompts,
+            regulation,
             tools: Some(tools),
         })
     }
@@ -100,34 +102,51 @@ impl RelayRuntime {
         Ok(tools)
     }
 
-    fn system_prompt(&self, current_system: System) -> Result<String, String> {
-        let template = "System";
-        let mut system =
+    fn render_prompt(
+        template: &str,
+        parameters: &[(&str, String)],
+    ) -> Result<String, String> {
+        let mut prompt =
             std::panic::catch_unwind(|| Prompt::load(template)).map_err(|payload| {
-                let detail = if let Some(message) = payload.downcast_ref::<String>() {
+                let detail = if let Some(message) =
+                    payload.downcast_ref::<String>()
+                {
                     message.clone()
-                } else if let Some(message) = payload.downcast_ref::<&str>() {
+                } else if let Some(message) =
+                    payload.downcast_ref::<&str>()
+                {
                     (*message).to_owned()
                 } else {
                     "unknown prompt loading panic".to_owned()
                 };
                 format!("failed to load {template} prompt: {detail}")
             })?;
-        for parameter in system.parameters() {
-            let value = match parameter.as_str() {
-                "system" => Self::system_text(current_system),
-                _ => {
-                    return Err(format!(
+        for parameter in prompt.parameters() {
+            let value = parameters
+                .iter()
+                .find(|(name, _)| *name == parameter.as_str())
+                .map(|(_, value)| value.clone())
+                .ok_or_else(|| {
+                    format!(
                         "unsupported {template} prompt parameter \
                          `{parameter}`"
-                    ));
-                }
-            };
-            system.inject(parameter, value);
+                    )
+                })?;
+            prompt.inject(parameter, value);
         }
-        system
+        prompt
             .prompt()
-            .map_err(|error| format!("failed to render {template} prompt: {error}"))
+            .map_err(|error| {
+                format!("failed to render {template} prompt: {error}")
+            })
+    }
+
+    fn system_prompt(&self, current_system: System) -> Result<String, String> {
+        let template = "System";
+        Self::render_prompt(
+            template,
+            &[("system", Self::system_text(current_system))],
+        )
     }
 
     fn system_text(system: System) -> String {
@@ -175,62 +194,34 @@ impl RelayRuntime {
         } = &self.kind
         {
             prompts.push(self.tool_call_prompt(tool, output, continuation_cursor.as_deref())?);
-        } else {
-            prompts.push(Self::workflow_ignore_tool_call_prompt()?);
         }
         Ok(prompts)
     }
 
     fn workflow_policy_prompt(&self) -> Result<String, String> {
         let template = "WorkflowPolicy";
-        let mut prompt =
-            std::panic::catch_unwind(|| Prompt::load(template)).map_err(|payload| {
-                let detail = if let Some(message) = payload.downcast_ref::<String>() {
-                    message.clone()
-                } else if let Some(message) = payload.downcast_ref::<&str>() {
-                    (*message).to_owned()
-                } else {
-                    "unknown prompt loading panic".to_owned()
-                };
-                format!("failed to load {template} prompt: {detail}")
-            })?;
-        for parameter in prompt.parameters() {
-            let value = match parameter.as_str() {
-                "goal" => self.access.user_request.clone(),
-                _ => {
-                    return Err(format!(
-                        "unsupported {template} prompt parameter `{parameter}`"
-                    ));
-                }
-            };
-            prompt.inject(parameter, value);
-        }
-        prompt
-            .prompt()
-            .map_err(|error| format!("failed to render {template} prompt: {error}"))
+        Self::render_prompt(
+            template,
+            &[("goal", self.access.user_request.clone())],
+        )
     }
 
-    fn workflow_ignore_tool_call_prompt() -> Result<String, String> {
-        let template = "WorkflowIgnoreToolCall";
-        let prompt = std::panic::catch_unwind(|| Prompt::load(template)).map_err(|payload| {
-            let detail = if let Some(message) = payload.downcast_ref::<String>() {
-                message.clone()
-            } else if let Some(message) = payload.downcast_ref::<&str>() {
-                (*message).to_owned()
-            } else {
-                "unknown prompt loading panic".to_owned()
-            };
-            format!("failed to load {template} prompt: {detail}")
-        })?;
-        prompt
-            .prompt()
-            .map_err(|error| format!("failed to render {template} prompt: {error}"))
+    fn regulation_prompt(&self) -> Result<String, String> {
+        let template = match &self.kind {
+            RelayKind::ToolCallSummarize { .. } => {
+                "WorkflowToolAllowRegulation"
+            }
+            _ => "WorkflowToolRejectRegulation",
+        };
+        Self::render_prompt(
+            template,
+            &[("tool_list", WorkflowCallSummary::NAME.to_owned())],
+        )
     }
 
     /// Renders an ancestor Intent that currently holds an active Plan.
     fn plan_prompt(&self, intent: &IntentContext) -> Result<String, String> {
-        let mut prompt = format!("Goal: {}", intent.content);
-        Self::append_result(&mut prompt, &intent.result);
+        let mut prompt = format!("[Goal]\n{}\n[Plan]", intent.content);
         self.append_plan(&mut prompt, intent)?;
         Self::append_tool_calls(&mut prompt, intent, "\n");
         Self::append_plan_failures(&mut prompt, intent);
@@ -261,44 +252,17 @@ impl RelayRuntime {
         } else {
             "ToolCallSummarize"
         };
-        let mut prompt =
-            std::panic::catch_unwind(|| Prompt::load(template)).map_err(|payload| {
-                let detail = if let Some(message) = payload.downcast_ref::<String>() {
-                    message.clone()
-                } else if let Some(message) = payload.downcast_ref::<&str>() {
-                    (*message).to_owned()
-                } else {
-                    "unknown prompt loading panic".to_owned()
-                };
-                format!("failed to load {template} prompt: {detail}")
-            })?;
-        for parameter in prompt.parameters() {
-            let value = match parameter.as_str() {
-                "tool" => tool.to_owned(),
-                "output" => output.to_owned(),
-                "continuation_cursor" => continuation_cursor
-                    .ok_or_else(|| format!("{template} prompt requires a continuation cursor"))?
-                    .to_owned(),
-                _ => {
-                    return Err(format!(
-                        "unsupported {template} prompt parameter `{parameter}`"
-                    ));
-                }
-            };
-            prompt.inject(parameter, value);
+        let mut parameters = vec![
+            ("tool", tool.to_owned()),
+            ("output", output.to_owned()),
+        ];
+        if let Some(continuation_cursor) = continuation_cursor {
+            parameters.push((
+                "continuation_cursor",
+                continuation_cursor.to_owned(),
+            ));
         }
-        prompt
-            .prompt()
-            .map_err(|error| format!("failed to render {template} prompt: {error}"))
-    }
-
-    fn append_result(prompt: &mut String, result: &Option<IntentResult>) {
-        if let Some(result) = result {
-            prompt.push_str("\nResult: ");
-            prompt.push_str(Self::intent_result_status(&result.kind));
-            prompt.push_str(" — ");
-            prompt.push_str(&result.output);
-        }
+        Self::render_prompt(template, &parameters)
     }
 
     fn append_plan(&self, prompt: &mut String, intent: &IntentContext) -> Result<(), String> {
@@ -311,22 +275,34 @@ impl RelayRuntime {
             .iter()
             .map(|signature| self.access.get_intent_context(signature))
             .collect::<Result<Vec<_>, _>>()?;
+        let current_item = subintents
+            .iter()
+            .position(|subintent| subintent.result.is_none());
+        if let Some(index) = current_item {
+            prompt.push_str(&format!("\nGoal: {}", subintents[index].content));
+        }
         prompt.push_str("\nPlan:");
-        let mut current_item = None;
         for (index, subintent) in subintents.iter().enumerate() {
-            prompt.push_str(&format!("\n{}. {}", index + 1, subintent.content));
             match &subintent.result {
                 Some(result) => {
-                    let output = result.output.replace("\n", "\n      ");
-                    prompt.push_str(&format!("\n   Result:\n      {}", output));
+                    prompt.push_str(&format!(
+                        "\n{}. {}:\n{}",
+                        index + 1,
+                        subintent.content,
+                        result.output.trim(),
+                    ));
+                }
+                None if Some(index) == current_item => {
+                    prompt.push_str(&format!(
+                        "\n{}. [EXECUTING] {}",
+                        index + 1,
+                        subintent.content,
+                    ));
                 }
                 None => {
-                    current_item.get_or_insert(index + 1);
+                    prompt.push_str(&format!("\n{}. {}", index + 1, subintent.content));
                 }
             }
-        }
-        if let Some(item) = current_item {
-            prompt.push_str(&format!("\nCurrently executing item {item} of the plan."));
         }
         Ok(())
     }
@@ -348,7 +324,7 @@ impl RelayRuntime {
                 let descriptor = Self::call_descriptor(&call.tool, &call.input);
                 let output = Self::single_line(&call.result.output);
                 prompt.push_str(&format!(
-                    "\n{}. {}{}:{}",
+                    "\n{}. {}{}:\n{}",
                     index, call.tool, descriptor, output,
                 ));
                 index += 1;
@@ -474,15 +450,6 @@ impl RelayRuntime {
         }
         if let Ok(json_str) = marix_common::external::serde_json::to_string_pretty(&failures) {
             prompt.push_str(&json_str);
-        }
-    }
-
-    fn intent_result_status(kind: &IntentResultKind) -> &'static str {
-        match kind {
-            IntentResultKind::Succeed => "succeeded",
-            IntentResultKind::Infeasible => "was infeasible",
-            IntentResultKind::Canceled => "was canceled",
-            IntentResultKind::Failed => "failed",
         }
     }
 }

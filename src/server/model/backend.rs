@@ -26,6 +26,7 @@ pub struct ModelRequest {
     pub relay: RelaySignature,
     pub system: String,
     pub prompts: Vec<String>,
+    pub regulation: String,
     pub tools: Option<Vec<ToolPreview>>,
 }
 

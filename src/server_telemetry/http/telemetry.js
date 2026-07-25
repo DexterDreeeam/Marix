@@ -215,7 +215,7 @@ function levelBadgeClass(_level) {
 
 function taskRowColors(_taskId) {
   if (_taskId === null || _taskId === undefined) {
-    return { background: "#000", hover: "#000" };
+    return { color: "#000", hoverColor: "#000" };
   }
   var _text = String(_taskId);
   var _hash = 0x811c9dc5;
@@ -224,23 +224,37 @@ function taskRowColors(_taskId) {
     _hash = Math.imul(_hash, 0x01000193);
   }
   _hash >>>= 0;
-  var _hue = _hash % 360;
-  var _saturation = 58 + ((_hash >>> 8) % 13);
-  var _lightness = 12 + ((_hash >>> 16) % 5);
-  return {
-    background:
-      "hsl(" + _hue + " " + _saturation + "% " + _lightness + "%)",
-    hover:
-      "hsl(" + _hue + " " + _saturation + "% " + (_lightness + 2) + "%)",
-  };
+  var _channels = [
+    _hash % 13,
+    24 + ((_hash >>> 8) % 25),
+    64 + ((_hash >>> 16) % 33),
+  ];
+  var _permutations = [
+    [0, 1, 2],
+    [0, 2, 1],
+    [1, 0, 2],
+    [1, 2, 0],
+    [2, 0, 1],
+    [2, 1, 0],
+  ];
+  var _permutation = _permutations[(_hash >>> 24) % _permutations.length];
+  var _color =
+    "rgb(" +
+    _channels[_permutation[0]] +
+    ", " +
+    _channels[_permutation[1]] +
+    ", " +
+    _channels[_permutation[2]] +
+    ")";
+  return { color: _color, hoverColor: _color };
 }
 
 function createLogRow(_summary) {
   var _row = document.createElement("tr");
   _row.className = "log-row";
   var _taskColors = taskRowColors(_summary.task_id);
-  _row.style.setProperty("--task-background", _taskColors.background);
-  _row.style.setProperty("--task-background-hover", _taskColors.hover);
+  _row.style.setProperty("--task-background", _taskColors.color);
+  _row.style.setProperty("--task-background-hover", _taskColors.hoverColor);
   var _emitCell = document.createElement("td");
   _emitCell.className = "time-cell";
   _emitCell.textContent = formatTimestamp(_summary.emit_ts);
