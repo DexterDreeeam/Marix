@@ -19,19 +19,20 @@ impl WorkflowTool for WorkflowCallSummary {
     fn preview() -> ToolPreview {
         ToolPreview {
             name: Self::NAME.to_owned(),
-            description: "Summarize the tool call result presented in the \
-                          [TOOL CALL] message. Preserve every detail that \
-                          matters for the current task and discard the \
-                          rest. Never call it otherwise. MUST CALL \
-                          workflow_call_summary whenever a [TOOL CALL] message \
-                          is present."
+            description: "MUST CALL workflow_call_summary when the last \
+                          message starts with [TOOL CALL]. Preserve every \
+                          important fact relevant to the current task and \
+                          discard the rest. Use an empty summary when nothing \
+                          is worth keeping. In that condition, do not call any \
+                          other tool. Do not call this tool when the last \
+                          message does not start with [TOOL CALL]."
                 .to_owned(),
             category: ToolCategory::Workflow,
             system: System {
                 platform: Platform::All,
                 arch: Arch::All,
             },
-            input: r#"{"type":"object","properties":{"summary":{"type":"string","description":"The preserved information from the tool call result, written concisely. Use an empty string when nothing is worth keeping."},"continuation_cursor":{"type":"string","minLength":1,"description":"Return the cursor unchanged only when the [TOOL CALL] provides one and later truncated content may be valuable to the current task; otherwise omit this field."}},"required":["summary"],"additionalProperties":false}"#.to_owned(),
+            input: r#"{"type":"object","properties":{"summary":{"type":"string","description":"Concise content facts relevant to the current task. State facts directly; never mention or describe tools, tool calls, invocation, execution, returned output, or the summarization process. Use an empty string when nothing is worth keeping."},"continuation_cursor":{"type":"string","minLength":1,"description":"Return the cursor unchanged only when the [TOOL CALL] provides one and later truncated content may be valuable to the current task; otherwise omit this field."}},"required":["summary"],"additionalProperties":false}"#.to_owned(),
         }
     }
 

@@ -63,11 +63,12 @@ const s_filters = createLogFilters(
   s_state,
   {
     resetLogs: resetLogs,
-    fetchTags: function (_sessionId) {
+    fetchTags: function (_sessionId, _signal) {
       return fetchJson(
         "/api/sessions/" +
           encodeURIComponent(sessionKey(_sessionId)) +
-          "/tags"
+          "/tags",
+        _signal
       );
     },
     isCurrentSession: function (_sessionId) {
@@ -361,20 +362,17 @@ async function loadSessions() {
 }
 
 async function requestLogs(_mode) {
-  if (
-    s_state.logRequest ||
-    s_state.selectedSession === undefined ||
-    s_messageActions.isModalOpen()
-  ) {
+  if (s_state.logRequest || s_state.selectedSession === undefined) {
     return;
   }
   if (_mode === "before" && !s_state.nextCursor) {
     return;
   }
   if (_mode === "incremental" && s_state.latestRecordId === null) {
-    return;
+    _mode = "initial";
   }
   var _generation = s_state.generation;
+  var _previousLatestRecordId = s_state.latestRecordId;
   var _controller = new AbortController();
   s_state.logRequest = _controller;
   var _url = buildLogsUrl(
@@ -397,20 +395,15 @@ async function requestLogs(_mode) {
     ) {
       return;
     }
+    var _incoming = (_page && _page.items) || [];
     if (_mode === "initial") {
-      s_state.summaries = (_page && _page.items) || [];
+      s_state.summaries = _incoming;
       s_state.nextCursor = _page ? _page.next_cursor : null;
     } else if (_mode === "before") {
-      s_state.summaries = mergeSummaries(
-        s_state.summaries,
-        (_page && _page.items) || []
-      );
+      s_state.summaries = mergeSummaries(s_state.summaries, _incoming);
       s_state.nextCursor = _page ? _page.next_cursor : null;
     } else {
-      s_state.summaries = mergeSummaries(
-        s_state.summaries,
-        (_page && _page.items) || []
-      );
+      s_state.summaries = mergeSummaries(s_state.summaries, _incoming);
     }
     if (
       _mode !== "before" &&
@@ -425,6 +418,16 @@ async function requestLogs(_mode) {
     s_state.initialized = true;
     clearError();
     renderVirtualRows();
+    s_messageActions.summariesChanged();
+    if (
+      _mode !== "before" &&
+      (_incoming.length > 0 ||
+        (s_state.latestRecordId !== null &&
+          (_previousLatestRecordId === null ||
+            s_state.latestRecordId > _previousLatestRecordId)))
+    ) {
+      s_filters.loadAvailableTags(s_state.selectedSession);
+    }
   } catch (_error) {
     if (_error.name !== "AbortError") {
       showError("Failed to load logs: " + _error.message);

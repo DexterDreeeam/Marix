@@ -15,8 +15,11 @@ themselves work.
 
 ## Safety boundaries
 
-- Never deploy, start, stop, or restart Marix services yourself; the deployment
-  freshness gate below delegates that work to `engineer-of-deployment`.
+- Never build, deploy, start, stop, or restart Marix services. Run cases against
+  the currently available environment.
+- Submit every case through the existing local Client CLI at
+  `C:\MarixClient\Cli\marix-client-cli.exe` as installed; do not inspect or
+  compare its artifacts.
 - Never run git commands or inspect `.git`.
 - Never modify anything under `.github\e2e\fixtures`; fixtures are immutable
   baselines.
@@ -24,20 +27,6 @@ themselves work.
 If the required Server, Server Telemetry, Host, Client, network, toolchain, or
 another prerequisite is unavailable, report an environment failure rather than
 trying to deploy or start it.
-
-## Deployment freshness gate
-
-Before validating `tasks.json` or setting up any case, delegate a deployment
-preflight to `engineer-of-deployment`. It must attempt current-source incremental
-builds (Ubuntu-native Server and Server Telemetry; local Windows Host, Client CLI,
-and required Tools), compare the resulting artifacts, configs, and runtime
-resources with the three deployed endpoints, and deploy or restart anything
-stale. Do not accept revision labels or existing hashes without attempting these
-builds. This tester performs none of those deployment actions itself. Proceed
-only after the deployment engineer reports the Ubuntu services, `Marix_TestVm`
-Host, and local Client current, mutually consistent, running, and ready. If the
-preflight is unavailable, incomplete, or unsuccessful, stop with
-`ENVIRONMENT_ERROR` before creating any case workspace.
 
 ## Hyper-V execution model
 

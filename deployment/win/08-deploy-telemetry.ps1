@@ -13,12 +13,12 @@ if (Get-Variable PSNativeCommandUseErrorActionPreference -ErrorAction SilentlyCo
 $localPackageRoot = Join-Path $RepoRoot '.temp\package\server_telemetry'
 $remoteDestRoot = '/opt/marix/server-telemetry'
 
-Write-Host "Building the local Server Telemetry package manifest ($localPackageRoot)..."
+Write-Host "Building the local Telemetry package manifest ($localPackageRoot)..."
 $localEntries = @(Get-LocalPackageManifestEntries -PackageRoot $localPackageRoot)
 $relPaths = @($localEntries | ForEach-Object { $_.RelPath })
 Write-Host "  $($localEntries.Count) file(s) in the local package."
 
-Write-Host 'Resolving SSH credentials and opening an SSH context to the Ubuntu server...'
+Write-Host 'Resolving SSH credentials and opening an SSH context for Telemetry...'
 $sshContext = New-DeploymentSshContext -RepoRoot $RepoRoot
 try {
     Write-Host "Building the currently-deployed remote manifest ($remoteDestRoot)..."
@@ -26,10 +26,10 @@ try {
 
     $comparison = Test-PackageManifestsMatch -LocalEntries $localEntries -RemoteEntries $remoteEntries
     if ($comparison.Matches) {
-        Write-Host 'Server Telemetry package manifest matches the Ubuntu deployment exactly; skipping deployment.'
+        Write-Host 'Telemetry package manifest matches the deployment exactly; skipping deployment.'
     }
     else {
-        Write-Host "Server Telemetry package differs from the Ubuntu deployment ($($comparison.DifferingRelPaths.Count) file(s) changed/new):"
+        Write-Host "Telemetry package differs from the deployment ($($comparison.DifferingRelPaths.Count) file(s) changed/new):"
         foreach ($rel in $comparison.DifferingRelPaths) {
             Write-Host "  changed: $rel"
         }
@@ -51,7 +51,7 @@ try {
             Sync-FileToRemoteAtomic -Context $sshContext -LocalPath $localFullPath -RemoteDestPath $remoteDestPath -ExpectedHash $entry.Hash -MakeExecutable:($rel -eq $executableRelPath)
         }
 
-        Write-Host 'Server Telemetry package deployment to Ubuntu completed.'
+        Write-Host 'Telemetry package deployment completed.'
     }
 }
 finally {

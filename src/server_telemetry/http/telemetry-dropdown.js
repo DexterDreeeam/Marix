@@ -112,6 +112,7 @@ export function createLogFilters(_elements, _state, _actions) {
     _elements.levelPopup
   );
   var _tagsDropdown = createDropdown(_elements.tagsButton, _elements.tagsPopup);
+  var _tagsRequest = null;
 
   function updateLevelSelection() {
     _elements.levelButton.textContent = _state.level || "All levels";
@@ -180,21 +181,42 @@ export function createLogFilters(_elements, _state, _actions) {
     if (_sessionId === undefined) {
       return;
     }
+    if (_tagsRequest !== null) {
+      _tagsRequest.abort();
+    }
+    var _controller = new AbortController();
+    _tagsRequest = _controller;
     try {
-      var _tags = (await _actions.fetchTags(_sessionId)) || [];
-      if (!_actions.isCurrentSession(_sessionId)) {
+      var _tags =
+        (await _actions.fetchTags(_sessionId, _controller.signal)) || [];
+      if (
+        _tagsRequest !== _controller ||
+        !_actions.isCurrentSession(_sessionId)
+      ) {
         return;
       }
       _state.availableTags = _tags;
       renderTagsPopup();
     } catch (_error) {
-      if (_error.name !== "AbortError") {
+      if (
+        _error.name !== "AbortError" &&
+        _tagsRequest === _controller &&
+        _actions.isCurrentSession(_sessionId)
+      ) {
         _actions.showError("Failed to load tags: " + _error.message);
+      }
+    } finally {
+      if (_tagsRequest === _controller) {
+        _tagsRequest = null;
       }
     }
   }
 
   function resetTagsForSession() {
+    if (_tagsRequest !== null) {
+      _tagsRequest.abort();
+      _tagsRequest = null;
+    }
     _state.selectedTags.clear();
     _state.availableTags = [];
     _tagsDropdown.close();

@@ -18,7 +18,7 @@ $localConfigPath = Join-Path $RepoRoot '.temp\package\server\config.toml'
 # step 9 already guarantees nothing is running under this path beforehand.
 $hostPort = Get-ConfigTomlValue -Path $localConfigPath -Key 'host_port'
 
-Write-Host 'Resolving SSH credentials and opening an SSH context to the Ubuntu server...'
+Write-Host 'Resolving SSH credentials and opening an SSH context for Server...'
 $sshContext = New-DeploymentSshContext -RepoRoot $RepoRoot
 try {
     Write-Host "Starting Server as a detached background process ($remoteExecutablePath)..."
@@ -38,4 +38,4 @@ finally {
     Remove-DeploymentSshContext -Context $sshContext
 }
 
-Write-Host 'Server start-up and readiness confirmation on Ubuntu completed.'
+Write-Host 'Server start-up and readiness confirmation completed.'

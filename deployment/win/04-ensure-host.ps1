@@ -425,4 +425,4 @@ else {
 }
 
 Write-Host ''
-Write-Host "Hyper-V VM readiness confirmed: '$vmName' is running and reachable via PowerShell Direct with the fixed guest credential ('$guestUserName')."
+Write-Host "Host environment readiness confirmed: '$vmName' is running and reachable via PowerShell Direct with the fixed guest credential ('$guestUserName')."

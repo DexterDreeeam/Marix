@@ -34,10 +34,9 @@ Do not change source code unless the user explicitly asks for a code change. Do 
 - Copy only Host deployment files into the guest with `Copy-VMFile`, placing
   Host artifacts in `C:\MarixHost\`. Never copy Client artifacts into the
   guest; Client deployment is local to the physical machine.
-- When a deployment flow needs Host startup or restart, start Host only after
-  the deployment engineer has started Server Telemetry, completed the bounded
-  Telemetry TCP readiness probe successfully, started Server, and confirmed
-  Server is active. Never start Host after a readiness timeout or failed Server
+- When explicitly asked to start or restart Host, do so only after Server
+  Telemetry has passed its bounded TCP readiness probe and Server has passed its
+  active-state gate. Never start Host after a readiness timeout or failed Server
   active-state gate. Never start Client from the Hyper-V guest.
 - Use PowerShell Direct for guest command execution:
   - build a `PSCredential` from the fixed `marixagent` / `123` credentials,

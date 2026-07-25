@@ -16,5 +16,4 @@
 - All file operations under `src_meta/` must go through the `design-json-update` and `design-json-reset` skills.
 - **NEVER** touch files under `src_meta/` and evoke `design-json-update` skill proactively.
 - All file operations under `overview/` except reading must go through the `engineer-of-overview` agent.
-- Deployment-related work must go through the `engineer-of-deployment` agent.
 - Research questions about external agent implementations must go through the `researcher-of-agents` agent.

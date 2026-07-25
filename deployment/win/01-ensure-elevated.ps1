@@ -5,8 +5,8 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
-# Never rely on the current working directory: every path here is built from the
-# $RepoRoot value passed explicitly by run.ps1, never re-derived from $PSScriptRoot.
+# Never rely on the current working directory: repository-scoped paths use the
+# explicit $RepoRoot, while the sibling run.ps1 is resolved from $PSScriptRoot.
 
 $currentIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
 $currentPrincipal = [Security.Principal.WindowsPrincipal]::new($currentIdentity)
@@ -35,7 +35,7 @@ $elevationAlreadyAttempted = ($env:MARIX_DEPLOYMENT_ELEVATION_ATTEMPTED -eq '1')
     (Test-Path -LiteralPath $elevationMarkerPath -PathType Leaf)
 
 if (-not $isElevated -and $elevationAlreadyAttempted) {
-    throw "Elevation was already attempted once and this process is still not running elevated; refusing to relaunch again to avoid an infinite relaunch loop. Run 'deployment\run.ps1' (repo root '$RepoRoot') yourself from an already-elevated PowerShell window instead. This is most likely caused by a known issue: MSIX-packaged (Microsoft Store) builds of PowerShell 7 -- executables whose path contains '\WindowsApps\' -- can fail to actually acquire an elevated token when relaunched via 'Start-Process -Verb RunAs', or can bypass the UAC consent prompt while still landing back in a non-elevated context. If your PowerShell host is an MSIX package, start classic Windows PowerShell ('powershell.exe' under System32\WindowsPowerShell\v1.0) or a non-Store pwsh.exe as Administrator and re-run this script from there."
+    throw "Elevation was already attempted once and this process is still not running elevated; refusing to relaunch again to avoid an infinite relaunch loop. Run 'C:\r\Marix\deployment\run.cmd' yourself from an already-elevated window instead (repo root '$RepoRoot'). This is most likely caused by a known issue: MSIX-packaged (Microsoft Store) builds of PowerShell 7 -- executables whose path contains '\WindowsApps\' -- can fail to actually acquire an elevated token when relaunched via 'Start-Process -Verb RunAs', or can bypass the UAC consent prompt while still landing back in a non-elevated context. If your PowerShell host is an MSIX package, start classic Windows PowerShell ('powershell.exe' under System32\WindowsPowerShell\v1.0) or a non-Store pwsh.exe as Administrator and re-run this launcher from there."
 }
 
 if ($isElevated) {
@@ -50,7 +50,7 @@ if ($isElevated) {
 
 Write-Host 'Current process is not running elevated; relaunching an elevated PowerShell window...'
 
-$runPs1Path = [IO.Path]::GetFullPath((Join-Path $RepoRoot 'deployment\run.ps1'))
+$runPs1Path = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot 'run.ps1'))
 if (-not (Test-Path -LiteralPath $runPs1Path -PathType Leaf)) {
     throw "Main entry point script was not found: $runPs1Path"
 }

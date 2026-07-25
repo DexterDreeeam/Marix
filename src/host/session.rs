@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::sync::OnceLock;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use marix_common::{
     ChannelEndpoint, Logger, NetReceiver, SharedNetSender, connect_channel_with_timeout,
@@ -55,10 +55,80 @@ impl HostSession {
 
 // -- Private -- //
 
+enum HostConnectionTerminationReason {
+    LocalShutdown,
+    RemoteClosed,
+    ReceiverError(String),
+}
+
+struct HostConnectionTermination {
+    reason: HostConnectionTerminationReason,
+    duration: Duration,
+    messages_received: u64,
+}
+
+impl HostConnectionTermination {
+    fn new(
+        reason: HostConnectionTerminationReason,
+        connected_at: Instant,
+        messages_received: u64,
+    ) -> Self {
+        Self {
+            reason,
+            duration: connected_at.elapsed(),
+            messages_received,
+        }
+    }
+
+    fn log(&self) {
+        let duration_ms = self.duration.as_millis();
+        let messages_received = self.messages_received;
+        match &self.reason {
+            HostConnectionTerminationReason::LocalShutdown => {
+                Logger::log_tagged(
+                    format!(
+                        "host core connection terminated reason=local_shutdown \
+                         duration_ms={duration_ms} messages_received={messages_received} \
+                         side=host action=process_exit exit_code=1"
+                    ),
+                    ["Host Connection"],
+                );
+            }
+            HostConnectionTerminationReason::RemoteClosed => {
+                Logger::warning_tagged(
+                    format!(
+                        "host core connection terminated reason=remote_closed \
+                         duration_ms={duration_ms} messages_received={messages_received} \
+                         side=host action=process_exit exit_code=1"
+                    ),
+                    ["Host Connection"],
+                );
+            }
+            HostConnectionTerminationReason::ReceiverError(error) => {
+                Logger::error_tagged(
+                    format!(
+                        "host core connection terminated reason=receiver_error \
+                         duration_ms={duration_ms} messages_received={messages_received} \
+                         side=host action=process_exit exit_code=1 error={error}"
+                    ),
+                    ["Host Connection"],
+                );
+            }
+        }
+    }
+}
+
 impl HostSession {
     fn spawn_worker(state: Arc<HostSessionState>) -> JoinHandle<()> {
         std::thread::spawn(move || {
             let mut executor = Executor::new(Arc::clone(&state.server_tx));
+            Logger::log_tagged(
+                format!(
+                    "host core connection attempt timeout_ms={} side=host policy=single_attempt",
+                    HOST_CONNECT_TIMEOUT.as_millis()
+                ),
+                ["Host Connection"],
+            );
             let (net_tx, net_rx) = match connect_channel_with_timeout::<SessionMessage>(
                 ChannelEndpoint::Host,
                 HOST_CONNECT_TIMEOUT,
@@ -69,21 +139,31 @@ impl HostSession {
                     // (main just parks forever), so this must exit the
                     // OS process directly for a deployment script's
                     // "process still running" check to stay meaningful.
-                    Logger::error(format!(
-                        "host failed to connect to server core within {}s: {error:?}",
-                        HOST_CONNECT_TIMEOUT.as_secs()
-                    ));
+                    Logger::error_tagged(
+                        format!(
+                            "host core connection attempt failed reason=connect_error \
+                             timeout_ms={} side=host action=process_exit exit_code=1 \
+                             error={error:?}",
+                            HOST_CONNECT_TIMEOUT.as_millis()
+                        ),
+                        ["Host Connection"],
+                    );
                     std::process::exit(1);
                 }
             };
-            Logger::log("host connected to server core");
+            let connected_at = Instant::now();
+            Logger::log_tagged(
+                "host core connection connected side=host",
+                ["Host Connection"],
+            );
             *state
                 .server_tx
                 .lock()
                 .unwrap_or_else(|error| error.into_inner()) = Some(net_tx);
             executor.start();
-            Self::worker(net_rx, &executor, &state.shutdown);
-            Logger::error("host lost connection to server core");
+            let termination =
+                Self::worker(net_rx, &executor, &state.shutdown, connected_at);
+            termination.log();
             std::process::exit(1);
         })
     }
@@ -92,32 +172,60 @@ impl HostSession {
         mut server_rx: NetReceiver<SessionMessage>,
         executor: &Executor,
         shutdown: &AtomicBool,
-    ) {
+        connected_at: Instant,
+    ) -> HostConnectionTermination {
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
             .unwrap_or_else(|error| panic!("failed to build host event runtime: {error}"));
         runtime.block_on(async move {
-            while let Ok(Some(message)) = server_rx.recv().await {
-                match message.event {
-                    SessionEvent::SessionId(id) => {
-                        Logger::set_id(id);
-                        Logger::log("host session id updated");
-                    }
-                    SessionEvent::Executor(event) => {
-                        executor.dispatch(event);
-                    }
-                    event => {
-                        Logger::warning(format!(
-                            "host session received unsupported session event {event:?}"
-                        ));
-                    }
-                }
+            let mut messages_received = 0_u64;
+            loop {
                 if shutdown.load(Ordering::Relaxed) {
-                    break;
+                    break HostConnectionTermination::new(
+                        HostConnectionTerminationReason::LocalShutdown,
+                        connected_at,
+                        messages_received,
+                    );
+                }
+                match server_rx.recv().await {
+                    Ok(Some(message)) => {
+                        messages_received =
+                            messages_received.saturating_add(1);
+                        match message.event {
+                            SessionEvent::SessionId(id) => {
+                                Logger::set_id(id);
+                                Logger::log("host session id updated");
+                            }
+                            SessionEvent::Executor(event) => {
+                                executor.dispatch(event);
+                            }
+                            event => {
+                                Logger::warning(format!(
+                                    "host session received unsupported session event {event:?}"
+                                ));
+                            }
+                        }
+                    }
+                    Ok(None) => {
+                        break HostConnectionTermination::new(
+                            HostConnectionTerminationReason::RemoteClosed,
+                            connected_at,
+                            messages_received,
+                        );
+                    }
+                    Err(error) => {
+                        break HostConnectionTermination::new(
+                            HostConnectionTerminationReason::ReceiverError(
+                                error.to_string(),
+                            ),
+                            connected_at,
+                            messages_received,
+                        );
+                    }
                 }
             }
-        });
+        })
     }
 }
 

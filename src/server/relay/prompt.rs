@@ -1,5 +1,6 @@
 use std::collections::BTreeSet;
 
+use marix_common::external::*;
 use marix_common::{Arch, Platform, System};
 use marix_protocol::{
     ContextChain, IntentContext, IntentResult, IntentResultKind, RelayKind, ToolPreview,
@@ -174,6 +175,8 @@ impl RelayRuntime {
         } = &self.kind
         {
             prompts.push(self.tool_call_prompt(tool, output, continuation_cursor.as_deref())?);
+        } else {
+            prompts.push(Self::workflow_focus_prompt()?);
         }
         Ok(prompts)
     }
@@ -207,12 +210,29 @@ impl RelayRuntime {
             .map_err(|error| format!("failed to render {template} prompt: {error}"))
     }
 
+    fn workflow_focus_prompt() -> Result<String, String> {
+        let template = "WorkflowFocus";
+        let prompt = std::panic::catch_unwind(|| Prompt::load(template)).map_err(|payload| {
+            let detail = if let Some(message) = payload.downcast_ref::<String>() {
+                message.clone()
+            } else if let Some(message) = payload.downcast_ref::<&str>() {
+                (*message).to_owned()
+            } else {
+                "unknown prompt loading panic".to_owned()
+            };
+            format!("failed to load {template} prompt: {detail}")
+        })?;
+        prompt
+            .prompt()
+            .map_err(|error| format!("failed to render {template} prompt: {error}"))
+    }
+
     /// Renders an ancestor Intent that currently holds an active Plan.
     fn plan_prompt(&self, intent: &IntentContext) -> Result<String, String> {
         let mut prompt = format!("Goal: {}", intent.content);
         Self::append_result(&mut prompt, &intent.result);
         self.append_plan(&mut prompt, intent)?;
-        Self::append_tool_calls(&mut prompt, intent);
+        Self::append_tool_calls(&mut prompt, intent, "\n");
         Self::append_plan_failures(&mut prompt, intent);
         Ok(prompt)
     }
@@ -221,8 +241,8 @@ impl RelayRuntime {
     fn pending_intent_prompt(intent: &IntentContext) -> String {
         let mut prompt = "[CURRENT TASK]\nThis is the task you are executing NOW. Everything you do MUST be scoped strictly to this goal alone."
             .to_owned();
-        prompt.push_str(&format!("\nGoal: {}", intent.content));
-        Self::append_tool_calls(&mut prompt, intent);
+        prompt.push_str(&format!("\n\nGOAL: {}", intent.content));
+        Self::append_tool_calls(&mut prompt, intent, "\n\n");
         Self::append_plan_failures(&mut prompt, intent);
         prompt
     }
@@ -311,7 +331,7 @@ impl RelayRuntime {
         Ok(())
     }
 
-    fn append_tool_calls(prompt: &mut String, intent: &IntentContext) {
+    fn append_tool_calls(prompt: &mut String, intent: &IntentContext, separator: &str) {
         let has_calls = intent
             .step_results
             .iter()
@@ -320,34 +340,100 @@ impl RelayRuntime {
             return;
         }
 
-        prompt.push_str("\nTool calls:");
+        prompt.push_str(separator);
+        prompt.push_str("BACKGROUND:");
         let mut index = 1;
         for step_result in &intent.step_results {
             for call in &step_result.calls {
-                let purpose = marix_common::external::serde_json::from_str::<
-                    marix_common::external::serde_json::Value,
-                >(&call.input)
-                .ok()
-                .and_then(|v| {
-                    v.get("purpose")
-                        .and_then(|p| p.as_str())
-                        .map(|s| s.to_owned())
-                })
-                .unwrap_or_default();
-                let purpose_str = if purpose.is_empty() {
-                    String::new()
-                } else {
-                    format!(" ({})", purpose)
-                };
-
-                let output = call.result.output.replace("\n", "\n      ");
+                let descriptor = Self::call_descriptor(&call.tool, &call.input);
+                let output = Self::single_line(&call.result.output);
                 prompt.push_str(&format!(
-                    "\n{}. {}{}\n   Result:\n      {}",
-                    index, call.tool, purpose_str, output,
+                    "\n{}. {}{}:{}",
+                    index, call.tool, descriptor, output,
                 ));
                 index += 1;
             }
         }
+    }
+
+    fn call_descriptor(tool: &str, input: &str) -> String {
+        let Ok(serde_json::Value::Object(input)) = serde_json::from_str::<serde_json::Value>(input)
+        else {
+            return String::new();
+        };
+        let purpose = input
+            .get("purpose")
+            .and_then(serde_json::Value::as_str)
+            .map(Self::single_line)
+            .filter(|value| !value.is_empty());
+        if tool.starts_with("workflow_") {
+            return purpose
+                .map(|value| format!(" ({value})"))
+                .unwrap_or_default();
+        }
+
+        let mut core = input
+            .iter()
+            .filter(|(name, _)| name.as_str() != "purpose")
+            .collect::<Vec<_>>();
+        core.sort_unstable_by(|left, right| left.0.cmp(right.0));
+        let core = match core.as_slice() {
+            [] => None,
+            [(_, value)] => Self::single_parameter_text(value),
+            _ => core
+                .iter()
+                .map(|(name, value)| {
+                    Self::quoted_parameter_text(value).map(|value| format!("--{name} {value}"))
+                })
+                .collect::<Option<Vec<_>>>()
+                .map(|values| values.join(" ")),
+        };
+        let descriptor = match core {
+            Some(core) if !core.is_empty() && core.chars().count() < 32 => Some(core),
+            Some(core) => purpose.or_else(|| (!core.is_empty()).then_some(core)),
+            None => purpose,
+        };
+        descriptor
+            .map(|value| format!(" ({value})"))
+            .unwrap_or_default()
+    }
+
+    fn single_parameter_text(value: &serde_json::Value) -> Option<String> {
+        match value {
+            serde_json::Value::String(value) => {
+                let value = serde_json::to_string(value).ok()?;
+                value
+                    .strip_prefix('"')
+                    .and_then(|value| value.strip_suffix('"'))
+                    .map(str::to_owned)
+            }
+            _ => serde_json::to_string(value).ok(),
+        }
+    }
+
+    fn quoted_parameter_text(value: &serde_json::Value) -> Option<String> {
+        let value = match value {
+            serde_json::Value::String(value) => value.clone(),
+            _ => serde_json::to_string(value).ok()?,
+        };
+        serde_json::to_string(&value).ok()
+    }
+
+    fn single_line(value: &str) -> String {
+        let mut output = String::with_capacity(value.len());
+        let mut line_break = false;
+        for character in value.chars() {
+            if matches!(character, '\r' | '\n') {
+                if !line_break {
+                    output.push(' ');
+                }
+                line_break = true;
+            } else {
+                output.push(character);
+                line_break = false;
+            }
+        }
+        output.trim().to_owned()
     }
 
     fn append_plan_failures(prompt: &mut String, intent: &IntentContext) {

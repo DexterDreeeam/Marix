@@ -1,5 +1,5 @@
-# Shared helper functions for deployment steps 5-13 (VM Host lifecycle, and Ubuntu
-# Server / Server Telemetry lifecycle over SSH). This file is dot-sourced by each of
+# Shared helper functions for deployment steps 5-14 (Host lifecycle, plus Server
+# and Telemetry lifecycle over SSH). This file is dot-sourced by each of
 # those step scripts; it is not itself a numbered step and is not directly invoked by
 # run.ps1. It intentionally duplicates (rather than imports/dot-sources) small pieces
 # of logic already established in 03-resolve-config.ps1 (git-crypt magic-header check,
@@ -117,7 +117,7 @@ function Get-DeployCredentialText {
 }
 
 # ---------------------------------------------------------------------------
-# SSH/SCP context (steps 7, 8, 9, 10, 11, 12 - all Ubuntu-facing steps)
+# SSH/SCP context (steps 7-12 for Server and Telemetry)
 # ---------------------------------------------------------------------------
 
 function New-DeploymentSshContext {
@@ -193,6 +193,125 @@ function Remove-DeploymentSshContext {
     }
 }
 
+function ConvertTo-DeploymentProcessArgument {
+    param(
+        [AllowNull()]
+        [AllowEmptyString()]
+        [string] $Argument
+    )
+
+    if ($null -eq $Argument) {
+        $Argument = ''
+    }
+    if ($Argument.Length -gt 0 -and $Argument -notmatch '[\s"]') {
+        return $Argument
+    }
+
+    # Quote for the Windows CreateProcess command line parser. Backslashes are
+    # doubled only when they precede a quote or the closing quote.
+    $quoted = New-Object Text.StringBuilder
+    [void] $quoted.Append('"')
+    $backslashCount = 0
+    foreach ($character in $Argument.ToCharArray()) {
+        if ($character -eq [char]'\') {
+            $backslashCount++
+            continue
+        }
+        if ($character -eq [char]'"') {
+            if ($backslashCount -gt 0) {
+                [void] $quoted.Append((('\' * ($backslashCount * 2)) -join ''))
+            }
+            [void] $quoted.Append('\"')
+            $backslashCount = 0
+            continue
+        }
+        if ($backslashCount -gt 0) {
+            [void] $quoted.Append((('\' * $backslashCount) -join ''))
+            $backslashCount = 0
+        }
+        [void] $quoted.Append($character)
+    }
+    if ($backslashCount -gt 0) {
+        [void] $quoted.Append((('\' * ($backslashCount * 2)) -join ''))
+    }
+    [void] $quoted.Append('"')
+    return $quoted.ToString()
+}
+
+function Invoke-DeploymentProcess {
+    param(
+        [Parameter(Mandatory)][string] $FilePath,
+        [Parameter(Mandatory)]
+        [AllowEmptyCollection()]
+        [AllowEmptyString()]
+        [string[]] $Arguments
+    )
+
+    # Windows PowerShell 5.1 can promote native stderr to a terminating
+    # ErrorRecord. Process API redirection keeps stderr separate from PowerShell.
+    $startInfo = New-Object Diagnostics.ProcessStartInfo
+    $startInfo.FileName = $FilePath
+    $startInfo.UseShellExecute = $false
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $startInfo.CreateNoWindow = $true
+
+    if ($null -ne $startInfo.PSObject.Properties['ArgumentList']) {
+        foreach ($argument in $Arguments) {
+            [void] $startInfo.ArgumentList.Add($argument)
+        }
+    }
+    else {
+        $quotedArguments = @(
+            foreach ($argument in $Arguments) {
+                ConvertTo-DeploymentProcessArgument -Argument $argument
+            }
+        )
+        $startInfo.Arguments = $quotedArguments -join ' '
+    }
+
+    $process = New-Object Diagnostics.Process
+    $process.StartInfo = $startInfo
+    try {
+        if (-not $process.Start()) {
+            throw "Failed to start deployment process '$FilePath'."
+        }
+
+        # Drain both redirected pipes concurrently before waiting, so neither
+        # child-process pipe can fill and deadlock the other.
+        $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+        $stderrTask = $process.StandardError.ReadToEndAsync()
+        $process.WaitForExit()
+        [Threading.Tasks.Task]::WaitAll(
+            [Threading.Tasks.Task[]] @($stdoutTask, $stderrTask)
+        )
+
+        $stdoutText = $stdoutTask.Result
+        $stderrText = $stderrTask.Result
+        $stdoutLines = @()
+        if (-not [string]::IsNullOrEmpty($stdoutText)) {
+            $stdoutLines = @($stdoutText -split "`r`n|`n|`r")
+            if ($stdoutLines.Count -gt 0 -and $stdoutLines[-1] -eq '') {
+                if ($stdoutLines.Count -eq 1) {
+                    $stdoutLines = @()
+                }
+                else {
+                    $stdoutLines = @($stdoutLines[0..($stdoutLines.Count - 2)])
+                }
+            }
+        }
+
+        return [pscustomobject] @{
+            ExitCode    = $process.ExitCode
+            StdOutLines = $stdoutLines
+            StdErr      = $stderrText
+        }
+    }
+    finally {
+        $process.Dispose()
+    }
+}
+
 function Invoke-DeploymentSsh {
     param(
         [Parameter(Mandatory)][hashtable] $Context,
@@ -206,33 +325,9 @@ function Invoke-DeploymentSsh {
     # in every command-building function.
     $normalizedCommand = $RemoteCommand -replace "`r`n", "`n" -replace "`r", "`n"
 
-    $stderrPath = Join-Path $Context.TempDir "ssh-stderr-$([guid]::NewGuid().ToString('N')).txt"
-    try {
-        # Deliberately redirect stderr to a FILE, not merge it via 2>&1 into the
-        # success stream: merging a native command's stderr with 2>&1 wraps each
-        # stderr line as a PowerShell ErrorRecord, and under
-        # $ErrorActionPreference = 'Stop' the first such record becomes a
-        # terminating exception immediately - regardless of the command's real exit
-        # code. ssh legitimately writes to stderr on a successful run (e.g. the
-        # "Warning: Permanently added ... to the list of known hosts" notice), so
-        # this is not a hypothetical concern. A plain file redirect is a pure OS-level
-        # redirect with no PowerShell stream/ErrorRecord involvement, so it is safe
-        # here regardless.
-        $stdoutLines = @(& $Context.SshExe @($Context.BaseArgs) "root@$($Context.HostIp)" $normalizedCommand 2>$stderrPath)
-        $exitCode = $LASTEXITCODE
-        $stderrText = ''
-        if (Test-Path -LiteralPath $stderrPath) {
-            $stderrText = [IO.File]::ReadAllText($stderrPath)
-        }
-        return [pscustomobject]@{
-            ExitCode    = $exitCode
-            StdOutLines = $stdoutLines
-            StdErr      = $stderrText
-        }
-    }
-    finally {
-        Remove-Item -LiteralPath $stderrPath -Force -ErrorAction SilentlyContinue
-    }
+    return Invoke-DeploymentProcess `
+        -FilePath $Context.SshExe `
+        -Arguments @($Context.BaseArgs + @("root@$($Context.HostIp)", $normalizedCommand))
 }
 
 function Invoke-DeploymentScp {
@@ -241,20 +336,12 @@ function Invoke-DeploymentScp {
         [Parameter(Mandatory)][string] $LocalPath,
         [Parameter(Mandatory)][string] $RemotePath
     )
-    $stderrPath = Join-Path $Context.TempDir "scp-stderr-$([guid]::NewGuid().ToString('N')).txt"
-    try {
-        & $Context.ScpExe @($Context.BaseArgs) $LocalPath "root@$($Context.HostIp):$RemotePath" 2>$stderrPath | Out-Null
-        $exitCode = $LASTEXITCODE
-        $stderrText = ''
-        if (Test-Path -LiteralPath $stderrPath) {
-            $stderrText = [IO.File]::ReadAllText($stderrPath)
-        }
-        if ($exitCode -ne 0) {
-            throw "scp upload failed (exit code $exitCode) for '$LocalPath' -> '$RemotePath': $stderrText"
-        }
-    }
-    finally {
-        Remove-Item -LiteralPath $stderrPath -Force -ErrorAction SilentlyContinue
+
+    $result = Invoke-DeploymentProcess `
+        -FilePath $Context.ScpExe `
+        -Arguments @($Context.BaseArgs + @($LocalPath, "root@$($Context.HostIp):$RemotePath"))
+    if ($result.ExitCode -ne 0) {
+        throw "scp upload failed (exit code $($result.ExitCode)) for '$LocalPath' -> '$RemotePath': $($result.StdErr)"
     }
 }
 
@@ -357,7 +444,7 @@ function Stop-VmProcessesByPath {
     Finds every VM guest process matching -ExactPath and/or -PathPrefix (same matching
     rules as Get-VmProcessesByPath), force-stops each, then polls -ConfirmTimeoutSeconds
     for confirmation that none remain before returning. Throws if any survive past the
-    timeout. Treats "nothing found running" as success, matching the analogous Ubuntu
+    timeout. Treats "nothing found running" as success, matching the analogous remote
     Stop-RemoteProcessByPath's "nothing running is not an error" semantics.
     #>
     param(
@@ -411,7 +498,7 @@ function Stop-VmProcessesByPath {
 }
 
 # ---------------------------------------------------------------------------
-# Hash-manifest build/compare (steps 6, 8, 10)
+# Hash-manifest build/compare (steps 6, 8, 10, 14)
 #
 # The manifest's definitive relative-path set always comes from the freshly-built
 # LOCAL package (guaranteed clean, since 02-build-and-package.ps1 recreates
@@ -420,7 +507,8 @@ function Stop-VmProcessesByPath {
 # independently, recursively enumerated. Both C:\MarixHost\ and /opt/marix/* are known
 # to carry pre-existing non-package files/directories (rollback history, logs, the
 # live Telemetry redb store, etc.) that must never affect - or be affected by - this
-# comparison.
+# comparison. Step 14 applies the same rule to package-owned paths under
+# C:\MarixClient\Cli\.
 # ---------------------------------------------------------------------------
 
 function Get-LocalPackageManifestEntries {
@@ -605,17 +693,144 @@ function Test-PackageManifestsMatch {
     }
 }
 
+# Build a local manifest for only the package-owned relative paths. Extra files under
+# the destination are deliberately ignored and are never candidates for deletion.
+function Get-LocalManifestEntriesForPaths {
+    param(
+        [Parameter(Mandatory)][string] $DestinationRoot,
+        [Parameter(Mandatory)][AllowEmptyCollection()][string[]] $RelPaths
+    )
+
+    $entries = foreach ($rel in $RelPaths) {
+        $fullPath = Join-Path $DestinationRoot ($rel -replace '/', '\')
+        if (Test-Path -LiteralPath $fullPath -PathType Leaf) {
+            $hash = (Get-FileHash -LiteralPath $fullPath -Algorithm SHA256).Hash.ToLowerInvariant()
+            [pscustomobject]@{ RelPath = $rel; Hash = $hash }
+        }
+        else {
+            [pscustomobject]@{ RelPath = $rel; Hash = 'MISSING' }
+        }
+    }
+    if ($null -eq $entries) { $entries = @() } else { $entries = @($entries) }
+    return $entries
+}
+
+# Read-only local equivalent of Get-VmProcessesByPath. Accessing Path can fail for an
+# unrelated protected process, so each candidate is isolated exactly as in the VM
+# helper. Matching is against the complete executable path, never just its name.
+function Get-LocalProcessesByExactPath {
+    param(
+        [Parameter(Mandatory)][string] $ExactPath
+    )
+
+    $found = New-Object System.Collections.Generic.List[object]
+    foreach ($proc in (Get-Process -ErrorAction SilentlyContinue)) {
+        $path = $null
+        try { $path = $proc.Path } catch { $path = $null }
+        if (-not [string]::IsNullOrEmpty($path) -and
+            $path.Equals($ExactPath, [StringComparison]::OrdinalIgnoreCase)) {
+            $found.Add([pscustomobject]@{ Id = [int]$proc.Id; Path = [string]$path })
+        }
+    }
+    return $found
+}
+
+# Atomically replace one local package-owned file. The caller can use the returned
+# HadOriginal flag to roll back earlier successful files if a later file fails.
+function Sync-FileToLocalAtomic {
+    param(
+        [Parameter(Mandatory)][string] $LocalPath,
+        [Parameter(Mandatory)][string] $DestPath,
+        [Parameter(Mandatory)][string] $ExpectedHash
+    )
+
+    if (-not (Test-Path -LiteralPath $LocalPath -PathType Leaf)) {
+        throw "Local package file was not found: $LocalPath"
+    }
+
+    $destDir = Split-Path -Parent $DestPath
+    $newPath = "$DestPath.new"
+    $oldPath = "$DestPath.old"
+    $hadOriginal = Test-Path -LiteralPath $DestPath -PathType Leaf
+    $movedOriginal = $false
+
+    if (-not (Test-Path -LiteralPath $destDir -PathType Container)) {
+        New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+    }
+
+    Remove-Item -LiteralPath $newPath -Force -ErrorAction SilentlyContinue
+    try {
+        Copy-Item -LiteralPath $LocalPath -Destination $newPath -Force
+        $stagedHash = (Get-FileHash -LiteralPath $newPath -Algorithm SHA256).Hash.ToLowerInvariant()
+        if ($stagedHash -cne $ExpectedHash) {
+            throw "Hash mismatch after staging '$DestPath': expected $ExpectedHash, got $stagedHash."
+        }
+
+        Remove-Item -LiteralPath $oldPath -Force -ErrorAction SilentlyContinue
+        if ($hadOriginal) {
+            Rename-Item -LiteralPath $DestPath -NewName (Split-Path -Leaf $oldPath)
+            $movedOriginal = $true
+        }
+        Rename-Item -LiteralPath $newPath -NewName (Split-Path -Leaf $DestPath)
+
+        $finalHash = (Get-FileHash -LiteralPath $DestPath -Algorithm SHA256).Hash.ToLowerInvariant()
+        if ($finalHash -cne $ExpectedHash) {
+            throw "Hash mismatch after replacing '$DestPath': expected $ExpectedHash, got $finalHash."
+        }
+    }
+    catch {
+        $failure = $_
+        Remove-Item -LiteralPath $newPath -Force -ErrorAction SilentlyContinue
+        try {
+            if ($movedOriginal -and (Test-Path -LiteralPath $oldPath -PathType Leaf)) {
+                Remove-Item -LiteralPath $DestPath -Force -ErrorAction SilentlyContinue
+                Rename-Item -LiteralPath $oldPath -NewName (Split-Path -Leaf $DestPath)
+            }
+            elseif (-not $hadOriginal) {
+                Remove-Item -LiteralPath $DestPath -Force -ErrorAction SilentlyContinue
+            }
+        }
+        catch {
+            Write-Warning "Best-effort restore failed for '$DestPath': $($_.Exception.Message)"
+        }
+        throw $failure
+    }
+
+    return [pscustomobject]@{ DestPath = $DestPath; HadOriginal = $hadOriginal }
+}
+
+function Restore-LocalFileFromOld {
+    param(
+        [Parameter(Mandatory)][string] $DestPath,
+        [Parameter(Mandatory)][bool] $HadOriginal
+    )
+
+    $newPath = "$DestPath.new"
+    $oldPath = "$DestPath.old"
+    Remove-Item -LiteralPath $newPath -Force -ErrorAction SilentlyContinue
+    if ($HadOriginal) {
+        if (-not (Test-Path -LiteralPath $oldPath -PathType Leaf)) {
+            throw "Rollback file was not found: $oldPath"
+        }
+        Remove-Item -LiteralPath $DestPath -Force -ErrorAction SilentlyContinue
+        Rename-Item -LiteralPath $oldPath -NewName (Split-Path -Leaf $DestPath)
+    }
+    else {
+        Remove-Item -LiteralPath $DestPath -Force -ErrorAction SilentlyContinue
+    }
+}
+
 # ---------------------------------------------------------------------------
 # Atomic per-file replace (steps 6, 8, 10)
 #
 # Files are replaced INDIVIDUALLY, never via a whole-directory swap. This matters
-# critically for Server Telemetry: its redb telemetry database lives at
+# critically for Telemetry: its redb telemetry database lives at
 # <deployment-directory>/log/*.redb, i.e. inside the very same directory as the
 # executable and config.toml (see src\common\logging\store.rs). A whole-directory
 # rename-swap would strand or lose that live data directory on every redeploy;
 # per-file replace never touches sibling files/directories it doesn't explicitly know
-# about, so this risk does not exist. The same per-file pattern is applied to Host in
-# the VM and to Server on Ubuntu too, for consistency and because it also avoids
+# about, so this risk does not exist. The same per-file pattern is applied to Host
+# and Server too, for consistency and because it also avoids
 # clobbering anything unexpected under C:\MarixHost\ or /opt/marix/server/ outside the
 # known package file set.
 # ---------------------------------------------------------------------------
@@ -679,7 +894,7 @@ function Sync-FileToRemoteAtomic {
         # source side to preserve), so every package's main executable must be
         # explicitly marked executable here after staging, before the final rename.
         # Left plain data (config.toml, *.prompt) is deliberately NOT marked
-        # executable, matching this Ubuntu deployment's established convention.
+        # executable, matching this remote deployment's established convention.
         [switch] $MakeExecutable
     )
     $remoteDir = $RemoteDestPath -replace '/[^/]*$', ''
@@ -832,11 +1047,8 @@ fi
 }
 
 function Wait-RemoteTcpReady {
-    # Bounded TCP readiness probe, adapted from the shape documented in
-    # .github\agents\engineer-of-deployment.agent.md's "Startup order and readiness"
-    # section - with the systemd `systemctl is-active` liveness fallback replaced by
-    # an anchored `pgrep -f` liveness check, since these processes are no longer
-    # managed by systemd.
+    # Use a bounded TCP readiness probe with an anchored `pgrep -f` liveness
+    # check, since these processes are not managed by systemd.
     param(
         [Parameter(Mandatory)][hashtable] $Context,
         [Parameter(Mandatory)][string] $ProbeHost,

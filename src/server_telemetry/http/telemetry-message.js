@@ -178,6 +178,12 @@ export function createMessageActions(_elements, _callbacks) {
       _position.index >= _position.summaries.length - 1;
   }
 
+  function summariesChanged() {
+    if (_modalOpen) {
+      updateNavigation();
+    }
+  }
+
   function renderModalRecord(_summary, _record) {
     var _timestamp =
       _summary.emit_ts === null || _summary.emit_ts === undefined
@@ -410,5 +416,6 @@ export function createMessageActions(_elements, _callbacks) {
     isModalOpen: function () {
       return _modalOpen;
     },
+    summariesChanged: summariesChanged,
   };
 }

@@ -10,7 +10,7 @@ if (Get-Variable PSNativeCommandUseErrorActionPreference -ErrorAction SilentlyCo
 
 . (Join-Path $PSScriptRoot '_deploy-shared.ps1')
 
-# Fixed VM/guest identity, matching 04-ensure-hyperv-vm.ps1's own constants exactly.
+# Fixed VM/guest identity, matching 04-ensure-host.ps1's own constants exactly.
 $vmName = 'Marix_TestVm'
 $guestUserName = 'marixagent'
 $guestPassword = '123'

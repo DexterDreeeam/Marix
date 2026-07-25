@@ -281,7 +281,7 @@ try {
 
     Write-Host ''
     Write-Host 'Build and package complete (config.toml is resolved separately in step 3):'
-    Write-Host "  Server Telemetry bundle: $telemetryOutput (executable)"
+    Write-Host "  Telemetry bundle:        $telemetryOutput (executable)"
     Write-Host "  Server bundle:           $serverOutput (executable and dynamic prompts)"
     Write-Host "  Client bundle:           $clientOutput"
     Write-Host "    App:                   $clientAppOutput (executable)"
