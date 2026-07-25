@@ -16,7 +16,8 @@ function Invoke-Native {
     param(
         [Parameter(Mandatory)][string] $Command,
         [Parameter(Mandatory)][string[]] $Arguments,
-        [Parameter(Mandatory)][string] $Target
+        [Parameter(Mandatory)][string] $Target,
+        [string[]] $ArtifactPaths = @()
     )
 
     # Cargo re-parses the whole workspace manifest on every invocation and reprints the
@@ -24,6 +25,24 @@ function Invoke-Native {
     # hundreds of near-duplicate lines across the ~20 Invoke-Native calls in this script.
     # Instead: print exactly one line per target, capture all stdout+stderr together,
     # and only ever dump the captured output when the command actually failed.
+    $artifactPaths = @(
+        $ArtifactPaths |
+            Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+    )
+    $artifactStates = @{}
+    foreach ($artifactPath in $artifactPaths) {
+        if (Test-Path -LiteralPath $artifactPath -PathType Leaf) {
+            $artifact = Get-Item -LiteralPath $artifactPath
+            $artifactStates[$artifactPath] = [pscustomobject]@{
+                Length             = $artifact.Length
+                LastWriteTimeTicks = $artifact.LastWriteTimeUtc.Ticks
+            }
+        }
+        else {
+            $artifactStates[$artifactPath] = $null
+        }
+    }
+
     Write-Host -NoNewline "Building $Target... "
     $stopwatch = [Diagnostics.Stopwatch]::StartNew()
 
@@ -58,7 +77,39 @@ function Invoke-Native {
         throw "Command failed for target '$Target' (exit code $LASTEXITCODE): $Command $($Arguments -join ' ')"
     }
 
-    $changeLabel = if ($capturedOutput -clike '*Compiling*') { '[compiled]' } else { '[no change]' }
+    $artifactCreated = $false
+    $artifactUpdated = $false
+    foreach ($artifactPath in $artifactPaths) {
+        if (-not (Test-Path -LiteralPath $artifactPath -PathType Leaf)) {
+            throw "Build succeeded for target '$Target', but expected artifact was not found: $artifactPath"
+        }
+        $artifact = Get-Item -LiteralPath $artifactPath
+        $previous = $artifactStates[$artifactPath]
+        if ($null -eq $previous) {
+            $artifactCreated = $true
+        }
+        elseif ($artifact.Length -ne $previous.Length -or
+            $artifact.LastWriteTimeUtc.Ticks -ne $previous.LastWriteTimeTicks) {
+            $artifactUpdated = $true
+        }
+    }
+
+    $compilerWorked = $capturedOutput -cmatch '(?m)\bCompiling\s+\S+'
+    $changeLabel = if ($artifactPaths.Count -eq 0) {
+        '[completed]'
+    }
+    elseif ($artifactCreated) {
+        '[built]'
+    }
+    elseif ($artifactUpdated) {
+        '[rebuilt]'
+    }
+    elseif ($compilerWorked) {
+        '[compiled]'
+    }
+    else {
+        '[cached]'
+    }
     Write-Host "OK (${elapsedSeconds}s) $changeLabel"
 }
 
@@ -211,10 +262,19 @@ try {
     $linuxRelease = Join-Path $targetDirectory 'x86_64-unknown-linux-gnu\release'
     $windowsRelease = Join-Path $targetDirectory 'release'
 
-    Invoke-Native -Command $cargoCommand.Source -Arguments @('zigbuild', '--release', '--locked', '--target', 'x86_64-unknown-linux-gnu', '-p', 'marix-server-telemetry') -Target 'marix-server-telemetry (x86_64-unknown-linux-gnu)'
-    Invoke-Native -Command $cargoCommand.Source -Arguments @('zigbuild', '--release', '--locked', '--target', 'x86_64-unknown-linux-gnu', '-p', 'marix-server') -Target 'marix-server (x86_64-unknown-linux-gnu)'
-    Invoke-Native -Command $cargoCommand.Source -Arguments @('build', '--release', '--locked', '-p', 'marix-client') -Target 'marix-client (x86_64-pc-windows-msvc)'
-    Invoke-Native -Command $cargoCommand.Source -Arguments @('build', '--release', '--locked', '-p', 'marix-host') -Target 'marix-host (x86_64-pc-windows-msvc)'
+    Invoke-Native -Command $cargoCommand.Source -Arguments @('zigbuild', '--release', '--locked', '--target', 'x86_64-unknown-linux-gnu', '-p', 'marix-server-telemetry') -Target 'marix-server-telemetry (x86_64-unknown-linux-gnu)' -ArtifactPaths @(
+        (Join-Path $linuxRelease 'marix-server-telemetry')
+    )
+    Invoke-Native -Command $cargoCommand.Source -Arguments @('zigbuild', '--release', '--locked', '--target', 'x86_64-unknown-linux-gnu', '-p', 'marix-server') -Target 'marix-server (x86_64-unknown-linux-gnu)' -ArtifactPaths @(
+        (Join-Path $linuxRelease 'marix-server')
+    )
+    Invoke-Native -Command $cargoCommand.Source -Arguments @('build', '--release', '--locked', '-p', 'marix-client') -Target 'marix-client (x86_64-pc-windows-msvc)' -ArtifactPaths @(
+        (Join-Path $windowsRelease 'marix-client-cli.exe'),
+        (Join-Path $windowsRelease 'marix-client-app.exe')
+    )
+    Invoke-Native -Command $cargoCommand.Source -Arguments @('build', '--release', '--locked', '-p', 'marix-host') -Target 'marix-host (x86_64-pc-windows-msvc)' -ArtifactPaths @(
+        (Join-Path $windowsRelease 'marix-host.exe')
+    )
 
     $artifacts = @(
         [pscustomobject]@{ Source = Join-Path $linuxRelease 'marix-server-telemetry'; Destination = Join-Path $telemetryOutput 'marix-server-telemetry'; Target = 'marix-server-telemetry' }
@@ -253,9 +313,11 @@ try {
         # Tool feature per invocation silently collapses all of them into whichever
         # module is declared first (a known Cargo feature-unification hazard across
         # the shared-source [[bin]] targets in marix-tool) -- never combine these.
-        Invoke-Native -Command $cargoCommand.Source -Arguments @('build', '--release', '--locked', '-p', 'marix-tool', '--bin', $tool.Target, '--features', $tool.Feature) -Target "marix-tool/$($tool.Target)"
-
         $toolExe = Join-Path $windowsRelease "$($tool.Target).exe"
+        Invoke-Native -Command $cargoCommand.Source -Arguments @('build', '--release', '--locked', '-p', 'marix-tool', '--bin', $tool.Target, '--features', $tool.Feature) -Target "marix-tool/$($tool.Target)" -ArtifactPaths @(
+            $toolExe
+        )
+
         if (-not (Test-Path -LiteralPath $toolExe -PathType Leaf)) {
             throw "Expected executable for tool target '$($tool.Target)' was not found: $toolExe"
         }

@@ -3,8 +3,8 @@ use std::collections::BTreeSet;
 use marix_common::external::*;
 use marix_common::{Arch, Platform, System};
 use marix_protocol::{
-    ContextChain, IntentContext, IntentResultKind, RelayKind, ToolPreview, WorkflowCallSummary,
-    WorkflowComplete, WorkflowContinuation, WorkflowInfeasible, WorkflowPlan, WorkflowTool,
+    ContextChain, IntentContext, RelayKind, ToolPreview, WorkflowCallSummary, WorkflowComplete,
+    WorkflowContinuation, WorkflowInfeasible, WorkflowPlan, WorkflowTool,
 };
 
 use super::RelayRuntime;
@@ -221,18 +221,19 @@ impl RelayRuntime {
 
     /// Renders an ancestor Intent that currently holds an active Plan.
     fn plan_prompt(&self, intent: &IntentContext) -> Result<String, String> {
-        let mut prompt = format!("[Goal]\n{}\n[Plan]", intent.content);
+        let mut prompt =
+            format!("[**GOAL**]:\n{}\n\n[**PLAN**]:", intent.content);
         self.append_plan(&mut prompt, intent)?;
-        Self::append_tool_calls(&mut prompt, intent, "\n");
+        Self::append_tool_calls(&mut prompt, intent, "\n\n");
         Self::append_plan_failures(&mut prompt, intent);
         Ok(prompt)
     }
 
     /// Renders the Intent currently awaiting a decision (it has no active Plan).
     fn pending_intent_prompt(intent: &IntentContext) -> String {
-        let mut prompt = "[CURRENT TASK]\nThis is the task you are executing NOW. Everything you do MUST be scoped strictly to this goal alone."
+        let mut prompt = "[**CURRENT TASK**]\nThis is the task you are executing NOW. Everything you do MUST be scoped strictly to this goal alone."
             .to_owned();
-        prompt.push_str(&format!("\n\nGOAL: {}", intent.content));
+        prompt.push_str(&format!("\n\n[**GOAL**]:\n{}", intent.content));
         Self::append_tool_calls(&mut prompt, intent, "\n\n");
         Self::append_plan_failures(&mut prompt, intent);
         prompt
@@ -278,10 +279,6 @@ impl RelayRuntime {
         let current_item = subintents
             .iter()
             .position(|subintent| subintent.result.is_none());
-        if let Some(index) = current_item {
-            prompt.push_str(&format!("\nGoal: {}", subintents[index].content));
-        }
-        prompt.push_str("\nPlan:");
         for (index, subintent) in subintents.iter().enumerate() {
             match &subintent.result {
                 Some(result) => {
@@ -294,7 +291,7 @@ impl RelayRuntime {
                 }
                 None if Some(index) == current_item => {
                     prompt.push_str(&format!(
-                        "\n{}. [EXECUTING] {}",
+                        "\n{}. [EXECUTING NOW] {}",
                         index + 1,
                         subintent.content,
                     ));
@@ -317,7 +314,7 @@ impl RelayRuntime {
         }
 
         prompt.push_str(separator);
-        prompt.push_str("BACKGROUND:");
+        prompt.push_str("[**BACKGROUND**]:");
         let mut index = 1;
         for step_result in &intent.step_results {
             for call in &step_result.calls {
@@ -426,30 +423,15 @@ impl RelayRuntime {
             return;
         }
 
-        prompt.push_str("\nPrevious plan failures:\n");
-        let mut failures = Vec::new();
-        for failure in &intent.plan_failures {
-            let mut failed_goal = String::new();
-            for (index, result) in failure.results.iter().enumerate() {
-                if let Some(res) = result {
-                    match res.kind {
-                        IntentResultKind::Failed | IntentResultKind::Infeasible => {
-                            failed_goal = failure.goals.get(index).cloned().unwrap_or_default();
-                            break;
-                        }
-                        _ => {}
-                    }
-                }
+        prompt.push_str("\n\n[**FAIL PLANS**]\n");
+        for (index, failure) in intent.plan_failures.iter().enumerate() {
+            if index > 0 {
+                prompt.push_str("\n\n");
             }
-
-            failures.push(marix_common::external::serde_json::json!({
-                "goals": failure.goals,
-                "failed": failed_goal,
-                "reason": failure.reason
-            }));
-        }
-        if let Ok(json_str) = marix_common::external::serde_json::to_string_pretty(&failures) {
-            prompt.push_str(&json_str);
+            for goal in &failure.goals {
+                prompt.push_str(&format!("- {goal}\n"));
+            }
+            prompt.push_str(&format!("(Failed Reason) {}", failure.reason));
         }
     }
 }

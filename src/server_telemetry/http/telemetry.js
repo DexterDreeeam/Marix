@@ -225,9 +225,9 @@ function taskRowColors(_taskId) {
   }
   _hash >>>= 0;
   var _channels = [
-    _hash % 13,
-    24 + ((_hash >>> 8) % 25),
-    64 + ((_hash >>> 16) % 33),
+    _hash % 9,
+    16 + ((_hash >>> 8) % 17),
+    40 + ((_hash >>> 16) % 25),
   ];
   var _permutations = [
     [0, 1, 2],
