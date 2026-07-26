@@ -1,11 +1,13 @@
 use crate::external::redb::{ReadTransaction, ReadableDatabase, ReadableTable};
 use crate::logging::query::{log_record, validate_page_query};
 use crate::logging::{
-    LogLevel, LogMessage, LogPage, LogPageQuery, LogRecord, LogSession, LogSummary, LoggingError,
+    LogLevel, LogPage, LogPageQuery, LogRecord, LogSession, LogSummary, LoggingError,
 };
 
 use super::schema;
-use super::{SESSION_RECORD_ID_INDEX, SessionMetadata, Store, TRIGRAM_COMPONENT_LEN};
+use super::{
+    SESSION_RECORD_ID_INDEX, SessionMetadata, Store, StoredMessage, TRIGRAM_COMPONENT_LEN,
+};
 
 const MESSAGE_PREVIEW_CHARS: usize = 240;
 const LOG_LEVELS: [LogLevel; 4] = [
@@ -18,11 +20,6 @@ const LOG_LEVELS: [LogLevel; 4] = [
 struct Cursor {
     emit_ts: u64,
     id: u64,
-}
-
-struct StoredMessage {
-    id: u64,
-    message: LogMessage,
 }
 
 impl Store {
@@ -78,7 +75,12 @@ impl Store {
             .map(str::to_lowercase);
         let trigram_components = keyword
             .as_deref()
-            .filter(|value| value.chars().count() >= 3)
+            .filter(|value| {
+                value.chars().count() >= 3
+                    && !value
+                        .bytes()
+                        .all(|byte| byte.is_ascii_hexdigit() || byte == b'-')
+            })
             .map(schema::trigram_components)
             .unwrap_or_default();
         let read = self.read_transaction()?;
@@ -110,7 +112,9 @@ impl Store {
 
     pub(super) fn record_by_id(&self, id: u64) -> Result<Option<LogRecord>, LoggingError> {
         let read = self.read_transaction()?;
-        Self::message_by_id(&read, id).map(|message| message.map(|value| log_record(id, value)))
+        Self::stored_message_by_id(&read, id).map(|record| {
+            record.map(|record| log_record(record.id, record.key, record.message))
+        })
     }
 }
 
@@ -180,6 +184,9 @@ impl Store {
         let primary = read
             .open_table(schema::TELEMETRY_TABLE)
             .map_err(|error| LoggingError::Database(error.to_string()))?;
+        let keys = read
+            .open_table(schema::LOG_KEY_TABLE)
+            .map_err(|error| LoggingError::Database(error.to_string()))?;
         let trigrams = if trigram_components.is_empty() {
             None
         } else {
@@ -195,22 +202,22 @@ impl Store {
         {
             let (_key, id) = entry.map_err(|error| LoggingError::Database(error.to_string()))?;
             let id = id.value();
-            let Some(message) = Self::message_from_table(&primary, id)? else {
+            let Some(record) = Self::stored_message_from_tables(&primary, &keys, id)? else {
                 continue;
             };
             if let Some(trigrams) = trigrams.as_ref()
                 && !Self::has_all_trigrams(
                     trigrams,
                     query,
-                    message.emit_ts,
+                    record.message.emit_ts,
                     id,
                     trigram_components,
                 )?
             {
                 continue;
             }
-            if Self::matches(&message, query, keyword) {
-                records.push(StoredMessage { id, message });
+            if Self::matches(&record, query, keyword) {
+                records.push(record);
                 if records.len() > query.limit {
                     break;
                 }
@@ -229,6 +236,9 @@ impl Store {
         let primary = read
             .open_table(schema::TELEMETRY_TABLE)
             .map_err(|error| LoggingError::Database(error.to_string()))?;
+        let keys = read
+            .open_table(schema::LOG_KEY_TABLE)
+            .map_err(|error| LoggingError::Database(error.to_string()))?;
 
         let mut records = Vec::new();
         if let Some(minimum) = query.level {
@@ -245,6 +255,7 @@ impl Store {
                 records.extend(Self::index_range_records(
                     &index,
                     &primary,
+                    &keys,
                     start,
                     end,
                     cursor_key.as_ref().map(|key| key.as_slice()),
@@ -265,6 +276,7 @@ impl Store {
         Self::index_range_records(
             &index,
             &primary,
+            &keys,
             start,
             end,
             cursor_key.as_ref().map(|key| key.as_slice()),
@@ -304,6 +316,9 @@ impl Store {
         let primary = read
             .open_table(schema::TELEMETRY_TABLE)
             .map_err(|error| LoggingError::Database(error.to_string()))?;
+        let keys = read
+            .open_table(schema::LOG_KEY_TABLE)
+            .map_err(|error| LoggingError::Database(error.to_string()))?;
         let mut range = trigrams
             .range(range_start.as_slice()..=end.as_slice())
             .map_err(|error| LoggingError::Database(error.to_string()))?;
@@ -320,10 +335,10 @@ impl Store {
             if !Self::has_all_trigrams(&trigrams, query, emit_ts, id, remaining)? {
                 continue;
             }
-            if let Some(message) = Self::message_from_table(&primary, id)?
-                && Self::matches(&message, query, keyword)
+            if let Some(record) = Self::stored_message_from_tables(&primary, &keys, id)?
+                && Self::matches(&record, query, keyword)
             {
-                records.push(StoredMessage { id, message });
+                records.push(record);
                 if records.len() > query.limit {
                     break;
                 }
@@ -352,37 +367,10 @@ impl Store {
         Ok(true)
     }
 
-    fn message_from_table(
-        primary: &impl ReadableTable<u64, &'static [u8]>,
-        id: u64,
-    ) -> Result<Option<LogMessage>, LoggingError> {
-        primary
-            .get(id)
-            .map_err(|error| LoggingError::Database(error.to_string()))?
-            .map(|value| {
-                crate::external::serde_json::from_slice(value.value())
-                    .map_err(|error| LoggingError::Serialization(error.to_string()))
-            })
-            .transpose()
-    }
-
-    fn message_by_id(read: &ReadTransaction, id: u64) -> Result<Option<LogMessage>, LoggingError> {
-        let primary = read
-            .open_table(schema::TELEMETRY_TABLE)
-            .map_err(|error| LoggingError::Database(error.to_string()))?;
-        primary
-            .get(id)
-            .map_err(|error| LoggingError::Database(error.to_string()))?
-            .map(|value| {
-                crate::external::serde_json::from_slice(value.value())
-                    .map_err(|error| LoggingError::Serialization(error.to_string()))
-            })
-            .transpose()
-    }
-
     fn index_range_records(
         index: &impl ReadableTable<&'static [u8], u64>,
         primary: &impl ReadableTable<u64, &'static [u8]>,
+        keys: &impl ReadableTable<u64, &'static [u8]>,
         start: Vec<u8>,
         end: Vec<u8>,
         cursor_key: Option<&[u8]>,
@@ -402,10 +390,10 @@ impl Store {
         while let Some(entry) = range.next() {
             let (_key, id) = entry.map_err(|error| LoggingError::Database(error.to_string()))?;
             let id = id.value();
-            if let Some(message) = Self::message_from_table(primary, id)?
-                && Self::matches(&message, query, keyword)
+            if let Some(record) = Self::stored_message_from_tables(primary, keys, id)?
+                && Self::matches(&record, query, keyword)
             {
-                records.push(StoredMessage { id, message });
+                records.push(record);
                 if records.len() > query.limit {
                     break;
                 }
@@ -414,11 +402,20 @@ impl Store {
         Ok(records)
     }
 
-    fn matches(message: &LogMessage, query: &LogPageQuery, keyword: Option<&str>) -> bool {
-        message.session_id == query.session_id
-            && query.level.is_none_or(|level| message.level >= level)
-            && keyword.is_none_or(|value| message.message.to_lowercase().contains(value))
-            && (query.tags.is_empty() || query.tags.iter().any(|tag| message.tags.contains(tag)))
+    fn matches(record: &StoredMessage, query: &LogPageQuery, keyword: Option<&str>) -> bool {
+        record.message.session_id == query.session_id
+            && query
+                .level
+                .is_none_or(|level| record.message.level >= level)
+            && keyword.is_none_or(|value| {
+                record.message.message.to_lowercase().contains(value)
+                    || record.key.to_string().contains(value)
+            })
+            && (query.tags.is_empty()
+                || query
+                    .tags
+                    .iter()
+                    .any(|tag| record.message.tags.contains(tag)))
     }
 
     fn finish_page(mut records: Vec<StoredMessage>, limit: usize, latest: Option<u64>) -> LogPage {
@@ -455,6 +452,7 @@ impl Store {
             .collect();
         LogSummary {
             id: record.id,
+            key: record.key,
             source: record.message.source,
             level: record.message.level,
             session_id: record.message.session_id,

@@ -19,20 +19,11 @@ pub struct Prompt {
 
 impl Prompt {
     pub fn load(name: &str) -> Self {
-        Self::assert_identifier("template", name);
-        let config = Config::load()
-            .unwrap_or_else(|error| panic!("failed to load config for prompt `{name}`: {error}"));
-        let directory = Path::new(&config.runtime.marix_path).join("prompt");
-        let path = directory.join(format!("{name}.prompt"));
-        let content = Self::read(&path, "template");
-        if content.contains("[[#") {
-            panic!(
-                "prompt template {} contains unsupported module markers",
-                path.display()
-            );
-        }
-        let (slices, injections) = Self::slice_marker(content);
-        Self { slices, injections }
+        Self::load_from(name, Some("template".to_owned()))
+    }
+
+    pub fn load_module(name: &str) -> Self {
+        Self::load_from(name, Some("module".to_owned()))
     }
 
     pub fn parameters(&self) -> Vec<String> {
@@ -83,6 +74,28 @@ impl Prompt {
 // -- Private -- //
 
 impl Prompt {
+    fn load_from(name: &str, subdir: Option<String>) -> Self {
+        Self::assert_identifier("prompt", name);
+        let config = Config::load().unwrap_or_else(|error| {
+            panic!("failed to load config for prompt `{name}`: {error}")
+        });
+        let mut directory =
+            Path::new(&config.runtime.marix_path).join("prompt");
+        if let Some(subdir) = subdir {
+            directory = directory.join(subdir);
+        }
+        let path = directory.join(format!("{name}.prompt"));
+        let content = Self::read(&path);
+        if content.contains("[[#") {
+            panic!(
+                "prompt {} contains unsupported module markers",
+                path.display()
+            );
+        }
+        let (slices, injections) = Self::slice_marker(content);
+        Self { slices, injections }
+    }
+
     fn slice_marker(content: String) -> (Vec<String>, HashMap<String, Option<String>>) {
         let mut slices = Vec::new();
         let mut injections = HashMap::new();
@@ -151,9 +164,9 @@ impl Prompt {
         }
     }
 
-    fn read(path: &Path, kind: &str) -> String {
+    fn read(path: &Path) -> String {
         fs::read_to_string(path).unwrap_or_else(|error| {
-            panic!("failed to read prompt {kind} {}: {error}", path.display())
+            panic!("failed to read prompt {}: {error}", path.display())
         })
     }
 }

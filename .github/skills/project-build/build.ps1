@@ -99,19 +99,19 @@ function Write-ResolvedConfig {
     [IO.File]::WriteAllText($Destination, $template, [Text.UTF8Encoding]::new($false))
 }
 
-function Copy-ServerPromptTemplates {
+function Copy-ServerPromptDirectory {
     param(
         [Parameter(Mandatory)][string] $Source,
         [Parameter(Mandatory)][string] $Destination
     )
 
     if (-not (Test-Path -LiteralPath $Source -PathType Container)) {
-        throw "Server prompt template directory was not found: $Source"
+        throw "Server prompt directory was not found: $Source"
     }
 
-    $sourceFiles = @(Get-ChildItem -LiteralPath $Source -File -Recurse -Force)
+    $sourceFiles = @(Get-ChildItem -LiteralPath $Source -File -Recurse -Force -Filter '*.prompt')
     if ($sourceFiles.Count -eq 0) {
-        throw "Server prompt template directory contains no files: $Source"
+        throw "Server prompt directory contains no prompt files: $Source"
     }
 
     foreach ($sourceFile in $sourceFiles) {
@@ -121,7 +121,9 @@ function Copy-ServerPromptTemplates {
         Copy-Item -LiteralPath $sourceFile.FullName -Destination $destinationFile
     }
 
-    $destinationFileCount = @(Get-ChildItem -LiteralPath $Destination -File -Recurse -Force).Count
+    $destinationFileCount = @(
+        Get-ChildItem -LiteralPath $Destination -File -Recurse -Force -Filter '*.prompt'
+    ).Count
     if ($destinationFileCount -ne $sourceFiles.Count) {
         throw "Server prompt copy count mismatch: expected $($sourceFiles.Count), found $destinationFileCount."
     }
@@ -171,8 +173,8 @@ $clientAppOutput = Join-Path $clientOutput 'App'
 $clientCliOutput = Join-Path $clientOutput 'Cli'
 $hostOutput = Join-Path $outputRoot 'host'
 $hostToolOutput = Join-Path $hostOutput 'tool'
-$serverPromptSource = Join-Path $repoRoot 'src\server\prompt\template'
-$serverPromptOutput = Join-Path $serverOutput 'src\server\prompt\template'
+$serverPromptSource = Join-Path $repoRoot 'src\server\prompt'
+$serverPromptOutput = Join-Path $serverOutput 'src\server\prompt'
 $configTemplate = Join-Path $repoRoot 'config.toml'
 $credentialDirectory = Join-Path $repoRoot '.credential'
 
@@ -197,7 +199,9 @@ Write-ResolvedConfig -TemplatePath $configTemplate -CredentialDirectory $credent
 Write-ResolvedConfig -TemplatePath $configTemplate -CredentialDirectory $credentialDirectory -Destination (Join-Path $clientAppOutput 'config.toml')
 Write-ResolvedConfig -TemplatePath $configTemplate -CredentialDirectory $credentialDirectory -Destination (Join-Path $clientCliOutput 'config.toml')
 Write-ResolvedConfig -TemplatePath $configTemplate -CredentialDirectory $credentialDirectory -Destination (Join-Path $hostOutput 'config.toml')
-Copy-ServerPromptTemplates -Source $serverPromptSource -Destination $serverPromptOutput
+Copy-ServerPromptDirectory `
+    -Source $serverPromptSource `
+    -Destination $serverPromptOutput
 
 $cargoCommand = Get-Command cargo -CommandType Application -ErrorAction SilentlyContinue
 if ($null -eq $cargoCommand) {

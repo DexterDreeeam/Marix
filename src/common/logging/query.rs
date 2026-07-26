@@ -32,6 +32,7 @@ impl Default for LogPageQuery {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct LogSummary {
     pub id: u64,
+    pub key: uuid::Uuid,
     pub source: LogSource,
     pub level: LogLevel,
     pub session_id: Option<uuid::Uuid>,
@@ -54,6 +55,7 @@ pub struct LogPage {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct LogRecord {
     pub id: u64,
+    pub key: uuid::Uuid,
     pub source: LogSource,
     pub level: LogLevel,
     pub message: String,
@@ -101,9 +103,14 @@ pub(super) fn validate_page_query(query: &LogPageQuery) -> Result<(), LoggingErr
     Ok(())
 }
 
-pub(super) fn log_record(id: u64, message: LogMessage) -> LogRecord {
+pub(super) fn log_record(
+    id: u64,
+    key: uuid::Uuid,
+    message: LogMessage,
+) -> LogRecord {
     LogRecord {
         id,
+        key,
         source: message.source,
         level: message.level,
         message: message.message,

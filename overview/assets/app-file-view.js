@@ -174,7 +174,7 @@
 
     const panels = files.map(file => {
       const change = getChange(file);
-      const sections = splitDiffSections(change.diff_lines || [], change.hunks || []);
+      const sections = splitFileViewDiffSections(file, change);
       if (sections.length === 0) return "";
       const filePanels = sections.map((section, index) => renderDiffPanel(file, section, index + 1)).filter(Boolean).join("");
       if (!filePanels) return "";
@@ -278,7 +278,7 @@
     const diffView = document.getElementById("diff-view");
     diffView.style.display = "block";
 
-    const sections = splitDiffSections(change.diff_lines || [], change.hunks || []);
+    const sections = splitFileViewDiffSections(path, change);
     if (sections.length === 0) {
       diffView.innerHTML = `<div class="diff-empty">${escapeHtml(t("noChangedSections"))}</div>`;
       return;

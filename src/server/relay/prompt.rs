@@ -111,11 +111,12 @@ impl RelayRuntime {
     }
 
     fn render_prompt(
-        template: &str,
+        name: &str,
+        loader: fn(&str) -> Prompt,
         parameters: &[(&str, String)],
     ) -> Result<String, String> {
         let mut prompt =
-            std::panic::catch_unwind(|| Prompt::load(template)).map_err(|payload| {
+            std::panic::catch_unwind(|| loader(name)).map_err(|payload| {
                 let detail = if let Some(message) =
                     payload.downcast_ref::<String>()
                 {
@@ -127,7 +128,7 @@ impl RelayRuntime {
                 } else {
                     "unknown prompt loading panic".to_owned()
                 };
-                format!("failed to load {template} prompt: {detail}")
+                format!("failed to load prompt {name}: {detail}")
             })?;
         for parameter in prompt.parameters() {
             let value = parameters
@@ -136,7 +137,7 @@ impl RelayRuntime {
                 .map(|(_, value)| value.clone())
                 .ok_or_else(|| {
                     format!(
-                        "unsupported {template} prompt parameter \
+                        "unsupported prompt {name} parameter \
                          `{parameter}`"
                     )
                 })?;
@@ -145,7 +146,7 @@ impl RelayRuntime {
         prompt
             .prompt()
             .map_err(|error| {
-                format!("failed to render {template} prompt: {error}")
+                format!("failed to render prompt {name}: {error}")
             })
     }
 
@@ -153,6 +154,7 @@ impl RelayRuntime {
         let template = "System";
         Self::render_prompt(
             template,
+            Prompt::load,
             &[("system", Self::system_text(current_system))],
         )
     }
@@ -210,6 +212,7 @@ impl RelayRuntime {
         let template = "WorkflowPolicy";
         Self::render_prompt(
             template,
+            Prompt::load,
             &[("goal", self.access.user_request.clone())],
         )
     }
@@ -258,7 +261,7 @@ impl RelayRuntime {
                 continuation_cursor.to_owned(),
             ));
         }
-        Self::render_prompt(template, &parameters)
+        Self::render_prompt(template, Prompt::load, &parameters)
     }
 
     fn append_plan(&self, prompt: &mut String, intent: &IntentContext) -> Result<(), String> {
@@ -299,7 +302,11 @@ impl RelayRuntime {
         Ok(())
     }
 
-    fn append_tool_calls(prompt: &mut String, intent: &IntentContext, separator: &str) {
+    fn append_tool_calls(
+        prompt: &mut String,
+        intent: &IntentContext,
+        separator: &str,
+    ) {
         let has_calls = intent
             .step_results
             .iter()

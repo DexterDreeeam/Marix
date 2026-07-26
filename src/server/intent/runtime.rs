@@ -1,18 +1,22 @@
+use std::collections::HashMap;
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 
+use marix_common::external::*;
 use marix_common::{
     Actor, ActorStartFuture, ActorStatus, Lifecycle, Runtime as RuntimeTrait, WorkQueue,
 };
 use marix_protocol::{
-    IntentEvent, IntentResult, IntentResultKind, IntentSignature, InvocationDraft, PlanResult,
-    RelayKind, RelayRequest, RelayResult, RelayResultKind, RelaySignature, SessionEvent, StepDraft,
-    StepEvent, StepResult, StepResultKind, StepSignature, TaskEvent, TaskLogger, TaskLogging,
-    WorkflowComplete, WorkflowContinuation, WorkflowInfeasible, WorkflowPlan, WorkflowTool,
+    IntentEvent, IntentResult, IntentResultKind, IntentSignature, InvocationDraft,
+    PlanResult, RelayKind, RelayRequest, RelayResult, RelayResultKind, RelaySignature, SessionEvent,
+    StepDraft, StepEvent, StepResult, StepResultKind, StepSignature, TaskEvent, TaskLogger,
+    TaskLogging, WorkflowComplete, WorkflowContinuation, WorkflowInfeasible, WorkflowPlan,
+    WorkflowTool,
 };
 
 use super::Intent;
 use crate::plan::Plan;
+use crate::prompt::Prompt;
 use crate::relay::Relay;
 use crate::step::Step;
 use crate::task::TaskAccess;
@@ -25,6 +29,7 @@ pub struct IntentRuntime {
     pub plan: StdMutex<Option<Plan>>,
     pub plan_failures: StdMutex<Vec<PlanResult>>,
     pub lifecycle: Lifecycle<IntentEvent, IntentResult>,
+    invocation_counts: StdMutex<HashMap<String, usize>>,
 }
 
 impl IntentRuntime {
@@ -40,6 +45,7 @@ impl IntentRuntime {
             steps: Arc::new(WorkQueue::new()),
             plan: StdMutex::new(None),
             plan_failures: StdMutex::new(Vec::new()),
+            invocation_counts: StdMutex::new(HashMap::new()),
             lifecycle: Lifecycle::new(),
         }
     }
@@ -144,6 +150,10 @@ impl IntentRuntime {
                         return;
                     }
                 };
+                if let Err(reason) = self.check_repeat_invocation(&draft) {
+                    self.fail(reason);
+                    return;
+                }
                 if let Err(error) = self.dispatch_step_draft(draft) {
                     self.fail(format!(
                         "intent relay {signature} tool dispatch failed: \
@@ -338,6 +348,86 @@ impl IntentRuntime {
                 | WorkflowComplete::NAME
                 | WorkflowInfeasible::NAME
         )
+    }
+
+    fn check_repeat_invocation(&self, draft: &StepDraft) -> Result<(), String> {
+        if draft
+            .invocations
+            .iter()
+            .any(|invocation| Self::is_workflow_tool(&invocation.name))
+        {
+            return Ok(());
+        }
+
+        let repeated = {
+            let mut counts = self
+                .invocation_counts
+                .lock()
+                .unwrap_or_else(|error| error.into_inner());
+            let mut reservations = HashMap::new();
+            let mut repeated = None;
+            for invocation in &draft.invocations {
+                if Self::is_workflow_tool(&invocation.name) {
+                    continue;
+                }
+                let key = format!("{} - {}", invocation.name, invocation.input);
+                let count = counts.get(&key).copied().unwrap_or_default()
+                    + reservations.get(&key).copied().unwrap_or_default();
+                if count >= 3 {
+                    repeated = Some((count, invocation.name.clone(), invocation.input.clone()));
+                    break;
+                }
+                *reservations.entry(key).or_insert(0) += 1;
+            }
+            if repeated.is_none() {
+                for (key, count) in reservations {
+                    *counts.entry(key).or_insert(0) += count;
+                }
+            }
+            repeated
+        };
+
+        let Some((count, tool, parameter)) = repeated else {
+            return Ok(());
+        };
+        let name = "RepeatInvocation";
+        let mut prompt = std::panic::catch_unwind(|| Prompt::load_module(name))
+            .map_err(|payload| {
+                let detail = if let Some(message) = payload.downcast_ref::<String>() {
+                    message.clone()
+                } else if let Some(message) = payload.downcast_ref::<&str>() {
+                    (*message).to_owned()
+                } else {
+                    "unknown prompt loading panic".to_owned()
+                };
+                format!("failed to load prompt {name}: {detail}")
+            })?;
+        let parameters = prompt.parameters();
+        for expected in ["count", "tool", "parameter"] {
+            if !parameters.iter().any(|parameter| parameter == expected) {
+                return Err(format!(
+                    "prompt {name} is missing parameter `{expected}`"
+                ));
+            }
+        }
+        for parameter_name in parameters {
+            let value = match parameter_name.as_str() {
+                "count" => count.to_string(),
+                "tool" => tool.clone(),
+                "parameter" => parameter.clone(),
+                _ => {
+                    return Err(format!(
+                        "unsupported prompt {name} parameter \
+                         `{parameter_name}`"
+                    ));
+                }
+            };
+            prompt.inject(parameter_name, value);
+        }
+        let reason = prompt
+            .prompt()
+            .map_err(|error| format!("failed to render prompt {name}: {error}"))?;
+        Err(reason)
     }
 
     pub(super) fn cancel(&self) {

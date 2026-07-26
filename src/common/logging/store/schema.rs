@@ -12,6 +12,8 @@ use super::{
 };
 
 pub(super) const TELEMETRY_TABLE: TableDefinition<u64, &[u8]> = TableDefinition::new("telemetry");
+pub(super) const LOG_KEY_TABLE: TableDefinition<u64, &[u8]> =
+    TableDefinition::new("telemetry_log_keys");
 pub(super) const METADATA_TABLE: TableDefinition<&str, u64> =
     TableDefinition::new("telemetry_schema");
 pub(super) const SESSION_TABLE: TableDefinition<&[u8], &[u8]> =
@@ -25,7 +27,7 @@ pub(super) const TRIGRAM_INDEX: TableDefinition<&[u8], u64> =
 pub(super) const SESSION_TAG_TABLE: TableDefinition<&[u8], &[u8]> =
     TableDefinition::new("telemetry_session_tags");
 
-pub(super) const SCHEMA_VERSION: u64 = 6;
+pub(super) const SCHEMA_VERSION: u64 = 7;
 pub(super) const META_SCHEMA_VERSION: &str = "schema_version";
 pub(super) const META_INDEXED_COUNT: &str = "indexed_record_count";
 pub(super) const META_NEXT_RECORD_ID: &str = "next_record_id";
@@ -67,9 +69,49 @@ impl Store {
             } else {
                 (0, 0)
             };
+            let key_table_consistent = if names.contains(LOG_KEY_TABLE.name())
+                && names.contains(TELEMETRY_TABLE.name())
+            {
+                let primary = read
+                    .open_table(TELEMETRY_TABLE)
+                    .map_err(|error| LoggingError::Database(error.to_string()))?;
+                let keys = read
+                    .open_table(LOG_KEY_TABLE)
+                    .map_err(|error| LoggingError::Database(error.to_string()))?;
+                let mut primary_ids = HashSet::new();
+                for entry in primary
+                    .iter()
+                    .map_err(|error| LoggingError::Database(error.to_string()))?
+                {
+                    let (id, _value) =
+                        entry.map_err(|error| LoggingError::Database(error.to_string()))?;
+                    primary_ids.insert(id.value());
+                }
+                let mut key_ids = HashSet::new();
+                let mut occupied = HashSet::new();
+                for entry in keys
+                    .iter()
+                    .map_err(|error| LoggingError::Database(error.to_string()))?
+                {
+                    let (id, value) =
+                        entry.map_err(|error| LoggingError::Database(error.to_string()))?;
+                    let id = id.value();
+                    let key = Self::decode_log_key(id, value.value())?;
+                    if !occupied.insert(key) {
+                        return Err(LoggingError::Database(format!(
+                            "duplicate telemetry log key at record {id}"
+                        )));
+                    }
+                    key_ids.insert(id);
+                }
+                primary_ids == key_ids
+            } else {
+                false
+            };
             let (version, indexed_count, next_id) = Self::metadata_values(&read, &names)?;
             let required = [
                 TELEMETRY_TABLE.name(),
+                LOG_KEY_TABLE.name(),
                 METADATA_TABLE.name(),
                 SESSION_TABLE.name(),
                 SESSION_TIME_INDEX.name(),
@@ -82,6 +124,7 @@ impl Store {
                 version != Some(SCHEMA_VERSION)
                     || indexed_count != Some(primary_count)
                     || next_id.is_none_or(|next_id| next_id < expected_next_id)
+                    || !key_table_consistent
                     || required.iter().any(|name| !names.contains(*name)),
                 next_id,
             )
@@ -126,6 +169,24 @@ impl Store {
             let mut primary = write
                 .open_table(TELEMETRY_TABLE)
                 .map_err(|error| LoggingError::Database(error.to_string()))?;
+            let mut keys = write
+                .open_table(LOG_KEY_TABLE)
+                .map_err(|error| LoggingError::Database(error.to_string()))?;
+            let mut occupied = HashSet::new();
+            for entry in keys
+                .iter()
+                .map_err(|error| LoggingError::Database(error.to_string()))?
+            {
+                let (id, value) =
+                    entry.map_err(|error| LoggingError::Database(error.to_string()))?;
+                let id = id.value();
+                let key = Self::decode_log_key(id, value.value())?;
+                if !occupied.insert(key) {
+                    return Err(LoggingError::Database(format!(
+                        "duplicate telemetry log key at record {id}"
+                    )));
+                }
+            }
             let mut sessions = write
                 .open_table(SESSION_TABLE)
                 .map_err(|error| LoggingError::Database(error.to_string()))?;
@@ -145,8 +206,11 @@ impl Store {
                 .open_table(SESSION_TAG_TABLE)
                 .map_err(|error| LoggingError::Database(error.to_string()))?;
             for ((id, message), bytes) in ids.iter().zip(messages).zip(serialized.iter()) {
+                let key = Self::new_log_key(&mut occupied)?;
                 primary
                     .insert(*id, bytes.as_slice())
+                    .map_err(|error| LoggingError::Database(error.to_string()))?;
+                keys.insert(*id, key.as_slice())
                     .map_err(|error| LoggingError::Database(error.to_string()))?;
                 Self::index_message(
                     &mut sessions,

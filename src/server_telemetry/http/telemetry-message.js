@@ -189,7 +189,11 @@ export function createMessageActions(_elements, _callbacks) {
       _summary.emit_ts === null || _summary.emit_ts === undefined
         ? _record.emit_ts
         : _summary.emit_ts;
-    _elements.modalTitle.textContent = _callbacks.formatTimestamp(_timestamp);
+    var _title = _callbacks.formatTimestamp(_timestamp);
+    var _key = _record.key || _summary.key;
+    _elements.modalTitle.textContent = _key
+      ? "[" + _key + "] - " + _title
+      : _title;
     renderFormattedMessage(_elements.modalEditor, _record.message);
   }
 

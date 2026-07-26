@@ -107,9 +107,14 @@ impl StoreMaintenance for Store {
             let mut primary = write
                 .open_table(schema::TELEMETRY_TABLE)
                 .map_err(|error| LoggingError::Database(error.to_string()))?;
+            let mut keys = write
+                .open_table(schema::LOG_KEY_TABLE)
+                .map_err(|error| LoggingError::Database(error.to_string()))?;
             for id in delete_ids {
                 primary
                     .remove(*id)
+                    .map_err(|error| LoggingError::Database(error.to_string()))?;
+                keys.remove(*id)
                     .map_err(|error| LoggingError::Database(error.to_string()))?;
             }
         }
@@ -136,6 +141,39 @@ impl StoreMaintenance for Store {
             let primary = write
                 .open_table(schema::TELEMETRY_TABLE)
                 .map_err(|error| LoggingError::Database(error.to_string()))?;
+            let mut keys = write
+                .open_table(schema::LOG_KEY_TABLE)
+                .map_err(|error| LoggingError::Database(error.to_string()))?;
+            let mut occupied = HashSet::new();
+            let mut keyed_ids = HashSet::new();
+            let mut orphan_ids = Vec::new();
+            for entry in keys
+                .iter()
+                .map_err(|error| LoggingError::Database(error.to_string()))?
+            {
+                let (id, value) =
+                    entry.map_err(|error| LoggingError::Database(error.to_string()))?;
+                let id = id.value();
+                let key = Self::decode_log_key(id, value.value())?;
+                if !occupied.insert(key) {
+                    return Err(LoggingError::Database(format!(
+                        "duplicate telemetry log key at record {id}"
+                    )));
+                }
+                if primary
+                    .get(id)
+                    .map_err(|error| LoggingError::Database(error.to_string()))?
+                    .is_some()
+                {
+                    keyed_ids.insert(id);
+                } else {
+                    orphan_ids.push(id);
+                }
+            }
+            for id in orphan_ids {
+                keys.remove(id)
+                    .map_err(|error| LoggingError::Database(error.to_string()))?;
+            }
             let mut sessions = write
                 .open_table(schema::SESSION_TABLE)
                 .map_err(|error| LoggingError::Database(error.to_string()))?;
@@ -161,6 +199,11 @@ impl StoreMaintenance for Store {
                 let (id, value) =
                     entry.map_err(|error| LoggingError::Database(error.to_string()))?;
                 let id = id.value();
+                if !keyed_ids.contains(&id) {
+                    let key = Self::new_log_key(&mut occupied)?;
+                    keys.insert(id, key.as_slice())
+                        .map_err(|error| LoggingError::Database(error.to_string()))?;
+                }
                 let message: LogMessage = serde_json::from_slice(value.value())
                     .map_err(|error| LoggingError::Serialization(error.to_string()))?;
                 Self::index_message(

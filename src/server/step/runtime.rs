@@ -134,7 +134,8 @@ impl StepRuntime {
             .invocations
             .lock()
             .unwrap_or_else(|error| error.into_inner())
-            .contains(&signature);
+            .iter()
+            .any(|candidate| candidate == &signature);
         if !known {
             self.error(format!(
                 "step {} received update from unknown invocation \

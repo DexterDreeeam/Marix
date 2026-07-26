@@ -14,13 +14,17 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use crate::config::Config;
-use crate::external::redb::{Database, ReadableDatabase, ReadableTable, Table, TableDefinition};
+use crate::external::redb::{
+    Database, ReadTransaction, ReadableDatabase, ReadableTable, Table, TableDefinition,
+};
 use crate::external::{serde_json, uuid};
 use crate::logging::{LogMessage, LoggingError};
 
 pub(super) use writer::HostStore;
 
 const TELEMETRY_FILE_NAME: &str = "telemetry.redb";
+const LOG_KEY_LEN: usize = 16;
+const LOG_KEY_GENERATION_ATTEMPTS: usize = 1024;
 const SESSION_KEY_LEN: usize = 17;
 const SESSION_METADATA_LEN: usize = 32;
 const TRIGRAM_COMPONENT_LEN: usize = 13;
@@ -111,6 +115,12 @@ trait StoreMaintenance {
     ) -> Result<(), LoggingError>;
 }
 
+struct StoredMessage {
+    id: u64,
+    key: uuid::Uuid,
+    message: LogMessage,
+}
+
 struct SessionMetadata {
     earliest_emit_ts: u64,
     latest_emit_ts: u64,
@@ -185,6 +195,69 @@ impl SessionMetadata {
 }
 
 impl Store {
+    fn stored_message_from_tables(
+        primary: &impl ReadableTable<u64, &'static [u8]>,
+        keys: &impl ReadableTable<u64, &'static [u8]>,
+        id: u64,
+    ) -> Result<Option<StoredMessage>, LoggingError> {
+        let Some(value) = primary
+            .get(id)
+            .map_err(|error| LoggingError::Database(error.to_string()))?
+        else {
+            return Ok(None);
+        };
+        let message = serde_json::from_slice(value.value())
+            .map_err(|error| LoggingError::Serialization(error.to_string()))?;
+        let key = keys
+            .get(id)
+            .map_err(|error| LoggingError::Database(error.to_string()))?
+            .ok_or_else(|| {
+                LoggingError::Database(format!(
+                    "telemetry log key is missing for record {id}"
+                ))
+            })?;
+        let key = uuid::Uuid::from_bytes(Self::decode_log_key(id, key.value())?);
+        Ok(Some(StoredMessage { id, key, message }))
+    }
+
+    fn stored_message_by_id(
+        read: &ReadTransaction,
+        id: u64,
+    ) -> Result<Option<StoredMessage>, LoggingError> {
+        let primary = read
+            .open_table(schema::TELEMETRY_TABLE)
+            .map_err(|error| LoggingError::Database(error.to_string()))?;
+        let keys = read
+            .open_table(schema::LOG_KEY_TABLE)
+            .map_err(|error| LoggingError::Database(error.to_string()))?;
+        Self::stored_message_from_tables(&primary, &keys, id)
+    }
+
+    fn decode_log_key(
+        id: u64,
+        encoded: &[u8],
+    ) -> Result<[u8; LOG_KEY_LEN], LoggingError> {
+        encoded.try_into().map_err(|error| {
+            LoggingError::Database(format!(
+                "invalid telemetry log key for record {id}: {error}"
+            ))
+        })
+    }
+
+    fn new_log_key(
+        occupied: &mut HashSet<[u8; LOG_KEY_LEN]>,
+    ) -> Result<[u8; LOG_KEY_LEN], LoggingError> {
+        for _ in 0..LOG_KEY_GENERATION_ATTEMPTS {
+            let key = *uuid::Uuid::new_v4().as_bytes();
+            if occupied.insert(key) {
+                return Ok(key);
+            }
+        }
+        Err(LoggingError::Database(
+            "failed to generate a unique telemetry log key".to_owned(),
+        ))
+    }
+
     fn session_record_id_key(
         session_id: Option<uuid::Uuid>,
         id: u64,

@@ -382,11 +382,14 @@
     const publicLines = [];
     const privateLines = [];
 
-    for (const line of lines) {
+    for (let _index = 0; _index < lines.length; _index += 1) {
+      const line = lines[_index];
       const marker = line.slice(0, 1);
       const content = line.slice(1);
       const isMarker = isPrivateCodeMarkerLine(content);
-      const isPrivate = privateStarted || Boolean(privateBoundary && newLine > privateBoundary);
+      const _position = (section.linePositions || [])[_index];
+      const _lineNumber = _position ? _position.newLine : newLine;
+      const isPrivate = privateStarted || Boolean(privateBoundary && _lineNumber > privateBoundary);
 
       if (isMarker) {
         privateStarted = true;
@@ -396,6 +399,9 @@
         publicLines.push(line);
       }
 
+      if (_position) {
+        newLine = _position.newLine;
+      }
       if (marker === "+") newLine += 1;
       else if (marker === " ") {
         newLine += 1;

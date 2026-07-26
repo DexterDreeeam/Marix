@@ -1,4 +1,4 @@
-use std::process::Command;
+mod redirect;
 
 use marix_common::{
     Arch, Platform, System,
@@ -40,38 +40,17 @@ impl ToolProgram for WebFetch {
             return failure("missing required field: url".to_owned());
         };
 
-        match Command::new("curl")
-            .args([
-                "-sS",
-                "-L",
-                "--max-time",
-                "60",
-                "--retry",
-                "3",
-                "--retry-delay",
-                "2",
-            ])
-            .arg(url)
-            .output()
-        {
-            Ok(output) => {
-                if output.status.success() {
-                    let content = String::from_utf8_lossy(&output.stdout).into_owned();
-                    let content = if looks_like_html(&content) {
-                        clean_html(&content)
-                    } else {
-                        content
-                    };
-                    to_string(&json!({ "content": content })).unwrap_or_default()
-                } else {
-                    failure(format!(
-                        "curl error: {}",
-                        String::from_utf8_lossy(&output.stderr)
-                    ))
-                }
-            }
-            Err(e) => failure(format!("failed to execute curl: {e}")),
-        }
+        let (url, content) = match redirect::fetch(url) {
+            Ok(response) => response,
+            Err(error) => return failure(error),
+        };
+        let content = if looks_like_html(&content) {
+            clean_html(&content)
+        } else {
+            content
+        };
+        to_string(&json!({ "url": url, "content": content }))
+            .unwrap_or_default()
     }
 }
 

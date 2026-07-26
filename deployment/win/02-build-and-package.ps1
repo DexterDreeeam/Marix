@@ -127,19 +127,19 @@ function Invoke-NativeCapture {
     return ($output | Out-String).Trim()
 }
 
-function Copy-ServerPromptTemplates {
+function Copy-ServerPromptDirectory {
     param(
         [Parameter(Mandatory)][string] $Source,
         [Parameter(Mandatory)][string] $Destination
     )
 
     if (-not (Test-Path -LiteralPath $Source -PathType Container)) {
-        throw "Server prompt template directory was not found: $Source"
+        throw "Server prompt directory was not found: $Source"
     }
 
-    $sourceFiles = @(Get-ChildItem -LiteralPath $Source -File -Recurse -Force)
+    $sourceFiles = @(Get-ChildItem -LiteralPath $Source -File -Recurse -Force -Filter '*.prompt')
     if ($sourceFiles.Count -eq 0) {
-        throw "Server prompt template directory contains no files: $Source"
+        throw "Server prompt directory contains no prompt files: $Source"
     }
 
     foreach ($sourceFile in $sourceFiles) {
@@ -149,7 +149,9 @@ function Copy-ServerPromptTemplates {
         Copy-Item -LiteralPath $sourceFile.FullName -Destination $destinationFile
     }
 
-    $destinationFileCount = @(Get-ChildItem -LiteralPath $Destination -File -Recurse -Force).Count
+    $destinationFileCount = @(
+        Get-ChildItem -LiteralPath $Destination -File -Recurse -Force -Filter '*.prompt'
+    ).Count
     if ($destinationFileCount -ne $sourceFiles.Count) {
         throw "Server prompt copy count mismatch: expected $($sourceFiles.Count), found $destinationFileCount."
     }
@@ -198,7 +200,7 @@ $clientAppOutput = Join-Path $clientOutput 'App'
 $clientCliOutput = Join-Path $clientOutput 'Cli'
 $hostOutput = Join-Path $outputRoot 'host'
 $hostToolOutput = Join-Path $hostOutput 'tool'
-$serverPromptSource = Join-Path $RepoRoot 'src\server\prompt\template'
+$serverPromptSource = Join-Path $RepoRoot 'src\server\prompt'
 $serverPromptOutput = Join-Path $serverOutput 'prompt'
 
 if (-not (Test-Path -LiteralPath $workspaceRoot -PathType Container)) {
@@ -220,7 +222,9 @@ if (Test-Path -LiteralPath $outputRoot) {
 ) |
     ForEach-Object { New-Item -ItemType Directory -Path $_ -Force | Out-Null }
 
-Copy-ServerPromptTemplates -Source $serverPromptSource -Destination $serverPromptOutput
+Copy-ServerPromptDirectory `
+    -Source $serverPromptSource `
+    -Destination $serverPromptOutput
 
 $cargoCommand = Get-Command cargo -CommandType Application -ErrorAction SilentlyContinue
 if ($null -eq $cargoCommand) {

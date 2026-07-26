@@ -32,7 +32,8 @@ Exactly four top-level bundle folders are generated:
   server\
     marix-server
     config.toml
-    src\server\prompt\template\<all current prompt files>
+    src\server\prompt\template\<all current prompt templates>
+    src\server\prompt\module\<all current prompt modules>
   client\
     App\
       marix-client-app.exe
