@@ -1,7 +1,11 @@
 [TOOL CALL]
-The following tool call has just completed as part of the [CURRENT TASK]. MUST CALL workflow_call_summary now to summarize only relevant content facts, without mentioning tool usage or the summarization process.
+The following tool call has just completed as part of the [CURRENT TASK].
 
 [TOOL: {{#tool}}]
+Result:
 {{#output}}
 
-This result was not chunked, so do not provide the continuation_cursor argument.
+Summarize the current Result, preserving only facts relevant to the [CURRENT TASK]. State those facts directly without mentioning tools, calls, output, or the summarization process. If nothing is worth keeping, use an empty string for `summary`.
+
+Return only JSON in exactly this shape: {"summary":"..."}
+The Result was not chunked. Do not return `continuation_cursor`.

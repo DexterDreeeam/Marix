@@ -1,8 +1,0 @@
-[TOOL CALL]
-The following tool call has just completed as part of the [CURRENT TASK]. MUST CALL workflow_call_summary now to summarize only relevant content facts, without mentioning tool usage or the summarization process.
-
-[TOOL: {{#tool}}]
-{{#output}}
-Continuation cursor: {{#continuation_cursor}}
-
-Summarize only the current chunk shown in Result. If unseen continuation content may affect the current task or the current chunk is insufficient, return the Continuation cursor unchanged in the optional `continuation_cursor` argument of `workflow_call_summary`; do not include the cursor in the `summary` text. If the current chunk is sufficient or unseen content is unimportant, omit `continuation_cursor`.

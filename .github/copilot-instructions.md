@@ -8,6 +8,7 @@
 ## Policy
 
 - **NEVER** do further operations after user request completes. Including git operation, `cargo check`, build, test, deployment, etc.
+- **NEVER** add test code unless testing is explicitly requested.
 - For explicit git operations that need GitHub access, ensure GitHub CLI (`gh`) is installed first.
 - **NEVER** run any git commands (`git add`, `git commit`, `git push`, `git pull`, etc.) unless the user explicitly requests a git operation (e.g., invoking `/git-sync` or asking to commit/push).
 - **NEVER** run unrequested `cargo check`, tests or deployment actions unless the user explicitly asks.

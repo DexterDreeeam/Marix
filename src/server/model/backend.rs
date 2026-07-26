@@ -4,6 +4,7 @@ use marix_common::AsyncReceiver;
 use marix_protocol::{RelaySignature, ToolPreview};
 
 use super::error::ModelBackendError;
+use crate::prompt::PromptProfile;
 
 pub type ModelResponseStream = AsyncReceiver<ModelResponse>;
 
@@ -24,9 +25,9 @@ pub(super) trait ModelBackendImpl: fmt::Debug + Send {
 #[derive(Debug, Clone)]
 pub struct ModelRequest {
     pub relay: RelaySignature,
+    pub profile: PromptProfile,
     pub system: String,
     pub prompts: Vec<String>,
-    pub regulation: String,
     pub tools: Option<Vec<ToolPreview>>,
 }
 

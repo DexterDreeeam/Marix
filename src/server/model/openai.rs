@@ -45,7 +45,7 @@ impl OpenAiCore {
             self.provider,
             self.model.trim()
         ));
-        let native_tools = request.tools.is_some();
+        let expects_tool_calls = request.profile.expects_tool_calls();
         let raw = match self.build_payload(&request) {
             Ok(raw) => raw,
             Err(error) => {
@@ -67,7 +67,7 @@ impl OpenAiCore {
                 core,
                 raw,
                 &task_id,
-                native_tools,
+                expects_tool_calls,
                 sender,
                 logger.clone(),
             )
@@ -88,21 +88,9 @@ impl OpenAiCore {
 
 impl OpenAiCore {
     fn build_payload(&self, request: &ModelRequest) -> Result<String, ModelBackendError> {
-        let mut messages = Vec::with_capacity(request.prompts.len() + 2);
-        messages.push(serde_json::json!({
-            "role": "system",
-            "content": &request.system
-        }));
-        messages.extend(request.prompts.iter().map(|prompt| {
-            serde_json::json!({
-                "role": "user",
-                "content": prompt
-            })
-        }));
-        messages.push(serde_json::json!({
-            "role": "system",
-            "content": &request.regulation
-        }));
+        let messages = request
+            .profile
+            .compose_messages(&request.system, &request.prompts);
         let mut payload = serde_json::json!({
             "model": self.model.trim(),
             "messages": messages,
@@ -112,15 +100,16 @@ impl OpenAiCore {
             "stream": true
         });
         match request.tools.as_ref() {
-            None => {
-                payload["response_format"] = serde_json::json!({
-                    "type": "json_object"
-                });
-            }
+            None => {}
             Some(tools) => {
                 payload["tools"] = serde_json::json!(self.build_tools(tools)?);
-                payload["tool_choice"] = serde_json::json!("required");
+                payload["tool_choice"] = request.profile.tool_choice();
             }
+        }
+        if request.tools.is_none() || request.profile.requires_json_output() {
+            payload["response_format"] = serde_json::json!({
+                "type": "json_object"
+            });
         }
         serde_json::to_string(&payload).map_err(|error| {
             ModelBackendError::RequestFailed(format!(
@@ -160,7 +149,7 @@ impl OpenAiCore {
         core: Self,
         raw: String,
         task_id: &str,
-        native_tools: bool,
+        expects_tool_calls: bool,
         sender: AsyncSender<ModelResponse>,
         logger: TaskLogger,
     ) -> Result<(), ModelBackendError> {
@@ -187,7 +176,7 @@ impl OpenAiCore {
             &mut response,
             &sender,
             task_id,
-            native_tools,
+            expects_tool_calls,
             logger,
         )
         .await
@@ -207,11 +196,11 @@ impl OpenAiCore {
         response: &mut reqwest::Response,
         sender: &AsyncSender<ModelResponse>,
         task_id: &str,
-        native_tools: bool,
+        expects_tool_calls: bool,
         logger: TaskLogger,
     ) -> Result<(), ModelBackendError> {
         let mut pending = Vec::new();
-        let mode = if native_tools {
+        let mode = if expects_tool_calls {
             StreamMode::ToolCalls
         } else {
             StreamMode::Content

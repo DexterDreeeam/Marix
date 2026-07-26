@@ -9,12 +9,12 @@ use marix_common::{
 };
 use marix_protocol::{
     IntentEvent, InvocationEvent, RelayEvent, RelayKind, RelayRequest, RelayResult,
-    RelayResultKind, RelaySignature, SessionEvent, StepDraft, TaskEvent, TaskLogger, TaskLogging,
-    WorkflowCallSummary, WorkflowTool,
+    RelayResultKind, RelaySignature, SessionEvent, TaskEvent, TaskLogger, TaskLogging,
 };
 
 use super::Relay;
 use crate::model::{DeepseekBackend, GlmBackend, ModelBackend, ModelResponse, ModelResponseStream};
+use crate::prompt::ToolCallSummary;
 use crate::task::TaskAccess;
 
 pub struct RelayRuntime {
@@ -208,7 +208,9 @@ impl RelayRuntime {
 
     fn finish_succeed(&self, output: String) {
         match &self.kind {
-            RelayKind::IntentAnalyze => self.finish(RelayResultKind::Succeed, output),
+            RelayKind::IntentAnalyze => {
+                self.finish(RelayResultKind::Succeed, output);
+            }
             RelayKind::ToolCallSummarize {
                 continuation_cursor,
                 ..
@@ -227,8 +229,7 @@ impl RelayRuntime {
                         }
                         Err(error) => {
                             let reason = format!(
-                                "failed to serialize workflow call summary: \
-                                 {error}"
+                                "failed to serialize tool call summary: {error}"
                             );
                             self.error(format!("relay {} failed: {reason}", &self.signature,));
                             self.finish(RelayResultKind::Failed, reason);
@@ -243,35 +244,22 @@ impl RelayRuntime {
         }
     }
 
-    fn extract_summary(raw: &str) -> Result<WorkflowCallSummary, String> {
-        let draft = StepDraft::parse(raw)
-            .map_err(|error| format!("not a valid tool-call draft: {error}"))?;
-        let mut invocations = draft.invocations.into_iter();
-        let Some(invocation) = invocations.next() else {
-            return Err("no tool call was made".to_owned());
-        };
-        if invocations.next().is_some() {
-            return Err("more than one tool call was made".to_owned());
-        }
-        if invocation.name != WorkflowCallSummary::NAME {
-            return Err(format!("unexpected tool call `{}`", invocation.name));
-        }
-        let tool = WorkflowCallSummary::parse(&invocation.input)
-            .map_err(|error| format!("`{}` arguments are invalid: {error}", invocation.name))?;
-        Ok(tool)
+    fn extract_summary(raw: &str) -> Result<ToolCallSummary, String> {
+        serde_json::from_str(raw)
+            .map_err(|error| format!("tool call summary is invalid JSON: {error}"))
     }
 
     fn validate_summary_cursor(
-        tool: &WorkflowCallSummary,
+        tool: &ToolCallSummary,
         expected: Option<&str>,
     ) -> Result<(), String> {
         match (expected, tool.continuation_cursor.as_deref()) {
             (Some(expected), Some(actual)) if actual != expected => Err(format!(
-                "workflow_call_summary returned a different continuation \
+                "tool call summary returned a different continuation \
                  cursor; expected `{expected}`, got `{actual}`"
             )),
             (None, Some(actual)) => Err(format!(
-                "workflow_call_summary returned an unexpected continuation \
+                "tool call summary returned an unexpected continuation \
                  cursor `{actual}`"
             )),
             _ => Ok(()),

@@ -8,11 +8,11 @@ use marix_protocol::{
     ExecutionEvent, ExecutionRequest, ExecutionResult, ExecutionResultKind, ExecutionSignature,
     ExecutorEvent, InvocationEvent, InvocationResult, InvocationResultKind, InvocationSignature,
     RelayKind, RelayRequest, RelayResult, RelayResultKind, RelaySignature, SessionEvent, StepEvent,
-    TaskEvent, TaskLogging, ToolInputSchema, WorkflowCallSummary, WorkflowContinuation,
-    WorkflowTool,
+    TaskEvent, TaskLogging, ToolInputSchema, WorkflowContinuation, WorkflowTool,
 };
 
 use super::Invocation;
+use crate::prompt::ToolCallSummary;
 use crate::relay::Relay;
 use crate::task::TaskAccess;
 
@@ -346,7 +346,9 @@ impl InvocationRuntime {
         };
         match result.kind {
             RelayResultKind::Succeed => {
-                let tool = match WorkflowCallSummary::parse(&result.output) {
+                let tool = match serde_json::from_str::<ToolCallSummary>(
+                    &result.output,
+                ) {
                     Ok(tool) => tool,
                     Err(error) => {
                         self.warning(format!(

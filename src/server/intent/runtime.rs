@@ -8,8 +8,7 @@ use marix_protocol::{
     IntentEvent, IntentResult, IntentResultKind, IntentSignature, InvocationDraft, PlanResult,
     RelayKind, RelayRequest, RelayResult, RelayResultKind, RelaySignature, SessionEvent, StepDraft,
     StepEvent, StepResult, StepResultKind, StepSignature, TaskEvent, TaskLogger, TaskLogging,
-    WorkflowCallSummary, WorkflowComplete, WorkflowContinuation, WorkflowInfeasible, WorkflowPlan,
-    WorkflowTool,
+    WorkflowComplete, WorkflowContinuation, WorkflowInfeasible, WorkflowPlan, WorkflowTool,
 };
 
 use super::Intent;
@@ -334,8 +333,7 @@ impl IntentRuntime {
     fn is_workflow_tool(name: &str) -> bool {
         matches!(
             name,
-            WorkflowCallSummary::NAME
-                | WorkflowContinuation::NAME
+            WorkflowContinuation::NAME
                 | WorkflowPlan::NAME
                 | WorkflowComplete::NAME
                 | WorkflowInfeasible::NAME

@@ -3,13 +3,13 @@ use std::collections::BTreeSet;
 use marix_common::external::*;
 use marix_common::{Arch, Platform, System};
 use marix_protocol::{
-    ContextChain, IntentContext, RelayKind, ToolPreview, WorkflowCallSummary, WorkflowComplete,
-    WorkflowContinuation, WorkflowInfeasible, WorkflowPlan, WorkflowTool,
+    ContextChain, IntentContext, RelayKind, ToolPreview, WorkflowComplete, WorkflowContinuation,
+    WorkflowInfeasible, WorkflowPlan, WorkflowTool,
 };
 
 use super::RelayRuntime;
 use crate::model::ModelRequest;
-use crate::prompt::Prompt;
+use crate::prompt::{Prompt, PromptProfile};
 
 impl RelayRuntime {
     pub(super) fn model_request(&self) -> Result<ModelRequest, String> {
@@ -26,12 +26,12 @@ impl RelayRuntime {
         };
         let tools = self.merge_workflow(tools)?;
         let prompts = self.context_prompts(&chain)?;
-        let regulation = self.regulation_prompt()?;
+        let profile = self.prompt_profile();
         Ok(ModelRequest {
             relay: self.signature.clone(),
+            profile,
             system: self.system_prompt(current_system)?,
             prompts,
-            regulation,
             tools: Some(tools),
         })
     }
@@ -40,6 +40,15 @@ impl RelayRuntime {
 // -- Private -- //
 
 impl RelayRuntime {
+    fn prompt_profile(&self) -> PromptProfile {
+        match &self.kind {
+            RelayKind::IntentAnalyze => PromptProfile::ToolMandatory,
+            RelayKind::ToolCallSummarize { .. } => {
+                PromptProfile::ToolCallSummary
+            }
+        }
+    }
+
     fn merge_workflow(
         &self,
         execution_tools: Vec<ToolPreview>,
@@ -54,7 +63,6 @@ impl RelayRuntime {
             }
         }
         let workflow_tools = [
-            WorkflowCallSummary::preview(),
             // WorkflowContinuation::preview(), // Server-driven; not exposed to models.
             WorkflowPlan::preview(),
             WorkflowComplete::preview(),
@@ -206,19 +214,6 @@ impl RelayRuntime {
         )
     }
 
-    fn regulation_prompt(&self) -> Result<String, String> {
-        let template = match &self.kind {
-            RelayKind::ToolCallSummarize { .. } => {
-                "WorkflowToolAllowRegulation"
-            }
-            _ => "WorkflowToolRejectRegulation",
-        };
-        Self::render_prompt(
-            template,
-            &[("tool_list", WorkflowCallSummary::NAME.to_owned())],
-        )
-    }
-
     /// Renders an ancestor Intent that currently holds an active Plan.
     fn plan_prompt(&self, intent: &IntentContext) -> Result<String, String> {
         let mut prompt =
@@ -249,7 +244,7 @@ impl RelayRuntime {
         continuation_cursor: Option<&str>,
     ) -> Result<String, String> {
         let template = if continuation_cursor.is_some() {
-            "ToolCallSummarizeByCursor"
+            "ToolCallSummarizeWithCursor"
         } else {
             "ToolCallSummarize"
         };
