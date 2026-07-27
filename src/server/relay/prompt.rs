@@ -11,6 +11,8 @@ use super::RelayRuntime;
 use crate::model::ModelRequest;
 use crate::prompt::{Prompt, PromptProfile};
 
+const CORE_DESCRIPTOR_MAX_CHARS: usize = 256;
+
 impl RelayRuntime {
     pub(super) fn model_request(&self) -> Result<ModelRequest, String> {
         let chain = self.access.get_context_chain(&self.signature.intent)?;
@@ -410,7 +412,9 @@ impl RelayRuntime {
             (Some(core), Some(purpose)) => {
                 let core_length = core.chars().count();
                 let purpose_length = purpose.chars().count();
-                if core_length < purpose_length || core_length < 32 {
+                if core_length < purpose_length
+                    || core_length < CORE_DESCRIPTOR_MAX_CHARS
+                {
                     Some(core)
                 } else {
                     Some(purpose)

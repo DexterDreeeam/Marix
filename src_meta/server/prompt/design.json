@@ -3,19 +3,20 @@
   "module": {
     "path": "src/server/prompt",
     "name": "prompt",
-    "purpose": "Loads, validates, injects, and renders named prompt templates and reusable prompt modules, including mandatory workflow_call_summary instructions, earlier-chunk fact recaps, and optional cursor-return guidance for tool-call summaries.",
-    "changeStatus": "unchanged"
+    "purpose": "Loads, validates, injects, and renders named prompt templates and reusable prompt modules, including mandatory workflow_call_summary instructions, completed-call fact framing with a no-repeat rule, verbatim-value summarization requirements, earlier-chunk fact recaps, and optional cursor-return guidance for tool-call summaries.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/server/prompt/module",
       "name": "module",
-      "purpose": "Defines reusable prompt fragments embedded into rendered templates: RepeatInvocation warns that an identical tool call was already requested, PreChunk notes that the listed facts came from earlier chunks of the same tool output so only new facts should be stated, and CompletedCalls states that the listed calls already ran and their results are confirmed facts."
+      "purpose": "Defines reusable prompt fragments embedded into rendered templates: RepeatInvocation warns that an identical tool call was already requested, PreChunk notes that the listed facts came from earlier chunks of the same tool output so only new facts should be stated, and CompletedCalls states that the listed calls already ran, their results are confirmed facts, and a tool must never be called again with the same arguments while those results still hold."
     },
     {
       "path": "src/server/prompt/template",
       "name": "template",
-      "purpose": "Defines System, WorkflowPolicy, ToolCallSummarize, and ToolCallSummarizeWithCursor resources; WorkflowPolicy lets workflow_complete rely on results already listed under the completed calls block, both summarize resources open with an optional pre_chunk block, fence the tool output in a triple-backtick code block, and require a JSON summary, while only the WithCursor variant asks for a continuation cursor and the plain variant states that no further chunks follow."
+      "purpose": "Defines System, WorkflowPolicy, ToolCallSummarize, and ToolCallSummarizeWithCursor resources; WorkflowPolicy lets workflow_complete rely on results already listed under the completed calls block and restricts ordinary execution tools to cases those results cannot cover, and both summarize resources carry their whole instruction block ahead of the variable payload so the cacheable prefix stays stable, require every relevant fact with concrete values copied verbatim and JSON-safe escaping, open with an optional pre_chunk block, and fence the tool output in a triple-backtick code block, while only the WithCursor variant asks for a continuation cursor and the plain variant states that no further chunks follow."
     }
   ],
   "elements": [

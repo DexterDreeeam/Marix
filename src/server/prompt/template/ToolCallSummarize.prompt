@@ -1,12 +1,9 @@
 [TOOL CALL]
 The following tool call has just completed as part of the [CURRENT TASK].
+Summarize the output below, keeping every fact relevant to the [CURRENT TASK]. Copy concrete values verbatim: paths, commands, versions, dates, counts, exit codes, and error text. Never replace a specific value with a category. State facts directly, without mentioning tools, calls, output, or summarizing. Escape backslashes and quotes so the JSON stays valid.
+Return only JSON in exactly this shape: {"summary":"..."}, using an empty string when nothing is worth keeping. There are no further chunks, so do not return `continuation_cursor`.
 
 {{#pre_chunk}}[TOOL: {{#tool}}]
 ```
 {{#output}}
 ```
-
-Summarize the output above, preserving only facts relevant to the [CURRENT TASK]. State those facts directly without mentioning tools, calls, output, or the summarization process. If nothing is worth keeping, use an empty string for `summary`.
-
-Return only JSON in exactly this shape: {"summary":"..."}
-There are no further chunks, so do not return `continuation_cursor`.

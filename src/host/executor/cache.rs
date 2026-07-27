@@ -3,6 +3,14 @@ use std::collections::VecDeque;
 use marix_common::external::uuid;
 
 const CHUNK_BYTES: usize = 16 * 1024;
+// A cached remainder restarts this far before the emitted chunk's
+// end, so the next chunk repeats a small tail of the previous one
+// and a fact straddling the boundary stays readable in at least one
+// chunk. Must stay strictly below `CHUNK_BYTES`: each continuation
+// advances by `CHUNK_BYTES - CHUNK_OVERLAP_BYTES` bytes, so an
+// overlap at or above the chunk size would stop making progress and
+// the continuation chain would never terminate.
+const CHUNK_OVERLAP_BYTES: usize = 1024;
 const CACHE_THRESHOLD_BYTES: usize = 24 * 1024;
 const CACHE_CAPACITY: usize = 10;
 
@@ -22,7 +30,8 @@ impl ExecutorCache {
             return Ok((content.to_owned(), None));
         }
         let end = Self::chunk_end(content);
-        let cursor = self.insert(content[end..].to_owned());
+        let start = Self::chunk_start(content, end);
+        let cursor = self.insert(content[start..].to_owned());
         Ok((content[..end].to_owned(), Some(cursor)))
     }
 
@@ -70,6 +79,14 @@ impl ExecutorCache {
             end -= 1;
         }
         end
+    }
+
+    fn chunk_start(content: &str, end: usize) -> usize {
+        let mut start = end.saturating_sub(CHUNK_OVERLAP_BYTES);
+        while !content.is_char_boundary(start) {
+            start -= 1;
+        }
+        start
     }
 
     fn not_available() -> String {

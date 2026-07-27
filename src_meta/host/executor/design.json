@@ -3,9 +3,10 @@
   "module": {
     "path": "src/host/executor",
     "name": "executor",
-    "purpose": "Owns host executor workers and the ExecutorState-held ExecutorCache: a consuming 10-entry FIFO configured by CHUNK_BYTES (16 KiB), CACHE_THRESHOLD_BYTES (24 KiB), and CACHE_CAPACITY (10); try_cache returns content at or below 24 KiB whole, otherwise returns a UTF-8-safe 16 KiB chunk and caches the remainder under a short tc_-prefixed eight-hex-digit continuation cursor, and pick consumes an entry then reuses try_cache. It also loads compatible tools, routes regular executions, intercepts workflow_continuation requests, and publishes plain content with continuation cursors.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns host executor workers and the ExecutorState-held ExecutorCache: a consuming 10-entry FIFO configured by CHUNK_BYTES (16 KiB), CHUNK_OVERLAP_BYTES (1 KiB), CACHE_THRESHOLD_BYTES (24 KiB), and CACHE_CAPACITY (10); try_cache returns content at or below 24 KiB whole, otherwise returns a UTF-8-safe 16 KiB chunk and caches the remainder from one overlap window before that chunk's end under a short tc_-prefixed eight-hex-digit continuation cursor, so consecutive chunks repeat a tail and a fact spanning a boundary stays readable, and pick consumes an entry then reuses try_cache. It also loads compatible tools, routes regular executions, intercepts workflow_continuation requests, and publishes plain content with continuation cursors.",
+    "changeStatus": "modified"
   },
+  "modified": ["cache.rs"],
   "childModules": [],
   "elements": [
     {
@@ -36,36 +37,46 @@
       "name": "ExecutorCache",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/cache.rs",
-          "lineStart": 14,
-          "lineEnd": 17,
+          "lineStart": 22,
+          "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/cache.rs",
-          "lineStart": 19,
-          "lineEnd": 33,
+          "lineStart": 27,
+          "lineEnd": 42,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/host/executor/cache.rs",
-          "lineStart": 37,
-          "lineEnd": 78,
-          "language": "rust",
-          "addedLines": [],
+          "addedLines": [
+            {
+              "lineStart": 35,
+              "lineEnd": 35
+            }
+          ],
           "modifiedLines": [
             {
-              "lineStart": 52,
-              "lineEnd": 52
+              "lineStart": 36,
+              "lineEnd": 36
             }
           ]
+        },
+        {
+          "sourcePath": "src/host/executor/cache.rs",
+          "lineStart": 46,
+          "lineEnd": 95,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 84,
+              "lineEnd": 90
+            }
+          ],
+          "modifiedLines": []
         }
       ]
     },
