@@ -4,9 +4,8 @@
     "path": "src/common/logging",
     "name": "logging",
     "purpose": "Provides level-based and tag-based telemetry, remote-first delivery, batched indexed redb persistence with fixed-width zero-padded decimal record keys and schema migration that rewrites stale key encodings, minimum-level threshold and paged summary/full-record queries, and executable-sibling JSONL fallback logging.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["store.rs"],
   "childModules": [
     {
       "path": "src/common/logging/store",
@@ -263,7 +262,7 @@
       "name": "Store",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store.rs",
@@ -809,7 +808,7 @@
       "name": "SCHEMA_VERSION",
       "type": "const",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",

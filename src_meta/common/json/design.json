@@ -4,16 +4,15 @@
     "path": "src/common/json",
     "name": "json",
     "purpose": "Provides shared JSON value helpers, currently canonical_json_value, which recursively sorts object members by key so values differing only in member order compare equal while array order is preserved.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": ["."],
   "childModules": [],
   "elements": [
     {
       "name": "canonical_json_value",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/json/helper.rs",

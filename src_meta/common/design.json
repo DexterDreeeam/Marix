@@ -4,9 +4,8 @@
     "path": "src/common",
     "name": "common",
     "purpose": "Owns shared configuration, canonical JSON value helpers, level-based telemetry logging with threshold queries, executable-sibling standalone tool logging, approved external wrappers including Tokio timers, generic Actor and Runtime contracts, signatures, authenticated channels, and insertion-ordered work queues.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["lib.rs"],
   "childModules": [
     {
       "path": "src/common/actor",
@@ -1306,7 +1305,7 @@
       "name": "Store",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store.rs",
@@ -2153,7 +2152,7 @@
       "name": "canonical_json_value",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/json/helper.rs",

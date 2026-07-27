@@ -4,9 +4,8 @@
     "path": "src/common/logging/store",
     "name": "store",
     "purpose": "Implements redb telemetry persistence with session/time, minimum-level threshold, record-id, trigram, and tag indexes, fixed-width zero-padded decimal log keys, schema migration that rewrites any stored key whose bytes differ from its decoded form, paged reads, distinct-tag listing, and bounded batch writes.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["maintenance.rs", "schema.rs"],
   "childModules": [],
   "elements": [
     {
@@ -280,7 +279,7 @@
       "name": "SCHEMA_VERSION",
       "type": "const",
       "source_depth": 4,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
