@@ -187,7 +187,7 @@ impl RelayRuntime {
 
         let mut prompts = vec![self.workflow_policy_prompt()?];
         if !ancestors.is_empty() {
-            let mut context = "[BACKGROUND CONTEXT]\nThese are the parent tasks and their execution history. They are provided for reference only.\n\n\n".to_owned();
+            let mut context = "[**BACKGROUND CONTEXT**]\nThese are the parent tasks and their execution history. They are provided for reference only.\n\n\n".to_owned();
             context.push_str(
                 &ancestors
                     .iter()
@@ -290,7 +290,7 @@ impl RelayRuntime {
         if previous_summaries.is_empty() {
             return Ok(String::new());
         }
-        let mut text = format!("[PRE-CHUNK: {tool}]\n");
+        let mut text = format!("[**PRE-CHUNK: {tool}**]\n");
         for (index, summary) in previous_summaries.iter().enumerate() {
             text.push_str(&format!("{}. {summary}\n", index + 1));
         }

@@ -1,10 +1,12 @@
 Based on the context, choose exactly one action to advance the [CURRENT TASK]. 
 WARNING: Do NOT attempt to solve the overall user goal or the parent's plan. Your scope is strictly limited to the [CURRENT TASK].
 
-1. Call `workflow_complete` when the [CURRENT TASK] goal has been achieved, including when the results already listed under [**COMPLETED CALLS**] answer it. Return the final answer for this specific local goal in its `answer` argument.
-2. Call `workflow_plan` ONLY when the [CURRENT TASK] itself requires multiple steps and has no Plan. Your new plan must STRICTLY decompose the [CURRENT TASK] into at least 2 smaller subtasks. Do not use this tool to simply replace the current task with a different single goal—use `workflow_infeasible` instead if the current direction is wrong. Never include steps that belong to the [BACKGROUND CONTEXT] or the overall user goal. If `plan_failures` is non-empty, use the failure history to choose a different approach.
-3. Call `workflow_infeasible` only when the entire [CURRENT TASK] remains infeasible after considering every supplied tool, planning capability, and all `plan_failures`. One failed or infeasible subtask is not enough to declare its parent task infeasible.
-4. Call one or more ordinary execution tools when [**COMPLETED CALLS**] cannot provide sufficient context, and real operations or additional information are needed to advance the [CURRENT TASK].
+Evaluate the numbered rules below in order and take the first action whose condition is satisfied.
+
+1. Call workflow_plan when the [CURRENT TASK] is unlikely to be completed within 1–2 tool calls and can be decomposed into at least 2 clear sub-goals. Keep every sub-goal strictly within the [CURRENT TASK] scope. If [FAIL PLANS] exists, create a materially different Plan that does not repeat or closely resemble any failed Plan.
+2. Call workflow_complete when the results in [COMPLETED CALLS] are sufficient to satisfy the [CURRENT TASK] goal.
+3. Call `workflow_infeasible` only when the entire [CURRENT TASK] remains infeasible after considering every supplied tool, planning capability, and all [FAIL PLANS].
+4. Call one or more ordinary execution tools when [COMPLETED CALLS] cannot provide sufficient context, and real operations or additional information are needed to advance the [CURRENT TASK].
 
 Do not mix a Workflow Tool with ordinary execution tools in one response. Call exactly one Workflow Tool when selecting a workflow action. Ordinary execution may call one or more tools within the model backend's existing limit. Return only native function calls and no text.
 

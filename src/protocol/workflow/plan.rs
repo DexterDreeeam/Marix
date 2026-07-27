@@ -17,10 +17,10 @@ impl WorkflowTool for WorkflowPlan {
     fn preview() -> ToolPreview {
         ToolPreview {
             name: Self::NAME.to_owned(),
-            description: "Create a new plan for the current task with \
-                          ordered immutable subtask goals. When \
-                          plan_failures exist, choose different goals based \
-                          on that failure history."
+            description: "Create a Plan of ordered immutable sub-goals for \
+                          the [CURRENT TASK]. Considering [FAIL PLANS] in the \
+                          [CURRENT TASK] if present, do not propose the same \
+                          or a similar Plan as any failed Plan."
                 .to_owned(),
             category: ToolCategory::Workflow,
             system: System {
