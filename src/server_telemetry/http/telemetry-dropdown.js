@@ -1,10 +1,13 @@
 // Reusable popup mechanics for the toolbar's custom dropdowns (Level, Tags).
-// Mirrors the openContextMenu/closeContextMenu shape in telemetry-message.js:
+// Self-contained here, no longer modelled on any other module's popup API:
 // hidden-attribute toggling, viewport-clamped absolute positioning measured
 // via a temporary visibility:hidden pass, outside-click/Escape/scroll/resize
 // dismissal. Selection semantics (single-select vs multi-select, closing or
 // not closing on pick) are left entirely to the caller.
-export function createDropdown(_button, _popup) {
+// _onOpen runs once the dropdown is flagged open but before it is positioned,
+// so a caller that deferred a rebuild can commit it and still have the popup
+// measured against its final content.
+export function createDropdown(_button, _popup, _onOpen) {
   var _open = false;
 
   function position() {
@@ -61,6 +64,9 @@ export function createDropdown(_button, _popup) {
     }
     _open = true;
     _button.setAttribute("aria-expanded", "true");
+    if (typeof _onOpen === "function") {
+      _onOpen();
+    }
     position();
   }
 
@@ -88,10 +94,28 @@ export function createDropdown(_button, _popup) {
       close();
     }
   });
+  // Scroll events never bubble, but a capture-phase listener on the window still
+  // observes every scrollable element on the page. The popup is positioned
+  // against the button, so only a scroll that can move the button invalidates
+  // it. Scrolling an unrelated container - the log area being re-rendered and
+  // pinned to the bottom by the two-second refresh, or the popup's own option
+  // list - must leave the dropdown alone.
+  function movesAnchor(_target) {
+    if (_target === null || _target === undefined) {
+      return true;
+    }
+    if (typeof _target.contains !== "function") {
+      return true;
+    }
+    return _target.contains(_button);
+  }
+
   window.addEventListener(
     "scroll",
-    function () {
-      close();
+    function (_event) {
+      if (_open && movesAnchor(_event.target)) {
+        close();
+      }
     },
     true
   );
@@ -128,7 +152,16 @@ export function createLogFilters(_elements, _state, _actions) {
     _elements.levelButton,
     _elements.levelPopup
   );
-  var _tagsDropdown = createDropdown(_elements.tagsButton, _elements.tagsPopup);
+  var _tagsRenderPending = false;
+  var _tagsDropdown = createDropdown(
+    _elements.tagsButton,
+    _elements.tagsPopup,
+    function () {
+      if (_tagsRenderPending) {
+        renderTagsPopupContent();
+      }
+    }
+  );
   var _tagsRequest = null;
 
   function updateLevelSelection() {
@@ -158,7 +191,12 @@ export function createLogFilters(_elements, _state, _actions) {
     return _count + (_count === 1 ? " tag selected" : " tags selected");
   }
 
-  function renderTagsPopup() {
+  // Rebuilds every option node, so it is only safe while the popup is closed:
+  // replaceChildren discards the node the user is currently interacting with.
+  // Also reached from the dropdown's open callback to flush a deferred refresh
+  // before the popup is measured and shown.
+  function renderTagsPopupContent() {
+    _tagsRenderPending = false;
     _elements.tagsButton.textContent = tagsLabel();
     if (_state.availableTags.length === 0) {
       var _empty = document.createElement("li");
@@ -186,13 +224,39 @@ export function createLogFilters(_elements, _state, _actions) {
     _tagsDropdown.reposition();
   }
 
+  // Entry point for background refreshes driven by log polling. While the user
+  // has the popup open its option nodes stay untouched and the rebuild is
+  // deferred to the next open; the button label lives outside the popup and is
+  // never interacted with, so it keeps tracking the selection immediately.
+  function renderTagsPopup() {
+    if (!_tagsDropdown.isOpen()) {
+      renderTagsPopupContent();
+      return;
+    }
+    _tagsRenderPending = true;
+    _elements.tagsButton.textContent = tagsLabel();
+  }
+
+  function updateTagSelection(_tag) {
+    var _selected = _state.selectedTags.has(_tag);
+    Array.from(_elements.tagsPopup.children).forEach(function (_item) {
+      if (_item.dataset.tag === _tag) {
+        _item.classList.toggle("selected", _selected);
+        _item.setAttribute("aria-selected", String(_selected));
+      }
+    });
+  }
+
   function toggleTag(_tag) {
     if (_state.selectedTags.has(_tag)) {
       _state.selectedTags.delete(_tag);
     } else {
       _state.selectedTags.add(_tag);
     }
-    renderTagsPopup();
+    // The click came from inside the open popup, so update the clicked node in
+    // place rather than rebuilding the list out from under the user.
+    _elements.tagsButton.textContent = tagsLabel();
+    updateTagSelection(_tag);
     _actions.resetLogs();
   }
 
@@ -239,6 +303,7 @@ export function createLogFilters(_elements, _state, _actions) {
     _state.selectedTags.clear();
     _state.availableTags = [];
     _tagsDropdown.close();
+    _tagsRenderPending = false;
     renderTagsPopup();
   }
 

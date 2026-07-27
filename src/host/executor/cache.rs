@@ -49,7 +49,7 @@ impl ExecutorCache {
 
     fn generate_cursor(&self) -> String {
         loop {
-            let cursor = format!("tc_{}", uuid::Uuid::new_v4().simple());
+            let cursor = format!("tc_{}", &uuid::Uuid::new_v4().simple().to_string()[..8]);
             if self.entries.iter().all(|entry| entry.cursor != cursor) {
                 return cursor;
             }

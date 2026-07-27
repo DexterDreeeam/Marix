@@ -1,11 +1,12 @@
 [TOOL CALL]
 The following tool call has just completed as part of the [CURRENT TASK].
 
-[TOOL: {{#tool}}]
-Result:
+{{#pre_chunk}}[TOOL: {{#tool}}]
+```
 {{#output}}
+```
 
-Summarize the current Result, preserving only facts relevant to the [CURRENT TASK]. State those facts directly without mentioning tools, calls, output, or the summarization process. If nothing is worth keeping, use an empty string for `summary`.
+Summarize the output above, preserving only facts relevant to the [CURRENT TASK]. State those facts directly without mentioning tools, calls, output, or the summarization process. If nothing is worth keeping, use an empty string for `summary`.
 
 Return only JSON in exactly this shape: {"summary":"..."}
-The Result was not chunked. Do not return `continuation_cursor`.
+There are no further chunks, so do not return `continuation_cursor`.

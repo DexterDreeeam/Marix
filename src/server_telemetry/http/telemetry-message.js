@@ -3,7 +3,6 @@ import { renderFormattedMessage } from "./telemetry-format.js";
 const c_cacheLimit = 100;
 
 export function createMessageActions(_elements, _callbacks) {
-  var _context = null;
   var _modalOpen = false;
   var _modalContext = null;
   var _modalPreviousFocus = null;
@@ -22,52 +21,6 @@ export function createMessageActions(_elements, _callbacks) {
       }
       return _record;
     });
-  }
-
-  function closeContextMenu(_restoreFocus) {
-    if (!_context) {
-      return;
-    }
-    var _previousFocus = _context.previousFocus;
-    _context = null;
-    _elements.contextMenu.hidden = true;
-    _elements.contextMenu.style.left = "";
-    _elements.contextMenu.style.top = "";
-    if (_restoreFocus && _previousFocus && _previousFocus.isConnected) {
-      _previousFocus.focus({ preventScroll: true });
-    }
-  }
-
-  function openContextMenu(_event, _summary, _row) {
-    _event.preventDefault();
-    if (_modalOpen) {
-      return;
-    }
-    closeContextMenu(false);
-    _context = {
-      id: _summary.id,
-      summary: _summary,
-      row: _row,
-      previousFocus: document.activeElement,
-    };
-    _elements.contextMenu.hidden = false;
-    _elements.contextMenu.style.visibility = "hidden";
-    _elements.contextMenu.style.left = "0";
-    _elements.contextMenu.style.top = "0";
-    var _bounds = _elements.contextMenu.getBoundingClientRect();
-    var _margin = 8;
-    var _left = Math.max(
-      _margin,
-      Math.min(_event.clientX, window.innerWidth - _bounds.width - _margin)
-    );
-    var _top = Math.max(
-      _margin,
-      Math.min(_event.clientY, window.innerHeight - _bounds.height - _margin)
-    );
-    _elements.contextMenu.style.left = _left + "px";
-    _elements.contextMenu.style.top = _top + "px";
-    _elements.contextMenu.style.visibility = "";
-    _elements.copyAction.focus({ preventScroll: true });
   }
 
   function showCopyToast() {
@@ -131,12 +84,9 @@ export function createMessageActions(_elements, _callbacks) {
     return Promise.resolve(copyTextWithExecCommand(_message));
   }
 
-  function activateCopyMessage() {
-    if (!_context) {
-      return;
-    }
-    var _id = _context.id;
-    exactRecord(_id)
+  function copyMessage(_event, _summary) {
+    _event.preventDefault();
+    exactRecord(_summary.id)
       .then(function (_record) {
         return writeClipboardText(_record.message);
       })
@@ -150,7 +100,6 @@ export function createMessageActions(_elements, _callbacks) {
       .catch(function (_error) {
         _callbacks.showError("Failed to copy message: " + _error.message);
       });
-    closeContextMenu(true);
   }
 
   function modalPosition() {
@@ -211,7 +160,6 @@ export function createMessageActions(_elements, _callbacks) {
     };
     _modalPreviousFocus =
       _previousFocus || _row.querySelector(".message-cell");
-    closeContextMenu(false);
     renderModalRecord(_currentSummary, _record);
     _elements.app.setAttribute("inert", "");
     _elements.app.setAttribute("aria-hidden", "true");
@@ -223,23 +171,14 @@ export function createMessageActions(_elements, _callbacks) {
     _callbacks.onModalChange(true);
   }
 
-  function activateFormatMessage() {
-    if (!_context) {
-      return;
-    }
-    var _contextAtRequest = _context;
-    exactRecord(_contextAtRequest.id)
+  function openMessage(_summary, _row) {
+    var _previousFocus = document.activeElement;
+    exactRecord(_summary.id)
       .then(function (_record) {
-        openFormatMessage(
-          _contextAtRequest.summary,
-          _record,
-          _contextAtRequest.row,
-          _contextAtRequest.previousFocus
-        );
+        openFormatMessage(_summary, _record, _row, _previousFocus);
       })
       .catch(function (_error) {
         _callbacks.showError("Failed to load full message: " + _error.message);
-        closeContextMenu(true);
       });
   }
 
@@ -333,18 +272,6 @@ export function createMessageActions(_elements, _callbacks) {
     _callbacks.onModalChange(false);
   }
 
-  function bindAction(_element, _action) {
-    _element.addEventListener("click", _action);
-    _element.addEventListener("keydown", function (_event) {
-      if (_event.key === "Enter" || _event.key === " ") {
-        _event.preventDefault();
-        _action();
-      }
-    });
-  }
-
-  bindAction(_elements.copyAction, activateCopyMessage);
-  bindAction(_elements.formatAction, activateFormatMessage);
   _elements.modalPrev.addEventListener("click", navigateUp);
   _elements.modalNext.addEventListener("click", navigateDown);
   _elements.modalClose.addEventListener("click", closeFormatMessage);
@@ -372,11 +299,6 @@ export function createMessageActions(_elements, _callbacks) {
       _elements.modalClose.focus();
     }
   });
-  document.addEventListener("pointerdown", function (_event) {
-    if (_context && !_elements.contextMenu.contains(_event.target)) {
-      closeContextMenu(false);
-    }
-  });
   document.addEventListener("keydown", function (_event) {
     if (
       _modalOpen &&
@@ -393,30 +315,16 @@ export function createMessageActions(_elements, _callbacks) {
       }
       return;
     }
-    if (_event.key !== "Escape") {
+    if (_event.key !== "Escape" || !_modalOpen) {
       return;
     }
-    if (_modalOpen) {
-      _event.preventDefault();
-      closeFormatMessage();
-    } else if (_context) {
-      _event.preventDefault();
-      closeContextMenu(true);
-    }
-  });
-  window.addEventListener(
-    "scroll",
-    function () {
-      closeContextMenu(false);
-    },
-    true
-  );
-  window.addEventListener("resize", function () {
-    closeContextMenu(false);
+    _event.preventDefault();
+    closeFormatMessage();
   });
 
   return {
-    openContextMenu: openContextMenu,
+    openMessage: openMessage,
+    copyMessage: copyMessage,
     isModalOpen: function () {
       return _modalOpen;
     },

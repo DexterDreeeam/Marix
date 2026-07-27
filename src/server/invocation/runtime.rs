@@ -252,6 +252,7 @@ impl InvocationRuntime {
         continuation_cursor: Option<String>,
     ) {
         let kind = self.update_overall_kind(kind);
+        let previous_summaries = Self::lock(&self.summaries).clone();
         let relay_signature = RelaySignature::new(
             self.signature.step.intent.clone(),
             "tool-call-summarize".to_owned(),
@@ -263,6 +264,7 @@ impl InvocationRuntime {
                 tool: self.signature.name.clone(),
                 output,
                 continuation_cursor,
+                previous_summaries,
             },
         };
         let relay = match Relay::new(Arc::clone(&self.access), request) {

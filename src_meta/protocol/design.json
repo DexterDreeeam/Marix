@@ -3,9 +3,10 @@
   "module": {
     "path": "src/protocol",
     "name": "protocol",
-    "purpose": "Defines serialized task, context, relay, step, invocation, execution, session, tool, and workflow contracts, including optional continuation cursors for execution results, summarize relays, and workflow call summaries used by server-driven continuation.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines serialized task, context, relay, step, invocation, execution, session, tool, and workflow contracts, including optional continuation cursors for execution results, summarize relays, and workflow call summaries used by server-driven continuation, and the earlier-chunk summaries carried alongside a chunked summarize relay.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/protocol/execution",
@@ -35,7 +36,7 @@
     {
       "path": "src/protocol/relay",
       "name": "relay",
-      "purpose": "Defines relay requests carrying an intent-owned signature and either intent analysis or tool-call summarization, whose ToolCallSummarize payload includes tool output and a serde-defaulted optional continuation cursor, alongside relay identities, errors, cancellation events, and terminal model results."
+      "purpose": "Defines relay requests carrying an intent-owned signature and either intent analysis or tool-call summarization, whose ToolCallSummarize payload includes tool output, a serde-defaulted optional continuation cursor, and serde-defaulted summaries already collected from earlier chunks of the same output, alongside relay identities, errors, cancellation events, and terminal model results."
     },
     {
       "path": "src/protocol/session",
@@ -774,17 +775,17 @@
       "name": "RelayKind",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/protocol/relay/kind.rs",
           "lineStart": 5,
-          "lineEnd": 15,
+          "lineEnd": 19,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 5,
-              "lineEnd": 15
+              "lineStart": 14,
+              "lineEnd": 17
             }
           ],
           "modifiedLines": []
@@ -1504,45 +1505,6 @@
             }
           ],
           "modifiedLines": []
-        }
-      ]
-    },
-    {
-      "name": "WorkflowCallSummary",
-      "type": "struct",
-      "source_depth": 3,
-      "changeStatus": "unchanged",
-      "codeSegments": [
-        {
-          "sourcePath": "src/protocol/workflow/call_summary.rs",
-          "lineStart": 8,
-          "lineEnd": 14,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 12,
-              "lineEnd": 13
-            }
-          ],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/protocol/workflow/call_summary.rs",
-          "lineStart": 16,
-          "lineEnd": 41,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 25,
-              "lineEnd": 27
-            }
-          ],
-          "modifiedLines": [
-            {
-              "lineStart": 34,
-              "lineEnd": 34
-            }
-          ]
         }
       ]
     },

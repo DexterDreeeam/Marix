@@ -234,6 +234,7 @@ tbody tr.log-row {
   --task-background-hover: #000;
   height: var(--row-height);
   background: var(--task-background);
+  cursor: pointer;
 }
 tbody tr.log-row:hover, tbody tr.log-row:focus-within {
   background: var(--task-background-hover);
@@ -261,33 +262,6 @@ tr.virtual-spacer td {
   height: 0;
   padding: 0;
   border: 0;
-}
-#log-context-menu {
-  position: fixed;
-  z-index: 300;
-  min-width: 168px;
-  max-width: calc(100vw - 16px);
-  padding: 5px;
-  border: 1px solid rgba(230, 233, 239, 0.18);
-  border-radius: 7px;
-  background: var(--panel-alt);
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
-}
-#log-context-menu button {
-  width: 100%;
-  border: 0;
-  border-radius: 5px;
-  padding: 8px 10px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-#log-context-menu button:hover,
-#log-context-menu button:focus-visible {
-  background: rgba(77, 141, 255, 0.18);
-  outline: none;
 }
 .dropdown-popup {
   position: fixed;

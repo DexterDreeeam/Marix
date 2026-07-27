@@ -13,6 +13,7 @@ import { createMessageActions } from "./telemetry-message.js";
 
 const c_keywordDebounceMs = 400;
 const c_logRefreshMs = 2000;
+const c_rowHoverLift = 12;
 const c_sessionRefreshMs = 10000;
 const c_logLoadThreshold = 12 * c_rowHeight;
 const c_bottomStickThreshold = 3 * c_rowHeight;
@@ -86,9 +87,6 @@ const s_filters = createLogFilters(
 const s_messageActions = createMessageActions(
   {
     app: appEl,
-    contextMenu: document.getElementById("log-context-menu"),
-    copyAction: document.getElementById("copy-message-action"),
-    formatAction: document.getElementById("format-message-action"),
     copyToast: document.getElementById("copy-toast"),
     modalBackdrop: document.getElementById("format-message-backdrop"),
     modal: document.getElementById("format-message-modal"),
@@ -213,9 +211,25 @@ function levelBadgeClass(_level) {
     : "level-debug";
 }
 
+function liftChannel(_value) {
+  return Math.min(255, _value + c_rowHoverLift);
+}
+
+function hoverColorFrom(_channels) {
+  return (
+    "rgb(" +
+    liftChannel(_channels[0]) +
+    ", " +
+    liftChannel(_channels[1]) +
+    ", " +
+    liftChannel(_channels[2]) +
+    ")"
+  );
+}
+
 function taskRowColors(_taskId) {
   if (_taskId === null || _taskId === undefined) {
-    return { color: "#000", hoverColor: "#000" };
+    return { color: "#000", hoverColor: hoverColorFrom([0, 0, 0]) };
   }
   var _text = String(_taskId);
   var _hash = 0x811c9dc5;
@@ -238,15 +252,14 @@ function taskRowColors(_taskId) {
     [2, 1, 0],
   ];
   var _permutation = _permutations[(_hash >>> 24) % _permutations.length];
+  var _ordered = [
+    _channels[_permutation[0]],
+    _channels[_permutation[1]],
+    _channels[_permutation[2]],
+  ];
   var _color =
-    "rgb(" +
-    _channels[_permutation[0]] +
-    ", " +
-    _channels[_permutation[1]] +
-    ", " +
-    _channels[_permutation[2]] +
-    ")";
-  return { color: _color, hoverColor: _color };
+    "rgb(" + _ordered[0] + ", " + _ordered[1] + ", " + _ordered[2] + ")";
+  return { color: _color, hoverColor: hoverColorFrom(_ordered) };
 }
 
 function createLogRow(_summary) {
@@ -293,8 +306,11 @@ function createLogRow(_summary) {
   _messageCell.textContent =
     _summary.message_preview + (_summary.truncated ? "…" : "");
   _row.appendChild(_messageCell);
+  _row.addEventListener("click", function () {
+    s_messageActions.openMessage(_summary, _row);
+  });
   _row.addEventListener("contextmenu", function (_event) {
-    s_messageActions.openContextMenu(_event, _summary, _row);
+    s_messageActions.copyMessage(_event, _summary);
   });
   return _row;
 }

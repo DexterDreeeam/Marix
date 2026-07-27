@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/prompt/template",
     "name": "template",
-    "purpose": "Defines System plus WorkflowPolicy, ToolCallSummarize, and ToolCallSummarizeByCursor resources that require workflow_call_summary for [TOOL CALL] messages and place an unchanged useful continuation cursor only in its optional continuation_cursor argument.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines System, WorkflowPolicy, ToolCallSummarize, and ToolCallSummarizeWithCursor resources; both summarize resources open with an optional pre_chunk block, fence the tool output in a triple-backtick code block, and require a JSON summary, while only the WithCursor variant asks for a continuation cursor and the plain variant states that no further chunks follow.",
+    "changeStatus": "modified"
   },
+  "modified": ["ToolCallSummarize.prompt", "ToolCallSummarizeWithCursor.prompt"],
   "childModules": [],
   "elements": []
 }

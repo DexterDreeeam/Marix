@@ -3,9 +3,10 @@
   "module": {
     "path": "src/host/executor",
     "name": "executor",
-    "purpose": "Owns host executor workers and the ExecutorState-held ExecutorCache: a consuming 10-entry FIFO configured by CHUNK_BYTES (16 KiB), CACHE_THRESHOLD_BYTES (24 KiB), and CACHE_CAPACITY (10); try_cache returns content at or below 24 KiB whole, otherwise returns a UTF-8-safe 16 KiB chunk and caches the remainder, and pick consumes an entry then reuses try_cache. It also loads compatible tools, routes regular executions, intercepts workflow_continuation requests, and publishes plain content with continuation cursors.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns host executor workers and the ExecutorState-held ExecutorCache: a consuming 10-entry FIFO configured by CHUNK_BYTES (16 KiB), CACHE_THRESHOLD_BYTES (24 KiB), and CACHE_CAPACITY (10); try_cache returns content at or below 24 KiB whole, otherwise returns a UTF-8-safe 16 KiB chunk and caches the remainder under a short tc_-prefixed eight-hex-digit continuation cursor, and pick consumes an entry then reuses try_cache. It also loads compatible tools, routes regular executions, intercepts workflow_continuation requests, and publishes plain content with continuation cursors.",
+    "changeStatus": "modified"
   },
+  "modified": ["cache.rs"],
   "childModules": [],
   "elements": [
     {
@@ -36,19 +37,14 @@
       "name": "ExecutorCache",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/cache.rs",
           "lineStart": 14,
           "lineEnd": 17,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 17
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -56,12 +52,7 @@
           "lineStart": 19,
           "lineEnd": 33,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 19,
-              "lineEnd": 33
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
@@ -69,13 +60,13 @@
           "lineStart": 37,
           "lineEnd": 78,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 37,
-              "lineEnd": 78
+              "lineStart": 52,
+              "lineEnd": 52
             }
-          ],
-          "modifiedLines": []
+          ]
         }
       ]
     },

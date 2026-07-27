@@ -200,10 +200,16 @@ impl RelayRuntime {
             tool,
             output,
             continuation_cursor,
+            previous_summaries,
             ..
         } = &self.kind
         {
-            prompts.push(self.tool_call_prompt(tool, output, continuation_cursor.as_deref())?);
+            prompts.push(self.tool_call_prompt(
+                tool,
+                output,
+                continuation_cursor.as_deref(),
+                previous_summaries,
+            )?);
         }
         Ok(prompts)
     }
@@ -245,15 +251,19 @@ impl RelayRuntime {
         tool: &str,
         output: &str,
         continuation_cursor: Option<&str>,
+        previous_summaries: &[String],
     ) -> Result<String, String> {
         let template = if continuation_cursor.is_some() {
             "ToolCallSummarizeWithCursor"
         } else {
             "ToolCallSummarize"
         };
+        let pre_chunk =
+            Self::pre_chunk_text(tool, previous_summaries)?;
         let mut parameters = vec![
             ("tool", tool.to_owned()),
             ("output", output.to_owned()),
+            ("pre_chunk", pre_chunk),
         ];
         if let Some(continuation_cursor) = continuation_cursor {
             parameters.push((
@@ -262,6 +272,29 @@ impl RelayRuntime {
             ));
         }
         Self::render_prompt(template, Prompt::load, &parameters)
+    }
+
+    /// Renders the summaries already collected from earlier chunks of the
+    /// same tool output, so a later chunk is not summarized blind. Stays
+    /// empty until an earlier chunk has been summarized, which keeps the
+    /// first-chunk and unchunked renders byte-identical to a template
+    /// without this block.
+    fn pre_chunk_text(
+        tool: &str,
+        previous_summaries: &[String],
+    ) -> Result<String, String> {
+        if previous_summaries.is_empty() {
+            return Ok(String::new());
+        }
+        let mut text = format!("[PRE-CHUNK: {tool}]\n");
+        for (index, summary) in previous_summaries.iter().enumerate() {
+            text.push_str(&format!("{}. {summary}\n", index + 1));
+        }
+        let notice =
+            Self::render_prompt("PreChunk", Prompt::load_module, &[])?;
+        text.push_str(notice.trim_end());
+        text.push_str("\n\n");
+        Ok(text)
     }
 
     fn append_plan(&self, prompt: &mut String, intent: &IntentContext) -> Result<(), String> {
