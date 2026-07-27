@@ -25,12 +25,20 @@ impl PromptProfile {
             "role": "system",
             "content": system
         }));
-        messages.extend(prompts.iter().map(|prompt| {
-            serde_json::json!({
-                "role": "user",
-                "content": prompt
-            })
-        }));
+        if let Some((workflow_policy, remaining_prompts)) =
+            prompts.split_first()
+        {
+            messages.push(serde_json::json!({
+                "role": "system",
+                "content": workflow_policy
+            }));
+            messages.extend(remaining_prompts.iter().map(|prompt| {
+                serde_json::json!({
+                    "role": "user",
+                    "content": prompt
+                })
+            }));
+        }
         messages
     }
 

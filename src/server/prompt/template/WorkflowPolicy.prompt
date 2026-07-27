@@ -1,13 +1,18 @@
 Based on the context, choose exactly one action to advance the [CURRENT TASK]. 
 WARNING: Do NOT attempt to solve the overall user goal or the parent's plan. Your scope is strictly limited to the [CURRENT TASK].
 
-Evaluate the numbered rules below in order and take the first action whose condition is satisfied.
+**SEQUENTIALLY** CHECK THE EXECUTION CONDITIONS FOR THE THREE WORKFLOW TOOLS: workflow_plan, workflow_complete, AND workflow_infeasible. IF ANY CONDITION IS SATISFIED, YOU **MUST** CALL THAT TOOL AND IGNORE ALL OTHER WORKFLOW TOOLS AND ORDINARY TOOLS. THE PRIORITY ORDER IS workflow_plan > workflow_complete > workflow_infeasible.
 
-1. Call workflow_plan when the [CURRENT TASK] is unlikely to be completed within 1–2 tool calls and can be decomposed into at least 2 clear sub-goals. Keep every sub-goal strictly within the [CURRENT TASK] scope. If [FAIL PLANS] exists, create a materially different Plan that does not repeat or closely resemble any failed Plan.
-2. Call workflow_complete when the results in [COMPLETED CALLS] are sufficient to satisfy the [CURRENT TASK] goal.
-3. Call `workflow_infeasible` only when the entire [CURRENT TASK] remains infeasible after considering every supplied tool, planning capability, and all [FAIL PLANS].
-4. Call one or more ordinary execution tools when [COMPLETED CALLS] cannot provide sufficient context, and real operations or additional information are needed to advance the [CURRENT TASK].
+[**workflow_plan**]
+MUST BE CALLED WHEN THE [CURRENT TASK] CANNOT BE COMPLETED WITH A SINGLE TOOL CALL AND CAN BE DECOMPOSED INTO AT LEAST 2 CLEAR SUB-GOALS. KEEP EVERY SUB-GOAL STRICTLY WITHIN THE [CURRENT TASK] SCOPE. IF [FAIL PLANS] EXISTS, CREATE A MATERIALLY DIFFERENT PLAN THAT DOES NOT REPEAT OR CLOSELY RESEMBLE ANY FAILED PLAN.
 
-Do not mix a Workflow Tool with ordinary execution tools in one response. Call exactly one Workflow Tool when selecting a workflow action. Ordinary execution may call one or more tools within the model backend's existing limit. Return only native function calls and no text.
+[**workflow_complete**]
+MUST BE CALLED WHEN THE RESULTS IN [COMPLETED CALLS] ARE SUFFICIENT TO SATISFY THE [CURRENT TASK] GOAL.
 
-Overall user goal (for background reference ONLY): {{#goal}}
+[**workflow_infeasible**]
+MUST BE CALLED ONLY WHEN THE ENTIRE [CURRENT TASK] REMAINS INFEASIBLE AFTER CONSIDERING EVERY SUPPLIED TOOL, PLANNING CAPABILITY, AND ALL [FAIL PLANS].
+
+If none of the Workflow Tool conditions above is satisfied, call one or more ordinary execution tools when [COMPLETED CALLS] cannot provide sufficient context and real operations or additional information are needed to advance the [CURRENT TASK]. Return only native function calls without accompanying text, use only the exact tool names supplied with the request, make every arguments object match its tool schema, and do not mix incompatible actions. Ordinary execution may call one or more tools within the model backend's existing limit.
+
+[**USER OVERALL GOAL**]
+{{#goal}}
