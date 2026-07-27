@@ -6,7 +6,8 @@ use crate::logging::{LogMessage, LoggingError};
 
 use super::schema;
 use super::{
-    LEGACY_LEVEL_TIME_INDEX, SESSION_KEY_LEN, SESSION_RECORD_ID_INDEX, SessionMetadata, Store,
+    DecodedLogKey, LEGACY_LEVEL_TIME_INDEX, LogKeyDecodeMode,
+    SESSION_KEY_LEN, SESSION_RECORD_ID_INDEX, SessionMetadata, Store,
     StoreMaintenance,
 };
 
@@ -91,13 +92,18 @@ impl StoreMaintenance for Store {
         if delete_ids.is_empty() {
             return Ok(next_id);
         }
-        self.rebuild_indexes(next_id, &delete_ids)
+        self.rebuild_indexes(
+            next_id,
+            &delete_ids,
+            LogKeyDecodeMode::Current,
+        )
     }
 
     fn rebuild_indexes(
         &self,
         next_id_floor: u64,
         delete_ids: &HashSet<u64>,
+        key_decode_mode: LogKeyDecodeMode,
     ) -> Result<u64, LoggingError> {
         let write = self
             .database
@@ -147,6 +153,7 @@ impl StoreMaintenance for Store {
             let mut occupied = HashSet::new();
             let mut keyed_ids = HashSet::new();
             let mut orphan_ids = Vec::new();
+            let mut legacy_keys = Vec::new();
             for entry in keys
                 .iter()
                 .map_err(|error| LoggingError::Database(error.to_string()))?
@@ -154,8 +161,15 @@ impl StoreMaintenance for Store {
                 let (id, value) =
                     entry.map_err(|error| LoggingError::Database(error.to_string()))?;
                 let id = id.value();
-                let key = Self::decode_log_key(id, value.value())?;
-                if !occupied.insert(key) {
+                let decoded = Self::decode_log_key_with_mode(
+                    id,
+                    value.value(),
+                    key_decode_mode,
+                )?;
+                let is_legacy =
+                    matches!(&decoded, DecodedLogKey::Legacy(_));
+                let key = decoded.into_decimal();
+                if !occupied.insert(key.clone()) {
                     return Err(LoggingError::Database(format!(
                         "duplicate telemetry log key at record {id}"
                     )));
@@ -166,12 +180,19 @@ impl StoreMaintenance for Store {
                     .is_some()
                 {
                     keyed_ids.insert(id);
+                    if is_legacy {
+                        legacy_keys.push((id, key));
+                    }
                 } else {
                     orphan_ids.push(id);
                 }
             }
             for id in orphan_ids {
                 keys.remove(id)
+                    .map_err(|error| LoggingError::Database(error.to_string()))?;
+            }
+            for (id, key) in legacy_keys {
+                keys.insert(id, key.as_bytes())
                     .map_err(|error| LoggingError::Database(error.to_string()))?;
             }
             let mut sessions = write
@@ -201,7 +222,7 @@ impl StoreMaintenance for Store {
                 let id = id.value();
                 if !keyed_ids.contains(&id) {
                     let key = Self::new_log_key(&mut occupied)?;
-                    keys.insert(id, key.as_slice())
+                    keys.insert(id, key.as_bytes())
                         .map_err(|error| LoggingError::Database(error.to_string()))?;
                 }
                 let message: LogMessage = serde_json::from_slice(value.value())

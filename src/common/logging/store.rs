@@ -23,7 +23,7 @@ use crate::logging::{LogMessage, LoggingError};
 pub(super) use writer::HostStore;
 
 const TELEMETRY_FILE_NAME: &str = "telemetry.redb";
-const LOG_KEY_LEN: usize = 16;
+const MAX_LOG_KEY_LEN: usize = 39;
 const LOG_KEY_GENERATION_ATTEMPTS: usize = 1024;
 const SESSION_KEY_LEN: usize = 17;
 const SESSION_METADATA_LEN: usize = 32;
@@ -94,6 +94,28 @@ impl Store {
 
 // -- Private -- //
 
+#[derive(Clone, Copy)]
+enum LogKeyDecodeMode {
+    Current,
+    UpgradeV7,
+}
+
+enum DecodedLogKey {
+    Decimal(String),
+    Legacy([u8; 16]),
+}
+
+impl DecodedLogKey {
+    fn into_decimal(self) -> String {
+        match self {
+            Self::Decimal(key) => key,
+            Self::Legacy(bytes) => {
+                uuid::Uuid::from_bytes(bytes).as_u128().to_string()
+            }
+        }
+    }
+}
+
 trait StoreMaintenance {
     fn prune_history(&self, next_id: u64) -> Result<u64, LoggingError>;
 
@@ -101,6 +123,7 @@ trait StoreMaintenance {
         &self,
         next_id_floor: u64,
         delete_ids: &HashSet<u64>,
+        key_decode_mode: LogKeyDecodeMode,
     ) -> Result<u64, LoggingError>;
 
     fn index_message(
@@ -117,7 +140,7 @@ trait StoreMaintenance {
 
 struct StoredMessage {
     id: u64,
-    key: uuid::Uuid,
+    key: String,
     message: LogMessage,
 }
 
@@ -216,7 +239,7 @@ impl Store {
                     "telemetry log key is missing for record {id}"
                 ))
             })?;
-        let key = uuid::Uuid::from_bytes(Self::decode_log_key(id, key.value())?);
+        let key = Self::decode_log_key(id, key.value())?;
         Ok(Some(StoredMessage { id, key, message }))
     }
 
@@ -233,23 +256,83 @@ impl Store {
         Self::stored_message_from_tables(&primary, &keys, id)
     }
 
-    fn decode_log_key(
+    fn decode_log_key(id: u64, encoded: &[u8]) -> Result<String, LoggingError> {
+        Ok(
+            Self::decode_log_key_with_mode(
+                id,
+                encoded,
+                LogKeyDecodeMode::Current,
+            )?
+            .into_decimal(),
+        )
+    }
+
+    fn decode_log_key_with_mode(
         id: u64,
         encoded: &[u8],
-    ) -> Result<[u8; LOG_KEY_LEN], LoggingError> {
-        encoded.try_into().map_err(|error| {
+        mode: LogKeyDecodeMode,
+    ) -> Result<DecodedLogKey, LoggingError> {
+        let is_decimal = !encoded.is_empty()
+            && encoded.iter().all(|byte| byte.is_ascii_digit());
+        if matches!(mode, LogKeyDecodeMode::UpgradeV7)
+            && encoded.len() == 16
+            && !is_decimal
+        {
+            let bytes = encoded.try_into().map_err(|error| {
+                LoggingError::Database(format!(
+                    "invalid legacy telemetry log key for record {id}: {error}"
+                ))
+            })?;
+            return Ok(DecodedLogKey::Legacy(bytes));
+        }
+        Self::decode_decimal_log_key(id, encoded)
+            .map(DecodedLogKey::Decimal)
+    }
+
+    fn decode_decimal_log_key(
+        id: u64,
+        encoded: &[u8],
+    ) -> Result<String, LoggingError> {
+        if encoded.is_empty() || encoded.len() > MAX_LOG_KEY_LEN {
+            return Err(LoggingError::Database(format!(
+                "invalid decimal telemetry log key length for record {id}"
+            )));
+        }
+        if !encoded.iter().all(|byte| byte.is_ascii_digit()) {
+            return Err(LoggingError::Database(format!(
+                "invalid decimal telemetry log key for record {id}"
+            )));
+        }
+        if encoded.len() > 1 && encoded[0] == b'0' {
+            return Err(LoggingError::Database(format!(
+                "non-canonical decimal telemetry log key for record {id}"
+            )));
+        }
+        let text = std::str::from_utf8(encoded).map_err(|error| {
             LoggingError::Database(format!(
-                "invalid telemetry log key for record {id}: {error}"
+                "invalid decimal telemetry log key for record {id}: {error}"
             ))
-        })
+        })?;
+        let value = text.parse::<u128>().map_err(|error| {
+            LoggingError::Database(format!(
+                "invalid decimal telemetry log key for record {id}: {error}"
+            ))
+        })?;
+        let canonical = value.to_string();
+        if canonical.as_bytes() != encoded {
+            return Err(LoggingError::Database(format!(
+                "non-canonical decimal telemetry log key for record {id}"
+            )));
+        }
+        Ok(canonical)
     }
 
     fn new_log_key(
-        occupied: &mut HashSet<[u8; LOG_KEY_LEN]>,
-    ) -> Result<[u8; LOG_KEY_LEN], LoggingError> {
+        occupied: &mut HashSet<String>,
+    ) -> Result<String, LoggingError> {
         for _ in 0..LOG_KEY_GENERATION_ATTEMPTS {
-            let key = *uuid::Uuid::new_v4().as_bytes();
-            if occupied.insert(key) {
+            let key = uuid::Uuid::new_v4().as_u128().to_string();
+            if occupied.insert(key.clone()) {
                 return Ok(key);
             }
         }

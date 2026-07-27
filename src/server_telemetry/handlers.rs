@@ -154,7 +154,10 @@ pub(super) async fn session_tags(
 fn static_response(content_type: &'static str, body: &'static str) -> axum::response::Response {
     (
         axum::http::StatusCode::OK,
-        [(axum::http::header::CONTENT_TYPE, content_type)],
+        [
+            (axum::http::header::CONTENT_TYPE, content_type),
+            (axum::http::header::CACHE_CONTROL, "no-store"),
+        ],
         body,
     )
         .into_response()

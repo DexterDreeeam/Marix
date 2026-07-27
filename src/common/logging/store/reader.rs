@@ -77,9 +77,7 @@ impl Store {
             .as_deref()
             .filter(|value| {
                 value.chars().count() >= 3
-                    && !value
-                        .bytes()
-                        .all(|byte| byte.is_ascii_hexdigit() || byte == b'-')
+                    && !value.bytes().all(|byte| byte.is_ascii_digit())
             })
             .map(schema::trigram_components)
             .unwrap_or_default();
@@ -409,7 +407,7 @@ impl Store {
                 .is_none_or(|level| record.message.level >= level)
             && keyword.is_none_or(|value| {
                 record.message.message.to_lowercase().contains(value)
-                    || record.key.to_string().contains(value)
+                    || record.key.contains(value)
             })
             && (query.tags.is_empty()
                 || query

@@ -8,7 +8,8 @@ use crate::external::{serde_json, uuid};
 use crate::logging::{LogLevel, LogMessage, LoggingError};
 
 use super::{
-    SESSION_KEY_LEN, SESSION_RECORD_ID_INDEX, Store, StoreMaintenance, TRIGRAM_COMPONENT_LEN,
+    LogKeyDecodeMode, SESSION_KEY_LEN, SESSION_RECORD_ID_INDEX, Store,
+    StoreMaintenance, TRIGRAM_COMPONENT_LEN,
 };
 
 pub(super) const TELEMETRY_TABLE: TableDefinition<u64, &[u8]> = TableDefinition::new("telemetry");
@@ -27,7 +28,7 @@ pub(super) const TRIGRAM_INDEX: TableDefinition<&[u8], u64> =
 pub(super) const SESSION_TAG_TABLE: TableDefinition<&[u8], &[u8]> =
     TableDefinition::new("telemetry_session_tags");
 
-pub(super) const SCHEMA_VERSION: u64 = 7;
+pub(super) const SCHEMA_VERSION: u64 = 8;
 pub(super) const META_SCHEMA_VERSION: &str = "schema_version";
 pub(super) const META_INDEXED_COUNT: &str = "indexed_record_count";
 pub(super) const META_NEXT_RECORD_ID: &str = "next_record_id";
@@ -38,7 +39,7 @@ const TRIGRAM_KEY_LEN: usize = SESSION_KEY_LEN + TRIGRAM_COMPONENT_LEN + 8;
 
 impl Store {
     pub(super) fn ensure_schema(&self) -> Result<u64, LoggingError> {
-        let (rebuild, next_id) = {
+        let (rebuild, next_id, key_decode_mode) = {
             let read = self
                 .database
                 .begin_read()
@@ -69,6 +70,13 @@ impl Store {
             } else {
                 (0, 0)
             };
+            let (version, indexed_count, next_id) =
+                Self::metadata_values(&read, &names)?;
+            let key_decode_mode = if version == Some(7) {
+                LogKeyDecodeMode::UpgradeV7
+            } else {
+                LogKeyDecodeMode::Current
+            };
             let key_table_consistent = if names.contains(LOG_KEY_TABLE.name())
                 && names.contains(TELEMETRY_TABLE.name())
             {
@@ -96,7 +104,12 @@ impl Store {
                     let (id, value) =
                         entry.map_err(|error| LoggingError::Database(error.to_string()))?;
                     let id = id.value();
-                    let key = Self::decode_log_key(id, value.value())?;
+                    let key = Self::decode_log_key_with_mode(
+                        id,
+                        value.value(),
+                        key_decode_mode,
+                    )?
+                    .into_decimal();
                     if !occupied.insert(key) {
                         return Err(LoggingError::Database(format!(
                             "duplicate telemetry log key at record {id}"
@@ -108,7 +121,6 @@ impl Store {
             } else {
                 false
             };
-            let (version, indexed_count, next_id) = Self::metadata_values(&read, &names)?;
             let required = [
                 TELEMETRY_TABLE.name(),
                 LOG_KEY_TABLE.name(),
@@ -127,11 +139,16 @@ impl Store {
                     || !key_table_consistent
                     || required.iter().any(|name| !names.contains(*name)),
                 next_id,
+                key_decode_mode,
             )
         };
 
         let next_id = if rebuild {
-            self.rebuild_indexes(next_id.unwrap_or(0), &HashSet::new())?
+            self.rebuild_indexes(
+                next_id.unwrap_or(0),
+                &HashSet::new(),
+                key_decode_mode,
+            )?
         } else {
             next_id.ok_or_else(|| {
                 LoggingError::Database("telemetry next record id metadata is missing".to_owned())
@@ -210,7 +227,7 @@ impl Store {
                 primary
                     .insert(*id, bytes.as_slice())
                     .map_err(|error| LoggingError::Database(error.to_string()))?;
-                keys.insert(*id, key.as_slice())
+                keys.insert(*id, key.as_bytes())
                     .map_err(|error| LoggingError::Database(error.to_string()))?;
                 Self::index_message(
                     &mut sessions,

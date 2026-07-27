@@ -7,7 +7,6 @@
 - `Lifecycle` stores `ActorStatus<Result>` atomically. Parent updates carry the terminal child result; use registry result lookup only for dynamic reconstruction.
 - Task uses a current-thread Tokio runtime driven by a dedicated standard thread. Spawn child actors through that shared runtime; blocking the task dispatcher prevents every nested actor from progressing.
 - `TaskAccess` permits construction/insertion only. Keep lookup, completion, cancellation, lineage checks, and routing in `TaskRuntime`; retain its weak `SessionContext` link.
-
 ## Model and tool boundaries
 
 - Deepseek is stream-only. Buffer SSE tool-call fragments by index, require a valid terminal `[DONE]`, validate complete JSON-object arguments, then emit one normalized `StepDraft`; never execute partial deltas.
@@ -111,3 +110,4 @@
 - 2026-07-26: `RelayRuntime::finish_succeed` parses the normalized `StepDraft` before completing an `IntentAnalyze` relay and rejects any `workflow_call_summary` call with a profile-specific failure, preventing it from reaching Intent workflow dispatch; summary relays retain their exactly-one-call and continuation-cursor validation.
 - 2026-07-26: Superseding the two notes above, `ToolCallSummary` is now a Server-internal JSON type in `server/prompt/profile.rs`, not a Workflow Tool. Both relay profiles keep the same merged tool list; Summary uses `tool_choice: "none"`, JSON response format, content streaming, and a final summarize user prompt. Relay parses direct JSON and validates an optional cursor before Invocation requests `WorkflowContinuation`.
 - 2026-07-26: Prompt modules live under `src/server/prompt/module` in source and resolve at runtime from `<marix_path>/prompt/module`; `Prompt::load` and `Prompt::load_module` share identifier validation, config/path/read checks, unsupported `[[#` rejection, and parameter slicing through one private loader. Relay module rendering shares the ordinary prompt panic capture, parameter injection, unsupported-parameter validation, and render-error path.
+- 2026-07-27: Telemetry schema v8 keeps `telemetry_log_keys` as `u64 => &[u8]` but stores canonical 1–39 digit decimal ASCII strings derived from UUID `as_u128`; only the schema-v7 rebuild accepts non-decimal raw 16-byte UUID values and rewrites them transactionally. Current reads, writes, and maintenance reject non-canonical or overflowing values, and the HTTP API exposes keys as strings to avoid JavaScript precision loss.
