@@ -4,9 +4,8 @@
     "path": "src/host",
     "name": "host",
     "purpose": "Owns Host connectivity (a single-attempt, bounded-timeout connect to Server and Telemetry that exits the process on failure or on later disconnection rather than retrying), per-execution actor runtimes, executor workers, and the ExecutorState-held ExecutorCache: a consuming 10-entry FIFO where try_cache returns content at or below its 24 KiB threshold whole, otherwise returns a UTF-8-safe 16 KiB chunk and caches the remainder under a short tc_-prefixed eight-hex-digit continuation cursor, and pick consumes an entry then reuses try_cache.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["."],
   "childModules": [
     {
       "path": "src/host/execution",
@@ -236,7 +235,7 @@
       "name": "ExecutorCache",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/cache.rs",
