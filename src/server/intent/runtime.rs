@@ -5,6 +5,7 @@ use std::sync::Mutex as StdMutex;
 use marix_common::external::*;
 use marix_common::{
     Actor, ActorStartFuture, ActorStatus, Lifecycle, Runtime as RuntimeTrait, WorkQueue,
+    canonical_json_value,
 };
 use marix_protocol::{
     IntentEvent, IntentResult, IntentResultKind, IntentSignature, InvocationDraft,
@@ -370,7 +371,10 @@ impl IntentRuntime {
                 if Self::is_workflow_tool(&invocation.name) {
                     continue;
                 }
-                let key = format!("{} - {}", invocation.name, invocation.input);
+                let key = Self::repeat_invocation_key(
+                    &invocation.name,
+                    &invocation.input,
+                );
                 let count = counts.get(&key).copied().unwrap_or_default()
                     + reservations.get(&key).copied().unwrap_or_default();
                 if count >= 3 {
@@ -428,6 +432,24 @@ impl IntentRuntime {
             .prompt()
             .map_err(|error| format!("failed to render prompt {name}: {error}"))?;
         Err(reason)
+    }
+
+    // The server injects a model-authored `purpose` into every execution
+    // tool schema, so it is dropped before the arguments become a repeat
+    // counting key. Malformed or non-object arguments keep their raw text.
+    fn repeat_invocation_key(name: &str, input: &str) -> String {
+        let canonical = match serde_json::from_str(input) {
+            Ok(serde_json::Value::Object(mut members)) => {
+                members.remove("purpose");
+                let value = canonical_json_value(
+                    serde_json::Value::Object(members),
+                );
+                serde_json::to_string(&value).ok()
+            }
+            _ => None,
+        };
+        let argument = canonical.unwrap_or_else(|| input.trim().to_owned());
+        format!("{name} - {argument}")
     }
 
     pub(super) fn cancel(&self) {

@@ -6,9 +6,8 @@ use crate::logging::{LogMessage, LoggingError};
 
 use super::schema;
 use super::{
-    DecodedLogKey, LEGACY_LEVEL_TIME_INDEX, LogKeyDecodeMode,
-    SESSION_KEY_LEN, SESSION_RECORD_ID_INDEX, SessionMetadata, Store,
-    StoreMaintenance,
+    LEGACY_LEVEL_TIME_INDEX, LogKeyDecodeMode, SESSION_KEY_LEN,
+    SESSION_RECORD_ID_INDEX, SessionMetadata, Store, StoreMaintenance,
 };
 
 const MAX_FORMAL_SESSIONS: usize = 50;
@@ -153,7 +152,7 @@ impl StoreMaintenance for Store {
             let mut occupied = HashSet::new();
             let mut keyed_ids = HashSet::new();
             let mut orphan_ids = Vec::new();
-            let mut legacy_keys = Vec::new();
+            let mut stale_keys = Vec::new();
             for entry in keys
                 .iter()
                 .map_err(|error| LoggingError::Database(error.to_string()))?
@@ -161,14 +160,13 @@ impl StoreMaintenance for Store {
                 let (id, value) =
                     entry.map_err(|error| LoggingError::Database(error.to_string()))?;
                 let id = id.value();
-                let decoded = Self::decode_log_key_with_mode(
+                let key = Self::decode_log_key_with_mode(
                     id,
                     value.value(),
                     key_decode_mode,
-                )?;
-                let is_legacy =
-                    matches!(&decoded, DecodedLogKey::Legacy(_));
-                let key = decoded.into_decimal();
+                )?
+                .into_decimal();
+                let is_stale = key.as_bytes() != value.value();
                 if !occupied.insert(key.clone()) {
                     return Err(LoggingError::Database(format!(
                         "duplicate telemetry log key at record {id}"
@@ -180,8 +178,8 @@ impl StoreMaintenance for Store {
                     .is_some()
                 {
                     keyed_ids.insert(id);
-                    if is_legacy {
-                        legacy_keys.push((id, key));
+                    if is_stale {
+                        stale_keys.push((id, key));
                     }
                 } else {
                     orphan_ids.push(id);
@@ -191,7 +189,7 @@ impl StoreMaintenance for Store {
                 keys.remove(id)
                     .map_err(|error| LoggingError::Database(error.to_string()))?;
             }
-            for (id, key) in legacy_keys {
+            for (id, key) in stale_keys {
                 keys.insert(id, key.as_bytes())
                     .map_err(|error| LoggingError::Database(error.to_string()))?;
             }

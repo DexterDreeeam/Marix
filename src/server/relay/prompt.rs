@@ -195,7 +195,7 @@ impl RelayRuntime {
             );
             prompts.push(context);
         }
-        prompts.push(Self::pending_intent_prompt(current));
+        prompts.push(Self::pending_intent_prompt(current)?);
         if let RelayKind::ToolCallSummarize {
             tool,
             output,
@@ -228,19 +228,21 @@ impl RelayRuntime {
         let mut prompt =
             format!("[**GOAL**]:\n{}\n\n[**PLAN**]:", intent.content);
         self.append_plan(&mut prompt, intent)?;
-        Self::append_tool_calls(&mut prompt, intent, "\n\n");
+        Self::append_tool_calls(&mut prompt, intent, "\n\n")?;
         Self::append_plan_failures(&mut prompt, intent);
         Ok(prompt)
     }
 
     /// Renders the Intent currently awaiting a decision (it has no active Plan).
-    fn pending_intent_prompt(intent: &IntentContext) -> String {
+    fn pending_intent_prompt(
+        intent: &IntentContext,
+    ) -> Result<String, String> {
         let mut prompt = "[**CURRENT TASK**]\nThis is the task you are executing NOW. Everything you do MUST be scoped strictly to this goal alone."
             .to_owned();
         prompt.push_str(&format!("\n\n[**GOAL**]:\n{}", intent.content));
-        Self::append_tool_calls(&mut prompt, intent, "\n\n");
+        Self::append_tool_calls(&mut prompt, intent, "\n\n")?;
         Self::append_plan_failures(&mut prompt, intent);
-        prompt
+        Ok(prompt)
     }
 
     /// Renders the trailing message for a `ToolCallSummarize` relay, appended
@@ -339,17 +341,23 @@ impl RelayRuntime {
         prompt: &mut String,
         intent: &IntentContext,
         separator: &str,
-    ) {
+    ) -> Result<(), String> {
         let has_calls = intent
             .step_results
             .iter()
             .any(|result| !result.calls.is_empty());
         if !has_calls {
-            return;
+            return Ok(());
         }
 
         prompt.push_str(separator);
-        prompt.push_str("[**BACKGROUND**]:");
+        let notice = Self::render_prompt(
+            "CompletedCalls",
+            Prompt::load_module,
+            &[],
+        )?;
+        prompt.push_str("[**COMPLETED CALLS**]\n");
+        prompt.push_str(notice.trim_end());
         let mut index = 1;
         for step_result in &intent.step_results {
             for call in &step_result.calls {
@@ -362,6 +370,7 @@ impl RelayRuntime {
                 index += 1;
             }
         }
+        Ok(())
     }
 
     fn call_descriptor(tool: &str, input: &str) -> String {

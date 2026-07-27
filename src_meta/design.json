@@ -4,8 +4,9 @@
     "path": "src",
     "name": "src",
     "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and tool packages, including platform-neutral workflow output continuation, level-aware telemetry, and fifteen native tool binaries.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/client",
@@ -15,7 +16,7 @@
     {
       "path": "src/common",
       "name": "common",
-      "purpose": "Owns shared configuration, level-based telemetry logging with threshold queries, executable-sibling standalone tool logging, approved external wrappers including Tokio timers, generic Actor and Runtime contracts, signatures, authenticated channels, and insertion-ordered work queues."
+      "purpose": "Owns shared configuration, canonical JSON value helpers, level-based telemetry logging with threshold queries, executable-sibling standalone tool logging, approved external wrappers including Tokio timers, generic Actor and Runtime contracts, signatures, authenticated channels, and insertion-ordered work queues."
     },
     {
       "path": "src/host",

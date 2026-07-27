@@ -3,9 +3,10 @@
   "module": {
     "path": "src/common",
     "name": "common",
-    "purpose": "Owns shared configuration, level-based telemetry logging with threshold queries, executable-sibling standalone tool logging, approved external wrappers including Tokio timers, generic Actor and Runtime contracts, signatures, authenticated channels, and insertion-ordered work queues.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns shared configuration, canonical JSON value helpers, level-based telemetry logging with threshold queries, executable-sibling standalone tool logging, approved external wrappers including Tokio timers, generic Actor and Runtime contracts, signatures, authenticated channels, and insertion-ordered work queues.",
+    "changeStatus": "modified"
   },
+  "modified": ["lib.rs"],
   "childModules": [
     {
       "path": "src/common/actor",
@@ -23,9 +24,14 @@
       "purpose": "Re-exports approved third-party namespaces and traits, including redb APIs and Tokio networking, runtime, synchronization, task, spawning, selection, and time APIs."
     },
     {
+      "path": "src/common/json",
+      "name": "json",
+      "purpose": "Provides shared JSON value helpers, currently canonical_json_value, which recursively sorts object members by key so values differing only in member order compare equal while array order is preserved."
+    },
+    {
       "path": "src/common/logging",
       "name": "logging",
-      "purpose": "Provides level-based and tag-based telemetry, remote-first delivery, batched indexed redb persistence, minimum-level threshold and paged summary/full-record queries, and executable-sibling JSONL fallback."
+      "purpose": "Provides level-based and tag-based telemetry, remote-first delivery, batched indexed redb persistence with fixed-width zero-padded decimal record keys and schema migration that rewrites stale key encodings, minimum-level threshold and paged summary/full-record queries, and executable-sibling JSONL fallback logging."
     },
     {
       "path": "src/common/logging_tool",
@@ -1300,36 +1306,46 @@
       "name": "Store",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store.rs",
-          "lineStart": 29,
-          "lineEnd": 34,
+          "lineStart": 38,
+          "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/logging/store.rs",
-          "lineStart": 36,
-          "lineEnd": 84,
+          "lineStart": 45,
+          "lineEnd": 93,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/logging/store.rs",
-          "lineStart": 161,
-          "lineEnd": 305,
+          "lineStart": 231,
+          "lineEnd": 505,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "addedLines": [
+            {
+              "lineStart": 343,
+              "lineEnd": 345
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 288,
+              "lineEnd": 352
+            }
+          ]
         },
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 39,
-          "lineEnd": 198,
+          "lineStart": 40,
+          "lineEnd": 278,
           "language": "rust",
           "addedLines": [
             {
@@ -1349,38 +1365,21 @@
         },
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 202,
-          "lineEnd": 373,
+          "lineStart": 282,
+          "lineEnd": 307,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 270,
-              "lineEnd": 272
-            },
-            {
               "lineStart": 288,
               "lineEnd": 288
-            },
-            {
-              "lineStart": 326,
-              "lineEnd": 326
-            },
-            {
-              "lineStart": 364,
-              "lineEnd": 370
             }
           ],
-          "modifiedLines": [
-            {
-              "lineStart": 233,
-              "lineEnd": 233
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/common/logging/store/reader.rs",
-          "lineStart": 28,
-          "lineEnd": 115,
+          "lineStart": 25,
+          "lineEnd": 117,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
@@ -1392,8 +1391,8 @@
         },
         {
           "sourcePath": "src/common/logging/store/reader.rs",
-          "lineStart": 119,
-          "lineEnd": 497,
+          "lineStart": 121,
+          "lineEnd": 494,
           "language": "rust",
           "addedLines": [
             {
@@ -1419,6 +1418,19 @@
             }
           ],
           "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/logging/store/maintenance.rs",
+          "lineStart": 16,
+          "lineEnd": 320,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 152,
+              "lineEnd": 192
+            }
+          ]
         }
       ]
     },
@@ -1430,28 +1442,18 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store.rs",
-          "lineStart": 88,
-          "lineEnd": 93,
+          "lineStart": 158,
+          "lineEnd": 163,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 88,
-              "lineEnd": 93
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/logging/store.rs",
-          "lineStart": 95,
-          "lineEnd": 159,
+          "lineStart": 165,
+          "lineEnd": 229,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 95,
-              "lineEnd": 159
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -2143,6 +2145,27 @@
           "lineEnd": 184,
           "language": "rust",
           "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "canonical_json_value",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/json/helper.rs",
+          "lineStart": 3,
+          "lineEnd": 31,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 3,
+              "lineEnd": 31
+            }
+          ],
           "modifiedLines": []
         }
       ]

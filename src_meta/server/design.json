@@ -3,14 +3,15 @@
   "module": {
     "path": "src/server",
     "name": "server",
-    "purpose": "Runs actor-based orchestration with ordered execution, server-driven cursor continuation, successful and failed tool results published as accumulated summaries or No Summary that carry earlier-chunk facts into later chunk summarizations, preserved cancellation reasons, failure reanalysis, streaming models, and task deadline and relay-budget guardrails.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs actor-based orchestration with ordered execution, server-driven cursor continuation, successful and failed tool results published as accumulated summaries or No Summary that carry earlier-chunk facts into later chunk summarizations and are presented back as confirmed completed-call facts, purpose-independent repeat-invocation guarding, preserved cancellation reasons, failure reanalysis, streaming models, and task deadline and relay-budget guardrails.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/server/intent",
       "name": "intent",
-      "purpose": "Runs intent actors that request IntentAnalyze verdicts, dispatch complete, plan, and infeasible workflow decisions, prevent direct steps after planning starts, and publish ordered results."
+      "purpose": "Runs intent actors that request IntentAnalyze verdicts, dispatch complete, plan, and infeasible workflow decisions, prevent direct steps after planning starts, publish ordered results, and reject a draft whose tool plus canonicalized arguments, ignoring the model-authored purpose, was already requested three times."
     },
     {
       "path": "src/server/invocation",
@@ -30,12 +31,12 @@
     {
       "path": "src/server/prompt",
       "name": "prompt",
-      "purpose": "Loads, validates, injects, and renders named prompt templates and reusable prompt modules, including mandatory workflow_call_summary instructions, earlier-chunk fact recaps, and optional cursor-return guidance for tool-call summaries."
+      "purpose": "Loads, validates, injects, and renders named prompt templates and reusable prompt modules, including mandatory workflow_call_summary instructions, completed-call fact framing, earlier-chunk fact recaps, and optional cursor-return guidance for tool-call summaries."
     },
     {
       "path": "src/server/relay",
       "name": "relay",
-      "purpose": "Runs model-backed Relay actors, renders system, workflow-policy, context, and mandatory tool-call-summary prompts, prefixes a chunk summarization with the summaries already extracted from earlier chunks of the same tool output, reserves WorkflowContinuation for internal server use, validates and serializes optional summary cursors, streams model responses, and resolves output by relay kind."
+      "purpose": "Runs model-backed Relay actors, renders system, workflow-policy, context, and mandatory tool-call-summary prompts, presents every already-executed call under a completed-calls block whose results are stated as confirmed facts, prefixes a chunk summarization with the summaries already extracted from earlier chunks of the same tool output, reserves WorkflowContinuation for internal server use, validates and serializes optional summary cursors, streams model responses, and resolves output by relay kind."
     },
     {
       "path": "src/server/session",
@@ -111,51 +112,47 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 20,
-          "lineEnd": 28,
+          "lineStart": 25,
+          "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 30,
-          "lineEnd": 46,
+          "lineStart": 36,
+          "lineEnd": 53,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 48,
-          "lineEnd": 89,
+          "lineStart": 61,
+          "lineEnd": 102,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 93,
-          "lineEnd": 387,
+          "lineStart": 106,
+          "lineEnd": 504,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 261,
-              "lineEnd": 289
-            },
-            {
-              "lineStart": 331,
-              "lineEnd": 331
+              "lineStart": 437,
+              "lineEnd": 455
             }
           ],
           "modifiedLines": [
             {
-              "lineStart": 94,
-              "lineEnd": 108
+              "lineStart": 374,
+              "lineEnd": 377
             }
           ]
         },
@@ -1336,7 +1333,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
@@ -1407,7 +1404,7 @@
         {
           "sourcePath": "src/server/relay/prompt.rs",
           "lineStart": 42,
-          "lineEnd": 472,
+          "lineEnd": 481,
           "language": "rust",
           "addedLines": [
             {
@@ -1415,26 +1412,42 @@
               "lineEnd": 203
             },
             {
-              "lineStart": 254,
-              "lineEnd": 254
+              "lineStart": 256,
+              "lineEnd": 256
             },
             {
-              "lineStart": 261,
-              "lineEnd": 262
+              "lineStart": 263,
+              "lineEnd": 264
             },
             {
-              "lineStart": 266,
-              "lineEnd": 266
+              "lineStart": 268,
+              "lineEnd": 268
             },
             {
-              "lineStart": 277,
-              "lineEnd": 298
+              "lineStart": 279,
+              "lineEnd": 300
+            },
+            {
+              "lineStart": 354,
+              "lineEnd": 360
             }
           ],
           "modifiedLines": [
             {
               "lineStart": 207,
               "lineEnd": 212
+            },
+            {
+              "lineStart": 231,
+              "lineEnd": 233
+            },
+            {
+              "lineStart": 237,
+              "lineEnd": 245
+            },
+            {
+              "lineStart": 340,
+              "lineEnd": 348
             }
           ]
         }

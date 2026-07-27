@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/relay",
     "name": "relay",
-    "purpose": "Runs model-backed Relay actors, renders system, workflow-policy, context, and mandatory tool-call-summary prompts, prefixes a chunk summarization with the summaries already extracted from earlier chunks of the same tool output, reserves WorkflowContinuation for internal server use, validates and serializes optional summary cursors, streams model responses, and resolves output by relay kind.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs model-backed Relay actors, renders system, workflow-policy, context, and mandatory tool-call-summary prompts, presents every already-executed call under a completed-calls block whose results are stated as confirmed facts, prefixes a chunk summarization with the summaries already extracted from earlier chunks of the same tool output, reserves WorkflowContinuation for internal server use, validates and serializes optional summary cursors, streams model responses, and resolves output by relay kind.",
+    "changeStatus": "modified"
   },
+  "modified": ["prompt.rs"],
   "childModules": [],
   "elements": [
     {
@@ -128,7 +129,7 @@
         {
           "sourcePath": "src/server/relay/prompt.rs",
           "lineStart": 42,
-          "lineEnd": 472,
+          "lineEnd": 481,
           "language": "rust",
           "addedLines": [
             {
@@ -136,26 +137,42 @@
               "lineEnd": 203
             },
             {
-              "lineStart": 254,
-              "lineEnd": 254
+              "lineStart": 256,
+              "lineEnd": 256
             },
             {
-              "lineStart": 261,
-              "lineEnd": 262
+              "lineStart": 263,
+              "lineEnd": 264
             },
             {
-              "lineStart": 266,
-              "lineEnd": 266
+              "lineStart": 268,
+              "lineEnd": 268
             },
             {
-              "lineStart": 277,
-              "lineEnd": 298
+              "lineStart": 279,
+              "lineEnd": 300
+            },
+            {
+              "lineStart": 354,
+              "lineEnd": 360
             }
           ],
           "modifiedLines": [
             {
               "lineStart": 207,
               "lineEnd": 212
+            },
+            {
+              "lineStart": 231,
+              "lineEnd": 233
+            },
+            {
+              "lineStart": 237,
+              "lineEnd": 245
+            },
+            {
+              "lineStart": 340,
+              "lineEnd": 348
             }
           ]
         }

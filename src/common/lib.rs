@@ -1,6 +1,7 @@
 pub mod actor;
 pub mod config;
 pub mod external;
+pub mod json;
 pub mod logging;
 pub mod logging_tool;
 pub mod structure;
@@ -14,6 +15,7 @@ pub use config::{
     Arch, ClientConfig, Config, CoreConfig, DeepseekConfig, GlmConfig, ModelConfig, Platform,
     RuntimeConfig, RuntimeEnvironment, RuntimeMode, ServerConfig, System, ToolConfig,
 };
+pub use json::canonical_json_value;
 pub use logging::{
     LogLevel, LogMessage, LogPage, LogPageQuery, LogRecord, LogSession, LogSource, LogSummary,
     Logger, LoggingError,

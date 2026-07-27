@@ -28,7 +28,7 @@ pub(super) const TRIGRAM_INDEX: TableDefinition<&[u8], u64> =
 pub(super) const SESSION_TAG_TABLE: TableDefinition<&[u8], &[u8]> =
     TableDefinition::new("telemetry_session_tags");
 
-pub(super) const SCHEMA_VERSION: u64 = 8;
+pub(super) const SCHEMA_VERSION: u64 = 9;
 pub(super) const META_SCHEMA_VERSION: &str = "schema_version";
 pub(super) const META_INDEXED_COUNT: &str = "indexed_record_count";
 pub(super) const META_NEXT_RECORD_ID: &str = "next_record_id";
@@ -72,10 +72,10 @@ impl Store {
             };
             let (version, indexed_count, next_id) =
                 Self::metadata_values(&read, &names)?;
-            let key_decode_mode = if version == Some(7) {
-                LogKeyDecodeMode::UpgradeV7
-            } else {
-                LogKeyDecodeMode::Current
+            let key_decode_mode = match version {
+                Some(7) => LogKeyDecodeMode::UpgradeV7,
+                Some(8) => LogKeyDecodeMode::UpgradeV8,
+                _ => LogKeyDecodeMode::Current,
             };
             let key_table_consistent = if names.contains(LOG_KEY_TABLE.name())
                 && names.contains(TELEMETRY_TABLE.name())

@@ -3,14 +3,15 @@
   "module": {
     "path": "src/common/logging",
     "name": "logging",
-    "purpose": "Provides level-based and tag-based telemetry, remote-first delivery, batched indexed redb persistence, minimum-level threshold and paged summary/full-record queries, and executable-sibling JSONL fallback.",
-    "changeStatus": "unchanged"
+    "purpose": "Provides level-based and tag-based telemetry, remote-first delivery, batched indexed redb persistence with fixed-width zero-padded decimal record keys and schema migration that rewrites stale key encodings, minimum-level threshold and paged summary/full-record queries, and executable-sibling JSONL fallback logging.",
+    "changeStatus": "modified"
   },
+  "modified": ["store.rs"],
   "childModules": [
     {
       "path": "src/common/logging/store",
       "name": "store",
-      "purpose": "Implements redb telemetry persistence with session/time, minimum-level threshold, record-id, trigram, and tag indexes, schema migration, paged reads, distinct-tag listing, and bounded batch writes."
+      "purpose": "Implements redb telemetry persistence with session/time, minimum-level threshold, record-id, trigram, and tag indexes, fixed-width zero-padded decimal log keys, schema migration that rewrites any stored key whose bytes differ from its decoded form, paged reads, distinct-tag listing, and bounded batch writes."
     }
   ],
   "elements": [
@@ -262,36 +263,46 @@
       "name": "Store",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store.rs",
-          "lineStart": 29,
-          "lineEnd": 34,
+          "lineStart": 38,
+          "lineEnd": 43,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/logging/store.rs",
-          "lineStart": 36,
-          "lineEnd": 84,
+          "lineStart": 45,
+          "lineEnd": 93,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/logging/store.rs",
-          "lineStart": 161,
-          "lineEnd": 305,
+          "lineStart": 231,
+          "lineEnd": 505,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "addedLines": [
+            {
+              "lineStart": 343,
+              "lineEnd": 345
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 288,
+              "lineEnd": 352
+            }
+          ]
         },
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 39,
-          "lineEnd": 198,
+          "lineStart": 40,
+          "lineEnd": 278,
           "language": "rust",
           "addedLines": [
             {
@@ -311,38 +322,21 @@
         },
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 202,
-          "lineEnd": 373,
+          "lineStart": 282,
+          "lineEnd": 307,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 270,
-              "lineEnd": 272
-            },
-            {
               "lineStart": 288,
               "lineEnd": 288
-            },
-            {
-              "lineStart": 326,
-              "lineEnd": 326
-            },
-            {
-              "lineStart": 364,
-              "lineEnd": 370
             }
           ],
-          "modifiedLines": [
-            {
-              "lineStart": 233,
-              "lineEnd": 233
-            }
-          ]
+          "modifiedLines": []
         },
         {
           "sourcePath": "src/common/logging/store/reader.rs",
-          "lineStart": 28,
-          "lineEnd": 115,
+          "lineStart": 25,
+          "lineEnd": 117,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
@@ -354,8 +348,8 @@
         },
         {
           "sourcePath": "src/common/logging/store/reader.rs",
-          "lineStart": 119,
-          "lineEnd": 497,
+          "lineStart": 121,
+          "lineEnd": 494,
           "language": "rust",
           "addedLines": [
             {
@@ -381,6 +375,19 @@
             }
           ],
           "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/common/logging/store/maintenance.rs",
+          "lineStart": 16,
+          "lineEnd": 320,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 152,
+              "lineEnd": 192
+            }
+          ]
         }
       ]
     },
@@ -392,28 +399,18 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store.rs",
-          "lineStart": 88,
-          "lineEnd": 93,
+          "lineStart": 158,
+          "lineEnd": 163,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 88,
-              "lineEnd": 93
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/common/logging/store.rs",
-          "lineStart": 95,
-          "lineEnd": 159,
+          "lineStart": 165,
+          "lineEnd": 229,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 95,
-              "lineEnd": 159
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -688,15 +685,26 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 14,
-          "lineEnd": 14,
+          "lineStart": 15,
+          "lineEnd": 15,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 14,
-              "lineEnd": 14
-            }
-          ],
+          "addedLines": [],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "LOG_KEY_TABLE",
+      "type": "const",
+      "source_depth": 4,
+      "changeStatus": "unchanged",
+      "codeSegments": [
+        {
+          "sourcePath": "src/common/logging/store/schema.rs",
+          "lineStart": 16,
+          "lineEnd": 17,
+          "language": "rust",
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -709,15 +717,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 15,
-          "lineEnd": 16,
+          "lineStart": 18,
+          "lineEnd": 19,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 15,
-              "lineEnd": 16
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -730,15 +733,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 17,
-          "lineEnd": 18,
+          "lineStart": 20,
+          "lineEnd": 21,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 17,
-              "lineEnd": 18
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -751,15 +749,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 19,
-          "lineEnd": 20,
+          "lineStart": 22,
+          "lineEnd": 23,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 19,
-              "lineEnd": 20
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -772,16 +765,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 21,
-          "lineEnd": 22,
+          "lineStart": 24,
+          "lineEnd": 25,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 21,
-              "lineEnd": 22
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -793,15 +781,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 23,
-          "lineEnd": 24,
+          "lineStart": 26,
+          "lineEnd": 27,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 23,
-              "lineEnd": 24
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -814,15 +797,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 25,
-          "lineEnd": 26,
+          "lineStart": 28,
+          "lineEnd": 29,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 25,
-              "lineEnd": 26
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -831,18 +809,18 @@
       "name": "SCHEMA_VERSION",
       "type": "const",
       "source_depth": 4,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 28,
-          "lineEnd": 28,
+          "lineStart": 31,
+          "lineEnd": 31,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 28,
-              "lineEnd": 28
+              "lineStart": 31,
+              "lineEnd": 31
             }
           ]
         }
@@ -856,15 +834,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 29,
-          "lineEnd": 29,
+          "lineStart": 32,
+          "lineEnd": 32,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 29,
-              "lineEnd": 29
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -877,15 +850,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 30,
-          "lineEnd": 30,
+          "lineStart": 33,
+          "lineEnd": 33,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 30,
-              "lineEnd": 30
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -898,15 +866,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 31,
-          "lineEnd": 31,
+          "lineStart": 34,
+          "lineEnd": 34,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 31,
-              "lineEnd": 31
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -919,15 +882,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 375,
-          "lineEnd": 382,
+          "lineStart": 309,
+          "lineEnd": 316,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 375,
-              "lineEnd": 382
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -940,15 +898,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 384,
-          "lineEnd": 405,
+          "lineStart": 318,
+          "lineEnd": 339,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 384,
-              "lineEnd": 405
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -961,15 +914,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 407,
-          "lineEnd": 417,
+          "lineStart": 341,
+          "lineEnd": 351,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 407,
-              "lineEnd": 417
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -982,16 +930,11 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 419,
-          "lineEnd": 431,
+          "lineStart": 353,
+          "lineEnd": 365,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 419,
-              "lineEnd": 431
-            }
-          ]
+          "modifiedLines": []
         }
       ]
     },
@@ -1003,15 +946,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 433,
-          "lineEnd": 445,
+          "lineStart": 367,
+          "lineEnd": 379,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 433,
-              "lineEnd": 445
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -1024,15 +962,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 447,
-          "lineEnd": 457,
+          "lineStart": 381,
+          "lineEnd": 391,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 447,
-              "lineEnd": 457
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -1045,15 +978,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 459,
-          "lineEnd": 463,
+          "lineStart": 393,
+          "lineEnd": 397,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 459,
-              "lineEnd": 463
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]
@@ -1066,15 +994,10 @@
       "codeSegments": [
         {
           "sourcePath": "src/common/logging/store/schema.rs",
-          "lineStart": 465,
-          "lineEnd": 471,
+          "lineStart": 399,
+          "lineEnd": 405,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 465,
-              "lineEnd": 471
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": []
         }
       ]

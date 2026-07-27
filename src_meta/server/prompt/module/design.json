@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/prompt/module",
     "name": "module",
-    "purpose": "Defines reusable prompt fragments embedded into rendered templates: RepeatInvocation warns that an identical tool call was already requested, and PreChunk notes that the listed facts came from earlier chunks of the same tool output so only new facts should be stated.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines reusable prompt fragments embedded into rendered templates: RepeatInvocation warns that an identical tool call was already requested, PreChunk notes that the listed facts came from earlier chunks of the same tool output so only new facts should be stated, and CompletedCalls states that the listed calls already ran and their results are confirmed facts.",
+    "changeStatus": "modified"
   },
+  "added": ["CompletedCalls.prompt"],
   "childModules": [],
   "elements": []
 }

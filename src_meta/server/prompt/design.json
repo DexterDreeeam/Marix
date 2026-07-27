@@ -4,18 +4,19 @@
     "path": "src/server/prompt",
     "name": "prompt",
     "purpose": "Loads, validates, injects, and renders named prompt templates and reusable prompt modules, including mandatory workflow_call_summary instructions, earlier-chunk fact recaps, and optional cursor-return guidance for tool-call summaries.",
-    "changeStatus": "unchanged"
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/server/prompt/module",
       "name": "module",
-      "purpose": "Defines reusable prompt fragments embedded into rendered templates: RepeatInvocation warns that an identical tool call was already requested, and PreChunk notes that the listed facts came from earlier chunks of the same tool output so only new facts should be stated."
+      "purpose": "Defines reusable prompt fragments embedded into rendered templates: RepeatInvocation warns that an identical tool call was already requested, PreChunk notes that the listed facts came from earlier chunks of the same tool output so only new facts should be stated, and CompletedCalls states that the listed calls already ran and their results are confirmed facts."
     },
     {
       "path": "src/server/prompt/template",
       "name": "template",
-      "purpose": "Defines System, WorkflowPolicy, ToolCallSummarize, and ToolCallSummarizeWithCursor resources; both summarize resources open with an optional pre_chunk block, fence the tool output in a triple-backtick code block, and require a JSON summary, while only the WithCursor variant asks for a continuation cursor and the plain variant states that no further chunks follow."
+      "purpose": "Defines System, WorkflowPolicy, ToolCallSummarize, and ToolCallSummarizeWithCursor resources; WorkflowPolicy lets workflow_complete rely on results already listed under the completed calls block, both summarize resources open with an optional pre_chunk block, fence the tool output in a triple-backtick code block, and require a JSON summary, while only the WithCursor variant asks for a continuation cursor and the plain variant states that no further chunks follow."
     }
   ],
   "elements": [

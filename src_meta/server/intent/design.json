@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/intent",
     "name": "intent",
-    "purpose": "Runs intent actors that request IntentAnalyze verdicts, dispatch complete, plan, and infeasible workflow decisions, prevent direct steps after planning starts, and publish ordered results.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs intent actors that request IntentAnalyze verdicts, dispatch complete, plan, and infeasible workflow decisions, prevent direct steps after planning starts, publish ordered results, and reject a draft whose tool plus canonicalized arguments, ignoring the model-authored purpose, was already requested three times.",
+    "changeStatus": "modified"
   },
+  "modified": ["runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -44,51 +45,47 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 20,
-          "lineEnd": 28,
+          "lineStart": 25,
+          "lineEnd": 34,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 30,
-          "lineEnd": 46,
+          "lineStart": 36,
+          "lineEnd": 53,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 48,
-          "lineEnd": 89,
+          "lineStart": 61,
+          "lineEnd": 102,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 93,
-          "lineEnd": 387,
+          "lineStart": 106,
+          "lineEnd": 504,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 261,
-              "lineEnd": 289
-            },
-            {
-              "lineStart": 331,
-              "lineEnd": 331
+              "lineStart": 437,
+              "lineEnd": 455
             }
           ],
           "modifiedLines": [
             {
-              "lineStart": 94,
-              "lineEnd": 108
+              "lineStart": 374,
+              "lineEnd": 377
             }
           ]
         },
