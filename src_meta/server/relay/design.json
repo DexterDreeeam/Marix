@@ -4,9 +4,8 @@
     "path": "src/server/relay",
     "name": "relay",
     "purpose": "Runs model-backed Relay actors, renders system, workflow-policy, context, and mandatory tool-call-summary prompts, presents every already-executed call under a completed-calls block whose results are stated as confirmed facts, prefers real invocation arguments over the model-authored purpose in call descriptors up to CORE_DESCRIPTOR_MAX_CHARS, prefixes a chunk summarization with the summaries already extracted from earlier chunks of the same tool output, reserves WorkflowContinuation for internal server use, validates and serializes optional summary cursors, streams model responses, and resolves output by relay kind.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["prompt.rs"],
   "childModules": [],
   "elements": [
     {
@@ -58,7 +57,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",

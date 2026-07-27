@@ -4,9 +4,8 @@
     "path": "src/server/prompt/template",
     "name": "template",
     "purpose": "Defines System, WorkflowPolicy, ToolCallSummarize, and ToolCallSummarizeWithCursor resources; WorkflowPolicy lets workflow_complete rely on results already listed under the completed calls block and restricts ordinary execution tools to cases those results cannot cover, and both summarize resources carry their whole instruction block ahead of the variable payload so the cacheable prefix stays stable, require every relevant fact with concrete values copied verbatim and JSON-safe escaping, open with an optional pre_chunk block, and fence the tool output in a triple-backtick code block, while only the WithCursor variant asks for a continuation cursor and the plain variant states that no further chunks follow.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["ToolCallSummarize.prompt", "ToolCallSummarizeWithCursor.prompt", "WorkflowPolicy.prompt"],
   "childModules": [],
   "elements": []
 }
