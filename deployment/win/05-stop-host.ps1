@@ -27,8 +27,7 @@ try {
     Stop-VmProcessesByPath -Session $session -ExactPath $hostExePath -Label 'Host (marix-host.exe)' | Out-Null
 
     # Path-prefix match sweeps every lingering Tool child process under the tool
-    # directory in one pass (marix_bash.exe, marix_command_prompt.exe,
-    # marix_powershell.exe, every marix_tool_*.exe, and any future addition) without
+    # directory in one pass (every marix_tool_*.exe and any future addition) without
     # needing to enumerate individual executable names here. This exists so an
     # orphaned Tool process can never hold a C:\MarixHost\tool\*.log file open and
     # block its deletion in step 6.

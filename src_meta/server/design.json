@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server",
     "name": "server",
-    "purpose": "Runs actor-based orchestration with ordered execution, whole-current-task action classification, explicit parent-context boundaries, server-driven cursor continuation, successful and failed tool results published as accumulated summaries or No Summary and presented as exact-current-task evidence, purpose-independent repeat-invocation guarding, preserved cancellation reasons, failure reanalysis, streaming models, and task deadline and relay-budget guardrails.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs actor-based orchestration with ordered execution, benchmarked whole-current-task action classification, reusable parent/current context boundaries, server-driven cursor continuation, exact-current-task evidence, repeat-invocation guarding, preserved cancellation reasons, failure reanalysis, streaming models, and task guardrails.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/server/intent",
@@ -30,12 +31,12 @@
     {
       "path": "src/server/prompt",
       "name": "prompt",
-      "purpose": "Loads, validates, injects, and renders named prompt templates and reusable prompt modules, including whole-current-task action classification, exact-current-task completion evidence, verbatim-value summarization requirements, earlier-chunk fact recaps, and optional cursor-return guidance for tool-call summaries."
+      "purpose": "Loads, validates, injects, and renders named prompt templates and reusable prompt modules, including explicit parent/current context boundaries, whole-current-task action classification, exact-current-task completion evidence, earlier-chunk fact recaps, and optional cursor-return guidance."
     },
     {
       "path": "src/server/relay",
       "name": "relay",
-      "purpose": "Runs model-backed Relay actors, renders system, workflow-policy, reference-only parent context, explicit background boundaries, and current-task prompts, presents already-executed exact-current-task calls as confirmed evidence, prefers real invocation arguments over the model-authored purpose in call descriptors up to CORE_DESCRIPTOR_MAX_CHARS, prefixes chunk summarization with earlier summaries, reserves WorkflowContinuation for internal server use, validates optional summary cursors, streams model responses, and resolves output by relay kind."
+      "purpose": "Runs model-backed Relay actors, renders system and workflow-policy prompts, loads reusable parent/current context headers, presents exact-current-task calls as confirmed evidence, prefers real invocation arguments in call descriptors, carries earlier chunk summaries, reserves WorkflowContinuation for server use, validates optional cursors, streams responses, and resolves output by relay kind."
     },
     {
       "path": "src/server/session",

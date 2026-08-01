@@ -3,9 +3,11 @@
   "module": {
     "path": "src/server/prompt/module",
     "name": "module",
-    "purpose": "Defines reusable prompt fragments embedded into rendered templates: RepeatInvocation warns that an identical tool call was already requested, PreChunk notes that the listed facts came from earlier chunks of the same tool output so only new facts should be stated, and CompletedCalls identifies exact-current-task call results as confirmed evidence.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines reusable prompt fragments embedded into rendered templates: BackgroundTaskContextHeader and CurrentTaskContextHeader delimit parent and current task evidence, CompletedCalls marks final current-task evidence, RepeatInvocation warns about repeated calls, and PreChunk frames earlier summary facts.",
+    "changeStatus": "modified"
   },
+  "added": ["BackgroundTaskContextHeader.prompt", "CurrentTaskContextHeader.prompt"],
+  "modified": ["CompletedCalls.prompt"],
   "childModules": [],
   "elements": []
 }

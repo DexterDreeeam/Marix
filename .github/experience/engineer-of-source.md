@@ -1,5 +1,8 @@
 # engineer-of-source experience — Marix
 
+- 2026-08-01: Relay background/current context headers now live in `src/server/prompt/module/BackgroundTaskContextHeader.prompt` and `CurrentTaskContextHeader.prompt`; `server/relay/prompt.rs` trims the module file ending before restoring exact LF-only separators (`\n\n\n` before the first ancestor, `\n\n` before the current Goal), preserving the former hardcoded model-visible bytes despite CRLF prompt files.
+- 2026-08-01: Production benchmark prompt promotion maps `system`, `policy`, and `completed_notice` into the three prompt templates, while relay-owned `background_header` and `current_header` remain string prefixes in `src/server/relay/prompt.rs`; preserve the existing three-newline ancestor separator and pending-intent suffix logic.
+
 ## Workflow runtime
 
 - The active hierarchy is Task → Intent → Step → Invocation/Relay. Intent owns plain Plan state; there is no active Plan actor or protocol namespace.

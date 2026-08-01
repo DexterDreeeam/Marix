@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "default_candidate": "candidate-012",
+  "tool_count": 17,
+  "smoke": {
+    "case_file": "smoke/cases.json",
+    "manifest_file": "smoke/manifest.json",
+    "batch_size_per_category": 10,
+    "expected_total": 400,
+    "expected_per_category": 100,
+    "thresholds": {
+      "workflow_plan": 0.95,
+      "workflow_complete": 0.99,
+      "workflow_infeasible": 0.5,
+      "ordinary": 0.9
+    },
+    "early_gates": {
+      "0": {
+        "workflow_plan": 0.7,
+        "workflow_complete": 0.8,
+        "workflow_infeasible": 0.3,
+        "ordinary": 0.7
+      },
+      "1": {
+        "workflow_plan": 0.85,
+        "workflow_complete": 0.9,
+        "workflow_infeasible": 0.4,
+        "ordinary": 0.8
+      }
+    }
+  },
+  "practice": {
+    "case_file": "practice/cases.json",
+    "manifest_file": "practice/manifest.json",
+    "threshold": 1.0
+  }
+}

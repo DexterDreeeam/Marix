@@ -3,16 +3,17 @@
   "module": {
     "path": "src/server/relay",
     "name": "relay",
-    "purpose": "Runs model-backed Relay actors, renders system, workflow-policy, reference-only parent context, explicit background boundaries, and current-task prompts, presents already-executed exact-current-task calls as confirmed evidence, prefers real invocation arguments over the model-authored purpose in call descriptors up to CORE_DESCRIPTOR_MAX_CHARS, prefixes chunk summarization with earlier summaries, reserves WorkflowContinuation for internal server use, validates optional summary cursors, streams model responses, and resolves output by relay kind.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs model-backed Relay actors, renders system and workflow-policy prompts, loads reusable parent/current context headers, presents exact-current-task calls as confirmed evidence, prefers real invocation arguments in call descriptors, carries earlier chunk summaries, reserves WorkflowContinuation for server use, validates optional cursors, streams responses, and resolves output by relay kind.",
+    "changeStatus": "modified"
   },
+  "modified": ["prompt.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Relay",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/relay.rs",
@@ -128,17 +129,17 @@
         {
           "sourcePath": "src/server/relay/prompt.rs",
           "lineStart": 44,
-          "lineEnd": 485,
+          "lineEnd": 495,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": [
             {
               "lineStart": 190,
-              "lineEnd": 190
+              "lineEnd": 203
             },
             {
-              "lineStart": 242,
-              "lineEnd": 242
+              "lineStart": 248,
+              "lineEnd": 254
             }
           ]
         }

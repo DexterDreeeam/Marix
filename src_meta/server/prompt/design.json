@@ -3,19 +3,20 @@
   "module": {
     "path": "src/server/prompt",
     "name": "prompt",
-    "purpose": "Loads, validates, injects, and renders named prompt templates and reusable prompt modules, including whole-current-task action classification, exact-current-task completion evidence, verbatim-value summarization requirements, earlier-chunk fact recaps, and optional cursor-return guidance for tool-call summaries.",
-    "changeStatus": "unchanged"
+    "purpose": "Loads, validates, injects, and renders named prompt templates and reusable prompt modules, including explicit parent/current context boundaries, whole-current-task action classification, exact-current-task completion evidence, earlier-chunk fact recaps, and optional cursor-return guidance.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/server/prompt/module",
       "name": "module",
-      "purpose": "Defines reusable prompt fragments embedded into rendered templates: RepeatInvocation warns that an identical tool call was already requested, PreChunk notes that the listed facts came from earlier chunks of the same tool output so only new facts should be stated, and CompletedCalls identifies exact-current-task call results as confirmed evidence."
+      "purpose": "Defines reusable prompt fragments embedded into rendered templates: BackgroundTaskContextHeader and CurrentTaskContextHeader delimit parent and current task evidence, CompletedCalls marks final current-task evidence, RepeatInvocation warns about repeated calls, and PreChunk frames earlier summary facts."
     },
     {
       "path": "src/server/prompt/template",
       "name": "template",
-      "purpose": "Defines System, WorkflowPolicy, ToolCallSummarize, and ToolCallSummarizeWithCursor resources; System and WorkflowPolicy classify the complete current task as confirmed complete, explicitly infeasible, an exact one-tool match, or a multi-stage Plan while excluding parent work, and both summarize resources carry their whole instruction block ahead of the variable payload so the cacheable prefix stays stable, require every relevant fact with concrete values copied verbatim and JSON-safe escaping, open with an optional pre_chunk block, and fence the tool output in a triple-backtick code block, while only the WithCursor variant asks for a continuation cursor and the plain variant states that no further chunks follow."
+      "purpose": "Defines System, WorkflowPolicy, ToolCallSummarize, and ToolCallSummarizeWithCursor resources; System and WorkflowPolicy require explicit multi-stage tasks to Plan, exact single operations to use their matching ordinary tool, fully evidenced current tasks to complete, and only explicit permanent blockers to be infeasible, while both summarize resources preserve concrete facts and optional cursor guidance."
     }
   ],
   "elements": [
