@@ -4,9 +4,8 @@
     "path": "src/tool",
     "name": "tool",
     "purpose": "Defines ToolProgram and fifteen feature-gated native tool binaries whose previews describe host compatibility and whose normal execution reads one JSON payload, logs the input and output beside the executable, and writes only the JSON result to standard output.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["Cargo.toml"],
   "childModules": [
     {
       "path": "src/tool/native",
@@ -203,7 +202,7 @@
       "name": "marix_tool_powershell",
       "type": "bin",
       "source_depth": 2,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/tool_main.rs",
@@ -245,7 +244,7 @@
       "name": "marix_tool_command_prompt",
       "type": "bin",
       "source_depth": 2,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/tool_main.rs",
@@ -287,7 +286,7 @@
       "name": "marix_tool_bash",
       "type": "bin",
       "source_depth": 2,
-      "changeStatus": "renamed",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/tool/tool_main.rs",

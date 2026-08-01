@@ -4,16 +4,15 @@
     "path": "src/server/relay",
     "name": "relay",
     "purpose": "Runs model-backed Relay actors, renders system and workflow-policy prompts, loads reusable parent/current context headers, presents exact-current-task calls as confirmed evidence, prefers real invocation arguments in call descriptors, carries earlier chunk summaries, reserves WorkflowContinuation for server use, validates optional cursors, streams responses, and resolves output by relay kind.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["prompt.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Relay",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/relay.rs",
