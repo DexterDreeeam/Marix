@@ -3,16 +3,17 @@
   "module": {
     "path": "src/server/relay",
     "name": "relay",
-    "purpose": "Runs model-backed Relay actors, renders system, workflow-policy, context, and mandatory tool-call-summary prompts, presents every already-executed call under a completed-calls block whose results are stated as confirmed facts, prefers real invocation arguments over the model-authored purpose in call descriptors up to CORE_DESCRIPTOR_MAX_CHARS, prefixes a chunk summarization with the summaries already extracted from earlier chunks of the same tool output, reserves WorkflowContinuation for internal server use, validates and serializes optional summary cursors, streams model responses, and resolves output by relay kind.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs model-backed Relay actors, renders system, workflow-policy, reference-only parent context, explicit background boundaries, and current-task prompts, presents already-executed exact-current-task calls as confirmed evidence, prefers real invocation arguments over the model-authored purpose in call descriptors up to CORE_DESCRIPTOR_MAX_CHARS, prefixes chunk summarization with earlier summaries, reserves WorkflowContinuation for internal server use, validates optional summary cursors, streams model responses, and resolves output by relay kind.",
+    "changeStatus": "modified"
   },
+  "modified": ["prompt.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Relay",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/relay.rs",
@@ -130,52 +131,15 @@
           "lineStart": 44,
           "lineEnd": 485,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 205,
-              "lineEnd": 205
-            },
-            {
-              "lineStart": 258,
-              "lineEnd": 258
-            },
-            {
-              "lineStart": 265,
-              "lineEnd": 266
-            },
-            {
-              "lineStart": 270,
-              "lineEnd": 270
-            },
-            {
-              "lineStart": 281,
-              "lineEnd": 302
-            },
-            {
-              "lineStart": 356,
-              "lineEnd": 362
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 209,
-              "lineEnd": 214
+              "lineStart": 190,
+              "lineEnd": 190
             },
             {
-              "lineStart": 233,
-              "lineEnd": 235
-            },
-            {
-              "lineStart": 239,
-              "lineEnd": 247
-            },
-            {
-              "lineStart": 342,
-              "lineEnd": 350
-            },
-            {
-              "lineStart": 414,
-              "lineEnd": 417
+              "lineStart": 242,
+              "lineEnd": 242
             }
           ]
         }

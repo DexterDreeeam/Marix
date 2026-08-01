@@ -1,18 +1,14 @@
-Based on the context, choose exactly one action to advance the [CURRENT TASK]. 
-WARNING: Do NOT attempt to solve the overall user goal or the parent's plan. Your scope is strictly limited to the [CURRENT TASK].
+Treat [CURRENT TASK] as the complete decision boundary. Parent Plans and [USER OVERALL GOAL] never add requirements.
 
-**SEQUENTIALLY** CHECK THE EXECUTION CONDITIONS FOR THE THREE WORKFLOW TOOLS: workflow_plan, workflow_complete, AND workflow_infeasible. IF ANY CONDITION IS SATISFIED, YOU **MUST** CALL THAT TOOL AND IGNORE ALL OTHER WORKFLOW TOOLS AND ORDINARY TOOLS. THE PRIORITY ORDER IS workflow_plan > workflow_complete > workflow_infeasible.
+1. CONFIRMED COMPLETE -> workflow_complete. Use this Current Task's [COMPLETED CALLS] as final evidence. When they prove every explicit answer and side effect, complete now even if the original work had several stages or parents remain pending. Never claim an unexecuted side effect is complete.
 
-[**workflow_plan**]
-MUST BE CALLED WHEN THE [CURRENT TASK] CANNOT BE COMPLETED WITH A SINGLE TOOL CALL AND CAN BE DECOMPOSED INTO AT LEAST 2 CLEAR SUB-GOALS. KEEP EVERY SUB-GOAL STRICTLY WITHIN THE [CURRENT TASK] SCOPE. IF [FAIL PLANS] EXISTS, CREATE A MATERIALLY DIFFERENT PLAN THAT DOES NOT REPEAT OR CLOSELY RESEMBLE ANY FAILED PLAN.
+2. EXPLICITLY INFEASIBLE -> workflow_infeasible. The Current Task context must explicitly establish a permanent missing capability/input/fact/device/credential/access path, a logical contradiction, a forbidden only path, destroyed data, or exhaustion of all materially different Plans. Do not infer infeasibility from an uninspected URL, path, package, or implementation.
 
-[**workflow_complete**]
-MUST BE CALLED WHEN THE RESULTS IN [COMPLETED CALLS] ARE SUFFICIENT TO SATISFY THE [CURRENT TASK] GOAL.
+3. EXACT DIRECT MATCH -> matching ordinary tool. Choose an ordinary tool when all explicit task requirements are exactly the operation and normal returned result of one supplied tool. Reading and returning contents is one read_file call. Fetching and returning a page is one web_fetch call. Searching and returning matches is one search call. Writing known literal content is one write_file call. Listing entries is one list_directory call. Running and returning output is one command call. Likewise, one outline, environment query, exact replacement, start-only, stop-only, or process-output read is one call. Phrases such as "return its output/content/matches/id/status" describe the normal result of that same call, not a second stage. Do not add verification or archival work.
 
-[**workflow_infeasible**]
-MUST BE CALLED ONLY WHEN THE ENTIRE [CURRENT TASK] REMAINS INFEASIBLE AFTER CONSIDERING EVERY SUPPLIED TOOL, PLANNING CAPABILITY, AND ALL [FAIL PLANS].
+4. MULTI-STAGE -> workflow_plan. If anything remains beyond one exact direct match, and full satisfaction requires at least two ordinary invocations, MUST Plan before any first call. Explicit then/after sequences, unknown information used by a later action, read then edit, inspect then fix, research then write, download then verify/install, install then verify, start then read output, deploy then probe, list then read/summarize, two commands then compare, and multiple independent targets require Plan. Multiple parallel ordinary calls and a compound shell chain still count as multiple. Return at least two outcome goals inside Current Task and materially different from [FAIL PLANS].
 
-If none of the Workflow Tool conditions above is satisfied, call one or more ordinary execution tools when [COMPLETED CALLS] cannot provide sufficient context and real operations or additional information are needed to advance the [CURRENT TASK]. Return only native function calls without accompanying text, use only the exact tool names supplied with the request, make every arguments object match its tool schema, and do not mix incompatible actions. Ordinary execution may call one or more tools within the model backend's existing limit.
+Return one native function call only. Never merely begin a multi-stage task. Never combine calls.
 
 [**USER OVERALL GOAL**]
 {{#goal}}

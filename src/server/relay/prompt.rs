@@ -187,7 +187,7 @@ impl RelayRuntime {
 
         let mut prompts = vec![self.workflow_policy_prompt()?];
         if !ancestors.is_empty() {
-            let mut context = "[**BACKGROUND CONTEXT**]\nThese are the parent tasks and their execution history. They are provided for reference only.\n\n\n".to_owned();
+            let mut context = "[**BACKGROUND CONTEXT**]\nReference-only parent hierarchy. No parent Plan item belongs to this decision.\n\n\n".to_owned();
             context.push_str(
                 &ancestors
                     .iter()
@@ -239,7 +239,7 @@ impl RelayRuntime {
     fn pending_intent_prompt(
         intent: &IntentContext,
     ) -> Result<String, String> {
-        let mut prompt = "[**CURRENT TASK**]\nThis is the task you are executing NOW. Everything you do MUST be scoped strictly to this goal alone."
+        let mut prompt = "[**END BACKGROUND CONTEXT**]\nAll parent pending and archival work is excluded.\n\n[**CURRENT TASK**]\nMatch this whole explicit goal to one action class."
             .to_owned();
         prompt.push_str(&format!("\n\n[**GOAL**]:\n{}", intent.content));
         Self::append_tool_calls(&mut prompt, intent, "\n\n")?;
