@@ -4,9 +4,8 @@
     "path": "src/server/prompt/template",
     "name": "template",
     "purpose": "Defines System, WorkflowPolicy, ToolCallSummarize, and ToolCallSummarizeWithCursor resources; System and WorkflowPolicy classify the complete current task as confirmed complete, explicitly infeasible, an exact one-tool match, or a multi-stage Plan while excluding parent work, and both summarize resources carry their whole instruction block ahead of the variable payload so the cacheable prefix stays stable, require every relevant fact with concrete values copied verbatim and JSON-safe escaping, open with an optional pre_chunk block, and fence the tool output in a triple-backtick code block, while only the WithCursor variant asks for a continuation cursor and the plain variant states that no further chunks follow.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["System.prompt", "WorkflowPolicy.prompt"],
   "childModules": [],
   "elements": []
 }
