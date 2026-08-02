@@ -97,7 +97,9 @@ Do not ask the Smoke Agent to test the guardrail gates themselves. Its goal is o
 
 ## Judge the result
 
-Apply every entry in `success_criteria` and fail on any `failure_criteria`:
+Apply every entry in `success_criteria` and record every matching
+`failure_criteria`. Final status distinguishes orchestration defects from pure
+model limitations:
 
 1. Read and parse JSON artifacts inside the VM with PowerShell Direct, for example `Get-Content <vm-path> -Raw | ConvertFrom-Json`.
 2. For `exact_json_fields`/`exact_json` fields, judge by semantic meaning by default (accept different wording, JSON type, or precision that still conveys the same correct fact), except any field a criterion lists under `strict_fields`, which must match the expected value exactly; a criterion with no `judgment` field is fully strict on every field, which is the default for precise computed or recognized data such as `code-inspect-catalog` and the image cases.
@@ -106,6 +108,14 @@ Apply every entry in `success_criteria` and fail on any `failure_criteria`:
 5. Check `allowed_changed_paths` relative to a baseline snapshot taken from the guest workspace after fixture copy.
 6. For network tasks, validate URL host groups, dates, source agreement, and live-access evidence. A network outage is an environmental failure.
 7. Image tasks pass only when an image-capable tool actually inspected the PNG. The expected current outcome is a capability-gap report, not a fabricated answer.
+8. When Plan, tool choices, sequencing, side effects, and terminal transition
+   match the expected agent strategy, and tool output already contains sufficient
+   correct facts, a factual mismatch caused only by model attention, extraction,
+   selection, transcription, combination, or summarization is
+   `MODEL_LIMITATION`, not an E2E failure. It is non-blocking.
+9. Wrong tools or scope, repeated/unhelpful calls, malformed inputs, skipped
+   side effects, premature completion without evidence, omitted required
+   branches, and exhausted relay budgets remain `FAIL`.
 
 Expected values are intentionally present in `tasks.json` for the harness. The image prompts tell the agent not to read that file; isolate prompt execution from the judge when possible.
 
@@ -114,11 +124,17 @@ Expected values are intentionally present in `tasks.json` for the harness. The i
 Each case reports its duration, configured maximum time and relay count, terminal-state summary, assertion results, cleanup result, and one primary status:
 
 - `PASS`: successful terminal outcome and all criteria pass.
-- `FAIL`: task failure or assertion failure; the report distinguishes these subtypes.
+- `MODEL_LIMITATION`: strict result assertions fail, but orchestration is
+  correct and the only defect is that the model mishandled sufficient facts
+  already returned by tools. This status does not trigger fail-fast.
+- `FAIL`: task failure or an assertion failure caused by agent orchestration;
+  the report distinguishes these subtypes.
 - `UNSUPPORTED`: a required capability is unavailable under the case's `current_support` rule. Missing image capability is reported here, never fabricated as success.
 - `ENVIRONMENT_ERROR`: setup, prerequisites, Client/transport, service availability, network infrastructure, harness, VM-side validation, or cleanup prevents a reliable judgment.
 
-The final report totals every status and total elapsed time. Environment failures, task failures, and assertion failures remain separately identified.
+The final report totals every status and total elapsed time. Model limitations,
+environment failures, task failures, and orchestration assertion failures remain
+separately identified.
 
 ## Isolation and cleanup
 

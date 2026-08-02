@@ -8,8 +8,8 @@ be written in Chinese, although this agent definition is English.
 
 ## Objective
 
-Run the existing smoke cases in order until the first non-passing case and
-decide only whether each executed case reaches its declared expected outcome.
+Run the existing smoke cases in order until the first blocking case. Evaluate
+Marix agent orchestration, not raw model attention or factual-reading quality.
 Do not add, run, or report dedicated tests of whether the TaskRequest guardrails
 themselves work.
 
@@ -74,8 +74,9 @@ Run one circular pass in this order: `N`, every later array entry, then entries
 Never omit a case from the circular pass merely because it passed previously;
 the rotated order only avoids spending time on earlier cases before confirming
 that `N` is fixed. A later case in this execution order is eligible only when
-every case already executed in the pass finished with `PASS`. Complete all steps
-for the current case before deciding whether another case may start:
+every case already executed in the pass finished with `PASS` or
+`MODEL_LIMITATION`. Complete all steps for the current case before deciding
+whether another case may start:
 
 1. **Setup** — Use PowerShell Direct with
    `Invoke-Command -VMName Marix_TestVm -Credential $credential` to remove the
@@ -148,6 +149,30 @@ for the current case before deciding whether another case may start:
    `json_array_min_length`, `all_sources_agree`, `manual_code_trace`, or
    `required_keywords`; those remain governed strictly by their own definitions
    regardless of any `judgment` setting elsewhere in the case.
+
+   After recording every assertion literally, decide whether an assertion
+   mismatch is an agent-orchestration defect or only a model limitation. Use
+   `MODEL_LIMITATION` only when all of these conditions hold:
+
+   - the Plan, Workflow Tool choices, ordinary-tool choices, scope, sequencing,
+    side effects, and terminal transition follow the task's expected
+    orchestration strategy;
+   - tool inputs are relevant and the returned tool evidence contains sufficient
+    correct information to satisfy the failed assertion;
+   - there is no repeated or unhelpful call, missing required side effect,
+    premature completion without evidence, scope expansion, malformed tool
+    input, exhausted relay budget, or ignored required branch;
+   - the only remaining defect is that the model misread, overlooked, selected,
+    combined, transcribed, or summarized facts incorrectly despite the correct
+    facts already being present in tool evidence.
+
+   For example, if two sources were retrieved as required, both returned the
+   correct latest version, and the model nevertheless selected an older version
+   from one source while preserving the expected Plan/fetch/write/complete
+   sequence, record the strict assertion mismatch but classify the case
+   `MODEL_LIMITATION`, not `FAIL`. Conversely, choosing the wrong URL, failing to
+   reconcile a conflict by the task's required strategy, repeating retrievals,
+   skipping a write, or completing without evidence remains `FAIL`.
 6. **Collect evidence** — Before cleanup, save the preliminary status, duration,
    configured guardrails, terminal summary, Client CLI captured output and exit
    status, ordered relay/tool evidence, per-call usefulness judgments,
@@ -161,11 +186,12 @@ for the current case before deciding whether another case may start:
    VM workspace root outside the active case directory, or any other guest path.
    Never repair or update a fixture baseline.
 8. **Finalize and fail fast** — Determine the final primary status after cleanup.
-   If it is `PASS`, the next case may start. If it is `FAIL`, `UNSUPPORTED`, or
-   `ENVIRONMENT_ERROR`, stop immediately, record this case ID as the stop
-   trigger, and mark every remaining case `SKIPPED_AFTER_FAILURE`. Do not run
-   setup, Client CLI, assertions, or cleanup for skipped cases because their VM
-   workspaces were never created.
+   If it is `PASS` or `MODEL_LIMITATION`, the next case may start. A
+   `MODEL_LIMITATION` is non-blocking and must never become the fail-fast
+   trigger. If it is `FAIL`, `UNSUPPORTED`, or `ENVIRONMENT_ERROR`, stop
+   immediately, record this case ID as the stop trigger, and mark every remaining
+   case `SKIPPED_AFTER_FAILURE`. Do not run setup, Client CLI, assertions, or
+   cleanup for skipped cases because their VM workspaces were never created.
 9. **Analyze the first failure** — Immediately after stopping, analyze the stop
    trigger's failure chain using every layer of this procedure; do not stop
    because an earlier layer appears sufficient:
@@ -190,18 +216,21 @@ for the current case before deciding whether another case may start:
 
    Identify the exact first divergence from the expected path, naming the relay,
    tool, input, output, and decision rather than only the final assertion.
-   Classify it as a model-selection error, tool-input error, tool-implementation
-   error, network/source-content issue, or harness-judgment error. For conflicting
-   sources, determine whether the model queried the wrong URL, the sites truly
-   differed, parsing was truncated or incorrect, or the model misread the tool
-   result; cite only the minimum log fields needed to prove it. Report a timeline,
-   first error, amplification chain, ruled-out causes, evidence sufficiency, and
-   precise repair surface. For every confirmed source-code defect, also propose a
+   Classify it as an agent-orchestration error, tool-input error,
+   tool-implementation error, network/source-content issue, or harness-judgment
+   error. A pure model attention/factual-reading issue meeting the
+   `MODEL_LIMITATION` conditions is non-blocking and therefore is not the first
+   failure analyzed by this step. For conflicting sources, determine whether the
+   model queried the wrong URL, the sites truly differed, parsing was truncated
+   or incorrect, or the model misread sufficient tool evidence; cite only the
+   minimum log fields needed to prove it. Report a timeline, first error,
+   amplification chain, ruled-out causes, evidence sufficiency, and precise
+   repair surface. For every confirmed source-code defect, also propose a
    concrete repair plan naming the affected files, intended behavior, and
-   verification cases, without modifying source. Do not deploy, start, stop, or restart services;
-   modify source or fixtures; run git; execute a later case; or automatically
-   rerun the failed case. If evidence remains insufficient, state the gap and
-   wait for user direction.
+   verification cases, without modifying source. Do not deploy, start, stop, or
+   restart services; modify source or fixtures; run git; execute a later case; or
+   automatically rerun the failed case. If evidence remains insufficient, state
+   the gap and wait for user direction.
 
 Do not start a later case while any process from the current case is still
 running, or after fail-fast has been triggered.
@@ -227,8 +256,16 @@ Use exactly one status for each case:
 
 - `PASS` — the task reached a successful terminal state, every success criterion
   passed, and no failure criterion was met.
+- `MODEL_LIMITATION` — one or more result assertions failed, but the agent's
+  orchestration strategy, tool choices, scope, sequencing, side effects, and
+  terminal transition were correct; sufficient correct facts were present in
+  tool evidence, and the only defect was model attention, fact selection,
+  extraction, transcription, combination, or summarization. This status is
+  non-blocking and execution continues.
 - `FAIL` — the task reached a task-failure outcome (`task_failure`) or a result
-  assertion failed (`assertion_failure`). Preserve that sub-classification.
+  assertion exposed an agent-orchestration defect (`assertion_failure`).
+  Preserve that sub-classification. Do not use `FAIL` for a pure
+  `MODEL_LIMITATION`.
 - `UNSUPPORTED` — the required capability is unavailable and the case's
   `current_support` permits or expects that capability gap. In particular, an
   image case without a real image-capable tool is `UNSUPPORTED`, never a
@@ -237,9 +274,9 @@ Use exactly one status for each case:
   service availability, network infrastructure, harness operation, VM-side
   validation, or cleanup prevents a reliable case judgment.
 - `SKIPPED_AFTER_FAILURE` — the case was not executed because an earlier case
-  had a final primary status other than `PASS`. Record the triggering case ID;
-  this status has no elapsed task time, assertions, terminal outcome, workspace,
-  or cleanup execution.
+  had a blocking final primary status. `MODEL_LIMITATION` does not trigger this
+  status. Record the triggering case ID; this status has no elapsed task time,
+  assertions, terminal outcome, workspace, or cleanup execution.
 
 Use `current_support` to explain capability gaps, not to force an expected
 failure: if a currently unsupported capability is genuinely available and all
@@ -257,13 +294,16 @@ outcome unknown unless a terminal outcome was already captured.
 
 For every executed case, report:
 
-- case ID and `PASS`, `FAIL`, `UNSUPPORTED`, or `ENVIRONMENT_ERROR`;
+- case ID and `PASS`, `MODEL_LIMITATION`, `FAIL`, `UNSUPPORTED`, or
+  `ENVIRONMENT_ERROR`;
 - elapsed time;
 - configured `max_completion_time_secs` and `max_relay_count` (`None` when
   `null`);
 - concise terminal-state summary;
 - each assertion and its pass/fail/not-run result;
 - failure class and concise reason when applicable;
+- for `MODEL_LIMITATION`, the failed assertions and minimum evidence proving
+  that orchestration was correct and sufficient facts were available;
 - cleanup result.
 
 For every skipped case, report its ID, `SKIPPED_AFTER_FAILURE`, the triggering
@@ -275,8 +315,9 @@ and recommended repair surface.
 
 Finish with totals by status, executed and skipped counts, total elapsed time
 for executed cases only, declared execution order with the actual stop point,
-and a concise list of task, assertion, environment, capability, or cleanup
-problems. Report elapsed time and assertion details only for executed cases.
+and a concise list of task, orchestration, model-limitation, assertion,
+environment, capability, or cleanup problems. Report elapsed time and assertion
+details only for executed cases.
 Report only smoke-case outcomes; do not add a guardrail-gate test section.
 
 ## Report file

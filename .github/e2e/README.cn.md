@@ -97,7 +97,8 @@ prompt 必须紧跟在 `--oneshot` 后，并放在可选 flags 之前。CLI flag
 
 ## 判定结果
 
-应用 `success_criteria` 中的每项条件，并在出现任一 `failure_criteria` 时判为失败：
+应用 `success_criteria` 中的每项条件，并如实记录命中的每个
+`failure_criteria`。最终状态需要区分 Agent 编排缺陷与纯模型能力限制：
 
 1. 通过 PowerShell Direct 在 VM 内读取并解析 JSON 产物，例如 `Get-Content <vm-path> -Raw | ConvertFrom-Json`。
 2. 对 `exact_json_fields`/`exact_json` 中的字段，默认按语义判断（接受不同措辞、JSON 类型或精度，只要表达的是同一个正确事实即可），除非某字段被列入该条件的 `strict_fields`，则必须与期望值精确一致；若某条件完全没有 `judgment` 字段，则其所有字段默认严格比对，这是 `code-inspect-catalog` 和图片类 case 这种精确计算/识别数据场景的默认行为。
@@ -106,6 +107,12 @@ prompt 必须紧跟在 `--oneshot` 后，并放在可选 flags 之前。CLI flag
 5. 相对 fixture 复制完成后的来宾工作区基线，检查 `allowed_changed_paths`。
 6. 对联网任务，验证 URL 主机分组、日期、来源一致性和实时访问证据。网络中断属于环境失败。
 7. 只有具备图片能力的工具确实检查 PNG 后，图片任务才能通过。当前预期结果是报告能力缺口，而不是编造答案。
+8. 如果 Plan、Tool 选择、执行顺序、副作用和终态转换均符合预期，而且 Tool Output
+   已经提供充分且正确的信息，最终事实断言仅因模型 Attention、抽取、选择、抄写、
+   合并或摘要错误而失败，则状态为 `MODEL_LIMITATION`，不属于 E2E Fail，也不会阻断
+   后续 Case。
+9. 错误 Tool 或 Scope、重复/无用调用、错误输入、跳过副作用、无证据提前完成、
+   遗漏必需分支或耗尽 Relay 预算，仍判为 `FAIL`。
 
 预期值有意保存在 `tasks.json` 中供 harness 使用。图片 prompt 要求 agent 不读取该文件；条件允许时应隔离 prompt 执行器与判定器。
 
@@ -114,11 +121,14 @@ prompt 必须紧跟在 `--oneshot` 后，并放在可选 flags 之前。CLI flag
 每个 case 都要报告耗时、配置的最大时间和 relay 次数、终态摘要、断言结果、cleanup 结果，以及一个主要状态：
 
 - `PASS`：任务成功终止，且全部 criteria 通过。
-- `FAIL`：任务失败或断言失败；报告中会区分这两类子类型。
+- `MODEL_LIMITATION`：存在严格结果断言失败，但 Agent 编排正确，唯一问题是模型误读或
+  错误处理了 Tool 已提供的充分事实。该状态不触发 Fail-fast。
+- `FAIL`：任务失败，或由 Agent 编排错误造成的断言失败；报告中会区分子类型。
 - `UNSUPPORTED`：case 的 `current_support` 规则允许的必需能力不可用。图片能力缺失在此报告，绝不能伪造成成功。
 - `ENVIRONMENT_ERROR`：setup、前置条件、Client/传输、服务可用性、网络基础设施、harness、VM 侧验证或 cleanup 问题导致无法可靠判定。
 
-最终报告汇总各状态数量和总耗时。环境失败、任务失败和断言失败始终分别标识。
+最终报告汇总各状态数量和总耗时。模型能力限制、环境失败、任务失败和 Agent 编排断言
+失败始终分别标识。
 
 ## 隔离与清理
 
