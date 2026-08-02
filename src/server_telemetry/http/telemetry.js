@@ -93,6 +93,7 @@ const s_messageActions = createMessageActions(
     modalTitle: document.getElementById("format-message-title"),
     modalPrev: document.getElementById("format-message-prev"),
     modalNext: document.getElementById("format-message-next"),
+    modalCopy: document.getElementById("format-message-copy"),
     modalClose: document.getElementById("format-message-close"),
     modalEditor: document.getElementById("format-message-editor"),
   },

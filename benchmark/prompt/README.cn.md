@@ -48,7 +48,7 @@ benchmark/prompt/
 ├── tools.json
 ├── prompts/
 │   ├── candidate-007.json
-│   └── candidate-012.json
+│   └── candidate-023.json
 ├── smoke/
 │   ├── generate.py
 │   ├── cases.json
@@ -115,16 +115,30 @@ Case 内容变化时 Suite SHA-256 会有意发生变化。
 Practice 保存真实 Task 和 Telemetry 中发生过的失败。Practice Case 可以属于任意
 Workflow 或普通工具类别，但不计算平均值：每个 Case 都必须通过。
 
-当前第一个 Case：
+当前真实回归 Case 包括：
 
 ```text
 complete-telemetry-098446153288258912138544578473665883451
+ordinary-write-file-telemetry-070981585674218474111614146741974199136
+ordinary-replace-file-telemetry-297338054689605191884651027567795393139
 ```
 
 它重现 Telemetry Request Key
 `098446153288258912138544578473665883451` 和 Response Record `1921`。
 Current Task 已获得所有 RFC 2324 事实，因此预期 Tool 是 `workflow_complete`。
 生产环境观察到的错误响应却创建了包含重复检索和父级写文件工作的 Plan。
+
+第二个 Case 重现 Model Relay Request
+`070981585674218474111614146741974199136` 和 Response
+`019882607918864850667207055831898822010`。它的 Current Task 是一次已知内容写文件，
+且没有 Current Task 完成证据，因此预期普通工具为 `write_file`。实际错误响应调用了
+`workflow_complete`，并声称文件已经写入。
+
+第三个 Case 重现 Model Relay Request
+`297338054689605191884651027567795393139` 和 Response
+`069872082689642533084430657110518194371`。当前实现和目标替换行为均已知，因此预期
+普通工具为 `replace_in_file`。实际错误响应调用了 `workflow_complete`，同时明确承认
+修改尚未完成。
 
 ### 新增 Practice Case
 
@@ -155,17 +169,17 @@ Candidate JSON 控制 Benchmark 中所有可修改 Prompt 段：
 - Completed Calls 标题和 Notice；
 - Fail Plans 标题和 Reason Label。
 
-`prompts/candidate-012.json` 是当前默认 Candidate。它在完整 Run
-`candidate012-20260801-a` 中取得：
+`prompts/candidate-023.json` 是当前默认 Candidate。它在完整 Run
+`candidate023-compact-a` 中取得：
 
 | 类别 | 已验证 400 Case 结果 |
 |---|---:|
-| Plan | 98% |
+| Plan | 96% |
 | Complete | 100% |
-| Infeasible | 100% |
-| Ordinary | 95% |
+| Infeasible | 96% |
+| Ordinary | 93% |
 
-在开始 Smoke 前，必需的 Practice Suite 也已通过 1/1。该结果只适用于此 Run ID
+在开始 Smoke 前，必需的 Practice Suite 也已通过 3/3。该结果只适用于此 Run ID
 记录的冻结 Candidate、Case、Tool 和 Model Hash；任何输入改变后都必须重新运行。
 
 Candidate 开始一次 Run 后不得修改。测试其他 Prompt 组合时应创建新的 Candidate 文件和
@@ -188,8 +202,8 @@ Linux 示例：
 cd /path/to/Marix
 MARIX_CONFIG=/opt/marix/server/config.toml \
   python3 benchmark/prompt/run.py practice \
-  --run-id candidate012-20260801 \
-  --candidate candidate-012
+  --run-id candidate023-20260802 \
+  --candidate candidate-023
 ```
 
 ## 运行 Practice
@@ -199,8 +213,8 @@ Practice 必须最先且完整运行：
 ```powershell
 $env:MARIX_CONFIG = 'C:\path\to\config.toml'
 python benchmark\prompt\run.py practice `
-  --run-id candidate012-20260801 `
-  --candidate candidate-012
+  --run-id candidate023-20260802 `
+  --candidate candidate-023
 ```
 
 任意 Practice Case 失败时命令返回非零 Exit Code。
@@ -219,13 +233,13 @@ Smoke 分十个 Batch，每个 Batch 从每类取十个 Case，共四十次调�
 $env:MARIX_CONFIG = 'C:\path\to\config.toml'
 
 python benchmark\prompt\run.py smoke `
-  --run-id candidate012-20260801 `
-  --candidate candidate-012 `
+  --run-id candidate023-20260802 `
+  --candidate candidate-023 `
   --batch 0
 
 python benchmark\prompt\run.py smoke `
-  --run-id candidate012-20260801 `
-  --candidate candidate-012 `
+  --run-id candidate023-20260802 `
+  --candidate candidate-023 `
   --batch 1
 ```
 

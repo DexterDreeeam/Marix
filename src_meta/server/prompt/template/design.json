@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/prompt/template",
     "name": "template",
-    "purpose": "Defines System, WorkflowPolicy, ToolCallSummarize, and ToolCallSummarizeWithCursor resources; System and WorkflowPolicy require explicit multi-stage tasks to Plan, exact single operations to use their matching ordinary tool, fully evidenced current tasks to complete, and only explicit permanent blockers to be infeasible, while both summarize resources preserve concrete facts and optional cursor guidance.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines System, WorkflowPolicy, ToolCallSummarize, and ToolCallSummarizeWithCursor resources; the compact benchmarked workflow prompts require multi-stage tasks to Plan, exact single operations to use their ordinary tool, evidenced tasks to complete, explicit permanent blockers to be infeasible, and known one-file fixes to use replace_in_file without another read.",
+    "changeStatus": "modified"
   },
+  "modified": ["System.prompt", "WorkflowPolicy.prompt"],
   "childModules": [],
   "elements": []
 }

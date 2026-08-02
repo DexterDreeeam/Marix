@@ -81,7 +81,7 @@
       "id": "network-search-fallback",
       "category": "network-search",
       "title": "Recover from an unavailable primary source",
-      "prompt": "先实际尝试访问故意不可达的 https://example.invalid/marix-e2e-primary，然后使用可访问的官方 RFC 来源和 Wikipedia 回退检索 HTTP 418。不得仅凭模型记忆。把结果写入 C:\\MarixE2E\\workspaces\\network-search-fallback\\result.json，字段必须是 topic、status_code、reason_phrase、rfc_number、published_date、primary_attempt_url、primary_attempt_failed、sources；reason_phrase 按 RFC 原文大小写记录，sources 每项包含 url、publisher、accessed_date。",
+      "prompt": "先实际尝试访问故意不可达的 https://example.invalid/marix-e2e-primary，然后使用可访问的官方 RFC 来源和 MDN Web Docs 回退检索 HTTP 418。不得仅凭模型记忆。把结果写入 C:\\MarixE2E\\workspaces\\network-search-fallback\\result.json，字段必须是 topic、status_code、reason_phrase、rfc_number、published_date、primary_attempt_url、primary_attempt_failed、sources；reason_phrase 按 RFC 原文大小写记录，sources 每项包含 url、publisher、accessed_date。",
       "vm_working_directory": "C:\\MarixE2E\\workspaces\\network-search-fallback",
       "max_completion_time_secs": 600,
       "max_relay_count": 40,
@@ -91,7 +91,7 @@
       "requirements": [
         "Attempt the .invalid primary URL before using fallback sources.",
         "Do not rely only on model memory.",
-        "Use at least one official RFC URL and one Wikipedia URL.",
+        "Use at least one official RFC URL and one MDN Web Docs URL.",
         "Write only result.json in the task working directory."
       ],
       "success_criteria": [
@@ -120,8 +120,7 @@
               "datatracker.ietf.org"
             ],
             [
-              "en.wikipedia.org",
-              "zh.wikipedia.org"
+              "developer.mozilla.org"
             ]
           ]
         },
@@ -134,14 +133,14 @@
       "failure_criteria": [
         "result.json is missing, invalid, or contains an incorrect expected value.",
         "The failed primary attempt is not recorded.",
-        "Either the official RFC source or Wikipedia fallback source is absent."
+        "Either the official RFC source or MDN Web Docs fallback source is absent."
       ],
       "expected_artifacts": [
         "result.json"
       ],
       "current_support": {
         "status": "expected_supported",
-        "reason": "The search tool has fallback providers, but external reachability may still fail."
+        "reason": "The required RFC Editor/IETF and MDN sources are broadly reachable without depending on Wikipedia availability."
       },
       "estimated_time_minutes": 5,
       "suggested_outer_watchdog_minutes": 12

@@ -84,9 +84,8 @@ export function createMessageActions(_elements, _callbacks) {
     return Promise.resolve(copyTextWithExecCommand(_message));
   }
 
-  function copyMessage(_event, _summary) {
-    _event.preventDefault();
-    exactRecord(_summary.id)
+  function copyRecordMessage(_id) {
+    exactRecord(_id)
       .then(function (_record) {
         return writeClipboardText(_record.message);
       })
@@ -100,6 +99,18 @@ export function createMessageActions(_elements, _callbacks) {
       .catch(function (_error) {
         _callbacks.showError("Failed to copy message: " + _error.message);
       });
+  }
+
+  function copyMessage(_event, _summary) {
+    _event.preventDefault();
+    copyRecordMessage(_summary.id);
+  }
+
+  function copyModalMessage() {
+    if (!_modalOpen || !_modalContext || _navigationRequest !== null) {
+      return;
+    }
+    copyRecordMessage(_modalContext.id);
   }
 
   function modalPosition() {
@@ -125,6 +136,7 @@ export function createMessageActions(_elements, _callbacks) {
       _disabled ||
       _position.index < 0 ||
       _position.index >= _position.summaries.length - 1;
+    _elements.modalCopy.disabled = _disabled || !_modalContext;
   }
 
   function summariesChanged() {
@@ -274,6 +286,7 @@ export function createMessageActions(_elements, _callbacks) {
 
   _elements.modalPrev.addEventListener("click", navigateUp);
   _elements.modalNext.addEventListener("click", navigateDown);
+  _elements.modalCopy.addEventListener("click", copyModalMessage);
   _elements.modalClose.addEventListener("click", closeFormatMessage);
   _elements.modal.addEventListener("keydown", function (_event) {
     if (_event.key !== "Tab") {
@@ -282,6 +295,7 @@ export function createMessageActions(_elements, _callbacks) {
     var _focusable = [
       _elements.modalPrev,
       _elements.modalNext,
+      _elements.modalCopy,
       _elements.modalClose,
       _elements.modalEditor,
     ].filter(function (_element) {

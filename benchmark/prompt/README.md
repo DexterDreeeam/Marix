@@ -50,7 +50,7 @@ benchmark/prompt/
 ├── tools.json
 ├── prompts/
 │   ├── candidate-007.json
-│   └── candidate-012.json
+│   └── candidate-023.json
 ├── smoke/
 │   ├── generate.py
 │   ├── cases.json
@@ -120,10 +120,12 @@ Practice stores failures taken from real tasks and Telemetry. Practice cases
 may belong to any workflow or ordinary category, but they are not averaged:
 every one must pass.
 
-The first case is:
+Current real-world cases include:
 
 ```text
 complete-telemetry-098446153288258912138544578473665883451
+ordinary-write-file-telemetry-070981585674218474111614146741974199136
+ordinary-replace-file-telemetry-297338054689605191884651027567795393139
 ```
 
 It reproduces Telemetry request key
@@ -131,6 +133,21 @@ It reproduces Telemetry request key
 Current Task had already obtained all RFC 2324 facts, so the expected tool is
 `workflow_complete`. The observed production response incorrectly created a
 Plan containing repeated retrieval and parent-level file work.
+
+The second case reproduces Model Relay request
+`070981585674218474111614146741974199136` and response
+`019882607918864850667207055831898822010`. Its Current Task is one
+known-content file write with no Current Task completion evidence, so the
+expected ordinary tool is `write_file`. The observed response incorrectly
+called `workflow_complete` and claimed the file had been written.
+
+The third case reproduces Model Relay request
+`297338054689605191884651027567795393139` and response
+`069872082689642533084430657110518194371`. The current implementation and
+required replacement behavior are already known, so the expected ordinary tool
+is `replace_in_file`. The observed response incorrectly called
+`workflow_complete` while explicitly admitting that the modification remained
+unfinished.
 
 ### Adding a Practice case
 
@@ -162,17 +179,17 @@ A candidate JSON controls every mutable prompt section used by the benchmark:
 - Completed Calls heading and notice;
 - Fail Plans heading and reason label.
 
-`prompts/candidate-012.json` is the current default candidate. Its completed
-Run `candidate012-20260801-a` scored:
+`prompts/candidate-023.json` is the current default candidate. Its completed
+Run `candidate023-compact-a` scored:
 
 | Category | Validated 400-case result |
 |---|---:|
-| Plan | 98% |
+| Plan | 96% |
 | Complete | 100% |
-| Infeasible | 100% |
-| Ordinary | 95% |
+| Infeasible | 96% |
+| Ordinary | 93% |
 
-The required Practice suite also passed 1/1 before Smoke started. These results
+The required Practice suite also passed 3/3 before Smoke started. These results
 are tied to the frozen candidate, case, tool, and model hashes recorded by that
 Run ID; rerun the benchmark after changing any input.
 
@@ -198,8 +215,8 @@ Example on Linux:
 cd /path/to/Marix
 MARIX_CONFIG=/opt/marix/server/config.toml \
   python3 benchmark/prompt/run.py practice \
-  --run-id candidate012-20260801 \
-  --candidate candidate-012
+  --run-id candidate023-20260802 \
+  --candidate candidate-023
 ```
 
 ## Running Practice
@@ -209,8 +226,8 @@ Practice must be run first and in full:
 ```powershell
 $env:MARIX_CONFIG = 'C:\path\to\config.toml'
 python benchmark\prompt\run.py practice `
-  --run-id candidate012-20260801 `
-  --candidate candidate-012
+  --run-id candidate023-20260802 `
+  --candidate candidate-023
 ```
 
 The command exits nonzero if any Practice case fails.
@@ -231,13 +248,13 @@ forty calls total.
 $env:MARIX_CONFIG = 'C:\path\to\config.toml'
 
 python benchmark\prompt\run.py smoke `
-  --run-id candidate012-20260801 `
-  --candidate candidate-012 `
+  --run-id candidate023-20260802 `
+  --candidate candidate-023 `
   --batch 0
 
 python benchmark\prompt\run.py smoke `
-  --run-id candidate012-20260801 `
-  --candidate candidate-012 `
+  --run-id candidate023-20260802 `
+  --candidate candidate-023 `
   --batch 1
 ```
 
