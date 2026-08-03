@@ -1,0 +1,81 @@
+{
+  "id": "config_migration_d4",
+  "category": "workflow_plan",
+  "depth": 4,
+  "family": "config_migration",
+  "overall_goal": "Finish planned workflow 020 and preserve its confirmed result.",
+  "ancestors": [
+    {
+      "goal": "Complete planning workflow 080 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Complete planning workflow 080 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete planning workflow 080 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 2",
+          "status": "completed",
+          "result": "Prerequisites for level 2 are confirmed."
+        },
+        {
+          "goal": "Complete planning workflow 080 at hierarchy level 3, including the delegated child and a later parent-only archival step.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 2",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 2):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete planning workflow 080 at hierarchy level 3, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 3",
+          "status": "completed",
+          "result": "Prerequisites for level 3 are confirmed."
+        },
+        {
+          "goal": "Read the legacy configuration at C:\\workflow400\\d4\\case-080\\input-080.json, convert its keys to the documented new schema from https://example.com/releases?case=080, write the migrated file to C:\\workflow400\\d4\\case-080\\target-b.txt, then validate all required keys.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 3",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 3):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Read the legacy configuration at C:\\workflow400\\d4\\case-080\\input-080.json, convert its keys to the documented new schema from https://example.com/releases?case=080, write the migrated file to C:\\workflow400\\d4\\case-080\\target-b.txt, then validate all required keys.",
+  "completed_calls": [],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

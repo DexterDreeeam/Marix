@@ -1,0 +1,20 @@
+{
+  "id": "search_done_patch_verify_d1",
+  "category": "workflow_plan",
+  "depth": 1,
+  "family": "search_done_patch_verify",
+  "source": {
+    "kind": "synthetic",
+    "rationale": "balances completed_calls shape within the category"
+  },
+  "overall_goal": "Finish the multi-step workflow and later archive it.",
+  "ancestors": [],
+  "current_task": "Replace every DEPRECATED_FLAG occurrence under C:\\workflow400\\d1\\case-625\\src and then confirm none remain.",
+  "completed_calls": [
+    "search_text (C:\\workflow400\\d1\\case-625\\src DEPRECATED_FLAG):\nDEPRECATED_FLAG appears in config.rs line 8 and loader.rs line 41."
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

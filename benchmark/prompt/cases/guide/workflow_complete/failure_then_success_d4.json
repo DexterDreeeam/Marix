@@ -1,0 +1,84 @@
+{
+  "id": "failure_then_success_d4",
+  "category": "workflow_complete",
+  "depth": 4,
+  "family": "failure_then_success",
+  "overall_goal": "Finish evidence-backed workflow 022; parent archival may remain.",
+  "ancestors": [
+    {
+      "goal": "Complete completion workflow 188 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Complete completion workflow 188 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete completion workflow 188 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 2",
+          "status": "completed",
+          "result": "Prerequisites for level 2 are confirmed."
+        },
+        {
+          "goal": "Complete completion workflow 188 at hierarchy level 3, including the delegated child and a later parent-only archival step.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 2",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 2):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete completion workflow 188 at hierarchy level 3, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 3",
+          "status": "completed",
+          "result": "Prerequisites for level 3 are confirmed."
+        },
+        {
+          "goal": "Fetch https://example.com/releases?case=188 and return its response body.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 3",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 3):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Fetch https://example.com/releases?case=188 and return its response body.",
+  "completed_calls": [
+    "web_fetch (https://example.com/releases?case=188):\nFirst attempt timed out.",
+    "web_fetch (https://example.com/releases?case=188 retry):\nHTTP 200\nconfirmed-value-188"
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_complete"
+  ]
+}

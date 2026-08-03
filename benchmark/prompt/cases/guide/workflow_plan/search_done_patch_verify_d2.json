@@ -1,0 +1,43 @@
+{
+  "id": "search_done_patch_verify_d2",
+  "category": "workflow_plan",
+  "depth": 2,
+  "family": "search_done_patch_verify",
+  "source": {
+    "kind": "synthetic",
+    "rationale": "balances completed_calls shape within the category"
+  },
+  "overall_goal": "Finish the multi-step workflow and later archive it.",
+  "ancestors": [
+    {
+      "goal": "Complete workflow at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Replace every DEPRECATED_FLAG occurrence under C:\\workflow400\\d2\\case-626\\src and then confirm none remain.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Replace every DEPRECATED_FLAG occurrence under C:\\workflow400\\d2\\case-626\\src and then confirm none remain.",
+  "completed_calls": [
+    "search_text (C:\\workflow400\\d2\\case-626\\src DEPRECATED_FLAG):\nDEPRECATED_FLAG appears in config.rs line 8 and loader.rs line 41."
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

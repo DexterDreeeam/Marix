@@ -1,0 +1,20 @@
+{
+  "id": "env_done_configure_check_d1",
+  "category": "workflow_plan",
+  "depth": 1,
+  "family": "env_done_configure_check",
+  "source": {
+    "kind": "synthetic",
+    "rationale": "balances completed_calls shape within the category"
+  },
+  "overall_goal": "Finish the multi-step workflow and later archive it.",
+  "ancestors": [],
+  "current_task": "Set the service account for build 629 and then verify the service starts under it.",
+  "completed_calls": [
+    "os_env ():\nThe machine reports Windows on amd64 with administrative rights."
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

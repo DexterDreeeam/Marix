@@ -1,0 +1,37 @@
+{
+  "id": "write_file_json_d2",
+  "category": "ordinary",
+  "depth": 2,
+  "family": "write_file",
+  "overall_goal": "Finish direct-operation workflow 016 and later archive its result.",
+  "ancestors": [
+    {
+      "goal": "Complete ordinary execution workflow 362 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Create C:\\workflow400\\d2\\case-362\\input-362.json with the known JSON content {\"mode\":\"safe\",\"port\":8362}.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Create C:\\workflow400\\d2\\case-362\\input-362.json with the known JSON content {\"mode\":\"safe\",\"port\":8362}.",
+  "completed_calls": [],
+  "fail_plans": [],
+  "expected_tools": [
+    "write_file"
+  ]
+}

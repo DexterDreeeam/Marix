@@ -1,0 +1,37 @@
+{
+  "id": "compare_sources_d2",
+  "category": "workflow_plan",
+  "depth": 2,
+  "family": "compare_sources",
+  "overall_goal": "Finish planned workflow 007 and preserve its confirmed result.",
+  "ancestors": [
+    {
+      "goal": "Complete planning workflow 026 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Search for the current Node.js support policy, fetch both the vendor policy and the independent compatibility table, then report only the points on which they agree.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Search for the current Node.js support policy, fetch both the vendor policy and the independent compatibility table, then report only the points on which they agree.",
+  "completed_calls": [],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

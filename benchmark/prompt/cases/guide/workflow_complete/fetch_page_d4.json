@@ -1,0 +1,83 @@
+{
+  "id": "fetch_page_d4",
+  "category": "workflow_complete",
+  "depth": 4,
+  "family": "fetch_page",
+  "overall_goal": "Finish evidence-backed workflow 004; parent archival may remain.",
+  "ancestors": [
+    {
+      "goal": "Complete completion workflow 116 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Complete completion workflow 116 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete completion workflow 116 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 2",
+          "status": "completed",
+          "result": "Prerequisites for level 2 are confirmed."
+        },
+        {
+          "goal": "Complete completion workflow 116 at hierarchy level 3, including the delegated child and a later parent-only archival step.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 2",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 2):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete completion workflow 116 at hierarchy level 3, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 3",
+          "status": "completed",
+          "result": "Prerequisites for level 3 are confirmed."
+        },
+        {
+          "goal": "Return the title from https://example.com/releases?case=116.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 3",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 3):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Return the title from https://example.com/releases?case=116.",
+  "completed_calls": [
+    "web_fetch (https://example.com/releases?case=116):\nPage title: CMake Release Notes"
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_complete"
+  ]
+}

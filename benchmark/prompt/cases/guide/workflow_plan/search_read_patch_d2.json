@@ -1,0 +1,37 @@
+{
+  "id": "search_read_patch_d2",
+  "category": "workflow_plan",
+  "depth": 2,
+  "family": "search_read_patch",
+  "overall_goal": "Finish planned workflow 010 and preserve its confirmed result.",
+  "ancestors": [
+    {
+      "goal": "Complete planning workflow 038 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Search C:\\workflow400\\d2\\case-038\\src for the exact token WorkflowSymbol038, read the matching source file, replace the obsolete value 3038 with 8038, then confirm no old token remains.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Search C:\\workflow400\\d2\\case-038\\src for the exact token WorkflowSymbol038, read the matching source file, replace the obsolete value 3038 with 8038, then confirm no old token remains.",
+  "completed_calls": [],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "process_started_d3",
+  "category": "workflow_complete",
+  "depth": 3,
+  "family": "process_started",
+  "overall_goal": "Finish evidence-backed workflow 012; parent archival may remain.",
+  "ancestors": [
+    {
+      "goal": "Complete completion workflow 147 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Complete completion workflow 147 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete completion workflow 147 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 2",
+          "status": "completed",
+          "result": "Prerequisites for level 2 are confirmed."
+        },
+        {
+          "goal": "Start powershell.exe with -NoProfile -Command Write-Output case-147.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 2",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 2):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Start powershell.exe with -NoProfile -Command Write-Output case-147.",
+  "completed_calls": [
+    "start_process (powershell.exe -NoProfile -Command Write-Output case-147):\nProcess started with id 00000000-0000-4000-8000-000000000147."
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_complete"
+  ]
+}

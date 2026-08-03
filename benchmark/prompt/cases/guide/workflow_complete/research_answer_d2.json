@@ -1,0 +1,40 @@
+{
+  "id": "research_answer_d2",
+  "category": "workflow_complete",
+  "depth": 2,
+  "family": "research_answer",
+  "overall_goal": "Finish evidence-backed workflow 017; parent archival may remain.",
+  "ancestors": [
+    {
+      "goal": "Complete completion workflow 166 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Determine the stable MarixServer version using https://vendor.example/downloads?case=166 and https://registry.example/package?case=166.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Determine the stable MarixServer version using https://vendor.example/downloads?case=166 and https://registry.example/package?case=166.",
+  "completed_calls": [
+    "web_fetch (https://vendor.example/downloads?case=166):\nStable MarixServer is 5.6.2.",
+    "web_fetch (https://registry.example/package?case=166):\nCurrent stable version is 5.6.2."
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_complete"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "id": "probe_done_deploy_verify_d1",
+  "category": "workflow_plan",
+  "depth": 1,
+  "family": "probe_done_deploy_verify",
+  "source": {
+    "kind": "synthetic",
+    "rationale": "balances completed_calls shape within the category"
+  },
+  "overall_goal": "Finish the multi-step workflow and later archive it.",
+  "ancestors": [],
+  "current_task": "Install the package from C:\\workflow400\\d1\\case-609\\pkg.zip and then verify the installed service answers on port 9609.",
+  "completed_calls": [
+    "os_env ():\nThe machine reports Windows on amd64 with PowerShell available."
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

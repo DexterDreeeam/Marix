@@ -1,0 +1,20 @@
+{
+  "id": "survey_done_multi_targets_d1",
+  "category": "workflow_plan",
+  "depth": 1,
+  "family": "survey_done_multi_targets",
+  "source": {
+    "kind": "synthetic",
+    "rationale": "balances completed_calls shape within the category"
+  },
+  "overall_goal": "Finish the multi-step workflow and later archive it.",
+  "ancestors": [],
+  "current_task": "Update the version field in both C:\\workflow400\\d1\\case-605\\a.json and C:\\workflow400\\d1\\case-605\\b.json, then record both results.",
+  "completed_calls": [
+    "list_directory (C:\\workflow400\\d1\\case-605):\nThe directory contains a.json and b.json."
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

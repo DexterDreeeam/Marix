@@ -1,0 +1,59 @@
+{
+  "id": "start_wait_read_d3",
+  "category": "workflow_plan",
+  "depth": 3,
+  "family": "start_wait_read",
+  "overall_goal": "Finish planned workflow 004 and preserve its confirmed result.",
+  "ancestors": [
+    {
+      "goal": "Complete planning workflow 015 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Complete planning workflow 015 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete planning workflow 015 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 2",
+          "status": "completed",
+          "result": "Prerequisites for level 2 are confirmed."
+        },
+        {
+          "goal": "Start powershell.exe with -NoProfile -Command Write-Output case-015, wait for it to finish, then read its captured output and report the exit result.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 2",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 2):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Start powershell.exe with -NoProfile -Command Write-Output case-015, wait for it to finish, then read its captured output and report the exit result.",
+  "completed_calls": [],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "id": "web_search_d4",
+  "category": "ordinary",
+  "depth": 4,
+  "family": "web_search",
+  "overall_goal": "Finish direct-operation workflow 004 and later archive its result.",
+  "ancestors": [
+    {
+      "goal": "Complete ordinary execution workflow 316 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Complete ordinary execution workflow 316 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete ordinary execution workflow 316 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 2",
+          "status": "completed",
+          "result": "Prerequisites for level 2 are confirmed."
+        },
+        {
+          "goal": "Complete ordinary execution workflow 316 at hierarchy level 3, including the delegated child and a later parent-only archival step.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 2",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 2):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete ordinary execution workflow 316 at hierarchy level 3, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 3",
+          "status": "completed",
+          "result": "Prerequisites for level 3 are confirmed."
+        },
+        {
+          "goal": "Search the web for CMake official release notes.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 3",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 3):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Search the web for CMake official release notes.",
+  "completed_calls": [],
+  "fail_plans": [],
+  "expected_tools": [
+    "web_search"
+  ]
+}

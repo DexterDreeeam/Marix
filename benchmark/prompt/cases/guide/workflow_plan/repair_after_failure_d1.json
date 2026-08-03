@@ -1,0 +1,22 @@
+{
+  "id": "repair_after_failure_d1",
+  "category": "workflow_plan",
+  "depth": 1,
+  "family": "repair_after_failure",
+  "overall_goal": "Finish planned workflow 023 and preserve its confirmed result.",
+  "ancestors": [],
+  "current_task": "Determine a materially different way to obtain Git after the failed approaches, obtain it, then verify the resulting version.",
+  "completed_calls": [],
+  "fail_plans": [
+    {
+      "goals": [
+        "Use unavailable source A for Git",
+        "Apply the result to C:\\workflow400\\d1\\case-089\\input-089.json"
+      ],
+      "reason": "Source A is permanently unavailable; a different source and sequence are required."
+    }
+  ],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

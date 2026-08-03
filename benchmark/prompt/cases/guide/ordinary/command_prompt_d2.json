@@ -1,0 +1,37 @@
+{
+  "id": "command_prompt_d2",
+  "category": "ordinary",
+  "depth": 2,
+  "family": "command_prompt",
+  "overall_goal": "Finish direct-operation workflow 006 and later archive its result.",
+  "ancestors": [
+    {
+      "goal": "Complete ordinary execution workflow 322 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Run the cmd.exe command echo case-322 and return its output.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Run the cmd.exe command echo case-322 and return its output.",
+  "completed_calls": [],
+  "fail_plans": [],
+  "expected_tools": [
+    "command_prompt"
+  ]
+}

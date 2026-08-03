@@ -1,0 +1,45 @@
+{
+  "id": "search_count_report_d2",
+  "category": "workflow_plan",
+  "depth": 2,
+  "family": "search_count_report",
+  "overall_goal": "Finish planned workflow 018 and preserve its confirmed result.",
+  "ancestors": [
+    {
+      "goal": "Complete planning workflow 070 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Search C:\\workflow400\\d2\\case-070\\src for WorkflowSymbol070, read every matching file to distinguish definitions from references, then write both counts to C:\\workflow400\\d2\\case-070\\input-070.json.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Search C:\\workflow400\\d2\\case-070\\src for WorkflowSymbol070, read every matching file to distinguish definitions from references, then write both counts to C:\\workflow400\\d2\\case-070\\input-070.json.",
+  "completed_calls": [],
+  "fail_plans": [
+    {
+      "goals": [
+        "Use unavailable source A for MarixServer",
+        "Apply the result to C:\\workflow400\\d2\\case-070\\input-070.json"
+      ],
+      "reason": "Source A is permanently unavailable; a different source and sequence are required."
+    }
+  ],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

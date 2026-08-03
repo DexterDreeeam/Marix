@@ -1,0 +1,67 @@
+{
+  "id": "download_hash_install_d3",
+  "category": "workflow_plan",
+  "depth": 3,
+  "family": "download_hash_install",
+  "overall_goal": "Finish planned workflow 005 and preserve its confirmed result.",
+  "ancestors": [
+    {
+      "goal": "Complete planning workflow 019 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Complete planning workflow 019 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete planning workflow 019 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 2",
+          "status": "completed",
+          "result": "Prerequisites for level 2 are confirmed."
+        },
+        {
+          "goal": "Fetch the release metadata from https://docs.example/versions?case=019, obtain the named installer, verify its published SHA-256 value, install it, then report the installed version.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 2",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 2):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Fetch the release metadata from https://docs.example/versions?case=019, obtain the named installer, verify its published SHA-256 value, install it, then report the installed version.",
+  "completed_calls": [],
+  "fail_plans": [
+    {
+      "goals": [
+        "Use unavailable source A for Python",
+        "Apply the result to C:\\workflow400\\d3\\case-019\\input-019.json"
+      ],
+      "reason": "Source A is permanently unavailable; a different source and sequence are required."
+    }
+  ],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

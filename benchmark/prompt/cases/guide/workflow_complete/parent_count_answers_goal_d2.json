@@ -1,0 +1,39 @@
+{
+  "id": "parent_count_answers_goal_d2",
+  "category": "workflow_complete",
+  "depth": 2,
+  "family": "parent_count_answers_goal",
+  "source": {
+    "kind": "synthetic",
+    "rationale": "balances completed_calls shape within the category"
+  },
+  "overall_goal": "Finish the workflow whose facts the parent already recorded.",
+  "ancestors": [
+    {
+      "goal": "Complete workflow at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Survey the source directory for level 1",
+          "status": "completed",
+          "result": "The source directory for level 1 holds 7 entries."
+        },
+        {
+          "goal": "Report how many entries the prepared source directory holds.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Report how many entries the prepared source directory holds.",
+  "completed_calls": [],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_complete"
+  ]
+}

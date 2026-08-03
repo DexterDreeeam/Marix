@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tempfile
@@ -22,6 +23,9 @@ CATEGORIES = [
     "workflow_infeasible",
     "ordinary",
 ]
+SUITES = ["required", "guide"]
+NAME_MAX_SEGMENTS = 5
+NAME_PATTERN = re.compile(r"[a-z0-9]+(_[a-z0-9]+)*")
 CURL = shutil.which("curl") or shutil.which("curl.exe")
 
 
@@ -51,46 +55,50 @@ def load_model_config():
 
 
 def verify_suite(config, suite):
-    suite_config = config[suite]
-    case_path = ROOT / suite_config["case_file"]
-    manifest_path = ROOT / suite_config["manifest_file"]
-    manifest = load_json(manifest_path)
-    payload = case_path.read_bytes()
-    actual_hash = sha256(payload)
-    if actual_hash != manifest["sha256"]:
-        raise RuntimeError(
-            f"{suite} cases changed without a manifest update: "
-            f"expected {manifest['sha256']}, got {actual_hash}"
-        )
-    cases = json.loads(payload.decode("utf-8"))
-    if len(cases) != manifest["total"]:
-        raise RuntimeError(
-            f"{suite} manifest expects {manifest['total']} cases, "
-            f"found {len(cases)}"
-        )
-    ids = [case["id"] for case in cases]
-    if len(ids) != len(set(ids)):
-        raise RuntimeError(f"{suite} contains duplicate case IDs")
-    for case in cases:
-        if case.get("suite") != suite:
+    suite_root = ROOT / config[suite]["case_dir"]
+    if not suite_root.is_dir():
+        raise RuntimeError(f"{suite} case directory is missing: {suite_root}")
+
+    cases = []
+    seen = set()
+    for category in CATEGORIES:
+        category_dir = suite_root / category
+        if not category_dir.is_dir():
             raise RuntimeError(
-                f"{case['id']} belongs to {case.get('suite')!r}, not {suite!r}"
+                f"{suite} is missing the {category} directory"
             )
-        if case["category"] not in CATEGORIES:
-            raise RuntimeError(
-                f"{case['id']} has unsupported category {case['category']!r}"
-            )
-    if suite == "smoke":
-        if len(cases) != suite_config["expected_total"]:
-            raise RuntimeError("smoke case total does not match benchmark.json")
-        for category in CATEGORIES:
-            count = sum(case["category"] == category for case in cases)
-            if count != suite_config["expected_per_category"]:
+        for path in sorted(category_dir.glob("*.json")):
+            stem = path.stem
+            segments = stem.split("_")
+            if len(segments) > NAME_MAX_SEGMENTS:
                 raise RuntimeError(
-                    f"smoke expected {suite_config['expected_per_category']} "
-                    f"{category} cases, found {count}"
+                    f"{path} has {len(segments)} name segments, "
+                    f"at most {NAME_MAX_SEGMENTS} are allowed"
                 )
-    return manifest, cases
+            if not NAME_PATTERN.fullmatch(stem):
+                raise RuntimeError(f"{path} is not snake_case")
+            case = load_json(path)
+            if case.get("id") != stem:
+                raise RuntimeError(
+                    f"{path} declares id {case.get('id')!r}, "
+                    f"expected {stem!r}"
+                )
+            if case.get("category") != category:
+                raise RuntimeError(
+                    f"{path} declares category {case.get('category')!r} "
+                    f"but lives under {category}"
+                )
+            if not case.get("expected_tools"):
+                raise RuntimeError(f"{path} has no expected_tools")
+            key = (category, stem)
+            if key in seen:
+                raise RuntimeError(f"{suite} contains duplicate case {stem}")
+            seen.add(key)
+            cases.append(case)
+
+    if not cases:
+        raise RuntimeError(f"{suite} contains no cases")
+    return {"total": len(cases)}, cases
 
 
 def append_completed(lines, candidate, calls):
@@ -259,6 +267,7 @@ def evaluate_case(model_config, tools, candidate, case):
         "stream": False,
         "tools": tools,
         "tool_choice": "required",
+        "temperature": 0,
     }
     try:
         payload = post_request(model_config, body)
@@ -283,7 +292,6 @@ def evaluate_case(model_config, tools, candidate, case):
                     detail = f"workflow_plan repeated failed goals: {sorted(overlap)}"
         return {
             "case_id": case["id"],
-            "suite": case["suite"],
             "category": case["category"],
             "depth": case["depth"],
             "family": case["family"],
@@ -299,7 +307,6 @@ def evaluate_case(model_config, tools, candidate, case):
     except Exception as error:
         return {
             "case_id": case["id"],
-            "suite": case["suite"],
             "category": case["category"],
             "depth": case["depth"],
             "family": case["family"],
@@ -314,21 +321,19 @@ def evaluate_case(model_config, tools, candidate, case):
         }
 
 
-def smoke_batch(config, cases, batch):
-    size = config["smoke"]["batch_size_per_category"]
+def guide_batch(config, cases, batch):
+    size = config["guide"]["batch_size_per_category"]
     start = batch * size
     end = start + size
     selected = []
     for category in CATEGORIES:
-        category_cases = [
-            case for case in cases if case["category"] == category
-        ]
-        selected.extend(category_cases[start:end])
-    expected = size * len(CATEGORIES)
-    if len(selected) != expected:
-        raise RuntimeError(
-            f"smoke batch {batch} selected {len(selected)}, expected {expected}"
+        category_cases = sorted(
+            (case for case in cases if case["category"] == category),
+            key=lambda case: case["id"],
         )
+        selected.extend(category_cases[start:end])
+    if not selected:
+        raise RuntimeError(f"guide batch {batch} selected no cases")
     return selected
 
 
@@ -347,9 +352,9 @@ def metrics(results):
     return values
 
 
-def smoke_gate(config, batch):
-    early = config["smoke"]["early_gates"].get(str(batch))
-    return early or config["smoke"]["thresholds"]
+def guide_gate(config, batch):
+    early = config["guide"]["early_gates"].get(str(batch))
+    return early or config["guide"]["thresholds"]
 
 
 def run_metadata(
@@ -367,8 +372,8 @@ def run_metadata(
         "candidate": candidate_name,
         "candidate_sha256": candidate_hash,
         "tool_sha256": tool_hash,
-        "suite_sha256": {
-            suite: manifest["sha256"]
+        "suite_totals": {
+            suite: manifest["total"]
             for suite, manifest in manifests.items()
         },
         "model": model,
@@ -384,7 +389,7 @@ def ensure_run(run_dir, expected):
             "candidate",
             "candidate_sha256",
             "tool_sha256",
-            "suite_sha256",
+            "suite_totals",
             "model",
         ]
         for key in stable_keys:
@@ -401,9 +406,9 @@ def ensure_run(run_dir, expected):
     return expected
 
 
-def existing_smoke_results(run_dir):
+def existing_guide_results(run_dir):
     results = []
-    for path in sorted(run_dir.glob("smoke-batch-*.json")):
+    for path in sorted(run_dir.glob("guide-batch-*.json")):
         results.extend(load_json(path)["results"])
     return results
 
@@ -456,7 +461,7 @@ def report(payload):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("suite", choices=["smoke", "practice"])
+    parser.add_argument("suite", choices=SUITES)
     parser.add_argument("--candidate")
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--batch", type=int, choices=range(10))
@@ -481,13 +486,13 @@ def main():
 
     manifests = {}
     suites = {}
-    for suite in ["smoke", "practice"]:
+    for suite in SUITES:
         manifests[suite], suites[suite] = verify_suite(config, suite)
 
-    if args.suite == "smoke" and args.batch is None:
-        raise RuntimeError("--batch is required for smoke")
-    if args.suite == "practice" and args.batch is not None:
-        raise RuntimeError("--batch is not used for practice")
+    if args.suite == "guide" and args.batch is None:
+        raise RuntimeError("--batch is required for guide")
+    if args.suite == "required" and args.batch is not None:
+        raise RuntimeError("--batch is not used for required")
 
     model_config = load_model_config()
     run_dir = RESULTS_ROOT / args.run_id
@@ -501,25 +506,25 @@ def main():
     )
     ensure_run(run_dir, metadata)
 
-    if args.suite == "smoke":
-        result_path = run_dir / f"smoke-batch-{args.batch:02d}.json"
-        report_path = run_dir / f"smoke-batch-{args.batch:02d}.md"
+    if args.suite == "guide":
+        result_path = run_dir / f"guide-batch-{args.batch:02d}.json"
+        report_path = run_dir / f"guide-batch-{args.batch:02d}.md"
         if result_path.exists() or report_path.exists():
-            raise RuntimeError("this frozen smoke batch already exists")
-        existing = sorted(run_dir.glob("smoke-batch-*.json"))
+            raise RuntimeError("this frozen guide batch already exists")
+        existing = sorted(run_dir.glob("guide-batch-*.json"))
         expected = [
-            run_dir / f"smoke-batch-{index:02d}.json"
+            run_dir / f"guide-batch-{index:02d}.json"
             for index in range(args.batch)
         ]
         if existing != expected:
-            raise RuntimeError("smoke batches must run sequentially from 0")
-        selected = smoke_batch(config, suites["smoke"], args.batch)
+            raise RuntimeError("guide batches must run sequentially from 0")
+        selected = guide_batch(config, suites["guide"], args.batch)
     else:
-        result_path = run_dir / "practice.json"
-        report_path = run_dir / "practice.md"
+        result_path = run_dir / "required.json"
+        report_path = run_dir / "required.md"
         if result_path.exists() or report_path.exists():
-            raise RuntimeError("practice already ran for this frozen run")
-        selected = suites["practice"]
+            raise RuntimeError("required already ran for this frozen run")
+        selected = suites["required"]
 
     results = []
     with concurrent.futures.ThreadPoolExecutor(
@@ -549,10 +554,10 @@ def main():
             )
     results.sort(key=lambda value: (value["category"], value["case_id"]))
 
-    if args.suite == "smoke":
-        cumulative = existing_smoke_results(run_dir) + results
+    if args.suite == "guide":
+        cumulative = existing_guide_results(run_dir) + results
         cumulative_metrics = metrics(cumulative)
-        gate = smoke_gate(config, args.batch)
+        gate = guide_gate(config, args.batch)
         passed = all(
             cumulative_metrics[category]["rate"] >= gate[category]
             for category in CATEGORIES
@@ -561,7 +566,7 @@ def main():
         cumulative = results
         cumulative_metrics = metrics(cumulative)
         gate = {
-            category: config["practice"]["threshold"]
+            category: config["required"]["threshold"]
             for category in CATEGORIES
             if cumulative_metrics[category]["total"]
         }
@@ -575,7 +580,7 @@ def main():
         "batch": args.batch,
         "candidate": candidate_name,
         "candidate_sha256": candidate_hash,
-        "case_sha256": manifests[args.suite]["sha256"],
+        "case_total": manifests[args.suite]["total"],
         "tool_sha256": tool_hash,
         "model": model_config["model"],
         "gate": gate,

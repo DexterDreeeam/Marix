@@ -1,0 +1,37 @@
+{
+  "id": "inventory_transform_d2",
+  "category": "workflow_plan",
+  "depth": 2,
+  "family": "inventory_transform",
+  "overall_goal": "Finish planned workflow 014 and preserve its confirmed result.",
+  "ancestors": [
+    {
+      "goal": "Complete planning workflow 054 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Recursively list C:\\workflow400\\d2\\case-054\\src, collect the outlines of every Rust source file found there, then write a module inventory to C:\\workflow400\\d2\\case-054\\input-054.json.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Recursively list C:\\workflow400\\d2\\case-054\\src, collect the outlines of every Rust source file found there, then write a module inventory to C:\\workflow400\\d2\\case-054\\input-054.json.",
+  "completed_calls": [],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

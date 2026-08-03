@@ -1,0 +1,20 @@
+{
+  "id": "fetch_done_write_verify_d1",
+  "category": "workflow_plan",
+  "depth": 1,
+  "family": "fetch_done_write_verify",
+  "source": {
+    "kind": "synthetic",
+    "rationale": "balances completed_calls shape within the category"
+  },
+  "overall_goal": "Finish the multi-step workflow and later archive it.",
+  "ancestors": [],
+  "current_task": "Fetch https://example.org/data?case=613, write the result to C:\\workflow400\\d1\\case-613\\out.json, then confirm the file parses as JSON.",
+  "completed_calls": [
+    "list_directory (C:\\workflow400\\d1\\case-613):\nThe directory exists and is empty."
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

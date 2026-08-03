@@ -1,0 +1,22 @@
+{
+  "id": "download_hash_install_d1",
+  "category": "workflow_plan",
+  "depth": 1,
+  "family": "download_hash_install",
+  "overall_goal": "Finish planned workflow 005 and preserve its confirmed result.",
+  "ancestors": [],
+  "current_task": "Fetch the release metadata from https://example.org/status?case=017, obtain the named installer, verify its published SHA-256 value, install it, then report the installed version.",
+  "completed_calls": [],
+  "fail_plans": [
+    {
+      "goals": [
+        "Use unavailable source A for Git",
+        "Apply the result to C:\\workflow400\\d1\\case-017\\input-017.json"
+      ],
+      "reason": "Source A is permanently unavailable; a different source and sequence are required."
+    }
+  ],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

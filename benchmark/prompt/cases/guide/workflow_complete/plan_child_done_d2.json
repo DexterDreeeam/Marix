@@ -1,0 +1,39 @@
+{
+  "id": "plan_child_done_d2",
+  "category": "workflow_complete",
+  "depth": 2,
+  "family": "plan_child_done",
+  "overall_goal": "Finish evidence-backed workflow 025; parent archival may remain.",
+  "ancestors": [
+    {
+      "goal": "Complete completion workflow 198 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Confirm the generated report at C:\\workflow400\\d2\\case-198\\input-198.json contains version 1.18.2.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Confirm the generated report at C:\\workflow400\\d2\\case-198\\input-198.json contains version 1.18.2.",
+  "completed_calls": [
+    "read_file (C:\\workflow400\\d2\\case-198\\input-198.json):\n{\"version\":\"1.18.2\"}"
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_complete"
+  ]
+}

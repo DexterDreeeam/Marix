@@ -1,0 +1,17 @@
+{
+  "id": "deployment_ready_d1",
+  "category": "workflow_complete",
+  "depth": 1,
+  "family": "deployment_ready",
+  "overall_goal": "Finish evidence-backed workflow 018; parent archival may remain.",
+  "ancestors": [],
+  "current_task": "Deploy Git and confirm https://example.org/status?case=169 is ready.",
+  "completed_calls": [
+    "powershell (deploy Git):\nExit code: 0; service started.",
+    "web_fetch (https://example.org/status?case=169):\nHTTP 200; status=ready"
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_complete"
+  ]
+}

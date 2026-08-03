@@ -1,0 +1,22 @@
+{
+  "id": "search_count_report_d1",
+  "category": "workflow_plan",
+  "depth": 1,
+  "family": "search_count_report",
+  "overall_goal": "Finish planned workflow 018 and preserve its confirmed result.",
+  "ancestors": [],
+  "current_task": "Search C:\\workflow400\\d1\\case-069\\src for WorkflowSymbol069, read every matching file to distinguish definitions from references, then write both counts to C:\\workflow400\\d1\\case-069\\input-069.json.",
+  "completed_calls": [],
+  "fail_plans": [
+    {
+      "goals": [
+        "Use unavailable source A for PowerShell",
+        "Apply the result to C:\\workflow400\\d1\\case-069\\input-069.json"
+      ],
+      "reason": "Source A is permanently unavailable; a different source and sequence are required."
+    }
+  ],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "id": "search_count_report_d4",
+  "category": "workflow_plan",
+  "depth": 4,
+  "family": "search_count_report",
+  "overall_goal": "Finish planned workflow 018 and preserve its confirmed result.",
+  "ancestors": [
+    {
+      "goal": "Complete planning workflow 072 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Complete planning workflow 072 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete planning workflow 072 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 2",
+          "status": "completed",
+          "result": "Prerequisites for level 2 are confirmed."
+        },
+        {
+          "goal": "Complete planning workflow 072 at hierarchy level 3, including the delegated child and a later parent-only archival step.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 2",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 2):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete planning workflow 072 at hierarchy level 3, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 3",
+          "status": "completed",
+          "result": "Prerequisites for level 3 are confirmed."
+        },
+        {
+          "goal": "Search C:\\workflow400\\d4\\case-072\\src for WorkflowSymbol072, read every matching file to distinguish definitions from references, then write both counts to C:\\workflow400\\d4\\case-072\\input-072.json.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 3",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 3):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Search C:\\workflow400\\d4\\case-072\\src for WorkflowSymbol072, read every matching file to distinguish definitions from references, then write both counts to C:\\workflow400\\d4\\case-072\\input-072.json.",
+  "completed_calls": [],
+  "fail_plans": [
+    {
+      "goals": [
+        "Use unavailable source A for Rust",
+        "Apply the result to C:\\workflow400\\d4\\case-072\\input-072.json"
+      ],
+      "reason": "Source A is permanently unavailable; a different source and sequence are required."
+    }
+  ],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

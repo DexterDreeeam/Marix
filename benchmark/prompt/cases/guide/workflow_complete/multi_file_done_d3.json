@@ -1,0 +1,62 @@
+{
+  "id": "multi_file_done_d3",
+  "category": "workflow_complete",
+  "depth": 3,
+  "family": "multi_file_done",
+  "overall_goal": "Finish evidence-backed workflow 024; parent archival may remain.",
+  "ancestors": [
+    {
+      "goal": "Complete completion workflow 195 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Complete completion workflow 195 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete completion workflow 195 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 2",
+          "status": "completed",
+          "result": "Prerequisites for level 2 are confirmed."
+        },
+        {
+          "goal": "Write the same payload to C:\\workflow400\\d3\\case-195\\target-a.txt and C:\\workflow400\\d3\\case-195\\target-b.txt.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 2",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 2):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Write the same payload to C:\\workflow400\\d3\\case-195\\target-a.txt and C:\\workflow400\\d3\\case-195\\target-b.txt.",
+  "completed_calls": [
+    "write_file (C:\\workflow400\\d3\\case-195\\target-a.txt):\nSuccessfully wrote payload.",
+    "write_file (C:\\workflow400\\d3\\case-195\\target-b.txt):\nSuccessfully wrote payload."
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_complete"
+  ]
+}

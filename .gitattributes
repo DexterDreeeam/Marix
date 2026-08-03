@@ -1,6 +1,10 @@
 # Shell scripts must use LF so they run on the Linux server host.
 *.sh text eol=lf
 
+# The prompt benchmark is executed on the Linux server, so its cases and
+# scripts stay LF on checkout regardless of core.autocrlf.
+/benchmark/** text eol=lf
+
 # git-crypt: encrypt credential files under .credential/, but keep the
 # documentation and attribute files themselves in plaintext.
 /.credential/** filter=git-crypt diff=git-crypt

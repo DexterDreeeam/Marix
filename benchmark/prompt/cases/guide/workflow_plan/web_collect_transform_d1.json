@@ -1,0 +1,14 @@
+{
+  "id": "web_collect_transform_d1",
+  "category": "workflow_plan",
+  "depth": 1,
+  "family": "web_collect_transform",
+  "overall_goal": "Finish planned workflow 015 and preserve its confirmed result.",
+  "ancestors": [],
+  "current_task": "Fetch https://example.org/status?case=057 and https://compat.example/table?case=057, extract the release dates from both pages, normalize them to YYYY-MM-DD, then write the comparison to C:\\workflow400\\d1\\case-057\\input-057.json.",
+  "completed_calls": [],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

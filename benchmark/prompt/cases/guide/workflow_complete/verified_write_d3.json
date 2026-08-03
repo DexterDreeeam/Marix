@@ -1,0 +1,62 @@
+{
+  "id": "verified_write_d3",
+  "category": "workflow_complete",
+  "depth": 3,
+  "family": "verified_write",
+  "overall_goal": "Finish evidence-backed workflow 015; parent archival may remain.",
+  "ancestors": [
+    {
+      "goal": "Complete completion workflow 159 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Complete completion workflow 159 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete completion workflow 159 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 2",
+          "status": "completed",
+          "result": "Prerequisites for level 2 are confirmed."
+        },
+        {
+          "goal": "Write confirmed-value-159 to C:\\workflow400\\d3\\case-159\\input-159.json and verify its saved contents.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 2",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 2):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Write confirmed-value-159 to C:\\workflow400\\d3\\case-159\\input-159.json and verify its saved contents.",
+  "completed_calls": [
+    "write_file (C:\\workflow400\\d3\\case-159\\input-159.json):\nSuccessfully wrote 223 bytes.",
+    "read_file (C:\\workflow400\\d3\\case-159\\input-159.json):\nconfirmed-value-159"
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_complete"
+  ]
+}

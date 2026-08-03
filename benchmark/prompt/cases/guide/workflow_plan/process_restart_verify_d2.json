@@ -1,0 +1,37 @@
+{
+  "id": "process_restart_verify_d2",
+  "category": "workflow_plan",
+  "depth": 2,
+  "family": "process_restart_verify",
+  "overall_goal": "Finish planned workflow 013 and preserve its confirmed result.",
+  "ancestors": [
+    {
+      "goal": "Complete planning workflow 050 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Stop the registered process 00000000-0000-4000-8000-000000000050, start powershell.exe again with -NoProfile -Command Write-Output case-050, then read the new process output to confirm startup.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Stop the registered process 00000000-0000-4000-8000-000000000050, start powershell.exe again with -NoProfile -Command Write-Output case-050, then read the new process output to confirm startup.",
+  "completed_calls": [],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

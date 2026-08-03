@@ -1,0 +1,20 @@
+{
+  "id": "read_done_compare_report_d1",
+  "category": "workflow_plan",
+  "depth": 1,
+  "family": "read_done_compare_report",
+  "source": {
+    "kind": "synthetic",
+    "rationale": "balances completed_calls shape within the category"
+  },
+  "overall_goal": "Finish the multi-step workflow and later archive it.",
+  "ancestors": [],
+  "current_task": "Compare C:\\workflow400\\d1\\case-633\\left.json with C:\\workflow400\\d1\\case-633\\right.json and write the differences to diff.txt.",
+  "completed_calls": [
+    "read_file (C:\\workflow400\\d1\\case-633\\left.json):\nleft.json sets mode=safe and port=8633."
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

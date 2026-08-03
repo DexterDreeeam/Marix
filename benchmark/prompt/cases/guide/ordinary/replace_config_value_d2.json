@@ -1,0 +1,37 @@
+{
+  "id": "replace_config_value_d2",
+  "category": "ordinary",
+  "depth": 2,
+  "family": "replace_in_file",
+  "overall_goal": "Finish direct-operation workflow 023 and later archive its result.",
+  "ancestors": [
+    {
+      "goal": "Complete ordinary execution workflow 390 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Replace the exact configuration value port=3390 with port=8390 in C:\\workflow400\\d2\\case-390\\input-390.json.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Replace the exact configuration value port=3390 with port=8390 in C:\\workflow400\\d2\\case-390\\input-390.json.",
+  "completed_calls": [],
+  "fail_plans": [],
+  "expected_tools": [
+    "replace_in_file"
+  ]
+}

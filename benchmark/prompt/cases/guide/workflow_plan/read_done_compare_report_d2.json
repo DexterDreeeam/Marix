@@ -1,0 +1,43 @@
+{
+  "id": "read_done_compare_report_d2",
+  "category": "workflow_plan",
+  "depth": 2,
+  "family": "read_done_compare_report",
+  "source": {
+    "kind": "synthetic",
+    "rationale": "balances completed_calls shape within the category"
+  },
+  "overall_goal": "Finish the multi-step workflow and later archive it.",
+  "ancestors": [
+    {
+      "goal": "Complete workflow at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Compare C:\\workflow400\\d2\\case-634\\left.json with C:\\workflow400\\d2\\case-634\\right.json and write the differences to diff.txt.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Compare C:\\workflow400\\d2\\case-634\\left.json with C:\\workflow400\\d2\\case-634\\right.json and write the differences to diff.txt.",
+  "completed_calls": [
+    "read_file (C:\\workflow400\\d2\\case-634\\left.json):\nleft.json sets mode=safe and port=8634."
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

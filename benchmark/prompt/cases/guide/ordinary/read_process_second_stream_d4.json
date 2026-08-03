@@ -1,0 +1,87 @@
+{
+  "id": "read_process_second_stream_d4",
+  "category": "ordinary",
+  "depth": 4,
+  "family": "read_process_second_stream",
+  "source": {
+    "kind": "synthetic",
+    "rationale": "balances completed_calls shape within the category"
+  },
+  "overall_goal": "Finish the partial retrieval workflow and later archive it.",
+  "ancestors": [
+    {
+      "goal": "Complete workflow at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Report both the standard output and the exit status of registered process 00000000-0000-4000-8000-0000000532.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete workflow at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 2",
+          "status": "completed",
+          "result": "Prerequisites for level 2 are confirmed."
+        },
+        {
+          "goal": "Report both the standard output and the exit status of registered process 00000000-0000-4000-8000-0000000532.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 2",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 2):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete workflow at hierarchy level 3, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 3",
+          "status": "completed",
+          "result": "Prerequisites for level 3 are confirmed."
+        },
+        {
+          "goal": "Report both the standard output and the exit status of registered process 00000000-0000-4000-8000-0000000532.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 3",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 3):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Report both the standard output and the exit status of registered process 00000000-0000-4000-8000-0000000532.",
+  "completed_calls": [
+    "read_process_output (00000000-0000-4000-8000-0000000532):\nStandard output is 'build finished'. The exit status requested by this goal was not included in this read."
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "read_process_output"
+  ]
+}

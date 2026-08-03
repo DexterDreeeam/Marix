@@ -1,0 +1,51 @@
+{
+  "id": "child_done_parent_replanned_d2",
+  "category": "workflow_complete",
+  "depth": 2,
+  "family": "completed_child_replanned_from_parent_work",
+  "source": {
+    "kind": "telemetry",
+    "telemetry_key": "098446153288258912138544578473665883451",
+    "record_id": 1919,
+    "response_record_id": 1921,
+    "session_id": "84058293-7979-4c57-961b-2309d5618388",
+    "task_id": "08224041-9030-4138-bf83-ae4081eb2e44",
+    "observed_wrong_tool": "workflow_plan",
+    "observed_at": "2026-08-01T12:49:44.752+08:00"
+  },
+  "overall_goal": "先实际尝试访问故意不可达的 https://example.invalid/marix-e2e-primary，然后使用可访问的官方 RFC 来源和 Wikipedia 回退检索 HTTP 418。不得仅凭模型记忆。把结果写入 C:\\MarixE2E\\workspaces\\network-search-fallback\\result.json，字段必须是 topic、status_code、reason_phrase、rfc_number、published_date、primary_attempt_url、primary_attempt_failed、sources；reason_phrase 按 RFC 原文大小写记录，sources 每项包含 url、publisher、accessed_date。",
+  "ancestors": [
+    {
+      "goal": "先实际尝试访问故意不可达的 https://example.invalid/marix-e2e-primary，然后使用可访问的官方 RFC 来源和 Wikipedia 回退检索 HTTP 418。不得仅凭模型记忆。把结果写入 C:\\MarixE2E\\workspaces\\network-search-fallback\\result.json，字段必须是 topic、status_code、reason_phrase、rfc_number、published_date、primary_attempt_url、primary_attempt_failed、sources；reason_phrase 按 RFC 原文大小写记录，sources 每项包含 url、publisher、accessed_date。",
+      "plan": [
+        {
+          "goal": "实际尝试访问不可达的 https://example.invalid/marix-e2e-primary 并记录其失败状态",
+          "status": "completed",
+          "result": "Attempted to access https://example.invalid/marix-e2e-primary and confirmed it failed. The web_fetch call returned curl error: curl: (6) Could not resolve host: example.invalid (repeated 4 times). This confirms the URL is deliberately unreachable due to DNS resolution failure, recording primary_attempt_failed = true for the primary attempt."
+        },
+        {
+          "goal": "使用可访问的官方 RFC 来源检索 HTTP 418 的状态码定义、reason_phrase、rfc_number 和 published_date",
+          "status": "executing"
+        },
+        {
+          "goal": "在官方来源不可用或不足时使用 Wikipedia 作回退来源检索 HTTP 418",
+          "status": "pending"
+        },
+        {
+          "goal": "把检索结果连同 primary_attempt 记录写入 C:\\MarixE2E\\workspaces\\network-search-fallback\\result.json",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "使用可访问的官方 RFC 来源检索 HTTP 418 的状态码定义、reason_phrase、rfc_number 和 published_date",
+  "completed_calls": [
+    "web_fetch (https://www.rfc-editor.org/rfc/rfc2324.html):\nRFC 2324, published 1 April 1998, defines HTTP 418 status code with reason phrase 'I'm a teapot'. Section 2.3.2 states: \"Any attempt to brew coffee with a teapot should result in the error code \\\"418 I'm a teapot\\\". The resulting entity body MAY be short and stout.\" The document title is \"Hyper Text Coffee Pot Control Protocol (HTCPCP/1.0)\" by L. Masinter, Category: Informational."
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_complete"
+  ]
+}

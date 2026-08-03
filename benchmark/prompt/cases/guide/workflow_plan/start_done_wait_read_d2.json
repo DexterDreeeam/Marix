@@ -1,0 +1,43 @@
+{
+  "id": "start_done_wait_read_d2",
+  "category": "workflow_plan",
+  "depth": 2,
+  "family": "start_done_wait_read",
+  "source": {
+    "kind": "synthetic",
+    "rationale": "balances completed_calls shape within the category"
+  },
+  "overall_goal": "Finish the multi-step workflow and later archive it.",
+  "ancestors": [
+    {
+      "goal": "Complete workflow at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Start the worker in C:\\workflow400\\d2\\case-622\\worker.exe and then report the first line it writes.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Start the worker in C:\\workflow400\\d2\\case-622\\worker.exe and then report the first line it writes.",
+  "completed_calls": [
+    "read_file (C:\\workflow400\\d2\\case-622\\worker.cfg):\nThe worker configuration sets a 30 second startup delay."
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

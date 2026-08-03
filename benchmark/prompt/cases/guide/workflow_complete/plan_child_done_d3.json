@@ -1,0 +1,61 @@
+{
+  "id": "plan_child_done_d3",
+  "category": "workflow_complete",
+  "depth": 3,
+  "family": "plan_child_done",
+  "overall_goal": "Finish evidence-backed workflow 025; parent archival may remain.",
+  "ancestors": [
+    {
+      "goal": "Complete completion workflow 199 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Complete completion workflow 199 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete completion workflow 199 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 2",
+          "status": "completed",
+          "result": "Prerequisites for level 2 are confirmed."
+        },
+        {
+          "goal": "Confirm the generated report at C:\\workflow400\\d3\\case-199\\input-199.json contains version 2.19.3.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 2",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 2):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Confirm the generated report at C:\\workflow400\\d3\\case-199\\input-199.json contains version 2.19.3.",
+  "completed_calls": [
+    "read_file (C:\\workflow400\\d3\\case-199\\input-199.json):\n{\"version\":\"2.19.3\"}"
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_complete"
+  ]
+}

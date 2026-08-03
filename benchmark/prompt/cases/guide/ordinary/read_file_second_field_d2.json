@@ -1,0 +1,43 @@
+{
+  "id": "read_file_second_field_d2",
+  "category": "ordinary",
+  "depth": 2,
+  "family": "read_file_second_field",
+  "source": {
+    "kind": "synthetic",
+    "rationale": "balances completed_calls shape within the category"
+  },
+  "overall_goal": "Finish the partial retrieval workflow and later archive it.",
+  "ancestors": [
+    {
+      "goal": "Complete workflow at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Read C:\\workflow400\\d2\\case-502\\app.json and report both the listen port and the TLS certificate path.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Read C:\\workflow400\\d2\\case-502\\app.json and report both the listen port and the TLS certificate path.",
+  "completed_calls": [
+    "read_file (C:\\workflow400\\d2\\case-502\\app.json):\nThe file sets the listen port to 8443. The TLS certificate path requested by this goal is not present in the portion read."
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "read_file"
+  ]
+}

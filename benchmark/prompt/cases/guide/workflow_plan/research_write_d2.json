@@ -1,0 +1,37 @@
+{
+  "id": "research_write_d2",
+  "category": "workflow_plan",
+  "depth": 2,
+  "family": "research_write",
+  "overall_goal": "Finish planned workflow 001 and preserve its confirmed result.",
+  "ancestors": [
+    {
+      "goal": "Complete planning workflow 002 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Find the current stable Node.js version from its official release page and the independent Node.js compatibility index, reconcile the values, then write the confirmed version and date to C:\\workflow400\\d2\\case-002\\input-002.json.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Find the current stable Node.js version from its official release page and the independent Node.js compatibility index, reconcile the values, then write the confirmed version and date to C:\\workflow400\\d2\\case-002\\input-002.json.",
+  "completed_calls": [],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

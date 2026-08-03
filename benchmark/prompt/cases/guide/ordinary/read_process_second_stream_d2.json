@@ -1,0 +1,43 @@
+{
+  "id": "read_process_second_stream_d2",
+  "category": "ordinary",
+  "depth": 2,
+  "family": "read_process_second_stream",
+  "source": {
+    "kind": "synthetic",
+    "rationale": "balances completed_calls shape within the category"
+  },
+  "overall_goal": "Finish the partial retrieval workflow and later archive it.",
+  "ancestors": [
+    {
+      "goal": "Complete workflow at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Report both the standard output and the exit status of registered process 00000000-0000-4000-8000-0000000530.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Report both the standard output and the exit status of registered process 00000000-0000-4000-8000-0000000530.",
+  "completed_calls": [
+    "read_process_output (00000000-0000-4000-8000-0000000530):\nStandard output is 'build finished'. The exit status requested by this goal was not included in this read."
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "read_process_output"
+  ]
+}

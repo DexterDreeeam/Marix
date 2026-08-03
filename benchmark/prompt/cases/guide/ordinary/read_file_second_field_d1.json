@@ -1,0 +1,20 @@
+{
+  "id": "read_file_second_field_d1",
+  "category": "ordinary",
+  "depth": 1,
+  "family": "read_file_second_field",
+  "source": {
+    "kind": "synthetic",
+    "rationale": "balances completed_calls shape within the category"
+  },
+  "overall_goal": "Finish the partial retrieval workflow and later archive it.",
+  "ancestors": [],
+  "current_task": "Read C:\\workflow400\\d1\\case-501\\app.json and report both the listen port and the TLS certificate path.",
+  "completed_calls": [
+    "read_file (C:\\workflow400\\d1\\case-501\\app.json):\nThe file sets the listen port to 8443. The TLS certificate path requested by this goal is not present in the portion read."
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "read_file"
+  ]
+}

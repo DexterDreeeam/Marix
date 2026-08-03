@@ -1,0 +1,59 @@
+{
+  "id": "parent_path_answers_goal_d3",
+  "category": "workflow_complete",
+  "depth": 3,
+  "family": "parent_path_answers_goal",
+  "source": {
+    "kind": "synthetic",
+    "rationale": "balances completed_calls shape within the category"
+  },
+  "overall_goal": "Finish the workflow whose facts the parent already recorded.",
+  "ancestors": [
+    {
+      "goal": "Complete workflow at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Create the workspace for level 1",
+          "status": "completed",
+          "result": "The workspace for level 1 was created at C:\\workflow400\\d3\\case-707."
+        },
+        {
+          "goal": "Report the absolute path of the prepared workspace.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete workflow at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Create the workspace for level 2",
+          "status": "completed",
+          "result": "The workspace for level 2 was created at C:\\workflow400\\d3\\case-707."
+        },
+        {
+          "goal": "Report the absolute path of the prepared workspace.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 2",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Report the absolute path of the prepared workspace.",
+  "completed_calls": [],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_complete"
+  ]
+}

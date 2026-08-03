@@ -1,0 +1,59 @@
+{
+  "id": "parent_version_answers_goal_d3",
+  "category": "workflow_complete",
+  "depth": 3,
+  "family": "parent_version_answers_goal",
+  "source": {
+    "kind": "synthetic",
+    "rationale": "balances completed_calls shape within the category"
+  },
+  "overall_goal": "Finish the workflow whose facts the parent already recorded.",
+  "ancestors": [
+    {
+      "goal": "Complete workflow at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Inspect the package for level 1",
+          "status": "completed",
+          "result": "The package for level 1 declares version 4.715.0."
+        },
+        {
+          "goal": "Report the version that the prepared package declares.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete workflow at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Inspect the package for level 2",
+          "status": "completed",
+          "result": "The package for level 2 declares version 4.715.0."
+        },
+        {
+          "goal": "Report the version that the prepared package declares.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 2",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Report the version that the prepared package declares.",
+  "completed_calls": [],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_complete"
+  ]
+}

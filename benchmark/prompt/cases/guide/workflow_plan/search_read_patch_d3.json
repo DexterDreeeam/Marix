@@ -1,0 +1,59 @@
+{
+  "id": "search_read_patch_d3",
+  "category": "workflow_plan",
+  "depth": 3,
+  "family": "search_read_patch",
+  "overall_goal": "Finish planned workflow 010 and preserve its confirmed result.",
+  "ancestors": [
+    {
+      "goal": "Complete planning workflow 039 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Complete planning workflow 039 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete planning workflow 039 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 2",
+          "status": "completed",
+          "result": "Prerequisites for level 2 are confirmed."
+        },
+        {
+          "goal": "Search C:\\workflow400\\d3\\case-039\\src for the exact token WorkflowSymbol039, read the matching source file, replace the obsolete value 3039 with 8039, then confirm no old token remains.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 2",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 2):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Search C:\\workflow400\\d3\\case-039\\src for the exact token WorkflowSymbol039, read the matching source file, replace the obsolete value 3039 with 8039, then confirm no old token remains.",
+  "completed_calls": [],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

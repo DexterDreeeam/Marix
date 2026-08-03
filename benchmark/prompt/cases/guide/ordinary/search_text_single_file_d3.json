@@ -1,0 +1,59 @@
+{
+  "id": "search_text_single_file_d3",
+  "category": "ordinary",
+  "depth": 3,
+  "family": "search_text",
+  "overall_goal": "Finish direct-operation workflow 022 and later archive its result.",
+  "ancestors": [
+    {
+      "goal": "Complete ordinary execution workflow 387 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Complete ordinary execution workflow 387 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete ordinary execution workflow 387 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 2",
+          "status": "completed",
+          "result": "Prerequisites for level 2 are confirmed."
+        },
+        {
+          "goal": "Search the single file C:\\workflow400\\d3\\case-387\\input-387.json for WorkflowSymbol387, case-sensitive.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 2",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 2):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Search the single file C:\\workflow400\\d3\\case-387\\input-387.json for WorkflowSymbol387, case-sensitive.",
+  "completed_calls": [],
+  "fail_plans": [],
+  "expected_tools": [
+    "search_text"
+  ]
+}

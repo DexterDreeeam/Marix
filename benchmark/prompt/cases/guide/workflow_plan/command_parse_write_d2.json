@@ -1,0 +1,37 @@
+{
+  "id": "command_parse_write_d2",
+  "category": "workflow_plan",
+  "depth": 2,
+  "family": "command_parse_write",
+  "overall_goal": "Finish planned workflow 016 and preserve its confirmed result.",
+  "ancestors": [
+    {
+      "goal": "Complete planning workflow 062 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Run the PowerShell command Get-Item 'C:\\workflow400\\case-062.txt' | Select-Object Name,Length, parse the returned version and architecture, then write those two values as JSON to C:\\workflow400\\d2\\case-062\\input-062.json.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Run the PowerShell command Get-Item 'C:\\workflow400\\case-062.txt' | Select-Object Name,Length, parse the returned version and architecture, then write those two values as JSON to C:\\workflow400\\d2\\case-062\\input-062.json.",
+  "completed_calls": [],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

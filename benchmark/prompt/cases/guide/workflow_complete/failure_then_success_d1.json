@@ -1,0 +1,17 @@
+{
+  "id": "failure_then_success_d1",
+  "category": "workflow_complete",
+  "depth": 1,
+  "family": "failure_then_success",
+  "overall_goal": "Finish evidence-backed workflow 022; parent archival may remain.",
+  "ancestors": [],
+  "current_task": "Fetch https://example.org/status?case=185 and return its response body.",
+  "completed_calls": [
+    "web_fetch (https://example.org/status?case=185):\nFirst attempt timed out.",
+    "web_fetch (https://example.org/status?case=185 retry):\nHTTP 200\nconfirmed-value-185"
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_complete"
+  ]
+}

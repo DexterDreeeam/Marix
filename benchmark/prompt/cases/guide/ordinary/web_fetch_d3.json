@@ -1,0 +1,59 @@
+{
+  "id": "web_fetch_d3",
+  "category": "ordinary",
+  "depth": 3,
+  "family": "web_fetch",
+  "overall_goal": "Finish direct-operation workflow 003 and later archive its result.",
+  "ancestors": [
+    {
+      "goal": "Complete ordinary execution workflow 311 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Complete ordinary execution workflow 311 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    },
+    {
+      "goal": "Complete ordinary execution workflow 311 at hierarchy level 2, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 2",
+          "status": "completed",
+          "result": "Prerequisites for level 2 are confirmed."
+        },
+        {
+          "goal": "Fetch https://docs.example/versions?case=311 and return the page content.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 2",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 2):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Fetch https://docs.example/versions?case=311 and return the page content.",
+  "completed_calls": [],
+  "fail_plans": [],
+  "expected_tools": [
+    "web_fetch"
+  ]
+}

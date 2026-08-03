@@ -1,0 +1,45 @@
+{
+  "id": "download_hash_install_d2",
+  "category": "workflow_plan",
+  "depth": 2,
+  "family": "download_hash_install",
+  "overall_goal": "Finish planned workflow 005 and preserve its confirmed result.",
+  "ancestors": [
+    {
+      "goal": "Complete planning workflow 018 at hierarchy level 1, including the delegated child and a later parent-only archival step.",
+      "plan": [
+        {
+          "goal": "Prepare prerequisites for hierarchy level 1",
+          "status": "completed",
+          "result": "Prerequisites for level 1 are confirmed."
+        },
+        {
+          "goal": "Fetch the release metadata from https://vendor.example/downloads?case=018, obtain the named installer, verify its published SHA-256 value, install it, then report the installed version.",
+          "status": "executing"
+        },
+        {
+          "goal": "Archive the parent-level result for level 1",
+          "status": "pending"
+        }
+      ],
+      "completed_calls": [
+        "powershell (prepare hierarchy level 1):\nExit code: 0; prerequisites ready."
+      ],
+      "fail_plans": []
+    }
+  ],
+  "current_task": "Fetch the release metadata from https://vendor.example/downloads?case=018, obtain the named installer, verify its published SHA-256 value, install it, then report the installed version.",
+  "completed_calls": [],
+  "fail_plans": [
+    {
+      "goals": [
+        "Use unavailable source A for Node.js",
+        "Apply the result to C:\\workflow400\\d2\\case-018\\input-018.json"
+      ],
+      "reason": "Source A is permanently unavailable; a different source and sequence are required."
+    }
+  ],
+  "expected_tools": [
+    "workflow_plan"
+  ]
+}

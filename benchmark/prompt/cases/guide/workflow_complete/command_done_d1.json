@@ -1,0 +1,16 @@
+{
+  "id": "command_done_d1",
+  "category": "workflow_complete",
+  "depth": 1,
+  "family": "command_done",
+  "overall_goal": "Finish evidence-backed workflow 008; parent archival may remain.",
+  "ancestors": [],
+  "current_task": "Run Get-Item 'C:\\workflow400\\case-129.txt' | Select-Object Name,Length and return its output.",
+  "completed_calls": [
+    "powershell (Get-Item 'C:\\workflow400\\case-129.txt' | Select-Object Name,Length):\nExit code: 0\nOutput: confirmed-value-129"
+  ],
+  "fail_plans": [],
+  "expected_tools": [
+    "workflow_complete"
+  ]
+}
