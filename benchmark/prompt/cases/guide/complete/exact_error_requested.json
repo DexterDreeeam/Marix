@@ -1,0 +1,23 @@
+{
+  "id": "exact_error_requested",
+  "stage": "complete",
+  "intent": "Return the exact error from the command.",
+  "plan": [],
+  "subintent_results": [],
+  "tool_calls": [
+    {
+      "tool": "command_prompt",
+      "arguments": "restricted.exe",
+      "result": "exit code 5; stderr: Access is denied."
+    }
+  ],
+  "failed_plans": [],
+  "tool_call_count": 1,
+  "expected": {
+    "decision": "complete",
+    "summary_contains": [
+      "Access is denied",
+      "exit code 5"
+    ]
+  }
+}

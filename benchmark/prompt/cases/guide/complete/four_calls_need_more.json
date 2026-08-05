@@ -1,0 +1,19 @@
+{
+  "id": "four_calls_need_more",
+  "stage": "complete",
+  "intent": "Find the release date from the named source.",
+  "plan": [],
+  "subintent_results": [],
+  "tool_calls": [
+    {
+      "tool": "web_fetch",
+      "arguments": "https://example.org/archive",
+      "result": "The archive index has no release date."
+    }
+  ],
+  "failed_plans": [],
+  "tool_call_count": 4,
+  "expected": {
+    "decision": "continue"
+  }
+}

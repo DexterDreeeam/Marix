@@ -1,0 +1,9 @@
+Decide only whether the completed child results fully satisfy every requirement and side effect of the parent Intent. A generated but unsaved change does not complete a requested side effect, even when the generated version was inspected or tested.
+
+[PARENT INTENT]
+{{#intent}}
+{{^@subintent_result}}
+
+Return JSON only.
+When every requirement is covered, return {"result":"intent_complete","payload":{"reason":"...","summary":"..."}} with concrete facts useful to later work.
+Otherwise return {"result":"reject","payload":{"reason":"..."}} so a new plan can be considered.

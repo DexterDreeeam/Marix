@@ -1,0 +1,16 @@
+{
+  "id": "permanent_requirement_block",
+  "stage": "replan",
+  "intent": "Sign the artifact using the only permitted destroyed key.",
+  "plan": [],
+  "subintent_results": [],
+  "tool_calls": [],
+  "failed_plans": [
+    "The permitted key was destroyed.",
+    "Policy forbids every other signing key."
+  ],
+  "tool_call_count": null,
+  "expected": {
+    "decision": "infeasible_review"
+  }
+}

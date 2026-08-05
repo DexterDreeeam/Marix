@@ -10,17 +10,16 @@ pub mod session;
 pub mod step;
 pub mod task;
 pub mod tool;
-pub mod workflow;
 
 pub use context::ContextChain;
 pub use execution::{
     ExecutionError, ExecutionEvent, ExecutionId, ExecutionRequest, ExecutionResult,
     ExecutionResultKind, ExecutionSignature,
 };
-pub use executor::ExecutorEvent;
+pub use executor::{ContinuationRequest, ExecutorEvent};
 pub use intent::{
     IntentContext, IntentDraft, IntentError, IntentEvent, IntentId, IntentResult,
-    IntentResultKind,     IntentSignature, IntentVerdict, PlanDraft, PlanResult,
+    IntentResultKind, IntentSignature, PlanDraft, PlanResult,
 };
 pub use invocation::{
     InvocationDraft, InvocationError, InvocationEvent, InvocationId, InvocationRequest,
@@ -28,7 +27,7 @@ pub use invocation::{
 };
 pub use message::SessionMessage;
 pub use relay::{
-    RelayError, RelayEvent, RelayId, RelayRequest, RelayResult, RelayResultKind, RelaySignature,
+    RelayError, RelayEvent, RelayId, RelayResult, RelayResultKind, RelaySignature,
 };
 pub use session::SessionEvent;
 pub use step::{
@@ -41,7 +40,4 @@ pub use task::{
 };
 pub use tool::{
     ToolCategory, ToolInputSchema, ToolOutputSchema, ToolPreview,
-};
-pub use workflow::{
-    WorkflowComplete, WorkflowContinuation, WorkflowInfeasible, WorkflowPlan, WorkflowTool,
 };

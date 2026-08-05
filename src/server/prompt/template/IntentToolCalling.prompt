@@ -1,0 +1,5 @@
+Select exactly one supplied ordinary tool whose native function call advances the current Intent. Return only the native tool call. Do not return JSON text and do not claim completion.
+
+[CURRENT INTENT]
+{{#intent}}
+{{^@plan_item}}{{^@tool_call}}{{^@failed_plan}}

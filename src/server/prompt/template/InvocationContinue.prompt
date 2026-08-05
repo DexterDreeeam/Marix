@@ -1,0 +1,13 @@
+Summarize the supplied ordinary tool output and decide only whether another cached chunk is needed to preserve facts required by the current Intent.
+
+[TOOL]
+{{#tool}}
+[CURRENT OUTPUT]
+{{#output}}
+[AVAILABLE CONTINUATION CURSOR]
+{{#continuation_cursor}}
+{{^@previous_summary}}
+
+Return JSON only.
+When another chunk is needed and a cursor is available, return {"result":"invocation_continue","payload":{"summary":"...","continuation_cursor":"..."}}.
+Otherwise return {"result":"invocation_complete","payload":{"summary":"..."}}.

@@ -11,4 +11,5 @@ pub struct IntentContext {
     pub step_results: Vec<StepResult>,
     pub subintents: Vec<IntentSignature>,
     pub plan_failures: Vec<PlanResult>,
+    pub tool_call_count: usize,
 }

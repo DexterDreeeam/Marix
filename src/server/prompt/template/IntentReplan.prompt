@@ -1,0 +1,9 @@
+Decide only whether a materially different feasible plan exists after the prior plan failed. Preserve completed facts and do not repeat a failed plan.
+
+[CURRENT INTENT]
+{{#intent}}
+{{^@plan_item}}{{^@tool_call}}{{^@failed_plan}}
+
+Return JSON only.
+When a new plan exists, return {"result":"plan","payload":{"reason":"...","subintents":["..."]}}.
+Otherwise return {"result":"reject","payload":{"reason":"..."}} so infeasibility can be judged separately.

@@ -1,0 +1,15 @@
+{
+  "name": "next-stage-user-json-mode",
+  "style": "next_stage",
+  "contract_role": "user",
+  "json_mode": true,
+  "system": "You control exactly one execution stage of one Intent. Evaluate only the supplied Intent state and the named stage. Do not perform work from a later stage. Follow the stage output protocol exactly.",
+  "stage_prompts": {
+    "planning": "[PlanningStage]\nChoose `subintent_iteration` when at least two distinct operations, dependent stages, or independent targets require a Plan. Choose `tool_calling` when one ordinary tool invocation advances the goal.\nReturn JSON only: {\"next_stage\":\"subintent_iteration|tool_calling\",\"reason\":\"...\",\"subintents\":[{\"goal\":\"...\"}]}",
+    "tool_calling": "[ToolCallingStage]\nSelect exactly one supplied ordinary tool whose single invocation advances the current Intent. Return only its native function call. Do not return JSON text and do not claim completion.",
+    "replan": "[ReplanStage]\nChoose `subintent_iteration` with a materially different Plan when a feasible alternative exists. Otherwise choose `infeasible_review`.\nReturn JSON only: {\"next_stage\":\"subintent_iteration|infeasible_review\",\"reason\":\"...\",\"subintents\":[{\"goal\":\"...\"}]}",
+    "infeasible": "[InfeasibleStage]\nChoose `infeasible` only for a permanent blocker with no remaining path. Otherwise choose `tool_calling`.\nReturn JSON only: {\"next_stage\":\"infeasible|tool_calling\",\"reason\":\"...\"}",
+    "subintent_complete": "[SubIntentCompleteStage]\nChoose `complete` only when child results cover every parent requirement; otherwise choose `replan`. Preserve useful facts.\nReturn JSON only: {\"next_stage\":\"complete|replan\",\"reason\":\"...\",\"context_summary\":\"...\"}",
+    "complete": "[CompleteStage]\nChoose `complete` only when tool results cover every Intent requirement; otherwise choose `tool_calling`. Preserve useful facts.\nReturn JSON only: {\"next_stage\":\"complete|tool_calling\",\"reason\":\"...\",\"summary\":\"...\"}"
+  }
+}

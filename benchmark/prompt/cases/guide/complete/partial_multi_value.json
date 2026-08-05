@@ -1,0 +1,19 @@
+{
+  "id": "partial_multi_value",
+  "stage": "complete",
+  "intent": "Return host, port, and protocol.",
+  "plan": [],
+  "subintent_results": [],
+  "tool_calls": [
+    {
+      "tool": "read_file",
+      "arguments": "C:\\work\\endpoint.json",
+      "result": "Host is api.example.org and port is 8443; protocol is absent."
+    }
+  ],
+  "failed_plans": [],
+  "tool_call_count": 2,
+  "expected": {
+    "decision": "continue"
+  }
+}

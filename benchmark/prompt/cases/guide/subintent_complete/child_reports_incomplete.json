@@ -1,0 +1,22 @@
+{
+  "id": "child_reports_incomplete",
+  "stage": "subintent_complete",
+  "intent": "Patch and verify the parser.",
+  "plan": [],
+  "subintent_results": [
+    {
+      "goal": "Patch parser",
+      "result": "Patch applied."
+    },
+    {
+      "goal": "Verify parser",
+      "result": "Verification was not run."
+    }
+  ],
+  "tool_calls": [],
+  "failed_plans": [],
+  "tool_call_count": null,
+  "expected": {
+    "decision": "replan"
+  }
+}

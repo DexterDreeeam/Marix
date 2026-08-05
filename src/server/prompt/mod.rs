@@ -5,5 +5,3 @@ pub mod prompt;
 pub use error::PromptError;
 pub use profile::PromptProfile;
 pub use prompt::Prompt;
-
-pub(crate) use profile::ToolCallSummary;

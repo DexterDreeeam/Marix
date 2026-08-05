@@ -1,0 +1,19 @@
+{
+  "id": "retryable_command_failure",
+  "stage": "infeasible",
+  "intent": "Run the known command and return its output.",
+  "plan": [],
+  "subintent_results": [],
+  "tool_calls": [
+    {
+      "tool": "command_prompt",
+      "arguments": "build.cmd",
+      "result": "Temporary file lock; retry is allowed."
+    }
+  ],
+  "failed_plans": [],
+  "tool_call_count": null,
+  "expected": {
+    "decision": "continue"
+  }
+}

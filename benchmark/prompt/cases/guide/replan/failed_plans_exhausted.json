@@ -1,0 +1,16 @@
+{
+  "id": "failed_plans_exhausted",
+  "stage": "replan",
+  "intent": "Recover the deleted encryption key.",
+  "plan": [],
+  "subintent_results": [],
+  "tool_calls": [],
+  "failed_plans": [
+    "The only key was destroyed.",
+    "No backup, escrow, or recovery path exists."
+  ],
+  "tool_call_count": null,
+  "expected": {
+    "decision": "infeasible_review"
+  }
+}

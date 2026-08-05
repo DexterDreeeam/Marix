@@ -1,0 +1,15 @@
+{
+  "name": "union-user-prompt-only",
+  "style": "union",
+  "contract_role": "user",
+  "json_mode": false,
+  "system": "You control exactly one execution stage of one Intent. Evaluate only the supplied Intent state and the named stage. Do not perform work from a later stage. Follow the stage output protocol exactly.",
+  "stage_prompts": {
+    "planning": "[PlanningStage]\nDecide whether the Intent needs child Intents. Use `plan` only when the goal contains at least two distinct operations, dependent stages, or independent targets. Use `tool_calling` when one ordinary tool invocation can advance the whole goal.\nReturn JSON only. Plan: {\"decision\":\"plan\",\"reason\":\"...\",\"subintents\":[{\"goal\":\"...\"}]}. Direct execution: {\"decision\":\"tool_calling\",\"reason\":\"...\"}",
+    "tool_calling": "[ToolCallingStage]\nSelect exactly one supplied ordinary tool whose single invocation advances the current Intent. Return only its native function call. Do not return JSON text and do not claim completion.",
+    "replan": "[ReplanStage]\nThe prior Plan contains an infeasible child. Use `replan` only when a materially different feasible Plan exists; preserve completed facts and do not repeat a failed Plan. Otherwise use `infeasible_review` so a separate stage can judge final infeasibility.\nReturn JSON only. Replan: {\"decision\":\"replan\",\"reason\":\"...\",\"subintents\":[{\"goal\":\"...\"}]}. Review infeasibility: {\"decision\":\"infeasible_review\",\"reason\":\"...\"}",
+    "infeasible": "[InfeasibleStage]\nDecide whether a permanent blocker makes this Intent impossible. Use `continue` for an untried tool, uninspected input, retryable error, or any remaining execution path. Use `infeasible` only when no feasible path exists.\nReturn JSON only: {\"decision\":\"continue|infeasible\",\"reason\":\"...\"}",
+    "subintent_complete": "[SubIntentCompleteStage]\nJudge whether all completed child results fully satisfy this parent Intent. Use `complete` only when every requirement and side effect is covered; return a context summary containing concrete facts useful to later Plans. Otherwise use `replan`.\nReturn JSON only: {\"decision\":\"complete|replan\",\"reason\":\"...\",\"context_summary\":\"...\"}",
+    "complete": "[CompleteStage]\nJudge whether the ordinary tool results fully satisfy every current Intent requirement. Use `complete` only when all facts and side effects are present; preserve concrete values in the summary. Otherwise use `continue` and summarize what the latest call added.\nReturn JSON only: {\"decision\":\"complete|continue\",\"reason\":\"...\",\"summary\":\"...\"}"
+  }
+}

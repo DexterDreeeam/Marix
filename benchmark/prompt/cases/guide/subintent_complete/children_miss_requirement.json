@@ -1,0 +1,22 @@
+{
+  "id": "children_miss_requirement",
+  "stage": "subintent_complete",
+  "intent": "Collect both version and release date, then save them.",
+  "plan": [],
+  "subintent_results": [
+    {
+      "goal": "Collect release facts",
+      "result": "Version is 1.97.1; date was not found."
+    },
+    {
+      "goal": "Save report",
+      "result": "No report written because date is missing."
+    }
+  ],
+  "tool_calls": [],
+  "failed_plans": [],
+  "tool_call_count": null,
+  "expected": {
+    "decision": "replan"
+  }
+}

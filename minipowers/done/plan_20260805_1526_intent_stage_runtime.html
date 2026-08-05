@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="minipowers-plan-version" content="1">
+  <meta name="minipowers-plan-status" content="done">
+  <title>Intent stage runtime migration</title>
+  <style>
+    :root { color-scheme: light; --ink:#172033; --muted:#5d687c; --line:#d9dfeb; --paper:#fff; --canvas:#eef2f8; --accent:#2457d6; --modify:#fff3c4; --create:#dff7e7; --delete:#ffe1e1; font-family:Inter,"Segoe UI",Arial,sans-serif; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:var(--canvas); }
+    main { padding:28px 0; }
+    .page { width:min(277mm,calc(100vw - 32px)); min-height:190mm; margin:0 auto 28px; padding:12mm; background:var(--paper); box-shadow:0 12px 36px rgb(38 49 74 / 12%); }
+    h1 { margin:0 0 8px; font-size:26px; }
+    h2 { margin:19px 0 8px; font-size:17px; color:var(--accent); }
+    h3 { margin:0 0 7px; font-size:14px; }
+    p,li,td,th { font-size:11.5px; line-height:1.45; }
+    .meta { color:var(--muted); font-size:11px; }
+    .summary { padding:10px 12px; border-left:4px solid var(--accent); background:#f4f7ff; }
+    .architecture { overflow:hidden; padding:10px; border:1px solid var(--line); border-radius:10px; }
+    .architecture svg { display:block; width:100%; height:auto; }
+    .legend { display:flex; gap:10px; margin-top:7px; color:var(--muted); font-size:10px; }
+    .tag { display:inline-block; padding:2px 7px; border-radius:999px; font-weight:700; }
+    .tag.modify { background:var(--modify); } .tag.create { background:var(--create); } .tag.delete { background:var(--delete); }
+    table { width:100%; border-collapse:collapse; }
+    th,td { padding:6px; vertical-align:top; border:1px solid var(--line); text-align:left; }
+    th { background:#f5f7fb; }
+    code,pre { font-family:Consolas,"Courier New",monospace; }
+    pre { overflow-wrap:anywhere; white-space:pre-wrap; margin:4px 0; font-size:9.5px; }
+    .change-item { margin:0 0 8px; padding:9px; border:1px solid var(--line); border-radius:9px; break-inside:avoid; }
+    .change-head { display:flex; align-items:center; gap:7px; margin-bottom:6px; }
+    .change-grid { display:grid; grid-template-columns:95px 1fr; gap:4px 8px; }
+    .change-grid dt { color:var(--muted); font-size:10.5px; font-weight:700; }
+    .change-grid dd { margin:0; font-size:10.5px; line-height:1.4; }
+    .interfaces col.id { width:5%; } .interfaces col.location { width:19%; } .interfaces col.impact { width:25%; } .interfaces col.definition { width:51%; }
+    @page { size:A4 landscape; margin:0; }
+    @media print { body{background:#fff} main{padding:0}.page{width:297mm;min-height:210mm;margin:0;box-shadow:none;break-after:page}.page:last-child{break-after:auto} }
+  </style>
+</head>
+<body>
+<main data-minipowers-plan data-plan-id="plan_20260805_1526_intent_stage_runtime">
+  <section class="page" data-page="overview">
+    <header>
+      <h1>Intent stage runtime migration</h1>
+      <div class="meta">生成时间：<time datetime="2026-08-05T15:26:27+08:00">2026-08-05 15:26 UTC+08:00</time></div>
+      <p class="summary">用七种代码级 StageType 和各 Stage 独立的 Result JSON 替代 workflow tools；IntentRuntime 负责六种 Intent stage，InvocationRuntime 独立负责 continuation，StageAssembler 集中装配所有模型 prompt。</p>
+    </header>
+
+    <section data-section="goals">
+      <h2>目标</h2>
+      <ol>
+        <li>建立代码级 stage 状态机
+          <ol>
+            <li>Intent：Planning、ToolCalling、Replan、Infeasible、SubIntentComplete、Complete。</li>
+            <li>Invocation：Continue；不再伪装为 tool invocation。</li>
+          </ol>
+        </li>
+        <li>移除模型可见及隐藏的 workflow tool 类型；模型只看到 ordinary tools。</li>
+        <li>每个 stage 使用独立 template 和独立 Result schema；template 内容不暴露 Rust stage 类型名，只有 ToolCalling 返回 native tool call。</li>
+        <li>保持相同 ordinary tool schema 前缀；非 ToolCalling stage 使用 tool_choice none，ToolCalling 使用 required。</li>
+      </ol>
+    </section>
+
+    <section data-section="architecture">
+      <h2>修改范围架构图</h2>
+      <div class="architecture">
+        <svg viewBox="0 0 920 300" role="img" aria-labelledby="arch-title arch-desc">
+          <title id="arch-title">Stage 驱动架构</title>
+          <desc id="arch-desc">Intent 和 Invocation 通过 StageAssembler 创建 Relay；Host continuation 使用内部事件协议。</desc>
+          <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#5d687c"/></marker></defs>
+          <rect x="20" y="25" width="210" height="110" rx="12" fill="#fff3c4" stroke="#d39b00" stroke-width="3"/>
+          <text x="125" y="55" text-anchor="middle" font-size="14" font-weight="700">[修改] IntentRuntime</text>
+          <text x="125" y="80" text-anchor="middle" font-size="11">run_stage · 状态迁移</text>
+          <text x="125" y="101" text-anchor="middle" font-size="11">Plan / Step / 4-call gate</text>
+          <text x="125" y="122" text-anchor="middle" font-size="11" fill="#2457d6">[接口] StageType / StageResult</text>
+          <rect x="20" y="170" width="210" height="95" rx="12" fill="#fff3c4" stroke="#d39b00" stroke-width="3"/>
+          <text x="125" y="200" text-anchor="middle" font-size="14" font-weight="700">[修改] InvocationRuntime</text>
+          <text x="125" y="226" text-anchor="middle" font-size="11">InvocationContinue</text>
+          <text x="125" y="248" text-anchor="middle" font-size="11">summary + cursor</text>
+          <line x1="230" y1="80" x2="315" y2="120" stroke="#5d687c" stroke-width="2" marker-end="url(#arrow)"/>
+          <line x1="230" y1="215" x2="315" y2="165" stroke="#5d687c" stroke-width="2" marker-end="url(#arrow)"/>
+          <rect x="320" y="70" width="245" height="135" rx="12" fill="#dff7e7" stroke="#2d9b58" stroke-width="3"/>
+          <text x="442" y="101" text-anchor="middle" font-size="14" font-weight="700">[新增] server/stage</text>
+          <text x="442" y="127" text-anchor="middle" font-size="11">StageAssembler</text>
+          <text x="442" y="149" text-anchor="middle" font-size="11">context · inject · system · tools</text>
+          <text x="442" y="174" text-anchor="middle" font-size="11" fill="#2457d6">[接口] StageType / XxxStageResult</text>
+          <line x1="565" y1="137" x2="635" y2="137" stroke="#5d687c" stroke-width="2" marker-end="url(#arrow)"/>
+          <rect x="640" y="30" width="255" height="110" rx="12" fill="#fff3c4" stroke="#d39b00" stroke-width="3"/>
+          <text x="767" y="58" text-anchor="middle" font-size="14" font-weight="700">[修改] Relay / Model</text>
+          <text x="767" y="83" text-anchor="middle" font-size="11">StageJson / ToolMandatory</text>
+          <text x="767" y="104" text-anchor="middle" font-size="11">JSON 或 native tool call</text>
+          <text x="767" y="125" text-anchor="middle" font-size="11">ordinary tools 始终存在</text>
+          <rect x="640" y="175" width="255" height="90" rx="12" fill="#fff3c4" stroke="#d39b00" stroke-width="3"/>
+          <text x="767" y="204" text-anchor="middle" font-size="14" font-weight="700">[修改] Host Executor</text>
+          <text x="767" y="229" text-anchor="middle" font-size="11">ContinuationRequest → cache.pick</text>
+          <text x="767" y="249" text-anchor="middle" font-size="11">InvocationEvent 直接回传</text>
+          <line x1="565" y1="170" x2="640" y2="215" stroke="#5d687c" stroke-width="2" marker-end="url(#arrow)"/>
+        </svg>
+        <div class="legend"><span class="tag modify">修改</span><span class="tag create">新增</span><span class="tag delete">删除</span><span>[接口] 表示最终数据/函数定义</span></div>
+      </div>
+    </section>
+
+    <section data-section="interfaces">
+      <h2>接口改动</h2>
+      <table class="interfaces">
+        <colgroup><col class="id"><col class="location"><col class="impact"><col class="definition"></colgroup>
+        <thead><tr><th>ID</th><th>位置</th><th>调用方影响</th><th>最终定义</th></tr></thead>
+        <tbody>
+          <tr data-interface-id="I01"><td>I01</td><td><code>server/stage/type.rs</code></td><td>IntentRuntime 使用前六项；InvocationRuntime 只使用最后一项。名称只在代码中出现，prompt 内容不显示。</td><td><pre><code>pub(crate) enum StageType {
+    IntentPlanning,
+    IntentToolCalling,
+    IntentReplan,
+    IntentInfeasible,
+    IntentSubintentComplete,
+    IntentComplete,
+    InvocationContinue,
+}</code></pre></td></tr>
+          <tr data-interface-id="I02"><td>I02</td><td><code>server/stage/result.rs</code></td><td>Result 按结果语义命名并跨 Stage 复用。Plan/Infeasible/Complete 表示当前问题成立；通用 Reject 仅表示当前问题不成立，后继 Stage 由 runtime 决定，不由模型选择。</td><td><pre><code>pub(crate) struct PlanStageResult {
+    pub reason: String,
+    pub subintents: Vec&lt;IntentDraft&gt;,
+}
+pub(crate) struct RejectStageResult {
+    pub reason: String,
+}
+pub(crate) struct InfeasibleStageResult {
+    pub reason: String,
+}
+pub(crate) struct IntentCompleteStageResult {
+    pub reason: String,
+    pub summary: String,
+}
+pub(crate) struct InvocationContinueStageResult {
+    pub summary: String,
+    pub continuation_cursor: String,
+}
+pub(crate) struct InvocationCompleteStageResult {
+    pub summary: String,
+}
+
+#[serde(
+    tag = "result",
+    content = "payload",
+    rename_all = "snake_case"
+)]
+pub(crate) enum StageResult {
+    Plan(PlanStageResult),
+    Reject(RejectStageResult),
+    Infeasible(InfeasibleStageResult),
+    IntentComplete(IntentCompleteStageResult),
+    InvocationContinue(InvocationContinueStageResult),
+    InvocationComplete(InvocationCompleteStageResult),
+    NativeToolCalls(StepDraft),
+}</code></pre></td></tr>
+                    <tr data-interface-id="I03"><td>I03</td><td><code>server/stage/parameter.rs</code></td><td>required 由 StageType 定义；repeatable 与 pack_tag 由 template marker/module 层级推导。runtime 只按 name inject；同 pack_tag 的参数按注入序号 zip 成记录组。</td><td><pre><code>#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct PromptParameter {
+              pub name: String,
+              pub required: bool,
+              pub repeatable: bool,
+              pub pack_tag: String,
+}
+pub(crate) struct PromptInjection {
+              pub value: String,
+              pub tag: Option&lt;String&gt;,
+}
+
+// Marker 到字段的推导：
+// {{#intent}}                  repeatable=false, pack_tag=""
+// {{^#plan_goal}} inside
+// {{^@plan_item}}              repeatable=true, pack_tag="plan_item"
+// {{^#plan_status}} inside
+// {{^@plan_item}}              repeatable=true, pack_tag="plan_item"
+// {{^#plan_result}} inside
+// {{^@plan_item}}              repeatable=true, pack_tag="plan_item"
+// {{^#failed_plan}} outside
+// repeatable module            repeatable=true, pack_tag="failed_plan"
+// tool_call_count       optional, single, pack_tag=""
+//
+// InvocationContinue 参数定义：
+// tool                   required, single, pack_tag=""
+// output                 required, single, pack_tag=""
+// continuation_cursor    optional, single, pack_tag=""
+// previous_summary inside {{^@previous_summary_item}}
+//                      optional, repeatable,
+//                      pack_tag="previous_summary_item"</code></pre></td></tr>
+                    <tr data-interface-id="I04"><td>I04</td><td><code>server/prompt/prompt.rs</code></td><td>Stage template 可以引用 module；module 文件只能包含 text/parameter，禁止再次引用任何 module。解析阶段建立全局参数所有权，名字冲突立即 panic。</td><td><pre><code>pub(crate) enum PromptMarker {
+    Parameter { name: String, repeatable: bool },
+    Module { name: String, repeatable: bool },
+}
+
+// 支持的 marker：
+// {{#name}}   {{^#name}}
+// {{@module}} {{^@module}}
+
+// 约束：
+// - module 从 prompt/module/&lt;name&gt;.prompt 加载；
+// - 只有 prompt/template 下的 template 可以包含
+//   {{@...}}/{{^@...}}；
+// - module 内出现任何 module marker 立即 panic；
+// - template 外部参数、不同 module 参数之间 name 冲突
+//   立即 panic；
+// - repeatable module 内参数必须使用 {{^#name}}；
+// - 同组 required 参数必须覆盖相同 tag 集合；
+// - repeatable parameter 不在 repeatable module 内时，
+//   pack_tag=name；
+// - required 参数在 assemble 时没有 injection 立即 panic。</code></pre></td></tr>
+                    <tr data-interface-id="I05"><td>I05</td><td><code>server/stage/type.rs</code><br><code>server/stage/assembler.rs</code></td><td><code>StageType</code> 映射允许 Result 集合、required 参数和 template；Prompt parser 提供 repeatable/pack_tag。IntentRuntime 另行映射 Reject 的后继 Stage。</td><td><pre><code>pub(crate) enum StageResultType {
+              Plan, Reject, Infeasible, IntentComplete,
+    InvocationContinue, InvocationComplete,
+    NativeToolCalls,
+}
+
+impl StageType {
+    pub(crate) fn parameters(
+        self,
+    ) -&gt; Vec&lt;PromptParameter&gt;;
+    pub(crate) fn result_types(
+        self,
+    ) -&gt; &amp;'static [StageResultType] {
+        match self {
+            IntentPlanning =&gt; &amp;[Plan, Reject],
+            IntentToolCalling =&gt; &amp;[NativeToolCalls],
+            IntentReplan =&gt; &amp;[Plan, Reject],
+            IntentInfeasible =&gt; &amp;[Infeasible, Reject],
+            IntentSubintentComplete =&gt;
+                &amp;[IntentComplete, Reject],
+            IntentComplete =&gt;
+                &amp;[IntentComplete, Reject],
+            InvocationContinue =&gt;
+                &amp;[InvocationContinue, InvocationComplete],
+        }
+    }
+    pub(crate) fn parse_result(
+        self,
+        output: &amp;str,
+    ) -&gt; Result&lt;StageResult, String&gt;;
+}
+pub(crate) struct StageAssembler {
+    stage_type: StageType,
+    parameters: Vec&lt;PromptParameter&gt;,
+    injections: BTreeMap&lt;String, Vec&lt;PromptInjection&gt;&gt;,
+    template: Prompt,
+}
+impl StageAssembler {
+    pub(crate) fn new(stage_type: StageType) -&gt; Self;
+    pub(crate) fn parameters(
+        &amp;self,
+    ) -&gt; Vec&lt;PromptParameter&gt;;
+    pub(crate) fn inject(
+        &amp;mut self,
+        name: &amp;str,
+        value: String,
+        tag: Option&lt;String&gt;,
+    );
+    pub(crate) fn assemble(
+        &amp;self, access: &amp;TaskAccess,
+        relay: RelaySignature
+    ) -&gt; Result&lt;ModelRequest, String&gt;;
+}
+
+// assemble 规则：
+// 1. unknown parameter、non-repeatable 二次 inject、
+//    non-repeatable 携带 tag：立即 panic。
+// 2. required 参数零 injection：assemble 立即 panic。
+// 3. 单个 package 可以全部 tag=None；只渲染一次 module。
+// 4. 一旦同 pack_tag 存在多个 package，所有 injection
+//    必须有 tag；缺 tag、同参数重复 tag、组内 required
+//    参数缺失：立即 panic。
+// 5. {{^@module}} 按 tag 的字符串升序稳定渲染 module；
+//    同一 tag 下参数按 module marker 顺序注入。</code></pre></td></tr>
+          <tr data-interface-id="I06"><td>I06</td><td><code>protocol/executor/continuation.rs</code></td><td>替代隐藏的 workflow_continuation Execution/Step；Host 直接向原 Invocation 回传下一片。</td><td><pre><code>pub struct ContinuationRequest {
+    pub invocation: InvocationSignature,
+    pub continuation_cursor: String,
+}
+ExecutorEvent::Continuation(ContinuationRequest)
+InvocationEvent::Continuation {
+    content: String,
+    continuation_cursor: Option&lt;String&gt;,
+}
+InvocationEvent::ContinuationFailed { reason: String }</code></pre></td></tr>
+          <tr data-interface-id="I07"><td>I07</td><td><code>protocol/intent/context.rs</code></td><td>StageAssembler 继续从既有 StepResult.calls 渲染工具事实，仅新增四次调用窗口；Reject 不生成额外 progress summary。</td><td><pre><code>pub struct IntentContext {
+    // existing fields...
+    pub tool_call_count: usize,
+}</code></pre></td></tr>
+        </tbody>
+      </table>
+    </section>
+  </section>
+
+  <section class="page" data-page="changes">
+    <h1>改动清单</h1>
+    <p class="meta">按 C01–C09 顺序执行；本 plan 只描述实现，不包含运行命令；不修改 src_meta。</p>
+
+    <article class="change-item" data-change-id="C01" data-action="create" data-path="src/server/stage/">
+      <div class="change-head"><span class="tag create">create</span><h3>C01 · <code>src/server/stage/{mod,type,result,parameter,assembler}.rs</code></h3></div>
+      <dl class="change-grid"><dt>精确位置</dt><dd><code>StageType</code>、六个结果 payload struct、<code>StageResult</code>、<code>StageResultType</code>、<code>PromptParameter</code>、<code>PromptInjection</code>、<code>StageAssembler</code>。</dd><dt>改动内容</dt><dd>实现 I01–I03 与 I05；StageAssembler 负责 system、typed context、ordinary tool schema、profile、tagged injection 分组和 template 注入；StageType 映射允许 Result 集合，RejectStageResult 被所有二元判断 Stage 复用。</dd><dt>目的</dt><dd>把阶段状态、模型序列化协议和 prompt 装配从 Intent/Relay 中抽成唯一边界；模型只判断当前问题成立或拒绝，不选择后继 Stage。</dd><dt>接口最终定义</dt><dd>见 I01–I03、I05；<code>server/lib.rs</code> 新增 <code>pub mod stage</code>，仅 crate 内 re-export。</dd><dt>内部实现位置</dt><dd><ol><li><code>StageType::prompt_name/profile/is_intent/parameters/result_types/parse_result</code>：映射 template、profile、owner、参数和允许 Result 集合。</li><li><code>StageAssembler::inject</code>：写入 value + optional String tag；非法 name、重复单值、非法 tag 立即 panic。</li><li><code>StageAssembler::assemble</code>：检查 required、按 pack_tag 聚合、按 tag 字符串升序稳定重复 module；多组缺 tag 或组内 required 缺失立即 panic。</li><li>Result payload：Plan≥2；Replan 的 Plan≥1；IntentComplete summary 必填；Reject 只有 reason；cursor 只存在于 InvocationContinue。</li></ol></dd></dl>
+    </article>
+
+    <article class="change-item" data-change-id="C02" data-action="create" data-path="src/server/prompt/template/ + src/server/prompt/module/">
+      <div class="change-head"><span class="tag create">create</span><h3>C02 · 现有 <code>prompt/template/</code> 与 <code>prompt/module/</code></h3></div>
+      <dl class="change-grid"><dt>精确位置</dt><dd><code>prompt/template/</code> 新增七个 Stage template；<code>prompt/module/</code> 新增 <code>PlanItem</code>、<code>SubintentResult</code>、<code>ToolCall</code>、<code>FailedPlan</code>、<code>PreviousSummary</code> 五个 module。</dd><dt>改动内容</dt><dd>沿用现有 Prompt 的 template/module 两层结构，不新建 stage 子目录。每个 Intent 判断 template 只询问一个问题；肯定分支返回语义结果，否定分支统一返回 <code>reject</code> + reason。Template 使用 <code>{{^@plan_item}}</code> 等 module marker；module 内使用 <code>{{^#plan_goal}}</code> 等 parameter marker。</dd><dt>目的</dt><dd>模型只完成当前 Stage 的判断；重复 context 的分组和顺序由现有 template/module 系统表达。</dd><dt>接口最终定义</dt><dd>Planning/Replan：<code>plan|reject</code>；Infeasible：<code>infeasible|reject</code>；两种 Complete：<code>intent_complete|reject</code>；ToolCalling 对应 native calls；InvocationContinue 对应 <code>invocation_continue|invocation_complete</code>。</dd><dt>内部实现位置</dt><dd><ol><li>StageType 只映射 template 文件名，StageAssembler 使用现有 <code>Prompt::load</code>。</li><li>module 内禁止再次出现 module marker；repeatable module 内全部字段使用 <code>{{^#name}}</code>。</li><li>runtime 给同一记录的字段注入完全相同的 String tag；module instance 按 tag 字符串升序稳定展开。</li><li><code>InvocationContinue.prompt</code> 分别产出有 cursor/无 cursor的结果。</li></ol></dd></dl>
+    </article>
+
+    <article class="change-item" data-change-id="C03" data-action="modify" data-path="src/server/prompt/">
+      <div class="change-head"><span class="tag modify">modify</span><h3>C03 · <code>prompt/{prompt,profile,mod}.rs</code> 与 legacy prompt 文件</h3></div>
+      <dl class="change-grid"><dt>精确位置</dt><dd>现有 <code>Prompt::load</code>/<code>Prompt::load_module</code>、marker parser、module expansion、parameter ownership scan、<code>PromptProfile</code>、<code>System.prompt</code>；删除 WorkflowPolicy、ToolCallSummarize 两模板及旧 context modules。</dd><dt>改动内容</dt><dd>保持 <code>template/</code> 与 <code>module/</code> 路径不变；扩展现有 Prompt parser 支持 I04 四种 marker。只有 template 可嵌入 module，module 内任何 module marker 立即 panic；解析 template 和所有直接 module 的 parameter name，外部/module/module 冲突立即 panic。</dd><dt>目的</dt><dd>移除旧 workflow 编排文字和重复 assembler；让 repeatable/packing 由现有 Prompt AST 驱动；在加载阶段消除参数归属歧义。</dd><dt>接口最终定义</dt><dd><pre><code>pub enum PromptProfile { ToolMandatory, StageJson }
+pub fn Prompt::load(name: &amp;str) -&gt; Prompt
+pub fn Prompt::load_module(name: &amp;str) -&gt; Prompt</code></pre></dd><dt>内部实现位置</dt><dd><code>PromptProfile::{compose_messages,tool_choice,expects_tool_calls,requires_json_output}</code> 全部分支重写；不新增 <code>load_stage</code>。</dd></dl>
+    </article>
+
+    <article class="change-item" data-change-id="C04" data-action="modify" data-path="src/server/intent/">
+      <div class="change-head"><span class="tag modify">modify</span><h3>C04 · <code>intent/runtime.rs</code>、<code>intent/plan.rs</code></h3></div>
+      <dl class="change-grid"><dt>精确位置</dt><dd><code>IntentRuntime</code> 字段、<code>on_start</code>、<code>run_stage</code>、relay/step/subintent update 分支、plan failure 分支。</dd><dt>改动内容</dt><dd>on_start 运行 IntentPlanning；Plan 创建子任务，Planning Reject 进入 ToolCalling；Replan Reject 进入 Infeasible；Infeasible Reject 返回 ToolCalling；SubIntentComplete Reject 进入 Replan；Complete Reject 在调用窗口未满时进入 ToolCalling，满四次时进入 Infeasible。</dd><dt>目的</dt><dd>用代码状态机解释通用 Reject，模型不再决定后继 Stage。</dd><dt>接口最终定义</dt><dd><pre><code>fn run_stage(&amp;self, stage_type: StageType) -&gt; Result&lt;(), String&gt;</code></pre></dd><dt>内部实现位置</dt><dd><ol><li>新增 <code>stage/pending_stage/stage_sequence/tool_call_count</code> 状态。</li><li>删除 <code>verdict</code>、workflow dispatch、is_workflow_tool、repeat guard；四次窗口由 Infeasible stage 接管。</li><li>relay update 经 <code>StageType::parse_result</code> 验证 result 属于允许集合；IntentCompleteStageResult.summary 成为 IntentResult.output；RejectStageResult.reason 仅用于日志和后继映射。</li></ol></dd></dl>
+    </article>
+
+    <article class="change-item" data-change-id="C05" data-action="modify" data-path="src/server/task/context.rs">
+      <div class="change-head"><span class="tag modify">modify</span><h3>C05 · <code>TaskAccess::get_intent_context</code></h3></div>
+      <dl class="change-grid"><dt>精确位置</dt><dd>IntentContext 构造区段。</dd><dt>改动内容</dt><dd>投影当前四次工具调用窗口计数；继续使用已有 step_results、subintent results 和 plan_failures，保持事实来源边界。</dd><dt>目的</dt><dd>StageAssembler 只消费 typed context，不从自由文本推断运行状态。</dd><dt>接口最终定义</dt><dd>见 I07。</dd><dt>内部实现位置</dt><dd><code>get_intent_context</code> 对 runtime 的 tool_call_count 取快照。</dd></dl>
+    </article>
+
+    <article class="change-item" data-change-id="C06" data-action="modify" data-path="src/server/relay/">
+      <div class="change-head"><span class="tag modify">modify</span><h3>C06 · <code>relay/{relay,runtime,mod}.rs</code>，删除 <code>relay/prompt.rs</code></h3></div>
+      <dl class="change-grid"><dt>精确位置</dt><dd><code>Relay::new</code>、<code>RelayRuntime</code> 字段/on_start/finish_succeed/send_owner_update。</dd><dt>改动内容</dt><dd>Relay 持有 StageType + StageAssembler；调用 assembler 生成 ModelRequest；ToolCalling 原样返回 StepDraft JSON，其他 stage 的 raw JSON 解析为 <code>StageResult</code> 并由 StageType 校验该 result tag 是否属于允许集合；按 StageType 路由至 IntentEvent 或 InvocationEvent。</dd><dt>目的</dt><dd>Relay 只负责模型 IO、StageType→允许 Result 集合校验和 owner 路由，不再知道 workflow policy 或 prompt 结构。</dd><dt>接口最终定义</dt><dd><pre><code>pub(crate) fn Relay::new(
+    access: Arc&lt;TaskAccess&gt;,
+    signature: RelaySignature,
+    assembler: StageAssembler,
+    invocation_owner: Option&lt;InvocationSignature&gt;,
+) -&gt; Result&lt;Self, String&gt;</code></pre></dd><dt>内部实现位置</dt><dd>删除 RelayKind 分支、summary cursor 校验和 merge_workflow；StageAssembler 准备 ordinary tools。</dd></dl>
+    </article>
+
+    <article class="change-item" data-change-id="C07" data-action="modify" data-path="src/server/invocation/runtime.rs">
+      <div class="change-head"><span class="tag modify">modify</span><h3>C07 · <code>InvocationRuntime</code></h3></div>
+      <dl class="change-grid"><dt>精确位置</dt><dd>tool validity、summarize_and_finish、on_summarize_update、request_continuation、dispatch。</dd><dt>改动内容</dt><dd>普通执行的每片结果运行 InvocationContinue assembler；解析 <code>StageResult::InvocationContinue/InvocationComplete</code>；cursor 存在时发送 ExecutorEvent::Continuation；接收下一片后再次运行同 stage。</dd><dt>目的</dt><dd>continuation 保持 Invocation 私有，不进入 IntentStage，也不再伪造 tool execution。</dd><dt>接口最终定义</dt><dd>使用 I02 的 Invocation Result payload 与 I06 的内部事件。</dd><dt>内部实现位置</dt><dd><ol><li><code>pending_summarize</code> 改 <code>pending_stage</code>。</li><li>删除 WorkflowContinuation 白名单与 request_execution 分支。</li><li>保留 chunk summary 累积和 overall_kind 语义。</li></ol></dd></dl>
+    </article>
+
+    <article class="change-item" data-change-id="C08" data-action="modify" data-path="src/protocol/ + src/host/executor/runtime.rs">
+      <div class="change-head"><span class="tag modify">modify</span><h3>C08 · 内部 continuation 协议</h3></div>
+      <dl class="change-grid"><dt>精确位置</dt><dd>新增 <code>protocol/executor/continuation.rs</code>；修改 ExecutorEvent、InvocationEvent、executor exports；Host Executor dispatch/cache.pick/send event。</dd><dt>改动内容</dt><dd>实现 I06；Host 直接按 cursor 取缓存并向原 Invocation 回传 content/next cursor 或失败 reason；不创建 ExecutionSignature、Step 或 Invocation。</dd><dt>目的</dt><dd>彻底删除隐藏 workflow_continuation tool，同时保持分片链路。</dd><dt>接口最终定义</dt><dd>见 I06。</dd><dt>内部实现位置</dt><dd><code>ExecutorRuntime::dispatch</code> 新 Continuation 分支；删除 <code>create_continuation_execution/send_inline_execution</code>。</dd></dl>
+    </article>
+
+    <article class="change-item" data-change-id="C09" data-action="delete" data-path="src/protocol/workflow/ + protocol relay kinds">
+      <div class="change-head"><span class="tag delete">delete</span><h3>C09 · 删除 workflow tool 与旧 verdict 协议</h3></div>
+      <dl class="change-grid"><dt>精确位置</dt><dd>删除 <code>protocol/workflow/</code>、<code>protocol/relay/{kind,request}.rs</code>；修改 protocol lib/mod/relay exports、intent/draft.rs、tool/category.rs。</dd><dt>改动内容</dt><dd>删除 WorkflowPlan/Complete/Infeasible/Continuation/WorkflowTool、RelayKind/RelayRequest、IntentVerdict、ToolCategory::Workflow；IntentDraft、PlanDraft、RelayResult/Event/Signature 保留。</dd><dt>目的</dt><dd>模型工具集合只剩真实 ordinary tools；stage JSON 成为唯一 workflow 决策协议。</dd><dt>接口最终定义</dt><dd>删除项不再 export；Relay 的 stage request 改为 server-local constructor（C06）。</dd><dt>内部实现位置</dt><dd>同步清理 protocol/lib.rs、protocol/mod.rs、relay/mod.rs、intent/mod.rs 的公开 re-export。</dd></dl>
+    </article>
+
+    <section data-section="revision-log"><h2>调整记录</h2><p class="meta">初始版本采用 benchmark 的 stage 边界；接口定义移至宽表最右列；Result 按结果语义命名并跨 Stage 复用；通用 RejectStageResult 让模型只回答当前问题；Prompt 增加四种 parameter/module marker。Stage template 可直接嵌入 module，module 禁止再次嵌套；repeatable module 按 String tag 升序展开，多组缺 tag、参数冲突和 required 缺值均 panic。Continuation 归 Invocation；不修改 src_meta。2026-08-05：执行 C06 时确认 RelaySignature 不含 Invocation owner，经用户同意给 Relay::new 增加 Option&lt;InvocationSignature&gt;；Intent stage 传 None，InvocationContinue 传 Some。2026-08-05 19:05：C01–C09 完成，静态对照确认 implementation 与最终接口一致；按 plan 约束未运行 build、test、lint 或 git。</p></section>
+  </section>
+</main>
+</body>
+</html>

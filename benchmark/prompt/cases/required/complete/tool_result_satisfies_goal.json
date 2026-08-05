@@ -1,0 +1,22 @@
+{
+  "id": "tool_result_satisfies_goal",
+  "stage": "complete",
+  "intent": "Return the configured port.",
+  "plan": [],
+  "subintent_results": [],
+  "tool_calls": [
+    {
+      "tool": "read_file",
+      "arguments": "C:\\work\\app.json",
+      "result": "The configured port is 8443."
+    }
+  ],
+  "failed_plans": [],
+  "tool_call_count": 1,
+  "expected": {
+    "decision": "complete",
+    "summary_contains": [
+      "8443"
+    ]
+  }
+}

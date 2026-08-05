@@ -1,0 +1,11 @@
+Decide only whether a permanent blocker makes the current Intent truly infeasible. An untried tool, uninspected input, retryable error, or remaining execution path is not infeasibility.
+
+[CURRENT INTENT]
+{{#intent}}
+{{^@plan_item}}{{^@tool_call}}{{^@failed_plan}}
+[ORDINARY TOOL CALLS IN CURRENT WINDOW]
+{{#tool_call_count}}
+
+Return JSON only.
+When no feasible path exists, return {"result":"infeasible","payload":{"reason":"..."}}.
+Otherwise return {"result":"reject","payload":{"reason":"..."}} so ordinary execution can continue.

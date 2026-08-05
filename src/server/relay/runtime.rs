@@ -4,23 +4,30 @@ use std::sync::Mutex as StdMutex;
 
 use marix_common::external::*;
 use marix_common::{
-    ActorCloseReceiver, ActorEventReceiver, ActorFuture, ActorStartFuture, ActorStatus, Config,
-    Lifecycle, Runtime as RuntimeTrait,
+    ActorCloseReceiver, ActorEventReceiver, ActorFuture,
+    ActorStartFuture, ActorStatus, Config, Lifecycle,
+    Runtime as RuntimeTrait,
 };
 use marix_protocol::{
-    IntentEvent, InvocationEvent, RelayEvent, RelayKind, RelayRequest, RelayResult,
-    RelayResultKind, RelaySignature, SessionEvent, TaskEvent, TaskLogger, TaskLogging,
+    IntentEvent, InvocationEvent, InvocationSignature, RelayEvent,
+    RelayResult, RelayResultKind, RelaySignature, SessionEvent,
+    TaskEvent, TaskLogger, TaskLogging,
 };
 
 use super::Relay;
-use crate::model::{DeepseekBackend, GlmBackend, ModelBackend, ModelResponse, ModelResponseStream};
-use crate::prompt::ToolCallSummary;
+use crate::model::{
+    DeepseekBackend, GlmBackend, ModelBackend, ModelResponse,
+    ModelResponseStream,
+};
+use crate::stage::{StageAssembler, StageType};
 use crate::task::TaskAccess;
 
 pub struct RelayRuntime {
     pub access: Arc<TaskAccess>,
     pub signature: RelaySignature,
-    pub kind: RelayKind,
+    pub stage_type: StageType,
+    pub assembler: StageAssembler,
+    pub invocation_owner: Option<InvocationSignature>,
     pub output: StdMutex<BTreeMap<usize, String>>,
     pub final_signal: StdMutex<Option<usize>>,
     pub model_backend: StdMutex<Box<dyn ModelBackend>>,
@@ -28,30 +35,57 @@ pub struct RelayRuntime {
 }
 
 impl RelayRuntime {
-    pub(crate) fn new(access: Arc<TaskAccess>, request: RelayRequest) -> Result<Self, String> {
-        let config = Config::load().map_err(|error| format!("failed to load config: {error}"))?;
-        let model_backend: Box<dyn ModelBackend> = match config.model.selected.as_str() {
-            "deepseek" => {
-                let backend = construct_model_backend("deepseek", || {
-                    DeepseekBackend::new(config.model.deepseek.clone())
-                })?;
-                Box::new(backend)
-            }
-            "glm" => {
-                let backend =
-                    construct_model_backend("glm", || GlmBackend::new(config.model.glm.clone()))?;
-                Box::new(backend)
-            }
-            other => {
+    pub(crate) fn new(
+        access: Arc<TaskAccess>,
+        signature: RelaySignature,
+        assembler: StageAssembler,
+        invocation_owner: Option<InvocationSignature>,
+    ) -> Result<Self, String> {
+        let stage_type = assembler.stage_type();
+        match (stage_type.is_intent(), invocation_owner.as_ref()) {
+            (true, Some(owner)) => {
                 return Err(format!(
-                    "unsupported model.selected value \"{other}\"; expected \"deepseek\" or \"glm\""
+                    "intent stage {stage_type:?} unexpectedly carries \
+                     invocation owner {owner}"
                 ));
             }
-        };
+            (false, None) => {
+                return Err(format!(
+                    "invocation stage {stage_type:?} has no invocation \
+                     owner"
+                ));
+            }
+            _ => {}
+        }
+        let config = Config::load()
+            .map_err(|error| format!("failed to load config: {error}"))?;
+        let model_backend: Box<dyn ModelBackend> =
+            match config.model.selected.as_str() {
+                "deepseek" => Box::new(construct_model_backend(
+                    "deepseek",
+                    || {
+                        DeepseekBackend::new(
+                            config.model.deepseek.clone(),
+                        )
+                    },
+                )?),
+                "glm" => Box::new(construct_model_backend(
+                    "glm",
+                    || GlmBackend::new(config.model.glm.clone()),
+                )?),
+                other => {
+                    return Err(format!(
+                        "unsupported model.selected value \"{other}\"; \
+                         expected \"deepseek\" or \"glm\""
+                    ));
+                }
+            };
         Ok(Self {
             access,
-            signature: request.signature,
-            kind: request.kind,
+            signature,
+            stage_type,
+            assembler,
+            invocation_owner,
             output: StdMutex::new(BTreeMap::new()),
             final_signal: StdMutex::new(None),
             model_backend: StdMutex::new(model_backend),
@@ -80,10 +114,16 @@ impl RuntimeTrait for RelayRuntime {
 
     fn on_start(&self) -> ActorStartFuture<'_, Self::Prepared> {
         Box::pin(async move {
-            let request = match self.model_request() {
+            let request = match self
+                .assembler
+                .assemble(&self.access, self.signature.clone())
+            {
                 Ok(request) => request,
                 Err(reason) => {
-                    self.error(format!("relay {} failed: {reason}", &self.signature,));
+                    self.error(format!(
+                        "relay {} failed: {reason}",
+                        &self.signature,
+                    ));
                     self.finish(RelayResultKind::Failed, reason);
                     return None;
                 }
@@ -98,8 +138,12 @@ impl RuntimeTrait for RelayRuntime {
             match responses {
                 Ok(responses) => Some(responses),
                 Err(error) => {
-                    let reason = format!("model request failed: {error}");
-                    self.error(format!("relay {} failed: {reason}", &self.signature,));
+                    let reason =
+                        format!("model request failed: {error}");
+                    self.error(format!(
+                        "relay {} failed: {reason}",
+                        &self.signature,
+                    ));
                     self.finish(RelayResultKind::Failed, reason);
                     None
                 }
@@ -110,16 +154,21 @@ impl RuntimeTrait for RelayRuntime {
     fn dispatch(&self, event: RelayEvent) {
         match event {
             RelayEvent::Cancel => {
-                if matches!(self.status(), ActorStatus::Complete(_)) {
+                if matches!(
+                    self.status(),
+                    ActorStatus::Complete(_)
+                ) {
                     return;
                 }
                 let output = self.output();
-                let output = if output.is_empty() {
-                    "relay canceled".to_owned()
-                } else {
-                    output
-                };
-                self.finish(RelayResultKind::Canceled, output);
+                self.finish(
+                    RelayResultKind::Canceled,
+                    if output.is_empty() {
+                        "relay canceled".to_owned()
+                    } else {
+                        output
+                    },
+                );
             }
         }
     }
@@ -195,75 +244,31 @@ impl RelayRuntime {
                  expected {}",
                 response.seq,
             );
-            self.error(format!("relay {} failed: {reason}", &self.signature,));
+            self.error(format!(
+                "relay {} failed: {reason}",
+                &self.signature,
+            ));
             self.finish(RelayResultKind::Failed, reason);
             return;
         };
         *self
             .final_signal
             .lock()
-            .unwrap_or_else(|error| error.into_inner()) = Some(response.seq);
+            .unwrap_or_else(|error| error.into_inner()) =
+            Some(response.seq);
         self.finish_succeed(output);
     }
 
     fn finish_succeed(&self, output: String) {
-        match &self.kind {
-            RelayKind::IntentAnalyze => {
-                self.finish(RelayResultKind::Succeed, output);
-            }
-            RelayKind::ToolCallSummarize {
-                continuation_cursor,
-                ..
-            } => match Self::extract_summary(&output) {
-                Ok(tool) => {
-                    if let Err(reason) =
-                        Self::validate_summary_cursor(&tool, continuation_cursor.as_deref())
-                    {
-                        self.error(format!("relay {} failed: {reason}", &self.signature));
-                        self.finish(RelayResultKind::Failed, reason);
-                        return;
-                    }
-                    match serde_json::to_string(&tool) {
-                        Ok(output) => {
-                            self.finish(RelayResultKind::Succeed, output);
-                        }
-                        Err(error) => {
-                            let reason = format!(
-                                "failed to serialize tool call summary: {error}"
-                            );
-                            self.error(format!("relay {} failed: {reason}", &self.signature,));
-                            self.finish(RelayResultKind::Failed, reason);
-                        }
-                    }
-                }
-                Err(reason) => {
-                    self.error(format!("relay {} failed: {reason}", &self.signature));
-                    self.finish(RelayResultKind::Failed, reason);
-                }
-            },
+        if let Err(reason) = self.stage_type.parse_result(&output) {
+            self.error(format!(
+                "relay {} failed: {reason}",
+                &self.signature,
+            ));
+            self.finish(RelayResultKind::Failed, reason);
+            return;
         }
-    }
-
-    fn extract_summary(raw: &str) -> Result<ToolCallSummary, String> {
-        serde_json::from_str(raw)
-            .map_err(|error| format!("tool call summary is invalid JSON: {error}"))
-    }
-
-    fn validate_summary_cursor(
-        tool: &ToolCallSummary,
-        expected: Option<&str>,
-    ) -> Result<(), String> {
-        match (expected, tool.continuation_cursor.as_deref()) {
-            (Some(expected), Some(actual)) if actual != expected => Err(format!(
-                "tool call summary returned a different continuation \
-                 cursor; expected `{expected}`, got `{actual}`"
-            )),
-            (None, Some(actual)) => Err(format!(
-                "tool call summary returned an unexpected continuation \
-                 cursor `{actual}`"
-            )),
-            _ => Ok(()),
-        }
+        self.finish(RelayResultKind::Succeed, output);
     }
 
     fn complete_output(&self, seq_count: usize) -> Option<String> {
@@ -271,7 +276,9 @@ impl RelayRuntime {
             .output
             .lock()
             .unwrap_or_else(|error| error.into_inner());
-        if output.len() != seq_count || (0..seq_count).any(|seq| !output.contains_key(&seq)) {
+        if output.len() != seq_count
+            || (0..seq_count).any(|seq| !output.contains_key(&seq))
+        {
             return None;
         }
         Some(
@@ -295,29 +302,42 @@ impl RelayRuntime {
         RuntimeTrait::finish(self, RelayResult { kind, output });
     }
 
-    fn send_owner_update(&self, status: ActorStatus<RelayResult>) {
-        let event = match &self.kind {
-            RelayKind::IntentAnalyze => {
-                let intent = self.signature.intent.clone();
-                SessionEvent::Task(
-                    intent.task.clone(),
-                    TaskEvent::Intent(
-                        intent,
-                        IntentEvent::RelayUpdate(self.signature.clone(), status),
+    fn send_owner_update(
+        &self,
+        status: ActorStatus<RelayResult>,
+    ) {
+        let event = if self.stage_type.is_intent() {
+            let intent = self.signature.intent.clone();
+            SessionEvent::Task(
+                intent.task.clone(),
+                TaskEvent::Intent(
+                    intent,
+                    IntentEvent::RelayUpdate(
+                        self.signature.clone(),
+                        status,
                     ),
-                )
-            }
-            RelayKind::ToolCallSummarize {
-                invocation,
-                continuation_cursor: _,
-                ..
-            } => SessionEvent::Task(
+                ),
+            )
+        } else {
+            let invocation = self
+                .invocation_owner
+                .clone()
+                .unwrap_or_else(|| {
+                    panic!(
+                        "invocation stage relay {} has no owner",
+                        &self.signature,
+                    )
+                });
+            SessionEvent::Task(
                 invocation.step.intent.task.clone(),
                 TaskEvent::Invocation(
-                    invocation.clone(),
-                    InvocationEvent::SummarizeUpdate(self.signature.clone(), status),
+                    invocation,
+                    InvocationEvent::SummarizeUpdate(
+                        self.signature.clone(),
+                        status,
+                    ),
                 ),
-            ),
+            )
         };
         if self.access.session_tx.send(event).is_err() {
             self.warning(format!(
@@ -330,7 +350,10 @@ impl RelayRuntime {
 
 #[allow(dead_code)]
 fn assert_runtime_object_safe(
-    runtime: &dyn RuntimeTrait<Base = Relay, Prepared = ModelResponseStream>,
+    runtime: &dyn RuntimeTrait<
+        Base = Relay,
+        Prepared = ModelResponseStream,
+    >,
 ) {
     let _ = runtime.run();
 }
@@ -340,13 +363,18 @@ fn construct_model_backend<B>(
     build: impl FnOnce() -> B + std::panic::UnwindSafe,
 ) -> Result<B, String> {
     std::panic::catch_unwind(build).map_err(|payload| {
-        let detail = if let Some(message) = payload.downcast_ref::<String>() {
-            message.clone()
-        } else if let Some(message) = payload.downcast_ref::<&str>() {
-            (*message).to_owned()
-        } else {
-            "unknown backend construction panic".to_owned()
-        };
-        format!("failed to construct {backend_name} model backend: {detail}")
+        let detail =
+            if let Some(message) = payload.downcast_ref::<String>() {
+                message.clone()
+            } else if let Some(message) =
+                payload.downcast_ref::<&str>()
+            {
+                (*message).to_owned()
+            } else {
+                "unknown backend construction panic".to_owned()
+            };
+        format!(
+            "failed to construct {backend_name} model backend: {detail}"
+        )
     })
 }

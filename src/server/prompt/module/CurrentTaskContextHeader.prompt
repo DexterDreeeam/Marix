@@ -1,5 +1,0 @@
-[**END BACKGROUND CONTEXT**]
-Ignore parent pending work; retain parent completed facts only as available input data.
-
-[**CURRENT TASK**]
-Apply this final gate to the Goal below: if it contains two or more operations or a then/after dependency, MUST call workflow_plan before the first operation. If its sole operation is writing one file from factual values already available in context, MUST call write_file. If its sole operation is modifying one file and Completed Calls already describe the current implementation while parent facts define desired behavior, MUST call replace_in_file and MUST NOT read again. Only a Completed Calls section below the Goal can prove Current Task completion.

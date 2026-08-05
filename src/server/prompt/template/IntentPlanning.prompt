@@ -1,0 +1,10 @@
+Decide only whether the current Intent needs a plan of child Intents.
+
+[CURRENT INTENT]
+{{#intent}}
+{{^@plan_item}}
+
+Return JSON only.
+When the Intent contains at least two distinct operations, dependent steps, or independent targets, return {"result":"plan","payload":{"reason":"...","subintents":["...","..."]}}.
+Otherwise return {"result":"reject","payload":{"reason":"..."}} so the Intent can be attempted with one ordinary tool call.
+Starting a process and later waiting for or reading its output are dependent steps and must use a plan.

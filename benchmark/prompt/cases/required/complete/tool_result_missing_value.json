@@ -1,0 +1,19 @@
+{
+  "id": "tool_result_missing_value",
+  "stage": "complete",
+  "intent": "Return both version and release date.",
+  "plan": [],
+  "subintent_results": [],
+  "tool_calls": [
+    {
+      "tool": "web_fetch",
+      "arguments": "https://example.org/releases",
+      "result": "Version is 1.97.1; date was not found."
+    }
+  ],
+  "failed_plans": [],
+  "tool_call_count": 1,
+  "expected": {
+    "decision": "continue"
+  }
+}

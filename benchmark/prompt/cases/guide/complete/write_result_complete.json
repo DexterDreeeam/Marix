@@ -1,0 +1,23 @@
+{
+  "id": "write_result_complete",
+  "stage": "complete",
+  "intent": "Write the known report to C:\\work\\result.json.",
+  "plan": [],
+  "subintent_results": [],
+  "tool_calls": [
+    {
+      "tool": "write_file",
+      "arguments": "C:\\work\\result.json",
+      "result": "Wrote 512 bytes to C:\\work\\result.json."
+    }
+  ],
+  "failed_plans": [],
+  "tool_call_count": 1,
+  "expected": {
+    "decision": "complete",
+    "summary_contains": [
+      "result.json",
+      "512 bytes"
+    ]
+  }
+}

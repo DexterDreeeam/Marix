@@ -1,0 +1,26 @@
+{
+  "id": "children_preserve_context",
+  "stage": "subintent_complete",
+  "intent": "Prepare the endpoint and authentication context.",
+  "plan": [],
+  "subintent_results": [
+    {
+      "goal": "Resolve endpoint",
+      "result": "Endpoint is api.example.org."
+    },
+    {
+      "goal": "Resolve auth",
+      "result": "Use token_env for authentication."
+    }
+  ],
+  "tool_calls": [],
+  "failed_plans": [],
+  "tool_call_count": null,
+  "expected": {
+    "decision": "complete",
+    "summary_contains": [
+      "api.example.org",
+      "token_env"
+    ]
+  }
+}

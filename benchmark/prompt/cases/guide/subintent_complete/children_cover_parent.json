@@ -1,0 +1,26 @@
+{
+  "id": "children_cover_parent",
+  "stage": "subintent_complete",
+  "intent": "Collect the current stable release and save its report.",
+  "plan": [],
+  "subintent_results": [
+    {
+      "goal": "Collect release facts",
+      "result": "Stable version is 1.97.1."
+    },
+    {
+      "goal": "Save report",
+      "result": "Wrote C:\\work\\result.json."
+    }
+  ],
+  "tool_calls": [],
+  "failed_plans": [],
+  "tool_call_count": null,
+  "expected": {
+    "decision": "complete",
+    "summary_contains": [
+      "1.97.1",
+      "result.json"
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+Decide only whether the ordinary tool results fully satisfy every requirement and side effect of the current Intent. Missing requested values or incomplete side effects are not completion.
+
+[CURRENT INTENT]
+{{#intent}}
+{{^@plan_item}}{{^@tool_call}}
+[ORDINARY TOOL CALLS IN CURRENT WINDOW]
+{{#tool_call_count}}
+
+Return JSON only.
+When every requirement is covered, return {"result":"intent_complete","payload":{"reason":"...","summary":"..."}} and preserve concrete values in the summary.
+Otherwise return {"result":"reject","payload":{"reason":"..."}}.

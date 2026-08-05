@@ -1,0 +1,15 @@
+{
+  "id": "all_sources_blocked",
+  "stage": "replan",
+  "intent": "Read the release date from the only permitted private source.",
+  "plan": [],
+  "subintent_results": [],
+  "tool_calls": [],
+  "failed_plans": [
+    "The only permitted source requires a destroyed credential with no recovery path."
+  ],
+  "tool_call_count": null,
+  "expected": {
+    "decision": "infeasible_review"
+  }
+}

@@ -8,24 +8,22 @@ pub mod session;
 pub mod step;
 pub mod task;
 pub mod tool;
-pub mod workflow;
 
 pub use execution::{
     ExecutionError, ExecutionEvent, ExecutionId, ExecutionRequest, ExecutionResult,
     ExecutionResultKind, ExecutionSignature,
 };
-pub use executor::ExecutorEvent;
+pub use executor::{ContinuationRequest, ExecutorEvent};
 pub use intent::{
     IntentContext, IntentDraft, IntentError, IntentEvent, IntentId, IntentResult, IntentResultKind,
-    IntentSignature, IntentVerdict, PlanDraft, PlanResult,
+    IntentSignature, PlanDraft, PlanResult,
 };
 pub use invocation::{
     InvocationDraft, InvocationError, InvocationEvent, InvocationId, InvocationRequest,
     InvocationResult, InvocationResultKind, InvocationSignature, ToolCallResultDraft,
 };
 pub use relay::{
-    RelayError, RelayEvent, RelayId, RelayKind, RelayRequest, RelayResult, RelayResultKind,
-    RelaySignature,
+    RelayError, RelayEvent, RelayId, RelayResult, RelayResultKind, RelaySignature,
 };
 pub use session::{SessionEvent, SessionMessage};
 pub use step::{
@@ -36,6 +34,3 @@ pub use task::{
     TaskRequestBrief, TaskResult, TaskResultKind, TaskSignature, TaskStatus,
 };
 pub use tool::{ToolCategory, ToolInputSchema, ToolOutputSchema, ToolPreview};
-pub use workflow::{
-    WorkflowComplete, WorkflowContinuation, WorkflowInfeasible, WorkflowPlan, WorkflowTool,
-};

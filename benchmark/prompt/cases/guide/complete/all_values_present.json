@@ -1,0 +1,24 @@
+{
+  "id": "all_values_present",
+  "stage": "complete",
+  "intent": "Return host, port, and protocol.",
+  "plan": [],
+  "subintent_results": [],
+  "tool_calls": [
+    {
+      "tool": "read_file",
+      "arguments": "C:\\work\\endpoint.json",
+      "result": "Host api.example.org, port 8443, protocol https."
+    }
+  ],
+  "failed_plans": [],
+  "tool_call_count": 2,
+  "expected": {
+    "decision": "complete",
+    "summary_contains": [
+      "api.example.org",
+      "8443",
+      "https"
+    ]
+  }
+}

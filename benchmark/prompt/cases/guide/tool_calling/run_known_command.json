@@ -1,0 +1,15 @@
+{
+  "id": "run_known_command",
+  "stage": "tool_calling",
+  "intent": "Run `git status --short` and return its output.",
+  "plan": [],
+  "subintent_results": [],
+  "tool_calls": [],
+  "failed_plans": [],
+  "tool_call_count": null,
+  "expected": {
+    "tools": [
+      "command_prompt"
+    ]
+  }
+}

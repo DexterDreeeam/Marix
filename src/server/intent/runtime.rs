@@ -1,24 +1,23 @@
-use std::collections::HashMap;
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 use marix_common::external::*;
 use marix_common::{
-    Actor, ActorStartFuture, ActorStatus, Lifecycle, Runtime as RuntimeTrait, WorkQueue,
-    canonical_json_value,
+    Actor, ActorStartFuture, ActorStatus, Lifecycle,
+    Runtime as RuntimeTrait, WorkQueue,
 };
 use marix_protocol::{
-    IntentEvent, IntentResult, IntentResultKind, IntentSignature, InvocationDraft,
-    PlanResult, RelayKind, RelayRequest, RelayResult, RelayResultKind, RelaySignature, SessionEvent,
-    StepDraft, StepEvent, StepResult, StepResultKind, StepSignature, TaskEvent, TaskLogger,
-    TaskLogging, WorkflowComplete, WorkflowContinuation, WorkflowInfeasible, WorkflowPlan,
-    WorkflowTool,
+    IntentEvent, IntentResult, IntentResultKind, IntentSignature,
+    PlanDraft, PlanResult, RelayResult, RelayResultKind,
+    RelaySignature, SessionEvent, StepDraft, StepEvent, StepResult,
+    StepResultKind, StepSignature, TaskEvent, TaskLogger, TaskLogging,
 };
 
 use super::Intent;
 use crate::plan::Plan;
-use crate::prompt::Prompt;
 use crate::relay::Relay;
+use crate::stage::{StageAssembler, StageResult, StageType};
 use crate::step::Step;
 use crate::task::TaskAccess;
 
@@ -29,8 +28,12 @@ pub struct IntentRuntime {
     pub steps: Arc<WorkQueue<StepSignature, Option<StepResult>>>,
     pub plan: StdMutex<Option<Plan>>,
     pub plan_failures: StdMutex<Vec<PlanResult>>,
+    pub stage: StdMutex<StageType>,
+    pub pending_stage:
+        StdMutex<Option<(RelaySignature, StageType)>>,
+    pub stage_sequence: AtomicUsize,
+    pub tool_call_count: AtomicUsize,
     pub lifecycle: Lifecycle<IntentEvent, IntentResult>,
-    invocation_counts: StdMutex<HashMap<String, usize>>,
 }
 
 impl IntentRuntime {
@@ -46,7 +49,10 @@ impl IntentRuntime {
             steps: Arc::new(WorkQueue::new()),
             plan: StdMutex::new(None),
             plan_failures: StdMutex::new(Vec::new()),
-            invocation_counts: StdMutex::new(HashMap::new()),
+            stage: StdMutex::new(StageType::IntentPlanning),
+            pending_stage: StdMutex::new(None),
+            stage_sequence: AtomicUsize::new(0),
+            tool_call_count: AtomicUsize::new(0),
             lifecycle: Lifecycle::new(),
         }
     }
@@ -72,8 +78,10 @@ impl RuntimeTrait for IntentRuntime {
 
     fn on_start(&self) -> ActorStartFuture<'_, Self::Prepared> {
         Box::pin(async move {
-            self.info(format!("intent {} started", &self.signature,));
-            if let Err(reason) = self.verdict() {
+            self.info(format!("intent {} started", &self.signature));
+            if let Err(reason) =
+                self.run_stage(StageType::IntentPlanning)
+            {
                 self.fail(reason);
                 return None;
             }
@@ -104,23 +112,55 @@ impl RuntimeTrait for IntentRuntime {
 // -- Private -- //
 
 impl IntentRuntime {
-    pub(super) fn verdict(&self) -> Result<(), String> {
-        let request = RelayRequest {
-            signature: RelaySignature::new(self.signature.clone(), "intent-verdict".to_owned()),
-            kind: RelayKind::IntentAnalyze,
-        };
-        let relay = Relay::new(Arc::clone(&self.access), request)?;
+    fn run_stage(&self, stage_type: StageType) -> Result<(), String> {
+        let sequence =
+            self.stage_sequence.fetch_add(1, Ordering::AcqRel) + 1;
+        let signature = RelaySignature::new(
+            self.signature.clone(),
+            format!("stage-{sequence}"),
+        );
+        let assembler = StageAssembler::new(stage_type);
+        let relay = Relay::new(
+            Arc::clone(&self.access),
+            signature.clone(),
+            assembler,
+            None,
+        )?;
+        {
+            let mut pending = self
+                .pending_stage
+                .lock()
+                .unwrap_or_else(|error| error.into_inner());
+            if let Some((active, _)) = pending.as_ref() {
+                return Err(format!(
+                    "cannot start stage {stage_type:?}; relay {active} \
+                     is still pending"
+                ));
+            }
+            *pending = Some((signature.clone(), stage_type));
+        }
+        *self
+            .stage
+            .lock()
+            .unwrap_or_else(|error| error.into_inner()) = stage_type;
         if !self.access.insert(relay.clone()) {
+            *self
+                .pending_stage
+                .lock()
+                .unwrap_or_else(|error| error.into_inner()) = None;
             return Err(format!(
-                "intent verdict relay {} already exists",
-                relay.signature(),
+                "intent stage relay {signature} already exists"
             ));
         }
         relay.start();
         Ok(())
     }
 
-    fn on_relay_update(&self, signature: RelaySignature, status: ActorStatus<RelayResult>) {
+    fn on_relay_update(
+        &self,
+        signature: RelaySignature,
+        status: ActorStatus<RelayResult>,
+    ) {
         if matches!(self.status(), ActorStatus::Complete(_)) {
             self.error(format!(
                 "intent {} received relay {signature} update \
@@ -132,34 +172,47 @@ impl IntentRuntime {
         let ActorStatus::Complete(result) = status else {
             return;
         };
-        if signature.name != "intent-verdict" {
-            self.fail(format!(
-                "intent received update from unexpected relay name `{}`",
-                signature.name,
-            ));
-            return;
-        }
+        let stage_type = {
+            let mut pending = self
+                .pending_stage
+                .lock()
+                .unwrap_or_else(|error| error.into_inner());
+            let Some((expected, stage_type)) = pending.as_ref()
+            else {
+                self.fail(format!(
+                    "intent received relay {signature} update with no \
+                     pending stage"
+                ));
+                return;
+            };
+            if expected != &signature {
+                self.fail(format!(
+                    "intent received update from unexpected relay \
+                     {signature}; expected {expected}"
+                ));
+                return;
+            }
+            let stage_type = *stage_type;
+            *pending = None;
+            stage_type
+        };
         match result.kind {
             RelayResultKind::Succeed => {
-                let draft = match StepDraft::parse(&result.output) {
-                    Ok(draft) => draft,
-                    Err(error) => {
-                        self.fail(format!(
-                            "intent relay {signature} returned malformed \
-                             native tool calls: {error}",
-                        ));
-                        return;
-                    }
-                };
-                if let Err(reason) = self.check_repeat_invocation(&draft) {
+                let stage_result =
+                    match stage_type.parse_result(&result.output) {
+                        Ok(result) => result,
+                        Err(reason) => {
+                            self.fail(format!(
+                                "intent relay {signature} returned an \
+                                 invalid stage result: {reason}"
+                            ));
+                            return;
+                        }
+                    };
+                if let Err(reason) =
+                    self.apply_stage_result(stage_type, stage_result)
+                {
                     self.fail(reason);
-                    return;
-                }
-                if let Err(error) = self.dispatch_step_draft(draft) {
-                    self.fail(format!(
-                        "intent relay {signature} tool dispatch failed: \
-                         {error}",
-                    ));
                 }
             }
             RelayResultKind::Failed => {
@@ -171,7 +224,104 @@ impl IntentRuntime {
         }
     }
 
-    fn on_step_update(&self, signature: StepSignature, status: ActorStatus<StepResult>) {
+    fn apply_stage_result(
+        &self,
+        stage_type: StageType,
+        result: StageResult,
+    ) -> Result<(), String> {
+        match result {
+            StageResult::Plan(plan) => {
+                if matches!(stage_type, StageType::IntentReplan) {
+                    *self
+                        .plan
+                        .lock()
+                        .unwrap_or_else(|error| error.into_inner()) =
+                        None;
+                }
+                self.create_plan(PlanDraft {
+                    intents: plan.subintents,
+                })
+            }
+            StageResult::Reject(reject) => {
+                self.info(format!(
+                    "intent {} stage {stage_type:?} rejected: {}",
+                    &self.signature, reject.reason,
+                ));
+                self.run_reject_transition(stage_type)
+            }
+            StageResult::Infeasible(infeasible) => {
+                self.finish(
+                    IntentResultKind::Infeasible,
+                    infeasible.reason,
+                );
+                Ok(())
+            }
+            StageResult::IntentComplete(complete) => {
+                self.finish(
+                    IntentResultKind::Succeed,
+                    complete.summary,
+                );
+                Ok(())
+            }
+            StageResult::NativeToolCalls(draft) => {
+                let call_count = draft.invocations.len();
+                self.create_step(draft)?;
+                self.tool_call_count
+                    .fetch_add(call_count, Ordering::AcqRel);
+                Ok(())
+            }
+            StageResult::InvocationContinue(_)
+            | StageResult::InvocationComplete(_) => Err(format!(
+                "intent stage {stage_type:?} returned an invocation \
+                 result"
+            )),
+        }
+    }
+
+    fn run_reject_transition(
+        &self,
+        stage_type: StageType,
+    ) -> Result<(), String> {
+        let next = match stage_type {
+            StageType::IntentPlanning => {
+                StageType::IntentToolCalling
+            }
+            StageType::IntentReplan => {
+                *self
+                    .plan
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner()) = None;
+                StageType::IntentInfeasible
+            }
+            StageType::IntentInfeasible => {
+                self.tool_call_count.store(0, Ordering::Release);
+                StageType::IntentToolCalling
+            }
+            StageType::IntentSubintentComplete => {
+                StageType::IntentReplan
+            }
+            StageType::IntentComplete => {
+                if self.tool_call_count.load(Ordering::Acquire) < 4 {
+                    StageType::IntentToolCalling
+                } else {
+                    StageType::IntentInfeasible
+                }
+            }
+            StageType::IntentToolCalling
+            | StageType::InvocationContinue => {
+                return Err(format!(
+                    "stage {stage_type:?} cannot return Reject"
+                ));
+            }
+        };
+        self.run_stage(next)
+    }
+
+    fn on_step_update(
+        &self,
+        signature: StepSignature,
+        status: ActorStatus<StepResult>,
+    ) {
         if matches!(self.status(), ActorStatus::Complete(_)) {
             self.error(format!(
                 "intent {} received step {signature} update \
@@ -203,33 +353,128 @@ impl IntentRuntime {
         }
         match result.kind {
             StepResultKind::Succeed | StepResultKind::Failed => {
-                if let Err(reason) = self.verdict() {
+                if let Err(reason) =
+                    self.run_stage(StageType::IntentComplete)
+                {
                     self.fail(reason);
                 }
             }
             StepResultKind::Canceled => {
-                self.finish(IntentResultKind::Canceled, "tool calls canceled".to_owned());
+                self.finish(
+                    IntentResultKind::Canceled,
+                    "tool calls canceled".to_owned(),
+                );
             }
         }
     }
 
-    pub(super) fn create_step(&self, draft: StepDraft) -> Result<(), String> {
+    fn on_subintent_update(
+        &self,
+        signature: IntentSignature,
+        status: ActorStatus<IntentResult>,
+    ) {
+        if matches!(self.status(), ActorStatus::Complete(_)) {
+            self.error(format!(
+                "intent {} received subintent {signature} update \
+                 {status:?} after completion",
+                &self.signature,
+            ));
+            return;
+        }
+        let ActorStatus::Complete(result) = status else {
+            return;
+        };
+        let plan = {
+            let plan = self
+                .plan
+                .lock()
+                .unwrap_or_else(|error| error.into_inner());
+            let Some(plan) = plan.as_ref() else {
+                self.fail(format!(
+                    "intent received subintent update from {signature} \
+                     without an active plan"
+                ));
+                return;
+            };
+            plan.clone()
+        };
+        let Some(index) = plan
+            .subintents
+            .iter()
+            .position(|candidate| candidate == &signature)
+        else {
+            self.fail(format!(
+                "intent received update from unexpected subintent \
+                 {signature}"
+            ));
+            return;
+        };
+        match result.kind {
+            IntentResultKind::Succeed => {
+                if let Some(next) =
+                    plan.subintents.get(index + 1).cloned()
+                {
+                    if let Err(reason) = self.start_subintent(next) {
+                        self.fail(reason);
+                    }
+                } else if let Err(reason) = self.run_stage(
+                    StageType::IntentSubintentComplete,
+                ) {
+                    self.fail(reason);
+                }
+            }
+            IntentResultKind::Infeasible
+            | IntentResultKind::Failed => {
+                if let Err(reason) = self.record_plan_failure() {
+                    self.fail(reason);
+                    return;
+                }
+                *self
+                    .plan
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner()) = None;
+                if let Err(reason) =
+                    self.run_stage(StageType::IntentReplan)
+                {
+                    self.fail(reason);
+                }
+            }
+            IntentResultKind::Canceled => {
+                self.finish(IntentResultKind::Canceled, result.output);
+            }
+        }
+    }
+
+    pub(super) fn create_step(
+        &self,
+        draft: StepDraft,
+    ) -> Result<(), String> {
         if self
             .plan
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .is_some()
         {
-            return Err("intent cannot create a direct step after creating a plan".to_owned());
+            return Err(
+                "intent cannot create a direct step after creating a plan"
+                    .to_owned(),
+            );
         }
         if draft.invocations.is_empty() {
-            return Err("intent verdict step must contain an invocation".to_owned());
+            return Err(
+                "intent tool-calling stage returned no invocation"
+                    .to_owned(),
+            );
         }
         let signature = StepSignature::new(
             self.signature.clone(),
             format!("step-{}", self.steps.size() + 1),
         );
-        let step = Step::from_draft(Arc::clone(&self.access), signature.clone(), draft)?;
+        let step = Step::from_draft(
+            Arc::clone(&self.access),
+            signature.clone(),
+            draft,
+        )?;
         if !self.access.insert(step.clone()) {
             return Err(format!("step {signature} is duplicated"));
         }
@@ -238,218 +483,78 @@ impl IntentRuntime {
         Ok(())
     }
 
-    fn dispatch_step_draft(&self, draft: StepDraft) -> Result<(), String> {
-        let workflow_call_count = draft
-            .invocations
-            .iter()
-            .filter(|invocation| Self::is_workflow_tool(&invocation.name))
-            .count();
-        if workflow_call_count == 0 {
-            let names = draft
-                .invocations
-                .iter()
-                .map(|invocation| invocation.name.as_str())
-                .collect::<Vec<_>>()
-                .join(", ");
-            return self.create_step(draft).map_err(|error| {
-                format!("execution tool calls [{names}] could not start: {error}")
-            });
-        }
-        if draft.invocations.len() != 1 {
-            let names = draft
-                .invocations
-                .iter()
-                .map(|invocation| invocation.name.as_str())
-                .collect::<Vec<_>>()
-                .join(", ");
-            return Err(format!(
-                "workflow tools require exactly one call and cannot be \
-                 mixed with execution tools; received [{}]",
-                names,
-            ));
-        }
-
-        let invocation = draft
-            .invocations
-            .into_iter()
-            .next()
-            .ok_or_else(|| "workflow tool dispatch received no call".to_owned())?;
-        match invocation.name.as_str() {
-            WorkflowContinuation::NAME => {
-                let tool = WorkflowContinuation::parse(&invocation.input).map_err(|error| {
-                    format!(
-                        "workflow tool `{}` arguments are invalid: \
-                                 {error}",
-                        invocation.name,
-                    )
-                })?;
-                let input =
-                    marix_common::external::serde_json::to_string(&tool).map_err(|error| {
-                        format!(
-                            "workflow tool `{}` arguments could not be \
-                                 serialized: {error}",
-                            invocation.name,
-                        )
-                    })?;
-                let draft = StepDraft {
-                    invocations: vec![InvocationDraft {
-                        name: WorkflowContinuation::NAME.to_owned(),
-                        input,
-                    }],
-                };
-                self.create_step(draft).map_err(|error| {
-                    format!(
-                        "workflow tool `{}` could not start: {error}",
-                        invocation.name,
-                    )
-                })
-            }
-            WorkflowPlan::NAME => {
-                let tool = WorkflowPlan::parse(&invocation.input).map_err(|error| {
-                    format!(
-                        "workflow tool `{}` arguments are invalid: {error}",
-                        invocation.name,
-                    )
-                })?;
-                self.create_plan(tool.draft)
-                    .map_err(|error| format!("workflow tool `{}` failed: {error}", invocation.name))
-            }
-            WorkflowComplete::NAME => {
-                let tool = WorkflowComplete::parse(&invocation.input).map_err(|error| {
-                    format!(
-                        "workflow tool `{}` arguments are invalid: {error}",
-                        invocation.name,
-                    )
-                })?;
-                self.finish(IntentResultKind::Succeed, tool.output);
-                Ok(())
-            }
-            WorkflowInfeasible::NAME => {
-                let tool = WorkflowInfeasible::parse(&invocation.input).map_err(|error| {
-                    format!(
-                        "workflow tool `{}` arguments are invalid: {error}",
-                        invocation.name,
-                    )
-                })?;
-                self.finish(IntentResultKind::Infeasible, tool.reason);
-                Ok(())
-            }
-            _ => Err(format!(
-                "workflow tool `{}` is not recognized",
-                invocation.name,
-            )),
-        }
-    }
-
-    fn is_workflow_tool(name: &str) -> bool {
-        matches!(
-            name,
-            WorkflowContinuation::NAME
-                | WorkflowPlan::NAME
-                | WorkflowComplete::NAME
-                | WorkflowInfeasible::NAME
-        )
-    }
-
-    fn check_repeat_invocation(&self, draft: &StepDraft) -> Result<(), String> {
-        if draft
-            .invocations
-            .iter()
-            .any(|invocation| Self::is_workflow_tool(&invocation.name))
-        {
-            return Ok(());
-        }
-
-        let repeated = {
-            let mut counts = self
-                .invocation_counts
-                .lock()
-                .unwrap_or_else(|error| error.into_inner());
-            let mut reservations = HashMap::new();
-            let mut repeated = None;
-            for invocation in &draft.invocations {
-                if Self::is_workflow_tool(&invocation.name) {
-                    continue;
-                }
-                let key = Self::repeat_invocation_key(
-                    &invocation.name,
-                    &invocation.input,
-                );
-                let count = counts.get(&key).copied().unwrap_or_default()
-                    + reservations.get(&key).copied().unwrap_or_default();
-                if count >= 3 {
-                    repeated = Some((count, invocation.name.clone(), invocation.input.clone()));
-                    break;
-                }
-                *reservations.entry(key).or_insert(0) += 1;
-            }
-            if repeated.is_none() {
-                for (key, count) in reservations {
-                    *counts.entry(key).or_insert(0) += count;
-                }
-            }
-            repeated
-        };
-
-        let Some((count, tool, parameter)) = repeated else {
-            return Ok(());
-        };
-        let name = "RepeatInvocation";
-        let mut prompt = std::panic::catch_unwind(|| Prompt::load_module(name))
-            .map_err(|payload| {
-                let detail = if let Some(message) = payload.downcast_ref::<String>() {
-                    message.clone()
-                } else if let Some(message) = payload.downcast_ref::<&str>() {
-                    (*message).to_owned()
-                } else {
-                    "unknown prompt loading panic".to_owned()
-                };
-                format!("failed to load prompt {name}: {detail}")
+    fn record_plan_failure(&self) -> Result<(), String> {
+        let plan = self
+            .plan
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clone()
+            .ok_or_else(|| {
+                "cannot record a failure without an active plan"
+                    .to_owned()
             })?;
-        let parameters = prompt.parameters();
-        for expected in ["count", "tool", "parameter"] {
-            if !parameters.iter().any(|parameter| parameter == expected) {
-                return Err(format!(
-                    "prompt {name} is missing parameter `{expected}`"
-                ));
-            }
-        }
-        for parameter_name in parameters {
-            let value = match parameter_name.as_str() {
-                "count" => count.to_string(),
-                "tool" => tool.clone(),
-                "parameter" => parameter.clone(),
-                _ => {
-                    return Err(format!(
-                        "unsupported prompt {name} parameter \
-                         `{parameter_name}`"
-                    ));
+        let goals = plan
+            .subintents
+            .iter()
+            .map(|signature| {
+                self.access.get_intent_content(signature).ok_or_else(
+                    || {
+                        format!(
+                            "cannot snapshot plan: subintent \
+                             {signature} was not found"
+                        )
+                    },
+                )
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        let results = plan
+            .subintents
+            .iter()
+            .map(|signature| self.access.get_result(signature))
+            .collect::<Vec<_>>();
+        let reason = results
+            .iter()
+            .flatten()
+            .find_map(|result| match result.kind {
+                IntentResultKind::Failed
+                | IntentResultKind::Infeasible => {
+                    Some(result.output.clone())
                 }
-            };
-            prompt.inject(parameter_name, value);
-        }
-        let reason = prompt
-            .prompt()
-            .map_err(|error| format!("failed to render prompt {name}: {error}"))?;
-        Err(reason)
+                IntentResultKind::Succeed
+                | IntentResultKind::Canceled => None,
+            })
+            .ok_or_else(|| {
+                "cannot record plan failure: no subintent failed or \
+                 was infeasible"
+                    .to_owned()
+            })?;
+        self.plan_failures
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .push(PlanResult {
+                goals,
+                results,
+                reason,
+            });
+        Ok(())
     }
 
-    // The server injects a model-authored `purpose` into every execution
-    // tool schema, so it is dropped before the arguments become a repeat
-    // counting key. Malformed or non-object arguments keep their raw text.
-    fn repeat_invocation_key(name: &str, input: &str) -> String {
-        let canonical = match serde_json::from_str(input) {
-            Ok(serde_json::Value::Object(mut members)) => {
-                members.remove("purpose");
-                let value = canonical_json_value(
-                    serde_json::Value::Object(members),
-                );
-                serde_json::to_string(&value).ok()
-            }
-            _ => None,
-        };
-        let argument = canonical.unwrap_or_else(|| input.trim().to_owned());
-        format!("{name} - {argument}")
+    fn start_subintent(
+        &self,
+        signature: IntentSignature,
+    ) -> Result<(), String> {
+        self.access
+            .session_tx
+            .send(SessionEvent::Task(
+                self.access.signature.clone(),
+                TaskEvent::IntentStart(signature.clone()),
+            ))
+            .map_err(|_| {
+                format!(
+                    "plan subintent {signature} start failed: \
+                     session stopped"
+                )
+            })
     }
 
     pub(super) fn cancel(&self) {
@@ -473,15 +578,25 @@ impl IntentRuntime {
                 ));
             }
         }
-        self.finish(IntentResultKind::Canceled, "intent canceled".to_owned());
+        self.finish(
+            IntentResultKind::Canceled,
+            "intent canceled".to_owned(),
+        );
     }
 
     pub(super) fn fail(&self, reason: String) {
-        self.error(format!("intent {} failed: {reason}", &self.signature,));
+        self.error(format!(
+            "intent {} failed: {reason}",
+            &self.signature,
+        ));
         self.finish(IntentResultKind::Failed, reason);
     }
 
-    pub(super) fn finish(&self, kind: IntentResultKind, output: String) {
+    pub(super) fn finish(
+        &self,
+        kind: IntentResultKind,
+        output: String,
+    ) {
         RuntimeTrait::finish(self, IntentResult { kind, output });
     }
 
@@ -490,10 +605,14 @@ impl IntentRuntime {
             None => TaskEvent::Update(self.signature.clone(), status),
             Some(parent) => TaskEvent::Intent(
                 parent.clone(),
-                IntentEvent::SubintentUpdate(self.signature.clone(), status),
+                IntentEvent::SubintentUpdate(
+                    self.signature.clone(),
+                    status,
+                ),
             ),
         };
-        let task_event = SessionEvent::Task(self.access.signature.clone(), event);
+        let task_event =
+            SessionEvent::Task(self.access.signature.clone(), event);
         if self.access.session_tx.send(task_event).is_err() {
             self.warning(format!(
                 "intent {} event send failed: session stopped",
@@ -504,6 +623,8 @@ impl IntentRuntime {
 }
 
 #[allow(dead_code)]
-fn assert_runtime_object_safe(runtime: &dyn RuntimeTrait<Base = Intent, Prepared = ()>) {
+fn assert_runtime_object_safe(
+    runtime: &dyn RuntimeTrait<Base = Intent, Prepared = ()>,
+) {
     let _ = runtime.run();
 }

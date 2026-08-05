@@ -1,0 +1,20 @@
+{
+  "id": "completed_facts_new_plan",
+  "stage": "replan",
+  "intent": "Produce the release report despite the failed source.",
+  "plan": [],
+  "subintent_results": [
+    {
+      "goal": "Collect version",
+      "result": "Version 1.97.1 is confirmed."
+    }
+  ],
+  "tool_calls": [],
+  "failed_plans": [
+    "The first source had no release date."
+  ],
+  "tool_call_count": null,
+  "expected": {
+    "decision": "replan"
+  }
+}

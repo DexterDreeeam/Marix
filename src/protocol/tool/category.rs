@@ -9,5 +9,4 @@ pub enum ToolCategory {
     Shell,
     System,
     Web,
-    Workflow,
 }

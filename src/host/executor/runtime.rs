@@ -3,9 +3,10 @@ use std::sync::Arc;
 
 use marix_common::{Actor, ActorStatus, Logger, Receiver, Sender, System, build_channel, select};
 use marix_protocol::{
-    ExecutionEvent, ExecutionRequest, ExecutionResult, ExecutionResultKind, ExecutionSignature,
-    ExecutorEvent, InvocationEvent, SessionEvent, TaskEvent, TaskLogger, WorkflowContinuation,
-    WorkflowTool,
+    ContinuationRequest, ExecutionEvent, ExecutionRequest,
+    ExecutionResult, ExecutionResultKind, ExecutionSignature,
+    ExecutorEvent, InvocationEvent, InvocationSignature, SessionEvent,
+    TaskEvent, TaskLogger,
 };
 
 use super::state::ExecutorState;
@@ -59,6 +60,9 @@ impl ExecutorRuntime {
 
     pub fn dispatch(&self, event: ExecutorEvent) -> Result<(), Infallible> {
         match event {
+            ExecutorEvent::Continuation(request) => {
+                self.continue_invocation(request);
+            }
             ExecutorEvent::Execution(signature, event) => {
                 self.dispatch_execution(signature, event);
             }
@@ -109,10 +113,6 @@ impl ExecutorRuntime {
                 .task
                 .clone(),
         );
-        if request.signature.name == WorkflowContinuation::NAME {
-            self.create_continuation_execution(request);
-            return;
-        }
         let Some(tool) = self.state.registry.get(&request.signature.name).cloned() else {
             let reason = format!("tool '{}' is not available", request.signature.name,);
             logger.warning(format!(
@@ -155,79 +155,37 @@ impl ExecutorRuntime {
         }
     }
 
-    fn create_continuation_execution(&self, request: ExecutionRequest) {
-        let logger = TaskLogger::from(
-            request
-                .signature
-                .invocation
-                .step
-                .intent
-                .task
-                .clone(),
-        );
-        let tool = match WorkflowContinuation::parse(&request.input) {
-            Ok(tool) => tool,
-            Err(error) => {
-                let reason = format!(
-                    "workflow tool '{}' arguments are invalid: {error}",
-                    WorkflowContinuation::NAME,
-                );
-                logger.warning(format!(
-                    "execution {} create failed: {reason}",
-                    &request.signature,
-                ));
-                self.send_execution_failure(&request, reason);
-                return;
-            }
-        };
+    fn continue_invocation(&self, request: ContinuationRequest) {
         let result = {
             let mut cache = self
                 .state
                 .cache
                 .lock()
                 .unwrap_or_else(|error| error.into_inner());
-            cache.pick(&tool.continuation_cursor)
+            cache.pick(&request.continuation_cursor)
         };
         match result {
             Ok((content, continuation_cursor)) => {
-                self.send_inline_execution(&request, content, continuation_cursor);
+                self.send_invocation_event(
+                    &request.invocation,
+                    InvocationEvent::Continuation {
+                        content,
+                        continuation_cursor,
+                    },
+                );
             }
-            Err(error) => self.send_execution_failure(&request, error),
+            Err(reason) => {
+                self.send_invocation_event(
+                    &request.invocation,
+                    InvocationEvent::ContinuationFailed { reason },
+                );
+            }
         }
-    }
-
-    fn send_inline_execution(
-        &self,
-        request: &ExecutionRequest,
-        content: String,
-        continuation_cursor: Option<String>,
-    ) {
-        let execution = request.signature.clone();
-        self.send_invocation_event(
-            request,
-            InvocationEvent::Processing {
-                execution: execution.clone(),
-                seq: 0,
-                content,
-            },
-        );
-        self.send_invocation_event(
-            request,
-            InvocationEvent::Update(
-                execution,
-                ActorStatus::Complete(ExecutionResult {
-                    kind: ExecutionResultKind::Succeed,
-                    output: String::new(),
-                    seq_count: 1,
-                    continuation_cursor,
-                }),
-            ),
-        );
     }
 
     fn send_execution_failure(&self, request: &ExecutionRequest, reason: String) {
         self.send_invocation_event(
-            request,
+            &request.signature.invocation,
             InvocationEvent::Update(
                 request.signature.clone(),
                 ActorStatus::Complete(ExecutionResult {
@@ -240,25 +198,25 @@ impl ExecutorRuntime {
         );
     }
 
-    fn send_invocation_event(&self, request: &ExecutionRequest, invocation_event: InvocationEvent) {
+    fn send_invocation_event(
+        &self,
+        invocation: &InvocationSignature,
+        invocation_event: InvocationEvent,
+    ) {
         let logger = TaskLogger::from(
-            request
-                .signature
-                .invocation
-                .step
-                .intent
-                .task
-                .clone(),
+            invocation.step.intent.task.clone(),
         );
-        let invocation = request.signature.invocation.clone();
         let event = SessionEvent::Task(
             invocation.step.intent.task.clone(),
-            TaskEvent::Invocation(invocation, invocation_event),
+            TaskEvent::Invocation(
+                invocation.clone(),
+                invocation_event,
+            ),
         );
         if let Err(error) = self.send_server_event(event) {
             logger.warning(format!(
-                "execution {} event could not be sent: {error}",
-                &request.signature,
+                "invocation {invocation} event could not be sent: \
+                 {error}",
             ));
         }
     }

@@ -1,0 +1,15 @@
+{
+  "name": "boolean-user-json-mode",
+  "style": "boolean",
+  "contract_role": "user",
+  "json_mode": true,
+  "system": "You control exactly one execution stage of one Intent. Evaluate only the supplied Intent state and the named stage. Do not perform work from a later stage. Follow the stage output protocol exactly.",
+  "stage_prompts": {
+    "planning": "[PlanningStage]\nDecide whether the Intent needs child Intents. Planning is required for at least two distinct operations, dependent stages, or independent targets. One ordinary tool invocation means no Plan.\nReturn JSON only: {\"should_plan\":true|false,\"reason\":\"...\",\"subintents\":[{\"goal\":\"...\"}]}. Use an empty subintents array when false.",
+    "tool_calling": "[ToolCallingStage]\nSelect exactly one supplied ordinary tool whose single invocation advances the current Intent. Return only its native function call. Do not return JSON text and do not claim completion.",
+    "replan": "[ReplanStage]\nDecide whether a materially different feasible Plan exists after the failed child. Preserve completed facts and never repeat a failed Plan.\nReturn JSON only: {\"should_replan\":true|false,\"reason\":\"...\",\"subintents\":[{\"goal\":\"...\"}]}. False requests a later infeasibility review.",
+    "infeasible": "[InfeasibleStage]\nA permanent blocker with no remaining path is infeasible. An untried tool, uninspected input, retryable error, or remaining path is still feasible.\nReturn JSON only: {\"is_infeasible\":true|false,\"reason\":\"...\"}",
+    "subintent_complete": "[SubIntentCompleteStage]\nJudge whether completed child results satisfy every parent Intent requirement and side effect.\nReturn JSON only: {\"can_complete\":true|false,\"reason\":\"...\",\"context_summary\":\"...\"}",
+    "complete": "[CompleteStage]\nJudge whether the ordinary tool results satisfy every current Intent requirement. Preserve concrete values.\nReturn JSON only: {\"is_complete\":true|false,\"reason\":\"...\",\"summary\":\"...\"}"
+  }
+}

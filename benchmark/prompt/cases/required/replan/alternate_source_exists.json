@@ -1,0 +1,15 @@
+{
+  "id": "alternate_source_exists",
+  "stage": "replan",
+  "intent": "Find the stable release date from an independent source.",
+  "plan": [],
+  "subintent_results": [],
+  "tool_calls": [],
+  "failed_plans": [
+    "Fetch source A; source A is permanently unavailable."
+  ],
+  "tool_call_count": null,
+  "expected": {
+    "decision": "replan"
+  }
+}

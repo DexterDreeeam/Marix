@@ -1,0 +1,27 @@
+{
+  "id": "children_exact_summary",
+  "stage": "subintent_complete",
+  "intent": "Resolve the host, port, and token source.",
+  "plan": [],
+  "subintent_results": [
+    {
+      "goal": "Resolve endpoint",
+      "result": "Host api.example.org uses port 8443."
+    },
+    {
+      "goal": "Resolve token",
+      "result": "Read it from SERVICE_TOKEN."
+    }
+  ],
+  "tool_calls": [],
+  "failed_plans": [],
+  "tool_call_count": null,
+  "expected": {
+    "decision": "complete",
+    "summary_contains": [
+      "api.example.org",
+      "8443",
+      "SERVICE_TOKEN"
+    ]
+  }
+}

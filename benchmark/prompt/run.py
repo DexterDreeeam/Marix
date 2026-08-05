@@ -14,17 +14,16 @@ import tomllib
 
 
 ROOT = Path(__file__).resolve().parent
-REPO_ROOT = ROOT.parents[1]
 RESULTS_ROOT = ROOT / "results"
-TEMP_ROOT = REPO_ROOT / ".temp" / "benchmark-prompt"
-CATEGORIES = [
-    "workflow_plan",
-    "workflow_complete",
-    "workflow_infeasible",
-    "ordinary",
+TEMP_ROOT = ROOT / ".temp"
+STAGES = [
+    "planning",
+    "tool_calling",
+    "replan",
+    "infeasible",
+    "subintent_complete",
+    "complete",
 ]
-SUITES = ["required", "guide"]
-NAME_MAX_SEGMENTS = 5
 NAME_PATTERN = re.compile(r"[a-z0-9]+(_[a-z0-9]+)*")
 CURL = shutil.which("curl") or shutil.which("curl.exe")
 
@@ -41,7 +40,7 @@ def load_model_config():
     config_path = os.environ.get("MARIX_CONFIG", "").strip()
     if not config_path:
         raise RuntimeError(
-            "MARIX_CONFIG must point to a Marix config with model credentials"
+            "MARIX_CONFIG must point to a config with resolved credentials"
         )
     with open(config_path, "rb") as config_file:
         config = tomllib.load(config_file)
@@ -54,140 +53,105 @@ def load_model_config():
     }
 
 
-def verify_suite(config, suite):
-    suite_root = ROOT / config[suite]["case_dir"]
-    if not suite_root.is_dir():
-        raise RuntimeError(f"{suite} case directory is missing: {suite_root}")
-
+def load_cases(config, suite):
+    root = ROOT / config[suite]["case_dir"]
     cases = []
-    seen = set()
-    for category in CATEGORIES:
-        category_dir = suite_root / category
-        if not category_dir.is_dir():
-            raise RuntimeError(
-                f"{suite} is missing the {category} directory"
-            )
-        for path in sorted(category_dir.glob("*.json")):
-            stem = path.stem
-            segments = stem.split("_")
-            if len(segments) > NAME_MAX_SEGMENTS:
-                raise RuntimeError(
-                    f"{path} has {len(segments)} name segments, "
-                    f"at most {NAME_MAX_SEGMENTS} are allowed"
-                )
-            if not NAME_PATTERN.fullmatch(stem):
-                raise RuntimeError(f"{path} is not snake_case")
+    for stage in STAGES:
+        stage_dir = root / stage
+        if not stage_dir.is_dir():
+            raise RuntimeError(f"missing case directory: {stage_dir}")
+        for path in sorted(stage_dir.glob("*.json")):
             case = load_json(path)
-            if case.get("id") != stem:
-                raise RuntimeError(
-                    f"{path} declares id {case.get('id')!r}, "
-                    f"expected {stem!r}"
-                )
-            if case.get("category") != category:
-                raise RuntimeError(
-                    f"{path} declares category {case.get('category')!r} "
-                    f"but lives under {category}"
-                )
-            if not case.get("expected_tools"):
-                raise RuntimeError(f"{path} has no expected_tools")
-            key = (category, stem)
-            if key in seen:
-                raise RuntimeError(f"{suite} contains duplicate case {stem}")
-            seen.add(key)
+            if case.get("id") != path.stem:
+                raise RuntimeError(f"{path}: id must equal file stem")
+            if case.get("stage") != stage:
+                raise RuntimeError(f"{path}: stage must equal directory")
+            if not NAME_PATTERN.fullmatch(path.stem):
+                raise RuntimeError(f"{path}: name is not snake_case")
+            if len(path.stem.split("_")) > 5:
+                raise RuntimeError(f"{path}: name exceeds five segments")
             cases.append(case)
-
-    if not cases:
-        raise RuntimeError(f"{suite} contains no cases")
-    return {"total": len(cases)}, cases
+    return cases
 
 
-def append_completed(lines, candidate, calls):
-    if not calls:
-        return
-    lines.extend(
-        [
-            "",
-            candidate["completed_header"],
-            candidate["completed_notice"],
-        ]
-    )
-    lines.extend(f"{index}. {value}" for index, value in enumerate(calls, 1))
-
-
-def append_fail_plans(lines, candidate, plans):
-    if not plans:
-        return
-    lines.extend(["", candidate["fail_plans_header"]])
-    for plan in plans:
-        lines.extend(f"- {goal}" for goal in plan["goals"])
-        lines.append(
-            f"{candidate['fail_reason_label']} {plan['reason']}"
+def render_context(case):
+    sections = [
+        "[INTENT]",
+        case["intent"],
+    ]
+    if case.get("plan"):
+        sections.extend(
+            [
+                "",
+                "[PLAN]",
+                "\n".join(
+                    f"{index}. [{item['status']}] {item['goal']}"
+                    for index, item in enumerate(case["plan"], 1)
+                ),
+            ]
         )
-
-
-def render_ancestor(candidate, ancestor):
-    lines = [
-        candidate["goal_header"],
-        ancestor["goal"],
-        "",
-        candidate["plan_header"],
-    ]
-    for index, item in enumerate(ancestor["plan"], 1):
-        if item["status"] == "completed":
-            lines.extend([f"{index}. {item['goal']}:", item["result"]])
-        elif item["status"] == "executing":
-            lines.append(f"{index}. [EXECUTING NOW] {item['goal']}")
-        else:
-            lines.append(f"{index}. {item['goal']}")
-    append_completed(lines, candidate, ancestor.get("completed_calls", []))
-    append_fail_plans(lines, candidate, ancestor.get("fail_plans", []))
-    return "\n".join(lines)
-
-
-def render_current(candidate, case):
-    lines = [
-        candidate["current_header"],
-        "",
-        candidate["goal_header"],
-        case["current_task"],
-    ]
-    append_completed(lines, candidate, case.get("completed_calls", []))
-    append_fail_plans(lines, candidate, case.get("fail_plans", []))
-    return "\n".join(lines)
+    if case.get("subintent_results"):
+        sections.extend(
+            [
+                "",
+                "[SUBINTENT RESULTS]",
+                "\n".join(
+                    f"{index}. {item['goal']} => {item['result']}"
+                    for index, item in enumerate(
+                        case["subintent_results"], 1
+                    )
+                ),
+            ]
+        )
+    if case.get("tool_calls"):
+        sections.extend(
+            [
+                "",
+                "[TOOL CALLS]",
+                "\n".join(
+                    f"{index}. {item['tool']}({item['arguments']}) => "
+                    f"{item['result']}"
+                    for index, item in enumerate(case["tool_calls"], 1)
+                ),
+            ]
+        )
+    if case.get("failed_plans"):
+        sections.extend(
+            [
+                "",
+                "[FAILED PLANS]",
+                "\n".join(
+                    f"{index}. {item}"
+                    for index, item in enumerate(case["failed_plans"], 1)
+                ),
+            ]
+        )
+    if case.get("tool_call_count") is not None:
+        sections.extend(
+            [
+                "",
+                f"[TOOL CALL COUNT] {case['tool_call_count']}",
+            ]
+        )
+    return "\n".join(sections)
 
 
 def compose_messages(candidate, case):
+    context = render_context(case)
+    contract = candidate["stage_prompts"][case["stage"]]
     messages = [
-        {
-            "role": "system",
-            "content": candidate["system"].replace(
-                "{{system}}", "Windows on amd64"
-            ),
-        },
-        {
-            "role": "system",
-            "content": candidate["policy"].replace(
-                "{{goal}}", case["overall_goal"]
-            ),
-        },
+        {"role": "system", "content": candidate["system"]},
+        {"role": "user", "content": context},
     ]
-    if case["ancestors"]:
-        background = candidate["background_header"] + "\n\n\n"
-        background += "\n\n\n".join(
-            render_ancestor(candidate, ancestor)
-            for ancestor in case["ancestors"]
-        )
-        messages.append({"role": "user", "content": background})
-    messages.append(
-        {"role": "user", "content": render_current(candidate, case)}
-    )
+    role = candidate.get("contract_role", "user")
+    messages.append({"role": role, "content": contract})
     return messages
 
 
 def post_request(model_config, body):
     if not CURL:
         raise RuntimeError("curl is unavailable")
-    TEMP_ROOT.mkdir(parents=True, exist_ok=True)
+    TEMP_ROOT.mkdir(exist_ok=True)
     for attempt in range(3):
         request_path = None
         try:
@@ -195,7 +159,7 @@ def post_request(model_config, body):
                 mode="w",
                 encoding="utf-8",
                 suffix=".json",
-                prefix="prompt-benchmark-",
+                prefix="stage-benchmark-",
                 dir=TEMP_ROOT,
                 delete=False,
             ) as request_file:
@@ -239,26 +203,144 @@ def post_request(model_config, body):
                 Path(request_path).unlink(missing_ok=True)
 
 
-def parse_calls(payload):
-    calls = []
+def parse_tool_calls(payload):
     message = payload["choices"][0]["message"]
+    calls = []
     for call in message.get("tool_calls") or []:
         function = call.get("function") or {}
-        raw_arguments = function.get("arguments", "{}")
+        raw = function.get("arguments", "{}")
         try:
-            arguments = json.loads(raw_arguments)
+            arguments = json.loads(raw)
         except json.JSONDecodeError:
-            arguments = {"_invalid": raw_arguments}
+            arguments = {"_invalid": raw}
         calls.append(
-            {
-                "name": function.get("name", ""),
-                "arguments": arguments,
-            }
+            {"name": function.get("name", ""), "arguments": arguments}
         )
     return calls
 
 
-def evaluate_case(model_config, tools, candidate, case):
+def parse_json_content(payload):
+    content = payload["choices"][0]["message"].get("content") or ""
+    return json.loads(content)
+
+
+def decision_for_boolean(stage, value):
+    mapping = {
+        "planning": ("should_plan", "plan", "tool_calling"),
+        "replan": ("should_replan", "replan", "infeasible_review"),
+        "infeasible": ("is_infeasible", "infeasible", "continue"),
+        "subintent_complete": ("can_complete", "complete", "replan"),
+        "complete": ("is_complete", "complete", "continue"),
+    }
+    field, yes, no = mapping[stage]
+    if field not in value or not isinstance(value[field], bool):
+        raise RuntimeError(f"missing boolean field {field}")
+    return yes if value[field] else no
+
+
+def decision_for_next_stage(stage, value):
+    next_stage = value.get("next_stage")
+    mapping = {
+        ("planning", "subintent_iteration"): "plan",
+        ("planning", "tool_calling"): "tool_calling",
+        ("replan", "subintent_iteration"): "replan",
+        ("replan", "infeasible_review"): "infeasible_review",
+        ("infeasible", "infeasible"): "infeasible",
+        ("infeasible", "tool_calling"): "continue",
+        ("subintent_complete", "complete"): "complete",
+        ("subintent_complete", "replan"): "replan",
+        ("complete", "complete"): "complete",
+        ("complete", "tool_calling"): "continue",
+    }
+    return mapping.get((stage, next_stage), next_stage)
+
+
+def decision_for_marker(stage, value):
+    token = value.get("token")
+    mapping = {
+        ("planning", "Intent-Plan"): "plan",
+        ("planning", "Intent-ToolCalling"): "tool_calling",
+        ("replan", "Intent-Replan"): "replan",
+        ("replan", "Intent-InfeasibleReview"): "infeasible_review",
+        ("infeasible", "Intent-Infeasible"): "infeasible",
+        ("infeasible", "Intent-Continue"): "continue",
+        ("subintent_complete", "Intent-Complete"): "complete",
+        ("subintent_complete", "Intent-Replan"): "replan",
+        ("complete", "Intent-Complete"): "complete",
+        ("complete", "Intent-Continue"): "continue",
+    }
+    return mapping.get((stage, token), token)
+
+
+def validate_json(candidate, case, value):
+    style = candidate["style"]
+    if not isinstance(value, dict):
+        return False, None, "response is not a JSON object"
+    if not isinstance(value.get("reason"), str) or not value["reason"].strip():
+        return False, None, "reason is missing"
+
+    if style == "boolean":
+        decision = decision_for_boolean(case["stage"], value)
+    elif style == "next_stage":
+        decision = decision_for_next_stage(case["stage"], value)
+    elif style == "marker":
+        decision = decision_for_marker(case["stage"], value)
+    else:
+        decision = value.get("decision")
+
+    expected = case["expected"]["decision"]
+    if decision != expected:
+        return False, decision, f"expected {expected}, got {decision}"
+
+    if decision == "plan":
+        items = value.get("subintents")
+        if not isinstance(items, list) or len(items) < 2:
+            return False, decision, "subintents must contain at least two items"
+        if any(
+            not isinstance(item, dict)
+            or not isinstance(item.get("goal"), str)
+            or not item["goal"].strip()
+            for item in items
+        ):
+            return False, decision, "subintents contain an invalid goal"
+    if case["stage"] == "replan" and decision == "replan":
+        items = value.get("subintents")
+        if not isinstance(items, list) or not items:
+            return False, decision, "replan must contain a new subintent"
+
+    if case["stage"] in ("complete", "subintent_complete"):
+        summary = value.get("summary") or value.get("context_summary") or ""
+        if decision == "complete" and not summary.strip():
+            return False, decision, "completion summary is missing"
+        missing = [
+            token
+            for token in case["expected"].get("summary_contains", [])
+            if token not in summary
+        ]
+        if missing:
+            return (
+                False,
+                decision,
+                f"summary misses required values: {missing}",
+            )
+
+    if style == "requirements" and case["stage"] in (
+        "complete",
+        "subintent_complete",
+    ):
+        requirements = value.get("requirements")
+        if not isinstance(requirements, list) or not requirements:
+            return False, decision, "requirements inventory is missing"
+        if any(
+            item.get("status") not in ("satisfied", "missing")
+            for item in requirements
+            if isinstance(item, dict)
+        ):
+            return False, decision, "requirements contain an invalid status"
+    return True, decision, ""
+
+
+def evaluate_case(model_config, tools, candidate, case, temperature):
     started = time.monotonic()
     body = {
         "model": model_config["model"],
@@ -266,265 +348,97 @@ def evaluate_case(model_config, tools, candidate, case):
         "thinking": {"type": "disabled"},
         "stream": False,
         "tools": tools,
-        "tool_choice": "required",
-        "temperature": 0,
+        "temperature": temperature,
     }
     try:
-        payload = post_request(model_config, body)
-        calls = parse_calls(payload)
-        actual = [call["name"] for call in calls]
-        passed = actual == case["expected_tools"]
-        detail = ""
-        if passed and actual == ["workflow_plan"]:
-            goals = calls[0]["arguments"].get("goals")
-            if not isinstance(goals, list) or len(goals) < 2:
-                passed = False
-                detail = "workflow_plan returned fewer than two goals"
-            else:
-                failed_goals = {
-                    goal
-                    for plan in case.get("fail_plans", [])
-                    for goal in plan["goals"]
-                }
-                overlap = failed_goals.intersection(goals)
-                if overlap:
-                    passed = False
-                    detail = f"workflow_plan repeated failed goals: {sorted(overlap)}"
+        if case["stage"] == "tool_calling":
+            body["tool_choice"] = "required"
+            payload = post_request(model_config, body)
+            calls = parse_tool_calls(payload)
+            actual = [call["name"] for call in calls]
+            expected = case["expected"]["tools"]
+            passed = actual == expected
+            detail = "" if passed else f"expected {expected}, got {actual}"
+            output = calls
+        else:
+            body["tool_choice"] = "none"
+            if candidate.get("json_mode", True):
+                body["response_format"] = {"type": "json_object"}
+            payload = post_request(model_config, body)
+            output = parse_json_content(payload)
+            passed, actual, detail = validate_json(
+                candidate, case, output
+            )
         return {
             "case_id": case["id"],
-            "category": case["category"],
-            "depth": case["depth"],
-            "family": case["family"],
-            "source": case.get("source"),
-            "expected": case["expected_tools"],
-            "actual": actual,
-            "calls": calls,
+            "stage": case["stage"],
             "passed": passed,
+            "actual": actual,
             "detail": detail,
+            "output": output,
             "elapsed_seconds": round(time.monotonic() - started, 3),
             "usage": payload.get("usage"),
         }
     except Exception as error:
         return {
             "case_id": case["id"],
-            "category": case["category"],
-            "depth": case["depth"],
-            "family": case["family"],
-            "source": case.get("source"),
-            "expected": case["expected_tools"],
-            "actual": [],
-            "calls": [],
+            "stage": case["stage"],
             "passed": False,
+            "actual": None,
             "detail": str(error),
+            "output": None,
             "elapsed_seconds": round(time.monotonic() - started, 3),
             "usage": None,
         }
 
 
-def guide_batch(config, cases, batch):
-    size = config["guide"]["batch_size_per_category"]
-    start = batch * size
-    end = start + size
-    selected = []
-    for category in CATEGORIES:
-        category_cases = sorted(
-            (case for case in cases if case["category"] == category),
-            key=lambda case: case["id"],
-        )
-        selected.extend(category_cases[start:end])
-    if not selected:
-        raise RuntimeError(f"guide batch {batch} selected no cases")
-    return selected
-
-
-def metrics(results):
-    values = {}
-    for category in CATEGORIES:
-        subset = [
-            result for result in results if result["category"] == category
-        ]
-        passed = sum(bool(result["passed"]) for result in subset)
-        values[category] = {
-            "passed": passed,
-            "total": len(subset),
-            "rate": passed / len(subset) if subset else 0.0,
-        }
-    return values
-
-
-def guide_gate(config, batch):
-    early = config["guide"]["early_gates"].get(str(batch))
-    return early or config["guide"]["thresholds"]
-
-
-def run_metadata(
-    run_id,
-    candidate_name,
-    candidate_hash,
-    tool_hash,
-    manifests,
-    model,
-):
-    return {
-        "schema_version": 1,
-        "run_id": run_id,
-        "created_at": dt.datetime.now().isoformat(timespec="seconds"),
-        "candidate": candidate_name,
-        "candidate_sha256": candidate_hash,
-        "tool_sha256": tool_hash,
-        "suite_totals": {
-            suite: manifest["total"]
-            for suite, manifest in manifests.items()
-        },
-        "model": model,
-    }
-
-
-def ensure_run(run_dir, expected):
-    run_dir.mkdir(parents=True, exist_ok=True)
-    metadata_path = run_dir / "run.json"
-    if metadata_path.exists():
-        existing = load_json(metadata_path)
-        stable_keys = [
-            "candidate",
-            "candidate_sha256",
-            "tool_sha256",
-            "suite_totals",
-            "model",
-        ]
-        for key in stable_keys:
-            if existing[key] != expected[key]:
-                raise RuntimeError(
-                    f"run {existing['run_id']} is frozen and {key} changed"
-                )
-        return existing
-    metadata_path.write_bytes(
-        (json.dumps(expected, ensure_ascii=False, indent=2) + "\n").encode(
-            "utf-8"
-        )
-    )
-    return expected
-
-
-def existing_guide_results(run_dir):
-    results = []
-    for path in sorted(run_dir.glob("guide-batch-*.json")):
-        results.extend(load_json(path)["results"])
-    return results
-
-
 def report(payload):
     lines = [
-        f"# Prompt benchmark: {payload['suite']}",
+        f"# Stage prompt benchmark: {payload['suite']}",
         "",
         f"- Run: `{payload['run_id']}`",
         f"- Candidate: `{payload['candidate']}`",
         f"- Model: `{payload['model']}`",
-        f"- Cases in invocation: {len(payload['results'])}",
-        f"- Cumulative cases: {payload['cumulative_total']}",
+        f"- Cases: {len(payload['results'])}",
         "",
-        "| Category | Passed | Total | Rate | Gate |",
-        "|---|---:|---:|---:|---:|",
+        "| Stage | Passed | Total | Rate |",
+        "|---|---:|---:|---:|",
     ]
-    for category in CATEGORIES:
-        value = payload["cumulative_metrics"][category]
-        gate = payload["gate"].get(category)
-        gate_text = f"{gate:.1%}" if gate is not None else "-"
+    for stage in STAGES:
+        value = payload["metrics"][stage]
         lines.append(
-            f"| {category} | {value['passed']} | {value['total']} | "
-            f"{value['rate']:.1%} | {gate_text} |"
+            f"| {stage} | {value['passed']} | {value['total']} | "
+            f"{value['rate']:.1%} |"
         )
-    lines.extend(
-        [
-            "",
-            f"**Passed: {payload['passed']}**",
-            "",
-            "## Failures",
-            "",
-        ]
-    )
-    failures = [
-        result for result in payload["results"] if not result["passed"]
-    ]
+    lines.extend(["", f"**Passed: {payload['passed']}**", "", "## Failures", ""])
+    failures = [result for result in payload["results"] if not result["passed"]]
     if not failures:
         lines.append("- None")
     else:
         for result in failures:
             lines.append(
-                f"- `{result['case_id']}`: expected "
-                f"`{','.join(result['expected'])}`, actual "
-                f"`{','.join(result['actual']) or 'ERROR'}`"
-                + (f"; {result['detail']}" if result["detail"] else "")
+                f"- `{result['case_id']}`: `{result['actual']}`; "
+                f"{result['detail']}"
             )
     return "\n".join(lines) + "\n"
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("suite", choices=SUITES)
+    parser.add_argument("suite", choices=["required", "guide"])
     parser.add_argument("--candidate")
     parser.add_argument("--run-id", required=True)
-    parser.add_argument("--batch", type=int, choices=range(10))
-    parser.add_argument("--workers", type=int, default=6)
+    parser.add_argument("--workers", type=int, default=8)
     args = parser.parse_args()
 
     config = load_json(ROOT / "benchmark.json")
     candidate_name = args.candidate or config["default_candidate"]
-    candidate_path = ROOT / "prompts" / f"{candidate_name}.json"
-    candidate_bytes = candidate_path.read_bytes()
-    candidate = json.loads(candidate_bytes.decode("utf-8"))
-    candidate_hash = sha256(candidate_bytes)
-
-    tool_path = ROOT / "tools.json"
-    tool_bytes = tool_path.read_bytes()
-    tools = json.loads(tool_bytes.decode("utf-8-sig"))
+    candidate = load_json(ROOT / "prompts" / f"{candidate_name}.json")
+    tools = load_json(ROOT / "tools.json")
     if len(tools) != config["tool_count"]:
-        raise RuntimeError(
-            f"expected {config['tool_count']} tools, found {len(tools)}"
-        )
-    tool_hash = sha256(tool_bytes)
-
-    manifests = {}
-    suites = {}
-    for suite in SUITES:
-        manifests[suite], suites[suite] = verify_suite(config, suite)
-
-    if args.suite == "guide" and args.batch is None:
-        raise RuntimeError("--batch is required for guide")
-    if args.suite == "required" and args.batch is not None:
-        raise RuntimeError("--batch is not used for required")
-
+        raise RuntimeError("tool_count does not match tools.json")
+    cases = load_cases(config, args.suite)
     model_config = load_model_config()
-    run_dir = RESULTS_ROOT / args.run_id
-    metadata = run_metadata(
-        args.run_id,
-        candidate_name,
-        candidate_hash,
-        tool_hash,
-        manifests,
-        model_config["model"],
-    )
-    ensure_run(run_dir, metadata)
-
-    if args.suite == "guide":
-        result_path = run_dir / f"guide-batch-{args.batch:02d}.json"
-        report_path = run_dir / f"guide-batch-{args.batch:02d}.md"
-        if result_path.exists() or report_path.exists():
-            raise RuntimeError("this frozen guide batch already exists")
-        existing = sorted(run_dir.glob("guide-batch-*.json"))
-        expected = [
-            run_dir / f"guide-batch-{index:02d}.json"
-            for index in range(args.batch)
-        ]
-        if existing != expected:
-            raise RuntimeError("guide batches must run sequentially from 0")
-        selected = guide_batch(config, suites["guide"], args.batch)
-    else:
-        result_path = run_dir / "required.json"
-        report_path = run_dir / "required.md"
-        if result_path.exists() or report_path.exists():
-            raise RuntimeError("required already ran for this frozen run")
-        selected = suites["required"]
 
     results = []
     with concurrent.futures.ThreadPoolExecutor(
@@ -537,8 +451,9 @@ def main():
                 tools,
                 candidate,
                 case,
+                config["temperature"],
             )
-            for case in selected
+            for case in cases
         ]
         for index, future in enumerate(
             concurrent.futures.as_completed(futures), 1
@@ -548,51 +463,50 @@ def main():
             marker = "PASS" if result["passed"] else "FAIL"
             print(
                 f"[{index:03d}/{len(futures):03d}] {marker} "
-                f"{result['case_id']} -> "
-                f"{','.join(result['actual']) or 'ERROR'}",
+                f"{result['case_id']} -> {result['actual']}",
                 flush=True,
             )
-    results.sort(key=lambda value: (value["category"], value["case_id"]))
+    results.sort(key=lambda value: (value["stage"], value["case_id"]))
 
-    if args.suite == "guide":
-        cumulative = existing_guide_results(run_dir) + results
-        cumulative_metrics = metrics(cumulative)
-        gate = guide_gate(config, args.batch)
-        passed = all(
-            cumulative_metrics[category]["rate"] >= gate[category]
-            for category in CATEGORIES
-        )
-    else:
-        cumulative = results
-        cumulative_metrics = metrics(cumulative)
-        gate = {
-            category: config["required"]["threshold"]
-            for category in CATEGORIES
-            if cumulative_metrics[category]["total"]
+    metrics = {}
+    for stage in STAGES:
+        subset = [result for result in results if result["stage"] == stage]
+        passed = sum(bool(result["passed"]) for result in subset)
+        metrics[stage] = {
+            "passed": passed,
+            "total": len(subset),
+            "rate": passed / len(subset) if subset else 0.0,
         }
-        passed = all(result["passed"] for result in results)
-
+    threshold = config[args.suite]["threshold"]
+    passed = all(
+        value["rate"] >= threshold
+        for value in metrics.values()
+        if value["total"]
+    )
     payload = {
         "schema_version": 1,
         "generated_at": dt.datetime.now().isoformat(timespec="seconds"),
         "run_id": args.run_id,
         "suite": args.suite,
-        "batch": args.batch,
         "candidate": candidate_name,
-        "candidate_sha256": candidate_hash,
-        "case_total": manifests[args.suite]["total"],
-        "tool_sha256": tool_hash,
+        "candidate_sha256": sha256(
+            (ROOT / "prompts" / f"{candidate_name}.json").read_bytes()
+        ),
         "model": model_config["model"],
-        "gate": gate,
-        "cumulative_metrics": cumulative_metrics,
-        "cumulative_total": len(cumulative),
+        "temperature": config["temperature"],
+        "metrics": metrics,
         "passed": passed,
         "results": results,
     }
-    result_path.write_bytes(
-        (json.dumps(payload, ensure_ascii=False, indent=2) + "\n").encode(
-            "utf-8"
-        )
+    run_dir = RESULTS_ROOT / args.run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+    result_path = run_dir / f"{args.suite}.json"
+    report_path = run_dir / f"{args.suite}.md"
+    if result_path.exists() or report_path.exists():
+        raise RuntimeError("this run id and suite already exist")
+    result_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
     )
     report_path.write_text(report(payload), encoding="utf-8")
     print(f"RESULT={result_path}")

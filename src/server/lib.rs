@@ -5,6 +5,7 @@ pub mod plan;
 pub mod prompt;
 pub mod relay;
 pub mod session;
+pub mod stage;
 pub mod step;
 pub mod task;
 

@@ -1,0 +1,22 @@
+{
+  "id": "child_side_effect_missing",
+  "stage": "subintent_complete",
+  "intent": "Patch parser.rs and save the verified result.",
+  "plan": [],
+  "subintent_results": [
+    {
+      "goal": "Patch parser",
+      "result": "Patch generated but not saved."
+    },
+    {
+      "goal": "Verify parser",
+      "result": "Verification used the generated patch."
+    }
+  ],
+  "tool_calls": [],
+  "failed_plans": [],
+  "tool_call_count": null,
+  "expected": {
+    "decision": "replan"
+  }
+}

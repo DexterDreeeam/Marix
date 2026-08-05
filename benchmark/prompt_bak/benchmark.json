@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "default_candidate": "candidate-023",
+  "tool_count": 17,
+  "required": {
+    "case_dir": "cases/required",
+    "threshold": 1.0
+  },
+  "guide": {
+    "case_dir": "cases/guide",
+    "batch_size_per_category": 10,
+    "thresholds": {
+      "workflow_plan": 0.95,
+      "workflow_complete": 0.99,
+      "workflow_infeasible": 0.5,
+      "ordinary": 0.9
+    },
+    "early_gates": {
+      "0": {
+        "workflow_plan": 0.7,
+        "workflow_complete": 0.8,
+        "workflow_infeasible": 0.3,
+        "ordinary": 0.7
+      },
+      "1": {
+        "workflow_plan": 0.85,
+        "workflow_complete": 0.9,
+        "workflow_infeasible": 0.4,
+        "ordinary": 0.8
+      }
+    }
+  }
+}

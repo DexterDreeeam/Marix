@@ -1,0 +1,19 @@
+{
+  "id": "recoverable_tool_error",
+  "stage": "complete",
+  "intent": "Read C:\\work\\app.json.",
+  "plan": [],
+  "subintent_results": [],
+  "tool_calls": [
+    {
+      "tool": "read_file",
+      "arguments": "C:\\work\\app.json",
+      "result": "Temporary sharing violation."
+    }
+  ],
+  "failed_plans": [],
+  "tool_call_count": 1,
+  "expected": {
+    "decision": "continue"
+  }
+}

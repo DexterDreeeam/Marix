@@ -1,19 +1,25 @@
 use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 use marix_common::external::*;
-use marix_common::{Actor, ActorStartFuture, ActorStatus, Lifecycle, Runtime as RuntimeTrait};
+use marix_common::{
+    Actor, ActorStartFuture, ActorStatus, Lifecycle,
+    Runtime as RuntimeTrait,
+};
 use marix_protocol::{
-    ExecutionEvent, ExecutionRequest, ExecutionResult, ExecutionResultKind, ExecutionSignature,
-    ExecutorEvent, InvocationEvent, InvocationResult, InvocationResultKind, InvocationSignature,
-    RelayKind, RelayRequest, RelayResult, RelayResultKind, RelaySignature, SessionEvent, StepEvent,
-    TaskEvent, TaskLogging, ToolInputSchema, WorkflowContinuation, WorkflowTool,
+    ContinuationRequest, ExecutionEvent, ExecutionRequest,
+    ExecutionResult, ExecutionResultKind, ExecutionSignature,
+    ExecutorEvent, InvocationEvent, InvocationResult,
+    InvocationResultKind, InvocationSignature, RelayResult,
+    RelayResultKind, RelaySignature, SessionEvent, StepEvent,
+    TaskEvent, TaskLogging, ToolInputSchema,
 };
 
 use super::Invocation;
-use crate::prompt::ToolCallSummary;
 use crate::relay::Relay;
+use crate::stage::{StageAssembler, StageResult, StageType};
 use crate::task::TaskAccess;
 
 pub struct InvocationRuntime {
@@ -23,10 +29,15 @@ pub struct InvocationRuntime {
     pub output: StdMutex<BTreeMap<usize, String>>,
     pub final_signal: StdMutex<Option<usize>>,
     pub execution: StdMutex<Option<ExecutionSignature>>,
-    pub pending_summarize: StdMutex<Option<(InvocationResultKind, String)>>,
+    pub pending_stage: StdMutex<
+        Option<(InvocationResultKind, RelaySignature)>,
+    >,
     pub lifecycle: Lifecycle<InvocationEvent, InvocationResult>,
     summaries: StdMutex<Vec<String>>,
     overall_kind: StdMutex<Option<InvocationResultKind>>,
+    pending_stage_cursor: StdMutex<Option<String>>,
+    continuation_pending: StdMutex<bool>,
+    stage_sequence: AtomicUsize,
 }
 
 impl InvocationRuntime {
@@ -42,10 +53,13 @@ impl InvocationRuntime {
             output: StdMutex::new(BTreeMap::new()),
             final_signal: StdMutex::new(None),
             execution: StdMutex::new(None),
-            pending_summarize: StdMutex::new(None),
+            pending_stage: StdMutex::new(None),
             lifecycle: Lifecycle::new(),
             summaries: StdMutex::new(Vec::new()),
             overall_kind: StdMutex::new(None),
+            pending_stage_cursor: StdMutex::new(None),
+            continuation_pending: StdMutex::new(false),
+            stage_sequence: AtomicUsize::new(0),
         }
     }
 }
@@ -58,7 +72,9 @@ impl RuntimeTrait for InvocationRuntime {
         &self.signature
     }
 
-    fn lifecycle(&self) -> &Lifecycle<InvocationEvent, InvocationResult> {
+    fn lifecycle(
+        &self,
+    ) -> &Lifecycle<InvocationEvent, InvocationResult> {
         &self.lifecycle
     }
 
@@ -71,20 +87,26 @@ impl RuntimeTrait for InvocationRuntime {
                     return None;
                 }
             };
-            let is_valid_tool = self.signature.name == WorkflowContinuation::NAME
-                || Self::lock(&session_context).is_valid_tool(&self.signature.name);
-            if !is_valid_tool {
-                self.finish(
-                    InvocationResultKind::Failed,
-                    format!("tool '{}' is not available", self.signature.name),
-                );
-                return None;
-            }
-            if let Err(error) = serde_json::from_str::<serde_json::Value>(&self.input) {
+            if !Self::lock(&session_context)
+                .is_valid_tool(&self.signature.name)
+            {
                 self.finish(
                     InvocationResultKind::Failed,
                     format!(
-                        "arguments for tool '{}' are invalid JSON: {error}",
+                        "tool '{}' is not available",
+                        self.signature.name,
+                    ),
+                );
+                return None;
+            }
+            if let Err(error) =
+                serde_json::from_str::<serde_json::Value>(&self.input)
+            {
+                self.finish(
+                    InvocationResultKind::Failed,
+                    format!(
+                        "arguments for tool '{}' are invalid JSON: \
+                         {error}",
                         self.signature.name,
                     ),
                 );
@@ -111,7 +133,34 @@ impl RuntimeTrait for InvocationRuntime {
                 self.on_processing(execution, seq, content);
             }
             InvocationEvent::SummarizeUpdate(signature, status) => {
-                self.on_summarize_update(signature, status);
+                self.on_stage_update(signature, status);
+            }
+            InvocationEvent::Continuation {
+                content,
+                continuation_cursor,
+            } => {
+                self.on_continuation(
+                    content,
+                    continuation_cursor,
+                );
+            }
+            InvocationEvent::ContinuationFailed { reason } => {
+                if !self.take_continuation_pending() {
+                    self.error(format!(
+                        "invocation {} received continuation failure \
+                         without a pending request",
+                        &self.signature,
+                    ));
+                    return;
+                }
+                self.warning(format!(
+                    "invocation {} continuation failed: {reason}",
+                    &self.signature,
+                ));
+                let kind = self.update_overall_kind(
+                    InvocationResultKind::Failed,
+                );
+                self.finish_summary(kind);
             }
             InvocationEvent::Cancel => self.cancel(),
         }
@@ -125,35 +174,44 @@ impl RuntimeTrait for InvocationRuntime {
 // -- Private -- //
 
 impl InvocationRuntime {
-    fn lock<T>(mutex: &StdMutex<T>) -> std::sync::MutexGuard<'_, T> {
-        mutex.lock().unwrap_or_else(|error| error.into_inner())
+    fn lock<T>(
+        mutex: &StdMutex<T>,
+    ) -> std::sync::MutexGuard<'_, T> {
+        mutex
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
     }
 
     fn create_execution(&self) -> Result<(), String> {
-        self.request_execution(self.signature.name.clone(), self.input.clone())
-    }
-
-    fn request_execution(&self, name: String, input: ToolInputSchema) -> Result<(), String> {
-        if Self::lock(&self.pending_summarize).is_some() {
-            return Err("cannot create execution while a summarize relay is pending".to_owned());
+        if Self::lock(&self.pending_stage).is_some() {
+            return Err(
+                "cannot create execution while a stage relay is pending"
+                    .to_owned(),
+            );
         }
-        let signature = ExecutionSignature::new(self.signature.clone(), name);
+        let signature = ExecutionSignature::new(
+            self.signature.clone(),
+            self.signature.name.clone(),
+        );
         {
             let mut execution = Self::lock(&self.execution);
             if let Some(active) = execution.as_ref() {
                 return Err(format!(
-                    "cannot create execution {}; execution {active} is still active",
-                    &signature
+                    "cannot create execution {}; execution {active} \
+                     is still active",
+                    &signature,
                 ));
             }
             *execution = Some(signature.clone());
         }
         Self::lock(&self.output).clear();
         *Self::lock(&self.final_signal) = None;
-        let result = self.send_executor_event(ExecutorEvent::ExecutionCreate(ExecutionRequest {
-            signature: signature.clone(),
-            input,
-        }));
+        let result = self.send_executor_event(
+            ExecutorEvent::ExecutionCreate(ExecutionRequest {
+                signature: signature.clone(),
+                input: self.input.clone(),
+            }),
+        );
         if result.is_err() {
             let mut execution = Self::lock(&self.execution);
             if execution.as_ref() == Some(&signature) {
@@ -163,7 +221,12 @@ impl InvocationRuntime {
         result
     }
 
-    fn on_processing(&self, execution: ExecutionSignature, seq: usize, content: String) {
+    fn on_processing(
+        &self,
+        execution: ExecutionSignature,
+        seq: usize,
+        content: String,
+    ) {
         if matches!(self.status(), ActorStatus::Complete(_)) {
             self.error(format!(
                 "invocation {} received processing update from \
@@ -172,11 +235,10 @@ impl InvocationRuntime {
             ));
             return;
         }
-        let current = Self::lock(&self.execution).clone();
-        if current.as_ref() != Some(&execution) {
+        if Self::lock(&self.execution).as_ref() != Some(&execution) {
             self.error(format!(
-                "invocation {} received processing update from unexpected \
-                 execution {execution}",
+                "invocation {} received processing update from \
+                 unexpected execution {execution}",
                 &self.signature,
             ));
             return;
@@ -184,7 +246,11 @@ impl InvocationRuntime {
         Self::lock(&self.output).insert(seq, content);
     }
 
-    fn on_update(&self, execution: ExecutionSignature, status: ActorStatus<ExecutionResult>) {
+    fn on_update(
+        &self,
+        execution: ExecutionSignature,
+        status: ActorStatus<ExecutionResult>,
+    ) {
         if matches!(self.status(), ActorStatus::Complete(_)) {
             self.error(format!(
                 "invocation {} received execution {execution} update \
@@ -198,8 +264,8 @@ impl InvocationRuntime {
             let mut current = Self::lock(&self.execution);
             if current.as_ref() != Some(&execution) {
                 self.error(format!(
-                    "invocation {} received update from unexpected execution \
-                     {execution}: {status:?}",
+                    "invocation {} received update from unexpected \
+                     execution {execution}: {status:?}",
                     &self.signature,
                 ));
                 return;
@@ -212,30 +278,37 @@ impl InvocationRuntime {
             ActorStatus::Created | ActorStatus::Running => {}
             ActorStatus::Complete(result) => match result.kind {
                 ExecutionResultKind::Succeed => {
-                    let Some(output) = self.complete_output(result.seq_count) else {
-                        self.summarize_and_finish(
+                    let Some(output) =
+                        self.complete_output(result.seq_count)
+                    else {
+                        self.run_continuation_stage(
                             InvocationResultKind::Failed,
                             format!(
                                 "invocation {} completed with missing \
                                  output chunks; expected {}",
-                                &self.signature, result.seq_count,
+                                &self.signature,
+                                result.seq_count,
                             ),
                             None,
                         );
                         return;
                     };
-                    *Self::lock(&self.final_signal) = Some(result.seq_count);
-                    self.summarize_and_finish(
+                    *Self::lock(&self.final_signal) =
+                        Some(result.seq_count);
+                    self.run_continuation_stage(
                         InvocationResultKind::Succeed,
                         output,
                         result.continuation_cursor,
                     );
                 }
                 ExecutionResultKind::Canceled => {
-                    self.finish(InvocationResultKind::Canceled, result.output);
+                    self.finish(
+                        InvocationResultKind::Canceled,
+                        result.output,
+                    );
                 }
                 ExecutionResultKind::Failed => {
-                    self.summarize_and_finish(
+                    self.run_continuation_stage(
                         InvocationResultKind::Failed,
                         result.output,
                         result.continuation_cursor,
@@ -245,33 +318,54 @@ impl InvocationRuntime {
         }
     }
 
-    fn summarize_and_finish(
+    fn run_continuation_stage(
         &self,
         kind: InvocationResultKind,
         output: String,
         continuation_cursor: Option<String>,
     ) {
         let kind = self.update_overall_kind(kind);
-        let previous_summaries = Self::lock(&self.summaries).clone();
-        let relay_signature = RelaySignature::new(
+        let sequence =
+            self.stage_sequence.fetch_add(1, Ordering::AcqRel) + 1;
+        let signature = RelaySignature::new(
             self.signature.step.intent.clone(),
-            "tool-call-summarize".to_owned(),
+            format!("invocation-continue-{sequence}"),
         );
-        let request = RelayRequest {
-            signature: relay_signature,
-            kind: RelayKind::ToolCallSummarize {
-                invocation: self.signature.clone(),
-                tool: self.signature.name.clone(),
-                output,
-                continuation_cursor,
-                previous_summaries,
-            },
-        };
-        let relay = match Relay::new(Arc::clone(&self.access), request) {
+        let mut assembler =
+            StageAssembler::new(StageType::InvocationContinue);
+        assembler.inject(
+            "tool",
+            self.signature.name.clone(),
+            None,
+        );
+        assembler.inject("output", output, None);
+        if let Some(cursor) = continuation_cursor.as_ref() {
+            assembler.inject(
+                "continuation_cursor",
+                cursor.clone(),
+                None,
+            );
+        }
+        for (index, summary) in
+            Self::lock(&self.summaries).iter().enumerate()
+        {
+            assembler.inject(
+                "previous_summary",
+                summary.clone(),
+                Some(format!("{index:08}")),
+            );
+        }
+        let relay = match Relay::new(
+            Arc::clone(&self.access),
+            signature.clone(),
+            assembler,
+            Some(self.signature.clone()),
+        ) {
             Ok(relay) => relay,
             Err(reason) => {
                 self.warning(format!(
-                    "invocation {} summarize relay creation failed: {reason}",
+                    "invocation {} stage relay creation failed: \
+                     {reason}",
                     &self.signature,
                 ));
                 self.finish_summary(kind);
@@ -279,11 +373,11 @@ impl InvocationRuntime {
             }
         };
         {
-            let mut pending = Self::lock(&self.pending_summarize);
-            if pending.is_some() {
+            let mut pending = Self::lock(&self.pending_stage);
+            if let Some((_, active)) = pending.as_ref() {
                 self.error(format!(
-                    "invocation {} attempted to start summarize relay {} \
-                     while another summarize relay is pending",
+                    "invocation {} attempted to start stage relay {} \
+                     while relay {active} is pending",
                     &self.signature,
                     relay.signature(),
                 ));
@@ -291,25 +385,33 @@ impl InvocationRuntime {
                 self.finish_summary(kind);
                 return;
             }
-            *pending = Some((kind.clone(), relay.signature().to_string()));
+            *pending = Some((kind.clone(), signature));
+            *Self::lock(&self.pending_stage_cursor) =
+                continuation_cursor;
         }
         if !self.access.insert(relay.clone()) {
             self.warning(format!(
-                "invocation {} summarize relay {} already exists",
+                "invocation {} stage relay {} already exists",
                 &self.signature,
                 relay.signature(),
             ));
-            *Self::lock(&self.pending_summarize) = None;
+            *Self::lock(&self.pending_stage) = None;
+            *Self::lock(&self.pending_stage_cursor) = None;
             self.finish_summary(kind);
             return;
         }
         relay.start();
     }
 
-    fn on_summarize_update(&self, signature: RelaySignature, status: ActorStatus<RelayResult>) {
+    fn on_stage_update(
+        &self,
+        signature: RelaySignature,
+        status: ActorStatus<RelayResult>,
+    ) {
         if matches!(self.status(), ActorStatus::Complete(_)) {
             self.error(format!(
-                "invocation {} received summarize relay {signature} update {status:?} after completion",
+                "invocation {} received stage relay {signature} \
+                 update {status:?} after completion",
                 &self.signature,
             ));
             return;
@@ -317,100 +419,183 @@ impl InvocationRuntime {
         let ActorStatus::Complete(result) = status else {
             return;
         };
-        if signature.name != "tool-call-summarize" {
-            self.error(format!(
-                "invocation {} received update from unexpected relay name `{}`",
-                &self.signature, signature.name,
-            ));
-            return;
-        }
-        let kind = {
-            let mut pending = Self::lock(&self.pending_summarize);
-            let Some((kind, expected_signature)) = pending.as_ref() else {
+        let (kind, continuation_cursor) = {
+            let mut pending = Self::lock(&self.pending_stage);
+            let Some((kind, expected)) = pending.as_ref() else {
                 self.error(format!(
-                    "invocation {} received summarize relay {signature} \
+                    "invocation {} received stage relay {signature} \
                      update with no pending state",
                     &self.signature,
                 ));
                 return;
             };
-            if expected_signature != &signature.to_string() {
+            if expected != &signature {
                 self.error(format!(
-                    "invocation {} received update from unexpected summarize \
-                     relay {signature}",
+                    "invocation {} received update from unexpected \
+                     stage relay {signature}; expected {expected}",
                     &self.signature,
                 ));
                 return;
             }
             let kind = kind.clone();
             *pending = None;
-            kind
+            let continuation_cursor =
+                Self::lock(&self.pending_stage_cursor).take();
+            (kind, continuation_cursor)
         };
-        match result.kind {
-            RelayResultKind::Succeed => {
-                let tool = match serde_json::from_str::<ToolCallSummary>(
-                    &result.output,
-                ) {
-                    Ok(tool) => tool,
-                    Err(error) => {
-                        self.warning(format!(
-                            "invocation {} summarize relay {signature} \
-                             returned invalid output: {error}",
-                            &self.signature,
-                        ));
-                        self.finish_summary(kind);
-                        return;
-                    }
-                };
-                let summary = tool.summary.trim();
-                if !summary.is_empty() {
-                    Self::lock(&self.summaries).push(summary.to_owned());
-                }
-                if let Some(cursor) = tool.continuation_cursor {
-                    self.request_continuation(cursor, kind);
-                } else {
-                    self.finish_summary(kind);
-                }
-            }
-            RelayResultKind::Failed | RelayResultKind::Canceled => {
-                self.warning(format!(
-                    "invocation {} summarize relay {signature} did not \
-                     succeed: {}",
-                    &self.signature, result.output,
-                ));
-                self.finish_summary(kind);
-            }
+        if !matches!(result.kind, RelayResultKind::Succeed) {
+            self.warning(format!(
+                "invocation {} stage relay {signature} did not \
+                 succeed: {}",
+                &self.signature,
+                result.output,
+            ));
+            self.finish_summary(kind);
+            return;
         }
-    }
-
-    fn request_continuation(&self, cursor: String, kind: InvocationResultKind) {
-        let input = match serde_json::to_string(&WorkflowContinuation {
-            continuation_cursor: cursor,
-        }) {
-            Ok(input) => input,
-            Err(error) => {
+        let stage_result = match StageType::InvocationContinue
+            .parse_result(&result.output)
+        {
+            Ok(result) => result,
+            Err(reason) => {
                 self.warning(format!(
-                    "invocation {} continuation input serialization failed: \
-                     {error}",
+                    "invocation {} stage relay {signature} returned \
+                     invalid output: {reason}",
                     &self.signature,
                 ));
                 self.finish_summary(kind);
                 return;
             }
         };
-        if let Err(reason) = self.request_execution(WorkflowContinuation::NAME.to_owned(), input) {
+        match stage_result {
+            StageResult::InvocationContinue(result) => {
+                let Some(expected_cursor) = continuation_cursor else {
+                    self.warning(format!(
+                        "invocation {} stage relay {signature} requested \
+                         continuation without an available cursor",
+                        &self.signature,
+                    ));
+                    self.finish_summary(kind);
+                    return;
+                };
+                if result.continuation_cursor != expected_cursor {
+                    self.warning(format!(
+                        "invocation {} stage relay {signature} returned \
+                         continuation cursor `{}`; expected \
+                         `{expected_cursor}`",
+                        &self.signature,
+                        result.continuation_cursor,
+                    ));
+                    self.finish_summary(kind);
+                    return;
+                }
+                self.push_summary(result.summary);
+                self.request_continuation(expected_cursor, kind);
+            }
+            StageResult::InvocationComplete(result) => {
+                self.push_summary(result.summary);
+                self.finish_summary(kind);
+            }
+            _ => {
+                self.warning(format!(
+                    "invocation {} received a non-invocation result \
+                     from stage relay {signature}",
+                    &self.signature,
+                ));
+                self.finish_summary(kind);
+            }
+        }
+    }
+
+    fn on_continuation(
+        &self,
+        content: String,
+        continuation_cursor: Option<String>,
+    ) {
+        if matches!(self.status(), ActorStatus::Complete(_)) {
+            self.error(format!(
+                "invocation {} received continuation after completion",
+                &self.signature,
+            ));
+            return;
+        }
+        if !self.take_continuation_pending() {
+            self.error(format!(
+                "invocation {} received continuation without a pending \
+                 request",
+                &self.signature,
+            ));
+            return;
+        }
+        let kind = Self::lock(&self.overall_kind)
+            .clone()
+            .unwrap_or(InvocationResultKind::Succeed);
+        self.run_continuation_stage(
+            kind,
+            content,
+            continuation_cursor,
+        );
+    }
+
+    fn request_continuation(
+        &self,
+        continuation_cursor: String,
+        kind: InvocationResultKind,
+    ) {
+        {
+            let mut pending = Self::lock(&self.continuation_pending);
+            if *pending {
+                self.warning(format!(
+                    "invocation {} attempted to request a continuation \
+                     while another request is pending",
+                    &self.signature,
+                ));
+                drop(pending);
+                self.finish_summary(kind);
+                return;
+            }
+            *pending = true;
+        }
+        let request = ContinuationRequest {
+            invocation: self.signature.clone(),
+            continuation_cursor,
+        };
+        if let Err(reason) = self.send_executor_event(
+            ExecutorEvent::Continuation(request),
+        ) {
+            *Self::lock(&self.continuation_pending) = false;
             self.warning(format!(
-                "invocation {} continuation execution create failed: {reason}",
+                "invocation {} continuation request failed: {reason}",
                 &self.signature,
             ));
             self.finish_summary(kind);
         }
     }
 
-    fn update_overall_kind(&self, kind: InvocationResultKind) -> InvocationResultKind {
+    fn take_continuation_pending(&self) -> bool {
+        let mut pending = Self::lock(&self.continuation_pending);
+        let was_pending = *pending;
+        *pending = false;
+        was_pending
+    }
+
+    fn push_summary(&self, summary: String) {
+        let summary = summary.trim();
+        if !summary.is_empty() {
+            Self::lock(&self.summaries)
+                .push(summary.to_owned());
+        }
+    }
+
+    fn update_overall_kind(
+        &self,
+        kind: InvocationResultKind,
+    ) -> InvocationResultKind {
         let mut overall = Self::lock(&self.overall_kind);
-        let kind = if matches!(overall.as_ref(), Some(InvocationResultKind::Failed))
-            || matches!(kind, InvocationResultKind::Failed)
+        let kind = if matches!(
+            overall.as_ref(),
+            Some(InvocationResultKind::Failed)
+        ) || matches!(kind, InvocationResultKind::Failed)
         {
             InvocationResultKind::Failed
         } else {
@@ -434,26 +619,35 @@ impl InvocationRuntime {
 
     fn complete_output(&self, seq_count: usize) -> Option<String> {
         let output = Self::lock(&self.output);
-        if output.len() != seq_count || (0..seq_count).any(|seq| !output.contains_key(&seq)) {
+        if output.len() != seq_count
+            || (0..seq_count).any(|seq| !output.contains_key(&seq))
+        {
             return None;
         }
-        Some((0..seq_count).map(|seq| output[&seq].clone()).collect())
+        Some(
+            (0..seq_count)
+                .map(|seq| output[&seq].clone())
+                .collect(),
+        )
     }
 
     fn cancel(&self) {
         if matches!(self.status(), ActorStatus::Complete(_)) {
             return;
         }
-        let execution = Self::lock(&self.execution).clone();
-        if let Some(signature) = execution {
-            if let Err(reason) = self
-                .send_executor_event(ExecutorEvent::Execution(signature, ExecutionEvent::Cancel))
-            {
-                self.warning(format!(
-                    "invocation {} execution cancel failed: {reason}",
-                    &self.signature,
-                ));
-            }
+        if let Some(signature) =
+            Self::lock(&self.execution).clone()
+            && let Err(reason) = self.send_executor_event(
+                ExecutorEvent::Execution(
+                    signature,
+                    ExecutionEvent::Cancel,
+                ),
+            )
+        {
+            self.warning(format!(
+                "invocation {} execution cancel failed: {reason}",
+                &self.signature,
+            ));
         }
         self.finish(
             InvocationResultKind::Canceled,
@@ -461,7 +655,11 @@ impl InvocationRuntime {
         );
     }
 
-    fn finish(&self, kind: InvocationResultKind, output: String) {
+    fn finish(
+        &self,
+        kind: InvocationResultKind,
+        output: String,
+    ) {
         let seq_count = Self::lock(&self.output).len();
         RuntimeTrait::finish(
             self,
@@ -473,11 +671,17 @@ impl InvocationRuntime {
         );
     }
 
-    fn send_step_update(&self, status: ActorStatus<InvocationResult>) {
+    fn send_step_update(
+        &self,
+        status: ActorStatus<InvocationResult>,
+    ) {
         let step = self.signature.step.clone();
         let event = SessionEvent::Task(
             step.intent.task.clone(),
-            TaskEvent::Step(step, StepEvent::Update(self.signature.clone(), status)),
+            TaskEvent::Step(
+                step,
+                StepEvent::Update(self.signature.clone(), status),
+            ),
         );
         if self.access.session_tx.send(event).is_err() {
             self.warning(format!(
@@ -487,15 +691,25 @@ impl InvocationRuntime {
         }
     }
 
-    fn send_executor_event(&self, event: ExecutorEvent) -> Result<(), String> {
+    fn send_executor_event(
+        &self,
+        event: ExecutorEvent,
+    ) -> Result<(), String> {
         self.access
             .session_tx
             .send(SessionEvent::Executor(event))
-            .map_err(|_| "executor event send failed: session stopped".to_owned())
+            .map_err(|_| {
+                "executor event send failed: session stopped".to_owned()
+            })
     }
 }
 
 #[allow(dead_code)]
-fn assert_runtime_object_safe(runtime: &dyn RuntimeTrait<Base = Invocation, Prepared = ()>) {
+fn assert_runtime_object_safe(
+    runtime: &dyn RuntimeTrait<
+        Base = Invocation,
+        Prepared = (),
+    >,
+) {
     let _ = runtime.run();
 }

@@ -1,0 +1,19 @@
+{
+  "id": "temporary_network_failure",
+  "stage": "infeasible",
+  "intent": "Fetch the specified public URL.",
+  "plan": [],
+  "subintent_results": [],
+  "tool_calls": [
+    {
+      "tool": "web_fetch",
+      "arguments": "https://example.org",
+      "result": "Timed out once."
+    }
+  ],
+  "failed_plans": [],
+  "tool_call_count": null,
+  "expected": {
+    "decision": "continue"
+  }
+}

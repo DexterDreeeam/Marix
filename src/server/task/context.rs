@@ -1,3 +1,5 @@
+use std::sync::atomic::Ordering;
+
 use marix_common::Actor;
 use marix_protocol::{ContextChain, IntentContext, IntentSignature};
 
@@ -87,6 +89,10 @@ impl TaskAccess {
                 .collect(),
             subintents,
             plan_failures,
+            tool_call_count: intent
+                .runtime
+                .tool_call_count
+                .load(Ordering::Acquire),
         })
     }
 
