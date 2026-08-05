@@ -1,5 +1,9 @@
 # Copilot Instructions
 
+## TOP OF ALL
+
+- **ALWAYS complete only the exact task explicitly requested by the user, then stop immediately. NEVER extend the goal or independently modify code, run tests, deploy, analyze, or perform any other action unless the user explicitly requested that specific action.**
+
 ## Language
 
 - All session/conversation content MUST be in **Chinese (中文)**.
