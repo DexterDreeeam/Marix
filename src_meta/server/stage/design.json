@@ -4,16 +4,15 @@
     "path": "src/server/stage",
     "name": "stage",
     "purpose": "Assembles stage-specific model requests, injects tagged task context and execution environment data, validates prompt packages, and parses typed intent-stage results.",
-    "changeStatus": "added"
+    "changeStatus": "unchanged"
   },
-  "added": ["."],
   "childModules": [],
   "elements": [
     {
       "name": "StageType",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/stage/assembler.rs",
@@ -47,7 +46,7 @@
       "name": "StageAssembler",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/stage/assembler.rs",
@@ -94,7 +93,7 @@
       "name": "inject_context",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/stage/context.rs",
@@ -115,7 +114,7 @@
       "name": "request_environment",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/stage/environment.rs",
@@ -136,7 +135,7 @@
       "name": "StageResult",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/stage/result.rs",

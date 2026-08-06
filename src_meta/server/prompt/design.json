@@ -4,10 +4,8 @@
     "path": "src/server/prompt",
     "name": "prompt",
     "purpose": "Loads typed prompt templates and reusable modules, parses scalar and repeatable parameter or module markers, validates parameter ownership, and renders tagged package injections for stage requests.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": ["parameter.rs"],
-  "modified": ["mod.rs", "profile.rs", "prompt.rs"],
   "childModules": [
     {
       "path": "src/server/prompt/module",
@@ -72,7 +70,7 @@
       "name": "PromptParameter",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/parameter.rs",
@@ -93,7 +91,7 @@
       "name": "PromptInjection",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/parameter.rs",
@@ -114,7 +112,7 @@
       "name": "PromptProfile",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/profile.rs",
@@ -156,7 +154,7 @@
       "name": "Prompt",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/prompt.rs",

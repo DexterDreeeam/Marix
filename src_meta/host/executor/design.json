@@ -4,16 +4,15 @@
     "path": "src/host/executor",
     "name": "executor",
     "purpose": "Owns host executor workers, tool execution routing, direct continuation requests backed by the bounded overlapping ExecutorCache, and typed invocation failure or continuation delivery.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["executor.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
       "name": "Executor",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/executor.rs",
@@ -142,7 +141,7 @@
       "name": "ExecutorRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",

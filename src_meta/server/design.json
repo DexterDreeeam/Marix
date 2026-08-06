@@ -4,9 +4,8 @@
     "path": "src/server",
     "name": "server",
     "purpose": "Runs actor-based orchestration through intent stages, native tool invocations, invocation-summary continuation, streaming model relays, ordered execution, and task guardrails.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["lib.rs"],
   "childModules": [
     {
       "path": "src/server/intent",
@@ -117,7 +116,7 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",
@@ -353,7 +352,7 @@
       "name": "InvocationRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/runtime.rs",
@@ -502,7 +501,7 @@
       "name": "InvocationDecision",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/summary.rs",
@@ -604,7 +603,7 @@
       "name": "PromptParameter",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/parameter.rs",
@@ -625,7 +624,7 @@
       "name": "PromptInjection",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/parameter.rs",
@@ -646,7 +645,7 @@
       "name": "PromptProfile",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/profile.rs",
@@ -688,7 +687,7 @@
       "name": "Prompt",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/prompt/prompt.rs",
@@ -916,7 +915,7 @@
       "name": "StageType",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/stage/assembler.rs",
@@ -950,7 +949,7 @@
       "name": "StageAssembler",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/stage/assembler.rs",
@@ -997,7 +996,7 @@
       "name": "inject_context",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/stage/context.rs",
@@ -1018,7 +1017,7 @@
       "name": "request_environment",
       "type": "function",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/stage/environment.rs",
@@ -1039,7 +1038,7 @@
       "name": "StageResult",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/stage/result.rs",
@@ -1823,7 +1822,7 @@
       "name": "RelayOwner",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/relay.rs",
@@ -1844,7 +1843,7 @@
       "name": "Relay",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/relay.rs",
@@ -1881,7 +1880,7 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",

@@ -4,9 +4,8 @@
     "path": "src/host",
     "name": "host",
     "purpose": "Owns Host connectivity, per-execution actor runtimes, executor workers, native tool routing, and direct cursor continuation through the bounded overlapping ExecutorCache.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["."],
   "childModules": [
     {
       "path": "src/host/execution",
@@ -212,7 +211,7 @@
       "name": "Executor",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/executor.rs",
@@ -341,7 +340,7 @@
       "name": "ExecutorRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",

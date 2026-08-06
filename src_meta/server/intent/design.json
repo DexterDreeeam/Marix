@@ -4,9 +4,8 @@
     "path": "src/server/intent",
     "name": "intent",
     "purpose": "Runs intent actors through planning, tool-calling, replanning, infeasible, subintent-complete, and completion stages; executes ordered subintent plans, records plan failures, and transitions rejected stage decisions.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "modified": ["plan.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -45,7 +44,7 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",

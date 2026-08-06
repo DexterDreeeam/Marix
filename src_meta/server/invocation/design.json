@@ -4,10 +4,8 @@
     "path": "src/server/invocation",
     "name": "invocation",
     "purpose": "Runs invocation actors, validates and executes native tools, asks an invocation-summary stage to complete or continue chunked output, validates returned cursors, accumulates summaries, and publishes typed completion or failure results.",
-    "changeStatus": "modified"
+    "changeStatus": "unchanged"
   },
-  "added": ["summary.rs"],
-  "modified": ["mod.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -54,7 +52,7 @@
       "name": "InvocationRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "modified",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/runtime.rs",
@@ -203,7 +201,7 @@
       "name": "InvocationDecision",
       "type": "enum",
       "source_depth": 3,
-      "changeStatus": "added",
+      "changeStatus": "unchanged",
       "codeSegments": [
         {
           "sourcePath": "src/server/invocation/summary.rs",
