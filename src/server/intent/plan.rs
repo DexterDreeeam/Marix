@@ -2,13 +2,14 @@ use std::sync::Arc;
 
 use marix_common::{ActorStatus, Runtime as RuntimeTrait};
 use marix_protocol::{
-    IntentEvent, IntentResult, IntentSignature, PlanDraft, SessionEvent,
-    TaskEvent, TaskLogging,
+    IntentEvent, IntentResult, IntentResultKind, IntentSignature,
+    PlanDraft, PlanResult, SessionEvent, TaskEvent, TaskLogging,
 };
 
 use super::IntentRuntime;
 use crate::intent::Intent;
 use crate::plan::Plan;
+use crate::stage::StageType;
 
 impl IntentRuntime {
     pub(super) fn create_plan(
@@ -36,18 +37,84 @@ impl IntentRuntime {
             })?;
         *current_plan = Some(plan);
         drop(current_plan);
-        self.access
-            .session_tx
-            .send(SessionEvent::Task(
-                self.access.signature.clone(),
-                TaskEvent::IntentStart(first.clone()),
-            ))
-            .map_err(|_| {
-                format!(
-                    "plan subintent {first} start failed: \
-                     session stopped"
-                )
-            })
+        self.start_subintent(first)
+    }
+
+    pub(super) fn on_subintent_update(
+        &self,
+        signature: IntentSignature,
+        status: ActorStatus<IntentResult>,
+    ) {
+        if matches!(self.status(), ActorStatus::Complete(_)) {
+            self.error(format!(
+                "intent {} received subintent {signature} update \
+                 {status:?} after completion",
+                &self.signature,
+            ));
+            return;
+        }
+        let ActorStatus::Complete(result) = status else {
+            return;
+        };
+        let plan = {
+            let plan = self
+                .plan
+                .lock()
+                .unwrap_or_else(|error| error.into_inner());
+            let Some(plan) = plan.as_ref() else {
+                self.fail(format!(
+                    "intent received subintent update from {signature} \
+                     without an active plan"
+                ));
+                return;
+            };
+            plan.clone()
+        };
+        let Some(index) = plan
+            .subintents
+            .iter()
+            .position(|candidate| candidate == &signature)
+        else {
+            self.fail(format!(
+                "intent received update from unexpected subintent \
+                 {signature}"
+            ));
+            return;
+        };
+        match result.kind {
+            IntentResultKind::Succeed => {
+                if let Some(next) =
+                    plan.subintents.get(index + 1).cloned()
+                {
+                    if let Err(reason) = self.start_subintent(next) {
+                        self.fail(reason);
+                    }
+                } else if let Err(reason) = self.run_stage(
+                    StageType::IntentSubintentComplete,
+                ) {
+                    self.fail(reason);
+                }
+            }
+            IntentResultKind::Infeasible
+            | IntentResultKind::Failed => {
+                if let Err(reason) = self.record_failure() {
+                    self.fail(reason);
+                    return;
+                }
+                *self
+                    .plan
+                    .lock()
+                    .unwrap_or_else(|error| error.into_inner()) = None;
+                if let Err(reason) = self.run_stage(
+                    StageType::IntentReplan,
+                ) {
+                    self.fail(reason);
+                }
+            }
+            IntentResultKind::Canceled => {
+                self.finish(IntentResultKind::Canceled, result.output);
+            }
+        }
     }
 
     pub(super) fn cancel_plan(&self) {
@@ -84,6 +151,80 @@ impl IntentRuntime {
 // -- Private -- //
 
 impl IntentRuntime {
+    fn record_failure(&self) -> Result<(), String> {
+        let plan = self
+            .plan
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clone()
+            .ok_or_else(|| {
+                "cannot record a failure without an active plan"
+                    .to_owned()
+            })?;
+        let goals = plan
+            .subintents
+            .iter()
+            .map(|signature| {
+                self.access.get_intent_content(signature).ok_or_else(
+                    || {
+                        format!(
+                            "cannot snapshot plan: subintent \
+                             {signature} was not found"
+                        )
+                    },
+                )
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        let results = plan
+            .subintents
+            .iter()
+            .map(|signature| self.access.get_result(signature))
+            .collect::<Vec<_>>();
+        let reason = results
+            .iter()
+            .flatten()
+            .find_map(|result| match result.kind {
+                IntentResultKind::Failed
+                | IntentResultKind::Infeasible => {
+                    Some(result.output.clone())
+                }
+                IntentResultKind::Succeed
+                | IntentResultKind::Canceled => None,
+            })
+            .ok_or_else(|| {
+                "cannot record plan failure: no subintent failed or \
+                 was infeasible"
+                    .to_owned()
+            })?;
+        self.plan_failures
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .push(PlanResult {
+                goals,
+                results,
+                reason,
+            });
+        Ok(())
+    }
+
+    fn start_subintent(
+        &self,
+        signature: IntentSignature,
+    ) -> Result<(), String> {
+        self.access
+            .session_tx
+            .send(SessionEvent::Task(
+                self.access.signature.clone(),
+                TaskEvent::IntentStart(signature.clone()),
+            ))
+            .map_err(|_| {
+                format!(
+                    "plan subintent {signature} start failed: \
+                     session stopped"
+                )
+            })
+    }
+
     fn validate_plan_draft(
         &self,
         draft: &PlanDraft,

@@ -6,25 +6,13 @@ use std::sync::OnceLock;
 use marix_common::{Config, external::*};
 
 use super::PromptError;
-use crate::stage::PromptParameter;
+use super::PromptParameter;
 
 const MARKER_OPENING: &str = "{{";
 const MARKER_PATTERN: &str =
     r"\{\{(\^?)([#@])([A-Za-z0-9_]+?)\}\}";
 
 static MARKER: OnceLock<regex::Regex> = OnceLock::new();
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) enum PromptMarker {
-    Parameter {
-        name: String,
-        repeatable: bool,
-    },
-    Module {
-        name: String,
-        repeatable: bool,
-    },
-}
 
 #[derive(Clone)]
 pub struct Prompt {
@@ -42,7 +30,7 @@ impl Prompt {
         Self::load_from(name, PromptKind::Module)
     }
 
-    pub fn parameters(&self) -> Vec<PromptParameter> {
+    pub(crate) fn parameters(&self) -> Vec<PromptParameter> {
         self.parameters.clone()
     }
 
@@ -60,6 +48,17 @@ impl Prompt {
 
 // -- Private -- //
 
+enum PromptMarker {
+    Parameter {
+        name: String,
+        repeatable: bool,
+    },
+    Module {
+        name: String,
+        repeatable: bool,
+    },
+}
+
 #[derive(Clone)]
 enum PromptSlice {
     Text(String),
@@ -68,7 +67,6 @@ enum PromptSlice {
         repeatable: bool,
     },
     Module {
-        name: String,
         repeatable: bool,
         prompt: Box<Prompt>,
     },
@@ -178,7 +176,6 @@ impl Prompt {
                     owners,
                     PromptParameter {
                         name: name.clone(),
-                        required: false,
                         repeatable,
                         pack_tag: if repeatable {
                             name.clone()
@@ -207,17 +204,6 @@ impl Prompt {
                 }
                 let module_name = Self::module_file_name(&name);
                 let module = Self::load_module(&module_name);
-                if repeatable
-                    && module
-                        .parameters
-                        .iter()
-                        .any(|parameter| !parameter.repeatable)
-                {
-                    panic!(
-                        "repeatable prompt module `{name}` contains a \
-                         non-repeatable parameter"
-                    );
-                }
                 for mut parameter in module.parameters.clone() {
                     if repeatable {
                         parameter.repeatable = true;
@@ -232,7 +218,6 @@ impl Prompt {
                     );
                 }
                 slices.push(PromptSlice::Module {
-                    name,
                     repeatable,
                     prompt: Box::new(module),
                 });
@@ -288,13 +273,11 @@ impl Prompt {
                     }
                 }
                 PromptSlice::Module {
-                    name,
                     repeatable,
                     prompt,
                 } => {
                     self.render_module(
                         &mut output,
-                        name,
                         *repeatable,
                         prompt,
                     )?;
@@ -307,7 +290,6 @@ impl Prompt {
     fn render_module(
         &self,
         output: &mut String,
-        name: &str,
         repeatable: bool,
         module: &Prompt,
     ) -> Result<(), PromptError> {
@@ -333,7 +315,6 @@ impl Prompt {
                     );
                 }
             }
-            let _ = name;
             output.push_str(&instance.render()?);
             return Ok(());
         }
@@ -362,7 +343,6 @@ impl Prompt {
                     );
                 }
             }
-            let _ = name;
             output.push_str(&instance.render()?);
         }
         Ok(())

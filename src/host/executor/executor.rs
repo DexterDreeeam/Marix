@@ -27,23 +27,20 @@ impl Executor {
     }
 
     pub fn dispatch(&self, event: ExecutorEvent) {
-        let logger = match &event {
-            ExecutorEvent::Execution(signature, _) => Some(TaskLogger::from(
-                signature.invocation.step.intent.task.clone(),
-            )),
-            ExecutorEvent::ExecutionCreate(request) => Some(TaskLogger::from(
-                request
-                    .signature
-                    .invocation
-                    .step
-                    .intent
-                    .task
-                    .clone(),
-            )),
+        let task = match &event {
+            ExecutorEvent::Execution(signature, _) => {
+                Some(signature.invocation.step.intent.task.clone())
+            }
+            ExecutorEvent::ExecutionCreate(request) => Some(
+                request.signature.invocation.step.intent.task.clone(),
+            ),
+            ExecutorEvent::Continuation(request) => {
+                Some(request.invocation.step.intent.task.clone())
+            }
             ExecutorEvent::ToolQuery => None,
         };
         if self.state.executor_tx.send(event).is_err() {
-            match logger {
+            match task.map(TaskLogger::from) {
                 Some(logger) => {
                     logger.warning("host executor event dispatch failed: worker stopped");
                 }

@@ -3,53 +3,68 @@
   "module": {
     "path": "src/server/relay",
     "name": "relay",
-    "purpose": "Runs model-backed Relay actors, renders system and workflow-policy prompts, loads reusable parent/current context headers, presents exact-current-task calls as confirmed evidence, prefers real invocation arguments in call descriptors, carries earlier chunk summaries, reserves WorkflowContinuation for server use, validates optional cursors, streams responses, and resolves output by relay kind.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs streaming model-backed Relay actors for intent stages and invocation summaries, routes completion to the owning actor, enforces relay gates, and converts backend construction panics into errors.",
+    "changeStatus": "modified"
   },
+  "modified": ["mod.rs", "relay.rs", "runtime.rs"],
+  "deleted": ["prompt.rs"],
   "childModules": [],
   "elements": [
+    {
+      "name": "RelayOwner",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/relay/relay.rs",
+          "lineStart": 12,
+          "lineEnd": 15,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 12,
+              "lineEnd": 15
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
     {
       "name": "Relay",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/relay.rs",
-          "lineStart": 9,
-          "lineEnd": 12,
+          "lineStart": 17,
+          "lineEnd": 20,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/relay.rs",
-          "lineStart": 14,
-          "lineEnd": 30,
+          "lineStart": 22,
+          "lineEnd": 38,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/relay/relay.rs",
-          "lineStart": 34,
-          "lineEnd": 40,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 36,
-              "lineEnd": 38
-            }
-          ],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/server/relay/relay.rs",
           "lineStart": 42,
-          "lineEnd": 52,
+          "lineEnd": 56,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 43,
+              "lineEnd": 53
+            }
+          ]
         }
       ]
     },
@@ -57,88 +72,101 @@
       "name": "RelayRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 20,
-          "lineEnd": 28,
+          "lineStart": 24,
+          "lineEnd": 31,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 30,
-          "lineEnd": 61,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 63,
-          "lineEnd": 166,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/relay/runtime.rs",
-          "lineStart": 170,
-          "lineEnd": 335,
-          "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 206,
-              "lineEnd": 209
-            },
-            {
-              "lineStart": 211,
-              "lineEnd": 230
-            },
-            {
-              "lineStart": 258,
-              "lineEnd": 273
-            }
-          ],
           "modifiedLines": [
             {
-              "lineStart": 210,
-              "lineEnd": 210
+              "lineStart": 29,
+              "lineEnd": 30
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 33,
+          "lineEnd": 71,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 34,
+              "lineEnd": 65
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 73,
+          "lineEnd": 77,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 79,
+          "lineEnd": 183,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 84,
+              "lineEnd": 84
+            },
+            {
+              "lineStart": 97,
+              "lineEnd": 108
+            },
+            {
+              "lineStart": 119,
+              "lineEnd": 133
+            },
+            {
+              "lineStart": 164,
+              "lineEnd": 164
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/relay/runtime.rs",
+          "lineStart": 187,
+          "lineEnd": 288,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 192,
+              "lineEnd": 192
+            },
+            {
+              "lineStart": 199,
+              "lineEnd": 199
+            },
+            {
+              "lineStart": 209,
+              "lineEnd": 226
             },
             {
               "lineStart": 240,
               "lineEnd": 240
             },
             {
-              "lineStart": 253,
-              "lineEnd": 255
-            }
-          ]
-        },
-        {
-          "sourcePath": "src/server/relay/prompt.rs",
-          "lineStart": 16,
-          "lineEnd": 40,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/server/relay/prompt.rs",
-          "lineStart": 44,
-          "lineEnd": 495,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": [
-            {
-              "lineStart": 190,
-              "lineEnd": 203
+              "lineStart": 250,
+              "lineEnd": 256
             },
             {
-              "lineStart": 248,
-              "lineEnd": 254
+              "lineStart": 261,
+              "lineEnd": 276
+            },
+            {
+              "lineStart": 284,
+              "lineEnd": 284
             }
           ]
         }

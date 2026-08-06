@@ -6,8 +6,13 @@ use marix_protocol::{
 };
 
 use super::RelayRuntime;
-use crate::stage::StageAssembler;
+use crate::model::ModelRequest;
 use crate::task::{TaskAccess, TaskGate};
+
+pub(crate) enum RelayOwner {
+    Intent,
+    Invocation(InvocationSignature),
+}
 
 #[derive(Clone)]
 pub struct Relay {
@@ -37,32 +42,14 @@ impl ActorTrait for Relay {
 impl Relay {
     pub(crate) fn new(
         access: Arc<TaskAccess>,
-        signature: RelaySignature,
-        assembler: StageAssembler,
-        invocation_owner: Option<InvocationSignature>,
+        request: ModelRequest,
+        owner: RelayOwner,
     ) -> Result<Self, String> {
-        let stage_type = assembler.stage_type();
-        match (stage_type.is_intent(), invocation_owner.as_ref()) {
-            (true, Some(owner)) => {
-                return Err(format!(
-                    "intent stage {stage_type:?} unexpectedly carries \
-                     invocation owner {owner}"
-                ));
-            }
-            (false, None) => {
-                return Err(format!(
-                    "invocation stage {stage_type:?} has no invocation \
-                     owner"
-                ));
-            }
-            _ => {}
-        }
         access.gate(TaskGate::Relay)?;
         let runtime = Arc::new(RelayRuntime::new(
             access,
-            signature,
-            assembler,
-            invocation_owner,
+            request,
+            owner,
         )?);
         Ok(Self { runtime })
     }

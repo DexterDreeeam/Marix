@@ -3,9 +3,10 @@
   "module": {
     "path": "src/host",
     "name": "host",
-    "purpose": "Owns Host connectivity (a single-attempt, bounded-timeout connect to Server and Telemetry that exits the process on failure or on later disconnection rather than retrying), per-execution actor runtimes, executor workers, and the ExecutorState-held ExecutorCache: a consuming 10-entry FIFO where try_cache returns content at or below its 24 KiB threshold whole, otherwise returns a UTF-8-safe 16 KiB chunk and caches the remainder from one overlap window before that chunk's end under a short tc_-prefixed eight-hex-digit continuation cursor, and pick consumes an entry then reuses try_cache.",
-    "changeStatus": "unchanged"
+    "purpose": "Owns Host connectivity, per-execution actor runtimes, executor workers, native tool routing, and direct cursor continuation through the bounded overlapping ExecutorCache.",
+    "changeStatus": "modified"
   },
+  "modified": ["."],
   "childModules": [
     {
       "path": "src/host/execution",
@@ -15,7 +16,7 @@
     {
       "path": "src/host/executor",
       "name": "executor",
-      "purpose": "Owns host executor workers and the ExecutorState-held ExecutorCache: a consuming 10-entry FIFO configured by CHUNK_BYTES (16 KiB), CHUNK_OVERLAP_BYTES (1 KiB), CACHE_THRESHOLD_BYTES (24 KiB), and CACHE_CAPACITY (10); try_cache returns content at or below 24 KiB whole, otherwise returns a UTF-8-safe 16 KiB chunk and caches the remainder from one overlap window before that chunk's end under a short tc_-prefixed eight-hex-digit continuation cursor, so consecutive chunks repeat a tail and a fact spanning a boundary stays readable, and pick consumes an entry then reuses try_cache. It also loads compatible tools, routes regular executions, intercepts workflow_continuation requests, and publishes plain content with continuation cursors."
+      "purpose": "Owns host executor workers, tool execution routing, direct continuation requests backed by the bounded overlapping ExecutorCache, and typed invocation failure or continuation delivery."
     }
   ],
   "elements": [
@@ -211,7 +212,7 @@
       "name": "Executor",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/executor.rs",
@@ -224,10 +225,15 @@
         {
           "sourcePath": "src/host/executor/executor.rs",
           "lineStart": 14,
-          "lineEnd": 34,
+          "lineEnd": 53,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 30,
+              "lineEnd": 43
+            }
+          ]
         }
       ]
     },
@@ -335,44 +341,58 @@
       "name": "ExecutorRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/host/executor/runtime.rs",
-          "lineStart": 14,
-          "lineEnd": 19,
+          "lineStart": 15,
+          "lineEnd": 20,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
         },
         {
           "sourcePath": "src/host/executor/runtime.rs",
-          "lineStart": 21,
-          "lineEnd": 73,
-          "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
-        },
-        {
-          "sourcePath": "src/host/executor/runtime.rs",
-          "lineStart": 77,
-          "lineEnd": 252,
+          "lineStart": 22,
+          "lineEnd": 74,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 101,
-              "lineEnd": 104
-            },
-            {
-              "lineStart": 119,
-              "lineEnd": 119
-            },
-            {
-              "lineStart": 147,
-              "lineEnd": 221
+              "lineStart": 60,
+              "lineEnd": 62
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 44,
+              "lineEnd": 44
+            },
+            {
+              "lineStart": 58,
+              "lineEnd": 58
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/host/executor/runtime.rs",
+          "lineStart": 78,
+          "lineEnd": 234,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 154,
+              "lineEnd": 177
+            },
+            {
+              "lineStart": 184,
+              "lineEnd": 184
+            },
+            {
+              "lineStart": 197,
+              "lineEnd": 214
+            }
+          ]
         }
       ]
     },

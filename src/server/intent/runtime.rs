@@ -2,7 +2,6 @@ use std::sync::Arc;
 use std::sync::Mutex as StdMutex;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use marix_common::external::*;
 use marix_common::{
     Actor, ActorStartFuture, ActorStatus, Lifecycle,
     Runtime as RuntimeTrait, WorkQueue,
@@ -16,7 +15,7 @@ use marix_protocol::{
 
 use super::Intent;
 use crate::plan::Plan;
-use crate::relay::Relay;
+use crate::relay::{Relay, RelayOwner};
 use crate::stage::{StageAssembler, StageResult, StageType};
 use crate::step::Step;
 use crate::task::TaskAccess;
@@ -28,12 +27,9 @@ pub struct IntentRuntime {
     pub steps: Arc<WorkQueue<StepSignature, Option<StepResult>>>,
     pub plan: StdMutex<Option<Plan>>,
     pub plan_failures: StdMutex<Vec<PlanResult>>,
-    pub stage: StdMutex<StageType>,
-    pub pending_stage:
-        StdMutex<Option<(RelaySignature, StageType)>>,
-    pub stage_sequence: AtomicUsize,
     pub tool_call_count: AtomicUsize,
     pub lifecycle: Lifecycle<IntentEvent, IntentResult>,
+    stage: StdMutex<StageType>,
 }
 
 impl IntentRuntime {
@@ -50,8 +46,6 @@ impl IntentRuntime {
             plan: StdMutex::new(None),
             plan_failures: StdMutex::new(Vec::new()),
             stage: StdMutex::new(StageType::IntentPlanning),
-            pending_stage: StdMutex::new(None),
-            stage_sequence: AtomicUsize::new(0),
             tool_call_count: AtomicUsize::new(0),
             lifecycle: Lifecycle::new(),
         }
@@ -112,42 +106,26 @@ impl RuntimeTrait for IntentRuntime {
 // -- Private -- //
 
 impl IntentRuntime {
-    fn run_stage(&self, stage_type: StageType) -> Result<(), String> {
-        let sequence =
-            self.stage_sequence.fetch_add(1, Ordering::AcqRel) + 1;
+    pub(super) fn run_stage(
+        &self,
+        stage_type: StageType,
+    ) -> Result<(), String> {
         let signature = RelaySignature::new(
             self.signature.clone(),
-            format!("stage-{sequence}"),
+            format!("stage-{stage_type:?}"),
         );
-        let assembler = StageAssembler::new(stage_type);
+        let request = StageAssembler::for_intent(stage_type)
+            .assemble(&self.access, signature.clone())?;
         let relay = Relay::new(
             Arc::clone(&self.access),
-            signature.clone(),
-            assembler,
-            None,
+            request,
+            RelayOwner::Intent,
         )?;
-        {
-            let mut pending = self
-                .pending_stage
-                .lock()
-                .unwrap_or_else(|error| error.into_inner());
-            if let Some((active, _)) = pending.as_ref() {
-                return Err(format!(
-                    "cannot start stage {stage_type:?}; relay {active} \
-                     is still pending"
-                ));
-            }
-            *pending = Some((signature.clone(), stage_type));
-        }
         *self
             .stage
             .lock()
             .unwrap_or_else(|error| error.into_inner()) = stage_type;
         if !self.access.insert(relay.clone()) {
-            *self
-                .pending_stage
-                .lock()
-                .unwrap_or_else(|error| error.into_inner()) = None;
             return Err(format!(
                 "intent stage relay {signature} already exists"
             ));
@@ -172,30 +150,10 @@ impl IntentRuntime {
         let ActorStatus::Complete(result) = status else {
             return;
         };
-        let stage_type = {
-            let mut pending = self
-                .pending_stage
-                .lock()
-                .unwrap_or_else(|error| error.into_inner());
-            let Some((expected, stage_type)) = pending.as_ref()
-            else {
-                self.fail(format!(
-                    "intent received relay {signature} update with no \
-                     pending stage"
-                ));
-                return;
-            };
-            if expected != &signature {
-                self.fail(format!(
-                    "intent received update from unexpected relay \
-                     {signature}; expected {expected}"
-                ));
-                return;
-            }
-            let stage_type = *stage_type;
-            *pending = None;
-            stage_type
-        };
+        let stage_type = *self
+            .stage
+            .lock()
+            .unwrap_or_else(|error| error.into_inner());
         match result.kind {
             RelayResultKind::Succeed => {
                 let stage_result =
@@ -230,7 +188,7 @@ impl IntentRuntime {
         result: StageResult,
     ) -> Result<(), String> {
         match result {
-            StageResult::Plan(plan) => {
+            StageResult::Plan { subintents, .. } => {
                 if matches!(stage_type, StageType::IntentReplan) {
                     *self
                         .plan
@@ -239,28 +197,22 @@ impl IntentRuntime {
                         None;
                 }
                 self.create_plan(PlanDraft {
-                    intents: plan.subintents,
+                    intents: subintents,
                 })
             }
-            StageResult::Reject(reject) => {
+            StageResult::Reject { reason } => {
                 self.info(format!(
                     "intent {} stage {stage_type:?} rejected: {}",
-                    &self.signature, reject.reason,
+                    &self.signature, reason,
                 ));
                 self.run_reject_transition(stage_type)
             }
-            StageResult::Infeasible(infeasible) => {
-                self.finish(
-                    IntentResultKind::Infeasible,
-                    infeasible.reason,
-                );
+            StageResult::Infeasible { reason } => {
+                self.finish(IntentResultKind::Infeasible, reason);
                 Ok(())
             }
-            StageResult::IntentComplete(complete) => {
-                self.finish(
-                    IntentResultKind::Succeed,
-                    complete.summary,
-                );
+            StageResult::IntentComplete { summary, .. } => {
+                self.finish(IntentResultKind::Succeed, summary);
                 Ok(())
             }
             StageResult::NativeToolCalls(draft) => {
@@ -270,11 +222,6 @@ impl IntentRuntime {
                     .fetch_add(call_count, Ordering::AcqRel);
                 Ok(())
             }
-            StageResult::InvocationContinue(_)
-            | StageResult::InvocationComplete(_) => Err(format!(
-                "intent stage {stage_type:?} returned an invocation \
-                 result"
-            )),
         }
     }
 
@@ -307,8 +254,7 @@ impl IntentRuntime {
                     StageType::IntentInfeasible
                 }
             }
-            StageType::IntentToolCalling
-            | StageType::InvocationContinue => {
+            StageType::IntentToolCalling => {
                 return Err(format!(
                     "stage {stage_type:?} cannot return Reject"
                 ));
@@ -368,83 +314,6 @@ impl IntentRuntime {
         }
     }
 
-    fn on_subintent_update(
-        &self,
-        signature: IntentSignature,
-        status: ActorStatus<IntentResult>,
-    ) {
-        if matches!(self.status(), ActorStatus::Complete(_)) {
-            self.error(format!(
-                "intent {} received subintent {signature} update \
-                 {status:?} after completion",
-                &self.signature,
-            ));
-            return;
-        }
-        let ActorStatus::Complete(result) = status else {
-            return;
-        };
-        let plan = {
-            let plan = self
-                .plan
-                .lock()
-                .unwrap_or_else(|error| error.into_inner());
-            let Some(plan) = plan.as_ref() else {
-                self.fail(format!(
-                    "intent received subintent update from {signature} \
-                     without an active plan"
-                ));
-                return;
-            };
-            plan.clone()
-        };
-        let Some(index) = plan
-            .subintents
-            .iter()
-            .position(|candidate| candidate == &signature)
-        else {
-            self.fail(format!(
-                "intent received update from unexpected subintent \
-                 {signature}"
-            ));
-            return;
-        };
-        match result.kind {
-            IntentResultKind::Succeed => {
-                if let Some(next) =
-                    plan.subintents.get(index + 1).cloned()
-                {
-                    if let Err(reason) = self.start_subintent(next) {
-                        self.fail(reason);
-                    }
-                } else if let Err(reason) = self.run_stage(
-                    StageType::IntentSubintentComplete,
-                ) {
-                    self.fail(reason);
-                }
-            }
-            IntentResultKind::Infeasible
-            | IntentResultKind::Failed => {
-                if let Err(reason) = self.record_plan_failure() {
-                    self.fail(reason);
-                    return;
-                }
-                *self
-                    .plan
-                    .lock()
-                    .unwrap_or_else(|error| error.into_inner()) = None;
-                if let Err(reason) =
-                    self.run_stage(StageType::IntentReplan)
-                {
-                    self.fail(reason);
-                }
-            }
-            IntentResultKind::Canceled => {
-                self.finish(IntentResultKind::Canceled, result.output);
-            }
-        }
-    }
-
     pub(super) fn create_step(
         &self,
         draft: StepDraft,
@@ -481,80 +350,6 @@ impl IntentRuntime {
         self.steps.insert(signature, None);
         step.start();
         Ok(())
-    }
-
-    fn record_plan_failure(&self) -> Result<(), String> {
-        let plan = self
-            .plan
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .clone()
-            .ok_or_else(|| {
-                "cannot record a failure without an active plan"
-                    .to_owned()
-            })?;
-        let goals = plan
-            .subintents
-            .iter()
-            .map(|signature| {
-                self.access.get_intent_content(signature).ok_or_else(
-                    || {
-                        format!(
-                            "cannot snapshot plan: subintent \
-                             {signature} was not found"
-                        )
-                    },
-                )
-            })
-            .collect::<Result<Vec<_>, _>>()?;
-        let results = plan
-            .subintents
-            .iter()
-            .map(|signature| self.access.get_result(signature))
-            .collect::<Vec<_>>();
-        let reason = results
-            .iter()
-            .flatten()
-            .find_map(|result| match result.kind {
-                IntentResultKind::Failed
-                | IntentResultKind::Infeasible => {
-                    Some(result.output.clone())
-                }
-                IntentResultKind::Succeed
-                | IntentResultKind::Canceled => None,
-            })
-            .ok_or_else(|| {
-                "cannot record plan failure: no subintent failed or \
-                 was infeasible"
-                    .to_owned()
-            })?;
-        self.plan_failures
-            .lock()
-            .unwrap_or_else(|error| error.into_inner())
-            .push(PlanResult {
-                goals,
-                results,
-                reason,
-            });
-        Ok(())
-    }
-
-    fn start_subintent(
-        &self,
-        signature: IntentSignature,
-    ) -> Result<(), String> {
-        self.access
-            .session_tx
-            .send(SessionEvent::Task(
-                self.access.signature.clone(),
-                TaskEvent::IntentStart(signature.clone()),
-            ))
-            .map_err(|_| {
-                format!(
-                    "plan subintent {signature} start failed: \
-                     session stopped"
-                )
-            })
     }
 
     pub(super) fn cancel(&self) {

@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "path": "src/server/stage",
+    "name": "stage",
+    "purpose": "Assembles stage-specific model requests, injects tagged task context and execution environment data, validates prompt packages, and parses typed intent-stage results.",
+    "changeStatus": "added"
+  },
+  "added": ["."],
+  "childModules": [],
+  "elements": [
+    {
+      "name": "StageType",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/stage/assembler.rs",
+          "lineStart": 15,
+          "lineEnd": 23,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 15,
+              "lineEnd": 23
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/stage/assembler.rs",
+          "lineStart": 25,
+          "lineEnd": 88,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 25,
+              "lineEnd": 88
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "StageAssembler",
+      "type": "struct",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/stage/assembler.rs",
+          "lineStart": 90,
+          "lineEnd": 96,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 90,
+              "lineEnd": 96
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/stage/assembler.rs",
+          "lineStart": 98,
+          "lineEnd": 195,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 98,
+              "lineEnd": 195
+            }
+          ],
+          "modifiedLines": []
+        },
+        {
+          "sourcePath": "src/server/stage/assembler.rs",
+          "lineStart": 199,
+          "lineEnd": 357,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 199,
+              "lineEnd": 357
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "inject_context",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/stage/context.rs",
+          "lineStart": 20,
+          "lineEnd": 79,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 20,
+              "lineEnd": 79
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "request_environment",
+      "type": "function",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/stage/environment.rs",
+          "lineStart": 10,
+          "lineEnd": 27,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 10,
+              "lineEnd": 27
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    },
+    {
+      "name": "StageResult",
+      "type": "enum",
+      "source_depth": 3,
+      "changeStatus": "added",
+      "codeSegments": [
+        {
+          "sourcePath": "src/server/stage/result.rs",
+          "lineStart": 4,
+          "lineEnd": 27,
+          "language": "rust",
+          "addedLines": [
+            {
+              "lineStart": 4,
+              "lineEnd": 27
+            }
+          ],
+          "modifiedLines": []
+        }
+      ]
+    }
+  ]
+}

@@ -3,9 +3,10 @@
   "module": {
     "path": "src/server/intent",
     "name": "intent",
-    "purpose": "Runs intent actors that request IntentAnalyze verdicts, dispatch complete, plan, and infeasible workflow decisions, prevent direct steps after planning starts, publish ordered results, and reject a draft whose tool plus canonicalized arguments, ignoring the model-authored purpose, was already requested three times.",
-    "changeStatus": "unchanged"
+    "purpose": "Runs intent actors through planning, tool-calling, replanning, infeasible, subintent-complete, and completion stages; executes ordered subintent plans, records plan failures, and transitions rejected stage decisions.",
+    "changeStatus": "modified"
   },
+  "modified": ["plan.rs", "runtime.rs"],
   "childModules": [],
   "elements": [
     {
@@ -44,20 +45,43 @@
       "name": "IntentRuntime",
       "type": "struct",
       "source_depth": 3,
-      "changeStatus": "unchanged",
+      "changeStatus": "modified",
       "codeSegments": [
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 25,
-          "lineEnd": 34,
+          "lineStart": 23,
+          "lineEnd": 33,
           "language": "rust",
-          "addedLines": [],
-          "modifiedLines": []
+          "addedLines": [
+            {
+              "lineStart": 30,
+              "lineEnd": 30
+            }
+          ],
+          "modifiedLines": [
+            {
+              "lineStart": 32,
+              "lineEnd": 32
+            }
+          ]
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 36,
+          "lineStart": 35,
           "lineEnd": 53,
+          "language": "rust",
+          "addedLines": [],
+          "modifiedLines": [
+            {
+              "lineStart": 48,
+              "lineEnd": 49
+            }
+          ]
+        },
+        {
+          "sourcePath": "src/server/intent/runtime.rs",
+          "lineStart": 55,
+          "lineEnd": 59,
           "language": "rust",
           "addedLines": [],
           "modifiedLines": []
@@ -65,54 +89,151 @@
         {
           "sourcePath": "src/server/intent/runtime.rs",
           "lineStart": 61,
-          "lineEnd": 102,
+          "lineEnd": 104,
           "language": "rust",
           "addedLines": [],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 75,
+              "lineEnd": 78
+            }
+          ]
         },
         {
           "sourcePath": "src/server/intent/runtime.rs",
-          "lineStart": 106,
-          "lineEnd": 504,
+          "lineStart": 108,
+          "lineEnd": 418,
           "language": "rust",
-          "addedLines": [
-            {
-              "lineStart": 437,
-              "lineEnd": 455
-            }
-          ],
+          "addedLines": [],
           "modifiedLines": [
             {
-              "lineStart": 374,
-              "lineEnd": 377
+              "lineStart": 109,
+              "lineEnd": 127
+            },
+            {
+              "lineStart": 130,
+              "lineEnd": 130
+            },
+            {
+              "lineStart": 137,
+              "lineEnd": 141
+            },
+            {
+              "lineStart": 153,
+              "lineEnd": 172
+            },
+            {
+              "lineStart": 185,
+              "lineEnd": 270
+            },
+            {
+              "lineStart": 302,
+              "lineEnd": 304
+            },
+            {
+              "lineStart": 309,
+              "lineEnd": 312
+            },
+            {
+              "lineStart": 317,
+              "lineEnd": 320
+            },
+            {
+              "lineStart": 327,
+              "lineEnd": 330
+            },
+            {
+              "lineStart": 333,
+              "lineEnd": 336
+            },
+            {
+              "lineStart": 342,
+              "lineEnd": 346
+            },
+            {
+              "lineStart": 376,
+              "lineEnd": 379
+            },
+            {
+              "lineStart": 383,
+              "lineEnd": 386
+            },
+            {
+              "lineStart": 390,
+              "lineEnd": 394
+            },
+            {
+              "lineStart": 403,
+              "lineEnd": 410
             }
           ]
         },
         {
           "sourcePath": "src/server/intent/plan.rs",
-          "lineStart": 13,
-          "lineEnd": 124,
+          "lineStart": 14,
+          "lineEnd": 149,
           "language": "rust",
-          "addedLines": [
+          "addedLines": [],
+          "modifiedLines": [
             {
-              "lineStart": 13,
-              "lineEnd": 124
+              "lineStart": 15,
+              "lineEnd": 28
+            },
+            {
+              "lineStart": 35,
+              "lineEnd": 37
+            },
+            {
+              "lineStart": 60,
+              "lineEnd": 67
+            },
+            {
+              "lineStart": 80,
+              "lineEnd": 80
+            },
+            {
+              "lineStart": 86,
+              "lineEnd": 110
+            },
+            {
+              "lineStart": 135,
+              "lineEnd": 138
             }
-          ],
-          "modifiedLines": []
+          ]
         },
         {
           "sourcePath": "src/server/intent/plan.rs",
-          "lineStart": 128,
-          "lineEnd": 225,
+          "lineStart": 153,
+          "lineEnd": 289,
           "language": "rust",
           "addedLines": [
             {
-              "lineStart": 128,
-              "lineEnd": 225
+              "lineStart": 289,
+              "lineEnd": 289
             }
           ],
-          "modifiedLines": []
+          "modifiedLines": [
+            {
+              "lineStart": 160,
+              "lineEnd": 175
+            },
+            {
+              "lineStart": 187,
+              "lineEnd": 197
+            },
+            {
+              "lineStart": 210,
+              "lineEnd": 251
+            },
+            {
+              "lineStart": 257,
+              "lineEnd": 268
+            },
+            {
+              "lineStart": 275,
+              "lineEnd": 283
+            }
+          ]
         }
       ]
     }

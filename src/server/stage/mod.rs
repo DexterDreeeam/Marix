@@ -1,13 +1,7 @@
 mod assembler;
-mod parameter;
+mod context;
+mod environment;
 mod result;
-mod r#type;
 
-pub(crate) use assembler::StageAssembler;
-pub(crate) use parameter::{PromptInjection, PromptParameter};
-pub(crate) use result::{
-    InfeasibleStageResult, IntentCompleteStageResult,
-    InvocationCompleteStageResult, InvocationContinueStageResult,
-    PlanStageResult, RejectStageResult, StageResult, StageResultType,
-};
-pub(crate) use r#type::StageType;
+pub(crate) use assembler::{StageAssembler, StageType};
+pub(crate) use result::StageResult;

@@ -1,7 +1,6 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct PromptParameter {
     pub name: String,
-    pub required: bool,
     pub repeatable: bool,
     pub pack_tag: String,
 }

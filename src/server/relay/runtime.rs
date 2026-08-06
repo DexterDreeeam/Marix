@@ -9,54 +9,33 @@ use marix_common::{
     Runtime as RuntimeTrait,
 };
 use marix_protocol::{
-    IntentEvent, InvocationEvent, InvocationSignature, RelayEvent,
-    RelayResult, RelayResultKind, RelaySignature, SessionEvent,
-    TaskEvent, TaskLogger, TaskLogging,
+    IntentEvent, InvocationEvent, RelayEvent, RelayResult,
+    RelayResultKind, RelaySignature, SessionEvent, TaskEvent,
+    TaskLogger, TaskLogging,
 };
 
-use super::Relay;
+use super::{Relay, RelayOwner};
 use crate::model::{
-    DeepseekBackend, GlmBackend, ModelBackend, ModelResponse,
-    ModelResponseStream,
+    DeepseekBackend, GlmBackend, ModelBackend, ModelRequest,
+    ModelResponse, ModelResponseStream,
 };
-use crate::stage::{StageAssembler, StageType};
 use crate::task::TaskAccess;
 
 pub struct RelayRuntime {
     pub access: Arc<TaskAccess>,
-    pub signature: RelaySignature,
-    pub stage_type: StageType,
-    pub assembler: StageAssembler,
-    pub invocation_owner: Option<InvocationSignature>,
     pub output: StdMutex<BTreeMap<usize, String>>,
-    pub final_signal: StdMutex<Option<usize>>,
     pub model_backend: StdMutex<Box<dyn ModelBackend>>,
     pub lifecycle: Lifecycle<RelayEvent, RelayResult>,
+    request: ModelRequest,
+    owner: RelayOwner,
 }
 
 impl RelayRuntime {
     pub(crate) fn new(
         access: Arc<TaskAccess>,
-        signature: RelaySignature,
-        assembler: StageAssembler,
-        invocation_owner: Option<InvocationSignature>,
+        request: ModelRequest,
+        owner: RelayOwner,
     ) -> Result<Self, String> {
-        let stage_type = assembler.stage_type();
-        match (stage_type.is_intent(), invocation_owner.as_ref()) {
-            (true, Some(owner)) => {
-                return Err(format!(
-                    "intent stage {stage_type:?} unexpectedly carries \
-                     invocation owner {owner}"
-                ));
-            }
-            (false, None) => {
-                return Err(format!(
-                    "invocation stage {stage_type:?} has no invocation \
-                     owner"
-                ));
-            }
-            _ => {}
-        }
         let config = Config::load()
             .map_err(|error| format!("failed to load config: {error}"))?;
         let model_backend: Box<dyn ModelBackend> =
@@ -82,12 +61,9 @@ impl RelayRuntime {
             };
         Ok(Self {
             access,
-            signature,
-            stage_type,
-            assembler,
-            invocation_owner,
+            request,
+            owner,
             output: StdMutex::new(BTreeMap::new()),
-            final_signal: StdMutex::new(None),
             model_backend: StdMutex::new(model_backend),
             lifecycle: Lifecycle::new(),
         })
@@ -105,7 +81,7 @@ impl RuntimeTrait for RelayRuntime {
     type Prepared = ModelResponseStream;
 
     fn signature(&self) -> &RelaySignature {
-        &self.signature
+        &self.request.relay
     }
 
     fn lifecycle(&self) -> &Lifecycle<RelayEvent, RelayResult> {
@@ -114,26 +90,12 @@ impl RuntimeTrait for RelayRuntime {
 
     fn on_start(&self) -> ActorStartFuture<'_, Self::Prepared> {
         Box::pin(async move {
-            let request = match self
-                .assembler
-                .assemble(&self.access, self.signature.clone())
-            {
-                Ok(request) => request,
-                Err(reason) => {
-                    self.error(format!(
-                        "relay {} failed: {reason}",
-                        &self.signature,
-                    ));
-                    self.finish(RelayResultKind::Failed, reason);
-                    return None;
-                }
-            };
             let responses = {
                 let mut backend = self
                     .model_backend
                     .lock()
-                    .unwrap_or_else(|error| error.into_inner());
-                backend.request_stream(request)
+                    .unwrap();
+                backend.request_stream(self.request.clone())
             };
             match responses {
                 Ok(responses) => Some(responses),
@@ -142,7 +104,7 @@ impl RuntimeTrait for RelayRuntime {
                         format!("model request failed: {error}");
                     self.error(format!(
                         "relay {} failed: {reason}",
-                        &self.signature,
+                        self.signature(),
                     ));
                     self.finish(RelayResultKind::Failed, reason);
                     None
@@ -199,7 +161,7 @@ impl RuntimeTrait for RelayRuntime {
                                     before completion".to_owned();
                                 self.error(format!(
                                     "relay {} failed: {reason}",
-                                    &self.signature,
+                                    self.signature(),
                                 ));
                                 self.finish(
                                     RelayResultKind::Failed,
@@ -227,14 +189,14 @@ impl RelayRuntime {
         if matches!(self.status(), ActorStatus::Complete(_)) {
             self.error(format!(
                 "relay {} received model response after completion",
-                &self.signature,
+                self.signature(),
             ));
             return;
         }
         if !response.complete {
             self.output
                 .lock()
-                .unwrap_or_else(|error| error.into_inner())
+                .unwrap()
                 .insert(response.seq, response.content);
             return;
         }
@@ -246,28 +208,11 @@ impl RelayRuntime {
             );
             self.error(format!(
                 "relay {} failed: {reason}",
-                &self.signature,
+                self.signature(),
             ));
             self.finish(RelayResultKind::Failed, reason);
             return;
         };
-        *self
-            .final_signal
-            .lock()
-            .unwrap_or_else(|error| error.into_inner()) =
-            Some(response.seq);
-        self.finish_succeed(output);
-    }
-
-    fn finish_succeed(&self, output: String) {
-        if let Err(reason) = self.stage_type.parse_result(&output) {
-            self.error(format!(
-                "relay {} failed: {reason}",
-                &self.signature,
-            ));
-            self.finish(RelayResultKind::Failed, reason);
-            return;
-        }
         self.finish(RelayResultKind::Succeed, output);
     }
 
@@ -275,7 +220,7 @@ impl RelayRuntime {
         let output = self
             .output
             .lock()
-            .unwrap_or_else(|error| error.into_inner());
+            .unwrap();
         if output.len() != seq_count
             || (0..seq_count).any(|seq| !output.contains_key(&seq))
         {
@@ -292,7 +237,7 @@ impl RelayRuntime {
     fn output(&self) -> String {
         self.output
             .lock()
-            .unwrap_or_else(|error| error.into_inner())
+            .unwrap()
             .values()
             .cloned()
             .collect()
@@ -306,43 +251,37 @@ impl RelayRuntime {
         &self,
         status: ActorStatus<RelayResult>,
     ) {
-        let event = if self.stage_type.is_intent() {
-            let intent = self.signature.intent.clone();
-            SessionEvent::Task(
-                intent.task.clone(),
-                TaskEvent::Intent(
-                    intent,
-                    IntentEvent::RelayUpdate(
-                        self.signature.clone(),
-                        status,
+        let event = match &self.owner {
+            RelayOwner::Intent => {
+                let intent = self.signature().intent.clone();
+                SessionEvent::Task(
+                    intent.task.clone(),
+                    TaskEvent::Intent(
+                        intent,
+                        IntentEvent::RelayUpdate(
+                            self.signature().clone(),
+                            status,
+                        ),
                     ),
-                ),
-            )
-        } else {
-            let invocation = self
-                .invocation_owner
-                .clone()
-                .unwrap_or_else(|| {
-                    panic!(
-                        "invocation stage relay {} has no owner",
-                        &self.signature,
-                    )
-                });
-            SessionEvent::Task(
-                invocation.step.intent.task.clone(),
-                TaskEvent::Invocation(
-                    invocation,
-                    InvocationEvent::SummarizeUpdate(
-                        self.signature.clone(),
-                        status,
+                )
+            }
+            RelayOwner::Invocation(invocation) => {
+                SessionEvent::Task(
+                    invocation.step.intent.task.clone(),
+                    TaskEvent::Invocation(
+                        invocation.clone(),
+                        InvocationEvent::SummarizeUpdate(
+                            self.signature().clone(),
+                            status,
+                        ),
                     ),
-                ),
-            )
+                )
+            }
         };
         if self.access.session_tx.send(event).is_err() {
             self.warning(format!(
                 "relay {} event send failed: session stopped",
-                &self.signature,
+                self.signature(),
             ));
         }
     }

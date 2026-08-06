@@ -1,4 +1,3 @@
-use std::convert::Infallible;
 use std::sync::Arc;
 
 use marix_common::{Actor, ActorStatus, Logger, Receiver, Sender, System, build_channel, select};
@@ -42,9 +41,7 @@ impl ExecutorRuntime {
                     let Ok(event) = event else {
                         break;
                     };
-                    if let Err(error) = self.dispatch(event) {
-                        match error {}
-                    }
+                    self.dispatch(event);
                 }
             }
         }
@@ -58,7 +55,7 @@ impl ExecutorRuntime {
         }
     }
 
-    pub fn dispatch(&self, event: ExecutorEvent) -> Result<(), Infallible> {
+    pub fn dispatch(&self, event: ExecutorEvent) {
         match event {
             ExecutorEvent::Continuation(request) => {
                 self.continue_invocation(request);
@@ -73,7 +70,6 @@ impl ExecutorRuntime {
                 self.send_executor_tools();
             }
         }
-        Ok(())
     }
 }
 
@@ -203,11 +199,10 @@ impl ExecutorRuntime {
         invocation: &InvocationSignature,
         invocation_event: InvocationEvent,
     ) {
-        let logger = TaskLogger::from(
-            invocation.step.intent.task.clone(),
-        );
+        let task = invocation.step.intent.task.clone();
+        let logger = TaskLogger::from(task.clone());
         let event = SessionEvent::Task(
-            invocation.step.intent.task.clone(),
+            task,
             TaskEvent::Invocation(
                 invocation.clone(),
                 invocation_event,

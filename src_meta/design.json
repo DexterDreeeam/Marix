@@ -3,9 +3,10 @@
   "module": {
     "path": "src",
     "name": "src",
-    "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and tool packages, including platform-neutral workflow output continuation, level-aware telemetry, and fifteen native tool binaries.",
-    "changeStatus": "unchanged"
+    "purpose": "Defines the Marix Rust workspace and its client, host, server, telemetry, protocol, common, and tool packages, with abort-on-panic development and release profiles.",
+    "changeStatus": "modified"
   },
+  "modified": ["Cargo.toml"],
   "childModules": [
     {
       "path": "src/client",
